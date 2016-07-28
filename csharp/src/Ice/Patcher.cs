@@ -10,18 +10,17 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Diagnostics;
 
 namespace IceInternal
 {
-    public sealed class ParamPatcher<T>
+    public sealed class ParamPatcher<T> where T : Ice.Value
     {
         public ParamPatcher(string type)
         {
             _type = type;
         }
 
-        public void patch(Ice.Object v)
+        public void patch(Ice.Value v)
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
@@ -34,7 +33,7 @@ namespace IceInternal
         private string _type;
     }
 
-    public sealed class CustomSeqPatcher<T>
+    public sealed class CustomSeqPatcher<T> where T : Ice.Value
     {
         public CustomSeqPatcher(string type, IEnumerable<T> seq, int index)
         {
@@ -46,7 +45,7 @@ namespace IceInternal
            setInvokeInfo(_seqType);
         }
 
-        public void patch(Ice.Object v)
+        public void patch(Ice.Value v)
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
@@ -186,7 +185,7 @@ namespace IceInternal
         private int _index; // The index at which to patch the sequence.
     }
 
-    public sealed class ArrayPatcher<T>
+    public sealed class ArrayPatcher<T> where T : Ice.Value
     {
         public ArrayPatcher(string type, T[] seq, int index)
         {
@@ -195,7 +194,7 @@ namespace IceInternal
             _index = index;
         }
 
-        public void patch(Ice.Object v)
+        public void patch(Ice.Value v)
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
@@ -210,7 +209,7 @@ namespace IceInternal
         private int _index; // The index at which to patch the array.
     }
 
-    public sealed class ListPatcher<T>
+    public sealed class ListPatcher<T> where T : Ice.Value
     {
         public ListPatcher(string type, List<T> seq, int index)
         {
@@ -219,7 +218,7 @@ namespace IceInternal
             _index = index;
         }
 
-        public void patch(Ice.Object v)
+        public void patch(Ice.Value v)
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {

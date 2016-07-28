@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class InitialI : Initial
+public sealed class InitialI : InitialDisp_
 {
     public InitialI(Ice.ObjectAdapter adapter)
     {
@@ -74,17 +74,17 @@ public sealed class InitialI : Initial
         return _f;
     }
 
-    public override I getI(Ice.Current current)
+    public override Ice.Value getI(Ice.Current current)
     {
-        return new II();
+        return new HI();
     }
 
-    public override I getJ(Ice.Current current)
+    public override Ice.Value getJ(Ice.Current current)
     {
-        return new JI();
+        return new HI();
     }
 
-    public override I getH(Ice.Current current)
+    public override Ice.Value getH(Ice.Current current)
     {
         return new HI();
     }
@@ -99,7 +99,7 @@ public sealed class InitialI : Initial
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
     }
 
-    public override void setI(I theI, Ice.Current current)
+    public override void setI(Ice.Value theI, Ice.Current current)
     {
     }
 
@@ -114,7 +114,7 @@ public sealed class InitialI : Initial
         return new CompactExt();
     }
 
-    public override void shutdown(Ice.Current current)
+    public override void shutdown(Ice.Current current = null)
     {
         _adapter.getCommunicator().shutdown();
     }

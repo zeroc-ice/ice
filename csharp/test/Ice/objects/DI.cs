@@ -11,16 +11,6 @@ using Test;
 
 public sealed class DI : D
 {
-    public DI()
-    {
-        _postUnmarshalInvoked = false;
-    }
-
-    public override bool postUnmarshalInvoked(Ice.Current current)
-    {
-        return _postUnmarshalInvoked;
-    }
-
     public override void ice_preMarshal()
     {
         preMarshalInvoked = true;
@@ -28,8 +18,6 @@ public sealed class DI : D
 
     public override void ice_postUnmarshal()
     {
-        _postUnmarshalInvoked = true;
+        postUnmarshalInvoked = true;
     }
-
-    private bool _postUnmarshalInvoked;
 }

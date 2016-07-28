@@ -17,7 +17,7 @@ public sealed class TestI : TestIntfDisp_
     {
         if(!b)
         {
-            throw new System.Exception();
+            throw new Exception();
         }
     }
 
@@ -26,7 +26,7 @@ public sealed class TestI : TestIntfDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    public override Ice.Object SBaseAsObject(Ice.Current current)
+    public override Ice.Value SBaseAsObject(Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
@@ -72,14 +72,14 @@ public sealed class TestI : TestIntfDisp_
         return sbsud;
     }
 
-    public override Ice.Object SUnknownAsObject(Ice.Current current)
+    public override Ice.Value SUnknownAsObject(Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
         return su;
     }
 
-    public override void checkSUnknown(Ice.Object obj, Ice.Current current)
+    public override void checkSUnknown(Ice.Value obj, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {

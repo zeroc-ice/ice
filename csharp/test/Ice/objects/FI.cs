@@ -19,7 +19,7 @@ public sealed class FI : F
     {
     }
 
-    public override bool checkValues(Ice.Current current)
+    public bool checkValues()
     {
         return e1 != null && e1 == e2;
     }

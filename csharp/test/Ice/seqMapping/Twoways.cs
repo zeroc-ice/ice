@@ -627,13 +627,13 @@ class Twoways
         }
 
         {
-            Ice.Object[] i = new CV[_length];
+            Ice.Value[] i = new CV[_length];
             for(int c = 0; c < _length; ++c)
             {
                 i[c] = new CV(c);
             }
-            Ice.Object[] o;
-            Ice.Object[] r;
+            Ice.Value[] o;
+            Ice.Value[] r;
 
             r = p.opAObjectS(i, out o);
 
@@ -649,18 +649,18 @@ class Twoways
         }
 
         {
-            List<Ice.Object> i = new List<Ice.Object>(_length);
+            var i = new List<Ice.Value>(_length);
             for(int c = 0; c < _length; ++c)
             {
                 i.Add(new CV(c));
             }
-            List<Ice.Object> o;
-            List<Ice.Object> r;
+            List<Ice.Value> o;
+            List<Ice.Value> r;
 
             r = p.opLObjectS(i, out o);
 
-            IEnumerator<Ice.Object> eo = o.GetEnumerator();
-            IEnumerator<Ice.Object> er = r.GetEnumerator();
+            var eo = o.GetEnumerator();
+            var er = r.GetEnumerator();
             foreach(CV obj in i)
             {
                 eo.MoveNext();

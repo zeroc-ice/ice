@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
@@ -56,7 +55,7 @@ namespace Ice
     /// <summary>
     /// the base interface for servants.
     /// </summary>
-    public interface Object :    System.ICloneable
+    public interface Object : System.ICloneable
     {
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
@@ -90,18 +89,6 @@ namespace Ice
         string ice_id(Current current = null);
 
         /// <summary>
-        /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
-        /// to override this method in order to validate its data members.
-        /// </summary>
-        void ice_preMarshal();
-
-        /// <summary>
-        /// This Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
-        /// subclass to override this method in order to perform additional initialization.
-        /// </summary>
-        void ice_postUnmarshal();
-
-        /// <summary>
         /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
         /// to a servant (or to another interceptor).
         /// </summary>
@@ -120,9 +107,6 @@ namespace Ice
         DispatchStatus ice_dispatch(Request request);
 
         DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
-
-        void write__(OutputStream os__);
-        void read__(InputStream is__);
     }
 
     /// <summary>
@@ -241,22 +225,6 @@ namespace Ice
             return ids__[0];
         }
 
-        /// <summary>
-        /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
-        /// to override this method in order to validate its data members.
-        /// </summary>
-        public virtual void ice_preMarshal()
-        {
-        }
-
-        /// <summary>
-        /// This Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
-        /// subclass to override this method in order to perform additional initialization.
-        /// </summary>
-        public virtual void ice_postUnmarshal()
-        {
-        }
-
         private static readonly string[] all__ = new string[]
         {
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
@@ -332,28 +300,6 @@ namespace Ice
 
             Debug.Assert(false);
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
-        }
-
-        public virtual void write__(OutputStream os__)
-        {
-            os__.startValue(null);
-            writeImpl__(os__);
-            os__.endValue();
-        }
-
-        public virtual void read__(InputStream is__)
-        {
-             is__.startValue();
-             readImpl__(is__);
-             is__.endValue(false);
-        }
-
-        protected virtual void writeImpl__(OutputStream os__)
-        {
-        }
-
-        protected virtual void readImpl__(InputStream is__)
-        {
         }
 
         private static string operationModeToString(OperationMode mode)

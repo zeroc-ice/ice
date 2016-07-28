@@ -11,13 +11,10 @@ namespace Ice
 {
 
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
-    using System.Threading;
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
@@ -264,7 +261,7 @@ namespace Ice
         /// Marks the start of a class instance.
         /// </summary>
         /// <param name="data">Preserved slices for this instance, or null.</param>
-        public void startValue(Ice.SlicedData data)
+        public void startValue(SlicedData data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
@@ -283,7 +280,7 @@ namespace Ice
         /// Marks the start of a user exception.
         /// </summary>
         /// <param name="data">Preserved slices for this exception, or null.</param>
-        public void startException(Ice.SlicedData data)
+        public void startException(SlicedData data)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
             _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, data);
@@ -315,7 +312,7 @@ namespace Ice
             }
             else
             {
-                startEncapsulation(_encoding, Ice.FormatType.DefaultFormat);
+                startEncapsulation(_encoding, FormatType.DefaultFormat);
             }
         }
 
@@ -324,7 +321,7 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encoding version of the encapsulation.</param>
         /// <param name="format">Specify the compact or sliced format.</param>
-        public void startEncapsulation(EncodingVersion encoding, Ice.FormatType format)
+        public void startEncapsulation(EncodingVersion encoding, FormatType format)
         {
             Protocol.checkSupportedEncoding(encoding);
 
@@ -434,7 +431,7 @@ namespace Ice
                 _encapsStack.encoder.writePendingValues();
             }
             else if(_encapsStack != null ?
-                    _encapsStack.encoding_1_0 : _encoding.Equals(Ice.Util.Encoding_1_0))
+                    _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
             {
                 //
                 // If using the 1.0 encoding and no instances were written, we
@@ -524,7 +521,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <param name="format">The optional format of the value.</param>
-        public bool writeOptional(int tag, Ice.OptionalFormat format)
+        public bool writeOptional(int tag, OptionalFormat format)
         {
             Debug.Assert(_encapsStack != null);
             if(_encapsStack.encoder != null)
@@ -552,7 +549,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional byte to write to the stream.</param>
-        public void writeByte(int tag, Ice.Optional<byte> v)
+        public void writeByte(int tag, Optional<byte> v)
         {
             if(v.HasValue)
             {
@@ -567,7 +564,7 @@ namespace Ice
         /// <param name="v">The byte to write to the stream.</param>
         public void writeByte(int tag, byte v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F1))
+            if(writeOptional(tag, OptionalFormat.F1))
             {
                 writeByte(v);
             }
@@ -670,7 +667,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional byte sequence to write to the stream.</param>
-        public void writeByteSeq(int tag, Ice.Optional<byte[]> v)
+        public void writeByteSeq(int tag, Optional<byte[]> v)
         {
             if(v.HasValue)
             {
@@ -684,10 +681,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional byte sequence.</param>
-        public void writeByteSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeByteSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<byte>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeByteSeq(count, v.Value);
             }
@@ -700,7 +697,7 @@ namespace Ice
         /// <param name="v">The byte sequence to write to the stream.</param>
         public void writeByteSeq(int tag, byte[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeByteSeq(v);
             }
@@ -714,7 +711,7 @@ namespace Ice
         /// <param name="v">An enumerator for the byte sequence.</param>
         public void writeByteSeq(int tag, int count, IEnumerable<byte> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeByteSeq(count, v);
             }
@@ -740,7 +737,7 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                throw new Ice.MarshalException("cannot serialize object:", ex);
+                throw new MarshalException("cannot serialize object:", ex);
             }
         }
 
@@ -759,7 +756,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional boolean to write to the stream.</param>
-        public void writeBool(int tag, Ice.Optional<bool> v)
+        public void writeBool(int tag, Optional<bool> v)
         {
             if(v.HasValue)
             {
@@ -774,7 +771,7 @@ namespace Ice
         /// <param name="v">The boolean to write to the stream.</param>
         public void writeBool(int tag, bool v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F1))
+            if(writeOptional(tag, OptionalFormat.F1))
             {
                 writeBool(v);
             }
@@ -877,7 +874,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional boolean sequence to write to the stream.</param>
-        public void writeBoolSeq(int tag, Ice.Optional<bool[]> v)
+        public void writeBoolSeq(int tag, Optional<bool[]> v)
         {
             if(v.HasValue)
             {
@@ -891,10 +888,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional boolean sequence.</param>
-        public void writeBoolSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeBoolSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<bool>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeBoolSeq(count, v.Value);
             }
@@ -907,7 +904,7 @@ namespace Ice
         /// <param name="v">The boolean sequence to write to the stream.</param>
         public void writeBoolSeq(int tag, bool[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeBoolSeq(v);
             }
@@ -921,7 +918,7 @@ namespace Ice
         /// <param name="v">An enumerator for the boolean sequence.</param>
         public void writeBoolSeq(int tag, int count, IEnumerable<bool> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeBoolSeq(count, v);
             }
@@ -942,7 +939,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional short to write to the stream.</param>
-        public void writeShort(int tag, Ice.Optional<short> v)
+        public void writeShort(int tag, Optional<short> v)
         {
             if(v.HasValue)
             {
@@ -957,7 +954,7 @@ namespace Ice
         /// <param name="v">The short to write to the stream.</param>
         public void writeShort(int tag, short v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F2))
+            if(writeOptional(tag, OptionalFormat.F2))
             {
                 writeShort(v);
             }
@@ -1050,7 +1047,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional short sequence to write to the stream.</param>
-        public void writeShortSeq(int tag, Ice.Optional<short[]> v)
+        public void writeShortSeq(int tag, Optional<short[]> v)
         {
             if(v.HasValue)
             {
@@ -1064,10 +1061,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional short sequence.</param>
-        public void writeShortSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeShortSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<short>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
                 writeShortSeq(count, v.Value);
@@ -1081,7 +1078,7 @@ namespace Ice
         /// <param name="v">The short sequence to write to the stream.</param>
         public void writeShortSeq(int tag, short[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
                 writeShortSeq(v);
@@ -1096,7 +1093,7 @@ namespace Ice
         /// <param name="v">An enumerator for the short sequence.</param>
         public void writeShortSeq(int tag, int count, IEnumerable<short> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
                 writeShortSeq(count, v);
@@ -1118,7 +1115,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional int to write to the stream.</param>
-        public void writeInt(int tag, Ice.Optional<int> v)
+        public void writeInt(int tag, Optional<int> v)
         {
             if(v.HasValue)
             {
@@ -1133,7 +1130,7 @@ namespace Ice
         /// <param name="v">The int to write to the stream.</param>
         public void writeInt(int tag, int v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F4))
+            if(writeOptional(tag, OptionalFormat.F4))
             {
                 writeInt(v);
             }
@@ -1236,7 +1233,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional int sequence to write to the stream.</param>
-        public void writeIntSeq(int tag, Ice.Optional<int[]> v)
+        public void writeIntSeq(int tag, Optional<int[]> v)
         {
             if(v.HasValue)
             {
@@ -1250,10 +1247,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional byte sequence.</param>
-        public void writeIntSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeIntSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<int>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeIntSeq(count, v.Value);
@@ -1267,7 +1264,7 @@ namespace Ice
         /// <param name="v">The int sequence to write to the stream.</param>
         public void writeIntSeq(int tag, int[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeIntSeq(v);
@@ -1282,7 +1279,7 @@ namespace Ice
         /// <param name="v">An enumerator for the int sequence.</param>
         public void writeIntSeq(int tag, int count, IEnumerable<int> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeIntSeq(count, v);
@@ -1304,7 +1301,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional long to write to the stream.</param>
-        public void writeLong(int tag, Ice.Optional<long> v)
+        public void writeLong(int tag, Optional<long> v)
         {
             if(v.HasValue)
             {
@@ -1319,7 +1316,7 @@ namespace Ice
         /// <param name="v">The long to write to the stream.</param>
         public void writeLong(int tag, long v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F8))
+            if(writeOptional(tag, OptionalFormat.F8))
             {
                 writeLong(v);
             }
@@ -1412,7 +1409,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional long sequence to write to the stream.</param>
-        public void writeLongSeq(int tag, Ice.Optional<long[]> v)
+        public void writeLongSeq(int tag, Optional<long[]> v)
         {
             if(v.HasValue)
             {
@@ -1426,10 +1423,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional long sequence.</param>
-        public void writeLongSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeLongSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<long>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeLongSeq(count, v.Value);
@@ -1443,7 +1440,7 @@ namespace Ice
         /// <param name="v">The long sequence to write to the stream.</param>
         public void writeLongSeq(int tag, long[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeLongSeq(v);
@@ -1458,7 +1455,7 @@ namespace Ice
         /// <param name="v">An enumerator for the long sequence.</param>
         public void writeLongSeq(int tag, int count, IEnumerable<long> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeLongSeq(count, v);
@@ -1480,7 +1477,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional float to write to the stream.</param>
-        public void writeFloat(int tag, Ice.Optional<float> v)
+        public void writeFloat(int tag, Optional<float> v)
         {
             if(v.HasValue)
             {
@@ -1495,7 +1492,7 @@ namespace Ice
         /// <param name="v">The float to write to the stream.</param>
         public void writeFloat(int tag, float v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F4))
+            if(writeOptional(tag, OptionalFormat.F4))
             {
                 writeFloat(v);
             }
@@ -1588,7 +1585,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional float sequence to write to the stream.</param>
-        public void writeFloatSeq(int tag, Ice.Optional<float[]> v)
+        public void writeFloatSeq(int tag, Optional<float[]> v)
         {
             if(v.HasValue)
             {
@@ -1602,10 +1599,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional float sequence.</param>
-        public void writeFloatSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeFloatSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<float>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeFloatSeq(count, v.Value);
@@ -1619,7 +1616,7 @@ namespace Ice
         /// <param name="v">The float sequence to write to the stream.</param>
         public void writeFloatSeq(int tag, float[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeFloatSeq(v);
@@ -1634,7 +1631,7 @@ namespace Ice
         /// <param name="v">An enumerator for the float sequence.</param>
         public void writeFloatSeq(int tag, int count, IEnumerable<float> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeFloatSeq(count, v);
@@ -1656,7 +1653,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional double to write to the stream.</param>
-        public void writeDouble(int tag, Ice.Optional<double> v)
+        public void writeDouble(int tag, Optional<double> v)
         {
             if(v.HasValue)
             {
@@ -1671,7 +1668,7 @@ namespace Ice
         /// <param name="v">The double to write to the stream.</param>
         public void writeDouble(int tag, double v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.F8))
+            if(writeOptional(tag, OptionalFormat.F8))
             {
                 writeDouble(v);
             }
@@ -1764,7 +1761,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional double sequence to write to the stream.</param>
-        public void writeDoubleSeq(int tag, Ice.Optional<double[]> v)
+        public void writeDoubleSeq(int tag, Optional<double[]> v)
         {
             if(v.HasValue)
             {
@@ -1778,10 +1775,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional double sequence.</param>
-        public void writeDoubleSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeDoubleSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<double>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeDoubleSeq(count, v.Value);
@@ -1795,7 +1792,7 @@ namespace Ice
         /// <param name="v">The double sequence to write to the stream.</param>
         public void writeDoubleSeq(int tag, double[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeDoubleSeq(v);
@@ -1810,7 +1807,7 @@ namespace Ice
         /// <param name="v">An enumerator for the double sequence.</param>
         public void writeDoubleSeq(int tag, int count, IEnumerable<double> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeDoubleSeq(count, v);
@@ -1842,7 +1839,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional string to write to the stream.</param>
-        public void writeString(int tag, Ice.Optional<string> v)
+        public void writeString(int tag, Optional<string> v)
         {
             if(v.HasValue)
             {
@@ -1857,7 +1854,7 @@ namespace Ice
         /// <param name="v">The string to write to the stream.</param>
         public void writeString(int tag, string v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.VSize))
+            if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeString(v);
             }
@@ -1906,7 +1903,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional string sequence to write to the stream.</param>
-        public void writeStringSeq(int tag, Ice.Optional<String[]> v)
+        public void writeStringSeq(int tag, Optional<String[]> v)
         {
             if(v.HasValue)
             {
@@ -1920,10 +1917,10 @@ namespace Ice
         /// <param name="tag">The optional tag.</param>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the optional string sequence.</param>
-        public void writeStringSeq<T>(int tag, int count, Ice.Optional<T> v)
+        public void writeStringSeq<T>(int tag, int count, Optional<T> v)
             where T : IEnumerable<string>
         {
-            if(v.HasValue && writeOptional(tag, Ice.OptionalFormat.FSize))
+            if(v.HasValue && writeOptional(tag, OptionalFormat.FSize))
             {
                 int pos = startSize();
                 writeStringSeq(count, v.Value);
@@ -1938,7 +1935,7 @@ namespace Ice
         /// <param name="v">The string sequence to write to the stream.</param>
         public void writeStringSeq(int tag, string[] v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.FSize))
+            if(writeOptional(tag, OptionalFormat.FSize))
             {
                 int pos = startSize();
                 writeStringSeq(v);
@@ -1954,7 +1951,7 @@ namespace Ice
         /// <param name="v">An enumerator for the string sequence.</param>
         public void writeStringSeq(int tag, int count, IEnumerable<string> v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.FSize))
+            if(writeOptional(tag, OptionalFormat.FSize))
             {
                 int pos = startSize();
                 writeStringSeq(count, v);
@@ -1966,7 +1963,7 @@ namespace Ice
         /// Writes a proxy to the stream.
         /// </summary>
         /// <param name="v">The proxy to write.</param>
-        public void writeProxy(Ice.ObjectPrx v)
+        public void writeProxy(ObjectPrx v)
         {
             if(v != null)
             {
@@ -1984,7 +1981,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional proxy to write.</param>
-        public void writeProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
+        public void writeProxy(int tag, Optional<ObjectPrx> v)
         {
             if(v.HasValue)
             {
@@ -1997,9 +1994,9 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The proxy to write.</param>
-        public void writeProxy(int tag, Ice.ObjectPrx v)
+        public void writeProxy(int tag, ObjectPrx v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.FSize))
+            if(writeOptional(tag, OptionalFormat.FSize))
             {
                 int pos = startSize();
                 writeProxy(v);
@@ -2043,7 +2040,7 @@ namespace Ice
         /// <param name="maxValue">The maximum enumerator value in the definition.</param>
         public void writeEnum(int tag, int v, int maxValue)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.Size))
+            if(writeOptional(tag, OptionalFormat.Size))
             {
                 writeEnum(v, maxValue);
             }
@@ -2054,7 +2051,7 @@ namespace Ice
         /// </summary>
         /// <param name="v">The value to write. This method writes the index of an instance; the state of the value is
         /// written once writePendingValues() is called.</param>
-        public void writeValue(Ice.Object v)
+        public void writeValue(Value v)
         {
             initEncaps();
             _encapsStack.encoder.writeValue(v);
@@ -2065,8 +2062,8 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional value to write.</param>
-        public void writeValue<T>(int tag, Ice.Optional<T> v)
-            where T : Ice.Object
+        public void writeValue<T>(int tag, Optional<T> v)
+            where T : Value
         {
             if(v.HasValue)
             {
@@ -2079,9 +2076,9 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The value to write.</param>
-        public void writeValue(int tag, Ice.Object v)
+        public void writeValue(int tag, Value v)
         {
-            if(writeOptional(tag, Ice.OptionalFormat.Class))
+            if(writeOptional(tag, OptionalFormat.Class))
             {
                 writeValue(v);
             }
@@ -2091,13 +2088,13 @@ namespace Ice
         /// Writes a user exception to the stream.
         /// </summary>
         /// <param name="v">The user exception to write.</param>
-        public void writeException(Ice.UserException v)
+        public void writeException(UserException v)
         {
             initEncaps();
             _encapsStack.encoder.writeException(v);
         }
 
-        private bool writeOptionalImpl(int tag, Ice.OptionalFormat format)
+        private bool writeOptionalImpl(int tag, OptionalFormat format)
         {
             if(isEncoding_1_0())
             {
@@ -2178,18 +2175,18 @@ namespace Ice
                 _stream = stream;
                 _encaps = encaps;
                 _typeIdIndex = 0;
-                _marshaledMap = new Dictionary<Ice.Object, int>();
+                _marshaledMap = new Dictionary<Value, int>();
             }
 
-            internal abstract void writeValue(Ice.Object v);
-            internal abstract void writeException(Ice.UserException v);
+            internal abstract void writeValue(Value v);
+            internal abstract void writeException(UserException v);
 
-            internal abstract void startInstance(SliceType type, Ice.SlicedData data);
+            internal abstract void startInstance(SliceType type, SlicedData data);
             internal abstract void endInstance();
             internal abstract void startSlice(string typeId, int compactId, bool last);
             internal abstract void endSlice();
 
-            internal virtual bool writeOptional(int tag, Ice.OptionalFormat format)
+            internal virtual bool writeOptional(int tag, OptionalFormat format)
             {
                 return false;
             }
@@ -2221,7 +2218,7 @@ namespace Ice
             protected readonly Encaps _encaps;
 
             // Encapsulation attributes for instance marshaling.
-            protected readonly Dictionary<Ice.Object, int> _marshaledMap;
+            protected readonly Dictionary<Value, int> _marshaledMap;
 
             // Encapsulation attributes for instance marshaling.
             private Dictionary<string, int> _typeIdMap;
@@ -2234,10 +2231,10 @@ namespace Ice
             {
                 _sliceType = SliceType.NoSlice;
                 _valueIdIndex = 0;
-                _toBeMarshaledMap = new Dictionary<Ice.Object, int>();
+                _toBeMarshaledMap = new Dictionary<Value, int>();
             }
 
-            internal override void writeValue(Ice.Object v)
+            internal override void writeValue(Value v)
             {
                 //
                 // Object references are encoded as a negative integer in 1.0.
@@ -2252,7 +2249,7 @@ namespace Ice
                 }
             }
 
-            internal override void writeException(Ice.UserException v)
+            internal override void writeException(UserException v)
             {
                 //
                 // User exception with the 1.0 encoding start with a bool
@@ -2271,7 +2268,7 @@ namespace Ice
                 }
             }
 
-            internal override void startInstance(SliceType sliceType, Ice.SlicedData sliceData)
+            internal override void startInstance(SliceType sliceType, SlicedData sliceData)
             {
                 _sliceType = sliceType;
             }
@@ -2283,7 +2280,7 @@ namespace Ice
                     //
                     // Write the Object slice.
                     //
-                    startSlice(Ice.ObjectImpl.ice_staticId(), -1, true);
+                    startSlice(Value.ice_staticId(), -1, true);
                     _stream.writeSize(0); // For compatibility with the old AFM.
                     endSlice();
                 }
@@ -2340,15 +2337,15 @@ namespace Ice
                     // marshalled instances" into _toBeMarshaledMap while writing
                     // instances.
                     //
-                    foreach(KeyValuePair<Ice.Object, int> e in _toBeMarshaledMap)
+                    foreach(var e in _toBeMarshaledMap)
                     {
                         _marshaledMap.Add(e.Key, e.Value);
                     }
 
-                    Dictionary<Ice.Object, int> savedMap = _toBeMarshaledMap;
-                    _toBeMarshaledMap = new Dictionary<Ice.Object, int>();
+                    var savedMap = _toBeMarshaledMap;
+                    _toBeMarshaledMap = new Dictionary<Value, int>();
                     _stream.writeSize(savedMap.Count);
-                    foreach(KeyValuePair<Ice.Object, int> p in savedMap)
+                    foreach(var p in savedMap)
                     {
                         //
                         // Ask the instance to marshal itself. Any new class
@@ -2373,7 +2370,7 @@ namespace Ice
                 _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
             }
 
-            private int registerValue(Ice.Object v)
+            private int registerValue(Value v)
             {
                 Debug.Assert(v != null);
 
@@ -2410,7 +2407,7 @@ namespace Ice
 
             // Encapsulation attributes for instance marshaling.
             private int _valueIdIndex;
-            private Dictionary<Ice.Object, int> _toBeMarshaledMap;
+            private Dictionary<Value, int> _toBeMarshaledMap;
         }
 
         private sealed class EncapsEncoder11 : EncapsEncoder
@@ -2421,18 +2418,18 @@ namespace Ice
                 _valueIdIndex = 1;
             }
 
-            internal override void writeValue(Ice.Object v)
+            internal override void writeValue(Value v)
             {
                 if(v == null)
                 {
                     _stream.writeSize(0);
                 }
-                else if(_current != null && _encaps.format == Ice.FormatType.SlicedFormat)
+                else if(_current != null && _encaps.format == FormatType.SlicedFormat)
                 {
                     if(_current.indirectionTable == null)
                     {
-                        _current.indirectionTable = new List<Ice.Object>();
-                        _current.indirectionMap = new Dictionary<Ice.Object, int>();
+                        _current.indirectionTable = new List<Value>();
+                        _current.indirectionMap = new Dictionary<Value, int>();
                     }
 
                     //
@@ -2458,12 +2455,12 @@ namespace Ice
                 }
             }
 
-            internal override void writeException(Ice.UserException v)
+            internal override void writeException(UserException v)
             {
                 v.write__(_stream);
             }
 
-            internal override void startInstance(SliceType sliceType, Ice.SlicedData data)
+            internal override void startInstance(SliceType sliceType, SlicedData data)
             {
                 if(_current == null)
                 {
@@ -2495,7 +2492,7 @@ namespace Ice
                 _current.sliceFlagsPos = _stream.pos();
 
                 _current.sliceFlags = (byte)0;
-                if(_encaps.format == Ice.FormatType.SlicedFormat)
+                if(_encaps.format == FormatType.SlicedFormat)
                 {
                     //
                     // Encode the slice size if using the sliced format.
@@ -2520,7 +2517,7 @@ namespace Ice
                     // Encode the type ID (only in the first slice for the compact
                     // encoding).
                     //
-                    if(_encaps.format == Ice.FormatType.SlicedFormat || _current.firstSlice)
+                    if(_encaps.format == FormatType.SlicedFormat || _current.firstSlice)
                     {
                         if(compactId >= 0)
                         {
@@ -2583,14 +2580,14 @@ namespace Ice
                 //
                 if(_current.indirectionTable != null && _current.indirectionTable.Count > 0)
                 {
-                    Debug.Assert(_encaps.format == Ice.FormatType.SlicedFormat);
+                    Debug.Assert(_encaps.format == FormatType.SlicedFormat);
                     _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
                     //
                     // Write the indirect instance table.
                     //
                     _stream.writeSize(_current.indirectionTable.Count);
-                    foreach(Ice.Object v in _current.indirectionTable)
+                    foreach(var v in _current.indirectionTable)
                     {
                         writeInstance(v);
                     }
@@ -2604,7 +2601,7 @@ namespace Ice
                 _stream.rewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
             }
 
-            internal override bool writeOptional(int tag, Ice.OptionalFormat format)
+            internal override bool writeOptional(int tag, OptionalFormat format)
             {
                 if(_current == null)
                 {
@@ -2624,7 +2621,7 @@ namespace Ice
                 }
             }
 
-            private void writeSlicedData(Ice.SlicedData slicedData)
+            private void writeSlicedData(SlicedData slicedData)
             {
                 Debug.Assert(slicedData != null);
 
@@ -2634,12 +2631,12 @@ namespace Ice
                 // essentially "slices" the instance into the most-derived type
                 // known by the sender.
                 //
-                if(_encaps.format != Ice.FormatType.SlicedFormat)
+                if(_encaps.format != FormatType.SlicedFormat)
                 {
                     return;
                 }
 
-                foreach(Ice.SliceInfo info in slicedData.slices)
+                foreach(var info in slicedData.slices)
                 {
                     startSlice(info.typeId, info.compactId, info.isLastSlice);
 
@@ -2660,10 +2657,10 @@ namespace Ice
                     {
                         if(_current.indirectionTable == null)
                         {
-                            _current.indirectionTable = new List<Ice.Object>();
-                            _current.indirectionMap = new Dictionary<Ice.Object, int>();
+                            _current.indirectionTable = new List<Value>();
+                            _current.indirectionMap = new Dictionary<Value, int>();
                         }
-                        foreach(Ice.Object o in info.instances)
+                        foreach(var o in info.instances)
                         {
                             _current.indirectionTable.Add(o);
                         }
@@ -2673,7 +2670,7 @@ namespace Ice
                 }
             }
 
-            private void writeInstance(Ice.Object v)
+            private void writeInstance(Value v)
             {
                 Debug.Assert(v != null);
 
@@ -2727,8 +2724,8 @@ namespace Ice
                 internal byte sliceFlags;
                 internal int writeSlice;    // Position of the slice data members
                 internal int sliceFlagsPos; // Position of the slice flags
-                internal List<Ice.Object> indirectionTable;
-                internal Dictionary<Ice.Object, int> indirectionMap;
+                internal List<Value> indirectionTable;
+                internal Dictionary<Value, int> indirectionMap;
 
                 internal InstanceData previous;
                 internal InstanceData next;
@@ -2749,13 +2746,13 @@ namespace Ice
             internal void setEncoding(EncodingVersion encoding)
             {
                 this.encoding = encoding;
-                encoding_1_0 = encoding.Equals(Ice.Util.Encoding_1_0);
+                encoding_1_0 = encoding.Equals(Util.Encoding_1_0);
             }
 
             internal int start;
             internal EncodingVersion encoding;
             internal bool encoding_1_0;
-            internal Ice.FormatType format = Ice.FormatType.DefaultFormat;
+            internal FormatType format = FormatType.DefaultFormat;
 
             internal EncapsEncoder encoder;
 
@@ -2772,7 +2769,7 @@ namespace Ice
 
         private bool isEncoding_1_0()
         {
-            return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Ice.Util.Encoding_1_0);
+            return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
         }
 
         private Encaps _encapsStack;
@@ -2794,7 +2791,7 @@ namespace Ice
                 _encapsStack.setEncoding(_encoding);
             }
 
-            if(_encapsStack.format == Ice.FormatType.DefaultFormat)
+            if(_encapsStack.format == FormatType.DefaultFormat)
             {
                 _encapsStack.format = instance_.defaultsAndOverrides().defaultFormat;
             }
@@ -2816,7 +2813,7 @@ namespace Ice
     /// <summary>
     /// Base class for writing class instances to an output stream.
     /// </summary>
-    public abstract class ValueWriter : ObjectImpl
+    public abstract class ValueWriter : Value
     {
         /// <summary>
         /// Writes the state of this Slice class instance to an output stream.

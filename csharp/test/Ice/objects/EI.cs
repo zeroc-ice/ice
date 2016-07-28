@@ -15,7 +15,7 @@ public sealed class EI : E
     {
     }
 
-    public override bool checkValues(Ice.Current current)
+    public bool checkValues()
     {
         return i == 1 && s.Equals("hello");
     }

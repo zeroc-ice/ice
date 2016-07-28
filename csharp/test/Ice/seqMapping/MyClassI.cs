@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using Test;
 
-public sealed class MyClassI : Test.MyClass
+public sealed class MyClassI : Test.MyClassDisp_
 {
     public override void shutdown(Ice.Current current)
     {
@@ -257,13 +257,13 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override Ice.Object[] opAObjectS(Ice.Object[] i, out Ice.Object[] o, Ice.Current current)
+    public override Ice.Value[] opAObjectS(Ice.Value[] i, out Ice.Value[] o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override List<Ice.Object> opLObjectS(List<Ice.Object> i, out List<Ice.Object> o, Ice.Current current)
+    public override List<Ice.Value> opLObjectS(List<Ice.Value> i, out List<Ice.Value> o, Ice.Current current)
     {
         o = i;
         return i;

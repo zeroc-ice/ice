@@ -67,13 +67,13 @@ public class AllTests : TestCommon.TestApp
         internal static int counter = 0;
     }
 
-    private static Ice.Object PreservedFactoryI(string id)
+    private static Ice.Value PreservedFactoryI(string id)
     {
         if(id.Equals(Preserved.ice_staticId()))
-            {
-                return new PreservedI();
-            }
-            return null;
+        {
+            return new PreservedI();
+        }
+        return null;
     }
 
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
@@ -94,7 +94,7 @@ public class AllTests : TestCommon.TestApp
         Write("base as Object... ");
         Flush();
         {
-            Ice.Object o;
+            Ice.Value o;
             SBase sb = null;
             try
             {
@@ -117,7 +117,7 @@ public class AllTests : TestCommon.TestApp
         {
             Callback cb = new Callback();
             testPrx.begin_SBaseAsObject().whenCompleted(
-                (Ice.Object o) =>
+                (Ice.Value o) =>
                 {
                     test(o != null);
                     test(o.ice_id().Equals("::Test::SBase"));
@@ -133,7 +133,7 @@ public class AllTests : TestCommon.TestApp
             cb.check();
         }
         {
-            Ice.Object o = testPrx.SBaseAsObjectAsync().Result;
+            Ice.Value o = testPrx.SBaseAsObjectAsync().Result;
             test(o != null);
             test(o.ice_id().Equals("::Test::SBase"));
             SBase sb = (SBase)o;
@@ -396,7 +396,7 @@ public class AllTests : TestCommon.TestApp
         {
             try
             {
-                Ice.Object o = testPrx.SUnknownAsObject();
+                Ice.Value o = testPrx.SUnknownAsObject();
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
                 test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
@@ -423,7 +423,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     {
                         testPrx.begin_SUnknownAsObject().whenCompleted(
-                            (Ice.Object o) =>
+                            (Ice.Value o) =>
                             {
                                 test(false);
                             },
@@ -454,7 +454,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     {
                         testPrx.begin_SUnknownAsObject().whenCompleted(
-                            (Ice.Object o) =>
+                            (Ice.Value o) =>
                             {
                                 test(o is Ice.UnknownSlicedValue);
                                 test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));

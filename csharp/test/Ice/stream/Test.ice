@@ -134,10 +134,6 @@ class MyClass
     SerialSmall ss;
 };
 
-interface MyInterface
-{
-};
-
 exception MyException
 {
     MyClass c;

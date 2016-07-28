@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class JI : JDisp_
+public sealed class JI : Ice.Value
 {
 }

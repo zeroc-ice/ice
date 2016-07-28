@@ -11,16 +11,6 @@ using Test;
 
 public sealed class CI : C
 {
-    public CI()
-    {
-        _postUnmarshalInvoked = false;
-    }
-
-    public override bool postUnmarshalInvoked(Ice.Current current)
-    {
-        return _postUnmarshalInvoked;
-    }
-
     public override void ice_preMarshal()
     {
         preMarshalInvoked = true;
@@ -28,8 +18,6 @@ public sealed class CI : C
 
     public override void ice_postUnmarshal()
     {
-        _postUnmarshalInvoked = true;
+        postUnmarshalInvoked = true;
     }
-
-    private bool _postUnmarshalInvoked;
 }

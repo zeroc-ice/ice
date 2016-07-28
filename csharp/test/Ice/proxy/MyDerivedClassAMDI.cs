@@ -11,7 +11,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClass
+public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 {
     public MyDerivedClassI()
     {

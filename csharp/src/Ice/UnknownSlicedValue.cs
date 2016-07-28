@@ -12,7 +12,7 @@ namespace Ice
     /// <summary>
     /// Unknown sliced value holds an instance of an unknown Slice class type.
     /// </summary>
-    public sealed class UnknownSlicedValue : ObjectImpl
+    public sealed class UnknownSlicedValue : Value
     {
         /// <summary>
         /// Represents an instance of a Slice class type having the given Slice type.

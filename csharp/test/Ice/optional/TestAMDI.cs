@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class InitialI : Test.Initial
+public class InitialI : Test.InitialDisp_
 {
     public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
@@ -19,7 +19,7 @@ public class InitialI : Test.Initial
         response();
     }
 
-    public override void pingPongAsync(Ice.Object obj, Action<Ice.Object> response, 
+    public override void pingPongAsync(Ice.Value obj, Action<Ice.Value> response, 
                                        Action<Exception> exception, Ice.Current current)
     {
         response(obj);

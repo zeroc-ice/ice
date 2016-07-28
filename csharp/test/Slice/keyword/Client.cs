@@ -36,7 +36,7 @@ public class Client
         }
     }
 
-    public sealed class delegateI : @abstract.@delegate
+    public sealed class delegateI : @abstract.delegateDisp_
     {
         public override void foo(@abstract.casePrx @else, out int @event, Ice.Current current__)
         {
@@ -44,7 +44,7 @@ public class Client
         }
     }
 
-    public sealed class explicitI : @abstract.@explicit
+    public sealed class explicitI : @abstract.explicitDisp_
     {
         public override void
         catchAsync(int @checked, Action<int> response, Action<Exception> exception, Ice.Current current__)
@@ -112,11 +112,11 @@ public class Client
             d1.@default();
         }
         test(d1 == null);
-        @abstract.@delegate e = new delegateI();
+        @abstract.@delegate e = new @abstract.@delegate();
         test(e != null);
         @abstract.@delegatePrx e1 = null;
         test(e1 == null);
-        @abstract.@explicit f = new explicitI();
+        @abstract.@explicit f = new @abstract.@explicit();
         test(f != null);
         @abstract.@explicitPrx f1 = null;
         if(f1 != null)

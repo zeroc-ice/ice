@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections.Generic;
-using Test;
 
-public sealed class MyClassI : Test.MyClass
+public sealed class MyClassI : Test.MyClassDisp_
 {
     public override void shutdown(Ice.Current current)
     {

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System;
 using Test;
 
-public sealed class MyClassI : MyClass
+public sealed class MyClassI : MyClassDisp_
 {
     public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class CAI : Test.MA.CA
+public sealed class CAI : Test.MA.CADisp_
 {
     public CAI()
     {

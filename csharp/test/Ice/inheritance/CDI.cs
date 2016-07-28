@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class CDI : Test.MA.CD
+public sealed class CDI : Test.MA.CDDisp_
 {
     public CDI()
     {

@@ -190,8 +190,7 @@ namespace Ice
     /// <summary>
     /// Handles callbacks for an optional object parameter.
     /// </summary>
-    public class OptionalPatcher<T>
-        where T : Ice.Object
+    public class OptionalPatcher<T> where T : Ice.Value
     {
         /// <summary>
         /// Instantiates the class with the given optional.
@@ -206,7 +205,7 @@ namespace Ice
         /// Sets the Ice object of the optional to the passed instance.
         /// </summary>
         /// <param name="v">The new object for the optional.</param>
-        public void patch(Ice.Object v)
+        public void patch(Ice.Value v)
         {
             if(v == null || typeof(T).IsAssignableFrom(v.GetType()))
             {

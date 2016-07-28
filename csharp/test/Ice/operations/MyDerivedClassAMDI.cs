@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 using Test;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClass
+public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 {
     private static void test(bool b)
     {

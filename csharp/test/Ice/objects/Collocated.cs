@@ -23,7 +23,7 @@ public class Client
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Initial initial = new InitialI(adapter);
+        var initial = new InitialI(adapter);
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI uet = new UnexpectedObjectExceptionTestI();
         adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
@@ -40,7 +40,7 @@ public class Client
 
         try
         {
-            Ice.InitializationData data = new Ice.InitializationData();
+            var data = new Ice.InitializationData();
             communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }

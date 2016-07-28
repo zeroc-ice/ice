@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class CBI : Test.MB.CB
+public sealed class CBI : Test.MB.CBDisp_
 {
     public CBI()
     {

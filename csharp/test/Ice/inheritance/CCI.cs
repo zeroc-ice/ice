@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class CCI : Test.MA.CC
+public sealed class CCI : Test.MA.CCDisp_
 {
     public CCI()
     {

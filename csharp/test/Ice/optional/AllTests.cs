@@ -566,7 +566,7 @@ public class AllTests : TestCommon.TestApp
                 factory.setEnabled(true);
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
-                Ice.Object d = new DValueWriter();
+                Ice.Value d = new DValueWriter();
                 os.writeValue(d);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -2499,7 +2499,7 @@ public class AllTests : TestCommon.TestApp
 
     private class FactoryI
     {
-        public Ice.Object create(string typeId)
+        public Ice.Value create(string typeId)
         {
             if(!_enabled)
             {
@@ -2544,11 +2544,11 @@ public class AllTests : TestCommon.TestApp
 
     private class ReadValueCallbackI
     {
-        public void invoke(Ice.Object obj)
+        public void invoke(Ice.Value obj)
         {
             this.obj = obj;
         }
 
-        internal Ice.Object obj;
+        internal Ice.Value obj;
     }
 }

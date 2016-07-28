@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public sealed class MyClassI : MyClass
+public sealed class MyClassI : MyClassDisp_
 {
     public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
     {
@@ -295,14 +295,14 @@ public sealed class MyClassI : MyClass
         response(new MyClass_OpSStringSResult(i, i));
     }
 
-    public override void opAObjectSAsync(Ice.Object[] i, Action<MyClass_OpAObjectSResult> response, Action<Exception> exception,
+    public override void opAObjectSAsync(Ice.Value[] i, Action<MyClass_OpAObjectSResult> response, Action<Exception> exception,
                                          Ice.Current current)
     {
         response(new MyClass_OpAObjectSResult(i, i));
     }
 
     public override void
-    opLObjectSAsync(List<Ice.Object> i, Action<MyClass_OpLObjectSResult> response, Action<Exception> exception,
+    opLObjectSAsync(List<Ice.Value> i, Action<MyClass_OpLObjectSResult> response, Action<Exception> exception,
                     Ice.Current current)
     {
         response(new MyClass_OpLObjectSResult(i, i));

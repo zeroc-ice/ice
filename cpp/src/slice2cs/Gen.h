@@ -31,7 +31,8 @@ protected:
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
-    virtual void writeDispatchAndMarshalling(const ClassDefPtr&);
+    virtual void writeDispatch(const ClassDefPtr&);
+    virtual void writeMarshaling(const ClassDefPtr&);
     virtual std::vector<std::string> getParams(const OperationPtr&);
     virtual std::vector<std::string> getParamsAsync(const OperationPtr&);
     virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool, bool);
@@ -196,9 +197,6 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-        void writeOperations(const ClassDefPtr&, bool);
     };
 
     class HelperVisitor : public CsVisitor

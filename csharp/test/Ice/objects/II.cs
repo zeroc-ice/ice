@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class II : IDisp_
+public sealed class II : Ice.Value
 {
 }

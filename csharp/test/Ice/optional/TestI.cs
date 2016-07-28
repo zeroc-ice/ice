@@ -10,14 +10,14 @@
 using System;
 using System.Collections.Generic;
 
-public class InitialI : Test.Initial
+public class InitialI : Test.InitialDisp_
 {
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
-    public override Ice.Object pingPong(Ice.Object obj, Ice.Current current)
+    public override Ice.Value pingPong(Ice.Value obj, Ice.Current current)
     {
         return obj;
     }

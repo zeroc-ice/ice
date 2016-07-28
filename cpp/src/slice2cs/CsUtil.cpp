@@ -243,7 +243,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 
     if(b)
     {
-        return "Ice.ObjectImpl.ice_staticId()";
+        return "Ice.Value.ice_staticId()";
     }
     else if(cl->isInterface())
     {
@@ -258,7 +258,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
+Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
 {
     if(!type)
     {
@@ -267,10 +267,10 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
 
     if(optional)
     {
-        return "Ice.Optional<" + typeToString(type, false) + ">";
+        return "Ice.Optional<" + typeToString(type, false, local) + ">";
     }
 
-    static const char* builtinTable[] =
+    static const char* localBuiltinTable[] =
     {
         "byte",
         "bool",
@@ -283,13 +283,42 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
         "Ice.Object",
         "Ice.ObjectPrx",
         "_System.Object",
-        "Ice.Object" // Ice.Value
+        "Ice.Value"
+    };
+
+    static const char* builtinTable[] =
+    {
+        "byte",
+        "bool",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "string",
+        "Ice.Value",
+        "Ice.ObjectPrx",
+        "_System.Object",
+        "Ice.Value"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinTable[builtin->kind()];
+        return local ? localBuiltinTable[builtin->kind()] : builtinTable[builtin->kind()];
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        if(cl->isInterface() && !local)
+        {
+            return "Ice.Value";
+        }
+        else
+        {
+            return fixId(cl->scoped());
+        }
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
@@ -308,11 +337,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
             string type = meta.substr(prefix.size());
             if(type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
             {
-                return "_System.Collections.Generic." + type + "<" + typeToString(seq->type()) + ">";
+                return "_System.Collections.Generic." + type + "<" + typeToString(seq->type(), optional, local) + ">";
             }
             else
             {
-                return "global::" + type + "<" + typeToString(seq->type()) + ">";
+                return "global::" + type + "<" + typeToString(seq->type(), optional, local) + ">";
             }
         }
 
@@ -323,7 +352,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
             return "global::" + type;
         }
 
-        return typeToString(seq->type()) + "[]";
+        return typeToString(seq->type(), optional, local) + "[]";
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
@@ -341,7 +370,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional)
             typeName = "Dictionary";
         }
         return "_System.Collections.Generic." + typeName
-                + "<" + typeToString(d->keyType()) + ", " + typeToString(d->valueType()) + ">";
+                + "<" + typeToString(d->keyType(), optional, local) + ", " + typeToString(d->valueType(), optional, local) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -357,9 +386,9 @@ ParamDeclList
 Slice::CsGenerator::getInParams(const ParamDeclList& params)
 {
     ParamDeclList inParams;
-    for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
     {
-        if (!(*i)->isOutParam())
+        if(!(*i)->isOutParam())
         {
             inParams.push_back(*i);
         }
@@ -371,9 +400,9 @@ ParamDeclList
 Slice::CsGenerator::getOutParams(const ParamDeclList& params)
 {
     ParamDeclList outParams;
-    for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
     {
-        if ((*i)->isOutParam())
+        if((*i)->isOutParam())
         {
             outParams.push_back(*i);
         }
@@ -399,21 +428,22 @@ Slice::CsGenerator::asyncResultType(const OperationPtr& op, const string& type)
 {
     string t = type;
     ParamDeclList outParams = getOutParams(op->parameters());
-    if (op->returnType() || !outParams.empty())
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
+    if(op->returnType() || !outParams.empty())
     {
         t += "<";
-        if (outParams.empty())
+        if(outParams.empty())
         {
-            t += typeToString(op->returnType(), op->returnIsOptional());
+            t += typeToString(op->returnType(), op->returnIsOptional(), cl->isLocal());
         }
-        else if (op->returnType() || outParams.size() > 1)
+        else if(op->returnType() || outParams.size() > 1)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
             t += resultStructName(cl->name(), op->name(), fixId(cl->scope()));
         }
         else
         {
-            t += typeToString(outParams.front()->type(), outParams.front()->optional());
+            t += typeToString(outParams.front()->type(), outParams.front()->optional(), cl->isLocal());
         }
         t += ">";
     }
@@ -1205,15 +1235,15 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         if(isArray)
                         {
-                            out << "Ice.Object[" << param << "_lenx];";
+                            out << "Ice.Value[" << param << "_lenx];";
                         }
                         else if(isCustom)
                         {
-                            out << "global::" << genericType << "<Ice.Object>();";
+                            out << "global::" << genericType << "<Ice.Value>();";
                         }
                         else if(isGeneric)
                         {
-                            out << "_System.Collections.Generic." << genericType << "<Ice.Object>(";
+                            out << "_System.Collections.Generic." << genericType << "<Ice.Value>(";
                             if(!isLinkedList)
                             {
                                 out << param << "_lenx";
@@ -1243,8 +1273,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             patcherName = "Sequence";
                         }
-                        out << nl << "IceInternal." << patcherName << "Patcher<Ice.Object> p__ = new IceInternal."
-                            << patcherName << "Patcher<Ice.Object>(\"::Ice::Object\", " << param << ", ix__);";
+                        out << nl << "IceInternal." << patcherName << "Patcher<Ice.Value> p__ = new IceInternal."
+                            << patcherName << "Patcher<Ice.Value>(\"::Ice::Object\", " << param << ", ix__);";
                         out << nl << stream << ".readValue(p__.patch);";
                     }
                     else

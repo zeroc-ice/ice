@@ -95,7 +95,7 @@ namespace Ice
 
             if(printAdapterReady)
             {
-                System.Console.Out.WriteLine(_name + " ready");
+                Console.Out.WriteLine(_name + " ready");
             }
 
             lock(this)

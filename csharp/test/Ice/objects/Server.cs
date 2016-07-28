@@ -19,7 +19,7 @@ using System.Reflection;
 
 public class Server
 {
-    public static Ice.Object MyValueFactory(string type)
+    public static Ice.Value MyValueFactory(string type)
     {
         if(type.Equals("::Test::I"))
         {

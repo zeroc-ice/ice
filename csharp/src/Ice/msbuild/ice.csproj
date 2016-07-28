@@ -335,6 +335,9 @@
     <Compile Include="..\Util.cs">
       <Link>Util.cs</Link>
     </Compile>
+    <Compile Include="..\Value.cs">
+      <Link>Value.cs</Link>
+    </Compile>
     <Compile Include="..\ValueFactoryManager.cs">
       <Link>ValueFactoryManager.cs</Link>
     </Compile>

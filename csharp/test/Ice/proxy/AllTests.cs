@@ -272,7 +272,7 @@ public class AllTests : TestCommon.TestApp
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
 
-        String property;
+        string property;
 
         property = propertyPrefix + ".Locator";
         test(b1.ice_getLocator() == null);
@@ -281,11 +281,11 @@ public class AllTests : TestCommon.TestApp
         test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
         try
         {
-                prop.setProperty(property, "");
+            prop.setProperty(property, "");
         }
         catch(Exception ex)
         {
-                Console.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
         property = propertyPrefix + ".LocatorCacheTimeout";
         test(b1.ice_getLocatorCacheTimeout() == -1);

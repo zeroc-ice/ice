@@ -145,7 +145,6 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
     }
 }
 
-
 string
 getAsyncTaskParamName(ParamDeclList params, const string& name)
 {
@@ -416,7 +415,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
                 _out << sp << nl << "public abstract void " << " " << (*i)->name() << "Async" << spar
                      << getParamsAsync(*i) << (asyncResultType(*i, "_System.Action") + " response_")
                      << "_System.Action<_System.Exception> exception_" << "Ice.Current current__ = null"
-					 << epar << ';';
+                     << epar << ';';
             }
             else
             {
@@ -431,7 +430,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
 }
 
 void
-Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
+Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
     string scoped = p->scoped();
@@ -459,15 +458,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    if(p->isInterface() || hasBaseClass) {
-        _out << nl << "public static new readonly string[] ids__ = ";
-    }
-    else
-    {
-        _out << nl << "public static readonly string[] ids__ = ";
-    }
+    
+    _out << nl << "public static new readonly string[] ids__ = ";
     _out << sb;
-
     {
         StringList::const_iterator q = ids.begin();
         while(q != ids.end())
@@ -481,37 +474,22 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     }
     _out << eb << ";";
 
-    string qualifier = "override ";
-    if(!p->isInterface() && !hasBaseClass)
-	{
-        qualifier = "virtual ";
-    }
-
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public " << qualifier << "bool ice_isA(string s, Ice.Current current__ = null)";
+    _out << nl << "public override bool ice_isA(string s, Ice.Current current__ = null)";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
-    if(!p->isInterface() && !hasBaseClass)
-	{
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual void ice_ping(Ice.Current current__ = null)";
-        _out << sb;
-        _out << eb;
-    }
-
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public " << qualifier << "string[] ice_ids(Ice.Current current__ = null)";
+    _out << nl << "public override string[] ice_ids(Ice.Current current__ = null)";
     _out << sb;
     _out << nl << "return ids__;";
     _out << eb;
@@ -521,7 +499,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public " << qualifier << "string ice_id(Ice.Current current__ = null)";
+    _out << nl << "public override string ice_id(Ice.Current current__ = null)";
     _out << sb;
     _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
@@ -531,14 +509,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    if(p->isInterface() || hasBaseClass)
-	{
-        _out << nl << "public static new string ice_staticId()";
-    }
-    else
-    {
-        _out << nl << "public static string ice_staticId()";
-    }
+
+    _out << nl << "public static new string ice_staticId()";
     _out << sb;
     _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
@@ -546,43 +518,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     _out << sp << nl << "#endregion"; // Slice type-related members
 
     OperationList ops = p->operations();
-    if(!p->isInterface() || ops.size() != 0)
+    if(ops.size() != 0)
     {
         _out << sp << nl << "#region Operation dispatch";
-    }
-
-    if(!p->isInterface() && !hasBaseClass)
-	{
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual Ice.DispatchStatus ice_dispatch(Ice.Request request, "
-             << "Ice.DispatchInterceptorAsyncCallback cb)";
-        _out << sb;
-        _out << nl << "var inc = (IceInternal.Incoming)request;";
-        _out << nl << "if(cb != null)";
-        _out << sb;
-        _out << nl << "inc.push(cb);";
-        _out << eb;
-        _out << nl << "try";
-        _out << sb;
-        _out << nl << "inc.startOver();";
-        _out << nl << "return dispatch__(inc, inc.getCurrent());";
-        _out << eb;
-        _out << nl << "finally";
-        _out << sb;
-        _out << nl << "if(cb != null)";
-        _out << sb;
-        _out << nl << "inc.pop();";
-        _out << eb;
-        _out << eb;
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual Ice.DispatchStatus ice_dispatch(Ice.Request request)";
-        _out << sb;
-        _out << nl << "return ice_dispatch(request, null);";
-        _out << eb;
     }
 
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -600,6 +538,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             emitGeneratedCodeAttribute();
         }
         _out << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
+             << (p->isInterface() ? "" : "Disp_")
              << " obj__, IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
 
@@ -716,7 +655,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             if(!outParams.empty() || ret)
             {
                 _out << nl << "var os__ = inS__.startWriteParams__("
-                     << opFormatTypeToString(op) << ");";
+                    << opFormatTypeToString(op) << ");";
                 writeMarshalUnmarshalParams(outParams, op, true);
                 if(op->returnsClasses(false))
                 {
@@ -881,7 +820,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
                 _out << eb << ",";
             }
 
-            if(throws.empty())
+            if (throws.empty())
             {
                 _out << nl << "in__.ice_exception,";
             }
@@ -938,11 +877,11 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public " << qualifier << "Ice.DispatchStatus "
-             << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
+        _out << nl << "public override Ice.DispatchStatus "
+            << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
         _out << nl << "int pos = _System.Array.BinarySearch(all__, current__.operation, "
-             << "IceUtilInternal.StringUtil.OrdinalStringComparer);";
+            << "IceUtilInternal.StringUtil.OrdinalStringComparer);";
         _out << nl << "if(pos < 0)";
         _out << sb;
         _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
@@ -990,12 +929,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
                         }
                         else
                         {
-                            string base = cl->scoped();
-                            if(cl->isInterface())
-                            {
-                                base += "Disp_";
-                            }
-                            _out << nl << "return " << fixId(base) << "." << opName << "___(this, inS__, current__);";
+                            _out << nl << "return " << fixId(cl->scoped() + "Disp_") << "." << opName << "___(this, inS__, current__);";
                         }
                         break;
                     }
@@ -1009,10 +943,32 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         _out << eb;
     }
 
-    if(!p->isInterface() || ops.size() != 0)
+    if(ops.size() != 0)
     {
         _out << sp << nl << "#endregion"; // Operation dispatch
     }
+}
+
+void
+Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
+{
+    string name = fixId(p->name());
+    string scoped = p->scoped();
+    ClassList allBases = p->allBases();
+    StringList ids;
+    ClassList bases = p->bases();
+
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+    StringList other;
+    other.push_back(p->scoped());
+    other.push_back("::Ice::Value");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
+    assert(scopedIter != ids.end());
 
     //
     // Marshalling support
@@ -1032,21 +988,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
 
     _out << sp << nl << "#region Marshaling support";
 
-    if(!p->isInterface() && !hasBaseClass)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual void ice_preMarshal()";
-        _out << sb;
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual void ice_postUnmarshal()";
-        _out << sb;
-        _out << eb;
-    }
-
     if(preserved && !basePreserved)
     {
         _out << sp;
@@ -1055,7 +996,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             emitGeneratedCodeAttribute();
         }
 
-        _out << nl << "public " << qualifier << "void write__(Ice.OutputStream os__)";
+        _out << nl << "public override void write__(Ice.OutputStream os__)";
         _out << sb;
         _out << nl << "os__.startValue(slicedData__);";
         _out << nl << "writeImpl__(os__);";
@@ -1067,31 +1008,11 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public " << qualifier << "void read__(Ice.InputStream is__)";
+        _out << nl << "public override void read__(Ice.InputStream is__)";
         _out << sb;
         _out << nl << "is__.startValue();";
         _out << nl << "readImpl__(is__);";
         _out << nl << "slicedData__ = is__.endValue(true);";
-        _out << eb;
-    }
-    else if(!p->isInterface() && !hasBaseClass)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual void write__(Ice.OutputStream os__)";
-        _out << sb;
-        _out << nl << "os__.startValue(null);";
-        _out << nl << "writeImpl__(os__);";
-        _out << nl << "os__.endValue();";
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public virtual void read__(Ice.InputStream is__)";
-        _out << sb;
-        _out << nl << "is__.startValue();";
-        _out << nl << "readImpl__(is__);";
-        _out << nl << "is__.endValue(false);";
         _out << eb;
     }
 
@@ -1100,7 +1021,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected " << qualifier << "void writeImpl__(Ice.OutputStream os__)";
+    _out << nl << "protected override void writeImpl__(Ice.OutputStream os__)";
     _out << sb;
     _out << nl << "os__.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1135,14 +1056,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         }
         _out << "class Patcher__";
         _out << sb;
-        if(p->isInterface())
-        {
-            _out << sp << nl << "internal Patcher__(string type, Ice.ObjectImpl instance";
-        }
-        else
-        {
-            _out << sp << nl << "internal Patcher__(string type, Ice.Object instance";
-        }
+        _out << sp << nl << "internal Patcher__(string type, Ice.Value instance";
 
         if(classMembers.size() > 1)
         {
@@ -1158,7 +1072,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         }
         _out << eb;
 
-        _out << sp << nl << "public void patch(Ice.Object v)";
+        _out << sp << nl << "public void patch(Ice.Value v)";
         _out << sb;
         _out << nl << "try";
         _out << sb;
@@ -1270,7 +1184,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected " << qualifier << "void readImpl__(Ice.InputStream is__)";
+    _out << nl << "protected override void readImpl__(Ice.InputStream is__)";
     _out << sb;
     _out << nl << "is__.startSlice();";
     int patchIter = 0;
@@ -1299,20 +1213,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     }
 
     _out << sp << nl << "#endregion"; // Marshalling support
-
-    if(!p->isInterface() && !hasBaseClass)
-    {
-        _out << sp << nl << "#region ICloneable members";
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public object Clone()";
-        _out << sb;
-        _out << nl << "return MemberwiseClone();";
-        _out << eb;
-
-        _out << sp << nl << "#endregion"; // ICloneable members
-    }
 }
 
 string
@@ -1336,6 +1236,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op)
 {
     vector<string> params;
     ParamDeclList paramList = op->parameters();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string param = getParamAttributes(*q);
@@ -1343,7 +1244,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op)
         {
             param += "out ";
         }
-        param += typeToString((*q)->type(), (*q)->optional()) + " " + fixId((*q)->name());
+        param += typeToString((*q)->type(), (*q)->optional(), cl->isLocal()) + " " + fixId((*q)->name());
         params.push_back(param);
     }
     return params;
@@ -1355,17 +1256,15 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op)
     vector<string> params;
 
     string name = fixId(op->name());
-    ContainerPtr container = op->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
-    string scope = fixId(cl->scope());
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
 
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         if(!(*q)->isOutParam())
         {
-            params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), (*q)->optional()) + " " +
-                             fixId((*q)->name()));
+            params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), (*q)->optional(), cl->isLocal())
+                             + " " + fixId((*q)->name()));
         }
     }
     return params;
@@ -2020,7 +1919,6 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     // We generate everything into the summary tag (despite what the MSDN doc says) because
     // Visual Studio only shows the <summary> text and omits the <remarks> text.
     //
-
     if(!deprecateReason.empty())
     {
         _out << nl << "///";
@@ -2762,7 +2660,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
         }
         _out << nl << "public ";
-        if(p->allOperations().size() > 0) // Don't use isAbstract() here - see bug 3739
+        if(p->isLocal() && p->allOperations().size() > 0) // Don't use isAbstract() here - see bug 3739
         {
             _out << "abstract ";
         }
@@ -2772,7 +2670,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(!p->isLocal())
             {
-                baseNames.push_back("Ice.Object");
+                baseNames.push_back("Ice.Value");
             }
         }
         else
@@ -2781,16 +2679,14 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             bases.pop_front();
         }
 
-        if(p->isAbstract() && !p->isLocal())
+        if(p->isLocal())
         {
-            baseNames.push_back(name + "Operations_");
-        }
-
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            if((*q)->isAbstract())
+            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
             {
-                baseNames.push_back(fixId((*q)->scoped()));
+                if((*q)->isAbstract())
+                {
+                    baseNames.push_back(fixId((*q)->scoped()));
+                }
             }
         }
     }
@@ -2825,7 +2721,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        if(p->hasDataMembers() && !p->hasOperations())
+        if(p->hasDataMembers() && (!p->hasOperations() || !p->isLocal()))
         {
             _out << sp << nl << "#region Slice data members";
         }
@@ -2833,7 +2729,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << sp << nl << "#region Slice data members and operations";
         }
-        else if(p->hasOperations())
+        else if(p->hasOperations() && p->isLocal())
         {
             _out << sp << nl << "#region Slice operations";
         }
@@ -2862,22 +2758,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        if(p->hasDataMembers() && !p->hasOperations())
+        if(p->hasDataMembers() || (p->hasOperations() && p->isLocal()))
         {
-            _out << sp << nl << "#endregion"; // Slice data members"
-        }
-        else if(p->hasDataMembers())
-        {
-            _out << sp << nl << "#endregion"; // Slice data members and operations"
-        }
-        else if(p->hasOperations())
-        {
-            _out << sp << nl << "#endregion"; // Slice operations"
+            _out << sp << nl << "#endregion";
         }
 
         if(!allDataMembers.empty())
         {
-            const bool isAbstract = p->isAbstract();
+            const bool isAbstract = p->isLocal() && p->isAbstract();
             const bool propertyMapping = p->hasMetaData("clr:property");
 
             _out << sp << nl << "#region Constructors";
@@ -2935,7 +2823,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << sp << nl << "#endregion"; // Constructors
         }
 
-        writeInheritedOperations(p);
+        if(p->isLocal())
+        {
+            writeInheritedOperations(p);
+        }
     }
     else
     {
@@ -2947,7 +2838,22 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface() && !p->isLocal())
     {
-        writeDispatchAndMarshalling(p);
+        _out << sp << nl;
+        _out << nl << "public static new readonly string static_id__ = \""
+             << p->scoped() << "\";";
+
+        _out << sp;
+        _out << nl << "public static new string ice_staticId()";
+        _out << sb;
+        _out << nl << "return static_id__;";
+        _out << eb;
+        
+        _out << nl << "public override string ice_id()";
+        _out << sb;
+        _out << nl << "return static_id__;";
+        _out << eb;
+        
+        writeMarshaling(p);
     }
 
     _out << eb;
@@ -2960,124 +2866,93 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     bool isLocal = cl->isLocal();
     bool isInterface = cl->isInterface();
 
-    bool amd = !isLocal && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
-
-    //
-    // Non-local classes and interfaces get the operations from their
-    // Operations base interfaces.
-    //
-    if(isInterface && !isLocal)
+    if(isLocal)
     {
-        return;
-    }
+        string name = p->name();
+        ParamDeclList outParams = getOutParams(p->parameters());
+        vector<string> params;
+        vector<string> args;
+        TypePtr ret = p->returnType();
+        string retS;
 
-    string name = p->name();
-    ParamDeclList outParams = getOutParams(p->parameters());
-    vector<string> params;
-    vector<string> args;
-    TypePtr ret = p->returnType();
-    string retS;
-
-    if(!amd)
-    {
         params = getParams(p);
         name = fixId(name, DotNet::ICloneable, true);
-        retS = typeToString(ret, p->returnIsOptional());
-    }
-    else
-    {
-        params = getParamsAsync(p);
-        params.push_back(asyncResultType(p, "_System.Action") + " response__");
-        params.push_back("_System.Action<_System.Exception> exception__");
-        name = name + "Async";
-        retS = "void";
-    }
+        retS = typeToString(ret, p->returnIsOptional(), true);
 
-    if(!isLocal)
-    {
-        params.push_back("Ice.Current current__ = null");
-    }
-
-    _out << sp;
-    if(isInterface && isLocal)
-    {
-        _out << nl;
-    }
-
-    if(amd)
-    {
-        writeDocCommentAMD(p);
-    }
-    else
-    {
-        writeDocComment(p, getDeprecateReason(p, cl, "operation"),
-            isLocal ? "" : "<param name=\"current__\">The Current object for the invocation.</param>");
-    }
-    emitAttributes(p);
-    emitDeprecate(p, cl, _out, "operation");
-    emitGeneratedCodeAttribute();
-    _out << nl;
-    if(!isInterface)
-    {
-        _out << "public abstract ";
-    }
-    _out << retS << " " << name << spar << params << epar << ";";
-
-    if(isLocal && (cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
-    {
-        vector<string> paramsNewAsync = getParamsAsync(p);
-
-        TypePtr ret = p->returnType();
-        ParamDeclList outParams = getOutParams(p->parameters());
-        ParamDeclList inParams = getInParams(p->parameters());
-
-        //
-        // Task based asynchronous methods
-        //
         _out << sp;
+        if(isInterface)
+        {
+            _out << nl;
+        }
+
+        writeDocComment(p, getDeprecateReason(p, cl, "operation"));
+
         emitAttributes(p);
+        emitDeprecate(p, cl, _out, "operation");
         emitGeneratedCodeAttribute();
         _out << nl;
         if(!isInterface)
         {
             _out << "public abstract ";
         }
-        _out << asyncResultType(p);
+        _out << retS << " " << name << spar << params << epar << ";";
 
-        string progress = getAsyncTaskParamName(inParams, "progress");
-        string cancel = getAsyncTaskParamName(inParams, "cancel");
-
-        _out << " " << name << "Async" << spar << paramsNewAsync
-             << ("_System.IProgress<bool> " + progress + " = null")
-             << ("_System.Threading.CancellationToken " + cancel + " = new _System.Threading.CancellationToken()")
-             << epar << ";";
-
-
-        //
-        // IAsyncResult based asynchronous mehtods
-        //
-        _out << sp;
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl;
-        if(!isInterface)
+        if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
         {
-            _out << "public abstract ";
-        }
-        _out << "Ice.AsyncResult begin_" << name << spar << paramsNewAsync
-             << "Ice.AsyncCallback cb__ = null"
-             << "object cookie__ = null" << epar << ';';
+            vector<string> paramsNewAsync = getParamsAsync(p);
 
-        _out << sp;
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl;
-        if(!isInterface)
-        {
-            _out << "public abstract ";
+            TypePtr ret = p->returnType();
+            ParamDeclList outParams = getOutParams(p->parameters());
+            ParamDeclList inParams = getInParams(p->parameters());
+
+            //
+            // Task based asynchronous methods
+            //
+            _out << sp;
+            emitAttributes(p);
+            emitGeneratedCodeAttribute();
+            _out << nl;
+            if(!isInterface)
+            {
+                _out << "public abstract ";
+            }
+            _out << asyncResultType(p);
+
+            string progress = getAsyncTaskParamName(inParams, "progress");
+            string cancel = getAsyncTaskParamName(inParams, "cancel");
+
+            _out << " " << name << "Async" << spar << paramsNewAsync
+                << ("_System.IProgress<bool> " + progress + " = null")
+                << ("_System.Threading.CancellationToken " + cancel + " = new _System.Threading.CancellationToken()")
+                << epar << ";";
+
+
+            //
+            // IAsyncResult based asynchronous mehtods
+            //
+            _out << sp;
+            emitAttributes(p);
+            emitGeneratedCodeAttribute();
+            _out << nl;
+            if(!isInterface)
+            {
+                _out << "public abstract ";
+            }
+            _out << "Ice.AsyncResult begin_" << name << spar << paramsNewAsync
+                << "Ice.AsyncCallback cb__ = null"
+                << "object cookie__ = null" << epar << ';';
+
+            _out << sp;
+            emitAttributes(p);
+            emitGeneratedCodeAttribute();
+            _out << nl;
+            if(!isInterface)
+            {
+                _out << "public abstract ";
+            }
+            _out << typeToString(p->returnType(), p->returnIsOptional()) << " end_" << name << spar
+                << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__" << epar << ';';
         }
-        _out << typeToString(p->returnType(), p->returnIsOptional()) << " end_" << name << spar
-             << getParamsAsyncCB(p, false, true) << "Ice.AsyncResult r__" << epar << ';';
     }
 }
 
@@ -3432,7 +3307,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             _out << eb;
 
-            _out << sp << nl << "public void patch(Ice.Object v)";
+            _out << sp << nl << "public void patch(Ice.Value v)";
             _out << sb;
             _out << nl << "try";
             _out << sb;
@@ -3684,7 +3559,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-        string memberType = typeToString((*q)->type());
+        string memberType = typeToString((*q)->type(), false, p->isLocal());
         paramDecl.push_back(memberType + " " + memberName);
     }
     _out << paramDecl << epar;
@@ -3822,7 +3697,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             _out << eb;
 
-            _out << sp << nl << "public void patch(Ice.Object v)";
+            _out << sp << nl << "public void patch(Ice.Value v)";
             _out << sb;
             _out << nl << "try";
             _out << sb;
@@ -4013,8 +3888,14 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const bool isOptional = p->optional();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
-    if(StructPtr::dynamicCast(cont))
+
+    bool isLocal;
+    StructPtr st = StructPtr::dynamicCast(cont);
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(cont);
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
+    if(st)
     {
+        isLocal = st->isLocal();
         isValue = isValueType(StructPtr::dynamicCast(cont));
         if(!isValue)
         {
@@ -4025,12 +3906,15 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             isProperty = true;
         }
     }
-    else if(ExceptionPtr::dynamicCast(cont))
+    else if(ex)
     {
+        isLocal = ex->isLocal();
         baseTypes = DotNet::Exception;
     }
-    else if(ClassDefPtr::dynamicCast(cont))
+    else
     {
+        assert(cl);
+        isLocal = cl->isLocal();
         baseTypes = DotNet::ICloneable;
         isClass = true;
         if(cont->hasMetaData("clr:property"))
@@ -4044,7 +3928,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    string type = typeToString(p->type(), isOptional);
+    string type = typeToString(p->type(), isOptional, isLocal);
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName;
     if(isProperty)
@@ -4577,115 +4461,81 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Don't generate Operations interfaces for non-abstract classes.
     //
-    if(!p->isAbstract())
+    if(!p->isAbstract() || p->isLocal())
     {
         return false;
     }
-    writeOperations(p, p->isLocal());
+	string name = p->name();
+	string scoped = fixId(p->scoped());
+	ClassList bases = p->bases();
+	string opIntfName = "Operations";
+
+	_out << sp;
+	writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+	emitGeneratedCodeAttribute();
+	_out << nl << "public interface " << name << opIntfName << '_';
+	if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
+	{
+		_out << " : ";
+		ClassList::const_iterator q = bases.begin();
+		bool first = true;
+		while(q != bases.end())
+		{
+			if((*q)->isAbstract())
+			{
+				if (!first)
+				{
+					_out << ", ";
+				}
+				else
+				{
+					first = false;
+				}
+				string s = (*q)->scoped();
+				s += "Operations";
+				_out << fixId(s) << '_';
+			}
+			++q;
+		}
+	}
+	_out << sb;
+
+	OperationList ops = p->operations();
+	for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+	{
+		OperationPtr op = *r;
+		bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
+
+		TypePtr ret = op->returnType();
+		string retS = amd ? "void" : typeToString(ret, op->returnIsOptional());
+		string opName = amd ? (op->name() + "Async") : fixId(op->name(), DotNet::ICloneable, true);
+		vector<string> params = amd ? getParamsAsync(op) : getParams(op);
+        if(amd)
+		{
+			params.push_back(asyncResultType(op, "_System.Action") + " response__");
+			params.push_back("_System.Action<_System.Exception> exception__");
+		}
+		params.push_back("Ice.Current current__ = null");
+
+		_out << sp;
+		if(amd)
+		{
+			writeDocCommentAMD(op);
+		}
+		else
+		{
+			writeDocComment(op, getDeprecateReason(op, p, "operation"),
+				"<param name=\"current__\">The Current object for the invocation.</param>");
+		}
+		emitAttributes(op);
+		emitDeprecate(op, op, _out, "operation");
+		emitGeneratedCodeAttribute();
+		_out << nl << retS << " " << opName << spar << params << epar << ";";
+	}
+
+	_out << eb;
     return false;
 }
-
-void
-Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
-{
-    if(p->isLocal())
-    {
-        return; // Local interfaces and classes don't have an Operations interface.
-    }
-
-    string name = p->name();
-    string scoped = fixId(p->scoped());
-    ClassList bases = p->bases();
-    string opIntfName = "Operations";
-    if(noCurrent)
-    {
-        opIntfName += "NC";
-    }
-
-    _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
-    emitGeneratedCodeAttribute();
-    _out << nl << "public interface " << name << opIntfName << '_';
-    if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
-    {
-        _out << " : ";
-        ClassList::const_iterator q = bases.begin();
-        bool first = true;
-        while(q != bases.end())
-        {
-            if((*q)->isAbstract())
-            {
-                if(!first)
-                {
-                    _out << ", ";
-                }
-                else
-                {
-                    first = false;
-                }
-                string s = (*q)->scoped();
-                s += "Operations";
-                if(noCurrent)
-                {
-                    s += "NC";
-                }
-                _out << fixId(s) << '_';
-            }
-            ++q;
-        }
-    }
-    _out << sb;
-
-    OperationList ops = p->operations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
-        vector<string> params;
-        TypePtr ret = op->returnType();
-        string retS;
-        string opName;
-
-        if(!amd)
-        {
-            params = getParams(op);
-            opName = fixId(op->name(), DotNet::ICloneable, true);
-            retS = typeToString(ret, op->returnIsOptional());
-        }
-        else
-        {
-            params = getParamsAsync(op);
-            params.push_back(asyncResultType(op, "_System.Action") + " response__");
-            params.push_back("_System.Action<_System.Exception> exception__");
-            opName = op->name() + "Async";
-            retS = "void";
-        }
-
-        if(!noCurrent)
-        {
-            params.push_back("Ice.Current current__ = null");
-        }
-
-        _out << sp;
-
-        if(amd)
-        {
-            writeDocCommentAMD(op);
-        }
-        else
-        {
-            writeDocComment(op, getDeprecateReason(op, p, "operation"),
-                noCurrent ? "" : "<param name=\"current__\">The Current object for the invocation.</param>");
-        }
-        emitAttributes(op);
-        emitDeprecate(op, op, _out, "operation");
-        emitGeneratedCodeAttribute();
-        _out << nl << retS << " " << opName << spar << params << epar << ";";
-    }
-
-    _out << eb;
-}
-
 
 Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out)
@@ -5563,7 +5413,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << nl << "_key = key;";
         _out << eb;
 
-        _out << sp << nl << "public void patch(Ice.Object v)";
+        _out << sp << nl << "public void patch(Ice.Value v)";
         _out << sb;
         if(ClassDeclPtr::dynamicCast(value))
         {
@@ -5670,9 +5520,17 @@ Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || !p->isInterface())
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
     {
         return false;
+    }
+
+    ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    string baseClass = "Ice.ObjectImpl";
+    if(hasBaseClass && !bases.front()->allOperations().empty())
+    {
+        baseClass = fixId(bases.front()->scoped() + "Disp_");
     }
 
     string name = p->name();
@@ -5680,7 +5538,31 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
-    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << fixId(name);
+    _out << nl << "public abstract class " << name << "Disp_ : " << baseClass << ", ";
+
+    if(p->isInterface())
+    {
+        _out << fixId(name);
+    }
+    else
+    {
+        _out << name << "Operations_";
+    }
+
+    if(!p->isInterface())
+    {
+        ClassList allBases = bases;
+        if(!allBases.empty() && !allBases.front()->isInterface())
+        {
+            allBases.pop_front();
+        }
+
+        for(ClassList::const_iterator i = allBases.begin(); i != allBases.end(); ++i)
+        {
+            _out << ", " << fixId((*i)->scoped());
+        }
+    }
+
     _out << sb;
 
     OperationList ops = p->operations();
@@ -5710,20 +5592,12 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            retS = typeToString(ret, op->returnIsOptional());
             opname = fixId(opname, DotNet::ICloneable, true);
             params = getParams(op);
+            retS = typeToString(ret, op->returnIsOptional());
         }
-
-        if(!p->isLocal())
-        {
-            params.push_back("Ice.Current current__ = null");
-        }
-
-
-        _out << sp << nl << "public abstract " << retS << " " << opname << spar << params;
-
-        _out << epar << ';';
+        params.push_back("Ice.Current current__ = null");
+        _out << sp << nl << "public abstract " << retS << " " << opname << spar << params << epar << ';';
     }
 
     if(!ops.empty())
@@ -5733,7 +5607,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     writeInheritedOperations(p);
 
-    writeDispatchAndMarshalling(p);
+    writeDispatch(p);
 
     _out << eb;
 
@@ -5779,15 +5653,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
-    _out << nl << "public class " << name << "Tie_ : ";
-    if(p->isInterface())
-    {
-        _out << name << "Disp_, Ice.TieBase";
-    }
-    else
-    {
-        _out << fixId(name) << ", Ice.TieBase";
-    }
+    _out << nl << "public class " << name << "Tie_ : " << name << "Disp_, Ice.TieBase";
+
     _out << sb;
 
     _out << sp << nl << "public " << name << "Tie_()";

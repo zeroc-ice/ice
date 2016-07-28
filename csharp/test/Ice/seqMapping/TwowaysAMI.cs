@@ -460,9 +460,9 @@ public class TwowaysAMI
 
         public void opAObjectSI(Ice.AsyncResult result)
         {
-            Ice.Object[] i = (Ice.Object[])result.AsyncState;
-            Ice.Object[] o;
-            Ice.Object[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opAObjectS(out o, result);
+            Ice.Value[] i = (Ice.Value[])result.AsyncState;
+            Ice.Value[] o;
+            Ice.Value[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opAObjectS(out o, result);
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
             foreach(CV obj in i)
@@ -477,11 +477,11 @@ public class TwowaysAMI
 
         public void opLObjectSI(Ice.AsyncResult result)
         {
-            List<Ice.Object> i = (List<Ice.Object>)result.AsyncState;
-            List<Ice.Object> o;
-            List<Ice.Object> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLObjectS(out o, result);
-            IEnumerator<Ice.Object> eo = o.GetEnumerator();
-            IEnumerator<Ice.Object> er = r.GetEnumerator();
+            List<Ice.Value> i = (List<Ice.Value>)result.AsyncState;
+            List<Ice.Value> o;
+            List<Ice.Value> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLObjectS(out o, result);
+            IEnumerator<Ice.Value> eo = o.GetEnumerator();
+            IEnumerator<Ice.Value> er = r.GetEnumerator();
             foreach(CV obj in i)
             {
                 eo.MoveNext();
@@ -1478,7 +1478,7 @@ public class TwowaysAMI
         }
 
         {
-            Ice.Object[] i = new Ice.Object[_length];
+            Ice.Value[] i = new Ice.Value[_length];
             for(int c = 0; c < _length; ++c)
             {
                 i[c] = new CV(c);
@@ -1490,7 +1490,7 @@ public class TwowaysAMI
         }
 
         {
-            List<Ice.Object> i = new List<Ice.Object>();
+            List<Ice.Value> i = new List<Ice.Value>();
             for(int c = 0; c < _length; ++c)
             {
                 i.Add(new CV(c));

@@ -28,7 +28,7 @@ public sealed class TestI : TestIntfDisp_
     }
 
     public override void
-    SBaseAsObjectAsync(Action<Ice.Object> response, Action<Exception> exception, Ice.Current current)
+    SBaseAsObjectAsync(Action<Ice.Value> response, Action<Exception> exception, Ice.Current current)
     {
         response(new SBase("SBase.sb"));
     }
@@ -63,12 +63,12 @@ public sealed class TestI : TestIntfDisp_
         response(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
     }
 
-    public override void SUnknownAsObjectAsync(Action<Ice.Object> response, Action<Exception> exception, Ice.Current current)
+    public override void SUnknownAsObjectAsync(Action<Ice.Value> response, Action<Exception> exception, Ice.Current current)
     {
         response(new SUnknown("SUnknown.su"));
     }
 
-    public override void checkSUnknownAsync(Ice.Object obj, Action response, Action<Exception> exception, Ice.Current current)
+    public override void checkSUnknownAsync(Ice.Value obj, Action response, Action<Exception> exception, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {

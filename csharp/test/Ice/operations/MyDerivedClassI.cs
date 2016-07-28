@@ -10,7 +10,7 @@
 using System;
 using System.Collections.Generic;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClass
+public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 {
     private static void test(bool b)
     {
@@ -24,7 +24,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     // Override the Object "pseudo" operations to verify the operation mode.
     //
 
-    public override bool ice_isA(String id, Ice.Current current)
+    public override bool ice_isA(string id, Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Nonmutating);
         return base.ice_isA(id, current);
