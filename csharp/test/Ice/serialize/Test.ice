@@ -86,6 +86,7 @@ exception MyException
     long l;
     ValStruct vs;
     RefStruct rs;
+    MyClass* c;
 
     ValStructS vss;
     ValStructList vsl;

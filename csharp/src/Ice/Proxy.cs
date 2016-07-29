@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -799,8 +800,40 @@ namespace Ice
     /// <summary>
     /// Base class of all object proxies.
     /// </summary>
-    public class ObjectPrxHelperBase : ObjectPrx
+    [Serializable]
+    public class ObjectPrxHelperBase : ObjectPrx, ISerializable
     {
+        public ObjectPrxHelperBase()
+        {
+        }
+
+        public ObjectPrxHelperBase(SerializationInfo info, StreamingContext context)
+        {
+            Instance instance = null;
+
+            if(context.Context is Communicator)
+            {
+                instance = IceInternal.Util.getInstance(context.Context as Communicator);
+            }
+            else if(context.Context is Instance)
+            {
+                instance = context.Context as Instance;
+            }
+            else
+            {
+                throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
+            }
+
+            var proxy = (ObjectPrxHelperBase)instance.proxyFactory().stringToProxy(info.GetString("proxy"));
+            _reference = proxy._reference;
+            Debug.Assert(proxy._requestHandler == null);
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("proxy", ToString());
+        }
+
         /// <summary>
         /// Returns a hash code for this proxy.
         /// </summary>

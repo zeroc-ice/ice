@@ -3938,11 +3938,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         dataMemberName = propertyName;
     }
 
-    if(!isSerializable(p->type()))
-    {
-        _out << nl << "[_System.NonSerialized]";
-    }
-
     if(isProperty)
     {
         _out << nl << "private";
@@ -4573,8 +4568,20 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
+    _out << nl << "[_System.Serializable]";
     _out << nl << "public sealed class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
+
+    _out << sp;
+    _out << nl << "public " << name << "PrxHelper()";
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public " << name << "PrxHelper(_System.Runtime.Serialization.SerializationInfo info__, "
+         << "_System.Runtime.Serialization.StreamingContext context__) : base(info__, context__)";
+    _out << sb;
+    _out << eb;
 
     OperationList ops = p->allOperations();
 

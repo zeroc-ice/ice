@@ -44,7 +44,6 @@ protected:
     static std::string getStaticId(const TypePtr&);
     static std::string typeToString(const TypePtr&, bool = false, bool = false);
     static bool isValueType(const TypePtr&);
-    static bool isSerializable(const TypePtr&);
 
     //
     // Generate code to marshal or unmarshal a type

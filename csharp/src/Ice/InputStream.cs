@@ -1096,9 +1096,8 @@ namespace Ice
             }
             try
             {
-                IceInternal.InputStreamWrapper w = new IceInternal.InputStreamWrapper(sz, this);
-                IFormatter f = new BinaryFormatter();
-                return f.Deserialize(w);
+                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, instance_));
+                return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
             }
             catch(System.Exception ex)
             {

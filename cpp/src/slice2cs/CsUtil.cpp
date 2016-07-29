@@ -498,34 +498,6 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
     return false;
 }
 
-bool
-Slice::CsGenerator::isSerializable(const TypePtr& type)
-{
-    //
-    // A proxy cannot be serialized because a communicator is required during deserialization.
-    //
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if((builtin && builtin->kind() == Builtin::KindObjectProxy) || proxy)
-    {
-        return false;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        return isSerializable(seq->type());
-    }
-
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
-    {
-        return isSerializable(d->keyType()) && isSerializable(d->valueType());
-    }
-
-    return true;
-}
-
 void
 Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               const TypePtr& type,
@@ -2025,11 +1997,6 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                                                   int tag,
                                                   bool serialize)
 {
-    if(!isSerializable(type))
-    {
-        return;
-    }
-
     if(optional)
     {
         const string typeName = typeToString(type, true);
@@ -2165,9 +2132,16 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
             }
             case Builtin::KindObjectProxy:
             {
-                //
-                // Proxies cannot be serialized.
-                //
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param
+                        << ", typeof(Ice.ObjectPrxHelperBase));";
+                }
+                else
+                {
+                    out << nl << param << " = (Ice.ObjectPrx)info__.GetValue(\"" << param
+                        << "\", typeof(Ice.ObjectPrxHelperBase));";
+                }
                 break;
             }
         }
@@ -2177,9 +2151,16 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        //
-        // Proxies cannot be serialized.
-        //
+        const string typeName = typeToString(type, false);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "Helper));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "Helper));";
+        }
         return;
     }
 
