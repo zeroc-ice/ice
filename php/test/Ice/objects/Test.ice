@@ -57,10 +57,10 @@ class D
 {
     A theA;
     B theB;
-    C theC;    
+    C theC;
 
     bool preMarshalInvoked;
-    bool postUnmarshalInvoked();
+    bool postUnmarshalInvoked;
 };
 
 ["protected"] class E
