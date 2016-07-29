@@ -180,17 +180,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(ICE_DYNAMIC_CAST(C, ICE_DYNAMIC_CAST(B, b1->theA)->theC));
     test(ICE_DYNAMIC_CAST(C, ICE_DYNAMIC_CAST(B, b1->theA)->theC)->theB == b1->theA);
 
+    test(b1->preMarshalInvoked);
+    test(b1->postUnmarshalInvoked);
+    test(b1->theA->preMarshalInvoked);
+    test(b1->theA->postUnmarshalInvoked);
 #ifdef ICE_CPP11_MAPPING
-    test(b1->preMarshalInvoked);
-    test(b1->theA->preMarshalInvoked);
     test(dynamic_pointer_cast<B>(b1->theA)->theC->preMarshalInvoked);
+    test(dynamic_pointer_cast<B>(b1->theA)->theC->postUnmarshalInvoked);
 #else
-    test(b1->preMarshalInvoked);
-    test(b1->postUnmarshalInvoked());
-    test(b1->theA->preMarshalInvoked);
-    test(b1->theA->postUnmarshalInvoked());
     test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
-    test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
+    test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked);
 #endif
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
@@ -223,11 +222,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->theA == dynamic_pointer_cast<A>(b1));
     test(d->theB == dynamic_pointer_cast<B>(b2));
     test(d->theC == nullptr);
-
-    test(d->preMarshalInvoked);
-    test(d->theA->preMarshalInvoked);
-    test(d->theB->preMarshalInvoked);
-    test(d->theB->theC->preMarshalInvoked);
 #else
     test(b1 != b2);
     test(b1 != c);
@@ -245,16 +239,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->theA == b1);
     test(d->theB == b2);
     test(d->theC == ICE_NULLPTR);
-
-    test(d->preMarshalInvoked);
-    test(d->postUnmarshalInvoked());
-    test(d->theA->preMarshalInvoked);
-    test(d->theA->postUnmarshalInvoked());
-    test(d->theB->preMarshalInvoked);
-    test(d->theB->postUnmarshalInvoked());
-    test(d->theB->theC->preMarshalInvoked);
-    test(d->theB->theC->postUnmarshalInvoked());
 #endif
+    test(d->preMarshalInvoked);
+    test(d->postUnmarshalInvoked);
+    test(d->theA->preMarshalInvoked);
+    test(d->theA->postUnmarshalInvoked);
+    test(d->theB->preMarshalInvoked);
+    test(d->theB->postUnmarshalInvoked);
+    test(d->theB->theC->preMarshalInvoked);
+    test(d->theB->theC->postUnmarshalInvoked);
     cout << "ok" << endl;
 
     cout << "testing protected members... " << flush;

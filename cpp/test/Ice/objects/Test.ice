@@ -42,7 +42,7 @@ class A
     C theC;
 
     bool preMarshalInvoked;
-    bool postUnmarshalInvoked();
+    bool postUnmarshalInvoked;
 };
 
 class B extends A
@@ -55,7 +55,7 @@ class C
     B theB;
 
     bool preMarshalInvoked;
-    bool postUnmarshalInvoked();
+    bool postUnmarshalInvoked;
 };
 
 class D
@@ -65,7 +65,7 @@ class D
     C theC;
 
     bool preMarshalInvoked;
-    bool postUnmarshalInvoked();
+    bool postUnmarshalInvoked;
 };
 
 ["protected"] class E

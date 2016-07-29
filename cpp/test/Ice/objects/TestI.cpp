@@ -13,17 +13,6 @@
 using namespace Test;
 using namespace std;
 
-BI::BI() :
-    _postUnmarshalInvoked(false)
-{
-}
-
-bool
-BI::postUnmarshalInvoked(const Ice::Current&)
-{
-    return _postUnmarshalInvoked;
-}
-
 void
 BI::ice_preMarshal()
 {
@@ -33,18 +22,7 @@ BI::ice_preMarshal()
 void
 BI::ice_postUnmarshal()
 {
-    _postUnmarshalInvoked = true;
-}
-
-CI::CI() :
-    _postUnmarshalInvoked(false)
-{
-}
-
-bool
-CI::postUnmarshalInvoked(const Ice::Current&)
-{
-    return _postUnmarshalInvoked;
+    postUnmarshalInvoked = true;
 }
 
 void
@@ -56,18 +34,7 @@ CI::ice_preMarshal()
 void
 CI::ice_postUnmarshal()
 {
-    _postUnmarshalInvoked = true;
-}
-
-DI::DI() :
-    _postUnmarshalInvoked(false)
-{
-}
-
-bool
-DI::postUnmarshalInvoked(const Ice::Current&)
-{
-    return _postUnmarshalInvoked;
+    postUnmarshalInvoked = true;
 }
 
 void
@@ -79,7 +46,7 @@ DI::ice_preMarshal()
 void
 DI::ice_postUnmarshal()
 {
-    _postUnmarshalInvoked = true;
+    postUnmarshalInvoked = true;
 }
 
 EI::EI() :

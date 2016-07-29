@@ -76,12 +76,12 @@ public sealed class InitialI : InitialDisp_
 
     public override Ice.Value getI(Ice.Current current)
     {
-        return new HI();
+        return new II();
     }
 
     public override Ice.Value getJ(Ice.Current current)
     {
-        return new HI();
+        return new JI();
     }
 
     public override Ice.Value getH(Ice.Current current)

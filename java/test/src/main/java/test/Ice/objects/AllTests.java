@@ -102,11 +102,11 @@ public class AllTests
         test(((B)b1.theA).theC instanceof C);
         test((((B)b1.theA).theC).theB == b1.theA);
         test(b1.preMarshalInvoked);
-        test(b1.postUnmarshalInvoked(null));
+        test(b1.postUnmarshalInvoked);
         test(b1.theA.preMarshalInvoked);
-        test(b1.theA.postUnmarshalInvoked(null));
+        test(b1.theA.postUnmarshalInvoked);
         test(((B)b1.theA).theC.preMarshalInvoked);
-        test(((B)b1.theA).theC.postUnmarshalInvoked(null));
+        test(((B)b1.theA).theC.postUnmarshalInvoked);
 
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
@@ -150,13 +150,13 @@ public class AllTests
         test(d.theB == b2);
         test(d.theC == null);
         test(d.preMarshalInvoked);
-        test(d.postUnmarshalInvoked(null));
+        test(d.postUnmarshalInvoked);
         test(d.theA.preMarshalInvoked);
-        test(d.theA.postUnmarshalInvoked(null));
+        test(d.theA.postUnmarshalInvoked);
         test(d.theB.preMarshalInvoked);
-        test(d.theB.postUnmarshalInvoked(null));
+        test(d.theB.postUnmarshalInvoked);
         test(d.theB.theC.preMarshalInvoked);
-        test(d.theB.theC.postUnmarshalInvoked(null));
+        test(d.theB.theC.postUnmarshalInvoked);
 
         out.println("ok");
 

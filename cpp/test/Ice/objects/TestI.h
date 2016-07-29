@@ -17,48 +17,24 @@ class BI : public Test::B
 {
 public:
 
-    BI();
-
-    virtual bool postUnmarshalInvoked(const Ice::Current&);
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
-
-private:
-
-    bool _postUnmarshalInvoked;
 };
 
 class CI : public Test::C
 {
 public:
 
-    CI();
-
-    virtual bool postUnmarshalInvoked(const Ice::Current&);
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
-
-private:
-
-    bool _postUnmarshalInvoked;
 };
 
 class DI : public Test::D
 {
 public:
 
-    DI();
-
-    virtual bool postUnmarshalInvoked(const Ice::Current&);
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
-
-private:
-
-    bool _postUnmarshalInvoked;
 };
 
 class EI : public Test::E

@@ -13,19 +13,6 @@ import test.Ice.objects.Test.B;
 
 public final class BI extends B
 {
-    public
-    BI()
-    {
-        _postUnmarshalInvoked = false;
-    }
-
-    @Override
-    public boolean
-    postUnmarshalInvoked(Ice.Current current)
-    {
-        return _postUnmarshalInvoked;
-    }
-
     @Override
     public void
     ice_preMarshal()
@@ -37,8 +24,6 @@ public final class BI extends B
     public void
     ice_postUnmarshal()
     {
-        _postUnmarshalInvoked = true;
+        postUnmarshalInvoked = true;
     }
-
-    private boolean _postUnmarshalInvoked;
 }
