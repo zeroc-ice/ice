@@ -14,6 +14,10 @@
 
     var Promise = Ice.Promise;
 
+    var BI = function()
+    {
+        Test.B.call(this);
+    };
 
     BI.prototype = new Test.B();
 
@@ -27,6 +31,11 @@
         this.postUnmarshalInvoked = true;
     };
 
+    var CI = function()
+    {
+        Test.C.call(this);
+    };
+
     CI.prototype = new Test.C();
 
     CI.prototype.ice_preMarshal = function()
@@ -37,6 +46,11 @@
     CI.prototype.ice_postUnmarshal = function()
     {
         this.postUnmarshalInvoked = true;
+    };
+
+    var DI = function()
+    {
+        Test.D.call(this);
     };
 
     DI.prototype = new Test.D();
@@ -254,6 +268,7 @@
                 //test(b2 != c);
                 //test(b2 != d);
                 //test(c != d);
+
                 test(b1.theB === b1);
                 test(b1.theC === null);
                 test(b1.theA instanceof Test.B);
@@ -263,11 +278,11 @@
                 test(b1.theA.theC.theB === b1.theA);
 
                 test(b1.preMarshalInvoked);
-                test(b1.postUnmarshalInvoked(null));
+                test(b1.postUnmarshalInvoked);
                 test(b1.theA.preMarshalInvoked);
-                test(b1.theA.postUnmarshalInvoked(null));
+                test(b1.theA.postUnmarshalInvoked);
                 test(b1.theA.theC.preMarshalInvoked);
-                test(b1.theA.theC.postUnmarshalInvoked(null));
+                test(b1.theA.theC.postUnmarshalInvoked);
 
                 // More tests possible for b2 and d, but I think this is already
                 // sufficient.
@@ -305,13 +320,13 @@
                 test(d.theB === b2);
                 test(d.theC === null);
                 test(d.preMarshalInvoked);
-                test(d.postUnmarshalInvoked(null));
+                test(d.postUnmarshalInvoked);
                 test(d.theA.preMarshalInvoked);
-                test(d.theA.postUnmarshalInvoked(null));
+                test(d.theA.postUnmarshalInvoked);
                 test(d.theB.preMarshalInvoked);
-                test(d.theB.postUnmarshalInvoked(null));
+                test(d.theB.postUnmarshalInvoked);
                 test(d.theB.theC.preMarshalInvoked);
-                test(d.theB.theC.postUnmarshalInvoked(null));
+                test(d.theB.theC.postUnmarshalInvoked);
                 out.writeLine("ok");
 
                 out.write("testing protected members... ");
