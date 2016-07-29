@@ -4463,75 +4463,75 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         return false;
     }
-	string name = p->name();
-	string scoped = fixId(p->scoped());
-	ClassList bases = p->bases();
-	string opIntfName = "Operations";
+    string name = p->name();
+    string scoped = fixId(p->scoped());
+    ClassList bases = p->bases();
+    string opIntfName = "Operations";
 
-	_out << sp;
-	writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
-	emitGeneratedCodeAttribute();
-	_out << nl << "public interface " << name << opIntfName << '_';
-	if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
-	{
-		_out << " : ";
-		ClassList::const_iterator q = bases.begin();
-		bool first = true;
-		while(q != bases.end())
-		{
-			if((*q)->isAbstract())
-			{
-				if (!first)
-				{
-					_out << ", ";
-				}
-				else
-				{
-					first = false;
-				}
-				string s = (*q)->scoped();
-				s += "Operations";
-				_out << fixId(s) << '_';
-			}
-			++q;
-		}
-	}
-	_out << sb;
+    _out << sp;
+    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    emitGeneratedCodeAttribute();
+    _out << nl << "public interface " << name << opIntfName << '_';
+    if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
+    {
+        _out << " : ";
+        ClassList::const_iterator q = bases.begin();
+        bool first = true;
+        while(q != bases.end())
+        {
+            if((*q)->isAbstract())
+            {
+                if (!first)
+                {
+                    _out << ", ";
+                }
+                else
+                {
+                    first = false;
+                }
+                string s = (*q)->scoped();
+                s += "Operations";
+                _out << fixId(s) << '_';
+            }
+            ++q;
+        }
+    }
+    _out << sb;
 
-	OperationList ops = p->operations();
-	for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-	{
-		OperationPtr op = *r;
-		bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
+    OperationList ops = p->operations();
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = *r;
+        bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
 
-		TypePtr ret = op->returnType();
-		string retS = amd ? "void" : typeToString(ret, op->returnIsOptional());
-		string opName = amd ? (op->name() + "Async") : fixId(op->name(), DotNet::ICloneable, true);
-		vector<string> params = amd ? getParamsAsync(op) : getParams(op);
+        TypePtr ret = op->returnType();
+        string retS = amd ? "void" : typeToString(ret, op->returnIsOptional());
+        string opName = amd ? (op->name() + "Async") : fixId(op->name(), DotNet::ICloneable, true);
+        vector<string> params = amd ? getParamsAsync(op) : getParams(op);
         if(amd)
-		{
-			params.push_back(asyncResultType(op, "_System.Action") + " response__");
-			params.push_back("_System.Action<_System.Exception> exception__");
-		}
-		params.push_back("Ice.Current current__ = null");
+        {
+            params.push_back(asyncResultType(op, "_System.Action") + " response__");
+            params.push_back("_System.Action<_System.Exception> exception__");
+        }
+        params.push_back("Ice.Current current__ = null");
 
-		_out << sp;
-		if(amd)
-		{
-			writeDocCommentAMD(op);
-		}
-		else
-		{
-			writeDocComment(op, getDeprecateReason(op, p, "operation"),
-				"<param name=\"current__\">The Current object for the invocation.</param>");
-		}
-		emitAttributes(op);
-		emitDeprecate(op, op, _out, "operation");
-		emitGeneratedCodeAttribute();
-		_out << nl << retS << " " << opName << spar << params << epar << ";";
-	}
+        _out << sp;
+        if(amd)
+        {
+            writeDocCommentAMD(op);
+        }
+        else
+        {
+            writeDocComment(op, getDeprecateReason(op, p, "operation"),
+                "<param name=\"current__\">The Current object for the invocation.</param>");
+        }
+        emitAttributes(op);
+        emitDeprecate(op, op, _out, "operation");
+        emitGeneratedCodeAttribute();
+        _out << nl << retS << " " << opName << spar << params << epar << ";";
+    }
 
-	_out << eb;
+    _out << eb;
     return false;
 }
 
