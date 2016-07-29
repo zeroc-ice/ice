@@ -599,6 +599,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     cout << "ok" << endl;
 
+    cout << "testing ice_id and ice_ids with string converter... " << flush;
+    test(t->ice_id() == Test::TestIntfPrx::ice_staticId());
+    test(t->ice_ids()[0] == Ice::ObjectPrx::ice_staticId());
+    test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
+    cout << "ok" << endl;
+
     cout << "testing alternate strings... " << flush;
     {
         Util::string_view in = "Hello World!";

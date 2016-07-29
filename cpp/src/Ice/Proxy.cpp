@@ -93,14 +93,26 @@ void
 Ice::ObjectPrx::__ice_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
 {
     __checkAsyncTwowayOnly(ice_ids_name);
-    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
+    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr,
+                     [](Ice::InputStream* stream)
+                     {
+                         vector<string> v;
+                         stream->read(v, false); // no conversion
+                         return v;
+                     });
 }
 
 void
 Ice::ObjectPrx::__ice_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
 {
     __checkAsyncTwowayOnly(ice_id_name);
-    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
+    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr,
+                     [](Ice::InputStream* stream)
+                     {
+                         string v;
+                         stream->read(v, false); // no conversion
+                         return v;
+                     });
 }
 
 void
