@@ -82,4 +82,31 @@ namespace Ice
             return MemberwiseClone();
         }
     }
+
+    public class InterfaceByValue : Value
+    {
+        public InterfaceByValue(string id)
+        {
+            id_ = id;
+        }
+
+        public override string ice_id()
+        {
+            return id_;
+        }
+
+        protected override void writeImpl__(OutputStream os__)
+        {
+            os__.startSlice(ice_id(), -1, true);
+            os__.endSlice();
+        }
+
+        protected override void readImpl__(InputStream is__)
+        {
+            is__.startSlice();
+            is__.endSlice();
+        }
+
+        private string id_;
+    } 
 }
