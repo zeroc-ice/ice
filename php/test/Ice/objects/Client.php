@@ -42,47 +42,41 @@ EOT;
 
 class BI extends Test_B
 {
+    function ice_pretUnmarshal()
+    {
+        $this->preUnmarshalInvoked = true;
+    }
+
     function ice_postUnmarshal()
     {
-        $this->_postUnmarshalInvoked = true;
+        $this->postUnmarshalInvoked = true;
     }
-
-    function postUnmarshalInvoked()
-    {
-        return $this->_postUnmarshalInvoked;
-    }
-
-    private $_postUnmarshalInvoked = false;
 }
 
 class CI extends Test_C
 {
+    function ice_preUnmarshal()
+    {
+        $this->preUnmarshalInvoked = true;
+    }
+
     function ice_postUnmarshal()
     {
-        $this->_postUnmarshalInvoked = true;
+        $this->postUnmarshalInvoked = true;
     }
-
-    function postUnmarshalInvoked()
-    {
-        return $this->_postUnmarshalInvoked;
-    }
-
-    private $_postUnmarshalInvoked = false;
 }
 
 class DI extends Test_D
 {
+    function ice_preUnmarshal()
+    {
+        $this->preUnmarshalInvoked = true;
+    }
+
     function ice_postUnmarshal()
     {
-        $this->_postUnmarshalInvoked = true;
+        $this->postUnmarshalInvoked = true;
     }
-
-    function postUnmarshalInvoked()
-    {
-        return $this->_postUnmarshalInvoked;
-    }
-
-    private $_postUnmarshalInvoked = false;
 }
 
 class EI extends Test_E
@@ -247,11 +241,11 @@ function allTests($communicator)
     test($b1->theA->theC != null);
     test($b1->theA->theC->theB === $b1->theA);
     test($b1->preMarshalInvoked);
-    test($b1->postUnmarshalInvoked());
+    test($b1->postUnmarshalInvoked);
     test($b1->theA->preMarshalInvoked);
-    test($b1->theA->postUnmarshalInvoked());
+    test($b1->theA->postUnmarshalInvoked);
     test($b1->theA->theC->preMarshalInvoked);
-    test($b1->theA->theC->postUnmarshalInvoked());
+    test($b1->theA->theC->postUnmarshalInvoked);
     // More tests possible for b2 and d, but I think this is already sufficient.
     test($b2->theA === $b2);
     test($d->theC == null);
@@ -312,13 +306,13 @@ function allTests($communicator)
     test($d->theB === $b2);
     test($d->theC == null);
     test($d->preMarshalInvoked);
-    test($d->postUnmarshalInvoked());
+    test($d->postUnmarshalInvoked);
     test($d->theA->preMarshalInvoked);
-    test($d->theA->postUnmarshalInvoked());
+    test($d->theA->postUnmarshalInvoked);
     test($d->theB->preMarshalInvoked);
-    test($d->theB->postUnmarshalInvoked());
+    test($d->theB->postUnmarshalInvoked);
     test($d->theB->theC->preMarshalInvoked);
-    test($d->theB->theC->postUnmarshalInvoked());
+    test($d->theB->theC->postUnmarshalInvoked);
     echo "ok\n";
 
     //

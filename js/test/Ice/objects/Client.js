@@ -14,19 +14,8 @@
 
     var Promise = Ice.Promise;
 
-    var BI = function()
-    {
-        Test.B.call(this);
-        this._postUnmarshalInvoked = false;
-    };
 
     BI.prototype = new Test.B();
-    BI.prototype.constructor = BI;
-
-    BI.prototype.postUnmarshalInvoked = function(current)
-    {
-        return this._postUnmarshalInvoked;
-    };
 
     BI.prototype.ice_preMarshal = function()
     {
@@ -35,22 +24,10 @@
 
     BI.prototype.ice_postUnmarshal = function()
     {
-        this._postUnmarshalInvoked = true;
-    };
-
-    var CI = function()
-    {
-        Test.C.call(this);
-        this._postUnmarshalInvoked = false;
+        this.postUnmarshalInvoked = true;
     };
 
     CI.prototype = new Test.C();
-    CI.prototype.constructor = CI;
-
-    CI.prototype.postUnmarshalInvoked = function(current)
-    {
-        return this._postUnmarshalInvoked;
-    };
 
     CI.prototype.ice_preMarshal = function()
     {
@@ -59,21 +36,10 @@
 
     CI.prototype.ice_postUnmarshal = function()
     {
-        this._postUnmarshalInvoked = true;
-    };
-
-    var DI = function()
-    {
-        Test.D.call(this);
-        this._postUnmarshalInvoked = false;
+        this.postUnmarshalInvoked = true;
     };
 
     DI.prototype = new Test.D();
-
-    DI.prototype.postUnmarshalInvoked = function(current)
-    {
-        return this._postUnmarshalInvoked;
-    };
 
     DI.prototype.ice_preMarshal = function()
     {
@@ -82,7 +48,7 @@
 
     DI.prototype.ice_postUnmarshal = function()
     {
-        this._postUnmarshalInvoked = true;
+        this.postUnmarshalInvoked = true;
     };
 
     var EI = function()

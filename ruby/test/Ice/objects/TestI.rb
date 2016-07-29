@@ -10,11 +10,7 @@
 class BI < Test::B
     def initialize
         @preMarshalInvoked = false
-        @_postUnmarshalInvoked = false
-    end
-
-    def postUnmarshalInvoked(current=nil)
-        return @_postUnmarshalInvoked
+        @postUnmarshalInvoked = false
     end
 
     def ice_preMarshal
@@ -22,18 +18,14 @@ class BI < Test::B
     end
 
     def ice_postUnmarshal
-        @_postUnmarshalInvoked = true
+        @postUnmarshalInvoked = true
     end
 end
 
 class CI < Test::C
     def initialize
         @preMarshalInvoked = false
-        @_postUnmarshalInvoked = false
-    end
-
-    def postUnmarshalInvoked(current=nil)
-        return @_postUnmarshalInvoked
+        @postUnmarshalInvoked = false
     end
 
     def ice_preMarshal
@@ -41,7 +33,7 @@ class CI < Test::C
     end
 
     def ice_postUnmarshal
-        @_postUnmarshalInvoked = true
+        @postUnmarshalInvoked = true
     end
 end
 
@@ -51,11 +43,7 @@ end
 class Test::D
     def initialize
         @preMarshalInvoked = false
-        @_postUnmarshalInvoked = false
-    end
-
-    def postUnmarshalInvoked(current=nil)
-        return @_postUnmarshalInvoked
+        @postUnmarshalInvoked = false
     end
 
     def ice_preMarshal
@@ -63,7 +51,7 @@ class Test::D
     end
 
     def ice_postUnmarshal
-        @_postUnmarshalInvoked = true
+        @postUnmarshalInvoked = true
     end
 end
 

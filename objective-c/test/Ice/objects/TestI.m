@@ -11,49 +11,37 @@
 #import <objects/TestI.h>
 
 @implementation TestObjectsBI
--(BOOL) postUnmarshalInvoked:(ICECurrent*)current
-{
-    return _postUnmarshalInvoked;
-}
 -(void) ice_preMarshal
 {
     preMarshalInvoked = YES;
 }
 -(void) ice_postUnmarshal
 {
-    _postUnmarshalInvoked = YES;
+    postUnmarshalInvoked = YES;
 }
 
 @end
 
 @implementation TestObjectsCI
--(BOOL) postUnmarshalInvoked:(ICECurrent*)current
-{
-    return _postUnmarshalInvoked;
-}
 -(void) ice_preMarshal
 {
     preMarshalInvoked = YES;
 }
 -(void) ice_postUnmarshal
 {
-    _postUnmarshalInvoked = YES;
+    postUnmarshalInvoked = YES;
 }
 
 @end
 
 @implementation TestObjectsDI
--(BOOL) postUnmarshalInvoked:(ICECurrent*)current
-{
-    return _postUnmarshalInvoked;
-}
 -(void) ice_preMarshal
 {
     preMarshalInvoked = YES;
 }
 -(void) ice_postUnmarshal
 {
-    _postUnmarshalInvoked = YES;
+    postUnmarshalInvoked = YES;
 }
 @end
 

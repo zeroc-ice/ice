@@ -12,44 +12,35 @@ import Ice, Test
 class BI(Test.B):
     def __init__(self):
         self.preMarshalInvoked = False
-        self._postUnmarshalInvoked = False
-
-    def postUnmarshalInvoked(self, current=None):
-        return self._postUnmarshalInvoked
+        self.postUnmarshalInvoked = False
 
     def ice_preMarshal(self):
         self.preMarshalInvoked = True
 
     def ice_postUnmarshal(self):
-        self._postUnmarshalInvoked = True
+        self.postUnmarshalInvoked = True
 
 class CI(Test.C):
     def __init__(self):
         self.preMarshalInvoked = False
-        self._postUnmarshalInvoked = False
-
-    def postUnmarshalInvoked(self, current=None):
-        return self._postUnmarshalInvoked
+        self.postUnmarshalInvoked = False
 
     def ice_preMarshal(self):
         self.preMarshalInvoked = True
 
     def ice_postUnmarshal(self):
-        self._postUnmarshalInvoked = True
+        self.postUnmarshalInvoked = True
 
 class DI(Test.D):
     def __init__(self):
         self.preMarshalInvoked = False
-        self._postUnmarshalInvoked = False
-
-    def postUnmarshalInvoked(self, current=None):
-        return self._postUnmarshalInvoked
+        self.postUnmarshalInvoked = False
 
     def ice_preMarshal(self):
         self.preMarshalInvoked = True
 
     def ice_postUnmarshal(self):
-        self._postUnmarshalInvoked = True
+        self.postUnmarshalInvoked = True
 
 class EI(Test.E):
     def __init__(self):

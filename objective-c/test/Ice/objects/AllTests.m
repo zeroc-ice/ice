@@ -131,11 +131,11 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test([((TestObjectsB*)b1.theA).theC isKindOfClass:[TestObjectsC class]]);
     test(((TestObjectsC*)((TestObjectsB*)b1.theA).theC).theB == b1.theA);
     test(b1.preMarshalInvoked);
-    test([(id<TestObjectsB>)b1 postUnmarshalInvoked:nil]);
+    test(b1.postUnmarshalInvoked);
     test(b1.theA.preMarshalInvoked);
-    test([(id<TestObjectsA>)b1.theA postUnmarshalInvoked:nil]);
+    test(b1.theA.postUnmarshalInvoked);
     test(((TestObjectsB*)b1.theA).theC.preMarshalInvoked);
-    test([(id<TestObjectsC>)((TestObjectsB*)b1.theA).theC postUnmarshalInvoked:nil]);
+    test(((TestObjectsB*)b1.theA).theC.postUnmarshalInvoked);
 
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2.theA == b2);
@@ -176,13 +176,13 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 //    if(!collocated)
 //    {
     test(d.preMarshalInvoked);
-    test([(id<TestObjectsD>)d postUnmarshalInvoked:nil]);
+    test(d.postUnmarshalInvoked);
     test(d.theA.preMarshalInvoked);
-    test([(id<TestObjectsA>)d.theA postUnmarshalInvoked:nil]);
+    test(d.theA.postUnmarshalInvoked);
     test(d.theB.preMarshalInvoked);
-    test([(id<TestObjectsA>)d.theB postUnmarshalInvoked:nil]);
+    test(d.theB.postUnmarshalInvoked);
     test(d.theB.theC.preMarshalInvoked);
-    test([(id<TestObjectsC>)d.theB.theC postUnmarshalInvoked:nil]);
+    test(d.theB.theC.postUnmarshalInvoked);
 //    }
 
     breakRetainCycleB(b1);
