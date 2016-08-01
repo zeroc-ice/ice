@@ -137,7 +137,7 @@ main(int argc, char* argv[])
     string propValue = "Ice:createStringConverter";
     if(useIconv && !useLocale)
     {
-        propValue =  " iconv=" + narrowEncoding + "," + wideEncoding;
+        propValue +=  " iconv=" + narrowEncoding + "," + wideEncoding;
     }
     propValue += " windows=28605";
 
