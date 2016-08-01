@@ -10,7 +10,7 @@
 #ifndef ICE_INPUT_STREAM_H
 #define ICE_INPUT_STREAM_H
 
-#include <IceUtil/StringConverter.h>
+#include <Ice/StringConverter.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
@@ -121,7 +121,7 @@ public:
     //
     IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
 
-    void setStringConverters(const IceUtil::StringConverterPtr&, const IceUtil::WstringConverterPtr&);
+    void setStringConverters(const StringConverterPtr&, const WstringConverterPtr&);
 
     void setValueFactoryManager(const ValueFactoryManagerPtr&);
 
@@ -964,8 +964,8 @@ private:
     int _startSeq;
     int _minSeqSize;
 
-    IceUtil::StringConverterPtr _stringConverter;
-    IceUtil::WstringConverterPtr _wstringConverter;
+    StringConverterPtr _stringConverter;
+    WstringConverterPtr _wstringConverter;
     ValueFactoryManagerPtr _valueFactoryManager;
     LoggerPtr _logger;
 #ifdef ICE_CPP11_MAPPING

@@ -488,7 +488,7 @@ TestRunner::printToConsoleOutput(const std::string& message)
 
     for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
     {
-        _page->printToConsoleOutput(ref new String(IceUtil::stringToWstring(*i).c_str()), i != lines.begin());
+        _page->printToConsoleOutput(ref new String(Ice::stringToWstring(*i).c_str()), i != lines.begin());
     }
 }
 
@@ -564,15 +564,15 @@ TestRunner::run()
     }
     catch (Test::Common::ServerFailedException& ex)
     {
-        _page->failed(ref new String(IceUtil::stringToWstring("Server failed to start:\n\n" + ex.reason).c_str()));
+        _page->failed(ref new String(Ice::stringToWstring("Server failed to start:\n\n" + ex.reason).c_str()));
     }
     catch(const std::exception& ex)
     {
-        _page->failed(ref new String(IceUtil::stringToWstring(ex.what()).c_str()));
+        _page->failed(ref new String(Ice::stringToWstring(ex.what()).c_str()));
     }
     catch(const string& ex)
     {
-        _page->failed(ref new String(IceUtil::stringToWstring(ex).c_str()));
+        _page->failed(ref new String(Ice::stringToWstring(ex).c_str()));
     }
     catch(...)
     {
@@ -776,7 +776,7 @@ DllCache::loadDll(const std::string& name)
     {
         return p->second;
     }
-    HINSTANCE hnd = LoadPackagedLibrary(IceUtil::stringToWstring(name).c_str(), 0);
+    HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
     _dlls.insert(make_pair(name, hnd));
 
     return hnd;
@@ -929,7 +929,7 @@ MainPage::runSelectedTest()
     config.ipv6 = _ipv6->IsChecked->Value;
 
     config.server = selectedLanguage();
-    config.host = IceUtil::wstringToString(_host->Text->Data());
+    config.host = Ice::wstringToString(_host->Text->Data());
 
     TestRunnerPtr t = new TestRunner(_allTests[_tests->SelectedIndex], config, this, communicator(), _dlls);
     t->start();
@@ -944,7 +944,7 @@ TestSuite::MainPage::initializeSupportedTests()
     for(vector<TestCasePtr>::const_iterator i = _allTests.begin(); i != _allTests.end(); ++i)
     {
         TestCasePtr test = *i;
-        _names->Append(ref new String(IceUtil::stringToWstring(test->name).c_str()));
+        _names->Append(ref new String(Ice::stringToWstring(test->name).c_str()));
     }
     _tests->SelectedIndex = 0;
 }

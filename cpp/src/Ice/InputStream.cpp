@@ -23,7 +23,6 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
-#include <IceUtil/StringConverter.h>
 #include <iterator>
 
 #ifndef ICE_UNALIGNED
@@ -202,7 +201,7 @@ Ice::InputStream::clear()
 }
 
 void
-Ice::InputStream::setStringConverters(const IceUtil::StringConverterPtr& sc, const IceUtil::WstringConverterPtr& wsc)
+Ice::InputStream::setStringConverters(const StringConverterPtr& sc, const WstringConverterPtr& wsc)
 {
     _stringConverter = sc;
     _wstringConverter = wsc;

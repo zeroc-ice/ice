@@ -19,7 +19,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/StringConverter.h>
+#include <Ice/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
@@ -71,11 +71,11 @@ Ice::argsToStringSeq(int /*argc*/, wchar_t* argv[])
     // Don't need to use a wide string converter argv is expected to
     // come from Windows API.
     //
-    const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
+    const StringConverterPtr converter = getProcessStringConverter();
     StringSeq args;
     for(int i=0; argv[i] != 0; i++)
     {
-        args.push_back(IceUtil::wstringToString(argv[i], converter));
+        args.push_back(wstringToString(argv[i], converter));
     }
     return args;
 }
@@ -122,13 +122,13 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 PropertiesPtr
 Ice::createProperties()
 {
-    return PropertiesPtr(new PropertiesI(IceUtil::getProcessStringConverter()));
+    return PropertiesPtr(new PropertiesI(getProcessStringConverter()));
 }
 
 PropertiesPtr
 Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return PropertiesPtr(new PropertiesI(args, defaults, IceUtil::getProcessStringConverter()));
+    return PropertiesPtr(new PropertiesI(args, defaults, getProcessStringConverter()));
 }
 
 PropertiesPtr
@@ -272,7 +272,7 @@ Ice::getProcessLogger()
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = ICE_MAKE_SHARED(Ice::LoggerI, "", "", true, IceUtil::getProcessStringConverter());
+       processLogger = ICE_MAKE_SHARED(LoggerI, "", "", true, getProcessStringConverter());
     }
     return processLogger;
 }
@@ -443,8 +443,8 @@ Ice::stringToIdentity(const string& s)
         }
     }
 
-    ident.name = UTF8ToNative(ident.name, IceUtil::getProcessStringConverter());
-    ident.category = UTF8ToNative(ident.category, IceUtil::getProcessStringConverter());
+    ident.name = UTF8ToNative(ident.name, getProcessStringConverter());
+    ident.category = UTF8ToNative(ident.category, getProcessStringConverter());
 
     return ident;
 }
@@ -456,8 +456,8 @@ Ice::identityToString(const Identity& ident)
     // This method returns the stringified identity. The returned string only
     // contains printable ascii. It can contain UTF8 in the escaped form.
     //
-    string name = nativeToUTF8(ident.name, IceUtil::getProcessStringConverter());
-    string category = nativeToUTF8(ident.category, IceUtil::getProcessStringConverter());
+    string name = nativeToUTF8(ident.name, getProcessStringConverter());
+    string category = nativeToUTF8(ident.category, getProcessStringConverter());
 
     if(category.empty())
     {

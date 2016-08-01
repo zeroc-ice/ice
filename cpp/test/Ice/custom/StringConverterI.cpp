@@ -10,10 +10,10 @@
 #include <StringConverterI.h>
 
 using namespace std;
-using namespace IceUtil;
+using namespace Ice;
 
 Byte*
-Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, IceUtil::UTF8Buffer& buffer) const
+Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
     Byte* targetStart = buffer.getMoreBytes(size, 0);
@@ -44,10 +44,10 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 
 
 Byte*
-Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, IceUtil::UTF8Buffer& buffer) const
+Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
 {
     wstring ws(sourceStart, sourceEnd);
-    string s = IceUtil::wstringToString(ws);
+    string s = wstringToString(ws);
 
     size_t size = s.size();
     Byte* targetStart = buffer.getMoreBytes(size, 0);
@@ -75,6 +75,6 @@ Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd
         s[i] = sourceStart[--j];
     }
 
-    target = IceUtil::stringToWstring(s);
+    target = stringToWstring(s);
 }
 

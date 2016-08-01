@@ -80,13 +80,13 @@ main(int argc, char* argv[])
 
 #if defined(_WIN32)
     wchar_t* value2 = _wgetenv(L"MY_ENV_UNICODE_VARIABLE");
-    test(value2 != 0 && wstring(value2) == IceUtil::stringToWstring(unicodeVar));
+    test(value2 != 0 && wstring(value2) == Ice::stringToWstring(unicodeVar));
 
-    wchar_t* value3 = _wgetenv(IceUtil::stringToWstring(varname1).c_str());
+    wchar_t* value3 = _wgetenv(Ice::stringToWstring(varname1).c_str());
     test(value3 != 0 && wstring(value3) == L"2");
 
     // Environment variables are case insensitive on Windows.
-    wchar_t* value4 = _wgetenv(IceUtil::stringToWstring(varname1).c_str());
+    wchar_t* value4 = _wgetenv(Ice::stringToWstring(varname1).c_str());
     test(value4 != 0 && wstring(value4) == L"2");
 
     char* value5 = getenv("MY_WINDOWS_COMPOSED_VARIABLE");

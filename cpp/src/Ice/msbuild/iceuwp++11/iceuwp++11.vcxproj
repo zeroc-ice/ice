@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\SHA1.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
+    <ClCompile Include="..\..\WindowsStringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\StreamSocket.cpp" />
     <ClCompile Include="..\..\Thread.cpp" />

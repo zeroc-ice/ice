@@ -389,7 +389,7 @@ Activator::activate(const string& name,
             // IceGrid doesn't support to use string converters, so don't need to use
             // any string converter in wstringToString conversions.
             //
-            if(SearchPathW(NULL, IceUtil::stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
+            if(SearchPathW(NULL, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
             {
                 if(_traceLevels->activator > 0)
                 {
@@ -398,7 +398,7 @@ Activator::activate(const string& name,
                 }
                 throw string("Couldn't find `" + path + "' executable.");
             }
-            path = IceUtil::wstringToString(absbuf);
+            path = wstringToString(absbuf);
         }
         else if(!pwd.empty())
         {
@@ -416,7 +416,7 @@ Activator::activate(const string& name,
     if(!pwd.empty())
     {
         wchar_t absbuf[_MAX_PATH];
-        if(_wfullpath(absbuf, IceUtil::stringToWstring(pwd).c_str(), _MAX_PATH) == NULL)
+        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == NULL)
         {
             if(_traceLevels->activator > 0)
             {
@@ -425,7 +425,7 @@ Activator::activate(const string& name,
             }
             throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
         }
-        pwd = IceUtil::wstringToString(absbuf);
+        pwd = wstringToString(absbuf);
     }
 #endif
 
@@ -504,13 +504,13 @@ Activator::activate(const string& name,
     // IceGrid doesn't support to use string converters, so don't need to use
     // any string converter in stringToWstring conversions.
     //
-    wstring wpwd = IceUtil::stringToWstring(pwd);
+    wstring wpwd = stringToWstring(pwd);
     const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : NULL;
 
     //
     // Make a copy of the command line.
     //
-    wchar_t* cmdbuf = _wcsdup(IceUtil::stringToWstring(cmd).c_str());
+    wchar_t* cmdbuf = _wcsdup(stringToWstring(cmd).c_str());
 
     //
     // Create the environment block for the child process. We start with the environment
@@ -554,7 +554,7 @@ Activator::activate(const string& name,
             // IceGrid doesn't support to use string converters, so don't need to use
             // any string converter in stringToWstring conversions.
             //
-            wstring s = IceUtil::stringToWstring(*p);
+            wstring s = stringToWstring(*p);
             wstring::size_type pos = s.find(L'=');
             if(pos != wstring::npos)
             {

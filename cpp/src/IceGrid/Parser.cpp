@@ -246,7 +246,7 @@ const char* _commandsHelp[][3] = {
 int loggerCallbackCount = 0;
 
 #ifdef _WIN32
-IceUtil::StringConverterPtr windowsConsoleConverter = 0;
+Ice::StringConverterPtr windowsConsoleConverter = 0;
 #endif
 
 void outputNewline()
@@ -2923,7 +2923,7 @@ Parser::Parser(const CommunicatorPtr& communicator,
 #ifdef _WIN32
     if(!windowsConsoleConverter)
     {
-        windowsConsoleConverter = IceUtil::createWindowsStringConverter(GetConsoleOutputCP());
+        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
     }
 #endif
 }

@@ -24,14 +24,14 @@ public:
 
     virtual wstring widen(ICE_IN(string) msg, const Ice::Current&)
     {
-        return IceUtil::stringToWstring(msg, IceUtil::getProcessStringConverter(),
-                                        IceUtil::getProcessWstringConverter());
+        return stringToWstring(msg, Ice::getProcessStringConverter(),
+                               Ice::getProcessWstringConverter());
     }
 
     virtual string narrow(ICE_IN(wstring) wmsg, const Ice::Current&)
     {
-        return IceUtil::wstringToString(wmsg, IceUtil::getProcessStringConverter(),
-                                        IceUtil::getProcessWstringConverter());
+        return wstringToString(wmsg, Ice::getProcessStringConverter(),
+                               Ice::getProcessWstringConverter());
     }
 
     virtual void shutdown(const Ice::Current& current)

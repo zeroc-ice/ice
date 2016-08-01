@@ -469,7 +469,7 @@ IcePatch2Internal::readDirectory(const string& pa)
 
     while(true)
     {
-        string name = IceUtil::wstringToString(data.name);
+        string name = wstringToString(data.name);
         assert(!name.empty());
 
         if(name != ".." && name != ".")

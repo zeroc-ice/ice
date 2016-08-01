@@ -106,7 +106,7 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
                 // Windows API.
                 //
                 const Address& addr = _proxy ? _proxy->getAddress() : _addr;
-                ex.host = IceUtil::wstringToString(addr.host->RawName->Data(), IceUtil::getProcessStringConverter());
+                ex.host = wstringToString(addr.host->RawName->Data(), Ice::getProcessStringConverter());
                 throw;
             }
         }
@@ -553,7 +553,7 @@ StreamSocket::startWrite(Buffer& buf)
             // Don't need to pass a wide string converter as the wide string come from
             // Windows API.
             //
-            ex.host = IceUtil::wstringToString(addr.host->RawName->Data(), IceUtil::getProcessStringConverter());
+            ex.host = wstringToString(addr.host->RawName->Data(), Ice::getProcessStringConverter());
             throw;
         }
         return false;

@@ -949,8 +949,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _batchAutoFlushSize(0),
     _collectObjects(false),
     _implicitContext(0),
-    _stringConverter(IceUtil::getProcessStringConverter()),
-    _wstringConverter(IceUtil::getProcessWstringConverter()),
+    _stringConverter(Ice::getProcessStringConverter()),
+    _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
 {
     try
@@ -1343,9 +1343,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     //
     // Reset _stringConverter and _wstringConverter, in case a plugin changed them
     //
-    _stringConverter = IceUtil::getProcessStringConverter();
+    _stringConverter = Ice::getProcessStringConverter();
 
-    IceUtil::WstringConverterPtr newWstringConverter = IceUtil::getProcessWstringConverter();
+    Ice::WstringConverterPtr newWstringConverter = Ice::getProcessWstringConverter();
     if(newWstringConverter)
     {
         _wstringConverter = newWstringConverter;

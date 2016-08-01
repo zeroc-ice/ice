@@ -512,12 +512,12 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
             {
                 case CERT_ALT_NAME_RFC822_NAME:
                 {
-                    altNames.push_back(make_pair(AltNameEmail, IceUtil::wstringToString(entry->pwszRfc822Name)));
+                    altNames.push_back(make_pair(AltNameEmail, wstringToString(entry->pwszRfc822Name)));
                     break;
                 }
                 case CERT_ALT_NAME_DNS_NAME:
                 {
-                    altNames.push_back(make_pair(AltNameDNS, IceUtil::wstringToString(entry->pwszDNSName)));
+                    altNames.push_back(make_pair(AltNameDNS, wstringToString(entry->pwszDNSName)));
                     break;
                 }
                 case CERT_ALT_NAME_DIRECTORY_NAME:
@@ -527,7 +527,7 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
                 }
                 case CERT_ALT_NAME_URL:
                 {
-                    altNames.push_back(make_pair(AltNameURL, IceUtil::wstringToString(entry->pwszURL)));
+                    altNames.push_back(make_pair(AltNameURL, wstringToString(entry->pwszURL)));
                     break;
                 }
                 case CERT_ALT_NAME_IP_ADDRESS:
@@ -576,19 +576,19 @@ certificateAltNames(Windows::Security::Cryptography::Certificates::SubjectAltern
     vector<pair<int, string> > altNames;
     for (auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
     {
-        altNames.push_back(make_pair(AltNameEmail, IceUtil::wstringToString(iter->Current->Data())));
+        altNames.push_back(make_pair(AltNameEmail, wstringToString(iter->Current->Data())));
     }
     for (auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
     {
-        altNames.push_back(make_pair(AltNameDNS, IceUtil::wstringToString(iter->Current->Data())));
+        altNames.push_back(make_pair(AltNameDNS, wstringToString(iter->Current->Data())));
     }
     for (auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
     {
-        altNames.push_back(make_pair(AltNameURL, IceUtil::wstringToString(iter->Current->Data())));
+        altNames.push_back(make_pair(AltNameURL, wstringToString(iter->Current->Data())));
     }
     for (auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
     {
-        altNames.push_back(make_pair(AltNAmeIP, IceUtil::wstringToString(iter->Current->Data())));
+        altNames.push_back(make_pair(AltNAmeIP, wstringToString(iter->Current->Data())));
     }
     return altNames;
 }
@@ -1542,7 +1542,7 @@ Certificate::getIssuerDN() const
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_issuer_name(_cert))));
 #elif defined(ICE_OS_WINRT)
-    return DistinguishedName(IceUtil::wstringToString(_cert->Issuer->Data()));
+    return DistinguishedName(wstringToString(_cert->Issuer->Data()));
 #else
 #   error "Unknown platform"
 #endif
@@ -1588,7 +1588,7 @@ Certificate::getSubjectDN() const
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(_cert))));
 #elif defined(ICE_OS_WINRT)
-    return DistinguishedName(IceUtil::wstringToString(_cert->Subject->Data()));
+    return DistinguishedName(wstringToString(_cert->Subject->Data()));
 #else
 #   error "Unknown platform"
 #endif

@@ -19,7 +19,7 @@
 #include <Ice/TraceLevels.h>
 
 #if defined(ICE_OS_WINRT)
-#   include <IceUtil/StringConverter.h>
+#   include <Ice/StringConverter.h>
 #endif
 
 using namespace std;
@@ -863,7 +863,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             //
             Error out(_instance->initializationData().logger);
             out << "exception in `" << _prefix << "':\n"
-                << IceUtil::wstringToString(ex->Message->Data(), _instance->getStringConverter())
+                << wstringToString(ex->Message->Data(), _instance->getStringConverter())
                 << "\nevent handler: " << current._handler->toString();
         }
 #endif

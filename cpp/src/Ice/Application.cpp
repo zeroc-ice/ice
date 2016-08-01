@@ -314,7 +314,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     if(argc > 0 && argv[0] && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
     {
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", true, IceUtil::getProcessStringConverter()));
+        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", true, Ice::getProcessStringConverter()));
     }
 
     InitializationData initData;
@@ -369,7 +369,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
         const bool convert = initializationData.properties ?
                 initializationData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initializationData.properties->getProperty("Ice.StdErr").empty() : true;
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", convert, IceUtil::getProcessStringConverter()));
+        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", convert, Ice::getProcessStringConverter()));
     }
 
     if(IceInternal::Application::_communicator != 0)
@@ -662,7 +662,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
                 initData.properties->getProperty("Ice.StdErr").empty();
 
             setProcessLogger(ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert,
-                                         IceUtil::getProcessStringConverter()));
+                                         Ice::getProcessStringConverter()));
         }
 
         IceInternal::Application::_communicator = initialize(argc, argv, initData);

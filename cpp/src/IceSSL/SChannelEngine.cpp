@@ -395,7 +395,7 @@ SChannelEngine::initialize()
             do
             {
                 string s = password(false);
-                store = PFXImportCertStore(&pfxBlob, stringToWstring(s).c_str(), importFlags);
+                store = PFXImportCertStore(&pfxBlob, Ice::stringToWstring(s).c_str(), importFlags);
                 err = store ? 0 : GetLastError();
             }
             while(err == ERROR_INVALID_PASSWORD && passwordPrompt && ++count < passwordRetryMax);
@@ -537,7 +537,7 @@ SChannelEngine::initialize()
                 //
                 // Create a new RSA key set to store our key
                 //
-                const wstring keySetName = stringToWstring(generateUUID());
+                const wstring keySetName = Ice::stringToWstring(generateUUID());
                 HCRYPTPROV cryptProv = 0;
 
                 DWORD contextFlags = CRYPT_NEWKEYSET;

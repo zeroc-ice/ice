@@ -52,13 +52,13 @@ const IceUtil::Time retryTimeout = IceUtil::Time::seconds(5 * 60);
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
-                      bool convert, const IceUtil::StringConverterPtr& converter,
+                      bool convert, const StringConverterPtr& converter,
                       size_t sizeMax) :
     _prefix(prefix),
     _convert(convert),
     _converter(converter),
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-    _consoleConverter(IceUtil::createWindowsStringConverter(GetConsoleOutputCP())),
+    _consoleConverter(createWindowsStringConverter(GetConsoleOutputCP())),
 #endif
     _sizeMax(sizeMax)
 {
@@ -235,7 +235,7 @@ Ice::LoggerI::write(const string& message, bool indent)
     else
     {
 #if defined(ICE_OS_WINRT)
-        OutputDebugString(IceUtil::stringToWstring(s).c_str());
+        OutputDebugString(stringToWstring(s).c_str());
 #elif defined(_WIN32)
         //
         // Convert the message from the native narrow string encoding to the console
@@ -249,7 +249,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             // to Windows console. When _convert is set to false we always output
             // UTF-8 encoded messages.
             //
-            fprintf_s(stderr, "%s\n", IceUtil::nativeToUTF8(s, _converter).c_str());
+            fprintf_s(stderr, "%s\n", nativeToUTF8(s, _converter).c_str());
             fflush(stderr);
         }
         else
@@ -257,7 +257,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             try
             {
                 // Convert message to UTF-8
-                string u8s = IceUtil::nativeToUTF8(s, _converter);
+                string u8s = nativeToUTF8(s, _converter);
 
                 // Then from UTF-8 to console CP
                 string consoleString;

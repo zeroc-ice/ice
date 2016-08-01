@@ -44,8 +44,8 @@ main(int argc, char** argv)
 
     try
     {
-        IceUtil::setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
-        IceUtil::setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
+        setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
+        setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
 
         communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);

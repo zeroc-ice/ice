@@ -50,7 +50,7 @@ main(int argc, char* argv[])
 #   ifdef __MINGW32__
         dir = argv[1];
 #   else
-        dir = IceUtil::wstringToString(argv[1]);
+        dir = wstringToString(argv[1]);
 #   endif
         dir += "\\";
 #else
@@ -207,11 +207,11 @@ main(int argc, char* argv[])
         // With UTF-16 encoding, that's 8 and the first 2 euros will use the first 6
         // bytes of the initial buffer.
 
-        string ns = IceUtil::wstringToString(ws);
+        string ns = wstringToString(ws);
 
         const string good = "\xE2\x82\xAC\xE2\x82\xAC\xF0\x90\x90\xB7";
         test(ns == good);
-        test(ws == IceUtil::stringToWstring(ns));
+        test(ws == stringToWstring(ns));
 
         cout << "ok" << endl;
 
@@ -246,15 +246,15 @@ main(int argc, char* argv[])
 
         const long iterations = 5000000;
         const wstring ws = L"abcdefghijklmnopqrstuvwxyz+\u20ac\u20ac\U00010437";
-        const string ns = IceUtil::wstringToString(ws);
-        test(IceUtil::stringToWstring(ns) == ws);
+        const string ns = wstringToString(ws);
+        test(stringToWstring(ns) == ws);
 
         cout << "testing performance with " << iterations << " iterations... ";
 
         IceUtil::Time toU8 = IceUtil::Time::now(IceUtil::Time::Monotonic);
         for(long i = 0; i < iterations; ++i)
         {
-            test(IceUtil::wstringToString(ws) == ns);
+            test(wstringToString(ws) == ns);
         }
         IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
         toU8 = now - toU8;
@@ -262,7 +262,7 @@ main(int argc, char* argv[])
         IceUtil::Time fromU8 = now;
         for(long i = 0; i < iterations; ++i)
         {
-            test(IceUtil::stringToWstring(ns) == ws);
+            test(stringToWstring(ns) == ws);
         }
         fromU8 = IceUtil::Time::now(IceUtil::Time::Monotonic) - fromU8;
 
@@ -295,11 +295,11 @@ main(int argc, char* argv[])
         {
             try
             {
-                wstring ws = IceUtil::stringToWstring(badUTF8[i]);
+                wstring ws = stringToWstring(badUTF8[i]);
                 wcerr << L"Unexpected: " << ws << endl;
                 test(false);
             }
-            catch(const IceUtil::IllegalConversionException&)
+            catch(const IllegalConversionException&)
             {}
         }
 
@@ -319,10 +319,10 @@ main(int argc, char* argv[])
         {
             try
             {
-                string s = IceUtil::wstringToString(badWstring[i]);
+                string s = wstringToString(badWstring[i]);
                 test(false);
             }
-            catch(const IceUtil::IllegalConversionException&)
+            catch(const IllegalConversionException&)
             {}
         }
 #endif

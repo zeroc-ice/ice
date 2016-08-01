@@ -1,3 +1,6 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -73,14 +76,6 @@ ICE_DEFINE_PTR(WstringConverterPtr, WstringConverter);
 //
 //
 ICE_API WstringConverterPtr createUnicodeWstringConverter();
-
-#ifdef _WIN32
-//
-// Create a StringConverter that converts to and from narrow chars
-// in the given code page, using MultiByteToWideChar and WideCharToMultiByte
-//
-ICE_API StringConverterPtr createWindowsStringConverter(unsigned int);
-#endif
 
 //
 // Retrieve the per process narrow string converter.
@@ -160,6 +155,7 @@ ICE_API std::vector<unsigned int> toUTF32(const std::vector<IceUtil::Byte>&);
 // Convert from UTF-32 to UTF-8
 //
 ICE_API std::vector<IceUtil::Byte> fromUTF32(const std::vector<unsigned int>&);
+
 }
 
 #endif

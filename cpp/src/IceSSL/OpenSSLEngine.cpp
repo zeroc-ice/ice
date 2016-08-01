@@ -19,7 +19,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
-#include <IceUtil/StringConverter.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>

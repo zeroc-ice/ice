@@ -100,7 +100,7 @@ private:
 void
 setNoIndexingAttribute(const string& pa)
 {
-    wstring path = IceUtil::stringToWstring(pa);
+    wstring path = Ice::stringToWstring(pa);
     DWORD attrs = GetFileAttributesW(path.c_str());
     if(attrs == INVALID_FILE_ATTRIBUTES)
     {

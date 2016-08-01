@@ -473,7 +473,7 @@ getStackTrace(const vector<void*>& stackFrames)
         if(ok)
         {
 #ifdef DBGHELP_TRANSLATE_TCHAR
-            s << IceUtil::wstringToString(symbol->Name, converter);
+            s << wstringToString(symbol->Name, converter);
 #else
             s << symbol->Name;
 #endif
@@ -482,7 +482,7 @@ getStackTrace(const vector<void*>& stackFrames)
             {
                 s << " at "
 #ifdef DBGHELP_TRANSLATE_TCHAR
-                  << IceUtil::wstringToString(line.FileName, converter)
+                  << wstringToString(line.FileName, converter)
 #else
                   << line.FileName
 #endif
@@ -883,46 +883,5 @@ IceUtil::OptionalNotSetException*
 IceUtil::OptionalNotSetException::ice_clone() const
 {
     return new OptionalNotSetException(*this);
-}
-#endif
-
-#ifndef _WIN32
-IceUtil::IconvInitializationException::IconvInitializationException(const char* file, int line, const string& reason) :
-    ExceptionHelper<IconvInitializationException>(file, line),
-    _reason(reason)
-{
-}
-
-#ifndef ICE_CPP11_COMPILER
-IceUtil::IconvInitializationException::~IconvInitializationException() throw()
-{
-}
-#endif
-
-void
-IceUtil::IconvInitializationException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ": " << _reason;
-}
-
-string
-IceUtil::IconvInitializationException::ice_id() const
-{
-    return "::IceUtil::IconvInitializationException";
-}
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::IconvInitializationException*
-IceUtil::IconvInitializationException::ice_clone() const
-{
-    return new IconvInitializationException(*this);
-}
-#endif
-
-string
-IceUtil::IconvInitializationException::reason() const
-{
-    return _reason;
 }
 #endif

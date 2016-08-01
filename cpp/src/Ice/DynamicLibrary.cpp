@@ -9,7 +9,7 @@
 
 #include <Ice/DynamicLibrary.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/StringConverter.h>
+#include <Ice/StringConverter.h>
 
 #ifndef _WIN32
 #   include <dlfcn.h>
@@ -214,9 +214,9 @@ IceInternal::DynamicLibrary::load(const string& lib)
     // to Windows API.
     //
 #ifdef ICE_OS_WINRT
-    _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(lib, IceUtil::getProcessStringConverter()).c_str(), 0);
+    _hnd = LoadPackagedLibrary(stringToWstring(lib, getProcessStringConverter()).c_str(), 0);
 #elif defined(_WIN32)
-    _hnd = LoadLibraryW(IceUtil::stringToWstring(lib, IceUtil::getProcessStringConverter()).c_str());
+    _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
 
     int flags = RTLD_NOW | RTLD_GLOBAL;

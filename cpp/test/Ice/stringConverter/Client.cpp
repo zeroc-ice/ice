@@ -48,19 +48,19 @@ main(int argc, char* argv[])
     //
     // 28605 == ISO 8859-15 codepage
     //
-    IceUtil::setProcessStringConverter(IceUtil::createWindowsStringConverter(28605));
+    setProcessStringConverter(Ice::createWindowsStringConverter(28605));
     useIconv = false;
 
 #elif defined(__hpux)
     if(useLocale)
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>);
+        setProcessStringConverter(Ice::createIconvStringConverter<char>);
     }
     else
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>("iso815"));
+        setProcessStringConverter(Ice::createIconvStringConverter<char>("iso815"));
     }
-    IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("ucs4"));
+    setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("ucs4"));
 
 #elif defined(_AIX)
 
@@ -68,46 +68,46 @@ main(int argc, char* argv[])
 
     if(useLocale)
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>());
+        setProcessStringConverter(Ice::createIconvStringConverter<char>());
     }
     else
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>("ISO8859-15"));
+        setProcessStringConverter(Ice::createIconvStringConverter<char>("ISO8859-15"));
     }
 
     if(sizeof(wchar_t) == 4)
     {
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-32"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32"));
     }
     else
     {
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-16"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16"));
     }
 #else
 
     if(useLocale)
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>());
+        setProcessStringConverter(Ice::createIconvStringConverter<char>());
     }
     else
     {
-        IceUtil::setProcessStringConverter(IceUtil::createIconvStringConverter<char>("ISO8859-15"));
+        setProcessStringConverter(Ice::createIconvStringConverter<char>("ISO8859-15"));
     }
 
     if(sizeof(wchar_t) == 4)
     {
 #  ifdef ICE_BIG_ENDIAN
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-32BE"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32BE"));
 #  else
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-32LE"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32LE"));
 #  endif
     }
     else
     {
 #  ifdef ICE_BIG_ENDIAN
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-16BE"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16BE"));
 #  else
-        IceUtil::setProcessWstringConverter(IceUtil::createIconvStringConverter<wchar_t>("UTF-16LE"));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16LE"));
 #  endif
     }
 #endif

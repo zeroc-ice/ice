@@ -73,7 +73,7 @@ getIceHome()
 {
     vector<wchar_t> buf(256);
     DWORD ret = GetEnvironmentVariableW(L"ICE_HOME", &buf[0], static_cast<DWORD>(buf.size()));
-    string iceHome = (ret > 0 && ret < buf.size()) ? IceUtil::wstringToString(&buf[0]) : string("");
+    string iceHome = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
     if(!iceHome.empty())
     {
         return iceHome;
@@ -83,7 +83,7 @@ getIceHome()
         HKEY hKey;
 
         string key = string("SOFTWARE\\ZeroC\\Ice ") + ICE_STRING_VERSION;
-        const wstring keyName = IceUtil::stringToWstring(key);
+        const wstring keyName = stringToWstring(key);
 
         if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
         {
@@ -96,7 +96,7 @@ getIceHome()
         {
             return "";
         }
-        return IceUtil::wstringToString(wstring(buf));
+        return wstringToString(wstring(buf));
     }
 }
 #endif
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
     bool binDist = false;
     vector<wchar_t> buf(256);
     DWORD ret = GetEnvironmentVariableW(L"USE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
-    string valstr = (ret > 0 && ret < buf.size()) ? IceUtil::wstringToString(&buf[0]) : string("");
+    string valstr = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
     binDist = valstr == "yes";
 
     if(binDist)

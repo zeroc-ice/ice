@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/Properties.h>
-#include <IceUtil/StringConverter.h>
+#include <Ice/StringConverter.h>
 
 #include <set>
 
@@ -44,14 +44,15 @@ public:
     PropertiesI(const PropertiesI*);
     
 private:
-    PropertiesI(const IceUtil::StringConverterPtr&);
-    PropertiesI(StringSeq&, const PropertiesPtr&, const IceUtil::StringConverterPtr&);
+
+    PropertiesI(const StringConverterPtr&);
+    PropertiesI(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
 
     friend ICE_API PropertiesPtr createProperties();
     friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
     friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&);
 
-    void parseLine(const std::string&, const IceUtil::StringConverterPtr&);
+    void parseLine(const std::string&, const StringConverterPtr&);
 
     void loadConfig();
 
@@ -72,7 +73,7 @@ private:
         bool used;
     };
     std::map<std::string, PropertyValue> _properties;
-    const IceUtil::StringConverterPtr _converter;
+    const StringConverterPtr _converter;
 };
 
 }

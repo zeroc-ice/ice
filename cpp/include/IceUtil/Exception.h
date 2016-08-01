@@ -266,32 +266,6 @@ public:
 #endif
 };
 
-#ifndef _WIN32
-class ICE_API IconvInitializationException : public ExceptionHelper<IconvInitializationException>
-{
-public:
-
-    IconvInitializationException(const char*, int, const std::string&);
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IconvInitializationException() throw();
-#endif
-
-    virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual IconvInitializationException* ice_clone() const;
-#endif
-
-    std::string reason() const;
-
-private:
-
-    std::string _reason;
-};
-#endif
-
 }
 
 namespace IceUtilInternal

@@ -82,7 +82,7 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
             }
             catch(Ice::DNSException& ex)
             {
-                ex.host = IceUtil::wstringToString(_addr.host->RawName->Data(), IceUtil::getProcessStringConverter());
+                ex.host = wstringToString(_addr.host->RawName->Data(), Ice::getProcessStringConverter());
                 throw;
             }
         }

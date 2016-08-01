@@ -1457,7 +1457,7 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
         storeLoc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
     }
 
-    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, stringToWstring(name).c_str());
+    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, Ice::stringToWstring(name).c_str());
     if(!store)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: failed to open certificate store `" + name +
@@ -1558,13 +1558,13 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
 
                 if(field == "SUBJECT" || field == "ISSUER")
                 {
-                    const wstring argW = stringToWstring(arg);
+                    const wstring argW = Ice::stringToWstring(arg);
                     DWORD findType = field == "SUBJECT" ? CERT_FIND_SUBJECT_STR : CERT_FIND_ISSUER_STR;
                     addMatchingCertificates(store, tmpStore, findType, argW.c_str());
                 }
                 else if(field == "SUBJECTDN" || field == "ISSUERDN")
                 {
-                    const wstring argW = stringToWstring(arg);
+                    const wstring argW = Ice::stringToWstring(arg);
                     DWORD flags[] = {
                         CERT_OID_NAME_STR,
                         CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,

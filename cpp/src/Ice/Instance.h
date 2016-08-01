@@ -15,7 +15,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
-#include <IceUtil/StringConverter.h>
+#include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstrumentationF.h>
@@ -135,8 +135,8 @@ public:
     void setThreadHook(const Ice::ThreadNotificationPtr&);
 #endif
 
-    IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
-    IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
+    Ice::StringConverterPtr getStringConverter() const { return _stringConverter; }
+    Ice::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
 
     BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
     void setSndBufSizeWarn(Ice::Short type, int size);
@@ -198,8 +198,8 @@ private:
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
     const Ice::ImplicitContextIPtr _implicitContext;
-    IceUtil::StringConverterPtr _stringConverter;
-    IceUtil::WstringConverterPtr _wstringConverter;
+    Ice::StringConverterPtr _stringConverter;
+    Ice::WstringConverterPtr _wstringConverter;
     bool _adminEnabled;
     Ice::ObjectAdapterPtr _adminAdapter;
     Ice::FacetMap _adminFacets;

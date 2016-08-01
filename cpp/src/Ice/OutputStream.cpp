@@ -20,7 +20,6 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
-#include <IceUtil/StringConverter.h>
 #include <iterator>
 
 using namespace std;
@@ -153,7 +152,7 @@ Ice::OutputStream::clear()
 }
 
 void
-Ice::OutputStream::setStringConverters(const IceUtil::StringConverterPtr& sc, const IceUtil::WstringConverterPtr& wsc)
+Ice::OutputStream::setStringConverters(const StringConverterPtr& sc, const WstringConverterPtr& wsc)
 {
     _stringConverter = sc;
     _wstringConverter = wsc;
