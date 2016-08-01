@@ -63,11 +63,10 @@ public:
         // the need to use a custom thread callback.
         //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-        CRYPTO_set_locking_callback(0);
-        CRYPTO_set_id_callback(0);
-
         if(locks)
         {
+            CRYPTO_set_locking_callback(0);
+            CRYPTO_set_id_callback(0);
             delete[] locks;
             locks = 0;
         }
@@ -223,7 +222,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
             //
             // Create the mutexes and set the callbacks.
             //
-            if(!locks)
+            if(!locks && !CRYPTO_get_id_callback())
             {
                 locks = new IceUtil::Mutex[CRYPTO_num_locks()];
                 CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
