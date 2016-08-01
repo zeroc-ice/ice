@@ -26,6 +26,9 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
 
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+
     string narrowEncoding;
     string wideEncoding;
 
@@ -102,7 +105,8 @@ main(int argc, char* argv[])
         setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>(wideEncoding));
 
 #endif
-        Ice::CommunicatorPtr communicator = Ice::initialize();
+
+        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
         Test::MyObjectPrxPtr proxy =
             ICE_UNCHECKED_CAST(Test::MyObjectPrx,
                                communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
@@ -129,44 +133,40 @@ main(int argc, char* argv[])
     Ice::setProcessStringConverter(ICE_NULLPTR);
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
 
+
+    string propValue = "Ice:createStringConverter iconv=";
+    if(useIconv && !useLocale)
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties();
-
-        string propValue = "Ice:createStringConverter iconv=";
-        if(useIconv && !useLocale)
-        {
-            propValue += narrowEncoding + "," + wideEncoding;
-        }
-        propValue += " windows=28605";
-
-        initData.properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
-
-        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
-        Test::MyObjectPrxPtr proxy =
-            ICE_UNCHECKED_CAST(Test::MyObjectPrx,
-                               communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
-
-        char oe = char(0xBD); // A single character in ISO Latin 9
-        string msg = string("tu me fends le c") + oe + "ur!";
-        cout << "testing string converter plug-in";
-        if(useLocale)
-        {
-            cout << " (using locale)";
-        }
-        if(useIconv)
-        {
-            cout << " (using iconv)";
-        }
-        cout << "... " << flush;
-        wstring wmsg = proxy->widen(msg);
-        test(proxy->narrow(wmsg) == msg);
-        test(wmsg.size() == msg.size());
-        cout << "ok" << endl;
-
-        proxy->shutdown();
-        communicator->destroy();
+        propValue += narrowEncoding + "," + wideEncoding;
     }
+    propValue += " windows=28605";
+
+    initData.properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
+
+    Ice::CommunicatorPtr communicator = Ice::initialize(initData);
+    Test::MyObjectPrxPtr proxy =
+        ICE_UNCHECKED_CAST(Test::MyObjectPrx,
+                           communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
+
+    char oe = char(0xBD); // A single character in ISO Latin 9
+    string msg = string("tu me fends le c") + oe + "ur!";
+    cout << "testing string converter plug-in";
+    if(useLocale)
+    {
+        cout << " (using locale)";
+    }
+    if(useIconv)
+    {
+        cout << " (using iconv)";
+    }
+    cout << "... " << flush;
+    wstring wmsg = proxy->widen(msg);
+    test(proxy->narrow(wmsg) == msg);
+    test(wmsg.size() == msg.size());
+    cout << "ok" << endl;
+
+    proxy->shutdown();
+    communicator->destroy();
 
     return EXIT_SUCCESS;
 }
