@@ -318,4 +318,10 @@ Instance::destroy()
     // replica (TopicManager) which holds the instance causing a
     // cyclic reference.
     _node = 0;
+    //
+    // The observer instance must be cleared as it holds the
+    // TopicManagerImpl which hodlds the instance causing a 
+    // cyclic reference.
+    //
+    _observer = 0;
 }
