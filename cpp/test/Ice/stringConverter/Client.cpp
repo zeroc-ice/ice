@@ -16,13 +16,6 @@
 
 using namespace std;
 
-class Client : public Ice::Application
-{
-public:
-
-    virtual int run(int, char*[]);
-};
-
 static bool useLocale = false;
 static bool useIconv = true;
 
@@ -32,8 +25,9 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-
-    Client app;
+    
+    string narrowEncoding;
+    string wideEncoding;
 
 #ifndef _WIN32
     //
@@ -45,98 +39,124 @@ main(int argc, char* argv[])
 #endif
 
 #if defined(_WIN32)
-    //
-    // 28605 == ISO 8859-15 codepage
-    //
-    setProcessStringConverter(Ice::createWindowsStringConverter(28605));
     useIconv = false;
 
 #elif defined(__hpux)
-    if(useLocale)
+    if(!useLocale)
     {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>);
+        narrowEncoding = "iso815";
     }
-    else
-    {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>("iso815"));
-    }
-    setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("ucs4"));
+    wideEncoding = "ucs4";
 
 #elif defined(_AIX)
 
     // Always big-endian
 
-    if(useLocale)
+    if(!useLocale)
     {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>());
-    }
-    else
-    {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>("ISO8859-15"));
+        narrowEncoding = "ISO8859-15";
     }
 
     if(sizeof(wchar_t) == 4)
     {
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32"));
+        wideEncoding = "UTF-32";
     }
     else
     {
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16"));
+        wideEncoding = "UTF-16";
     }
 #else
 
-    if(useLocale)
+    if(!useLocale)
     {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>());
-    }
-    else
-    {
-        setProcessStringConverter(Ice::createIconvStringConverter<char>("ISO8859-15"));
+        narrowEncoding = "ISO8859-15";
     }
 
     if(sizeof(wchar_t) == 4)
     {
 #  ifdef ICE_BIG_ENDIAN
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32BE"));
+        wideEncoding = "UTF-32BE";
 #  else
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-32LE"));
+        wideEncoding = "UTF-32LE";
 #  endif
     }
     else
     {
 #  ifdef ICE_BIG_ENDIAN
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16BE"));
+        wideEncoding = "UTF-16BE";
 #  else
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>("UTF-16LE"));
+        wideEncoding = "UTF-16LE";
 #  endif
     }
 #endif
-    return app.main(argc, argv);
-}
 
-int
-Client::run(int, char*[])
-{
-    Test::MyObjectPrxPtr proxy =
-        ICE_UNCHECKED_CAST(Test::MyObjectPrx,
-                           communicator()->stringToProxy("test:" + getTestEndpoint(communicator(), 0)));
+    {
+#ifdef _WIN32
+        //
+        // 28605 == ISO 8859-15 codepage
+        //
+        setProcessStringConverter(Ice::createWindowsStringConverter(28605));
+#else
+        setProcessStringConverter(Ice::createIconvStringConverter<char>(narrowEncoding.c_str()));
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>(wideEncoding.c_str()));
+#endif
+        Ice::CommunicatorPtr communicator = Ice::initialize();
+        Test::MyObjectPrxPtr proxy =
+            ICE_UNCHECKED_CAST(Test::MyObjectPrx,
+                               communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
 
-    char oe = char(0xBD); // A single character in ISO Latin 9
-    string msg = string("tu me fends le c") + oe + "ur!";
-    cout << "testing string converter";
-    if(useLocale)
-    {
-        cout << " (using locale)";
+        char oe = char(0xBD); // A single character in ISO Latin 9
+        string msg = string("tu me fends le c") + oe + "ur!";
+        cout << "testing string converter";
+        if(useLocale)
+        {
+            cout << " (using locale)";
+        }
+        if(useIconv)
+        {
+            cout << " (using iconv)";
+        }
+        cout << "... " << flush;
+        wstring wmsg = proxy->widen(msg);
+        test(proxy->narrow(wmsg) == msg);
+        test(wmsg.size() == msg.size());
+        communicator->destroy();
+        cout << "ok" << endl;
     }
-    if(useIconv)
+    
+    IceUtil::setProcessStringConverter(ICE_NULLPTR);
+    IceUtil::setProcessWstringConverter(ICE_NULLPTR);
+    
     {
-        cout << " (using iconv)";
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.Plugin.IceStringConverter", 
+                                         string("Ice:createStringConverter iconv=") + narrowEncoding + "," + wideEncoding + " windows=28605");
+
+        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
+        Test::MyObjectPrxPtr proxy =
+            ICE_UNCHECKED_CAST(Test::MyObjectPrx,
+                               communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
+
+        char oe = char(0xBD); // A single character in ISO Latin 9
+        string msg = string("tu me fends le c") + oe + "ur!";
+        cout << "testing string converter plug-in";
+        if(useLocale)
+        {
+            cout << " (using locale)";
+        }
+        if(useIconv)
+        {
+            cout << " (using iconv)";
+        }
+        cout << "... " << flush;
+        wstring wmsg = proxy->widen(msg);
+        test(proxy->narrow(wmsg) == msg);
+        test(wmsg.size() == msg.size());
+        cout << "ok" << endl;
+        
+        proxy->shutdown();
+        communicator->destroy();
     }
-    cout << "... " << flush;
-    wstring wmsg = proxy->widen(msg);
-    test(proxy->narrow(wmsg) == msg);
-    test(wmsg.size() == msg.size());
-    cout << "ok" << endl;
-    proxy->shutdown();
     return EXIT_SUCCESS;
 }
