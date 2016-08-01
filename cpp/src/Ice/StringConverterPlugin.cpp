@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2015 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,48 +9,51 @@
 
 #include <Ice/Config.h>
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/StringConverter.h>
 #include <Ice/IconvStringConverter.h>
+#include <Ice/Initialize.h>
+#include <Ice/Communicator.h>
+#include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
 
-#include <Ice/Communicator.h>
-#include <Ice/Initialize.h>
-#include <Ice/LocalException.h>
-#include <Ice/LoggerUtil.h>
-
-using namespace IceUtilInternal;
 using namespace Ice;
 using namespace std;
 
-class ICE_API StringConverterPlugin : public Plugin
+namespace
+{
+
+class StringConverterPlugin : public Plugin
 {
 public:
 
-    StringConverterPlugin(const CommunicatorPtr&, 
-                          const IceUtil::StringConverterPtr&, const IceUtil::WstringConverterPtr& = 0);
-    
+    StringConverterPlugin(const CommunicatorPtr&,
+                          const StringConverterPtr&, const WstringConverterPtr&);
+
     virtual void initialize();
-    
+
     virtual void destroy();
 };
 
-StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& /*notused*/, 
-                                             const IceUtil::StringConverterPtr& stringConverter, 
-                                             const IceUtil::WstringConverterPtr& wstringConverter) 
+StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& /*notused*/,
+                                             const StringConverterPtr& stringConverter,
+                                             const WstringConverterPtr& wstringConverter)
 {
-    IceUtil::setProcessStringConverter(stringConverter);
-    IceUtil::setProcessWstringConverter(wstringConverter);
+    setProcessStringConverter(stringConverter);
+    setProcessWstringConverter(wstringConverter);
 }
-    
-void StringConverterPlugin::initialize()
+
+void
+StringConverterPlugin::initialize()
 {
     // no op
 }
-    
-void StringConverterPlugin::destroy()
+
+void
+StringConverterPlugin::destroy()
 {
     // no op
+}
+
 }
 
 //
@@ -62,8 +65,8 @@ extern "C"
 ICE_API Plugin*
 createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
-    IceUtil::StringConverterPtr stringConverter;
-    IceUtil::WstringConverterPtr wstringConverter;
+    StringConverterPtr stringConverter;
+    WstringConverterPtr wstringConverter;
 
     if(args.size() > 2)
     {
@@ -133,18 +136,18 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
         {
             case 0:
             {
-                stringConverter = createIconvStringConverter<char>("");
+                stringConverter = createIconvStringConverter<char>();
                 break;
             }
             case 1:
             {
-                stringConverter = createIconvStringConverter<char>(iconvArgs[0].c_str());
+                stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
                 break;
             }
             case 2:
             {
-                stringConverter = createIconvStringConverter<char>(iconvArgs[0].c_str());
-                wstringConverter = createIconvStringConverter<wchar_t>(iconvArgs[1].c_str());
+                stringConverter = createIconvStringConverter<char>(iconvArgs[0]);
+                wstringConverter = createIconvStringConverter<wchar_t>(iconvArgs[1]);
                 break;
             }
             default:
@@ -179,7 +182,7 @@ namespace Ice
 ICE_API void
 registerIceStringConverter(bool loadOnInitialize)
 {
-    Ice::registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
+    registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
 }
 
 }

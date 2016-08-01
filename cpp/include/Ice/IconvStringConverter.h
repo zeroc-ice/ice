@@ -77,7 +77,7 @@ class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
 {
 public:
 
-    IconvStringConverter(const char* = nl_langinfo(CODESET));
+    IconvStringConverter(const std::string&);
 
     virtual ~IconvStringConverter();
 
@@ -109,7 +109,7 @@ extern "C"
 #endif
 
 template<typename charT>
-IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
+IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCode) :
     _internalCode(internalCode)
 {
     //
@@ -331,8 +331,15 @@ namespace Ice
 {
 template<typename charT>
 ICE_HANDLE<IceUtil::BasicStringConverter<charT> >
-createIconvStringConverter(const char* internalCode = nl_langinfo(CODESET))
+createIconvStringConverter(const std::string& internalCodeWithDefault = "")
 {
+    std::string internalCode = internalCodeWithDefault;
+
+    if(internalCode.empty())
+    {
+        internalCode = nl_langinfo(CODESET);
+    }
+
     return ICE_MAKE_SHARED(IceInternal::IconvStringConverter<charT>, internalCode);
 }
 }

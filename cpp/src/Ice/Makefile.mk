@@ -11,6 +11,7 @@ $(project)_libraries	= Ice
 
 Ice_targetdir		:= $(libdir)
 Ice_cppflags  		= -DICE_API_EXPORTS $(IceUtil_cppflags)
+Ice_ldflags             = $(iconv_ldflags)
 
 ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
     Ice_cppflags        += -DICE_PRIO_INHERIT

@@ -25,11 +25,13 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL();
 #endif
-    
+
     string narrowEncoding;
     string wideEncoding;
 
-#ifndef _WIN32
+#ifdef _WIN32
+    useIconv = false;
+#else
     //
     // Switch to French locale
     // (we just used the codeset for as default internal code for
@@ -38,57 +40,48 @@ main(int argc, char* argv[])
     useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
 #endif
 
-#if defined(_WIN32)
-    useIconv = false;
-
-#elif defined(__hpux)
-    if(!useLocale)
+    if(useIconv)
     {
+
+#if defined(__hpux)
         narrowEncoding = "iso815";
-    }
-    wideEncoding = "ucs4";
+        wideEncoding = "ucs4";
 
 #elif defined(_AIX)
 
-    // Always big-endian
-
-    if(!useLocale)
-    {
+        // Always big-endian
         narrowEncoding = "ISO8859-15";
-    }
 
-    if(sizeof(wchar_t) == 4)
-    {
-        wideEncoding = "UTF-32";
-    }
-    else
-    {
-        wideEncoding = "UTF-16";
-    }
+        if(sizeof(wchar_t) == 4)
+        {
+            wideEncoding = "UTF-32";
+        }
+        else
+        {
+            wideEncoding = "UTF-16";
+        }
 #else
 
-    if(!useLocale)
-    {
         narrowEncoding = "ISO8859-15";
-    }
 
-    if(sizeof(wchar_t) == 4)
-    {
+        if(sizeof(wchar_t) == 4)
+        {
 #  ifdef ICE_BIG_ENDIAN
-        wideEncoding = "UTF-32BE";
+            wideEncoding = "UTF-32BE";
 #  else
-        wideEncoding = "UTF-32LE";
+            wideEncoding = "UTF-32LE";
 #  endif
-    }
-    else
-    {
+        }
+        else
+        {
 #  ifdef ICE_BIG_ENDIAN
-        wideEncoding = "UTF-16BE";
+            wideEncoding = "UTF-16BE";
 #  else
-        wideEncoding = "UTF-16LE";
+            wideEncoding = "UTF-16LE";
 #  endif
-    }
+        }
 #endif
+    }
 
     {
 #ifdef _WIN32
@@ -97,8 +90,17 @@ main(int argc, char* argv[])
         //
         setProcessStringConverter(Ice::createWindowsStringConverter(28605));
 #else
-        setProcessStringConverter(Ice::createIconvStringConverter<char>(narrowEncoding.c_str()));
-        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>(wideEncoding.c_str()));
+        if(useLocale)
+        {
+            setProcessStringConverter(Ice::createIconvStringConverter<char>(""));
+        }
+        else
+        {
+            setProcessStringConverter(Ice::createIconvStringConverter<char>(narrowEncoding));
+        }
+
+        setProcessWstringConverter(Ice::createIconvStringConverter<wchar_t>(wideEncoding));
+
 #endif
         Ice::CommunicatorPtr communicator = Ice::initialize();
         Test::MyObjectPrxPtr proxy =
@@ -123,15 +125,22 @@ main(int argc, char* argv[])
         communicator->destroy();
         cout << "ok" << endl;
     }
-    
-    IceUtil::setProcessStringConverter(ICE_NULLPTR);
-    IceUtil::setProcessWstringConverter(ICE_NULLPTR);
-    
+
+    Ice::setProcessStringConverter(ICE_NULLPTR);
+    Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
+
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-        initData.properties->setProperty("Ice.Plugin.IceStringConverter", 
-                                         string("Ice:createStringConverter iconv=") + narrowEncoding + "," + wideEncoding + " windows=28605");
+
+        string propValue = "Ice:createStringConverter iconv=";
+        if(useIconv && !useLocale)
+        {
+            propValue += narrowEncoding + "," + wideEncoding;
+        }
+        propValue += " windows=28605";
+
+        initData.properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
 
         Ice::CommunicatorPtr communicator = Ice::initialize(initData);
         Test::MyObjectPrxPtr proxy =
@@ -154,9 +163,10 @@ main(int argc, char* argv[])
         test(proxy->narrow(wmsg) == msg);
         test(wmsg.size() == msg.size());
         cout << "ok" << endl;
-        
+
         proxy->shutdown();
         communicator->destroy();
     }
+
     return EXIT_SUCCESS;
 }
