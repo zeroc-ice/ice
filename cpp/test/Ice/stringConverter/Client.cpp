@@ -134,10 +134,10 @@ main(int argc, char* argv[])
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
 
 
-    string propValue = "Ice:createStringConverter iconv=";
+    string propValue = "Ice:createStringConverter";
     if(useIconv && !useLocale)
     {
-        propValue += narrowEncoding + "," + wideEncoding;
+        propValue =  " iconv=" + narrowEncoding + "," + wideEncoding;
     }
     propValue += " windows=28605";
 
