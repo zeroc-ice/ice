@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 
 #include <Ice/Ice.h>
 #include <Ice/LoggerUtil.h>
@@ -176,7 +176,7 @@ AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
     info.createUser = info.updateUser = _session->getId();
     info.descriptor = descriptor;
     info.revision = 1;
-    info.uuid = IceUtil::generateUUID();
+    info.uuid = Ice::generateUUID();
 
     _database->addApplication(info, _session.get());
 }
@@ -254,7 +254,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 
     Ice::Identity id;
     id.category = current.id.category;
-    id.name = IceUtil::generateUUID();
+    id.name = Ice::generateUUID();
 
     PatcherFeedbackAggregatorPtr feedback =
         newPatcherFeedback(amdCB, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
@@ -544,7 +544,7 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
 
     Ice::Identity identity;
     identity.category = current.id.category;
-    identity.name = IceUtil::generateUUID();
+    identity.name = Ice::generateUUID();
 
     PatcherFeedbackAggregatorPtr feedback =
         newPatcherFeedback(amdCB, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));

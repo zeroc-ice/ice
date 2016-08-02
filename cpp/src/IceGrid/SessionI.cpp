@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/QueryI.h>
 #include <IceGrid/LocatorI.h>

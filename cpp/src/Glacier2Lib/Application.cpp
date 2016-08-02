@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/Application.h>
+#include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/ArgVector.h>
 
@@ -79,7 +80,7 @@ Glacier2::Application::objectAdapter()
 Ice::ObjectPrxPtr
 Glacier2::Application::addWithUUID(const Ice::ObjectPtr& servant)
 {
-    return objectAdapter()->add(servant, createCallbackIdentity(IceUtil::generateUUID()));
+    return objectAdapter()->add(servant, createCallbackIdentity(Ice::generateUUID()));
 }
 
 Ice::Identity

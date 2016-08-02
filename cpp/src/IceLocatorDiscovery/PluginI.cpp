@@ -276,7 +276,7 @@ PluginI::initialize()
     }
     if(properties->getProperty("IceLocatorDiscovery.Locator.Endpoints").empty())
     {
-        properties->setProperty("IceLocatorDiscovery.Locator.AdapterId", IceUtil::generateUUID()); // Collocated adapter
+        properties->setProperty("IceLocatorDiscovery.Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
     }
 
     _replyAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Reply");
@@ -347,7 +347,7 @@ PluginI::initialize()
     string instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     Ice::Identity id;
     id.name = "Locator";
-    id.category = !instanceName.empty() ? instanceName : IceUtil::generateUUID();
+    id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
     LocatorIPtr locator = ICE_MAKE_SHARED(LocatorI, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName, voidLocator);
     _communicator->setDefaultLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(locator, id)));
 

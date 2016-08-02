@@ -47,7 +47,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Atomic.h>
@@ -664,7 +664,7 @@ IceInternal::Instance::getAdmin()
         adminIdentity.category = _initData.properties->getProperty("Ice.Admin.InstanceName");
         if(adminIdentity.category.empty())
         {
-            adminIdentity.category = IceUtil::generateUUID();
+            adminIdentity.category = Ice::generateUUID();
         }
 
         _adminIdentity = adminIdentity;

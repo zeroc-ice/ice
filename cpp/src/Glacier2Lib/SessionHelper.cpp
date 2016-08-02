@@ -269,7 +269,7 @@ SessionHelperI::addWithUUID(const Ice::ObjectPtr& servant)
         throw Glacier2::SessionNotExistException();
     }
     Ice::Identity id;
-    id.name = IceUtil::generateUUID();
+    id.name = Ice::generateUUID();
     id.category = _category;
     return internalObjectAdapter()->add(servant, id);
 }

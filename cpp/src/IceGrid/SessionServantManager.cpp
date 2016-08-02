@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceGrid/SessionServantManager.h>
@@ -272,7 +272,7 @@ SessionServantManager::addImpl(const Ice::ObjectPtr& servant, const Ice::ObjectP
     assert(p != _sessions.end());
 
     Ice::Identity id;
-    id.name = IceUtil::generateUUID();
+    id.name = Ice::generateUUID();
     id.category = _instanceName;
 
     //

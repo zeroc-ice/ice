@@ -23,7 +23,7 @@
 #include <Ice/OutgoingAsync.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 
 using namespace std;
 using namespace Ice;
@@ -104,7 +104,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     string oaName = name;
     if(oaName.empty())
     {
-        oaName = IceUtil::generateUUID();
+        oaName = Ice::generateUUID();
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
@@ -117,7 +117,7 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
     string oaName = name;
     if(oaName.empty())
     {
-        oaName = IceUtil::generateUUID();
+        oaName = Ice::generateUUID();
     }
 
     PropertyDict properties = proxyToProperty(router, oaName + ".Router");

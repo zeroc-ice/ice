@@ -12,7 +12,7 @@
 #include <Ice/Object.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 
 using namespace std;
 using namespace Ice;
@@ -157,7 +157,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
     ObjectAdapterIPtr adapter;
     if(name.empty())
     {
-        string uuid = IceUtil::generateUUID();
+        string uuid = Ice::generateUUID();
         adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
         adapter->initialize(ICE_NULLPTR);
     }

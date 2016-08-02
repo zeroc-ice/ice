@@ -99,7 +99,7 @@ PluginI::initialize()
     }
     if(properties->getProperty("IceDiscovery.Locator.Endpoints").empty())
     {
-        properties->setProperty("IceDiscovery.Locator.AdapterId", IceUtil::generateUUID());
+        properties->setProperty("IceDiscovery.Locator.AdapterId", Ice::generateUUID());
     }
 
     _multicastAdapter = _communicator->createObjectAdapter("IceDiscovery.Multicast");

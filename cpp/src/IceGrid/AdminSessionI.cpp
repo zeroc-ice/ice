@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/AdminI.h>
@@ -135,7 +135,7 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
 
     if(con)
     {
-        category = _database->getInstanceName() + "-" + IceUtil::generateUUID();
+        category = _database->getInstanceName() + "-" + Ice::generateUUID();
 
         Ice::Identity templateId;
         templateId.name = "pick-a-name";

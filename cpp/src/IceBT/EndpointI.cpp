@@ -24,7 +24,7 @@
 #include <Ice/Properties.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 
 using namespace std;
 using namespace Ice;
@@ -497,7 +497,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
             //
             // Generate a UUID for object adapters that don't specify one.
             //
-            const_cast<string&>(_uuid) = IceUtil::generateUUID();
+            const_cast<string&>(_uuid) = Ice::generateUUID();
         }
         else
         {

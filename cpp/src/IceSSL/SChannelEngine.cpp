@@ -16,7 +16,7 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 
 using namespace std;
 using namespace Ice;

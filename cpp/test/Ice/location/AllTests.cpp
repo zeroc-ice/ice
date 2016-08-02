@@ -703,7 +703,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         adapter->setLocator(locator);
 
         Ice::Identity id;
-        id.name = IceUtil::generateUUID();
+        id.name = Ice::generateUUID();
         registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
         adapter->activate();
         

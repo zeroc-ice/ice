@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>

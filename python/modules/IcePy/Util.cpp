@@ -14,7 +14,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <Slice/PythonUtil.h>
 #include <compile.h>
 #include <frameobject.h>
@@ -1158,6 +1158,6 @@ extern "C"
 PyObject*
 IcePy_generateUUID(PyObject* /*self*/)
 {
-    string uuid = IceUtil::generateUUID();
+    string uuid = Ice::generateUUID();
     return IcePy::createString(uuid);
 }

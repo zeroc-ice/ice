@@ -75,7 +75,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
         opts = " -h \"" + properties->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1") + "\"";
     }
 
-    string name = IceUtil::generateUUID();
+    string name = generateUUID();
     if(timeout >= 0)
     {
         properties->setProperty(name + ".ACM.Timeout", toString(timeout));

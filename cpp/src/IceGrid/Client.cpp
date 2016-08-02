@@ -12,7 +12,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/Ice.h>

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <Ice/Ice.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/Database.h>
@@ -305,7 +305,7 @@ NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator,
 {
     Ice::Identity id;
     id.category = _database->getInstanceName();
-    id.name = IceUtil::generateUUID();
+    id.name = Ice::generateUUID();
 
     PatcherFeedbackPtr obj = new PatcherFeedbackI(_info->name, this, id, aggregator);
     try

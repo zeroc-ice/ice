@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
@@ -449,7 +449,7 @@ ObjectPrxPtr
 Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& facet)
 {
     Identity ident;
-    ident.name = IceUtil::generateUUID();
+    ident.name = Ice::generateUUID();
     return addFacet(object, ident, facet);
 }
 

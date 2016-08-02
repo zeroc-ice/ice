@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Util.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <Slice/PHPUtil.h>
 #include <algorithm>
 #include <ctype.h>
@@ -862,7 +862,7 @@ ZEND_FUNCTION(Ice_generateUUID)
         WRONG_PARAM_COUNT;
     }
 
-    string uuid = IceUtil::generateUUID();
+    string uuid = Ice::generateUUID();
     RETURN_STRINGL(STRCAST(uuid.c_str()), static_cast<int>(uuid.size()));
 }
 

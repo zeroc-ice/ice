@@ -13,7 +13,7 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/UUID.h>
+#include <Ice/UUID.h>
 #include <IceXML/Parser.h>
 
 #include <stack>

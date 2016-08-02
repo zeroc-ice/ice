@@ -472,7 +472,7 @@ CryptPermissionsVerifierPlugin::initialize()
         {
             string name = p->first.substr(prefix.size());
             Identity id;
-            id.name = IceUtil::generateUUID();
+            id.name = Ice::generateUUID();
             id.category = "Glacier2CryptPermissionsVerifier";
             ObjectPrx prx = adapter->add(new CryptPermissionsVerifierI(retrievePasswordMap(p->second)), id);
             _communicator->getProperties()->setProperty(name, _communicator->proxyToString(prx));
