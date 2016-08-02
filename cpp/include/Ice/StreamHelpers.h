@@ -10,10 +10,12 @@
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
-#include <IceUtil/ScopedArray.h>
-#include <IceUtil/Iterator.h>
-
 #include <Ice/ObjectF.h>
+
+#ifndef ICE_CPP11_MAPPING
+#   include <IceUtil/ScopedArray.h>
+#   include <IceUtil/Iterator.h>
+#endif
 
 namespace Ice
 {

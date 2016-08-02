@@ -56,7 +56,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
     _lastOperation = current.operation;
     
-    Ice::DispatchInterceptorAsyncCallbackPtr cb = new CallbackI();
+    Ice::DispatchInterceptorAsyncCallbackPtr cb = ICE_MAKE_SHARED(CallbackI);
 
     if(_lastOperation == "amdAddWithRetry")
     {

@@ -48,7 +48,10 @@ enum DispatchStatus
 };
 
 
-class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
+class ICE_API DispatchInterceptorAsyncCallback
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -58,7 +61,7 @@ public:
     virtual bool exception(const std::exception&) = 0;
     virtual bool exception() = 0;
 };
-typedef IceUtil::Handle<DispatchInterceptorAsyncCallback> DispatchInterceptorAsyncCallbackPtr;
+ICE_DEFINE_PTR(DispatchInterceptorAsyncCallbackPtr, DispatchInterceptorAsyncCallback);
 
 class ICE_API Request
 {
@@ -67,7 +70,6 @@ public:
     virtual ~Request();
     virtual const Current& getCurrent() = 0;
 };
-
 
 #ifdef ICE_CPP11_MAPPING
 class ICE_API Object

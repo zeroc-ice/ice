@@ -840,7 +840,6 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/SliceChecksums.h>";
     }
 
-    C << "\n#include <IceUtil/Iterator.h>";
     C << "\n#include <IceUtil/PopDisableWarnings.h>";
 
     StringList includes = p->includeFiles();
