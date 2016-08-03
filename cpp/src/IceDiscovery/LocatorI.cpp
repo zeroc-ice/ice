@@ -14,6 +14,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/ObjectAdapter.h>
 
+#include <iterator>
+
 using namespace std;
 using namespace Ice;
 using namespace IceDiscovery;

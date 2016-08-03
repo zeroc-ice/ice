@@ -14,6 +14,7 @@
 #include <Ice/Initialize.h>
 
 #include <IceDiscovery/LookupI.h>
+#include <iterator>
 
 using namespace std;
 using namespace Ice;
