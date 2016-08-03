@@ -128,7 +128,6 @@ public:
     ThreadControl getThreadControl() const;
 
     bool operator==(const Thread&) const;
-    bool operator!=(const Thread&) const;
     bool operator<(const Thread&) const;
 
     //

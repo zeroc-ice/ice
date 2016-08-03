@@ -62,12 +62,6 @@ IceInternal::WSConnector::operator==(const Connector& r) const
 }
 
 bool
-IceInternal::WSConnector::operator!=(const Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::WSConnector::operator<(const Connector& r) const
 {
     const WSConnector* p = dynamic_cast<const WSConnector*>(&r);

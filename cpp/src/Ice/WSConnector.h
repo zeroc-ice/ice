@@ -30,7 +30,6 @@ public:
     virtual std::string toString() const;
 
     virtual bool operator==(const Connector&) const;
-    virtual bool operator!=(const Connector&) const;
     virtual bool operator<(const Connector&) const;
 
 

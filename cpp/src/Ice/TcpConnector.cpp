@@ -72,12 +72,6 @@ IceInternal::TcpConnector::operator==(const Connector& r) const
 }
 
 bool
-IceInternal::TcpConnector::operator!=(const Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::TcpConnector::operator<(const Connector& r) const
 {
     const TcpConnector* p = dynamic_cast<const TcpConnector*>(&r);

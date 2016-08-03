@@ -23,7 +23,6 @@ public:
     std::string toString() const;
     
     virtual bool operator==(const IceInternal::Connector&) const;
-    virtual bool operator!=(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
 
     Connector(const IceInternal::ConnectorPtr& connector);

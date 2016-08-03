@@ -390,7 +390,6 @@ public:
 
     bool operator<(const Contained&) const;
     bool operator==(const Contained&) const;
-    bool operator!=(const Contained&) const;
 
 protected:
 

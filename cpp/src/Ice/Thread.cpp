@@ -238,12 +238,6 @@ IceUtil::Thread::operator==(const Thread& rhs) const
 }
 
 bool
-IceUtil::Thread::operator!=(const Thread& rhs) const
-{
-    return this != &rhs;
-}
-
-bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
     return this < &rhs;
@@ -500,12 +494,6 @@ bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
     return this == &rhs;
-}
-
-bool
-IceUtil::Thread::operator!=(const Thread& rhs) const
-{
-    return this != &rhs;
 }
 
 bool
@@ -787,12 +775,6 @@ bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
     return this == &rhs;
-}
-
-bool
-IceUtil::Thread::operator!=(const Thread& rhs) const
-{
-    return this != &rhs;
 }
 
 bool

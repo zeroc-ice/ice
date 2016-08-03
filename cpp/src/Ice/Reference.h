@@ -144,7 +144,6 @@ public:
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const = 0;
@@ -220,7 +219,6 @@ public:
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const;
@@ -275,7 +273,6 @@ public:
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const;

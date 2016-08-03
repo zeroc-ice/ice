@@ -503,12 +503,6 @@ Slice::Contained::operator==(const Contained& rhs) const
     return _scoped == rhs._scoped;
 }
 
-bool
-Slice::Contained::operator!=(const Contained& rhs) const
-{
-    return _scoped != rhs._scoped;
-}
-
 Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     _container(container),

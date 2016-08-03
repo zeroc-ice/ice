@@ -252,9 +252,8 @@ public:
 
     virtual ~ObjectPrx() = default;
 
-    bool operator==(const ObjectPrx&) const;
-    bool operator!=(const ObjectPrx&) const;
-    bool operator<(const ObjectPrx&) const;
+    friend ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
+    friend ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
 
     ::std::shared_ptr<::Ice::Communicator> ice_getCommunicator() const;
 
@@ -654,6 +653,30 @@ private:
     IceUtil::Mutex _mutex;
 };
 
+inline bool
+operator>(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return rhs < lhs;
+}
+
+inline bool
+operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs > rhs);
+}
+
+inline bool
+operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs < rhs);
+}
+
+inline bool
+operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs == rhs);
+}
+
 template<typename Prx, typename... Bases>
 class Proxy : public virtual Bases...
 {
@@ -950,7 +973,6 @@ class ICE_API Object : public ::IceUtil::Shared
 public:
 
     bool operator==(const Object&) const;
-    bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
     ::Ice::CommunicatorPtr ice_getCommunicator() const;

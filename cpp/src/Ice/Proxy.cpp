@@ -52,21 +52,15 @@ const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 bool
-Ice::ObjectPrx::operator==(const ObjectPrx& r) const
+Ice::operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return _reference == r._reference;
+    return lhs._reference < rhs._reference;
 }
 
 bool
-Ice::ObjectPrx::operator!=(const ObjectPrx& r) const
+Ice::operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return _reference != r._reference;
-}
-
-bool
-Ice::ObjectPrx::operator<(const ObjectPrx& r) const
-{
-    return _reference < r._reference;
+    return lhs._reference == rhs._reference;
 }
 
 void
@@ -171,12 +165,6 @@ bool
 IceProxy::Ice::Object::operator==(const Object& r) const
 {
     return _reference == r._reference;
-}
-
-bool
-IceProxy::Ice::Object::operator!=(const Object& r) const
-{
-    return _reference != r._reference;
 }
 
 bool

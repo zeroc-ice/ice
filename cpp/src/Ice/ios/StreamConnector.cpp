@@ -107,12 +107,6 @@ IceObjC::StreamConnector::operator==(const IceInternal::Connector& r) const
 }
 
 bool
-IceObjC::StreamConnector::operator!=(const IceInternal::Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceObjC::StreamConnector::operator<(const IceInternal::Connector& r) const
 {
     const StreamConnector* p = dynamic_cast<const StreamConnector*>(&r);

@@ -72,12 +72,6 @@ IceInternal::UdpConnector::operator==(const Connector& r) const
 }
 
 bool
-IceInternal::UdpConnector::operator!=(const Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::UdpConnector::operator<(const Connector& r) const
 {
     const UdpConnector* p = dynamic_cast<const UdpConnector*>(&r);

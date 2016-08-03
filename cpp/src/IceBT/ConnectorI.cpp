@@ -82,12 +82,6 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 }
 
 bool
-IceBT::ConnectorI::operator!=(const IceInternal::Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
     const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);

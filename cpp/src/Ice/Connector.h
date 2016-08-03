@@ -29,7 +29,6 @@ public:
     virtual std::string toString() const = 0;
 
     virtual bool operator==(const Connector&) const = 0;
-    virtual bool operator!=(const Connector&) const = 0;
     virtual bool operator<(const Connector&) const = 0;
 };
 

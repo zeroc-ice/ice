@@ -383,12 +383,6 @@ IceInternal::Reference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::Reference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::Reference::operator<(const Reference& r) const
 {
     //
@@ -839,12 +833,6 @@ IceInternal::FixedReference::operator==(const Reference& r) const
         return false;
     }
     return _fixedConnection == rhs->_fixedConnection;
-}
-
-bool
-IceInternal::FixedReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
 }
 
 bool
@@ -1375,12 +1363,6 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
         return false;
     }
     return true;
-}
-
-bool
-IceInternal::RoutableReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
 }
 
 bool
