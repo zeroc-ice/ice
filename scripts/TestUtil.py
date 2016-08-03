@@ -965,9 +965,6 @@ sslConfigTree["ruby"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"].copy()
 sslConfigTree["objective-c"] = sslConfigTree["cpp"]
 
-if isUbuntu():
-    sslConfigTree["php"]["client"] += " --IceSSL.InitOpenSSL=0"
-
 def getDefaultMapping():
     """Try to guess the language mapping from the current path"""
     here = os.getcwd().split(os.sep)

@@ -37,7 +37,6 @@ using namespace IceSSL;
 
 namespace
 {
-
 IceUtil::Mutex* staticMutex = 0;
 int instanceCount = 0;
 bool initOpenSSL = false;
@@ -46,38 +45,7 @@ bool initOpenSSL = false;
 IceUtil::Mutex* locks = 0;
 #endif
 
-class Init
-{
-public:
-
-    Init()
-    {
-        staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        //
-        // OpenSSL 1.1.0 introduces a new thread API and removes 
-        // the need to use a custom thread callback.
-        //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-        if(locks)
-        {
-            CRYPTO_set_locking_callback(0);
-            CRYPTO_set_id_callback(0);
-            delete[] locks;
-            locks = 0;
-        }
-#endif
-        delete staticMutex;
-        staticMutex = 0;
-    }
-};
-
-Init init;
 }
-
 extern "C"
 {
 
@@ -170,6 +138,43 @@ IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 
 namespace
 {
+
+class Init
+{
+public:
+
+    Init()
+    {
+        staticMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        //
+        // OpenSSL 1.1.0 introduces a new thread API and removes 
+        // the need to use a custom thread callback.
+        //
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        if(CRYPTO_get_locking_callback() == IceSSL_opensslLockCallback)
+        {
+            assert(locks);
+            CRYPTO_set_locking_callback(0);
+            delete[] locks;
+            locks = 0;
+        }
+        
+        if(CRYPTO_get_id_callback() == IceSSL_opensslThreadIdCallback)
+        {
+            CRYPTO_set_id_callback(0);
+        }
+#endif
+        delete staticMutex;
+        staticMutex = 0;
+    }
+};
+
+Init init;
+
 bool
 passwordError()
 {
@@ -218,14 +223,18 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
             // OpenSSL 1.1.0 remove the need for library initialization and cleanup.
             //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
+            if(!CRYPTO_get_id_callback())
+            {
+                CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
+            }
             //
             // Create the mutexes and set the callbacks.
             //
-            if(!locks && !CRYPTO_get_id_callback())
+            if(!CRYPTO_get_locking_callback())
             {
+                assert(!locks);
                 locks = new IceUtil::Mutex[CRYPTO_num_locks()];
                 CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
-                CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
             }
 
             //
