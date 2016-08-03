@@ -16,7 +16,7 @@
 // with the C++11 mapping
 //
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <Ice/ConnectionF.h>

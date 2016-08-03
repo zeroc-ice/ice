@@ -11,7 +11,7 @@
 #define ICE_SSL_ICE_SSL_H
 
 #include <IceUtil/PushDisableWarnings.h>
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 #if !defined(ICE_OS_WINRT)
 #   include <IceSSL/Plugin.h>
 #endif

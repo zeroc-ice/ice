@@ -10,7 +10,6 @@
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
-#include <IceUtil/Config.h>
 #include <Ice/Ice.h>
 
 #ifdef _WIN32

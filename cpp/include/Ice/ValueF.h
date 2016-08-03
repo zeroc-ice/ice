@@ -11,7 +11,7 @@
 #define ICE_VALUE_F_H
 
 #ifdef ICE_CPP11_MAPPING
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 
 namespace Ice
 {

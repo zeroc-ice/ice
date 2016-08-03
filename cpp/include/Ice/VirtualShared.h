@@ -10,7 +10,7 @@
 #ifndef ICE_VIRTUAL_SHARED_H
 #define ICE_VIRTUAL_SHARED_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 
 namespace Ice
 {
