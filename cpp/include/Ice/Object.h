@@ -78,9 +78,6 @@ public:
 
     virtual ~Object() = default;
 
-    virtual bool operator==(const Object&) const;
-    virtual bool operator<(const Object&) const;
-
     virtual bool ice_isA(std::string, const Current& = Ice::noExplicitCurrent) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 

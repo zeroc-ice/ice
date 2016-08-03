@@ -31,7 +31,6 @@ Ice::__patch(ObjectPtr& obj, const ObjectPtr& v)
 {
     obj = v;
 }
-#endif
 
 bool
 Ice::Object::operator==(const Object& r) const
@@ -44,7 +43,7 @@ Ice::Object::operator<(const Object& r) const
 {
     return this < &r;
 }
-
+#endif
 
 namespace
 {
