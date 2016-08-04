@@ -1423,5 +1423,6 @@
     <None Include="..\..\Ice\udp\msbuild\uwp\server\ARM\Debug\Ice_udp_server.dll">
       <Filter>Tests\ARM\Debug</Filter>
     </None>
+    <None Include="..\TestSuite_TemporaryKey.pfx" />
   </ItemGroup>
 </Project>

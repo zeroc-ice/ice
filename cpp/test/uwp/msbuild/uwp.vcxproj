@@ -100,6 +100,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>..\TestSuite_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>46881505BFCB3042FE80E1FAA136D55AF9356CE8</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -262,6 +263,7 @@
     <None Include="..\..\..\..\certs\cacert.der">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="..\TestSuite_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Ice\acm\msbuild\uwp\client\Win32\Debug\Ice_acm_client.dll">
