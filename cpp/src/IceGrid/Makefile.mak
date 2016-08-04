@@ -135,6 +135,12 @@ NLINKWITH	= $(LIBS) advapi32.lib pdh.lib ws2_32.lib
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
 
+!if "$(OPTIMIZE)" == "yes"
+!if "$(CPP_COMPILER)" == "VC140"
+CPPFLAGS        = $(CPPFLAGS) -d2SSAOptimizer-
+!endif
+!endif
+
 !if "$(GENERATE_PDB)" == "yes"
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 DBPDBFLAGS      = /pdb:$(DB:.exe=.pdb)

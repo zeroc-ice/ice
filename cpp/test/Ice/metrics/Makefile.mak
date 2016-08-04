@@ -54,6 +54,12 @@ OBJS		= $(COBJS) \
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
+!if "$(OPTIMIZE)" == "yes"
+!if "$(CPP_COMPILER)" == "VC140"
+CPPFLAGS        = $(CPPFLAGS) -d2SSAOptimizer-
+!endif
+!endif
+
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT).pdb
 SPDBFLAGS        = /pdb:$(SERVER).pdb
