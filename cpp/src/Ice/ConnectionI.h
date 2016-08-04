@@ -38,7 +38,6 @@
 #include <Ice/ConnectionAsync.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>
-#include <Ice/VirtualShared.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 
@@ -69,8 +68,7 @@ class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
                     public IceInternal::CancellationHandler,
-                    public IceUtil::Monitor<IceUtil::Mutex>,
-                    public EnableSharedFromThis<ConnectionI>
+                    public IceUtil::Monitor<IceUtil::Mutex>
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {
@@ -92,6 +90,13 @@ class ConnectionI : public Connection,
     };
 
 public:
+
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<ConnectionI> shared_from_this()
+    {
+        return std::dynamic_pointer_cast<ConnectionI>(VirtualEnableSharedFromThisBase::shared_from_this());
+    }
+#endif
 
     struct OutgoingMessage
     {
@@ -259,8 +264,6 @@ public:
     void closeCallback(const ICE_CLOSE_CALLBACK&);
 
     virtual ~ConnectionI();
-
-    using EnableSharedFromThis<ConnectionI>::shared_from_this;
 
 private:
 

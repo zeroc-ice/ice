@@ -70,7 +70,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 Ice::EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const
 {
-    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, shared_from_this());
+    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -108,7 +108,7 @@ IceInternal::WSEndpoint::timeout(Int timeout) const
 {
     if(timeout == _delegate->timeout())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
     }
     else
     {
@@ -127,7 +127,7 @@ IceInternal::WSEndpoint::connectionId(const string& connectionId) const
 {
     if(connectionId == _delegate->connectionId())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
     }
     else
     {
@@ -146,7 +146,7 @@ IceInternal::WSEndpoint::compress(bool compress) const
 {
     if(compress == _delegate->compress())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
     }
     else
     {
@@ -222,7 +222,7 @@ AcceptorPtr
 IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 {
     AcceptorPtr delAcc = _delegate->acceptor(adapterName);
-    return new WSAcceptor(shared_from_this(), _instance, delAcc);
+    return new WSAcceptor(ICE_SHARED_FROM_CONST_THIS(WSEndpoint), _instance, delAcc);
 }
 
 WSEndpointPtr
@@ -237,7 +237,7 @@ IceInternal::WSEndpoint::expand() const
     vector<EndpointIPtr> endps = _delegate->expand();
     for(vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        *p = p->get() == _delegate.get() ? shared_from_this() : ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+        *p = p->get() == _delegate.get() ? ICE_SHARED_FROM_CONST_THIS(WSEndpoint) : ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
     }
     return endps;
 }

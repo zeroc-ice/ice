@@ -18,7 +18,10 @@ using namespace std;
 namespace
 {
 
-class Callback : public ICE_SHARED
+class Callback
+#ifndef ICE_CPP11_MAPPING
+    : public IceUtil::Shared
+#endif
 {
 public:
 

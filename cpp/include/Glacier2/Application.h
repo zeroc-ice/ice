@@ -68,7 +68,7 @@ public:
  * @see #runWithSession
  **/
 
-class GLACIER2_API Application : public Ice::Application, public Ice::EnableSharedFromThis<Application>
+class GLACIER2_API Application : public Ice::Application
 {
     /**
      * Initializes an instance that calls {@link Communicator#shutdown} if

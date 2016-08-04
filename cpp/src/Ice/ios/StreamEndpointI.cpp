@@ -159,7 +159,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const
 {
-    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, shared_from_this());
+    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
     IPEndpointI::fillEndpointInfo(info.get());
     info->timeout = _timeout;
     info->compress = _compress;
@@ -177,7 +177,7 @@ IceObjC::StreamEndpointI::timeout(Int t) const
 {
     if(t == _timeout)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(StreamEndpointI);
     }
     else
     {
@@ -196,7 +196,7 @@ IceObjC::StreamEndpointI::compress(bool c) const
 {
     if(c == _compress)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(StreamEndpointI);
     }
     else
     {
@@ -233,7 +233,7 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return new StreamAcceptor(shared_from_this(), _instance, _host, _port);
+    return new StreamAcceptor(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _instance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr

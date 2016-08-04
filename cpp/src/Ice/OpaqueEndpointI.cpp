@@ -132,7 +132,7 @@ IceInternal::OpaqueEndpointI::timeout() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::timeout(Int) const
 {
-    return shared_from_this();
+    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
 }
 
 const string&
@@ -144,7 +144,7 @@ IceInternal::OpaqueEndpointI::connectionId() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::connectionId(const string&) const
 {
-    return shared_from_this();
+    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
 }
 
 bool
@@ -156,7 +156,7 @@ IceInternal::OpaqueEndpointI::compress() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::compress(bool) const
 {
-    return shared_from_this();
+    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
 }
 
 bool
@@ -193,7 +193,7 @@ vector<EndpointIPtr>
 IceInternal::OpaqueEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(shared_from_this());
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI));
     return endps;
 }
 

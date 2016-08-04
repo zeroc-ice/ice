@@ -117,7 +117,7 @@ AdapterRequest::finished(const Ice::ObjectPrxPtr& proxy)
 void
 AdapterRequest::runTimerTask()
 {
-    _lookup->adapterRequestTimedOut(shared_from_this());
+    _lookup->adapterRequestTimedOut(ICE_SHARED_FROM_THIS);
 }
 
 void
@@ -129,7 +129,7 @@ ObjectRequest::response(const Ice::ObjectPrxPtr& proxy)
 void
 ObjectRequest::runTimerTask()
 {
-    _lookup->objectRequestTimedOut(shared_from_this());
+    _lookup->objectRequestTimedOut(ICE_SHARED_FROM_THIS);
 }
 
 LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrxPtr& lookup, const Ice::PropertiesPtr& properties) :

@@ -19,7 +19,6 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/VirtualShared.h>
 
 namespace Ice
 {
@@ -39,8 +38,7 @@ class OutgoingAsync;
 
 class CollocatedRequestHandler : public RequestHandler,
                                  public ResponseHandler,
-                                 private IceUtil::Monitor<IceUtil::Mutex>,
-                                 public Ice::EnableSharedFromThis<CollocatedRequestHandler>
+                                 private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -73,7 +71,12 @@ public:
 
     void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
 
-    using Ice::EnableSharedFromThis<CollocatedRequestHandler>::shared_from_this;
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<CollocatedRequestHandler> shared_from_this()
+    {
+        return std::static_pointer_cast<CollocatedRequestHandler>(ResponseHandler::shared_from_this());
+    }
+#endif
 
 private:
 

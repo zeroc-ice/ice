@@ -137,7 +137,7 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const
 {
-    IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, shared_from_this());
+    IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
     info->timeout = _timeout;
     info->compress = _compress;
     info->manufacturer = _manufacturer;
@@ -182,7 +182,7 @@ IceObjC::iAPEndpointI::timeout(Int t) const
 {
     if(t == _timeout)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
     }
     else
     {
@@ -202,7 +202,7 @@ IceObjC::iAPEndpointI::connectionId(const string& cId) const
 {
     if(cId == _connectionId)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
     }
     else
     {
@@ -222,7 +222,7 @@ IceObjC::iAPEndpointI::compress(bool c) const
 {
     if(c == _compress)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
     }
     else
     {
@@ -303,7 +303,7 @@ vector<EndpointIPtr>
 IceObjC::iAPEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(shared_from_this());
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
     return endps;
 }
 

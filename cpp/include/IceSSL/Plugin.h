@@ -12,7 +12,6 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
-#include <Ice/VirtualShared.h>
 #include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfo.h>
 
@@ -159,7 +158,10 @@ ICE_DEFINE_PTR(CertificatePtr, Certificate);
 //
 // A representation of a PublicKey.
 //
-class ICE_SSL_API PublicKey : public Ice::EnableSharedFromThis<PublicKey>
+class ICE_SSL_API PublicKey
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -261,7 +263,12 @@ private:
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
-class ICE_SSL_API Certificate : public Ice::EnableSharedFromThis<Certificate>
+class ICE_SSL_API Certificate :
+#ifdef ICE_CPP11_MAPPING
+        public std::enable_shared_from_this<Certificate>
+#else
+        public virtual IceUtil::Shared
+#endif
 {
 public:
 

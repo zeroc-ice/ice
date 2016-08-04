@@ -24,9 +24,12 @@ toString(int value)
     return os.str();
 }
 
-class LoggerI : public Ice::EnableSharedFromThis<LoggerI>,
-                public Ice::Logger,
+class LoggerI : public Ice::Logger,
                 private IceUtil::Mutex
+#ifdef ICE_CPP11_MAPPING
+              , public std::enable_shared_from_this<LoggerI>
+#endif
+
 {
 public:
 

@@ -23,8 +23,11 @@ namespace Ice
 class CommunicatorI;
 ICE_DEFINE_PTR(CommunicatorIPtr, CommunicatorI);
 
-class CommunicatorI : public EnableSharedFromThis<CommunicatorI>,
-                      public Communicator
+class CommunicatorI : public Communicator
+#ifdef ICE_CPP11_MAPPING
+                    , public std::enable_shared_from_this<CommunicatorI>
+#endif
+
 {
 public:
 

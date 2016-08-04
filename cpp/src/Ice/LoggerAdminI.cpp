@@ -27,7 +27,10 @@ namespace
 
 const char* traceCategory = "Admin.Logger";
 
-class LoggerAdminI : public Ice::LoggerAdmin, public Ice::EnableSharedFromThis<LoggerAdminI>
+class LoggerAdminI : public Ice::LoggerAdmin
+#ifdef ICE_CPP11_MAPPING
+                   , public std::enable_shared_from_this<LoggerAdminI>
+#endif
 {
 public:
 
@@ -138,7 +141,11 @@ public:
 typedef IceUtil::Handle<Job> JobPtr;
 
 
-class LoggerAdminLoggerI : public Ice::EnableSharedFromThis<LoggerAdminLoggerI>, public IceInternal::LoggerAdminLogger
+class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger
+#ifdef ICE_CPP11_MAPPING
+                         , public std::enable_shared_from_this<LoggerAdminLoggerI>
+#endif
+
 {
 public:
 

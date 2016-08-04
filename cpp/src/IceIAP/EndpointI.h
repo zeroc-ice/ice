@@ -24,7 +24,10 @@ typedef ::std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
 typedef IceUtil::Handle<iAPEndpointI> iAPEndpointIPtr;
 #endif
 
-class iAPEndpointI : public IceInternal::EndpointI, public Ice::EnableSharedFromThis<iAPEndpointI>
+class iAPEndpointI : public IceInternal::EndpointI
+#ifdef ICE_CPP11_MAPPING
+                   , public std::enable_shared_from_this<iAPEndpointI>
+#endif
 {
 public:
 

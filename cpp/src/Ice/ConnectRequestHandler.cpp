@@ -43,13 +43,13 @@ ConnectRequestHandler::connect(const Ice::ObjectPrxPtr& proxy)
     {
         _proxies.insert(proxy);
     }
-    return _requestHandler ? _requestHandler : shared_from_this();
+    return _requestHandler ? _requestHandler : ICE_SHARED_FROM_THIS;
 }
 
 RequestHandlerPtr
 ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
-    return previousHandler.get() == this ? newHandler : shared_from_this();
+    return previousHandler.get() == this ? newHandler : ICE_SHARED_FROM_THIS;
 }
 
 bool
@@ -75,7 +75,7 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
         Lock sync(*this);
         if(!_initialized)
         {
-            out->cancelable(shared_from_this()); // This will throw if the request is canceled
+            out->cancelable(ICE_SHARED_FROM_THIS); // This will throw if the request is canceled
         }
 
         if(!initialized())
@@ -202,7 +202,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    if(ri && !ri->addProxy(_proxy, AddProxyCallback::shared_from_this()))
+    if(ri && !ri->addProxy(_proxy, ICE_SHARED_FROM_THIS))
     {
         return; // The request handler will be initialized once addProxy returns.
     }
@@ -231,7 +231,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     //
     try
     {
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -346,7 +346,7 @@ ConnectRequestHandler::flushRequests()
             ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.get()->ice_clone());
 
             // Remove the request handler before retrying.
-            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
+            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
             if(req.out)
             {
@@ -383,7 +383,7 @@ ConnectRequestHandler::flushRequests()
         _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
         for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
-            (*p)->__updateRequestHandler(shared_from_this(), _requestHandler);
+            (*p)->__updateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
         }
     }
 
@@ -402,7 +402,7 @@ ConnectRequestHandler::flushRequests()
         // Only remove once all the requests are flushed to
         // guarantee serialization.
         //
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
+        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
         _proxies.clear();
         _proxy = ICE_NULLPTR; // Break cyclic reference count.

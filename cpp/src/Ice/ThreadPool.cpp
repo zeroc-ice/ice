@@ -692,11 +692,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             if(_nextHandler != _handlers.end())
             {
                 current._ioCompleted = false;
-#ifdef ICE_CPP11_MAPPING
-                current._handler = dynamic_pointer_cast<EventHandler>(_nextHandler->first->shared_from_this());
-#else
-                current._handler = _nextHandler->first;
-#endif
+                current._handler = ICE_GET_SHARED_FROM_THIS(_nextHandler->first);
                 current.operation = _nextHandler->second;
                 ++_nextHandler;
                 thread->setState(ThreadStateInUseForIO);
@@ -748,20 +744,10 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         {
             current._ioCompleted = false;
 #ifdef ICE_OS_WINRT
-#   ifdef ICE_CPP11_MAPPING
-            current._handler = dynamic_pointer_cast<EventHandler>(
-                _selector.getNextHandler(current.operation, _threadIdleTime)->shared_from_this());
-#   else
-            current._handler = _selector.getNextHandler(current.operation, _threadIdleTime);
-#   endif
+            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _threadIdleTime));
 #else
-#   ifdef ICE_CPP11_MAPPING
-            current._handler = dynamic_pointer_cast<EventHandler>(_selector.getNextHandler(current.operation,
-                                                current._count, current._error, _threadIdleTime)->shared_from_this());
-#   else
-            current._handler = _selector.getNextHandler(current.operation, current._count, current._error,
-                                                        _threadIdleTime);
-#   endif
+            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count, current._error,
+                                                                                 _threadIdleTime));
 #endif
         }
         catch(const SelectorTimeoutException&)
@@ -808,20 +794,11 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             try
             {
 #ifdef ICE_OS_WINRT
-#   ifdef ICE_CPP11_MAPPING
-                current._handler = dynamic_pointer_cast<EventHandler>(_selector.getNextHandler(
-                                                            current.operation, _serverIdleTime)->shared_from_this());
-#   else
-                current._handler = _selector.getNextHandler(current.operation, _serverIdleTime);
-#   endif
+                current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _serverIdleTime));
 #else
-#   ifdef ICE_CPP11_MAPPING
-                current._handler = dynamic_pointer_cast<EventHandler>(_selector.getNextHandler(current.operation,
-                                                current._count, current._error, _serverIdleTime)->shared_from_this());
-#   else
-                current._handler = _selector.getNextHandler(current.operation, current._count, current._error,
-                                            _serverIdleTime);
-#   endif
+
+                current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
+                    current._error, _serverIdleTime));
 #endif
             }
             catch(const SelectorTimeoutException&)

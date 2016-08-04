@@ -16,7 +16,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ObjectAdapterF.h>
-#include <Ice/VirtualShared.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/OutputStream.h>
@@ -59,10 +58,11 @@ protected:
 // invocation observer.
 //
 class ICE_API OutgoingAsyncBase : virtual public OutgoingAsyncCompletionCallback,
-#ifndef ICE_CPP11_MAPPING
-                                  public Ice::AsyncResult,
+#ifdef ICE_CPP11_MAPPING
+                                  public std::enable_shared_from_this<OutgoingAsyncBase>
+#else
+                                  public Ice::AsyncResult
 #endif
-                                  public Ice::EnableSharedFromThis<OutgoingAsyncBase>
 {
 public:
 
@@ -195,8 +195,7 @@ protected:
 // correctly canceled when the invocation completes.
 //
 class ICE_API ProxyOutgoingAsyncBase : public OutgoingAsyncBase,
-                                       public IceUtil::TimerTask,
-                                       public Ice::EnableSharedFromThis<ProxyOutgoingAsyncBase>
+                                       public IceUtil::TimerTask
 {
 public:
 
@@ -210,9 +209,12 @@ public:
     void retry();
     void abort(const Ice::Exception&);
 
-    using Ice::EnableSharedFromThis<ProxyOutgoingAsyncBase>::shared_from_this;
-
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<ProxyOutgoingAsyncBase> shared_from_this()
+    {
+        return std::static_pointer_cast<ProxyOutgoingAsyncBase>(OutgoingAsyncBase::shared_from_this());
+    }
+#else
     virtual Ice::ObjectPrx getProxy() const;
     virtual Ice::CommunicatorPtr getCommunicator() const;
 #endif
@@ -358,8 +360,7 @@ typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 //
 // Class for handling Ice::Communicator::begin_flushBatchRequests
 //
-class ICE_API CommunicatorFlushBatchAsync : public OutgoingAsyncBase,
-                                            public Ice::EnableSharedFromThis<CommunicatorFlushBatchAsync>
+class ICE_API CommunicatorFlushBatchAsync : public OutgoingAsyncBase
 {
 public:
 
@@ -370,7 +371,12 @@ public:
     void flushConnection(const Ice::ConnectionIPtr&);
     void invoke(const std::string&);
 
-    using Ice::EnableSharedFromThis<CommunicatorFlushBatchAsync>::shared_from_this;
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
+    {
+        return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
+    }
+#endif
 
 private:
 

@@ -126,7 +126,7 @@ IceBT::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -145,7 +145,7 @@ IceBT::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -164,7 +164,7 @@ IceBT::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -205,7 +205,7 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInter
             ostr << "searching for service " << _uuid << " at " << _addr;
             _instance->logger()->trace(_instance->traceCategory(), ostr.str());
         }
-        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(shared_from_this(), selType));
+        _instance->engine()->findService(_addr, _uuid, new FindCallbackI(ICE_SHARED_FROM_CONST_THIS(EndpointI), selType));
     }
 
     const_cast<vector<IceInternal::EndpointI_connectorsPtr>&>(_callbacks).push_back(cb);
@@ -214,7 +214,7 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType selType, const IceInter
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(shared_from_this(), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return new AcceptorI(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, adapterName, _addr, _uuid, _name, _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -224,7 +224,7 @@ IceBT::EndpointI::expand() const
     // Nothing to do here.
     //
     vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(shared_from_this());
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
     return endps;
 }
 
@@ -452,7 +452,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const
 {
-    EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, shared_from_this());
+    EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->addr = _addr;
     info->uuid = _uuid;
     return info;

@@ -19,7 +19,6 @@
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Identity.h>
 #include <Ice/Comparable.h>
-#include <Ice/VirtualShared.h>
 
 #include <set>
 
@@ -68,7 +67,10 @@ public:
     };
     typedef IceUtil::Handle<GetClientEndpointsCallback> GetClientEndpointsCallbackPtr;
 
-    class AddProxyCallback : public Ice::EnableSharedFromThis<AddProxyCallback>
+    class AddProxyCallback
+#ifndef ICE_CPP11_MAPPING
+        : public virtual IceUtil::Shared
+#endif
     {
     public:
 

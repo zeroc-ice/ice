@@ -13,13 +13,14 @@
 #include <Ice/RequestHandler.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/VirtualShared.h>
 
 namespace IceInternal
 {
 
-class ConnectionRequestHandler : public RequestHandler,
-                                 public Ice::EnableSharedFromThis<ConnectionRequestHandler>
+class ConnectionRequestHandler : public RequestHandler
+#ifdef ICE_CPP11_MAPPING
+                               , public std::enable_shared_from_this<ConnectionRequestHandler>
+#endif
 {
 public:
 

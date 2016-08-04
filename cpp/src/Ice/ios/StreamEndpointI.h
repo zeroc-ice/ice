@@ -65,13 +65,9 @@ class StreamAcceptor;
 typedef IceUtil::Handle<StreamAcceptor> StreamAcceptorPtr;
 
 class StreamEndpointI;
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-typedef ::std::shared_ptr<StreamEndpointI> StreamEndpointIPtr;
-#else
-typedef IceUtil::Handle<StreamEndpointI> StreamEndpointIPtr;
-#endif
+ICE_DEFINE_PTR(StreamEndpointIPtr, StreamEndpointI);
 
-class StreamEndpointI : public IceInternal::IPEndpointI, public Ice::EnableSharedFromThis<StreamEndpointI>
+class StreamEndpointI : public IceInternal::IPEndpointI
 {
 public:
 
@@ -95,6 +91,12 @@ public:
     virtual std::string options() const;
 
 #ifdef ICE_CPP11_MAPPING
+
+    std::shared_ptr<StreamEndpointI> shared_from_this()
+    {
+        return std::static_pointer_cast<StreamEndpointI>(IceInternal::IPEndpointI::shared_from_this());
+    }
+
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
 #else
@@ -105,7 +107,6 @@ public:
     StreamEndpointIPtr endpoint(const StreamAcceptorPtr&) const;
 
     using IPEndpointI::connectionId;
-    using Ice::EnableSharedFromThis<StreamEndpointI>::shared_from_this;
 
 protected:
 

@@ -18,7 +18,10 @@
 class EndpointI;
 ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
 
-class EndpointI : public IceInternal::EndpointI, public Ice::EnableSharedFromThis<EndpointI>
+class EndpointI : public IceInternal::EndpointI
+#ifdef ICE_CPP11_MAPPING
+                , public std::enable_shared_from_this<EndpointI>
+#endif
 {
 public:
 

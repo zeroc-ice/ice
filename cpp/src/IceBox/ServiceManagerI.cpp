@@ -918,7 +918,7 @@ IceBox::ServiceManagerI::stopAll()
 function<void(exception_ptr)>
 IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceObserverPrx>& observer)
 {
-    auto self = weak_from_this();
+    weak_ptr<ServiceManagerI> self = shared_from_this();
     return [self, observer](exception_ptr ex)
         {
             auto s = self.lock();

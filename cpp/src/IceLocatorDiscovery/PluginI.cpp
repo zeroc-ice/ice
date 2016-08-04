@@ -58,7 +58,12 @@ namespace
 
 class LocatorI; // Forward declaration
 
-class Request : public Ice::EnableSharedFromThis<Request>
+class Request :
+#ifdef ICE_CPP11_MAPPING
+        public std::enable_shared_from_this<Request>
+#else
+        public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -124,8 +129,10 @@ ICE_DEFINE_PTR(RequestPtr, Request);
 
 class LocatorI : public Ice::BlobjectArrayAsync,
                  public IceUtil::TimerTask,
-                 private IceUtil::Monitor<IceUtil::Mutex>,
-                 public Ice::EnableSharedFromThis<LocatorI>
+                 private IceUtil::Monitor<IceUtil::Mutex>
+#ifdef ICE_CPP11_MAPPING
+               , public std::enable_shared_from_this<LocatorI>
+#endif
 {
 public:
 
@@ -533,7 +540,7 @@ Request::exception(const Ice::Exception& ex)
     catch(const Ice::Exception&)
     {
         _exception.reset(ex.ice_clone());
-        _locator->invoke(_locatorPrx, shared_from_this()); // Retry with new locator proxy
+        _locator->invoke(_locatorPrx, this); // Retry with new locator proxy
     }
 #endif
 }
@@ -613,7 +620,7 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 
     if(_pendingRetryCount > 0) // No need to retry, we found a locator.
     {
-        _timer->cancel(shared_from_this());
+        _timer->cancel(ICE_SHARED_FROM_THIS);
         _pendingRetryCount = 0;
     }
 
@@ -693,7 +700,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 #else
                 _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
 #endif
-                _timer->schedule(shared_from_this(), _timeout);
+                _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
             }
             catch(const Ice::LocalException&)
             {
@@ -721,7 +728,7 @@ LocatorI::runTimerTask()
 #else
             _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
 #endif
-            _timer->schedule(shared_from_this(), _timeout);
+            _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
             return;
         }
         catch(const Ice::LocalException&)

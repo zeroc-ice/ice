@@ -43,7 +43,10 @@ private:
     const EndpointIPtr _endpoint;
 };
 
-class ICE_API IPEndpointI : public EndpointI, public Ice::EnableSharedFromThis<IPEndpointI>
+class ICE_API IPEndpointI : public EndpointI
+#ifdef ICE_CPP11_MAPPING
+                          , public std::enable_shared_from_this<IPEndpointI>
+#endif
 {
 public:
 

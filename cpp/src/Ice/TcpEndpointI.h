@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class TcpEndpointI : public IPEndpointI, public Ice::EnableSharedFromThis<TcpEndpointI>
+class TcpEndpointI : public IPEndpointI
 {
 public:
 
@@ -51,7 +51,6 @@ public:
     TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
 
     using IPEndpointI::connectionId;
-    using Ice::EnableSharedFromThis<TcpEndpointI>::shared_from_this;
 
 protected:
 

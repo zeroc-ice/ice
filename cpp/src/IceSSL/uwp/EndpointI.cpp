@@ -83,11 +83,11 @@ IceSSL::EndpointI::getInfo() const
     IPEndpointInfoPtr info;
     if(_instance->secure())
     {
-        info = ICE_MAKE_SHARED(IceInternal::InfoI<IceSSL::EndpointInfo>, shared_from_this());
+        info = ICE_MAKE_SHARED(IceInternal::InfoI<IceSSL::EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     }
     else
     {
-        info = ICE_MAKE_SHARED(IceInternal::InfoI<Ice::TCPEndpointInfo>, shared_from_this());
+        info = ICE_MAKE_SHARED(IceInternal::InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     }
     fillEndpointInfo(info.get());
     return info;
@@ -97,7 +97,7 @@ Ice::EndpointInfoPtr
 IceSSL::EndpointI::getWSInfo(const string& resource) const
 {
     IPEndpointInfoPtr info;
-    IceSSL::WSSEndpointInfoPtr i = ICE_MAKE_SHARED(IceInternal::InfoI<IceSSL::WSSEndpointInfo>, shared_from_this());
+    IceSSL::WSSEndpointInfoPtr i = ICE_MAKE_SHARED(IceInternal::InfoI<IceSSL::WSSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     i->resource = resource;
     info = i;
     fillEndpointInfo(info.get());
@@ -115,7 +115,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -128,7 +128,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -147,7 +147,7 @@ IceSSL::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -176,7 +176,7 @@ IceSSL::EndpointI::transceiver() const
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string&) const
 {
-    return new AcceptorI(ICE_DYNAMIC_CAST(EndpointI, shared_from_this()), _instance, _host, _port);
+    return new AcceptorI(ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI)), _instance, _host, _port);
 }
 
 EndpointIPtr

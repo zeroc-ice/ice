@@ -29,8 +29,10 @@ namespace IceInternal
 class ConnectRequestHandler : public RequestHandler,
                               public Reference::GetConnectionCallback,
                               public RouterInfo::AddProxyCallback,
-                              public IceUtil::Monitor<IceUtil::Mutex>,
-                              public Ice::EnableSharedFromThis<ConnectRequestHandler>
+                              public IceUtil::Monitor<IceUtil::Mutex>
+#ifdef ICE_CPP11_MAPPING
+                            , public std::enable_shared_from_this<ConnectRequestHandler>
+#endif
 {
 public:
 
@@ -52,8 +54,6 @@ public:
     virtual void setException(const Ice::LocalException&);
 
     virtual void addedProxy();
-
-    using Ice::EnableSharedFromThis<ConnectRequestHandler>::shared_from_this;
 
 private:
 

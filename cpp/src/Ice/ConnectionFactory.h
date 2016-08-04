@@ -88,8 +88,11 @@ private:
     };
 
     class ConnectCallback : public Ice::ConnectionI::StartCallback,
-                            public IceInternal::EndpointI_connectors,
-                            public Ice::EnableSharedFromThis<IceInternal::OutgoingConnectionFactory::ConnectCallback>
+                            public IceInternal::EndpointI_connectors
+#ifdef ICE_CPP11_MAPPING
+                          , public std::enable_shared_from_this<ConnectCallback>
+#endif
+
     {
     public:
 
@@ -171,8 +174,7 @@ private:
 
 class IncomingConnectionFactory : public EventHandler,
                                   public Ice::ConnectionI::StartCallback,
-                                  public IceUtil::Monitor<IceUtil::Mutex>,
-                                  public Ice::EnableSharedFromThis<IncomingConnectionFactory>
+                                  public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -214,6 +216,14 @@ public:
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterIPtr&);
     void initialize();
     virtual ~IncomingConnectionFactory();
+
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<IncomingConnectionFactory> shared_from_this()
+    {
+        return std::static_pointer_cast<IncomingConnectionFactory>(EventHandler::shared_from_this());
+    }
+#endif
+
     
 private:
 

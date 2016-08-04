@@ -20,7 +20,10 @@
 namespace IceInternal
 {
 
-class WSEndpoint : public EndpointI, public Ice::EnableSharedFromThis<WSEndpoint>
+class WSEndpoint : public EndpointI
+#ifdef ICE_CPP11_MAPPING
+                 , public std::enable_shared_from_this<WSEndpoint>
+#endif
 {
 public:
 

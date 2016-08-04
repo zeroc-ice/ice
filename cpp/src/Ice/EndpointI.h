@@ -16,7 +16,6 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
-#include <Ice/VirtualShared.h>
 
 namespace Ice
 {
@@ -29,7 +28,10 @@ class InputStream;
 namespace IceInternal
 {
 
-class ICE_API EndpointI_connectors : public virtual ICE_SHARED
+class ICE_API EndpointI_connectors
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -39,7 +41,7 @@ public:
     virtual void exception(const Ice::LocalException&) = 0;
 };
 
-class ICE_API EndpointI : public Ice::Endpoint, public virtual ICE_SHARED
+class ICE_API EndpointI : public Ice::Endpoint
 {
 public:
 

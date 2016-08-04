@@ -47,7 +47,12 @@ namespace IceInternal
 class ICE_API MetricsMapI;
 ICE_DEFINE_PTR(MetricsMapIPtr, MetricsMapI);
 
-class ICE_API MetricsMapI : public Ice::EnableSharedFromThis<MetricsMapI>
+class ICE_API MetricsMapI :
+#ifdef ICE_CPP11_MAPPING
+        public std::enable_shared_from_this<MetricsMapI>
+#else
+        public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -121,11 +126,9 @@ protected:
     const std::vector<RegExpPtr> _reject;
 };
 
-class ICE_API MetricsMapFactory :
-#ifdef ICE_CPP11_MAPPING
-    public virtual Ice::VirtualEnableSharedFromThisBase
-#else
-    public Ice::LocalObject
+class ICE_API MetricsMapFactory
+#ifndef ICE_CPP11_MAPPING
+    : public Ice::LocalObject
 #endif
 {
 public:
@@ -160,7 +163,7 @@ public:
 
     class EntryT :
 #ifdef ICE_CPP11_MAPPING
-        public virtual Ice::VirtualEnableSharedFromThisBase
+        public std::enable_shared_from_this<EntryT>
 #else
         public Ice::LocalObject
 #endif
@@ -226,7 +229,7 @@ public:
             if(--_object->current == 0)
             {
 #ifdef ICE_CPP11_MAPPING
-                _map->detached(std::dynamic_pointer_cast<EntryT>(shared_from_this()));
+                _map->detached(this->shared_from_this());
 #else
                 _map->detached(this);
 #endif
@@ -325,6 +328,13 @@ public:
     {
     }
 
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<MetricsMapT> shared_from_this()
+    {
+        return std::static_pointer_cast<MetricsMapT>(MetricsMapI::shared_from_this());
+    }
+#endif
+
     virtual void
     destroy()
     {
@@ -384,11 +394,7 @@ public:
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
-#ifdef ICE_CPP11_MAPPING
-            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone()->shared_from_this(), p->second.first);
-#else
-            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone(), p->second.first);
-#endif
+            return std::pair<MetricsMapIPtr, SubMapMember>(ICE_GET_SHARED_FROM_THIS(p->second.second->clone()), p->second.first);
         }
         return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(ICE_NULLPTR), static_cast<SubMapMember>(0));
     }
@@ -466,14 +472,15 @@ public:
         {
             TPtr t = ICE_MAKE_SHARED(T);
             t->id = key;
+
 #ifdef ICE_CPP11_MAPPING
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
-                                    key, std::make_shared<EntryT>(
-                                        std::dynamic_pointer_cast<MetricsMapT<MetricsType>>(shared_from_this()), t, _detachedQueue.end()))).first;
+                key, std::make_shared<EntryT>(shared_from_this(), t, _detachedQueue.end()))).first;
 #else
             p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
-                                    key, new EntryT(this, t, _detachedQueue.end()))).first;
+                key, new EntryT(this, t, _detachedQueue.end()))).first;
 #endif
+
         }
         p->second->attach(helper);
         return p->second;

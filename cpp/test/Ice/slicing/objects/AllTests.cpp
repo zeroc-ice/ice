@@ -52,7 +52,10 @@ private:
     bool _called;
 };
 
-class Callback : public CallbackBase, public Ice::EnableSharedFromThis<Callback>
+class Callback : public CallbackBase
+#ifndef ICE_CPP11_MAPPING
+               , public virtual IceUtil::Shared
+#endif
 {
 public:
 

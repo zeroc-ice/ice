@@ -66,7 +66,7 @@ Init init;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
-    _responseHandlerCopy(_responseHandler->shared_from_this()), // Acquire reference on response handler
+    _responseHandlerCopy(ICE_GET_SHARED_FROM_THIS(_responseHandler)), // Acquire reference on response handler
     _retriable(in.isRetriable()),
     _active(true)
 {

@@ -48,7 +48,7 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
     _current.adapter = adapter;
 #ifdef ICE_CPP11_MAPPING
     ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
-    _current.con = conn ? dynamic_pointer_cast<::Ice::ConnectionI>(conn->shared_from_this()) : nullptr;
+    _current.con = conn ? conn->shared_from_this() : nullptr;
 #else
     _current.con = connection;
 #endif

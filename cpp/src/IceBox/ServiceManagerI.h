@@ -20,8 +20,10 @@ namespace IceBox
 {
 
 class ServiceManagerI : public ServiceManager, 
-                        public IceUtil::Monitor<IceUtil::Mutex>,
-                        public Ice::EnableSharedFromThis<ServiceManagerI>
+                        public IceUtil::Monitor<IceUtil::Mutex>
+#ifdef ICE_CPP11_MAPPING
+                      , public std::enable_shared_from_this<ServiceManagerI>
+#endif
 {
 public:
 

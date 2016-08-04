@@ -60,7 +60,7 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
-    EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, shared_from_this());
+    EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -90,7 +90,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _delegate->timeout())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -109,7 +109,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _delegate->connectionId())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -128,7 +128,7 @@ IceSSL::EndpointI::compress(bool compress) const
 {
     if(compress == _delegate->compress())
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
     }
     else
     {
@@ -197,7 +197,7 @@ IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
+    return new AcceptorI(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, _delegate->acceptor(adapterName), adapterName);
 }
 
 EndpointIPtr
@@ -212,7 +212,7 @@ IceSSL::EndpointI::expand() const
     vector<IceInternal::EndpointIPtr> endps = _delegate->expand();
     for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        *p = p->get() == _delegate.get() ? shared_from_this() : ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        *p = p->get() == _delegate.get() ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, _instance, *p);
     }
     return endps;
 }

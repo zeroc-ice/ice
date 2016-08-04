@@ -1198,11 +1198,11 @@ Certificate::getPublicKey() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
     }
-    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), key);
+    return ICE_MAKE_SHARED(PublicKey, ICE_SHARED_FROM_CONST_THIS(Certificate), key);
 #elif defined(ICE_USE_SCHANNEL)
-    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), &_certInfo->SubjectPublicKeyInfo);
+    return ICE_MAKE_SHARED(PublicKey, ICE_SHARED_FROM_CONST_THIS(Certificate), &_certInfo->SubjectPublicKeyInfo);
 #elif defined(ICE_USE_OPENSSL)
-    return ICE_MAKE_SHARED(PublicKey, shared_from_this(), X509_get_pubkey(_cert));
+    return ICE_MAKE_SHARED(PublicKey, ICE_SHARED_FROM_CONST_THIS(Certificate), X509_get_pubkey(_cert));
 #elif defined(ICE_OS_WINRT)
     return ICE_NULLPTR; // Not supported
 #else

@@ -37,7 +37,7 @@ public:
               Int batchRequestNum) :
         _out(out),
         _os(os),
-        _handler(handler->shared_from_this()),
+        _handler(ICE_GET_SHARED_FROM_THIS(handler)),
         _requestId(requestId),
         _batchRequestNum(batchRequestNum)
     {
@@ -122,7 +122,7 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 RequestHandlerPtr
 CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
-    return previousHandler.get() == this ? newHandler : shared_from_this();
+    return previousHandler.get() == this ? newHandler : ICE_SHARED_FROM_THIS;
 }
 
 bool
@@ -269,20 +269,20 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         //
         // This will throw if the request is canceled
         //
-        outAsync->cancelable(shared_from_this());
+        outAsync->cancelable(ICE_SHARED_FROM_THIS);
 
         if(_response)
         {
             requestId = ++_requestId;
-            _asyncRequests.insert(make_pair(requestId, outAsync->shared_from_this()));
+            _asyncRequests.insert(make_pair(requestId, ICE_GET_SHARED_FROM_THIS(outAsync)));
         }
 
-        _sendAsyncRequests.insert(make_pair(outAsync->shared_from_this(), requestId));
+        _sendAsyncRequests.insert(make_pair(ICE_GET_SHARED_FROM_THIS(outAsync), requestId));
     }
     catch(...)
     {
-        _adapter->decDirectCount();
-        throw;
+         _adapter->decDirectCount();
+         throw;
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
@@ -290,17 +290,17 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     if(!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
         // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->dispatch(new InvokeAllAsync(outAsync->shared_from_this(),
-                                                               outAsync->getOs(),
-                                                               shared_from_this(),
-                                                               requestId,
-                                                               batchRequestNum));
+            _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+                                                                   outAsync->getOs(),
+                                                                   ICE_SHARED_FROM_THIS,
+                                                                   requestId,
+                                                                   batchRequestNum));
     }
     else if(_dispatcher)
     {
-        _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(outAsync->shared_from_this(),
+        _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
                                                                              outAsync->getOs(),
-                                                                             shared_from_this(),
+                                                                             ICE_SHARED_FROM_THIS,
                                                                              requestId,
                                                                              batchRequestNum));
     }
@@ -311,8 +311,8 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         // dispatched. Otherwise, the handler could be deleted during the dispatch
         // if a retry occurs.
         //
-        CollocatedRequestHandlerPtr self(shared_from_this());
 
+        CollocatedRequestHandlerPtr self(ICE_SHARED_FROM_THIS);
         if(sentAsync(outAsync))
         {
             invokeAll(outAsync->getOs(), requestId, batchRequestNum);
@@ -433,7 +433,7 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 {
     {
         Lock sync(*this);
-        if(_sendAsyncRequests.erase(outAsync->shared_from_this()) == 0)
+        if(_sendAsyncRequests.erase(ICE_GET_SHARED_FROM_THIS(outAsync)) == 0)
         {
             return false; // The request timed-out.
         }

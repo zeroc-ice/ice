@@ -367,6 +367,8 @@ typedef long long Int64;
 #   define ICE_NULLPTR nullptr
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
 #   define ICE_SHARED_FROM_THIS shared_from_this()
+#   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
+#   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
 #   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value>(const std::string&)>
@@ -385,6 +387,8 @@ typedef long long Int64;
 #   define ICE_NULLPTR 0
 #   define ICE_DYNAMIC_CAST(T,V) T##Ptr::dynamicCast(V)
 #   define ICE_SHARED_FROM_THIS this
+#   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)
+#   define ICE_GET_SHARED_FROM_THIS(p) p
 #   define ICE_CHECKED_CAST(T, ...) T::checkedCast(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) T::uncheckedCast(__VA_ARGS__)
 #   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr

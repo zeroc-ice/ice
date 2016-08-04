@@ -94,7 +94,7 @@ EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
     Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>,
-                                                   ICE_DYNAMIC_CAST(UdpEndpointI, shared_from_this()));
+                                                   ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -108,7 +108,7 @@ IceInternal::UdpEndpointI::timeout() const
 EndpointIPtr
 IceInternal::UdpEndpointI::timeout(Int) const
 {
-    return shared_from_this();
+    return ICE_SHARED_FROM_CONST_THIS(UdpEndpointI);
 }
 
 bool
@@ -122,7 +122,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(UdpEndpointI);
     }
     else
     {
@@ -140,7 +140,7 @@ IceInternal::UdpEndpointI::datagram() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
-    return new UdpTransceiver(ICE_DYNAMIC_CAST(UdpEndpointI, shared_from_this()), _instance, _host, _port, _mcastInterface, _connect);
+    return new UdpTransceiver(ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)), _instance, _host, _port, _mcastInterface, _connect);
 }
 
 AcceptorPtr

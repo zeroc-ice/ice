@@ -93,7 +93,7 @@ OutgoingAsyncBase::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->dispatch(new AsynchronousSent(_cachedConnection, shared_from_this()));
+        _instance->clientThreadPool()->dispatch(new AsynchronousSent(_cachedConnection, ICE_SHARED_FROM_THIS));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -127,7 +127,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
     // CommunicatorDestroyedCompleted is the only exception that can propagate directly
     // from this method.
     //
-    _instance->clientThreadPool()->dispatch(new AsynchronousException(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->dispatch(new AsynchronousException(_cachedConnection, ICE_SHARED_FROM_THIS));
 }
 
 void
@@ -157,7 +157,7 @@ OutgoingAsyncBase::invokeResponseAsync()
     // CommunicatorDestroyedCompleted is the only exception that can propagate directly
     // from this method.
     //
-    _instance->clientThreadPool()->dispatch(new AsynchronousResponse(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->dispatch(new AsynchronousResponse(_cachedConnection, ICE_SHARED_FROM_THIS));
 }
 
 void
@@ -380,7 +380,7 @@ OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
         }
         handler = _cancellationHandler;
     }
-    handler->asyncRequestCanceled(shared_from_this(), ex);
+    handler->asyncRequestCanceled(ICE_SHARED_FROM_THIS, ex);
 }
 
 #ifndef ICE_CPP11_MAPPING
@@ -576,7 +576,7 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
     _cachedConnection = 0;
     if(_proxy->__reference()->getInvocationTimeout() == -2)
     {
-        _instance->timer()->cancel(shared_from_this());
+        _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
     }
 
     //
@@ -590,7 +590,7 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
         // the retry interval is 0. This method can be called with the
         // connection locked so we can't just retry here.
         //
-        _instance->retryQueue()->add(shared_from_this(), _proxy->__handleException(exc, _handler, _mode, _sent, _cnt));
+        _instance->retryQueue()->add(ICE_SHARED_FROM_THIS, _proxy->__handleException(exc, _handler, _mode, _sent, _cnt));
         return false;
     }
     catch(const Exception& ex)
@@ -607,7 +607,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
         const int timeout = _cachedConnection->timeout();
         if(timeout > 0)
         {
-            _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(timeout));
+            _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::milliSeconds(timeout));
         }
     }
     OutgoingAsyncBase::cancelable(handler);
@@ -625,7 +625,7 @@ ProxyOutgoingAsyncBase::retryException(const Exception& ex)
         // connection to be done.
         //
         _proxy->__updateRequestHandler(_handler, 0); // Clear request handler and always retry.
-        _instance->retryQueue()->add(shared_from_this(), 0);
+        _instance->retryQueue()->add(ICE_SHARED_FROM_THIS, 0);
     }
     catch(const Ice::Exception& exc)
     {
@@ -699,7 +699,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             int invocationTimeout = _proxy->__reference()->getInvocationTimeout();
             if(invocationTimeout > 0)
             {
-                _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(invocationTimeout));
+                _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::milliSeconds(invocationTimeout));
             }
         }
         else
@@ -713,7 +713,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             {
                 _sent = false;
                 _handler = _proxy->__getRequestHandler();
-                AsyncStatus status = _handler->sendAsyncRequest(shared_from_this());
+                AsyncStatus status = _handler->sendAsyncRequest(ICE_SHARED_FROM_THIS);
                 if(status & AsyncStatusSent)
                 {
                     if(userThread)
@@ -748,7 +748,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                 int interval = _proxy->__handleException(ex, _handler, _mode, _sent, _cnt);
                 if(interval > 0)
                 {
-                    _instance->retryQueue()->add(shared_from_this(), interval);
+                    _instance->retryQueue()->add(ICE_SHARED_FROM_THIS, interval);
                     return;
                 }
                 else
@@ -783,7 +783,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
     {
         if(_proxy->__reference()->getInvocationTimeout() != -1)
         {
-            _instance->timer()->cancel(shared_from_this());
+            _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
         }
     }
     return OutgoingAsyncBase::sentImpl(done);
@@ -794,7 +794,7 @@ ProxyOutgoingAsyncBase::exceptionImpl(const Exception& ex)
 {
     if(_proxy->__reference()->getInvocationTimeout() != -1)
     {
-        _instance->timer()->cancel(shared_from_this());
+        _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
     }
     return OutgoingAsyncBase::exceptionImpl(ex);
 }
@@ -804,7 +804,7 @@ ProxyOutgoingAsyncBase::responseImpl(bool ok)
 {
     if(_proxy->__reference()->getInvocationTimeout() != -1)
     {
-        _instance->timer()->cancel(shared_from_this());
+        _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
     }
     return OutgoingAsyncBase::responseImpl(ok);
 }
@@ -1056,7 +1056,7 @@ AsyncStatus
 OutgoingAsync::invokeRemote(const ConnectionIPtr& connection, bool compress, bool response)
 {
     _cachedConnection = connection;
-    return connection->sendAsyncRequest(shared_from_this(), compress, response, 0);
+    return connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, response, 0);
 }
 
 AsyncStatus
@@ -1171,7 +1171,7 @@ ProxyFlushBatchAsync::invokeRemote(const ConnectionIPtr& connection, bool compre
         }
     }
     _cachedConnection = connection;
-    return connection->sendAsyncRequest(shared_from_this(), compress, false, _batchRequestNum);
+    return connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, _batchRequestNum);
 }
 
 AsyncStatus
@@ -1261,7 +1261,7 @@ ConnectionFlushBatchAsync::invoke(const string& operation)
         }
         else
         {
-            status = _connection->sendAsyncRequest(shared_from_this(), false, false, batchRequestNum);
+            status = _connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, false, false, batchRequestNum);
         }
 
         if(status & AsyncStatusSent)
@@ -1385,7 +1385,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con)
 
     try
     {
-        OutgoingAsyncBasePtr flushBatch = ICE_MAKE_SHARED(FlushBatch, shared_from_this(), _instance, _observer);
+        OutgoingAsyncBasePtr flushBatch = ICE_MAKE_SHARED(FlushBatch, ICE_SHARED_FROM_THIS, _instance, _observer);
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs());
         if(batchRequestNum == 0)
         {
@@ -1407,8 +1407,8 @@ void
 CommunicatorFlushBatchAsync::invoke(const string& operation)
 {
     _observer.attach(_instance.get(), operation);
-    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(shared_from_this());
-    _instance->objectAdapterFactory()->flushAsyncBatchRequests(shared_from_this());
+    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS);
+    _instance->objectAdapterFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS);
     check(true);
 }
 

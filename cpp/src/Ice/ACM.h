@@ -19,7 +19,6 @@
 #include <Ice/InstanceF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
-#include <Ice/VirtualShared.h>
 #include <set>
 
 namespace IceInternal
@@ -51,7 +50,10 @@ public:
     virtual Ice::ACM getACM() = 0;
 };
 
-class FactoryACMMonitor : public ACMMonitor, public IceUtil::Mutex, public Ice::EnableSharedFromThis<FactoryACMMonitor>
+class FactoryACMMonitor : public ACMMonitor, public IceUtil::Mutex
+#ifdef ICE_CPP11_MAPPING
+                        , public std::enable_shared_from_this<FactoryACMMonitor>
+#endif
 {
 public:
 
@@ -87,8 +89,10 @@ private:
 };
 
 class ConnectionACMMonitor : public ACMMonitor,
-                             public IceUtil::Mutex,
-                             public Ice::EnableSharedFromThis<ConnectionACMMonitor>
+                             public IceUtil::Mutex
+#ifdef ICE_CPP11_MAPPING
+                           , public std::enable_shared_from_this<ConnectionACMMonitor>
+#endif
 {
 public:
 

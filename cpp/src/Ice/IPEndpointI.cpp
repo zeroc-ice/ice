@@ -81,7 +81,7 @@ IceInternal::IPEndpointInfoI::secure() const
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const
 {
-    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, shared_from_this());
+    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -123,7 +123,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return shared_from_this();
+        return ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
     }
     else
     {
@@ -134,7 +134,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 void
 IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
 {
-    _instance->resolve(_host, _port, selType, shared_from_this(), cb);
+    _instance->resolve(_host, _port, selType, ICE_SHARED_FROM_CONST_THIS(IPEndpointI), cb);
 }
 
 vector<EndpointIPtr>
@@ -144,7 +144,7 @@ IceInternal::IPEndpointI::expand() const
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
-        endps.push_back(shared_from_this());
+        endps.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     }
     else
     {

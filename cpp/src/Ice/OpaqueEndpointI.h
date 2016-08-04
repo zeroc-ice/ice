@@ -16,7 +16,10 @@
 namespace IceInternal
 {
 
-class OpaqueEndpointI : public EndpointI, public Ice::EnableSharedFromThis<OpaqueEndpointI>
+class OpaqueEndpointI : public EndpointI
+#ifdef ICE_CPP11_MAPPING
+                      , public std::enable_shared_from_this<OpaqueEndpointI>
+#endif
 {
 public:
 

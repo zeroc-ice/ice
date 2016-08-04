@@ -306,7 +306,10 @@ protected:
     };
 };
 
-class Updater : public ICE_SHARED
+class Updater
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
