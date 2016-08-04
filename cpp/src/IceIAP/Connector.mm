@@ -79,12 +79,6 @@ IceObjC::iAPConnector::operator==(const IceInternal::Connector& r) const
 }
 
 bool
-IceObjC::iAPConnector::operator!=(const IceInternal::Connector& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceObjC::iAPConnector::operator<(const IceInternal::Connector& r) const
 {
     const iAPConnector* p = dynamic_cast<const iAPConnector*>(&r);
