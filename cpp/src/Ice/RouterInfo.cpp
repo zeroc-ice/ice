@@ -130,7 +130,7 @@ bool
 IceInternal::RouterInfo::operator==(const RouterInfo& rhs) const
 {
 #ifdef ICE_CPP11_MAPPING
-    return Ice::targetEquals(_router, rhs._router);
+    return Ice::targetEqualTo(_router, rhs._router);
 #else
     return _router == rhs._router;
 #endif

@@ -310,7 +310,7 @@ IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
-    if(!Ice::targetEquals(_delegate, p->_delegate))
+    if(!Ice::targetEqualTo(_delegate, p->_delegate))
     {
         return false;
     }

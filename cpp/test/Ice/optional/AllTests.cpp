@@ -393,7 +393,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(initial);
 
 #ifdef ICE_CPP11_MAPPING
-    test(targetEquals(initial, base));
+    test(targetEqualTo(initial, base));
 #else
     test(initial == base);
 #endif
@@ -595,7 +595,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
 #ifdef ICE_CPP11_MAPPING
-    test(targetEquals(mo5->j.value(), mo1->j.value()));
+    test(targetEqualTo(mo5->j.value(), mo1->j.value()));
 #else
     test(mo5->j == mo1->j);
 #endif
@@ -617,7 +617,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo5->oops.value().size() == mo1->oops.value().size());
     for(size_t i = 0; i< mo5->oops.value().size(); ++i)
     {
-        test(targetEquals(mo5->oops.value()[i], mo1->oops.value()[i]));
+        test(targetEqualTo(mo5->oops.value()[i], mo1->oops.value()[i]));
     }
 #else
     test(mo5->oops == mo1->oops);
@@ -632,7 +632,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo5->ioopd.value().size() == mo1->ioopd.value().size());
     for(auto& v : mo5->ioopd.value())
     {
-        test(targetEquals(mo1->ioopd.value()[v.first], v.second));
+        test(targetEqualTo(mo1->ioopd.value()[v.first], v.second));
     }
 #else
     test(mo5->ioopd == mo1->ioopd);
@@ -671,7 +671,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo7->h == mo1->h);
     test(!mo7->i);
 #ifdef ICE_CPP11_MAPPING
-    test(targetEquals(mo7->j.value(), mo1->j.value()));
+    test(targetEqualTo(mo7->j.value(), mo1->j.value()));
 #else
     test(mo7->j == mo1->j);
 #endif
@@ -743,7 +743,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(mo8->oops.value().size() == mo1->oops.value().size());
     for(size_t i = 0; i< mo8->oops.value().size(); ++i)
     {
-        test(targetEquals(mo8->oops.value()[i], mo1->oops.value()[i]));
+        test(targetEqualTo(mo8->oops.value()[i], mo1->oops.value()[i]));
     }
 #else
     test(mo8->oops == mo1->oops);
@@ -1461,7 +1461,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         p2 = initial->opOneOptionalProxy(p1, p3);
 
 #ifdef ICE_CPP11_MAPPING
-        test(targetEquals(p2.value(), p1.value()) && targetEquals(p3.value(), p1.value()));
+        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
 #else
         test(p2 == p1 && p3 == p1);
 #endif
@@ -1479,7 +1479,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in.endEncapsulation();
 
 #ifdef ICE_CPP11_MAPPING
-        test(targetEquals(p2.value(), p1.value()) && targetEquals(p3.value(), p1.value()));
+        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
 #else
         test(p2 == p1 && p3 == p1);
 #endif

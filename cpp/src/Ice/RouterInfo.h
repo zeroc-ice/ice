@@ -45,7 +45,7 @@ private:
 #ifdef ICE_CPP11_MAPPING
     using RouterTableMap = std::map<std::shared_ptr<Ice::RouterPrx>,
                                     RouterInfoPtr,
-                                    Ice::TargetLess<std::shared_ptr<::Ice::RouterPrx>>>;
+                                    Ice::TargetCompare<std::shared_ptr<::Ice::RouterPrx>, std::less>>;
 #else
     typedef std::map<Ice::RouterPrxPtr, RouterInfoPtr> RouterTableMap;
 #endif

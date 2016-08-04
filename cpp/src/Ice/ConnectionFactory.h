@@ -165,7 +165,7 @@ private:
     std::map<ConnectorPtr, std::set<ConnectCallbackPtr> > _pending;
 
 #ifdef ICE_CPP11_MAPPING
-    std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetLess<EndpointIPtr>> _connectionsByEndpoint;
+    std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>> _connectionsByEndpoint;
 #else
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connectionsByEndpoint;
 #endif

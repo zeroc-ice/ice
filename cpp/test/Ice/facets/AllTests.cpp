@@ -192,7 +192,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     d = ICE_CHECKED_CAST(DPrx, db);
     test(d);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(d, db));
+    test(Ice::targetEqualTo(d, db));
 #else
     test(d == db);
 #endif

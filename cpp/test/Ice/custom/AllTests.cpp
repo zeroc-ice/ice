@@ -593,7 +593,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::TestIntfPrxPtr t = ICE_CHECKED_CAST(Test::TestIntfPrx, base);
     test(t);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(t, base));
+    test(Ice::targetEqualTo(t, base));
 #else
     test(t == base);
 #endif
@@ -1060,8 +1060,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         for(auto i: in)
         {
-            test(Ice::targetEquals(*op++, i));
-            test(Ice::targetEquals(*rp++, i));
+            test(Ice::targetEqualTo(*op++, i));
+            test(Ice::targetEqualTo(*rp++, i));
         }
 #else
         test(out == in);
@@ -1085,8 +1085,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         for(auto i: in)
         {
-            test(Ice::targetEquals(*op++, i));
-            test(Ice::targetEquals(*rp++, i));
+            test(Ice::targetEqualTo(*op++, i));
+            test(Ice::targetEqualTo(*rp++, i));
         }
 #else
         test(out == in);
@@ -1853,8 +1853,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             for(auto i: in)
             {
-                test(Ice::targetEquals(*op++, i));
-                test(Ice::targetEquals(*rp++, i));
+                test(Ice::targetEqualTo(*op++, i));
+                test(Ice::targetEqualTo(*rp++, i));
             }
 #else
             deque<Test::CPrx> out;
@@ -1884,8 +1884,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             for(auto i: in)
             {
-                test(Ice::targetEquals(*op++, i));
-                test(Ice::targetEquals(*rp++, i));
+                test(Ice::targetEqualTo(*op++, i));
+                test(Ice::targetEqualTo(*rp++, i));
             }
 #else
             list<Test::CPrx> out;
@@ -2951,8 +2951,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEquals(*op++, i));
-                                  test(Ice::targetEquals(*rp++, i));
+                                  test(Ice::targetEqualTo(*op++, i));
+                                  test(Ice::targetEqualTo(*rp++, i));
                               }
                               done.set_value(true);
                           },
@@ -2991,8 +2991,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEquals(*op++, i));
-                                  test(Ice::targetEquals(*rp++, i));
+                                  test(Ice::targetEqualTo(*op++, i));
+                                  test(Ice::targetEqualTo(*rp++, i));
                               }
                               done.set_value(true);
                           },

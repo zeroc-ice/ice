@@ -389,7 +389,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
         test(rso.e == ICE_ENUM(MyEnum, enum2));
         test(rso.s.s == "def");
 #ifdef ICE_CPP11_MAPPING
-        test(Ice::targetEquals(so.p, p));
+        test(Ice::targetEqualTo(so.p, p));
 #else
         test(so.p == p);
 #endif

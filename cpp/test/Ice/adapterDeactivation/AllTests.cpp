@@ -27,7 +27,7 @@ allTests(const CommunicatorPtr& communicator)
     TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(obj, base));
+    test(Ice::targetEqualTo(obj, base));
 #else
     test(obj == base);
 #endif

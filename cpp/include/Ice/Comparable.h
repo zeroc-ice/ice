@@ -10,11 +10,13 @@
 #ifndef ICE_COMPARABLE_H
 #define ICE_COMPARABLE_H
 
+#include <functional>
+
 namespace Ice
 {
 
 template<typename T, typename U>
-inline bool targetEquals(const T& lhs, const U& rhs)
+inline bool targetEqualTo(const T& lhs, const U& rhs)
 {
     if(lhs && rhs)
     {
@@ -25,16 +27,6 @@ inline bool targetEquals(const T& lhs, const U& rhs)
         return !lhs && !rhs;
     }
 }
-
-template<typename T>
-struct TargetEquals
-{
-    bool operator()(const T& lhs, const T& rhs) const
-    {
-        return targetEquals(lhs, rhs);
-    }
-};
-
 
 template<typename T, typename U>
 inline bool targetLess(const T& lhs, const U& rhs)
@@ -49,16 +41,51 @@ inline bool targetLess(const T& lhs, const U& rhs)
     }
 }
 
-template<typename T>
-struct TargetLess
+template<typename T, typename U>
+inline bool targetGreater(const T& lhs, const U& rhs)
+{
+    return targetLess(rhs, lhs);
+}
+
+template<typename T, typename U>
+inline bool targetLessEqual(const T& lhs, const U& rhs)
+{
+    return !targetGreater(lhs, rhs);
+}
+
+template<typename T, typename U>
+inline bool targetGreaterEqual(const T& lhs, const U& rhs)
+{
+    return !targetLess(lhs, rhs);
+}
+
+template<typename T, typename U>
+inline bool targetNotEqualTo(const T& lhs, const U& rhs)
+{
+    return !targetEqualTo(lhs, rhs);
+}
+
+#ifdef ICE_CPP11_MAPPING
+
+template<typename T, template<typename> class Compare>
+struct TargetCompare
 {
     bool operator()(const T& lhs, const T& rhs) const
     {
-        return targetLess(lhs, rhs);
+        if(lhs && rhs)
+        {
+            return Compare<typename T::element_type>()(*lhs, *rhs);
+        }
+        else
+        {
+            return Compare<bool>()(static_cast<const bool>(lhs), static_cast<const bool>(rhs));
+        }
     }
 };
 
-#ifdef ICE_CPP11_MAPPING
+//
+// Relational operators for generated structs and classes
+//
 
 template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
 bool operator<(const C& lhs, const C& rhs)

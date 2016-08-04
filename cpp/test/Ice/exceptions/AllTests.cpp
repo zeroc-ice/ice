@@ -690,7 +690,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     ThrowerPrxPtr thrower = ICE_CHECKED_CAST(ThrowerPrx, base);
     test(thrower);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(thrower, base));
+    test(Ice::targetEqualTo(thrower, base));
 #else
     test(thrower == base);
 #endif

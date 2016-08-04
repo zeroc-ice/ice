@@ -74,7 +74,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
     test(initial);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(initial, base));
+    test(Ice::targetEqualTo(initial, base));
 #else
     test(initial == base);
 #endif

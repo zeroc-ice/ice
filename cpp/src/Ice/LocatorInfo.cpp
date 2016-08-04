@@ -565,7 +565,7 @@ bool
 IceInternal::LocatorInfo::operator==(const LocatorInfo& rhs) const
 {
 #ifdef ICE_CPP11_MAPPING
-    return Ice::targetEquals(_locator, rhs._locator);
+    return Ice::targetEqualTo(_locator, rhs._locator);
 #else
     return _locator == rhs._locator;
 #endif

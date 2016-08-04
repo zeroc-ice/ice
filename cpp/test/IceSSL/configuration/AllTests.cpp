@@ -24,9 +24,9 @@
 #endif
 
 #ifdef ICE_CPP11_MAPPING
-#   define ICE_TARGET_EQUALS(A,B) Ice::targetEquals(A, B)
+#   define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
 #else
-#   define ICE_TARGET_EQUALS(A,B) A == B
+#   define ICE_TARGET_EQUAL_TO(A,B) A == B
 #endif
 
 using namespace std;
@@ -753,8 +753,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             // Validate some aspects of the Certificate class.
             //
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(ICE_TARGET_EQUALS(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
-            test(ICE_TARGET_EQUALS(serverCert, serverCert));
+            test(ICE_TARGET_EQUAL_TO(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
             test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
@@ -762,7 +762,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
-            test(ICE_TARGET_EQUALS(caCert, caCert));
+            test(ICE_TARGET_EQUAL_TO(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
             test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
@@ -777,11 +777,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(info->nativeCerts.size() == 2);
             test(info->verified);
 
-            test(ICE_TARGET_EQUALS(caCert, info->nativeCerts[1]));
-            test(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[0]));
+            test(ICE_TARGET_EQUAL_TO(caCert, info->nativeCerts[1]));
+            test(ICE_TARGET_EQUAL_TO(serverCert, info->nativeCerts[0]));
 
-            test(!(ICE_TARGET_EQUALS(serverCert, info->nativeCerts[1])));
-            test(!(ICE_TARGET_EQUALS(caCert, info->nativeCerts[0])));
+            test(!(ICE_TARGET_EQUAL_TO(serverCert, info->nativeCerts[1])));
+            test(!(ICE_TARGET_EQUAL_TO(caCert, info->nativeCerts[0])));
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());

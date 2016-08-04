@@ -93,7 +93,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     HoldPrxPtr hold = ICE_CHECKED_CAST(HoldPrx, base);
     test(hold);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(hold, base));
+    test(Ice::targetEqualTo(hold, base));
 #else
     test(hold == base);
 #endif
@@ -101,7 +101,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(holdSerialized);
 
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(holdSerialized, baseSerialized));
+    test(Ice::targetEqualTo(holdSerialized, baseSerialized));
 #else
     test(holdSerialized == baseSerialized);
 #endif

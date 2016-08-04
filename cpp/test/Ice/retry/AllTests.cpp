@@ -102,14 +102,14 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     RetryPrxPtr retry1 = ICE_CHECKED_CAST(RetryPrx, base1);
     test(retry1);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(retry1, base1));
+    test(Ice::targetEqualTo(retry1, base1));
 #else
     test(retry1 == base1);
 #endif
     RetryPrxPtr retry2 = ICE_CHECKED_CAST(RetryPrx, base2);
     test(retry2);
 #ifdef ICE_CPP11_MAPPING
-    test(Ice::targetEquals(retry2, base2));
+    test(Ice::targetEqualTo(retry2, base2));
 #else
     test(retry2 == base2);
 #endif
