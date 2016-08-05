@@ -881,16 +881,21 @@ DistinguishedName::DistinguishedName(const list<pair<string, string> >& rdns) : 
     unescape();
 }
 
+namespace IceSSL
+{
+
 bool
-IceSSL::operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
+operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
 {
     return lhs._unescaped == rhs._unescaped;
 }
 
 bool
-IceSSL::operator<(const DistinguishedName& lhs, const DistinguishedName& rhs)
+operator<(const DistinguishedName& lhs, const DistinguishedName& rhs)
 {
     return lhs._unescaped == rhs._unescaped;
+}
+
 }
 
 bool
