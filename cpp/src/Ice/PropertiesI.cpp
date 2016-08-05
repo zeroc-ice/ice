@@ -296,6 +296,8 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 void
 Ice::PropertiesI::load(const std::string& file)
 {
+    StringConverterPtr stringConverter = getProcessStringConverter();
+
 //
 // Metro style applications cannot access Windows registry.
 //
@@ -303,7 +305,7 @@ Ice::PropertiesI::load(const std::string& file)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
-        const wstring keyName = stringToWstring(file, _converter).substr(5).c_str();
+        const wstring keyName = stringToWstring(file, stringConverter).substr(5).c_str();
         LONG err;
         if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
@@ -351,7 +353,7 @@ Ice::PropertiesI::load(const std::string& file)
                     continue;
                 }
                 string name = wstringToString(
-                    wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), _converter);
+                    wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), stringConverter);
                 if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
@@ -364,7 +366,7 @@ Ice::PropertiesI::load(const std::string& file)
                 wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
                 if(keyType == REG_SZ)
                 {
-                    value = wstringToString(valueW, _converter);
+                    value = wstringToString(valueW, stringConverter);
                 }
                 else // keyType == REG_EXPAND_SZ
                 {
@@ -384,7 +386,7 @@ Ice::PropertiesI::load(const std::string& file)
                             continue;
                         }
                     }
-                    value = wstringToString(wstring(&expandedValue[0], sz -1), _converter);
+                    value = wstringToString(wstring(&expandedValue[0], sz -1), stringConverter);
                 }
                 setProperty(name, value);
             }
@@ -427,7 +429,7 @@ Ice::PropertiesI::load(const std::string& file)
                 }
                 firstLine = false;
             }
-            parseLine(line, _converter);
+            parseLine(line, stringConverter);
         }
     }
 }
@@ -455,18 +457,15 @@ Ice::PropertiesI::getUnusedProperties()
 }
 
 Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
-    _properties(p->_properties),
-    _converter(p->_converter)
+    _properties(p->_properties)
 {
 }
 
-Ice::PropertiesI::PropertiesI(const StringConverterPtr& converter) :
-    _converter(converter)
+Ice::PropertiesI::PropertiesI()
 {
 }
 
-Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter) :
-    _converter(converter)
+Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
 {
     if(defaults != 0)
     {
@@ -728,7 +727,7 @@ Ice::PropertiesI::loadConfig()
         }
         if(ret > 0)
         {
-            value = wstringToString(wstring(&v[0], ret), _converter);
+            value = wstringToString(wstring(&v[0], ret), getProcessStringConverter());
         }
         else
         {

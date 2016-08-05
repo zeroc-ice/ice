@@ -20,6 +20,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Object.h>
+#include <Ice/StringConverter.h>
 #include <fstream>
 
 #ifdef ICE_USE_OPENSSL

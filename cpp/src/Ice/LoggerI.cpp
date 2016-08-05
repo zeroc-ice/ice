@@ -52,11 +52,10 @@ const IceUtil::Time retryTimeout = IceUtil::Time::seconds(5 * 60);
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
-                      bool convert, const StringConverterPtr& converter,
-                      size_t sizeMax) :
+                      bool convert, size_t sizeMax) :
     _prefix(prefix),
     _convert(convert),
-    _converter(converter),
+    _converter(getProcessStringConverter()),
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
     _consoleConverter(createWindowsStringConverter(GetConsoleOutputCP())),
 #endif
@@ -131,7 +130,8 @@ Ice::LoggerI::getPrefix()
 LoggerPtr
 Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
 {
-    return ICE_MAKE_SHARED(LoggerI, prefix, _file, _convert, _converter);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex); // for _sizeMax
+    return ICE_MAKE_SHARED(LoggerI, prefix, _file, _convert, _sizeMax);
 }
 
 void
@@ -227,8 +227,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                     error("FileLogger: cannot open `" + _file + "':\nlog messages will be sent to stderr");
                     write(message, indent);
                     return;
-                }
-            }
+                }            }
         }
         _out << s << endl;
     }

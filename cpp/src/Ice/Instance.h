@@ -135,8 +135,8 @@ public:
     void setThreadHook(const Ice::ThreadNotificationPtr&);
 #endif
 
-    Ice::StringConverterPtr getStringConverter() const { return _stringConverter; }
-    Ice::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
+    const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
+    const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
 
     BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
     void setSndBufSizeWarn(Ice::Short type, int size);

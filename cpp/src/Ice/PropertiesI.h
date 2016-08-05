@@ -19,8 +19,7 @@
 namespace Ice
 {
 
-class PropertiesI : public Properties,
-                    public IceUtil::Mutex
+class PropertiesI : public Properties, public IceUtil::Mutex
 {
 public:
 
@@ -42,15 +41,11 @@ public:
     std::set<std::string> getUnusedProperties();
 
     PropertiesI(const PropertiesI*);
-    
+
+    PropertiesI();
+    PropertiesI(StringSeq&, const PropertiesPtr&);
+
 private:
-
-    PropertiesI(const StringConverterPtr&);
-    PropertiesI(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
-
-    friend ICE_API PropertiesPtr createProperties();
-    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
-    friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&);
 
     void parseLine(const std::string&, const StringConverterPtr&);
 
@@ -73,7 +68,6 @@ private:
         bool used;
     };
     std::map<std::string, PropertyValue> _properties;
-    const StringConverterPtr _converter;
 };
 
 }

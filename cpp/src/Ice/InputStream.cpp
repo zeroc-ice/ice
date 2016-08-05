@@ -23,6 +23,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
+#include <Ice/StringConverter.h>
 #include <iterator>
 
 #ifndef ICE_UNALIGNED
@@ -34,6 +35,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
 
 Ice::InputStream::InputStream()
 {
@@ -161,9 +163,6 @@ Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding
 
     _instance = instance;
 
-    _stringConverter = _instance->getStringConverter();
-    _wstringConverter = _instance->getWstringConverter();
-
 #ifndef ICE_CPP11_MAPPING
     _collectObjects = _instance->collectObjects();
 #endif
@@ -198,13 +197,6 @@ Ice::InputStream::clear()
 
     _startSeq = -1;
     _sliceValues = true;
-}
-
-void
-Ice::InputStream::setStringConverters(const StringConverterPtr& sc, const WstringConverterPtr& wsc)
-{
-    _stringConverter = sc;
-    _wstringConverter = wsc;
 }
 
 void
@@ -288,8 +280,6 @@ Ice::InputStream::swap(InputStream& other)
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
 
-    std::swap(_stringConverter, other._stringConverter);
-    std::swap(_wstringConverter, other._wstringConverter);
     std::swap(_valueFactoryManager, other._valueFactoryManager);
     std::swap(_logger, other._logger);
     std::swap(_compactIdResolver, other._compactIdResolver);
@@ -1140,7 +1130,7 @@ Ice::InputStream::read(std::string& v, bool convert)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        if(convert && _stringConverter)
+        if(convert)
         {
             readConverted(v, sz);
         }
@@ -1168,7 +1158,7 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
 
-        if(convert == false || !_stringConverter)
+        if(convert == false)
         {
             vdata = reinterpret_cast<const char*>(&*i);
             vsize = static_cast<size_t>(sz);
@@ -1231,32 +1221,24 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize)
 void
 Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
 {
-    if(!_stringConverter)
+    Int sz = readSize();
+    if(sz > 0)
     {
-        holder.clear();
-        read(vdata, vsize);
+        if(b.end() - i < sz)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+
+        readConverted(holder, sz);
+        i += sz;
+        vdata = holder.data();
+        vsize = holder.size();
     }
     else
     {
-        Int sz = readSize();
-        if(sz > 0)
-        {
-            if(b.end() - i < sz)
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-
-            readConverted(holder, sz);
-            i += sz;
-            vdata = holder.data();
-            vsize = holder.size();
-        }
-        else
-        {
-            holder.clear();
-            vdata = 0;
-            vsize = 0;
-        }
+        holder.clear();
+        vdata = 0;
+        vsize = 0;
     }
 }
 #endif
@@ -1264,16 +1246,35 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
 void
 Ice::InputStream::readConverted(string& v, int sz)
 {
-    if(!_stringConverter)
-    {
-        throw MarshalException(__FILE__, __LINE__, "no string converter provided");
-    }
-
     try
     {
-        _stringConverter->fromUTF8(i, i + sz, v);
+        bool converted = false;
+
+        if(_instance)
+        {
+            const StringConverterPtr& stringConverter = _instance->getStringConverter();
+            if(stringConverter)
+            {
+                stringConverter->fromUTF8(i, i + sz, v);
+                converted = true;
+            }
+        }
+        else
+        {
+            StringConverterPtr stringConverter = getProcessStringConverter();
+            if(stringConverter)
+            {
+                stringConverter->fromUTF8(i, i + sz, v);
+                converted = true;
+            }
+        }
+
+        if(!converted)
+        {
+            string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+        }
     }
-    catch(const IceUtil::IllegalConversionException& ex)
+    catch(const IllegalConversionException& ex)
     {
         throw StringConversionException(__FILE__, __LINE__, ex.reason());
     }
@@ -1300,11 +1301,6 @@ Ice::InputStream::read(vector<string>& v, bool convert)
 void
 Ice::InputStream::read(wstring& v)
 {
-    if(!_wstringConverter)
-    {
-        throw MarshalException(__FILE__, __LINE__, "no wstring converter provided");
-    }
-
     Int sz = readSize();
     if(sz > 0)
     {
@@ -1315,10 +1311,20 @@ Ice::InputStream::read(wstring& v)
 
         try
         {
-            _wstringConverter->fromUTF8(i, i + sz, v);
+            if(_instance)
+            {
+                const WstringConverterPtr& wstringConverter = _instance->getWstringConverter();
+                wstringConverter->fromUTF8(i, i + sz, v);
+            }
+            else
+            {
+                WstringConverterPtr wstringConverter = getProcessWstringConverter();
+                wstringConverter->fromUTF8(i, i + sz, v);
+            }
+
             i += sz;
         }
-        catch(const IceUtil::IllegalConversionException& ex)
+        catch(const IllegalConversionException& ex)
         {
             throw StringConversionException(__FILE__, __LINE__, ex.reason());
         }

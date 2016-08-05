@@ -20,6 +20,7 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
+#include <Ice/StringConverter.h>
 #include <iterator>
 
 using namespace std;
@@ -134,9 +135,6 @@ Ice::OutputStream::initialize(Instance* instance, const EncodingVersion& encodin
     _instance = instance;
     _encoding = encoding;
 
-    _stringConverter = _instance->getStringConverter();
-    _wstringConverter = _instance->getWstringConverter();
-
     _format = _instance->defaultsAndOverrides()->defaultFormat;
 }
 
@@ -149,13 +147,6 @@ Ice::OutputStream::clear()
         _currentEncaps = _currentEncaps->previous;
         delete oldEncaps;
     }
-}
-
-void
-Ice::OutputStream::setStringConverters(const StringConverterPtr& sc, const WstringConverterPtr& wsc)
-{
-    _stringConverter = sc;
-    _wstringConverter = wsc;
 }
 
 void
@@ -602,11 +593,6 @@ Ice::OutputStream::write(const char*)
 void
 Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 {
-    if(!_stringConverter)
-    {
-        throw MarshalException(__FILE__, __LINE__, "no string converter provided");
-    }
-
     //
     // What is the size of the resulting UTF-8 encoded string?
     // Impossible to tell, so we guess. If we don't guess correctly,
@@ -620,7 +606,35 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
         size_t firstIndex = b.size();
         StreamUTF8BufferI buffer(*this);
 
-        Byte* lastByte = _stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+        Byte* lastByte = ICE_NULLPTR;
+        bool converted = false;
+        if(_instance)
+        {
+            const StringConverterPtr& stringConverter = _instance->getStringConverter();
+            if(stringConverter)
+            {
+                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+                converted = true;
+            }
+        }
+        else
+        {
+            StringConverterPtr stringConverter = getProcessStringConverter();
+            if(stringConverter)
+            {
+                lastByte = stringConverter->toUTF8(vdata, vdata + vsize, buffer);
+                converted = true;
+            }
+        }
+
+        if(!converted)
+        {
+            Container::size_type position = b.size();
+            resize(position + vsize);
+            memcpy(&b[position], vdata, vsize);
+            return;
+        }
+
         if(lastByte != b.end())
         {
             resize(lastByte - b.begin());
@@ -691,11 +705,6 @@ Ice::OutputStream::write(const wstring& v)
         return;
     }
 
-    if(!_wstringConverter)
-    {
-        throw MarshalException(__FILE__, __LINE__, "no wstring converter provided");
-    }
-
     //
     // What is the size of the resulting UTF-8 encoded string?
     // Impossible to tell, so we guess. If we don't guess correctly,
@@ -709,7 +718,18 @@ Ice::OutputStream::write(const wstring& v)
         size_t firstIndex = b.size();
         StreamUTF8BufferI buffer(*this);
 
-        Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+        Byte* lastByte = ICE_NULLPTR;
+
+        // Note: wstringConverter is never null; when set to null, get returns the default unicode wstring converter
+        if(_instance)
+        {
+            lastByte = _instance->getWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
+        }
+        else
+        {
+            lastByte = getProcessWstringConverter()->toUTF8(v.data(), v.data() + v.size(), buffer);
+        }
+
         if(lastByte != b.end())
         {
             resize(lastByte - b.begin());

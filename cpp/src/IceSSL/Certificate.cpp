@@ -16,6 +16,7 @@
 #include <IceSSL/RFC2253.h>
 #include <Ice/Object.h>
 #include <Ice/Base64.h>
+#include <Ice/StringConverter.h>
 
 #if defined(ICE_USE_OPENSSL)
 #  include <openssl/x509v3.h>

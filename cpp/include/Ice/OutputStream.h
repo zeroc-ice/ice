@@ -10,7 +10,6 @@
 #ifndef ICE_OUTPUT_STREAM_H
 #define ICE_OUTPUT_STREAM_H
 
-#include <Ice/StringConverter.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
@@ -34,8 +33,8 @@ public:
 
     //
     // Constructing an OutputStream without providing a communicator means the stream will
-    // use the default encoding version, the default format for class encoding, and will not
-    // use string converters. You can supply a communicator later by calling initialize().
+    // use the default encoding version, the default format for class encoding, and the
+    // process string converters. You can supply a communicator later by calling initialize().
     //
     OutputStream();
 
@@ -67,8 +66,8 @@ public:
     }
 
     //
-    // Initializes the stream to use the communicator's default encoding version, class
-    // encoding format, and string converters.
+    // Initializes the stream to use the communicator's default encoding version and class
+    // encoding format
     //
     void initialize(const CommunicatorPtr&);
 
@@ -85,8 +84,6 @@ public:
     // optimization reasons (see comments below).
     //
     IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
-
-    void setStringConverters(const StringConverterPtr&, const WstringConverterPtr&);
 
     void setFormat(FormatType);
 
@@ -418,7 +415,7 @@ public:
     void write(const std::string& v, bool convert = true)
     {
         Int sz = static_cast<Int>(v.size());
-        if(convert && sz > 0 && _stringConverter != 0)
+        if(convert && sz > 0)
         {
             writeConverted(v.data(), static_cast<size_t>(sz));
         }
@@ -438,7 +435,7 @@ public:
     void write(const char* vdata, size_t vsize, bool convert = true)
     {
         Int sz = static_cast<Int>(vsize);
-        if(convert && sz > 0 && _stringConverter != 0)
+        if(convert && sz > 0)
         {
             writeConverted(vdata, vsize);
         }
@@ -749,9 +746,6 @@ private:
     void initEncaps();
 
     Encaps _preAllocatedEncaps;
-
-    StringConverterPtr _stringConverter;
-    WstringConverterPtr _wstringConverter;
 };
 
 } // End namespace Ice

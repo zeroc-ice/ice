@@ -1116,7 +1116,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile, true, ICE_NULLPTR,
+                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile, true,
                                                             _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0));
             }
             else
@@ -1124,8 +1124,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.logger = getProcessLogger();
                 if(ICE_DYNAMIC_CAST(Logger, _initData.logger))
                 {
-                    _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "",
-                                                       logStdErrConvert, _stringConverter);
+                    _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
             }
         }
@@ -1249,14 +1248,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _retryQueue = new RetryQueue(this);
 
-        //
-        // When _wstringConverter isn't set, use the default Unicode wstring converter
-        //
-        if(!_wstringConverter)
-        {
-            _wstringConverter = IceUtil::createUnicodeWstringConverter();
-        }
-
         __setNoDelete(false);
     }
     catch(...)
@@ -1344,16 +1335,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     // Reset _stringConverter and _wstringConverter, in case a plugin changed them
     //
     _stringConverter = Ice::getProcessStringConverter();
-
-    Ice::WstringConverterPtr newWstringConverter = Ice::getProcessWstringConverter();
-    if(newWstringConverter)
-    {
-        _wstringConverter = newWstringConverter;
-    }
-    else
-    {
-        _wstringConverter = IceUtil::createUnicodeWstringConverter();
-    }
+    _wstringConverter = Ice::getProcessWstringConverter();
 
     //
     // Create Admin facets, if enabled.

@@ -13,6 +13,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/Communicator.h>
+#include <Ice/StringConverter.h>
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>

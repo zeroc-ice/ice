@@ -718,8 +718,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initData.properties->getProperty("Ice.StdErr").empty();
 
-            _logger = ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert,
-                                      getProcessStringConverter());
+            _logger = ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert);
             setProcessLogger(_logger);
         }
     }

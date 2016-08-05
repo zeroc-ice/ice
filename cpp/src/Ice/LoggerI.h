@@ -21,8 +21,7 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&, const std::string&, bool convert = true,
-            const StringConverterPtr& converter = 0, std::size_t sizeMax = 0);
+    LoggerI(const std::string&, const std::string&, bool convert = true, std::size_t sizeMax = 0);
     ~LoggerI();
 
     virtual void print(const std::string&);

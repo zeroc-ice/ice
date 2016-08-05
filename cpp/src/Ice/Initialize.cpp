@@ -122,13 +122,13 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 PropertiesPtr
 Ice::createProperties()
 {
-    return PropertiesPtr(new PropertiesI(getProcessStringConverter()));
+    return ICE_MAKE_SHARED(PropertiesI);
 }
 
 PropertiesPtr
 Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return PropertiesPtr(new PropertiesI(args, defaults, getProcessStringConverter()));
+    return ICE_MAKE_SHARED(PropertiesI, args, defaults);
 }
 
 PropertiesPtr
@@ -272,7 +272,7 @@ Ice::getProcessLogger()
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = ICE_MAKE_SHARED(LoggerI, "", "", true, getProcessStringConverter());
+       processLogger = ICE_MAKE_SHARED(LoggerI, "", "", true);
     }
     return processLogger;
 }

@@ -334,7 +334,14 @@ WstringConverterPtr
 IceUtil::getProcessWstringConverter()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-    return processWstringConverter;
+    if(processWstringConverter)
+    {
+        return processWstringConverter;
+    }
+    else
+    {
+        return getUnicodeWstringConverter();
+    }
 }
 
 void
