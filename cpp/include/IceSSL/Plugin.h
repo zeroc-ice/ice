@@ -208,11 +208,11 @@ public:
     //
     // Create a DistinguishedName using an OpenSSL value.
     //
-    DistinguishedName(X509NAME*);
+    explicit DistinguishedName(X509NAME*);
 #endif
 
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-    DistinguishedName(CFDataRef);
+    explicit DistinguishedName(CFDataRef);
 #endif
 
     //
@@ -221,7 +221,7 @@ public:
     //
     // Throws ParseException if parsing fails.
     //
-    DistinguishedName(const std::string&);
+    explicit DistinguishedName(const std::string&);
 
     //
     // Create a DistinguishedName from a list of RDN pairs,
@@ -229,15 +229,14 @@ public:
     // For example, the RDN "O=ZeroC" is represented by the
     // pair ("O", "ZeroC").
     //
-    DistinguishedName(const std::list<std::pair<std::string, std::string> >&);
+    explicit DistinguishedName(const std::list<std::pair<std::string, std::string> >&);
 
     //
     // This is an exact match. The order of the RDN components is
     // important.
     //
-    bool operator==(const DistinguishedName&) const;
-    bool operator!=(const DistinguishedName&) const;
-    bool operator<(const DistinguishedName&) const;
+    friend ICE_SSL_API bool operator==(const DistinguishedName&, const DistinguishedName&);
+    friend ICE_SSL_API bool operator<(const DistinguishedName&, const DistinguishedName&);
 
     //
     // Perform a partial match with another DistinguishedName. The function
@@ -245,6 +244,7 @@ public:
     // DistinguishedName and they have the same values.
     //
     bool match(const DistinguishedName&) const;
+    bool match(const std::string&) const;
 
     //
     // Encode the DN in RFC2253 format.
@@ -258,6 +258,30 @@ private:
     std::list<std::pair<std::string, std::string> > _rdns;
     std::list<std::pair<std::string, std::string> > _unescaped;
 };
+
+inline bool
+operator>(const DistinguishedName& lhs, const DistinguishedName& rhs)
+{
+    return rhs < lhs;
+}
+
+inline bool
+operator<=(const DistinguishedName& lhs, const DistinguishedName& rhs)
+{
+    return !(lhs > rhs);
+}
+
+inline bool
+operator>=(const DistinguishedName& lhs, const DistinguishedName& rhs)
+{
+    return !(lhs < rhs);
+}
+
+inline bool
+operator!=(const DistinguishedName& lhs, const DistinguishedName& rhs)
+{
+    return !(lhs == rhs);
+}
 
 //
 // This convenience class is a wrapper around a native certificate.
@@ -278,7 +302,7 @@ public:
     // The Certificate class assumes ownership of the given native
     //
     // certificate.
-    Certificate(X509CertificateRef);
+    explicit Certificate(X509CertificateRef);
     ~Certificate();
 
     //
@@ -296,7 +320,7 @@ public:
     static CertificatePtr decode(const std::string&);
 
     //
-    // Those operators compare the certificates for equality using the
+    // Compare the certificates for equality using the
     // native certificate comparison method.
     //
     bool operator==(const Certificate&) const;

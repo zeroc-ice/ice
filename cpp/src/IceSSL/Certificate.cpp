@@ -882,21 +882,15 @@ DistinguishedName::DistinguishedName(const list<pair<string, string> >& rdns) : 
 }
 
 bool
-DistinguishedName::operator==(const DistinguishedName& other) const
+IceSSL::operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
 {
-    return other._unescaped == _unescaped;
+    return lhs._unescaped == rhs._unescaped;
 }
 
 bool
-DistinguishedName::operator!=(const DistinguishedName& other) const
+IceSSL::operator<(const DistinguishedName& lhs, const DistinguishedName& rhs)
 {
-    return other._unescaped != _unescaped;
-}
-
-bool
-DistinguishedName::operator<(const DistinguishedName& other) const
-{
-    return other._unescaped < _unescaped;
+    return lhs._unescaped == rhs._unescaped;
 }
 
 bool
@@ -922,6 +916,12 @@ DistinguishedName::match(const DistinguishedName& other) const
         }
     }
     return true;
+}
+
+bool
+DistinguishedName::match(const string& other) const
+{
+    return match(DistinguishedName(other));
 }
 
 //
