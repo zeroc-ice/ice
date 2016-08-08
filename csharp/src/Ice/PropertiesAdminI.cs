@@ -41,13 +41,13 @@ namespace IceInternal
         {
             return _properties.getProperty(name);
         }
-        
+
         public override Dictionary<string, string>
         getPropertiesForPrefix(string name, Ice.Current current)
         {
             return _properties.getPropertiesForPrefix(name);
         }
-        
+
         public override void setPropertiesAsync(Dictionary<string, string> props,
                                                 Action response,
                                                 Action<Exception> exception,

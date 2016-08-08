@@ -32,6 +32,11 @@ interface TestIntf
     void shutdown();
 
     bool supportsFunctionalTests();
+
+    ["amd"] void opAsyncDispatch();
+    ["amd"] int opWithResultAsyncDispatch();
+    ["amd"] int opWithUEAsyncDispatch()
+        throws TestIntfException;
 };
 
 interface TestIntfController

@@ -35,7 +35,7 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
+
     public static int Main(string[] args)
     {
         int status = 0;
@@ -46,6 +46,12 @@ public class Server
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.ServerIdleTime", "30");
+
+            //
+            // Disable collocation optimization to test async/await dispatch.
+            //
+            initData.properties.setProperty("Ice.Default.CollocationOptimized", "0");
+
             //
             // Limit the recv buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.

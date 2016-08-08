@@ -3041,6 +3041,48 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
+        Write("testing async/await... ");
+        Flush();
+        Func<Task> task = async () =>
+        {
+            try
+            {
+                await p.opAsync();
+
+                var r = await p.opWithResultAsync();
+                test(r == 15);
+
+                try
+                {
+                    await p.opWithUEAsync();
+                }
+                catch(TestIntfException)
+                {
+                }
+
+                // Operations implemented with amd and async.
+                await p.opAsyncDispatchAsync();
+
+                r = await p.opWithResultAsyncDispatchAsync();
+                test(r == 15);
+
+                try
+                {
+                    await p.opWithUEAsyncDispatchAsync();
+                    test(false);
+                }
+                catch(TestIntfException)
+                {
+                }
+            }
+            catch(Ice.OperationNotExistException)
+            {
+                // Expected with cross testing, this opXxxAsyncDispatch methods are C# only.
+            }
+        };
+        task().Wait();
+        WriteLine("ok");
+
         if(p.ice_getConnection() != null)
         {
             Write("testing async Task cancellation... ");

@@ -7,10 +7,23 @@
 //
 // **********************************************************************
 
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 public class TestI : TestIntfDisp_
 {
+    protected static void test(bool b)
+    {
+        if(!b)
+        {
+            Debug.Assert(false);
+            throw new Exception();
+        }
+    }
+
     public TestI()
     {
     }
@@ -87,6 +100,46 @@ public class TestI : TestIntfDisp_
     supportsFunctionalTests(Ice.Current current)
     {
         return false;
+    }
+
+    override public async void
+    opAsyncDispatchAsync(Action response, Action<Exception> ex, Ice.Current current)
+    {
+        await System.Threading.Tasks.Task.Delay(10);
+        response();
+    }
+
+    override public async void
+    opWithResultAsyncDispatchAsync(Action<int> response, Action<Exception> ex, Ice.Current current)
+    {
+        await System.Threading.Tasks.Task.Delay(10);
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        var r = await self(current).opWithResultAsync();
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        response(r);
+    }
+
+    override public async void
+    opWithUEAsyncDispatchAsync(Action<int> response, Action<Exception> ex, Ice.Current current)
+    {
+        try
+        {
+            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            await System.Threading.Tasks.Task.Delay(10);
+            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            await self(current).opWithUEAsync();
+        }
+        catch(TestIntfException e)
+        {
+            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            ex(e);
+        }
+    }
+
+    TestIntfPrx
+    self(Ice.Current current)
+    {
+        return TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
     private int _batchCount;

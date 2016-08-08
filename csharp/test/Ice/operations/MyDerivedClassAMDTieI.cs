@@ -317,7 +317,7 @@ public sealed class MyDerivedClassTieI : MyDerivedClassOperations_
     }
 
     public void
-    opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Action<MyClass_OpShortIntLongSSResult> response, 
+    opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Action<MyClass_OpShortIntLongSSResult> response,
                           Action<Exception> exception, Ice.Current current)
     {
         var p4 = p1;

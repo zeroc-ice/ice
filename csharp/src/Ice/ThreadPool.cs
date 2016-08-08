@@ -16,6 +16,48 @@ namespace IceInternal
     public delegate void ThreadPoolWorkItem();
     public delegate void AsyncCallback(object state);
 
+    //
+    // Thread pool threads set a custom synchronization context to ensure that
+    // continuations from awaited methods continue executing on the thread pool
+    // and not on the thread that notifies the awaited task.
+    //
+    sealed class ThreadPoolSynchronizationContext : SynchronizationContext
+    {
+        public ThreadPoolSynchronizationContext(ThreadPool threadPool)
+        {
+            _threadPool = threadPool;
+        }
+
+        public override void Post(SendOrPostCallback d, object state)
+        {
+            //
+            // Dispatch the continuation on the thread pool if this isn't called
+            // already from a thread pool thread. We don't use the dispatcher
+            // for the continuations, the dispatcher is only used when the
+            // call is initialy invoked (e.g.: a servant dispatch after being
+            // received is dispatched using the dispatcher which might dispatch
+            // the call on the UI thread which will then use its own synchronization
+            // context to execute continuations).
+            //
+            var ctx = SynchronizationContext.Current as ThreadPoolSynchronizationContext;
+            if(ctx != this)
+            {
+                _threadPool.dispatch(() => { d(state); }, null, false);
+            }
+            else
+            {
+                d(state);
+            }
+        }
+
+        public override void Send(SendOrPostCallback d, object state)
+        {
+            throw new System.NotSupportedException("the thread pool doesn't support synchronous calls");
+        }
+
+        private ThreadPool _threadPool;
+    }
+
     internal struct ThreadPoolMessage
     {
         public ThreadPoolMessage(object mutex)
@@ -357,7 +399,7 @@ namespace IceInternal
                     {
                         _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
                     }
-                }                            
+                }
             }
             else
             {
@@ -365,7 +407,7 @@ namespace IceInternal
             }
         }
 
-        public void dispatch(System.Action call, Ice.Connection con)
+        public void dispatch(System.Action call, Ice.Connection con, bool useDispatcher = true)
         {
             lock(this)
             {
@@ -374,10 +416,14 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                _workItems.Enqueue(() => 
-                    { 
-                        dispatchFromThisThread(call, con); 
-                    });
+                if(useDispatcher)
+                {
+                    _workItems.Enqueue(() => { dispatchFromThisThread(call, con); });
+                }
+                else
+                {
+                    _workItems.Enqueue(() => { call(); });
+                }
                 Monitor.Pulse(this);
 
                 //
@@ -511,7 +557,7 @@ namespace IceInternal
                                 else
                                 {
                                     Debug.Assert(_serverIdleTime > 0 && _inUse == 0 && _threads.Count == 1);
-                                    if(!System.Threading.Monitor.Wait(this, _serverIdleTime * 1000)  && 
+                                    if(!System.Threading.Monitor.Wait(this, _serverIdleTime * 1000)  &&
                                        _workItems.Count == 0)
                                     {
                                         if(!_destroyed)
@@ -775,6 +821,12 @@ namespace IceInternal
 
             public void Run()
             {
+                //
+                // Set the default synchronization context to allow async/await to run
+                // continuations on the thread pool.
+                //
+                SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
+
                 if(_threadPool._instance.initializationData().threadHook != null)
                 {
                     try

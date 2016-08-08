@@ -60,7 +60,7 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     {
         return _localLogger.cloneWithPrefix(prefix);
     }
- 
+
     public Ice.Object getFacet()
     {
         return _loggerAdmin;
@@ -79,10 +79,10 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 Monitor.PulseAll(this);
             }
         }
-        
+
         if(thread != null)
         {
-            thread.Join(); 
+            thread.Join();
         }
 
         _loggerAdmin.destroy();
@@ -91,7 +91,7 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
     {
         LoggerAdminLoggerI wrapper = localLogger as LoggerAdminLoggerI;
-        
+
         if(wrapper != null)
         {
             _localLogger = wrapper.getLocalLogger();
@@ -112,11 +112,11 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
     internal void log(Ice.LogMessage logMessage)
     {
         List<Ice.RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
-        
+
         if(remoteLoggers != null)
         {
             Debug.Assert(remoteLoggers.Count > 0);
-            
+
             lock(this)
             {
                 if(_sendLogThread == null)
@@ -126,13 +126,13 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                     _sendLogThread.IsBackground = true;
                     _sendLogThread.Start();
                 }
-                
+
                 _jobQueue.Enqueue(new Job(remoteLoggers, logMessage));
                 Monitor.PulseAll(this);
-            }            
+            }
         }
     }
-    
+
     private void run()
     {
         if(_loggerAdmin.getTraceLevel() > 1)
@@ -149,7 +149,7 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 {
                     Monitor.Wait(this);
                 }
-                
+
                 if(_destroyed)
                 {
                     break; // for(;;)
@@ -158,14 +158,14 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 Debug.Assert(_jobQueue.Count > 0);
                 job = _jobQueue.Dequeue();
             }
-            
+
             foreach(var p in job.remoteLoggers)
             {
                 if(_loggerAdmin.getTraceLevel() > 1)
                 {
                     _localLogger.trace(_traceCategory, "sending log message to `" + p.ToString() + "'");
                 }
-            
+
                 try
                 {
                     //
@@ -201,37 +201,13 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 {
                     _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
                 }
-            }  
+            }
         }
 
         if(_loggerAdmin.getTraceLevel() > 1)
         {
             _localLogger.trace(_traceCategory, "send log thread completed");
         }
-    }
-
-    private void logCompleted(Ice.AsyncResult r)
-    {
-        Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
-        
-        try 
-        {
-            remoteLogger.end_log(r);
-            
-            if(_loggerAdmin.getTraceLevel() > 1)
-            {
-                _localLogger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.ToString() 
-                                   + "' completed successfully");
-            }
-        }
-        catch(Ice.CommunicatorDestroyedException)
-        {
-            // expected if there are outstanding calls during communicator destruction
-        }
-        catch(Ice.LocalException ex)
-        {
-            _loggerAdmin.deadRemoteLogger(remoteLogger, _localLogger, ex, r.getOperation());
-        }   
     }
 
     static private long now()
@@ -247,17 +223,17 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
             remoteLoggers = r;
             logMessage = l;
         }
-        
+
         internal readonly List<Ice.RemoteLoggerPrx> remoteLoggers;
         internal readonly Ice.LogMessage logMessage;
-    } 
+    }
 
     private readonly Ice.Logger _localLogger;
     private readonly LoggerAdminI _loggerAdmin;
     private bool _destroyed = false;
     private Thread _sendLogThread;
     private readonly Queue<Job> _jobQueue = new Queue<Job>();
- 
+
     static private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     static private readonly string _traceCategory = "Admin.Logger";
 }
