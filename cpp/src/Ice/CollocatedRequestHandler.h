@@ -31,8 +31,6 @@ ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 namespace IceInternal
 {
 
-class OutgoingBase;
-class Outgoing;
 class OutgoingAsyncBase;
 class OutgoingAsync;
 
@@ -47,10 +45,8 @@ public:
 
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual bool sendRequest(ProxyOutgoingBase*);
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool);
@@ -63,10 +59,8 @@ public:
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
-    void invokeRequest(OutgoingBase*, int);
     AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
 
-    bool sent(OutgoingBase*);
     bool sentAsync(OutgoingAsyncBase*);
 
     void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
@@ -88,11 +82,7 @@ private:
     const TraceLevelsPtr _traceLevels;
 
     int _requestId;
-
-    std::map<OutgoingBase*, Ice::Int> _sendRequests;
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
-
-    std::map<Ice::Int, OutgoingBase*> _requests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
 };
 ICE_DEFINE_PTR(CollocatedRequestHandlerPtr, CollocatedRequestHandler);

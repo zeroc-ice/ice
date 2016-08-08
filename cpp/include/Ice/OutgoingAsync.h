@@ -248,7 +248,7 @@ class ICE_API OutgoingAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    OutgoingAsync(const Ice::ObjectPrxPtr&);
+    OutgoingAsync(const Ice::ObjectPrxPtr&, bool);
 
     void prepare(const std::string&, Ice::OperationMode, const Ice::Context&);
 
@@ -548,7 +548,7 @@ public:
                    std::function<void(R)> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
-        OutgoingAsyncT<R>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)
         {
@@ -584,7 +584,7 @@ public:
                    std::function<void()> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
-        OutgoingAsyncT<void>(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsyncT<void>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response](bool ok)
         {
@@ -620,7 +620,7 @@ public:
                          std::function<void(Ice::InputStream*)> read,
                          std::function<void(::std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
-        OutgoingAsync(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsync(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, read](bool ok)
         {
@@ -656,10 +656,9 @@ class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<P>
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool synchronous) :
-        OutgoingAsyncT<R>(proxy)
+    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+        OutgoingAsyncT<R>(proxy, sync)
     {
-        this->_synchronous = synchronous;
         this->_response = [this](bool ok)
         {
             if(ok)
@@ -683,10 +682,9 @@ class PromiseOutgoing<P, void> : public OutgoingAsyncT<void>, public PromiseInvo
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool synchronous) :
-        OutgoingAsyncT<void>(proxy)
+    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+        OutgoingAsyncT<void>(proxy, sync)
     {
-        this->_synchronous = synchronous;
         this->_response = [&](bool ok)
         {
             if(this->_is.b.empty())
@@ -860,8 +858,9 @@ public:
     CallbackOutgoing(const Ice::ObjectPrx& proxy,
                      const std::string& operation,
                      const CallbackBasePtr& cb,
-                     const Ice::LocalObjectPtr& cookie) :
-        OutgoingAsync(proxy), CallbackCompletion(cb, cookie), _operation(operation)
+                     const Ice::LocalObjectPtr& cookie,
+                     bool sync) :
+        OutgoingAsync(proxy, sync), CallbackCompletion(cb, cookie), _operation(operation)
     {
         _cookie = cookie;
     }

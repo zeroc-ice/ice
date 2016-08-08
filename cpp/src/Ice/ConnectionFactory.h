@@ -63,8 +63,7 @@ public:
 
     void waitUntilFinished();
 
-    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType,
-                const CreateConnectionCallbackPtr&);
+    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
@@ -72,7 +71,7 @@ public:
     OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
     virtual ~OutgoingConnectionFactory();
     friend class Instance;
-    
+
 private:
 
     struct ConnectorInfo
@@ -224,7 +223,6 @@ public:
     }
 #endif
 
-    
 private:
 
     friend class Ice::ObjectAdapterI;
@@ -254,11 +252,8 @@ private:
 #endif
 
     Ice::ObjectAdapterIPtr _adapter;
-
     const bool _warn;
-
     std::set<Ice::ConnectionIPtr> _connections;
-
     State _state;
 };
 

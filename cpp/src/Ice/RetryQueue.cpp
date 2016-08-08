@@ -44,12 +44,6 @@ IceInternal::RetryTask::runTimerTask()
 }
 
 void
-IceInternal::RetryTask::requestCanceled(OutgoingBase*, const Ice::LocalException&)
-{
-    assert(false);
-}
-
-void
 IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
 {
     if(_queue->cancel(ICE_SHARED_FROM_THIS))

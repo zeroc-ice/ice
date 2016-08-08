@@ -28,10 +28,8 @@ public:
 
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual bool sendRequest(ProxyOutgoingBase*);
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     virtual Ice::ConnectionIPtr getConnection();

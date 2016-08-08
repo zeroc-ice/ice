@@ -2222,14 +2222,7 @@ namespace Ice
                     message.stream.prepareWrite();
                     message.prepared = true;
 
-                    if(message.outAsync != null)
-                    {
-                        IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-                    }
-                    else
-                    {
-                        IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
-                    }
+                    IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
                     _writeStream.swap(message.stream);
 
                     //
@@ -2299,14 +2292,7 @@ namespace Ice
             message.stream.prepareWrite();
             message.prepared = true;
 
-            if(message.outAsync != null)
-            {
-                IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-            }
-            else
-            {
-                IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
-            }
+            IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
 
             //
             // Send the message without blocking.

@@ -822,10 +822,10 @@ ProxyOutgoingAsyncBase::runTimerTask()
     }
 }
 
-OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& prx) :
+OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& prx, bool synchronous) :
     ProxyOutgoingAsyncBase(prx),
     _encoding(getCompatibleEncoding(prx->__reference()->getEncoding())),
-    _synchronous(false)
+    _synchronous(synchronous)
 {
 }
 

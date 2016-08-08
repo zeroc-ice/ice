@@ -793,7 +793,6 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ValueFactory.h>";
-        C << "\n#include <Ice/Outgoing.h>";
         C << "\n#include <Ice/OutgoingAsync.h>";
     }
     else if(p->hasLocalClassDefsWithAsync())
@@ -2090,7 +2089,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
     H << sp << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name) << spar << paramsDecl
-      << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar << ";";
+      << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar;
+    H << sb;
+    if(ret)
+    {
+        H << nl << "return ";
+    }
+    H << "end_" << name << spar << outParamNamesAMI << "__begin_" + name << spar << argsAMI;
+    H << "__ctx" << "::IceInternal::__dummyCallback" << "0" << "true" << epar << epar << ';';
+    H << eb;
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
       << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar;
@@ -2144,133 +2151,23 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << _dllMemberExport << "::Ice::AsyncResultPtr __begin_" << name << spar
       << paramsAMI << "const ::Ice::Context&"
       << "const ::IceInternal::CallbackBasePtr&"
-      << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << ';';
+      << "const ::Ice::LocalObjectPtr& __cookie = 0"
+      << "bool sync = false" << epar << ';';
     H << nl;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
-    C << sb;
-    if(p->returnsData())
-    {
-        C << nl << "__checkTwowayOnly(" << flatName << ");";
-    }
-    C << nl << "::IceInternal::Outgoing __og(this, " << flatName << ", " << operationModeToString(p->sendMode())
-      << ", __ctx);";
-    if(inParams.empty())
-    {
-        C << nl << "__og.writeEmptyParams();";
-    }
-    else
-    {
-        C << nl << "try";
-        C << sb;
-        C << nl<< "::Ice::OutputStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
-        if(p->sendsClasses(false))
-        {
-            C << nl << "__os->writePendingValues();";
-        }
-        C << nl << "__og.endWriteParams();";
-        C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
-        C << sb;
-        C << nl << "__og.abort(__ex);";
-        C << eb;
-    }
-
-    if(!p->returnsData())
-    {
-        C << nl << "__invoke(__og);"; // Use helpers for methods that don't return data.
-    }
-    else
-    {
-        C << nl << "if(!__og.invoke())";
-        C << sb;
-        C << nl << "try";
-        C << sb;
-        C << nl << "__og.throwUserException();";
-        C << eb;
-
-        //
-        // Generate a catch block for each legal user exception. This is necessary
-        // to prevent an "impossible" user exception to be thrown if client and
-        // and server use different exception specifications for an operation. For
-        // example:
-        //
-        // Client compiled with:
-        // exception A {};
-        // exception B {};
-        // interface I {
-        //     void op() throws A;
-        // };
-        //
-        // Server compiled with:
-        // exception A {};
-        // exception B {};
-        // interface I {
-        //     void op() throws B; // Differs from client
-        // };
-        //
-        // We need the catch blocks so, if the server throws B from op(), the
-        // client receives UnknownUserException instead of B.
-        //
-        ExceptionList throws = p->throws();
-        throws.sort();
-        throws.unique();
-#if defined(__SUNPRO_CC)
-        throws.sort(derivedToBaseCompare);
-#else
-        throws.sort(Slice::DerivedToBaseCompare());
-#endif
-        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-        {
-            C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
-            C << sb;
-            C << nl << "throw;";
-            C << eb;
-        }
-        C << nl << "catch(const ::Ice::UserException& __ex)";
-        C << sb;
-        //
-        // COMPILERFIX: Don't throw UnknownUserException directly. This is causing access
-        // violation errors with Visual C++ 64bits optimized builds. See bug #2962.
-        //
-        C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_id());";
-        C << nl << "throw __uue;";
-        C << eb;
-        C << eb;
-
-        if(ret || !outParams.empty())
-        {
-            writeAllocateCode(C, ParamDeclList(), p, true, _useWstring);
-            C << nl << "::Ice::InputStream* __is = __og.startReadParams();";
-            writeUnmarshalCode(C, outParams, p, true);
-            if(p->returnsClasses(false))
-            {
-                C << nl << "__is->readPendingValues();";
-            }
-            C << nl << "__og.endReadParams();";
-        }
-
-        if(ret)
-        {
-            C << nl << "return __ret;";
-        }
-    }
-    C << eb;
-
     C << sp << nl << "::Ice::AsyncResultPtr" << nl << "IceProxy" << scope << "__begin_" << name << spar << paramsDeclAMI
       << "const ::Ice::Context& __ctx" << "const ::IceInternal::CallbackBasePtr& __del"
-      << "const ::Ice::LocalObjectPtr& __cookie" << epar;
+      << "const ::Ice::LocalObjectPtr& __cookie" << "bool sync" << epar;
     C << sb;
     if(p->returnsData())
     {
-        C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
+        C << nl << "__checkTwowayOnly(" << flatName <<  ", sync);";
     }
     C << nl << "::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::CallbackOutgoing(this, " << flatName
-        << ", __del, __cookie);";
+        << ", __del, __cookie, sync);";
     C << nl << "try";
     C << sb;
     C << nl << "__result->prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
@@ -6364,7 +6261,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(p->returnsData())
         {
-            C << nl << "__checkAsyncTwowayOnly(" << flatName << ");";
+            C << nl << "__checkTwowayOnly(" << flatName << ");";
         }
 
         C << nl << "::std::function<void(::Ice::InputStream*)> __read;";
@@ -6472,7 +6369,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->returnsData())
     {
-        C << nl << "__checkAsyncTwowayOnly(" << flatName << ");";
+        C << nl << "__checkTwowayOnly(" << flatName << ");";
     }
     C << nl << "__outAsync->invoke(" << flatName << ", ";
     C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p) << ", __ctx, ";

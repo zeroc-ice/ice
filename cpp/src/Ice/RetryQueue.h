@@ -33,7 +33,6 @@ public:
 
     virtual void runTimerTask();
 
-    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     void destroy();

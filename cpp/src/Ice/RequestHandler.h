@@ -29,9 +29,6 @@ class LocalException;
 namespace IceInternal
 {
 
-class OutgoingBase;
-class ProxyOutgoingBase;
-
 //
 // An exception wrapper, which is used to notify that the request
 // handler should be cleared and the invocation retried.
@@ -58,19 +55,17 @@ class CancellationHandler
 {
 public:
 
-    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&) = 0;
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&) = 0;
 };
 
 class RequestHandler : public CancellationHandler
 {
 public:
-    
+
     RequestHandler(const ReferencePtr&);
 
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
 
-    virtual bool sendRequest(ProxyOutgoingBase*) = 0;
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.

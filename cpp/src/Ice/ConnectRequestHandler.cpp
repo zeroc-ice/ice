@@ -14,7 +14,6 @@
 #include <Ice/Proxy.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Protocol.h>
 #include <Ice/Properties.h>
@@ -52,22 +51,6 @@ ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const Re
     return previousHandler.get() == this ? newHandler : ICE_SHARED_FROM_THIS;
 }
 
-bool
-ConnectRequestHandler::sendRequest(ProxyOutgoingBase* out)
-{
-    {
-        Lock sync(*this);
-        if(!initialized())
-        {
-            Request req;
-            req.out = out;
-            _requests.push_back(req);
-            return false; // Not sent
-        }
-    }
-    return out->invokeRemote(_connection, _compress, _response) && !_response; // Finished if sent and no response.
-}
-
 AsyncStatus
 ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {
@@ -80,40 +63,11 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 
         if(!initialized())
         {
-            Request req;
-            req.outAsync = out;
-            _requests.push_back(req);
+            _requests.push_back(out);
             return AsyncStatusQueued;
         }
     }
     return out->invokeRemote(_connection, _compress, _response);
-}
-
-void
-ConnectRequestHandler::requestCanceled(OutgoingBase* out, const Ice::LocalException& ex)
-{
-    {
-        Lock sync(*this);
-        if(_exception)
-        {
-            return; // The request has been notified of a failure already.
-        }
-
-        if(!initialized())
-        {
-            for(deque<Request>::iterator p = _requests.begin(); p != _requests.end(); ++p)
-            {
-                if(p->out == out)
-                {
-                    out->completed(ex);
-                    _requests.erase(p);
-                    return;
-                }
-            }
-            assert(false); // The request has to be queued if it timed out and we're not initialized yet.
-        }
-    }
-    _connection->requestCanceled(out, ex);
 }
 
 void
@@ -128,9 +82,9 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 
         if(!initialized())
         {
-            for(deque<Request>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            for(deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
             {
-                if(p->outAsync.get() == outAsync.get())
+                if(p->get() == outAsync.get())
                 {
                     _requests.erase(p);
                     if(outAsync->exception(ex))
@@ -239,18 +193,11 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     }
 
 
-    for(deque<Request>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for(deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
-        if(p->out)
+        if((*p)->exception(ex))
         {
-            p->out->completed(ex);
-        }
-        else
-        {
-            if(p->outAsync->exception(ex))
-            {
-                p->outAsync->invokeExceptionAsync();
-            }
+            (*p)->invokeExceptionAsync();
         }
     }
 
@@ -329,16 +276,12 @@ ConnectRequestHandler::flushRequests()
 #endif
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
-        Request& req = _requests.front();
+        ProxyOutgoingAsyncBasePtr& req = _requests.front();
         try
         {
-            if(req.out)
+            if(req->invokeRemote(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
             {
-                req.out->invokeRemote(_connection, _compress, _response);
-            }
-            else if(req.outAsync->invokeRemote(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
-            {
-                req.outAsync->invokeSentAsync();
+                req->invokeSentAsync();
             }
         }
         catch(const RetryException& ex)
@@ -348,26 +291,13 @@ ConnectRequestHandler::flushRequests()
             // Remove the request handler before retrying.
             _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, ICE_SHARED_FROM_THIS);
 
-            if(req.out)
-            {
-                req.out->retryException(*exception);
-            }
-            else
-            {
-                req.outAsync->retryException(*exception);
-            }
+            req->retryException(*exception);
         }
         catch(const Ice::LocalException& ex)
         {
             ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.ice_clone());
-            if(req.out)
-            {
-                req.out->completed(ex);
-            }
-            else if(req.outAsync->exception(ex))
-            {
-                req.outAsync->invokeExceptionAsync();
-            }
+
+            req->invokeExceptionAsync();
         }
         _requests.pop_front();
     }

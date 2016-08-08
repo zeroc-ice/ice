@@ -49,14 +49,6 @@
 #    endif
 #endif
 
-namespace IceInternal
-{
-
-class Outgoing;
-class OutgoingBase;
-
-}
-
 namespace Ice
 {
 
@@ -101,15 +93,7 @@ public:
     struct OutgoingMessage
     {
         OutgoingMessage(Ice::OutputStream* str, bool comp) :
-            stream(str), out(0), compress(comp), requestId(0), adopted(false)
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            , isSent(false), invokeSent(false), receivedReply(false)
-#endif
-        {
-        }
-
-        OutgoingMessage(IceInternal::OutgoingBase* o, Ice::OutputStream* str, bool comp, int rid) :
-            stream(str), out(o), compress(comp), requestId(rid), adopted(false)
+            stream(str), compress(comp), requestId(0), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             , isSent(false), invokeSent(false), receivedReply(false)
 #endif
@@ -118,7 +102,7 @@ public:
 
         OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str,
                         bool comp, int rid) :
-            stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false)
+            stream(str), outAsync(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             , isSent(false), invokeSent(false), receivedReply(false)
 #endif
@@ -131,7 +115,6 @@ public:
         void completed(const Ice::LocalException&);
 
         Ice::OutputStream* stream;
-        IceInternal::OutgoingBase* out;
         IceInternal::OutgoingAsyncBasePtr outAsync;
         bool compress;
         int requestId;
@@ -188,7 +171,6 @@ public:
 
     void monitor(const IceUtil::Time&, const IceInternal::ACMConfig&);
 
-    bool sendRequest(IceInternal::OutgoingBase*, bool, bool, int);
     IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
     IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
@@ -216,7 +198,6 @@ public:
                         const IceUtil::Optional<ACMHeartbeat>&);
     virtual ACM getACM();
 
-    virtual void requestCanceled(IceInternal::OutgoingBase*, const LocalException&);
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
     virtual void sendResponse(Int, Ice::OutputStream*, Byte, bool);
@@ -364,9 +345,6 @@ private:
     const int _compressionLevel;
 
     Int _nextRequestId;
-
-    std::map<Int, IceInternal::OutgoingBase*> _requests;
-    std::map<Int, IceInternal::OutgoingBase*>::iterator _requestsHint;
 
     std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;

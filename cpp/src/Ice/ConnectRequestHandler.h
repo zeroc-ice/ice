@@ -41,10 +41,8 @@ public:
     RequestHandlerPtr connect(const Ice::ObjectPrxPtr&);
     virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
 
-    virtual bool sendRequest(ProxyOutgoingBase*);
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void requestCanceled(OutgoingBase*, const Ice::LocalException&);
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
 
     virtual Ice::ConnectionIPtr getConnection();
@@ -60,16 +58,6 @@ private:
     bool initialized();
     void flushRequests();
 
-    struct Request
-    {
-        Request() : out(0)
-        {
-        }
-
-        ProxyOutgoingBase* out;
-        ProxyOutgoingAsyncBasePtr outAsync;
-    };
-
     Ice::ObjectPrxPtr _proxy;
     std::set<Ice::ObjectPrxPtr> _proxies;
 
@@ -79,7 +67,7 @@ private:
     bool _initialized;
     bool _flushing;
 
-    std::deque<Request> _requests;
+    std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 
     RequestHandlerPtr _requestHandler;
 };

@@ -1619,14 +1619,8 @@ var ConnectionI = Class({
                 stream.prepareWrite();
                 message.prepared = true;
 
-                if(message.outAsync !== null)
-                {
-                    TraceUtil.traceOut("sending asynchronous request", stream, this._logger, this._traceLevels);
-                }
-                else
-                {
-                    TraceUtil.traceSend(stream, this._logger, this._traceLevels);
-                }
+                TraceUtil.traceSend(stream, this._logger, this._traceLevels);
+
                 this._writeStream.swap(message.stream);
 
                 //
@@ -1682,14 +1676,7 @@ var ConnectionI = Class({
         stream.prepareWrite();
         message.prepared = true;
 
-        if(message.outAsync)
-        {
-            TraceUtil.traceOut("sending asynchronous request", message.stream, this._logger, this._traceLevels);
-        }
-        else
-        {
-            TraceUtil.traceSend(message.stream, this._logger, this._traceLevels);
-        }
+        TraceUtil.traceSend(message.stream, this._logger, this._traceLevels);
 
         if(this.write(message.stream.buffer))
         {
