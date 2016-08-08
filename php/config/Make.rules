@@ -16,11 +16,7 @@ PHP_CONFIG      ?= php-config
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-ifneq ($(shell $(PHP_CONFIG) --libs > /dev/null 2>&1 && echo 0),0)
-    $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
-endif
-
-php_cppflags     := $(shell $(PHP_CONFIG) --includes)
+php_cppflags     = $(shell $(PHP_CONFIG) --includes)
 
 ifeq ($(os),Darwin)
     php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress

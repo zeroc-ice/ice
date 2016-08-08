@@ -27,10 +27,14 @@ include $(lang_srcdir)/config/Make.rules
 # Load Makefile.mk fragments
 #
 ifeq ($(filter tests,$(MAKECMDGOALS)),)
-    ifeq ($(shell [ $$(php-config --vernum) -lt 70000 ] && echo true),true)
-        include $(lang_srcdir)/src/php5/Makefile.mk
+    ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
+        $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
     else
-        include $(lang_srcdir)/src/php7/Makefile.mk
+        ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
+            include $(lang_srcdir)/src/php5/Makefile.mk
+        else
+            include $(lang_srcdir)/src/php7/Makefile.mk
+        endif
     endif
 endif
 
