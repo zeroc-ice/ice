@@ -211,9 +211,6 @@
     <ClCompile Include="..\..\OpaqueEndpointI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Outgoing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\OutgoingAsync.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

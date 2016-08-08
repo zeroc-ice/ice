@@ -203,7 +203,6 @@
     <ClCompile Include="..\..\ObjectAdapterI.cpp" />
     <ClCompile Include="..\..\ObserverHelper.cpp" />
     <ClCompile Include="..\..\OpaqueEndpointI.cpp" />
-    <ClCompile Include="..\..\Outgoing.cpp" />
     <ClCompile Include="..\..\OutgoingAsync.cpp" />
     <ClCompile Include="..\..\OutputStream.cpp" />
     <ClCompile Include="..\..\PluginManagerI.cpp" />
