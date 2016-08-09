@@ -297,7 +297,10 @@ ConnectRequestHandler::flushRequests()
         {
             ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.ice_clone());
 
-            req->invokeExceptionAsync();
+            if(req->exception(ex))
+            {
+                req->invokeExceptionAsync();
+            }
         }
         _requests.pop_front();
     }
