@@ -334,6 +334,8 @@ public:
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
+    virtual Ice::ConnectionPtr getConnection() const;
+
     void invoke(const std::string&);
 };
 typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;

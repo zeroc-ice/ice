@@ -516,6 +516,7 @@ public class AllTests : TestCommon.TestApp
             TestIntfPrx test2 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
             test(!test1.ice_isConnectionCached());
             test(!test2.ice_isConnectionCached());
+            test(test1.ice_getConnection() != null && test2.ice_getConnection() != null);
             test(test1.ice_getConnection() == test2.ice_getConnection());
 
             test1.ice_ping();

@@ -889,6 +889,7 @@
                     ).then(
                         function(r1, r2)
                         {
+                            test(r1[0] && r2[0]);
                             test(r1[0] == r2[0]);
                             return test1.ice_ping();
                         }

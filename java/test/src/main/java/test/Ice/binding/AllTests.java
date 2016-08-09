@@ -541,6 +541,7 @@ public class AllTests
             TestIntfPrx test2 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
             test(!test1.ice_isConnectionCached());
             test(!test2.ice_isConnectionCached());
+            test(test1.ice_getConnection() != null && test2.ice_getConnection() != null);
             test(test1.ice_getConnection() == test2.ice_getConnection());
 
             test1.ice_ping();
@@ -965,14 +966,14 @@ public class AllTests
                              (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
                              (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
                              (p == ipv6 && q == bothPreferIPv4) || (p == bothPreferIPv6 && q == ipv6) ||
-                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) || 
+                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
                              (p == bothPreferIPv6 && q == ipv6));
                     }
                     clientCommunicator.destroy();
                 }
                 serverCommunicator.destroy();
             }
-            
+
             out.println("ok");
         }
 

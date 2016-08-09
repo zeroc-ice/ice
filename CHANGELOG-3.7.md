@@ -17,6 +17,9 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
+- The ice_getConnection() method now correctly returns a connection if 
+  connection caching is disabled (it previously returned a null connection).
+
 - The iOS SSL transport is now based on the same implementation as macOS. Most
   of the functionality supported on macOS is now also supported on iOS. There
   are still few limitations however:

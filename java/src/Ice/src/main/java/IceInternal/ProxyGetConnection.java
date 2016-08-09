@@ -52,6 +52,12 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
         return AsyncStatus.Sent;
     }
 
+    @Override
+    public Ice.Connection getConnection()
+    {
+        return _cachedConnection;
+    }
+
     public void invoke()
     {
         invokeImpl(true); // userThread = true

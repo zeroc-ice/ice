@@ -556,6 +556,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TestIntfPrxPtr test2 = ICE_UNCHECKED_CAST(TestIntfPrx, adapter->getTestIntf()->ice_connectionCached(false));
         test(!test1->ice_isConnectionCached());
         test(!test2->ice_isConnectionCached());
+        test(test1->ice_getConnection() && test2->ice_getConnection());
         test(test1->ice_getConnection() == test2->ice_getConnection());
 
         test1->ice_ping();

@@ -2371,7 +2371,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         IceInternal.ProxyGetConnection result = IceInternal.ProxyGetConnection.check(r, this, __ice_getConnection_name);
         result.__wait();
-        return ice_getCachedConnection();
+        return result.getConnection();
     }
 
     static public void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)

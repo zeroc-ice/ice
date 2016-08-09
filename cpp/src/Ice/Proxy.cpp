@@ -444,8 +444,7 @@ IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outEnca
 
 ::Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_flushBatchRequests(const ::IceInternal::CallbackBasePtr& del,
-                                                      const ::Ice::LocalObjectPtr& cookie,
-                                                      bool sync)
+                                                      const ::Ice::LocalObjectPtr& cookie)
 {
     class ProxyFlushBatchAsyncWithCallback : public ProxyFlushBatchAsync, public CallbackCompletion
     {
@@ -531,8 +530,7 @@ IceProxy::Ice::Object::__newInstance() const
 
 AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_getConnection(const ::IceInternal::CallbackBasePtr& del,
-                                                 const ::Ice::LocalObjectPtr& cookie,
-                                                 bool sync)
+                                                 const ::Ice::LocalObjectPtr& cookie)
 {
     class ProxyGetConnectionWithCallback :  public ProxyGetConnection, public CallbackCompletion
     {
@@ -570,7 +568,7 @@ IceProxy::Ice::Object::end_ice_getConnection(const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_getConnection_name);
     __result->__wait();
-    return ice_getCachedConnection();
+    return __result->getConnection();
 }
 
 void

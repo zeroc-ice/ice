@@ -2145,7 +2145,7 @@ namespace Ice
                         result.throwLocalException();
                         if(responseCallback_ != null)
                         {
-                            responseCallback_.Invoke(getProxy().ice_getCachedConnection());
+                            responseCallback_.Invoke(((ProxyGetConnection)OutgoingAsync).getConnection());
                         }
 
                     }
@@ -2172,7 +2172,7 @@ namespace Ice
 
             public override bool handleResponse(bool ok, OutgoingAsyncBase og)
             {
-                SetResult(_proxy.ice_getCachedConnection());
+                SetResult(((ProxyGetConnection)og).getConnection());
                 return false;
             }
 
@@ -2211,7 +2211,7 @@ namespace Ice
         {
             var resultI = AsyncResultI.check(r, this, __ice_getConnection_name);
             resultI.wait();
-            return ice_getCachedConnection();
+            return resultI.getConnection();
         }
 
         private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(AsyncCallback callback,

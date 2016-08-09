@@ -1176,6 +1176,11 @@ namespace IceInternal
             return AsyncStatusSent;
         }
 
+        public Ice.Connection getConnection()
+        {
+            return cachedConnection_;
+        }
+
         public void invoke(string operation)
         {
             observer_ = ObserverHelper.get(proxy_, operation, null);

@@ -1225,6 +1225,12 @@ ProxyGetConnection::invokeCollocated(CollocatedRequestHandler*)
     return AsyncStatusSent;
 }
 
+Ice::ConnectionPtr
+ProxyGetConnection::getConnection() const
+{
+    return _cachedConnection;
+}
+
 void
 ProxyGetConnection::invoke(const string& operation)
 {

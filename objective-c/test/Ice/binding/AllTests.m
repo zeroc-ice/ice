@@ -84,7 +84,7 @@ NSString*
 getAdapterNameWithAMI(id<TestBindingTestIntfPrx> test)
 {
     GetAdapterNameCB* cb = ICE_AUTORELEASE([[GetAdapterNameCB alloc] init]);
-    [test begin_getAdapterName:^(NSMutableString* name) { [cb response:name]; } 
+    [test begin_getAdapterName:^(NSMutableString* name) { [cb response:name]; }
                      exception:^(ICEException* ex) { [cb exception:ex]; }];
     return [cb getResult];
 }
@@ -182,13 +182,13 @@ bindingAllTests(id<ICECommunicator> communicator)
 
         [test1 ice_ping];
         [test2 ice_ping];
-        
+
         [com deactivateObjectAdapter:adapter];
-        
+
         id<TestBindingTestIntfPrx> test3 = [TestBindingTestIntfPrx uncheckedCast:test1];
         test([[test3 ice_getConnection] isEqual:[test1 ice_getConnection]]);
         test([[test3 ice_getConnection] isEqual:[test2 ice_getConnection]]);
-        
+
         @try
         {
             [test3 ice_ping];
@@ -227,7 +227,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
             test([[test1 ice_getConnection] isEqual:[test2 ice_getConnection]]);
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
-            
+
             [names removeObject:[test1 getAdapterName]];
             [[test1 ice_getConnection] close:NO];
         }
@@ -241,7 +241,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             {
                 [[a getTestIntf] ice_ping];
             }
-            
+
             id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
             NSString* name = [test getAdapterName];
             const int nRetry = 10;
@@ -253,7 +253,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             {
                 [[[a getTestIntf] ice_getConnection] close:NO];
             }
-        }           
+        }
 
         //
         // Deactivate an adapter and ensure that we can still
@@ -271,19 +271,19 @@ bindingAllTests(id<ICECommunicator> communicator)
             id<TestBindingTestIntfPrx> test2 = createTestIntfPrx(adpts);
             random_shuffle(adpts);
             id<TestBindingTestIntfPrx> test3 = createTestIntfPrx(adpts);
-            
+
             test([[test1 ice_getConnection] isEqual:[test2 ice_getConnection]]);
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:[test1 getAdapterName]];
             [[test1 ice_getConnection] close:NO];
         }
-        
+
         //
         // Deactivate an adapter and ensure that we can still
         // establish the connection to the remaining adapter.
         //
-        [com deactivateObjectAdapter:[adapters objectAtIndex:2]];      
+        [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
         id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
         test([[test getAdapterName] isEqualToString:@"Adapter12"]);
 
@@ -318,7 +318,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
             test([[test1 ice_getConnection] isEqual:[test2 ice_getConnection]]);
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
-            
+
             [names removeObject:getAdapterNameWithAMI(test1)];
             [[test1 ice_getConnection] close:NO];
         }
@@ -332,7 +332,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             {
                 [[a getTestIntf] ice_ping];
             }
-            
+
             id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
             NSString* name = getAdapterNameWithAMI(test);
             const int nRetry = 10;
@@ -344,7 +344,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             {
                 [[[a getTestIntf] ice_getConnection] close:NO];
             }
-        }           
+        }
 
         //
         // Deactivate an adapter and ensure that we can still
@@ -362,21 +362,21 @@ bindingAllTests(id<ICECommunicator> communicator)
             id<TestBindingTestIntfPrx> test2 = createTestIntfPrx(adpts);
             random_shuffle(adpts);
             id<TestBindingTestIntfPrx> test3 = createTestIntfPrx(adpts);
-            
+
             test([[test1 ice_getConnection] isEqual:[test2 ice_getConnection]]);
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:[test1 getAdapterName]];
             [[test1 ice_getConnection] close:NO];
         }
-        
+
         //
         // Deactivate an adapter and ensure that we can still
         // establish the connection to the remaining adapter.
         //
-        [com deactivateObjectAdapter:[adapters objectAtIndex:2]];      
+        [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
         id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
-        test([[test getAdapterName] isEqualToString:@"AdapterAMI12"]); 
+        test([[test getAdapterName] isEqualToString:@"AdapterAMI12"]);
 
         deactivate(com, adapters);
     }
@@ -465,7 +465,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 #endif
         test(i == nRetry);
         [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
-        
+
         @try
         {
             [test getAdapterName];
@@ -481,7 +481,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         [adapters addObject:[com createObjectAdapter:@"Adapter36" endpoints:[endpoints objectAtIndex:2]]];
         for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter36"]; i++);
 #if TARGET_OS_IPHONE > 0
@@ -526,12 +526,13 @@ bindingAllTests(id<ICECommunicator> communicator)
         id<TestBindingTestIntfPrx> test2 = [TestBindingTestIntfPrx uncheckedCast:[[adapter getTestIntf] ice_connectionCached:NO]];
         test(![test1 ice_isConnectionCached]);
         test(![test2 ice_isConnectionCached]);
+        test([test1 ice_getConnection] && [test2 ice_getConnection]);
         test([[test1 ice_getConnection] isEqual:[test2 ice_getConnection]]);
 
         [test1 ice_ping];
-        
+
         [com deactivateObjectAdapter:adapter];
-        
+
         id<TestBindingTestIntfPrx> test3 = [TestBindingTestIntfPrx uncheckedCast:test1];
         @try
         {
@@ -576,7 +577,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
 
         test([[test getAdapterName] isEqualToString:@"Adapter52"]);
-        
+
         deactivate(com, adapters);
     }
     tprintf("ok\n");
@@ -612,7 +613,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
 
         test([[test getAdapterName] isEqualToString:@"AdapterAMI52"]);
-        
+
         deactivate(com, adapters);
     }
     tprintf("ok\n");
@@ -657,7 +658,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         test(i == nRetry);
 #endif
         [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
-        
+
         @try
         {
             [test getAdapterName];
@@ -673,7 +674,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         [adapters addObject:[com createObjectAdapter:@"Adapter66" endpoints:[endpoints objectAtIndex:2]]];
         for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter66"]; i++);
 #if TARGET_OS_IPHONE > 0
@@ -740,7 +741,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         test(i == nRetry);
 #endif
         [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
-        
+
         @try
         {
             [test getAdapterName];
@@ -756,7 +757,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         //
         // Now, re-activate the adapters with the same endpoints in the opposite
         // order.
-        // 
+        //
         [adapters addObject:[com createObjectAdapter:@"AdapterAMI66" endpoints:[endpoints objectAtIndex:2]]];
         for(i = 0; i < nRetry && [getAdapterNameWithAMI(test) isEqualToString:@"AdapterAMI66"]; i++);
 #if TARGET_OS_IPHONE > 0
@@ -791,7 +792,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
         id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
         test([[test getAdapterName] isEqualToString:@"Adapter71"]);
-        
+
         id<TestBindingTestIntfPrx> testUDP = [TestBindingTestIntfPrx uncheckedCast:[test ice_datagram]];
         test([test ice_getConnection] != [testUDP ice_getConnection]);
         @try
@@ -811,7 +812,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             NSMutableArray* adapters = [NSMutableArray arrayWithCapacity:3];
             [adapters addObject:[com createObjectAdapter:@"Adapter81" endpoints:@"ssl"]];
             [adapters addObject:[com createObjectAdapter:@"Adapter82" endpoints:@"tcp"]];
-            
+
             id<TestBindingTestIntfPrx> test = createTestIntfPrx(adapters);
             int i;
             for(i = 0; i < 5; i++)
@@ -819,7 +820,7 @@ bindingAllTests(id<ICECommunicator> communicator)
                 test([[test getAdapterName] isEqualToString:@"Adapter82"]);
                 [[test ice_getConnection] close:NO];
             }
-            
+
             id<TestBindingTestIntfPrx> testSecure = [TestBindingTestIntfPrx uncheckedCast:[test ice_secure:YES]];
             test([testSecure ice_isSecure]);
             testSecure = [TestBindingTestIntfPrx uncheckedCast:[test ice_secure:NO]];
@@ -829,7 +830,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             test([test ice_getConnection] != [testSecure ice_getConnection]);
 
             [com deactivateObjectAdapter:[adapters objectAtIndex:1]];
-            
+
             for(i = 0; i < 5; i++)
             {
                 test([[test getAdapterName] isEqualToString:@"Adapter81"]);

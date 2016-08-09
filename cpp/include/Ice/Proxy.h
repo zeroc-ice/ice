@@ -172,13 +172,12 @@ class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
 public:
 
     ProxyGetConnectionLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                             ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection,
                              ::std::function<void(::std::shared_ptr<Ice::Connection>)> response,
                              ::std::function<void(::std::exception_ptr)> ex,
                              ::std::function<void(bool)> sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
-        _response = [response, getConnection](bool)
+        _response = [&, response](bool)
         {
             response(getConnection());
         };
@@ -190,11 +189,9 @@ class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvok
 {
 public:
 
-    ProxyGetConnectionPromise(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                              ::std::function<::std::shared_ptr<Ice::Connection>()> getConnection) :
-        ProxyGetConnection(proxy)
+    ProxyGetConnectionPromise(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy) : ProxyGetConnection(proxy)
     {
-        this->_response = [&, getConnection](bool)
+        this->_response = [&](bool)
         {
             this->_promise.set_value(getConnection());
         };
@@ -543,12 +540,7 @@ public:
                            ::std::function<void(bool)> sent = nullptr)
     {
         using LambdaOutgoing = ::IceInternal::ProxyGetConnectionLambda;
-        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(),
-                                                           [this]()
-                                                           {
-                                                               return ice_getCachedConnection();
-                                                           },
-                                                           response, ex, sent);
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), response, ex, sent);
         __ice_getConnection(outAsync);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -557,11 +549,7 @@ public:
     ice_getConnectionAsync() -> decltype(std::declval<P<::std::shared_ptr<::Ice::Connection>>>().get_future())
     {
         using PromiseOutgoing = ::IceInternal::ProxyGetConnectionPromise<P<::std::shared_ptr<::Ice::Connection>>>;
-        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this(),
-                                                            [this]()
-                                                            {
-                                                                return ice_getCachedConnection();
-                                                            });
+        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
         __ice_getConnection(outAsync);
         return outAsync->getFuture();
     }
@@ -1326,7 +1314,7 @@ public:
 
     ::Ice::ConnectionPtr ice_getConnection()
     {
-        return end_ice_getConnection(__begin_ice_getConnection(::IceInternal::__dummyCallback, 0, true));
+        return end_ice_getConnection(begin_ice_getConnection());
     }
 
     ::Ice::AsyncResultPtr begin_ice_getConnection()
@@ -1352,7 +1340,7 @@ public:
 
     void ice_flushBatchRequests()
     {
-        return end_ice_flushBatchRequests(__begin_ice_flushBatchRequests(::IceInternal::__dummyCallback, 0, true));
+        return end_ice_flushBatchRequests(begin_ice_flushBatchRequests());
     }
 
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests()
@@ -1438,12 +1426,10 @@ private:
                                              bool = false);
 
     ::Ice::AsyncResultPtr __begin_ice_getConnection(const ::IceInternal::CallbackBasePtr&,
-                                                    const ::Ice::LocalObjectPtr&,
-                                                    bool = false);
+                                                    const ::Ice::LocalObjectPtr&);
 
     ::Ice::AsyncResultPtr __begin_ice_flushBatchRequests(const ::IceInternal::CallbackBasePtr&,
-                                                         const ::Ice::LocalObjectPtr&,
-                                                         bool = false);
+                                                         const ::Ice::LocalObjectPtr&);
 
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
