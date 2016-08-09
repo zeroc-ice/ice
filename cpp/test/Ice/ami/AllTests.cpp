@@ -2156,73 +2156,80 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             }
         }
         cout << "ok" << endl;
-//
-//  TODO port this to use the C++11 callback API
-//
-//         if(p->ice_getConnection() && protocol != "bt")
-//         {
-//             cout << "testing close connection with sending queue... " << flush;
-//             {
-//                 Ice::ByteSeq seq;
-//                 seq.resize(1024 * 10);
-//                 for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-//                 {
-//                     *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-//                 }
-//
-//
-//                 Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-//                 The goal is to make sure that none of the opWithPayload fail even if the server closes
-//                 the connection gracefully in between.
-//
-//                 int maxQueue = 2;
-//                 bool done = false;
-//                 while(!done && maxQueue < 5000)
-//                 {
-//                     done = true;
-//                     p->ice_ping();
-//                     vector<Ice::AsyncResultPtr> results;
-//                     for(int i = 0; i < maxQueue; ++i)
-//                     {
-//                         results.push_back(p->begin_opWithPayload(seq));
-//                     }
-//                     if(!p->begin_close(false)->isSent())
-//                     {
-//                         for(int i = 0; i < maxQueue; i++)
-//                         {
-//                             Ice::AsyncResultPtr r = p->begin_opWithPayload(seq);
-//                             results.push_back(r);
-//                             if(r->isSent())
-//                             {
-//                                 done = false;
-//                                 maxQueue *= 2;
-//                                 break;
-//                             }
-//                         }
-//                     }
-//                     else
-//                     {
-//                         maxQueue *= 2;
-//                         done = false;
-//                     }
-//
-//                     cerr << maxQueue << endl;
-//                     for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
-//                     {
-//                         (*p)->waitForCompleted();
-//                         try
-//                         {
-//                             (*p)->throwLocalException();
-//                         }
-//                         catch(const Ice::LocalException&)
-//                         {
-//                             test(false);
-//                         }
-//                     }
-//                 }
-//             }
-//             cout << "ok" << endl;
-//         }
+
+        if(p->ice_getConnection() && protocol != "bt")
+        {
+            cout << "testing close connection with sending queue... " << flush;
+            {
+                Ice::ByteSeq seq;
+                seq.resize(1024 * 10);
+                for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                {
+                    *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+                }
+
+
+                // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+                // The goal is to make sure that none of the opWithPayload fail even if the server closes
+                // the connection gracefully in between.
+
+                int maxQueue = 2;
+                bool done = false;
+                while(!done && maxQueue < 5000)
+                {
+                    done = true;
+                    p->ice_ping();
+                    vector<future<void>> results;
+                    for(int i = 0; i < maxQueue; ++i)
+                    {
+                        auto s = make_shared<promise<void>>();
+                        p->opWithPayloadAsync(seq,
+                                              [s]() { s->set_value(); },
+                                              [s](exception_ptr ex) { s->set_exception(ex); });
+                        results.push_back(s->get_future());
+                    }
+                    atomic_flag sent = ATOMIC_FLAG_INIT;
+                    p->closeAsync(false, nullptr, nullptr, [&sent](bool) { sent.test_and_set(); });
+                    if(!sent.test_and_set())
+                    {
+                        for(int i = 0; i < maxQueue; i++)
+                        {
+                            auto s = make_shared<promise<void>>();
+                            atomic_flag sent = ATOMIC_FLAG_INIT;
+                            p->opWithPayloadAsync(seq,
+                                                  [s]() { s->set_value(); },
+                                                  [s](exception_ptr ex) { s->set_exception(ex); },
+                                                  [&sent](bool) { sent.test_and_set(); });
+                            results.push_back(s->get_future());
+                            if(sent.test_and_set())
+                            {
+                                done = false;
+                                maxQueue *= 2;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        maxQueue *= 2;
+                        done = false;
+                    }
+
+                    for(vector<future<void>>::iterator p = results.begin(); p != results.end(); ++p)
+                    {
+                        try
+                        {
+                            p->get();
+                        }
+                        catch(const Ice::LocalException&)
+                        {
+                            test(false);
+                        }
+                    }
+                }
+            }
+            cout << "ok" << endl;
+        }
 
     }
 
