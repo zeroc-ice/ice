@@ -2211,7 +2211,7 @@ namespace Ice
         {
             var resultI = AsyncResultI.check(r, this, __ice_getConnection_name);
             resultI.wait();
-            return resultI.getConnection();
+            return ((ProxyGetConnection)resultI.OutgoingAsync).getConnection();
         }
 
         private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(AsyncCallback callback,
