@@ -369,49 +369,67 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opShort1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opInt1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opLong1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opFloat1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opDouble1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opString1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opStringS1_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opByteBoolD1_async(self, cb, value, current=None):
         cb.ice_response(value)
-        
+
     def opStringS2_async(self, cb, value, current=None):
         cb.ice_response(value)
-    
+
     def opByteBoolD2_async(self, cb, value, current=None):
         cb.ice_response(value)
-        
+
     def opMyClass1_async(self, cb, value, current=None):
         return cb.ice_response(value)
 
     def opMyStruct1_async(self, cb, value, current=None):
         return cb.ice_response(value)
-    
+
     def opStringLiterals_async(self, cb, current=None):
         return cb.ice_response([
                 Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
                 Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9, Test.sw10,
                 Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
                 Test.su0, Test.su1, Test.su2])
-    
+
     def opWStringLiterals_async(self, cb, current=None):
         return self.opStringLiterals_async(cb, current)
+
+    def opMStruct1_async(self, cb, current):
+        cb.ice_response(Test.Structure())
+
+    def opMStruct2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
+    def opMSeq1_async(self, cb, current):
+        cb.ice_response([])
+
+    def opMSeq2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
+    def opMDict1_async(self, cb, current):
+        cb.ice_response({})
+
+    def opMDict2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

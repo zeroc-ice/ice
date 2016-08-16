@@ -95,8 +95,6 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 {
     void shutdown();
 
-    void delay(int ms);
-
     void opVoid();
 
     byte opByte(byte p1, byte p2,
@@ -249,7 +247,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     string opString1(string opString1);
     StringS opStringS1(StringS opStringS1);
     ByteBoolD opByteBoolD1(ByteBoolD opByteBoolD1);
-    
+
     StringS opStringS2(StringS stringS);
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
 };

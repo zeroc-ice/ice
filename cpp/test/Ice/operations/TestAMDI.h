@@ -42,11 +42,6 @@ public:
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void delayAsync(Ice::Int,
-                            ::std::function<void()>,
-                            ::std::function<void(std::exception_ptr)>,
-                            const Ice::Current&);
-
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
@@ -387,12 +382,37 @@ public:
     virtual void opWStringLiteralsAsync(::std::function<void(const Test::WStringS&)>,
                                         ::std::function<void(std::exception_ptr)>,
                                         const Ice::Current&);
+
+    virtual void opMStruct1Async(::std::function<void(const Test::Structure&)>,
+                                 ::std::function<void(std::exception_ptr)>,
+                                 const Ice::Current&);
+
+    virtual void opMStruct2Async(ICE_IN(Test::Structure),
+                                 ::std::function<void(const Test::Structure&, const Test::Structure&)>,
+                                 ::std::function<void(std::exception_ptr)>,
+                                 const Ice::Current&);
+
+    virtual void opMSeq1Async(::std::function<void(const Test::StringS&)>,
+                              ::std::function<void(std::exception_ptr)>,
+                              const Ice::Current&);
+
+    virtual void opMSeq2Async(ICE_IN(Test::StringS),
+                              ::std::function<void(const Test::StringS&, const Test::StringS&)>,
+                              ::std::function<void(std::exception_ptr)>,
+                              const Ice::Current&);
+
+    virtual void opMDict1Async(::std::function<void(const Test::StringStringD&)>,
+                               ::std::function<void(std::exception_ptr)>,
+                               const Ice::Current&);
+
+    virtual void opMDict2Async(ICE_IN(Test::StringStringD),
+                               ::std::function<void(const Test::StringStringD&, const Test::StringStringD&)>,
+                               ::std::function<void(std::exception_ptr)>,
+                               const Ice::Current&);
+
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
-
-    virtual void delay_async(const Test::AMD_MyClass_delayPtr&, Ice::Int,
-                             const Ice::Current&);
 
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
                               const Ice::Current&);
@@ -642,6 +662,27 @@ public:
 
     virtual void opWStringLiterals_async(const Test::AMD_MyClass_opWStringLiteralsPtr&,
                                          const Ice::Current&);
+
+    virtual void opMStruct1_async(const Test::AMD_MyClass_opMStruct1Ptr&,
+                                  const Ice::Current&);
+
+    virtual void opMStruct2_async(const Test::AMD_MyClass_opMStruct2Ptr&,
+                                  const Test::Structure&,
+                                  const Ice::Current&);
+
+    virtual void opMSeq1_async(const Test::AMD_MyClass_opMSeq1Ptr&,
+                               const Ice::Current&);
+
+    virtual void opMSeq2_async(const Test::AMD_MyClass_opMSeq2Ptr&,
+                               const Test::StringS&,
+                               const Ice::Current&);
+
+    virtual void opMDict1_async(const Test::AMD_MyClass_opMDict1Ptr&,
+                                const Ice::Current&);
+
+    virtual void opMDict2_async(const Test::AMD_MyClass_opMDict2Ptr&,
+                                const Test::StringStringD&,
+                                const Ice::Current&);
 #endif
 
 private:

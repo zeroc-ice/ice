@@ -58,7 +58,7 @@ public:
 
 
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator), _called(false),
+    _communicator(communicator),
 #ifdef ICE_CPP11_MAPPING
     _removeCallback(nullptr)
 #else
@@ -84,19 +84,6 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
     if(_hasCallback)
 #endif
     {
-       //
-       // The client calls PropertiesAdmin::setProperties() and then invokes
-       // this operation. Since setProperties() is implemented using AMD, the
-       // client might receive its reply and then call getChanges() before our
-       // updated() method is called. We block here to ensure that updated()
-       // gets called before we return the most recent set of changes.
-       //
-       while(!_called)
-       {
-           wait();
-       }
-
-       _called = false;
        return _changes;
     }
     else
@@ -197,10 +184,7 @@ void
 RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
     _changes = changes;
-    _called = true;
-    notify();
 }
 
 Test::RemoteCommunicatorPrxPtr

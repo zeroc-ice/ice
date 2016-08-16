@@ -24,7 +24,6 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
     public RemoteCommunicatorI(Ice.Communicator communicator)
     {
         _communicator = communicator;
-        _called = false;
     }
 
     override public Ice.ObjectPrx getAdmin(Ice.Current current)
@@ -36,20 +35,6 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
     {
         lock(this)
         {
-            //
-            // The client calls PropertiesAdmin::setProperties() and then invokes
-            // this operation. Since setProperties() is implemented using AMD, the
-            // client might receive its reply and then call getChanges() before our
-            // updated() method is called. We block here to ensure that updated()
-            // gets called before we return the most recent set of changes.
-            //
-            while(!_called)
-            {
-                System.Threading.Monitor.Wait(this);
-            }
-            
-            _called = false;
-            
             return _changes;
         }
     }
@@ -58,7 +43,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
     {
         _communicator.getLogger().print(message);
     }
-    
+
     override public void trace(string category, string message, Ice.Current current)
     {
         _communicator.getLogger().trace(category, message);
@@ -98,14 +83,11 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
         lock(this)
         {
             _changes = changes;
-            _called = true;
-            System.Threading.Monitor.Pulse(this);
         }
     }
 
     private Ice.Communicator _communicator;
     private Dictionary<string, string> _changes;
-    private bool _called;
 }
 
 public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
@@ -165,7 +147,7 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
         public void print(string message)
         {
         }
-        
+
         public void trace(string category, string message)
         {
         }

@@ -202,6 +202,46 @@ public:
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
+    virtual void opMStruct1Async(::std::function<void(const Ice::optional<Test::SmallStruct>&)>,
+                                 ::std::function<void(::std::exception_ptr)>,
+                                 const Ice::Current&) override;
+
+    virtual void opMStruct2Async(Ice::optional<Test::SmallStruct>,
+                                 ::std::function<void(const Ice::optional<Test::SmallStruct>&,
+                                                      const Ice::optional<Test::SmallStruct>&)>,
+                                 ::std::function<void(::std::exception_ptr)>,
+                                 const Ice::Current&) override;
+
+    virtual void opMSeq1Async(::std::function<void(const Ice::optional<Test::StringSeq>&)>,
+                              ::std::function<void(::std::exception_ptr)>,
+                              const Ice::Current&) override;
+
+    virtual void opMSeq2Async(Ice::optional<Test::StringSeq>,
+                              ::std::function<void(const Ice::optional<Test::StringSeq>&,
+                                                   const Ice::optional<Test::StringSeq>&)>,
+                              ::std::function<void(::std::exception_ptr)>,
+                              const Ice::Current&) override;
+
+    virtual void opMDict1Async(::std::function<void(const Ice::optional<Test::StringIntDict>&)>,
+                               ::std::function<void(::std::exception_ptr)>,
+                               const Ice::Current&) override;
+
+    virtual void opMDict2Async(Ice::optional<Test::StringIntDict>,
+                               ::std::function<void(const Ice::optional<Test::StringIntDict>&,
+                                                    const Ice::optional<Test::StringIntDict>&)>,
+                               ::std::function<void(::std::exception_ptr)>,
+                               const Ice::Current&) override;
+
+    virtual void opMG1Async(::std::function<void(const Ice::optional<Test::GPtr>&)>,
+                            ::std::function<void(::std::exception_ptr)>,
+                            const Ice::Current&) override;
+
+    virtual void opMG2Async(Ice::optional<Test::GPtr>,
+                            ::std::function<void(const Ice::optional<Test::GPtr>&,
+                                                 const Ice::optional<Test::GPtr>&)>,
+                            ::std::function<void(::std::exception_ptr)>,
+                            const Ice::Current&) override;
+
     virtual void supportsRequiredParamsAsync(::std::function<void(bool)>,
                                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
@@ -400,6 +440,30 @@ public:
 
     virtual void opVoid_async(const ::Test::AMD_Initial_opVoidPtr&,
                               const Ice::Current&);
+
+    virtual void opMStruct1_async(const Test::AMD_Initial_opMStruct1Ptr&, const Ice::Current&);
+
+    virtual void opMStruct2_async(const Test::AMD_Initial_opMStruct2Ptr&,
+                                  const IceUtil::Optional< Test::SmallStruct>&,
+                                  const Ice::Current&);
+
+    virtual void opMSeq1_async(const Test::AMD_Initial_opMSeq1Ptr&, const Ice::Current&);
+
+    virtual void opMSeq2_async(const Test::AMD_Initial_opMSeq2Ptr&,
+                               const IceUtil::Optional< Test::StringSeq>&,
+                               const Ice::Current&);
+
+    virtual void opMDict1_async(const Test::AMD_Initial_opMDict1Ptr&, const Ice::Current&);
+
+    virtual void opMDict2_async(const Test::AMD_Initial_opMDict2Ptr&, const
+                                IceUtil::Optional< Test::StringIntDict>&,
+                                const Ice::Current&);
+
+    virtual void opMG1_async(const Test::AMD_Initial_opMG1Ptr&, const Ice::Current&);
+
+    virtual void opMG2_async(const Test::AMD_Initial_opMG2Ptr&,
+                             const IceUtil::Optional< Test::GPtr>&,
+                             const Ice::Current&);
 
     virtual void supportsRequiredParams_async(const ::Test::AMD_Initial_supportsRequiredParamsPtr&,
                                               const Ice::Current&);

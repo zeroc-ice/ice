@@ -200,8 +200,9 @@ public class AllTests : TestCommon.TestApp
         {
             test(ex.aMem == 1);
         }
-        catch(Exception)
+        catch(Exception ex)
         {
+            System.Console.WriteLine(ex);
             test(false);
         }
 

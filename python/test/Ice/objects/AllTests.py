@@ -222,6 +222,14 @@ def allTests(communicator):
         pass
     print("ok")
 
+    sys.stdout.write("testing marshaled results...")
+    sys.stdout.flush()
+    b1 = initial.getMB()
+    test(b1 != None and b1.theB == b1);
+    b1 = initial.end_getAMDMB(initial.begin_getAMDMB());
+    test(b1 != None and b1.theB == b1);
+    print("ok")
+
     # Don't run this test with collocation, this should work with collocation
     # but the test isn't written to support it (we'd need support for the
     # streaming interface)

@@ -7,38 +7,38 @@
 //
 // **********************************************************************
 
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 public class InitialI : Test.InitialDisp_
 {
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void pingPongAsync(Ice.Value obj, Action<Ice.Value> response, 
-                                       Action<Exception> exception, Ice.Current current)
+    public override Task<Ice.Value>
+    pingPongAsync(Ice.Value obj, Ice.Current current)
     {
-        response(obj);
+        return Task.FromResult<Ice.Value>(obj);
     }
 
-    public override void opOptionalExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, 
-                                                  Action action, Action<Exception> exception, Ice.Current current)
+    public override Task
+    opOptionalExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, Ice.Current c)
     {
-        exception(new OptionalException(false, a, b, o));
+        throw new OptionalException(false, a, b, o);
     }
 
-    public override void opDerivedExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o,
-                                                 Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    opDerivedExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, Ice.Current c)
     {
-        exception(new DerivedException(false, a, b, o, b, o));
+        throw new DerivedException(false, a, b, o, b, o);
     }
 
-    public override void opRequiredExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, 
-                                                  Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    opRequiredExceptionAsync(Ice.Optional<int> a, Ice.Optional<string> b, Ice.Optional<OneOptional> o, Ice.Current c)
     {
         var e = new RequiredException();
         e.a = a;
@@ -52,274 +52,302 @@ public class InitialI : Test.InitialDisp_
         {
             e.o2 = o.Value;
         }
-        exception(e);
+        throw e;
     }
 
-    public override void
-    opByteAsync(Ice.Optional<byte> p1, Action<Initial_OpByteResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<Initial_OpByteResult>
+    opByteAsync(Ice.Optional<byte> p1, Ice.Current current)
     {
-        response(new Initial_OpByteResult(p1, p1));
+        return Task.FromResult<Initial_OpByteResult>(new Initial_OpByteResult(p1, p1));
     }
 
-    public override void
-    opBoolAsync(Ice.Optional<bool> p1, Action<Initial_OpBoolResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<Initial_OpBoolResult>
+    opBoolAsync(Ice.Optional<bool> p1, Ice.Current current)
     {
-        response(new Initial_OpBoolResult(p1, p1));
+        return Task.FromResult<Initial_OpBoolResult>(new Initial_OpBoolResult(p1, p1));
     }
 
-    public override void
-    opShortAsync(Ice.Optional<short> p1, Action<Initial_OpShortResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<Initial_OpShortResult>
+    opShortAsync(Ice.Optional<short> p1, Ice.Current current)
     {
-        response(new Initial_OpShortResult(p1, p1));
+        return Task.FromResult<Initial_OpShortResult>(new Initial_OpShortResult(p1, p1));
     }
 
-    public override void
-    opIntAsync(Ice.Optional<int> p1, Action<Initial_OpIntResult> response, Action<Exception> exception,
-               Ice.Current current)
+    public override Task<Initial_OpIntResult>
+    opIntAsync(Ice.Optional<int> p1, Ice.Current current)
     {
-        response(new Initial_OpIntResult(p1, p1));
+        return Task.FromResult<Initial_OpIntResult>(new Initial_OpIntResult(p1, p1));
     }
 
-    public override void
-    opLongAsync(Ice.Optional<long> p1, Action<Initial_OpLongResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<Initial_OpLongResult>
+    opLongAsync(Ice.Optional<long> p1, Ice.Current current)
     {
-        response(new Initial_OpLongResult(p1, p1));
+        return Task.FromResult<Initial_OpLongResult>(new Initial_OpLongResult(p1, p1));
     }
 
-    public override void
-    opFloatAsync(Ice.Optional<float> p1, Action<Initial_OpFloatResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<Initial_OpFloatResult>
+    opFloatAsync(Ice.Optional<float> p1, Ice.Current current)
     {
-        response(new Initial_OpFloatResult(p1, p1));
+        return Task.FromResult<Initial_OpFloatResult>(new Initial_OpFloatResult(p1, p1));
     }
 
-    public override void
-    opDoubleAsync(Ice.Optional<double> p1, Action<Initial_OpDoubleResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<Initial_OpDoubleResult>
+    opDoubleAsync(Ice.Optional<double> p1, Ice.Current current)
     {
-        response(new Initial_OpDoubleResult(p1, p1));
+        return Task.FromResult<Initial_OpDoubleResult>(new Initial_OpDoubleResult(p1, p1));
     }
 
-    public override void
-    opStringAsync(Ice.Optional<string> p1, Action<Initial_OpStringResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<Initial_OpStringResult>
+    opStringAsync(Ice.Optional<string> p1, Ice.Current current)
     {
-        response(new Initial_OpStringResult(p1, p1));
+        return Task.FromResult<Initial_OpStringResult>(new Initial_OpStringResult(p1, p1));
     }
 
-    public override void
-    opMyEnumAsync(Ice.Optional<MyEnum> p1, Action<Initial_OpMyEnumResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<Initial_OpMyEnumResult>
+    opMyEnumAsync(Ice.Optional<MyEnum> p1, Ice.Current current)
     {
-        response(new Initial_OpMyEnumResult(p1, p1));
+        return Task.FromResult<Initial_OpMyEnumResult>(new Initial_OpMyEnumResult(p1, p1));
     }
 
-    public override void
-    opSmallStructAsync(Ice.Optional<SmallStruct> p1, Action<Initial_OpSmallStructResult> response,
-                       Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpSmallStructResult>
+    opSmallStructAsync(Ice.Optional<SmallStruct> p1, Ice.Current current)
     {
-        response(new Initial_OpSmallStructResult(p1, p1));
+        return Task.FromResult<Initial_OpSmallStructResult>(new Initial_OpSmallStructResult(p1, p1));
     }
 
-    public override void
-    opFixedStructAsync(Ice.Optional<FixedStruct> p1, Action<Initial_OpFixedStructResult> response,
-                       Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpFixedStructResult>
+    opFixedStructAsync(Ice.Optional<FixedStruct> p1, Ice.Current current)
     {
-        response(new Initial_OpFixedStructResult(p1, p1));
+        return Task.FromResult<Initial_OpFixedStructResult>(new Initial_OpFixedStructResult(p1, p1));
     }
 
-    public override void
-    opVarStructAsync(Ice.Optional<VarStruct> p1, Action<Initial_OpVarStructResult> response,
-                     Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpVarStructResult>
+    opVarStructAsync(Ice.Optional<VarStruct> p1, Ice.Current current)
     {
-        response(new Initial_OpVarStructResult(p1, p1));
+        return Task.FromResult<Initial_OpVarStructResult>(new Initial_OpVarStructResult(p1, p1));
     }
 
-    public override void
-    opOneOptionalAsync(Ice.Optional<OneOptional> p1, Action<Initial_OpOneOptionalResult> response,
-                       Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpOneOptionalResult>
+    opOneOptionalAsync(Ice.Optional<OneOptional> p1, Ice.Current current)
     {
-        response(new Initial_OpOneOptionalResult(p1, p1));
+        return Task.FromResult<Initial_OpOneOptionalResult>(new Initial_OpOneOptionalResult(p1, p1));
     }
 
-    public override void
-    opOneOptionalProxyAsync(Ice.Optional<OneOptionalPrx> p1, Action<Initial_OpOneOptionalProxyResult> response, 
-                            Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpOneOptionalProxyResult>
+    opOneOptionalProxyAsync(Ice.Optional<OneOptionalPrx> p1, Ice.Current current)
     {
-        response(new Initial_OpOneOptionalProxyResult(p1, p1));
+        return Task.FromResult<Initial_OpOneOptionalProxyResult>(new Initial_OpOneOptionalProxyResult(p1, p1));
     }
 
-    public override void
-    opByteSeqAsync(Ice.Optional<byte[]> p1, Action<Initial_OpByteSeqResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<Initial_OpByteSeqResult>
+    opByteSeqAsync(Ice.Optional<byte[]> p1, Ice.Current current)
     {
-        response(new Initial_OpByteSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpByteSeqResult>(new Initial_OpByteSeqResult(p1, p1));
     }
 
-    public override void
-    opBoolSeqAsync(Ice.Optional<bool[]> p1, Action<Initial_OpBoolSeqResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<Initial_OpBoolSeqResult>
+    opBoolSeqAsync(Ice.Optional<bool[]> p1, Ice.Current current)
     {
-        response(new Initial_OpBoolSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpBoolSeqResult>(new Initial_OpBoolSeqResult(p1, p1));
     }
 
-    public override void
-    opShortSeqAsync(Ice.Optional<short[]> p1, Action<Initial_OpShortSeqResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<Initial_OpShortSeqResult>
+    opShortSeqAsync(Ice.Optional<short[]> p1, Ice.Current current)
     {
-        response(new Initial_OpShortSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpShortSeqResult>(new Initial_OpShortSeqResult(p1, p1));
     }
 
-    public override void
-    opIntSeqAsync(Ice.Optional<int[]> p1, Action<Initial_OpIntSeqResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<Initial_OpIntSeqResult>
+    opIntSeqAsync(Ice.Optional<int[]> p1, Ice.Current current)
     {
-        response(new Initial_OpIntSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpIntSeqResult>(new Initial_OpIntSeqResult(p1, p1));
     }
 
-    public override void
-    opLongSeqAsync(Ice.Optional<long[]> p1, Action<Initial_OpLongSeqResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<Initial_OpLongSeqResult>
+    opLongSeqAsync(Ice.Optional<long[]> p1, Ice.Current current)
     {
-        response(new Initial_OpLongSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpLongSeqResult>(new Initial_OpLongSeqResult(p1, p1));
     }
 
-    public override void
-    opFloatSeqAsync(Ice.Optional<float[]> p1, Action<Initial_OpFloatSeqResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<Initial_OpFloatSeqResult>
+    opFloatSeqAsync(Ice.Optional<float[]> p1, Ice.Current current)
     {
-        response(new Initial_OpFloatSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpFloatSeqResult>(new Initial_OpFloatSeqResult(p1, p1));
     }
 
-    public override void
-    opDoubleSeqAsync(Ice.Optional<double[]> p1, Action<Initial_OpDoubleSeqResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<Initial_OpDoubleSeqResult>
+    opDoubleSeqAsync(Ice.Optional<double[]> p1, Ice.Current current)
     {
-        response(new Initial_OpDoubleSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpDoubleSeqResult>(new Initial_OpDoubleSeqResult(p1, p1));
     }
 
-    public override void
-    opStringSeqAsync(Ice.Optional<string[]> p1, Action<Initial_OpStringSeqResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<Initial_OpStringSeqResult>
+    opStringSeqAsync(Ice.Optional<string[]> p1, Ice.Current current)
     {
-        response(new Initial_OpStringSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpStringSeqResult>(new Initial_OpStringSeqResult(p1, p1));
     }
 
-    public override void
-    opSmallStructSeqAsync(Ice.Optional<SmallStruct[]> p1, Action<Initial_OpSmallStructSeqResult> response,
-                          Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpSmallStructSeqResult>
+    opSmallStructSeqAsync(Ice.Optional<SmallStruct[]> p1, Ice.Current current)
     {
-        response(new Initial_OpSmallStructSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpSmallStructSeqResult>(new Initial_OpSmallStructSeqResult(p1, p1));
     }
 
-    public override void
-    opSmallStructListAsync(Ice.Optional<List<SmallStruct>> p1, Action<Initial_OpSmallStructListResult> response,
-                           Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpSmallStructListResult>
+    opSmallStructListAsync(Ice.Optional<List<SmallStruct>> p1, Ice.Current current)
     {
-        response(new Initial_OpSmallStructListResult(p1, p1));
+        return Task.FromResult<Initial_OpSmallStructListResult>(new Initial_OpSmallStructListResult(p1, p1));
     }
 
-    public override void
-    opFixedStructSeqAsync(Ice.Optional<FixedStruct[]> p1, Action<Initial_OpFixedStructSeqResult> response,
-                          Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpFixedStructSeqResult>
+    opFixedStructSeqAsync(Ice.Optional<FixedStruct[]> p1, Ice.Current current)
     {
-        response(new Initial_OpFixedStructSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpFixedStructSeqResult>(new Initial_OpFixedStructSeqResult(p1, p1));
     }
 
-    public override void
-    opFixedStructListAsync(Ice.Optional<LinkedList<FixedStruct>> p1, Action<Initial_OpFixedStructListResult> response, 
-                           Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpFixedStructListResult>
+    opFixedStructListAsync(Ice.Optional<LinkedList<FixedStruct>> p1, Ice.Current current)
     {
-        response(new Initial_OpFixedStructListResult(p1, p1));
+        return Task.FromResult<Initial_OpFixedStructListResult>(new Initial_OpFixedStructListResult(p1, p1));
     }
 
-    public override void
-    opVarStructSeqAsync(Ice.Optional<VarStruct[]> p1, Action<Initial_OpVarStructSeqResult> response,
-                        Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpVarStructSeqResult>
+    opVarStructSeqAsync(Ice.Optional<VarStruct[]> p1, Ice.Current current)
     {
-        response(new Initial_OpVarStructSeqResult(p1, p1));
+        return Task.FromResult<Initial_OpVarStructSeqResult>(new Initial_OpVarStructSeqResult(p1, p1));
     }
 
-    public override void
-    opSerializableAsync(Ice.Optional<SerializableClass> p1, Action<Initial_OpSerializableResult> response,
-                        Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpSerializableResult>
+    opSerializableAsync(Ice.Optional<SerializableClass> p1, Ice.Current current)
     {
-        response(new Initial_OpSerializableResult(p1, p1));
+        return Task.FromResult<Initial_OpSerializableResult>(new Initial_OpSerializableResult(p1, p1));
     }
 
-    public override void
-    opIntIntDictAsync(Ice.Optional<Dictionary<int, int>> p1, Action<Initial_OpIntIntDictResult> response,
-                      Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpIntIntDictResult>
+    opIntIntDictAsync(Ice.Optional<Dictionary<int, int>> p1, Ice.Current current)
     {
-        response(new Initial_OpIntIntDictResult(p1, p1));
+        return Task.FromResult<Initial_OpIntIntDictResult>(new Initial_OpIntIntDictResult(p1, p1));
     }
 
-    public override void
-    opStringIntDictAsync(Ice.Optional<Dictionary<string, int>> p1, Action<Initial_OpStringIntDictResult> response,
-                         Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpStringIntDictResult>
+    opStringIntDictAsync(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
     {
-        response(new Initial_OpStringIntDictResult(p1, p1));
+        return Task.FromResult<Initial_OpStringIntDictResult>(new Initial_OpStringIntDictResult(p1, p1));
     }
 
-    public override void
-    opIntOneOptionalDictAsync(Ice.Optional<Dictionary<int, OneOptional>> p1, Action<Initial_OpIntOneOptionalDictResult> response, 
-                              Action<Exception> exception, Ice.Current current)
+    public override Task<Initial_OpIntOneOptionalDictResult>
+    opIntOneOptionalDictAsync(Ice.Optional<Dictionary<int, OneOptional>> p1, Ice.Current current)
     {
-        response(new Initial_OpIntOneOptionalDictResult(p1, p1));
+        return Task.FromResult<Initial_OpIntOneOptionalDictResult>(new Initial_OpIntOneOptionalDictResult(p1, p1));
     }
 
-    public override void opClassAndUnknownOptionalAsync(A p, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    opClassAndUnknownOptionalAsync(A p, Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void sendOptionalClassAsync(bool req, Ice.Optional<OneOptional> o, Action response, 
-                                                Action<Exception> exception, Ice.Current current)
+    public override Task
+    sendOptionalClassAsync(bool req, Ice.Optional<OneOptional> o, Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void
-    returnOptionalClassAsync(bool req, Action<Ice.Optional<OneOptional>> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Ice.Optional<OneOptional>>
+    returnOptionalClassAsync(bool req, Ice.Current current)
     {
-        response(new OneOptional(53));
+        return Task.FromResult<Ice.Optional<OneOptional>>(new Ice.Optional<OneOptional>(new OneOptional(53)));
     }
 
-    public override void opGAsync(G g, Action<G> response, Action<Exception> exception, Ice.Current current)
+    public override Task<G>
+    opGAsync(G g, Ice.Current current)
     {
-        response(g);
+        return Task.FromResult<G>(g);
     }
 
-    public override void opVoidAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    opVoidAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void
-    supportsRequiredParamsAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public async override Task<Test.Initial_OpMStruct1MarshaledResult>
+	opMStruct1Async(Ice.Current current)
     {
-        response(false);
+        await Task.Delay(0);
+        return new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
     }
 
-    public override void
-    supportsJavaSerializableAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public async override Task<Test.Initial_OpMStruct2MarshaledResult>
+	opMStruct2Async(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
     {
-        response(false);
+        await Task.Delay(0);
+        return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
     }
 
-    public override void
-    supportsCsharpSerializableAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public async override Task<Test.Initial_OpMSeq1MarshaledResult>
+	opMSeq1Async(Ice.Current current)
     {
-        response(true);
+        await Task.Delay(0);
+        return new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
     }
 
-    public override void
-    supportsCppStringViewAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public async override Task<Test.Initial_OpMSeq2MarshaledResult>
+	opMSeq2Async(Ice.Optional<string[]> p1, Ice.Current current)
     {
-        response(false);
+        await Task.Delay(0);
+        return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
+    }
+
+    public async override Task<Test.Initial_OpMDict1MarshaledResult>
+	opMDict1Async(Ice.Current current)
+    {
+        await Task.Delay(0);
+        return new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
+    }
+
+    public async override Task<Test.Initial_OpMDict2MarshaledResult>
+	opMDict2Async(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+    {
+        await Task.Delay(0);
+        return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
+    }
+
+    public async override Task<Test.Initial_OpMG1MarshaledResult>
+	opMG1Async(Ice.Current current)
+    {
+        await Task.Delay(0);
+        return new Test.Initial_OpMG1MarshaledResult(new Test.G(), current);
+    }
+
+    public async override Task<Test.Initial_OpMG2MarshaledResult>
+	opMG2Async(Ice.Optional<Test.G> p1, Ice.Current current)
+    {
+        await Task.Delay(0);
+        return new Test.Initial_OpMG2MarshaledResult(p1, p1, current);
+    }
+
+    public override Task<bool>
+    supportsRequiredParamsAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(false);
+    }
+
+    public override Task<bool>
+    supportsJavaSerializableAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(false);
+    }
+
+    public override Task<bool>
+    supportsCsharpSerializableAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(true);
+    }
+
+    public override Task<bool>
+    supportsCppStringViewAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(false);
     }
 }

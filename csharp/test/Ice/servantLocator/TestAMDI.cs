@@ -8,100 +8,101 @@
 // **********************************************************************
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    public override void requestFailedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task requestFailedExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void unknownUserExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task unknownUserExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void unknownLocalExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task unknownLocalExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void unknownExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task unknownExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void localExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task localExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void userExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task userExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void csExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task csExceptionAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    public override void 
-    unknownExceptionWithServantExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownExceptionWithServantExceptionAsync(Ice.Current current)
     {
-        exception(new Ice.ObjectNotExistException());
-    }
-
-    public override void
-    impossibleExceptionAsync(bool @throw, Action<string> response, Action<Exception> exception, Ice.Current current)
-    {
-        if(@throw)
-        {
-            exception(new TestImpossibleException());
-        }
-        else
-        {
-            //
-            // Return a value so we can be sure that the stream position
-            // is reset correctly iuf finished throws.
-            //
-            response("Hello");
-        }
-    }
-
-    public override void
-    intfUserExceptionAsync(bool @throw, Action<string> response, Action<Exception> exception, Ice.Current current)
-    {
-        if(@throw)
-        {
-            exception(new TestIntfUserException());
-        }
-        else
-        {
-            //
-            // Return a value so we can be sure that the stream position
-            // is reset correctly iuf finished throws.
-            //
-            response("Hello");
-        }
-    }
-
-    public override void asyncResponseAsync(Action response, Action<Exception> exception, Ice.Current current)
-    {
-       response();
-       throw new Ice.ObjectNotExistException();
-    }
-
-    public override void asyncExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
-    {
-        exception(new TestIntfUserException());
         throw new Ice.ObjectNotExistException();
     }
 
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task<string>
+    impossibleExceptionAsync(bool @throw, Ice.Current current)
+    {
+        if(@throw)
+        {
+            throw new TestImpossibleException();
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly iuf finished throws.
+            //
+            return Task.FromResult<string>("Hello");
+        }
+    }
+
+    public override Task<string>
+    intfUserExceptionAsync(bool @throw, Ice.Current current)
+    {
+        if(@throw)
+        {
+            throw new TestIntfUserException();
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly iuf finished throws.
+            //
+            return Task.FromResult<string>("Hello");
+        }
+    }
+
+    public override Task asyncResponseAsync(Ice.Current current)
+    {
+       return null;
+       throw new Ice.ObjectNotExistException();
+    }
+
+    public override Task asyncExceptionAsync(Ice.Current current)
+    {
+        throw new TestIntfUserException();
+        throw new Ice.ObjectNotExistException();
+    }
+
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.deactivate();
-        response();
+        return null;
     }
 }

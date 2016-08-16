@@ -38,8 +38,6 @@ public:
 
     virtual void shutdown(const Ice::Current&);
 
-    virtual void delay(Ice::Int, const Ice::Current&);
-
     virtual void opVoid(const Ice::Current&);
 
     virtual Ice::Byte opByte(Ice::Byte,
@@ -306,6 +304,18 @@ public:
     virtual Test::StringS opStringLiterals(const Ice::Current&);
 
     virtual Test::WStringS opWStringLiterals(const Ice::Current&);
+
+    virtual Test::Structure opMStruct1(const Ice::Current&);
+
+    virtual Test::Structure opMStruct2(ICE_IN(Test::Structure), Test::Structure&, const Ice::Current&);
+
+    virtual Test::StringS opMSeq1(const Ice::Current&);
+
+    virtual Test::StringS opMSeq2(ICE_IN(Test::StringS), Test::StringS&, const Ice::Current&);
+
+    virtual Test::StringStringD opMDict1(const Ice::Current&);
+
+    virtual Test::StringStringD opMDict2(ICE_IN(Test::StringStringD), Test::StringStringD&, const Ice::Current&);
 
 private:
 

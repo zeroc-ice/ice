@@ -161,6 +161,27 @@ InitialI::getF(const Ice::Current&)
     return _f;
 }
 
+Test::BPtr
+InitialI::getMB(const Ice::Current&)
+{
+    return _b1;
+}
+
+void
+#ifdef ICE_CPP11_MAPPING
+InitialI::getAMDMBAsync(function<void(const shared_ptr<B>&)> response,
+                        function<void(exception_ptr)>,
+                        const Ice::Current&)
+{
+    response(_b1);
+}
+#else
+InitialI::getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr& cb, const Ice::Current&)
+{
+    cb->ice_response(_b1);
+}
+#endif
+
 void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 {

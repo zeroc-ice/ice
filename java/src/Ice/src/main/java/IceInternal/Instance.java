@@ -1210,7 +1210,7 @@ public final class Instance implements Ice.ClassResolver
             PropertiesAdminI propsAdmin = null;
             if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(propertiesFacetName))
             {
-                propsAdmin = new PropertiesAdminI(_initData.properties, _initData.logger);
+                propsAdmin = new PropertiesAdminI(this);
                 _adminFacets.put(propertiesFacetName, propsAdmin);
             }
 

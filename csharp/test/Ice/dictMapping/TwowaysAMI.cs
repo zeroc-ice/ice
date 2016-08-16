@@ -9,9 +9,9 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Collections.Generic;
 using Test;
+using System.Threading.Tasks;
 
 public class TwowaysAMI
 {
@@ -82,7 +82,7 @@ public class TwowaysAMI
         {
             Dictionary<string, Dictionary<int, int>> i = (Dictionary<string, Dictionary<int, int>>)result.AsyncState;
             Dictionary<string, Dictionary<int, int>> o;
-            Dictionary<string, Dictionary<int, int>> r = 
+            Dictionary<string, Dictionary<int, int>> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDV(out o, result);
             foreach(string key in i.Keys)
             {
@@ -94,10 +94,10 @@ public class TwowaysAMI
 
         public void opNDRI(Ice.AsyncResult result)
         {
-            Dictionary<string, Dictionary<string, string>> i = 
+            Dictionary<string, Dictionary<string, string>> i =
                 (Dictionary<string, Dictionary<string, string>>)result.AsyncState;
             Dictionary<string, Dictionary<string, string>> o;
-            Dictionary<string, Dictionary<string, string>> r = 
+            Dictionary<string, Dictionary<string, string>> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDR(out o, result);
             foreach(string key in i.Keys)
             {
@@ -124,7 +124,7 @@ public class TwowaysAMI
         {
             Dictionary<string, List<int>> i = (Dictionary<string, List<int>>)result.AsyncState;
             Dictionary<string, List<int>> o;
-            Dictionary<string, List<int>> r = 
+            Dictionary<string, List<int>> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGIS(out o, result);
             foreach(string key in i.Keys)
             {
@@ -138,7 +138,7 @@ public class TwowaysAMI
         {
             Dictionary<string, string[]> i = (Dictionary<string,string[]>)result.AsyncState;
             Dictionary<string, string[]> o;
-            Dictionary<string, string[]> r = 
+            Dictionary<string, string[]> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDASS(out o, result);
             foreach(string key in i.Keys)
             {
@@ -152,7 +152,7 @@ public class TwowaysAMI
         {
             Dictionary<string, List<string>> i = (Dictionary<string,List<string>>)result.AsyncState;
             Dictionary<string, List<string>> o;
-            Dictionary<string, List<string>> r = 
+            Dictionary<string, List<string>> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGSS(out o, result);
             foreach(string key in i.Keys)
             {

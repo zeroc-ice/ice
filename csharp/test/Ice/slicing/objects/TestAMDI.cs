@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -21,54 +22,53 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void
-    SBaseAsObjectAsync(Action<Ice.Value> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Ice.Value>
+    SBaseAsObjectAsync(Ice.Current current)
     {
-        response(new SBase("SBase.sb"));
+        return Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
     }
 
-    public override void SBaseAsSBaseAsync(Action<SBase> response, Action<Exception> exception, Ice.Current current)
+    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current)
     {
-        response(new SBase("SBase.sb"));
+        return Task.FromResult<SBase>(new SBase("SBase.sb"));
     }
 
-    public override void
-    SBSKnownDerivedAsSBaseAsync(Action<SBase> response, Action<Exception> exception, Ice.Current current)
+    public override Task<SBase>
+    SBSKnownDerivedAsSBaseAsync(Ice.Current current)
     {
-        response(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+        return Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
     }
 
-    public override void
-    SBSKnownDerivedAsSBSKnownDerivedAsync(Action<SBSKnownDerived> response, Action<Exception> exception,
-                                          Ice.Current current)
+    public override Task<SBSKnownDerived>
+    SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current)
     {
-        response(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
+        return Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
     }
 
-    public override void
-    SBSUnknownDerivedAsSBaseAsync(Action<SBase> response, Action<Exception> exception, Ice.Current current)
+    public override Task<SBase>
+    SBSUnknownDerivedAsSBaseAsync(Ice.Current current)
     {
-        response(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+        return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
     }
 
-    public override void
-    SBSUnknownDerivedAsSBaseCompactAsync(Action<SBase> response, Action<Exception> exception, Ice.Current current)
+    public override Task<SBase>
+    SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current)
     {
-        response(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
+        return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
     }
 
-    public override void SUnknownAsObjectAsync(Action<Ice.Value> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
     {
-        response(new SUnknown("SUnknown.su"));
+        return Task.FromResult<Ice.Value>(new SUnknown("SUnknown.su"));
     }
 
-    public override void checkSUnknownAsync(Ice.Value obj, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -79,18 +79,18 @@ public sealed class TestI : TestIntfDisp_
             SUnknown su = obj as SUnknown;
             test(su.su.Equals("SUnknown.su"));
         }
-        response();
+        return null;
     }
 
-    public override void oneElementCycleAsync(Action<B> response, Action<Exception> exception, Ice.Current current)
+    public override Task<B> oneElementCycleAsync(Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
         b.pb = b;
-        response(b);
+        return Task.FromResult<B>(b);
     }
 
-    public override void twoElementCycleAsync(Action<B> response, Action<Exception> exception, Ice.Current current)
+    public override Task<B> twoElementCycleAsync(Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -98,10 +98,10 @@ public sealed class TestI : TestIntfDisp_
         b2.sb = "B2.sb";
         b2.pb = b1;
         b1.pb = b2;
-        response(b1);
+        return Task.FromResult<B>(b1);
     }
 
-    public override void D1AsBAsync(Action<B> response, Action<Exception> exception, Ice.Current current)
+    public override Task<B> D1AsBAsync(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -113,10 +113,10 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(d1);
+        return Task.FromResult<B>(d1);
     }
 
-    public override void D1AsD1Async(Action<D1> response, Action<Exception> exception, Ice.Current current)
+    public override Task<D1> D1AsD1Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -128,10 +128,10 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(d1);
+        return Task.FromResult<D1>(d1);
     }
 
-    public override void D2AsBAsync(Action<B> response, Action<Exception> exception, Ice.Current current)
+    public override Task<B> D2AsBAsync(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -143,11 +143,11 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         d2.pb = d1;
         d2.pd2 = d1;
-        response(d2);
+        return Task.FromResult<B>(d2);
     }
 
-    public override void
-    paramTest1Async(Action<TestIntf_ParamTest1Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ParamTest1Result>
+    paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -159,11 +159,11 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(new TestIntf_ParamTest1Result(d1, d2));
+        return Task.FromResult<TestIntf_ParamTest1Result>(new TestIntf_ParamTest1Result(d1, d2));
     }
 
-    public override void
-    paramTest2Async(Action<TestIntf_ParamTest2Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ParamTest2Result>
+    paramTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -175,11 +175,11 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(new TestIntf_ParamTest2Result(d2, d1)); 
+        return Task.FromResult<TestIntf_ParamTest2Result>(new TestIntf_ParamTest2Result(d2, d1));
     }
 
-    public override void
-    paramTest3Async(Action<TestIntf_ParamTest3Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ParamTest3Result>
+    paramTest3Async(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -205,11 +205,11 @@ public sealed class TestI : TestIntfDisp_
         d3.pd1 = null;
         d4.pd2 = d3;
 
-        response(new TestIntf_ParamTest3Result(d3, d2, d4));
+        return Task.FromResult<TestIntf_ParamTest3Result>(new TestIntf_ParamTest3Result(d3, d2, d4));
     }
 
-    public override void
-    paramTest4Async(Action<TestIntf_ParamTest4Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ParamTest4Result>
+    paramTest4Async(Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -218,11 +218,11 @@ public sealed class TestI : TestIntfDisp_
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        response(new TestIntf_ParamTest4Result(d4.p2, d4));
+        return Task.FromResult<TestIntf_ParamTest4Result>(new TestIntf_ParamTest4Result(d4.p2, d4));
     }
 
-    public override void
-    returnTest1Async(Action<TestIntf_ReturnTest1Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ReturnTest1Result>
+    returnTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -234,11 +234,11 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(new TestIntf_ReturnTest1Result(d2, d2, d1));
+        return Task.FromResult<TestIntf_ReturnTest1Result>(new TestIntf_ReturnTest1Result(d2, d2, d1));
     }
 
-    public override void
-    returnTest2Async(Action<TestIntf_ReturnTest2Result> response, Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_ReturnTest2Result>
+    returnTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -250,24 +250,23 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        response(new TestIntf_ReturnTest2Result(d1, d1, d2));
+        return Task.FromResult<TestIntf_ReturnTest2Result>(new TestIntf_ReturnTest2Result(d1, d1, d2));
     }
 
-    public override void
-    returnTest3Async(B p1, B p2, Action<B> response, Action<Exception> exception, Ice.Current current)
+    public override Task<B>
+    returnTest3Async(B p1, B p2, Ice.Current current)
     {
-        response(p1);
+        return Task.FromResult<B>(p1);
     }
 
-    public override void
-    sequenceTestAsync(SS1 p1, SS2 p2, Action<SS3> response, Action<Exception> exception, Ice.Current current)
+    public override Task<SS3>
+    sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current)
     {
-        response(new SS3(p1, p2));
+        return Task.FromResult<SS3>(new SS3(p1, p2));
     }
 
-    public override void
-    dictionaryTestAsync(Dictionary<int, B> bin, Action<TestIntf_DictionaryTestResult> response,
-                        Action<Exception> exception, Ice.Current current)
+    public override Task<TestIntf_DictionaryTestResult>
+    dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
         int i;
@@ -292,17 +291,17 @@ public sealed class TestI : TestIntfDisp_
             d1.pd1 = d1;
             r[i * 20] = d1;
         }
-        response(new TestIntf_DictionaryTestResult(r, bout));
+        return Task.FromResult<TestIntf_DictionaryTestResult>(new TestIntf_DictionaryTestResult(r, bout));
     }
 
-    public override void
-    exchangePBaseAsync(PBase pb, Action<PBase> response, Action<Exception> exception, Ice.Current current)
+    public override Task<PBase>
+    exchangePBaseAsync(PBase pb, Ice.Current current)
     {
-        response(pb);
+        return Task.FromResult<PBase>(pb);
     }
 
-    public override void
-    PBSUnknownAsPreservedAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Preserved>
+    PBSUnknownAsPreservedAsync(Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
@@ -317,11 +316,11 @@ public sealed class TestI : TestIntfDisp_
             //
             r.cl = new MyClass(15);
         }
-        response(r);
+        return Task.FromResult<Preserved>(r);
     }
 
-    public override void
-    checkPBSUnknownAsync(Preserved p, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -338,11 +337,11 @@ public sealed class TestI : TestIntfDisp_
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
-        response();
+        return null;
     }
 
-    public override void
-    PBSUnknownAsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Preserved>
+    PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
         r.pi = 5;
@@ -352,11 +351,11 @@ public sealed class TestI : TestIntfDisp_
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        response(r);
+        return Task.FromResult<Preserved>(r);
     }
 
-    public override void
-    checkPBSUnknownWithGraphAsync(Preserved p, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -374,21 +373,21 @@ public sealed class TestI : TestIntfDisp_
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
         }
-        response();
+        return null;
     }
 
-    public override void
-    PBSUnknown2AsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Preserved>
+    PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        response(r);
+        return Task.FromResult<Preserved>(r);
     }
 
-    public override void
-    checkPBSUnknown2WithGraphAsync(Preserved p, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
         if(current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -403,26 +402,26 @@ public sealed class TestI : TestIntfDisp_
             test(pu.ps.Equals("preserved"));
             test(pu.pb == pu);
         }
-        response();
+        return null;
     }
 
-    public override void
-    exchangePNodeAsync(PNode pn, Action<PNode> response, Action<Exception> exception, Ice.Current current)
+    public override Task<PNode>
+    exchangePNodeAsync(PNode pn, Ice.Current current)
     {
-        response(pn);
+        return Task.FromResult<PNode>(pn);
     }
 
-    public override void throwBaseAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task throwBaseAsBaseAsync(Ice.Current current)
     {
         var be = new BaseException();
         be.sbe = "sbe";
         be.pb = new B();
         be.pb.sb = "sb";
         be.pb.pb = be.pb;
-        exception(be);
+        throw be;
     }
 
-    public override void throwDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task throwDerivedAsBaseAsync(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -435,11 +434,11 @@ public sealed class TestI : TestIntfDisp_
         de.pd1.pb = de.pd1;
         de.pd1.sd1 = "sd2";
         de.pd1.pd1 = de.pd1;
-        exception(de);
+        throw de;
     }
 
-    public override
-    void throwDerivedAsDerivedAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwDerivedAsDerivedAsync(Ice.Current current)
     {
         var de = new DerivedException();
         de.sbe = "sbe";
@@ -452,10 +451,10 @@ public sealed class TestI : TestIntfDisp_
         de.pd1.pb = de.pd1;
         de.pd1.sd1 = "sd2";
         de.pd1.pd1 = de.pd1;
-        exception(de);
+        throw de;
     }
 
-    public override void throwUnknownDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task throwUnknownDerivedAsBaseAsync(Ice.Current current)
     {
         var d2 = new D2();
         d2.sb = "sb d2";
@@ -469,10 +468,10 @@ public sealed class TestI : TestIntfDisp_
         ude.sude = "sude";
         ude.pd2 = d2;
 
-        exception(ude);
+        throw ude;
     }
 
-    public override void throwPreservedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
@@ -480,16 +479,16 @@ public sealed class TestI : TestIntfDisp_
         ue.p.ps = "preserved";
         ue.p.pb = ue.p;
 
-        exception(ue);
+        throw ue;
     }
 
-    public override void
-    useForwardAsync(Action<Forward> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Forward>
+    useForwardAsync(Ice.Current current)
     {
         var f = new Forward();
         f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
-        response(f);
+        return Task.FromResult<Forward>(f);
     }
 }

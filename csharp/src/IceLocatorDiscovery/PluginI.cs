@@ -52,7 +52,7 @@ namespace IceLocatorDiscovery
                         }
                         catch(AggregateException ae)
                         {
-                            SetException(ae.InnerException);
+                            exception(ae.InnerException);
                         }
                     });
             }
@@ -63,7 +63,7 @@ namespace IceLocatorDiscovery
         }
 
         private void
-        exception(Ice.Exception ex)
+        exception(Exception ex)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace IceLocatorDiscovery
             {
                 SetException(new Ice.ObjectNotExistException());
             }
-            catch(Ice.Exception)
+            catch(Exception)
             {
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
             }
@@ -106,18 +106,16 @@ namespace IceLocatorDiscovery
 
     internal class VoidLocatorI : Ice.LocatorDisp_
     {
-        public override void
-        findObjectByIdAsync(Ice.Identity id, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                            Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
-            response(null);
+            return null;
         }
 
-        public override void
-        findAdapterByIdAsync(string id, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                             Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findAdapterByIdAsync(string id, Ice.Current current)
         {
-            response(null);
+            return null;
         }
 
         public override Ice.LocatorRegistryPrx

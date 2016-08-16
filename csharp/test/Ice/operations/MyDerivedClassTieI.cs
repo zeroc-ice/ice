@@ -32,11 +32,6 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         current.adapter.getCommunicator().shutdown();
     }
 
-    public void delay(int ms, Ice.Current current)
-    {
-        System.Threading.Thread.Sleep(ms);
-    }
-
     public void opVoid(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);
@@ -739,72 +734,72 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
     public void opDerived(Ice.Current current)
     {
     }
-    
+
     public byte opByte1(byte opByte1, Ice.Current current)
     {
         return opByte1;
     }
-    
+
     public short opShort1(short opShort1, Ice.Current current)
     {
         return opShort1;
     }
-    
+
     public int opInt1(int opInt1, Ice.Current current)
     {
         return opInt1;
     }
-    
+
     public long opLong1(long opLong1, Ice.Current current)
     {
         return opLong1;
     }
-    
+
     public float opFloat1(float opFloat1, Ice.Current current)
     {
         return opFloat1;
     }
-    
+
     public double opDouble1(double opDouble1, Ice.Current current)
     {
         return opDouble1;
     }
-    
+
     public string opString1(string opString1, Ice.Current current)
     {
         return opString1;
     }
-    
+
     public string[] opStringS1(string[] opStringS1, Ice.Current current)
     {
         return opStringS1;
     }
-    
+
     public Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current)
     {
         return opByteBoolD1;
     }
-    
+
     public string[] opStringS2(string[] opStringS2, Ice.Current current)
     {
         return opStringS2;
     }
-    
+
     public Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current)
     {
         return opByteBoolD2;
     }
-    
+
     public Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current)
     {
         return c;
     }
-    
+
     public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current)
     {
         return s;
     }
-    
+
     public string[] opStringLiterals(Ice.Current current)
     {
         return new string[]
@@ -820,7 +815,7 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
                 Test.s8.value,
                 Test.s9.value,
                 Test.s10.value,
-                
+
                 Test.sw0.value,
                 Test.sw1.value,
                 Test.sw2.value,
@@ -832,14 +827,14 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
                 Test.sw8.value,
                 Test.sw9.value,
                 Test.sw10.value,
-                
+
                 Test.ss0.value,
                 Test.ss1.value,
                 Test.ss2.value,
                 Test.ss3.value,
                 Test.ss4.value,
                 Test.ss5.value,
-                
+
                 Test.su0.value,
                 Test.su1.value,
                 Test.su2.value
@@ -849,6 +844,36 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
     public string[] opWStringLiterals(Ice.Current current)
     {
         return opStringLiterals(current);
+    }
+
+    public Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
+    {
+        return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
+    }
+
+    public Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current)
+    {
+        return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
+    }
+
+    public Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current)
+    {
+        return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
+    }
+
+    public Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current)
+    {
+        return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
+    }
+
+    public Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current)
+    {
+        return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
+    }
+
+    public Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current)
+    {
+        return new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
     }
 
     private int _opByteSOnewayCallCount = 0;

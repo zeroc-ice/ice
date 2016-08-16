@@ -333,6 +333,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing marshaled results..." << flush;
+    b1 = initial->getMB();
+    test(b1 && b1->theB == b1);
+#ifdef ICE_CPP11_MAPPING
+    b1 = initial->getAMDMBAsync().get();
+#else
+    b1 = initial->end_getAMDMB(initial->begin_getAMDMB());
+#endif
+    test(b1 && b1->theB == b1);
+    cout << "ok" << endl;
+
     cout << "testing UnexpectedObjectException... " << flush;
     testUOE(communicator);
     cout << "ok" << endl;

@@ -2062,8 +2062,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional value to write.</param>
-        public void writeValue<T>(int tag, Optional<T> v)
-            where T : Value
+        public void writeValue<T>(int tag, Optional<T> v) where T : Value
         {
             if(v.HasValue)
             {

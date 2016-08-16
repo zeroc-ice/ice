@@ -95,8 +95,6 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 {
     void shutdown();
 
-    void delay(int ms);
-
     void opVoid();
 
     byte opByte(byte p1, byte p2,

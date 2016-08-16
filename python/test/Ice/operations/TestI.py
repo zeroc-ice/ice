@@ -370,3 +370,21 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opWStringLiterals(self, current=None):
         return self.opStringLiterals(current)
+
+    def opMStruct1(self, current):
+        return Test.Structure();
+
+    def opMStruct2(self, p1, current):
+        return (p1, p1);
+
+    def opMSeq1(self, current):
+        return ()
+
+    def opMSeq2(self, p1, current):
+        return (p1, p1);
+
+    def opMDict1(self, current):
+        return {};
+
+    def opMDict2(self, p1, current):
+        return (p1, p1);

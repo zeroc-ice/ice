@@ -125,9 +125,6 @@
     <Compile Include="..\Incoming.cs">
       <Link>Incoming.cs</Link>
     </Compile>
-    <Compile Include="..\IncomingAsync.cs">
-      <Link>IncomingAsync.cs</Link>
-    </Compile>
     <Compile Include="..\InputStream.cs">
       <Link>InputStream.cs</Link>
     </Compile>

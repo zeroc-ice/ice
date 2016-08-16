@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 
 public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 {
@@ -18,9 +19,8 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         _objects = new Hashtable();
     }
 
-    public override void 
-    setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Action response, Action<Exception> exception,
-                               Ice.Current current)
+    public override Task
+    setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Ice.Current current)
     {
         if(obj != null)
         {
@@ -30,12 +30,11 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         {
             _adapters.Remove(adapter);
         }
-       response();
+        return null;
     }
-  
-    public override void
-    setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj, Action response,
-                                         Action<Exception> exception, Ice.Current current)
+
+    public override Task
+    setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj,  Ice.Current current)
     {
         if(obj != null)
         {
@@ -47,14 +46,13 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
             _adapters.Remove(adapter);
             _adapters.Remove(replica);
         }
-        response();
+        return null;
     }
-  
-    public override void
-    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Action response, Action<Exception> exception,
-                               Ice.Current current)
+
+    public override Task
+    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy,  Ice.Current current)
     {
-        response();
+        return null;
     }
 
     public override void addObject(Ice.ObjectPrx obj, Ice.Current current = null)
@@ -71,7 +69,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         }
         return (Ice.ObjectPrx)obj;
     }
-    
+
     public virtual Ice.ObjectPrx getObject(Ice.Identity id)
     {
         object obj = _objects[id];
@@ -81,7 +79,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         }
         return (Ice.ObjectPrx)obj;
     }
-    
+
     private Hashtable _adapters;
     private Hashtable _objects;
 }

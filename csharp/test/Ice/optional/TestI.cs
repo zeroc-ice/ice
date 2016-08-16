@@ -301,6 +301,54 @@ public class InitialI : Test.InitialDisp_
     {
     }
 
+    public override Test.Initial_OpMStruct1MarshaledResult
+    opMStruct1(Ice.Current current)
+    {
+        return new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
+    }
+
+    public override Test.Initial_OpMStruct2MarshaledResult
+    opMStruct2(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
+    {
+        return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
+    }
+
+    public override Test.Initial_OpMSeq1MarshaledResult
+    opMSeq1(Ice.Current current)
+    {
+        return new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
+    }
+
+    public override Test.Initial_OpMSeq2MarshaledResult
+    opMSeq2(Ice.Optional<string[]> p1, Ice.Current current)
+    {
+        return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
+    }
+
+    public override Test.Initial_OpMDict1MarshaledResult
+    opMDict1(Ice.Current current)
+    {
+        return new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
+    }
+
+    public override Test.Initial_OpMDict2MarshaledResult
+    opMDict2(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+    {
+        return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
+    }
+
+    public override Test.Initial_OpMG1MarshaledResult
+    opMG1(Ice.Current current)
+    {
+        return new Test.Initial_OpMG1MarshaledResult(new Test.G(), current);
+    }
+
+    public override Test.Initial_OpMG2MarshaledResult
+    opMG2(Ice.Optional<Test.G> p1, Ice.Current current)
+    {
+        return new Test.Initial_OpMG2MarshaledResult(p1, p1, current);
+    }
+
     public override bool supportsRequiredParams(Ice.Current current)
     {
         return false;

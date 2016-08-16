@@ -16,23 +16,21 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     public MyDerivedClassI()
     {
     }
-    
-    public override void
-    echoAsync(Ice.ObjectPrx obj, Action<Ice.ObjectPrx> response, Action<Exception> exception, Ice.Current c)
+
+    public override Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c)
     {
-        response(obj);
+        return Task.FromResult<Ice.ObjectPrx>(obj);
     }
 
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
-    
-    public override void
-    getContextAsync(Action<Dictionary<string, string>> response, Action<Exception> exception, Ice.Current current)
+
+    public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current)
     {
-        response(_ctx);
+        return Task.FromResult<Dictionary<string, string>>(_ctx);
     }
 
     public override bool ice_isA(string s, Ice.Current current)

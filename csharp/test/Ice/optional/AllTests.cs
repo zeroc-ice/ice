@@ -2254,6 +2254,57 @@ public class AllTests : TestCommon.TestApp
             }
         }
         WriteLine("ok");
+
+        Write("testing optionals with marshaled results... ");
+        Flush();
+        {
+            test(initial.opMStruct1().HasValue);
+            test(initial.opMDict1().HasValue);
+            test(initial.opMSeq1().HasValue);
+            test(initial.opMG1().HasValue);
+
+            {
+                Ice.Optional<Test.SmallStruct> p1, p2, p3;
+                p3 = initial.opMStruct2(Ice.Util.None, out p2);
+                test(!p2.HasValue && !p3.HasValue);
+
+                p1 = new Test.SmallStruct();
+                p3 = initial.opMStruct2(p1, out p2);
+                test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+            }
+            {
+                Ice.Optional<string[]> p1, p2, p3;
+                p3 = initial.opMSeq2(Ice.Util.None, out p2);
+                test(!p2.HasValue && !p3.HasValue);
+
+                p1 = new string[1] { "hello" };
+                p3 = initial.opMSeq2(p1, out p2);
+                test(Ice.CollectionComparer.Equals(p2.Value, p1.Value) &&
+                     Ice.CollectionComparer.Equals(p3.Value, p1.Value));
+            }
+            {
+                Ice.Optional<Dictionary<string, int>> p1, p2, p3;
+                p3 = initial.opMDict2(Ice.Util.None, out p2);
+                test(!p2.HasValue && !p3.HasValue);
+
+                p1 = new Dictionary<string, int>();
+                p1.Value["test"] = 54;
+                p3 = initial.opMDict2(p1, out p2);
+                test(Ice.CollectionComparer.Equals(p2.Value, p1.Value) &&
+                     Ice.CollectionComparer.Equals(p3.Value, p1.Value));
+            }
+            {
+                Ice.Optional<Test.G> p1, p2, p3;
+                p3 = initial.opMG2(Ice.Util.None, out p2);
+                test(!p2.HasValue && !p3.HasValue);
+
+                p1 = new Test.G();
+                p3 = initial.opMG2(p1, out p2);
+                test(p2.HasValue && p3.HasValue && p3.Value == p2.Value);
+            }
+        }
+        WriteLine("ok");
+
         return initial;
     }
 

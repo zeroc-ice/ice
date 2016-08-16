@@ -418,6 +418,14 @@ function allTests($communicator)
     }
     echo "ok\n";
 
+    echo "testing marshaled results...";
+    flush();
+    $b1 = $initial->getMB();
+    test($b1 != null && $b1->theB == $b1);
+    $b1 = $initial->getAMDMB();
+    test($b1 != null && $b1->theB == $b1);
+    echo "ok\n";
+
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = "uoet:default -p 12010";

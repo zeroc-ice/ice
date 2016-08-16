@@ -1062,6 +1062,22 @@ function twoways($communicator, $p)
     test(count($p->opByteBoolD1(null)) == 0);
     test(count($p->opStringS2(null)) == 0);
     test(count($p->opByteBoolD2(null)) == 0);
+
+    $p1 = $p->opMStruct1();
+    $p1->e = $enum3;
+    $p3 = $p->opMStruct2($p1, $p2);
+    test($p2 == $p1 && $p3 == $p1);
+
+    $p->opMSeq1();
+    $p1 = array("test");
+    $p3 = $p->opMSeq2($p1, $p2);
+    test($p2[0] == "test" && $p3[0] == "test");
+
+    $p->opMDict1();
+
+    $p1 = array("test" => "test");
+    $p3 = $p->opMDict2($p1, $p2);
+    test($p3["test"] == "test" && $p2["test"] == "test");
 }
 
 function allTests($communicator)

@@ -29,7 +29,6 @@ public:
 private:
 
     Ice::PropertyDict _changes;
-    bool _called;
 };
 ICE_DEFINE_PTR(TestFacetIPtr, TestFacetI);
 

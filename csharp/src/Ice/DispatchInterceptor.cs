@@ -26,43 +26,14 @@ namespace Ice
         /// of <code>dispatch</code> must dispatch the request to the actual servant.
         /// </summary>
         /// <param name="request">The details of the incoming request.</param>
-        /// <returns>For synchronous dispatch, the return value must be whatever is
-        /// returned ice_dispatch. For asynchronous dispatch, the return
-        /// value must be DispatchAsync.</returns>
-        public abstract DispatchStatus 
+        /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
+        public abstract System.Threading.Tasks.Task<Ice.OutputStream>
         dispatch(Request request);
 
-        public override DispatchStatus
+        public override System.Threading.Tasks.Task<Ice.OutputStream>
         dispatch__(IceInternal.Incoming inc, Current current)
         {
-            try
-            {
-                DispatchStatus status = dispatch(inc);
-                if(status != DispatchStatus.DispatchAsync)
-                {
-                    //
-                    // Make sure 'inc' owns the connection etc.
-                    //
-                    inc.killAsync();
-                }
-                return status;
-            }
-            catch(ResponseSentException)
-            {
-                return DispatchStatus.DispatchAsync;
-            }
-            catch(System.Exception)
-            {
-                try
-                {
-                    inc.killAsync();
-                    throw;
-                }
-                catch(ResponseSentException)
-                {
-                    return DispatchStatus.DispatchAsync;
-                }
-            }
+            return dispatch(inc);
         }
     }
 }

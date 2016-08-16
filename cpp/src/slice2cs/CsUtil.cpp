@@ -29,7 +29,10 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-static string
+namespace
+{
+
+string
 lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
 {
     //
@@ -63,7 +66,7 @@ lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
 //
 // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
 //
-static StringList
+StringList
 splitScopedName(const string& scoped)
 {
     assert(scoped[0] == ':');
@@ -93,6 +96,8 @@ splitScopedName(const string& scoped)
     }
 
     return ids;
+}
+
 }
 
 //
@@ -239,7 +244,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
 
-    assert((b && b->kind() == Builtin::KindObject) || cl);
+    assert(isClassType(type));
 
     if(b)
     {
@@ -382,72 +387,72 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
     return "???";
 }
 
-ParamDeclList
-Slice::CsGenerator::getInParams(const ParamDeclList& params)
-{
-    ParamDeclList inParams;
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        if(!(*i)->isOutParam())
-        {
-            inParams.push_back(*i);
-        }
-    }
-    return inParams;
-}
-
-ParamDeclList
-Slice::CsGenerator::getOutParams(const ParamDeclList& params)
-{
-    ParamDeclList outParams;
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-    {
-        if((*i)->isOutParam())
-        {
-            outParams.push_back(*i);
-        }
-    }
-    return outParams;
-}
-
 string
-Slice::CsGenerator::resultStructName(const string& className, const string& opName, const string& scope)
+Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
-    s << scope
-      << className
+    s << className
       << "_"
       << IceUtilInternal::toUpper(opName.substr(0, 1))
       << opName.substr(1)
-      << "Result";
+      << (marshaledResult ? "MarshaledResult" : "Result");
     return s.str();
 }
 
 string
-Slice::CsGenerator::asyncResultType(const OperationPtr& op, const string& type)
+Slice::CsGenerator::resultType(const OperationPtr& op, bool dispatch)
 {
-    string t = type;
-    ParamDeclList outParams = getOutParams(op->parameters());
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
+    if(dispatch && op->hasMarshaledResult())
+    {
+        return resultStructName(cl->name(), op->name(), true);
+    }
+
+    string t;
+    ParamDeclList outParams = op->outParameters();
     if(op->returnType() || !outParams.empty())
     {
-        t += "<";
         if(outParams.empty())
         {
-            t += typeToString(op->returnType(), op->returnIsOptional(), cl->isLocal());
+            t = typeToString(op->returnType(), op->returnIsOptional(), cl->isLocal());
         }
         else if(op->returnType() || outParams.size() > 1)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-            t += resultStructName(cl->name(), op->name(), fixId(cl->scope()));
+            t = fixId(cl->scope()) + resultStructName(cl->name(), op->name());
         }
         else
         {
-            t += typeToString(outParams.front()->type(), outParams.front()->optional(), cl->isLocal());
+            t = typeToString(outParams.front()->type(), outParams.front()->optional(), cl->isLocal());
         }
-        t += ">";
     }
+
     return t;
+}
+
+string
+Slice::CsGenerator::taskResultType(const OperationPtr& op, bool dispatch)
+{
+    string t = resultType(op, dispatch);
+    if(t.empty())
+    {
+        return "_System.Threading.Tasks.Task";
+    }
+    else
+    {
+        return "_System.Threading.Tasks.Task<" + resultType(op, dispatch) + '>';
+    }
+}
+
+bool
+Slice::CsGenerator::isClassType(const TypePtr& type)
+{
+    if(ClassDeclPtr::dynamicCast(type))
+    {
+        return true;
+    }
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
 }
 
 bool
@@ -2448,10 +2453,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         string type = s.substr(clrGenericPrefix.size());
                         if(type == "LinkedList" || type == "Queue" || type == "Stack")
                         {
-                            ClassDeclPtr cd = ClassDeclPtr::dynamicCast(seq->type());
-                            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                            if(!cd && !(builtin && (builtin->kind() == Builtin::KindObject ||
-                                                    builtin->kind() == Builtin::KindValue)))
+                            if(!isClassType(seq->type()))
                             {
                                 continue;
                             }

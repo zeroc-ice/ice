@@ -45,7 +45,6 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     Ice::PropertyDict _changes;
-    bool _called;
 
 #ifdef ICE_CPP11_MAPPING
     std::function<void()> _removeCallback;

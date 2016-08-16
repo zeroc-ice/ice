@@ -331,7 +331,7 @@ def allTests(communicator)
     test(r.gg1.a == "gg1")
 
     initial2 = Test::Initial2Prx::uncheckedCast(base)
-    initial2.opVoid(15, "test");
+    initial2.opVoid(15, "test")
 
     puts "ok"
 
@@ -736,6 +736,45 @@ def allTests(communicator)
         test(ex.ss == "test")
         test(ex.o2 == ex.o)
     end
+
+    puts "ok"
+
+    print "testing optionals with marshaled results... "
+    STDOUT.flush
+
+    # TODO: Fix bug ICE-7276
+    #test(initial.opMStruct1() != Ice::Unset)
+    test(initial.opMDict1() != Ice::Unset)
+    test(initial.opMSeq1() != Ice::Unset)
+    test(initial.opMG1() != Ice::Unset)
+
+    (p3, p2) = initial.opMStruct2(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+
+    p1 = Test::SmallStruct.new()
+    (p3, p2) = initial.opMStruct2(p1)
+    test(p2 == p1 && p3 == p1)
+
+    (p3, p2) = initial.opMSeq2(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+
+    p1 = ["hello"]
+    (p3, p2) = initial.opMSeq2(p1)
+    test(p2[0] == "hello" && p3[0] == "hello")
+
+    (p3, p2) = initial.opMDict2(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+
+    p1 = {"test" => 54}
+    (p3, p2) = initial.opMDict2(p1)
+    test(p2["test"] == 54 && p3["test"] == 54)
+
+    (p3, p2) = initial.opMG2(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+
+    p1 = Test::G.new()
+    (p3, p2) = initial.opMG2(p1)
+    test(p2 != Ice::Unset && p3 != Ice::Unset && p3 == p2)
 
     puts "ok"
 

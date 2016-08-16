@@ -24,6 +24,7 @@ import test.Ice.objects.Test.EDerived;
 import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.AMD_Initial_getAMDMB;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
 
@@ -144,14 +145,26 @@ public final class InitialI extends Initial
     {
         return new HI();
     }
-    
+
     @Override
     public D1
     getD1(D1 d1, Ice.Current current)
     {
         return d1;
     }
-    
+
+    @Override
+    public B getMB(Ice.Current current)
+    {
+        return _b1;
+    }
+
+    @Override
+    public void getAMDMB_async(AMD_Initial_getAMDMB cb, Ice.Current current)
+    {
+        cb.ice_response(_b1);
+    }
+
     @Override
     public void
     throwEDerived(Ice.Current current) throws EDerived

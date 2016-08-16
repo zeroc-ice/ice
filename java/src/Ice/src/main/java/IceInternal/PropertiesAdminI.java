@@ -11,10 +11,10 @@ package IceInternal;
 
 class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePropertiesAdmin
 {
-    public PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
+    public PropertiesAdminI(Instance instance)
     {
-        _properties = properties;
-        _logger = logger;
+        _properties = instance.initializationData().properties;
+        _logger = instance.initializationData().logger;
     }
 
     @Override
@@ -32,9 +32,7 @@ class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePro
     }
 
     @Override
-    synchronized public void
-    setProperties_async(Ice.AMD_PropertiesAdmin_setProperties cb, java.util.Map<String, String> props,
-                        Ice.Current current)
+    synchronized public void setProperties(java.util.Map<String, String> props, Ice.Current current)
     {
         java.util.Map<String, String> old = _properties.getPropertiesForPrefix("");
         final int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
@@ -160,31 +158,34 @@ class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.NativePro
             _properties.setProperty(e.getKey(), "");
         }
 
-        //
-        // Send the response now so that we do not block the client during the call to the update callback.
-        //
-        cb.ice_response();
-
         if(!_updateCallbacks.isEmpty())
         {
+            java.util.Map<String, String> changes = new java.util.HashMap<String, String>(added);
+            changes.putAll(changed);
+            changes.putAll(removed);
+
             //
             // Copy the callbacks to allow callbacks to update the callbacks.
             //
             java.util.List<Ice.PropertiesAdminUpdateCallback> callbacks =
                 new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
-
-            java.util.Map<String, String> changes = new java.util.HashMap<String, String>(added);
-            changes.putAll(changed);
-            changes.putAll(removed);
             for(Ice.PropertiesAdminUpdateCallback callback : callbacks)
             {
                 try
                 {
                     callback.updated(changes);
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.Exception ex)
                 {
-                    // Ignore.
+                    if(_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        ex.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("properties admin update callback raised unexpected exception:\n" +
+                                        sw.toString());
+                    }
                 }
             }
         }

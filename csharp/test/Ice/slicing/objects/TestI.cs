@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -317,8 +318,8 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void
-    PBSUnknownAsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Preserved>
+    PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
         r.pi = 5;
@@ -328,7 +329,7 @@ public sealed class TestI : TestIntfDisp_
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        response(r);
+        return Task.FromResult<Preserved>(r);
     }
 
     public override void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
@@ -351,14 +352,14 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void
-    PBSUnknown2AsPreservedWithGraphAsync(Action<Preserved> response, Action<Exception> exception, Ice.Current current)
+    public override Task<Preserved>
+    PBSUnknown2AsPreservedWithGraphAsync( Ice.Current current)
     {
         var r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        response(r);
+        return Task.FromResult<Preserved>(r);
     }
 
     public override void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
@@ -441,15 +442,15 @@ public sealed class TestI : TestIntfDisp_
         throw ude;
     }
 
-    public override void
-    throwPreservedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwPreservedExceptionAsync( Ice.Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
         ue.p.pi = 5;
         ue.p.ps = "preserved";
         ue.p.pb = ue.p;
-        exception(ue);
+        throw ue;
     }
 
     public override void useForward(out Forward f, Ice.Current current)

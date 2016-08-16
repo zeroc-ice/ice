@@ -15,9 +15,9 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def twoways(communicator, p):
-    
+
     literals = p.opStringLiterals();
-        
+
     test(Test.s0 == "\\")
     test(Test.s0 == Test.sw0)
     test(Test.s0 == literals[0])
@@ -32,7 +32,7 @@ def twoways(communicator, p):
     test(Test.s2 == Test.sw2)
     test(Test.s2 == literals[2])
     test(Test.s2 == literals[13])
-    
+
     test(Test.s3 == "A21")
     test(Test.s3 == Test.sw3)
     test(Test.s3 == literals[3])
@@ -62,7 +62,7 @@ def twoways(communicator, p):
     test(Test.s8 == Test.sw8)
     test(Test.s8 == literals[8])
     test(Test.s8 == literals[19])
-    
+
     test(Test.s9 == "\xf0\x9f\x8d\x8c" if version_info[0] < 3 else b"\xf0\x9f\x8d\x8c".decode("utf-8"))
     test(Test.s9 == Test.sw9)
     test(Test.s9 == literals[9])
@@ -79,7 +79,7 @@ def twoways(communicator, p):
     test(Test.ss0 == literals[22])
     test(Test.ss0 == literals[23])
     test(Test.ss0 == literals[24])
-    
+
     test(Test.ss3 == "\\\\U\\u\\")
     test(Test.ss3 == literals[25])
 
@@ -1420,3 +1420,19 @@ def twoways(communicator, p):
     test(c.tesT == "Test.MyClass1.testT")
     test(c.myClass == None)
     test(c.myClass1 == "Test.MyClass1.myClass1")
+
+    p1 = p.opMStruct1()
+    p1.e = Test.MyEnum.enum3
+    (p3, p2) = p.opMStruct2(p1)
+    test(p2 == p1 and p3 == p1)
+
+    p.opMSeq1();
+    p1 = ["test"]
+    (p3, p2) = p.opMSeq2(p1)
+    test(p2[0] == "test" and p3[0] == "test");
+
+    p.opMDict1();
+
+    p1 = { "test": "test" }
+    (p3, p2) = p.opMDict2(p1)
+    test(p3["test"] == "test" and p2["test"] == "test")

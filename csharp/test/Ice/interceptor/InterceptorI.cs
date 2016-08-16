@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Threading.Tasks;
 
 class InterceptorI : Ice.DispatchInterceptor
 {
@@ -25,13 +26,13 @@ class InterceptorI : Ice.DispatchInterceptor
         }
     }
 
-    public override Ice.DispatchStatus
+    public override Task<Ice.OutputStream>
     dispatch(Ice.Request request)
     {
         Ice.Current current = request.getCurrent();
         lastOperation_ = current.operation;
 
-        if(lastOperation_.Equals("addWithRetry"))
+        if(lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
         {
             for(int i = 0; i < 10; ++i)
             {
@@ -47,15 +48,15 @@ class InterceptorI : Ice.DispatchInterceptor
                     //
                 }
             }
-            
+
             current.ctx["retry"] = "no";
         }
-      
-        lastStatus_ = servant_.ice_dispatch(request);
-        return lastStatus_;
+        var task = servant_.ice_dispatch(request);
+        lastStatus_ = task != null;
+        return task;
     }
 
-    internal Ice.DispatchStatus
+    internal bool
     getLastStatus()
     {
         return lastStatus_;
@@ -71,10 +72,10 @@ class InterceptorI : Ice.DispatchInterceptor
     clear()
     {
         lastOperation_ = null;
-        lastStatus_ = Ice.DispatchStatus.DispatchAsync;
+        lastStatus_ = false;
     }
 
     protected readonly Ice.Object servant_;
     protected string lastOperation_;
-    protected Ice.DispatchStatus lastStatus_ = Ice.DispatchStatus.DispatchAsync;
+    protected bool lastStatus_ = false;
 }

@@ -147,6 +147,30 @@ class InitialI(Test.Initial):
     def opVoid(self, current=None):
         pass
 
+    def opMStruct1(self, current):
+        return Test.SmallStruct()
+
+    def opMStruct2(self, p1, current):
+        return (p1, p1)
+
+    def opMSeq1(self, current):
+        return []
+
+    def opMSeq2(self, p1, current):
+        return (p1, p1)
+
+    def opMDict1(self, current):
+        return {}
+
+    def opMDict2(self, p1, current):
+        return (p1, p1)
+
+    def opMG1(self, current):
+        return Test.G()
+
+    def opMG2(self, p1, current):
+        return (p1, p1)
+
     def supportsRequiredParams(self, current=None):
         return False
 

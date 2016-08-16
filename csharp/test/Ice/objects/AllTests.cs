@@ -286,6 +286,14 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        Write("testing marshaled results...");
+        Flush();
+        b1 = initial.getMB();
+        test(b1 != null && b1.theB == b1);
+        b1 = initial.getAMDMBAsync().Result;
+        test(b1 != null && b1.theB == b1);
+        WriteLine("ok");
+
         Write("testing UnexpectedObjectException...");
         Flush();
         @ref = "uoet:default -p 12010";

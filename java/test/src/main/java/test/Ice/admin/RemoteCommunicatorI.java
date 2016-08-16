@@ -16,7 +16,6 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     RemoteCommunicatorI(Ice.Communicator communicator)
     {
         _communicator = communicator;
-        _called = false;
     }
 
     @Override
@@ -28,26 +27,6 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     @Override
     public synchronized java.util.Map<String, String> getChanges(Ice.Current current)
     {
-        //
-        // The client calls PropertiesAdmin::setProperties() and then invokes
-        // this operation. Since setProperties() is implemented using AMD, the
-        // client might receive its reply and then call getChanges() before our
-        // updated() method is called. We block here to ensure that updated()
-        // gets called before we return the most recent set of changes.
-        //
-        while(!_called)
-        {
-            try
-            {
-                wait();
-            }
-            catch(InterruptedException ex)
-            {
-            }
-        }
-
-        _called = false;
-
         return _changes;
     }
 
@@ -56,7 +35,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     {
         _communicator.getLogger().print(message);
     }
-    
+
     @Override
     public void trace(String category, String message, Ice.Current current)
     {
@@ -101,11 +80,8 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     public synchronized void updated(java.util.Map<String, String> changes)
     {
         _changes = changes;
-        _called = true;
-        notify();
     }
 
     private Ice.Communicator _communicator;
     private java.util.Map<String, String> _changes;
-    private boolean _called;
 }

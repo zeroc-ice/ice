@@ -744,6 +744,8 @@ endif
 
 $1::
 
+$(abspath $1): $1
+
 $1_clean::
 	$(E) "Cleaning $1"
 	$$(if $$($1_cleanfiles),$(Q)$(RM) $$(addprefix $$($1_srcdir)/,$$($1_cleanfiles)))

@@ -102,38 +102,29 @@ public class TestI : TestIntfDisp_
         return false;
     }
 
-    override public async void
-    opAsyncDispatchAsync(Action response, Action<Exception> ex, Ice.Current current)
+    override public async Task
+    opAsyncDispatchAsync(Ice.Current current)
     {
         await System.Threading.Tasks.Task.Delay(10);
-        response();
     }
 
-    override public async void
-    opWithResultAsyncDispatchAsync(Action<int> response, Action<Exception> ex, Ice.Current current)
+    override public async Task<int>
+    opWithResultAsyncDispatchAsync(Ice.Current current)
     {
         await System.Threading.Tasks.Task.Delay(10);
         test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
         var r = await self(current).opWithResultAsync();
         test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-        response(r);
+        return r;
     }
 
-    override public async void
-    opWithUEAsyncDispatchAsync(Action<int> response, Action<Exception> ex, Ice.Current current)
+    override public async Task
+    opWithUEAsyncDispatchAsync(Ice.Current current)
     {
-        try
-        {
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-            await System.Threading.Tasks.Task.Delay(10);
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-            await self(current).opWithUEAsync();
-        }
-        catch(TestIntfException e)
-        {
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-            ex(e);
-        }
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        await System.Threading.Tasks.Task.Delay(10);
+        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+        await self(current).opWithUEAsync();
     }
 
     TestIntfPrx

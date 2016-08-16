@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class ControllerI : ControllerDisp_
@@ -33,49 +34,54 @@ public sealed class ControllerI : ControllerDisp_
 
 public sealed class MetricsI : MetricsDisp_
 {
-    override public void opAsync(Action response, Action<Exception> exception, Ice.Current current)
+    override public Task opAsync(Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    override public void failAsync(Action response, Action<Exception> exception, Ice.Current current)
-    { 
+    override public Task failAsync(Ice.Current current)
+    {
         current.con.close(true);
-        response();
+        return null;
     }
 
-    override public void opWithUserExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    override public Task opWithUserExceptionAsync(Ice.Current current)
     {
-        exception(new UserEx());
+        throw new UserEx();
     }
 
-    override public void
-    opWithRequestFailedExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    override public Task
+    opWithRequestFailedExceptionAsync(Ice.Current current)
     {
-        exception(new Ice.ObjectNotExistException());
+        throw new Ice.ObjectNotExistException();
     }
 
-    override public void opWithLocalExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    override public Task
+    opWithLocalExceptionAsync(Ice.Current current)
     {
-        exception(new Ice.SyscallException());
+        throw new Ice.SyscallException();
     }
 
-    override public void opWithUnknownExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    override public Task
+    opWithUnknownExceptionAsync(Ice.Current current)
     {
-        exception(new ArgumentOutOfRangeException());
+        throw new ArgumentOutOfRangeException();
     }
 
-    override public void opByteSAsync(byte[] bs, Action response, Action<Exception> exception, Ice.Current current)
+    override public Task
+    opByteSAsync(byte[] bs, Ice.Current current)
     {
-        response();
+        return null;
     }
 
-    override public Ice.ObjectPrx getAdmin(Ice.Current current)
+    override public Ice.ObjectPrx
+    getAdmin(Ice.Current current)
     {
         return current.adapter.getCommunicator().getAdmin();
     }
 
-    override public void shutdown(Ice.Current current)
+    override public void
+    shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

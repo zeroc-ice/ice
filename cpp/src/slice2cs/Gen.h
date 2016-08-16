@@ -25,7 +25,7 @@ public:
 
 protected:
 
-    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool);
+    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false);
     void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&);
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
@@ -33,18 +33,20 @@ protected:
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
-    virtual std::vector<std::string> getParams(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsync(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool, bool);
-    virtual std::vector<std::string> getArgs(const OperationPtr&);
-    virtual std::vector<std::string> getArgsAsync(const OperationPtr&);
+
+    static std::vector<std::string> getParams(const OperationPtr&);
+    static std::vector<std::string> getInParams(const OperationPtr&);
+    static std::vector<std::string> getOutParams(const OperationPtr&, bool, bool);
+    static std::vector<std::string> getArgs(const OperationPtr&);
+    static std::vector<std::string> getInArgs(const OperationPtr&);
+    static std::string getDispatchParams(const OperationPtr&, std::string&, std::vector<std::string>&, std::vector<std::string>&);
 
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
     void emitGeneratedCodeAttribute();
     void emitPartialTypeAttributes();
 
-    std::string getParamAttributes(const ParamDeclPtr&);
+    static std::string getParamAttributes(const ParamDeclPtr&);
 
     std::string writeValue(const TypePtr&);
 
@@ -69,7 +71,7 @@ protected:
                             const std::string& = "", const std::string& = "");
     void writeDocCommentTaskAsyncAMI(const OperationPtr&, const std::string&, const std::string& = "",
                                      const std::string& = "", const std::string& = "");
-    void writeDocCommentAMD(const OperationPtr&);
+    void writeDocCommentAMD(const OperationPtr&, const std::string&);
     void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
     ::IceUtilInternal::Output& _out;
@@ -238,7 +240,7 @@ private:
     private:
 
         typedef std::set<std::string> NameSet;
-        void writeInheritedOperationsWithOpNames(const ClassDefPtr&, NameSet&);
+        void writeOperations(const ClassDefPtr&, NameSet* = 0);
     };
 
     class BaseImplVisitor : public CsVisitor

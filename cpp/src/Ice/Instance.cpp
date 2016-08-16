@@ -1388,7 +1388,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, _initData.properties, _initData.logger);
+            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 

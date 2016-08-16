@@ -645,6 +645,73 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public Ice.Optional<SmallStruct> opMStruct1(Ice.Current current)
+    {
+        return new Ice.Optional<SmallStruct>(new SmallStruct());
+    }
+
+    @Override
+    public Ice.Optional<SmallStruct>
+    opMStruct2(Ice.Optional<SmallStruct> p1, Ice.Optional<SmallStruct> p2, Ice.Current current)
+    {
+        if(p1.isSet())
+        {
+            p2.set(p1.get());
+        }
+        return p1;
+    }
+
+    @Override
+    public Ice.Optional<String[]> opMSeq1(Ice.Current current)
+    {
+        return new Ice.Optional<String[]>(new String[0]);
+    }
+
+    @Override
+    public Ice.Optional<String[]> opMSeq2(Ice.Optional<String[]> p1, Ice.Optional<String[]> p2, Ice.Current current)
+    {
+        if(p1.isSet())
+        {
+            p2.set(p1.get());
+        }
+        return p1;
+    }
+
+    @Override
+    public Ice.Optional<java.util.Map<String, Integer>> opMDict1(Ice.Current current)
+    {
+        return new Ice.Optional<java.util.Map<String, Integer>>(new java.util.HashMap<String, Integer>());
+    }
+
+    @Override
+    public Ice.Optional<java.util.Map<String, Integer>>
+    opMDict2(Ice.Optional<java.util.Map<String, Integer>> p1, Ice.Optional<java.util.Map<String, Integer>> p2,
+             Ice.Current current)
+    {
+        if(p1.isSet())
+        {
+            p2.set(p1.get());
+        }
+        return p1;
+    }
+
+    @Override
+    public Ice.Optional<G> opMG1(Ice.Current current)
+    {
+        return new Ice.Optional<G>(new G());
+    }
+
+    @Override
+    public Ice.Optional<G> opMG2(Ice.Optional<G> p1, Ice.Optional<G> p2, Ice.Current current)
+    {
+        if(p1.isSet())
+        {
+            p2.set(p1.get());
+        }
+        return p1;
+    }
+
+    @Override
     public boolean
     supportsRequiredParams(Ice.Current current)
     {

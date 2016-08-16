@@ -57,7 +57,7 @@ class D
 {
     A theA;
     B theB;
-    C theC;    
+    C theC;
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
@@ -141,7 +141,7 @@ exception EDerived extends EBase
 
 module Inner
 {
-    
+
 class A
 {
     ::Test::A theA;
@@ -179,6 +179,12 @@ class Initial
     E getE();
     F getF();
 
+    //
+    // TODO: Enable after ES6 mapping changes
+    //
+    //["marshaled-result"] B getMB();
+    //["amd", "marshaled-result"] B getAMDMB();
+
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
     I getI();
@@ -193,10 +199,10 @@ class Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
-    
+
     Inner::A getInnerA();
     Inner::Sub::A getInnerSubA();
-    
+
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
 };

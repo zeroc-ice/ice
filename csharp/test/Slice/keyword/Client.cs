@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class Client
 {
@@ -22,10 +23,10 @@ public class Client
 
     public sealed class caseI : @abstract.caseDisp_
     {
-        public override void
-        catchAsync(int @checked, Action<int> response, Action<Exception> exception, Ice.Current current__)
+        public override Task<int>
+        catchAsync(int @checked,  Ice.Current current__)
         {
-            response(0);
+            return Task<int>.FromResult(0);
         }
     }
 
@@ -46,10 +47,10 @@ public class Client
 
     public sealed class explicitI : @abstract.explicitDisp_
     {
-        public override void
-        catchAsync(int @checked, Action<int> response, Action<Exception> exception, Ice.Current current__)
+        public override Task<int>
+        catchAsync(int @checked,  Ice.Current current__)
         {
-            response(0);
+            return Task<int>.FromResult(0);
         }
 
         public override void @default(Ice.Current current)

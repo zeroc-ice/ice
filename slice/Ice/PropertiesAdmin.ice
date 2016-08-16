@@ -70,7 +70,7 @@ interface PropertiesAdmin
      * retained with their original values.
      *
      **/
-    ["amd"] void setProperties(PropertyDict newProperties);
+    void setProperties(PropertyDict newProperties);
 };
 
 };

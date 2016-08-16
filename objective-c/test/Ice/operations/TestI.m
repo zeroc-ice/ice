@@ -763,6 +763,41 @@
     return [self opStringLiterals:current];
 }
 
+-(TestOperationsStructure*) opMStruct1:(ICECurrent *)current
+{
+    return [TestOperationsStructure structure];
+}
+-(TestOperationsStructure*) opMStruct2:(TestOperationsStructure*)p1 p2:(TestOperationsStructure**)p2
+                               current:(ICECurrent *)current
+{
+    *p2 = p1;
+    return p1;
+}
+
+-(TestOperationsStringS*) opMSeq1:(ICECurrent *)current
+{
+    return [TestOperationsStringS array];
+}
+
+-(TestOperationsStringS*) opMSeq2:(TestOperationsMutableStringS*)p1 p2:(TestOperationsStringS**)p2
+                          current:(ICECurrent *)current
+{
+    *p2 = p1;
+    return p1;
+}
+
+-(TestOperationsStringStringD*) opMDict1:(ICECurrent *)current
+{
+    return [TestOperationsStringStringD dictionary];
+}
+
+-(TestOperationsStringStringD*) opMDict2:(TestOperationsMutableStringStringD*)p1 p2:(TestOperationsStringStringD**)p2
+                                 current:(ICECurrent *)current
+{
+    *p2 = p1;
+    return p1;
+}
+
 -(TestOperationsMyClass1*) opMyClass1:(TestOperationsMyClass1*)p current:(ICECurrent*)current
 {
     return p;

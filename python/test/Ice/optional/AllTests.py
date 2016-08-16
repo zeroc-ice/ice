@@ -794,4 +794,42 @@ def allTests(communicator):
 
     print("ok")
 
+    sys.stdout.write("testing optionals with marshaled results... ")
+    sys.stdout.flush()
+
+    test(initial.opMStruct1() != Ice.Unset);
+    test(initial.opMDict1() != Ice.Unset);
+    test(initial.opMSeq1() != Ice.Unset);
+    test(initial.opMG1() != Ice.Unset);
+
+    (p3, p2) = initial.opMStruct2(Ice.Unset);
+    test(p2 == Ice.Unset and p3 == Ice.Unset);
+
+    p1 = Test.SmallStruct();
+    (p3, p2) = initial.opMStruct2(p1)
+    test(p2 == p1 and p3 == p1)
+
+    (p3, p2) = initial.opMSeq2(Ice.Unset)
+    test(p2 == Ice.Unset and p3 == Ice.Unset)
+
+    p1 = ["hello"]
+    (p3, p2) = initial.opMSeq2(p1);
+    test(p2[0] == "hello" and p3[0] == "hello")
+
+    (p3, p2) = initial.opMDict2(Ice.Unset)
+    test(p2 == Ice.Unset and p3 == Ice.Unset)
+
+    p1 = {"test" : 54}
+    (p3, p2) = initial.opMDict2(p1)
+    test(p2["test"] == 54 and p3["test"] == 54)
+
+    (p3, p2) = initial.opMG2(Ice.Unset)
+    test(p2 == Ice.Unset and p3 == Ice.Unset)
+
+    p1 = Test.G();
+    (p3, p2) = initial.opMG2(p1);
+    test(p2 != Ice.Unset and p3 != Ice.Unset and p3 == p2);
+
+    print("ok")
+
     return initial

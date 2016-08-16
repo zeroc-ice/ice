@@ -247,6 +247,14 @@ def allTests(communicator)
     end
     puts "ok"
 
+    print "testing marshaled results..."
+    STDOUT.flush
+    b1 = initial.getMB()
+    test(b1 != nil && b1.theB == b1);
+    b1 = initial.getAMDMB()
+    test(b1 != nil && b1.theB == b1);
+    puts "ok"
+
     print "testing UnexpectedObjectException... "
     STDOUT.flush
     ref = "uoet:default -p 12010"

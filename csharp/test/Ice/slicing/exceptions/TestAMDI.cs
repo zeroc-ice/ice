@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -20,146 +21,121 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdownAsync(Action response, Action<Exception> exception,Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void baseAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task baseAsBaseAsync(Ice.Current current)
     {
-        exception(new Base("Base.b"));
+        throw new Base("Base.b");
     }
 
-    public override void unknownDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task unknownDerivedAsBaseAsync(Ice.Current current)
     {
-        exception(new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud"));
+        throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
     }
 
-    public override void knownDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task knownDerivedAsBaseAsync(Ice.Current current)
     {
-        exception(new KnownDerived("KnownDerived.b", "KnownDerived.kd"));
+        throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
     }
 
-    public override void
-    knownDerivedAsKnownDerivedAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownDerivedAsKnownDerivedAsync(Ice.Current current)
     {
-        exception(new KnownDerived("KnownDerived.b", "KnownDerived.kd"));
+        throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
     }
 
-    public override void
-    unknownIntermediateAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownIntermediateAsBaseAsync(Ice.Current current)
     {
-        exception(new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui"));
+        throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
     }
 
-    public override void
-    knownIntermediateAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownIntermediateAsBaseAsync(Ice.Current current)
     {
-        exception(new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki"));
+        throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
     }
 
-    public override void
-    knownMostDerivedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownMostDerivedAsBaseAsync(Ice.Current current)
     {
-        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override void
-    knownIntermediateAsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownIntermediateAsKnownIntermediateAsync(Ice.Current current)
     {
-        exception(new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki"));
+        throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
     }
 
-    public override void
-    knownMostDerivedAsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownMostDerivedAsKnownIntermediateAsync(Ice.Current current)
     {
-        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override void
-    knownMostDerivedAsKnownMostDerivedAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownMostDerivedAsKnownMostDerivedAsync(Ice.Current current)
     {
-        exception(new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"));
+        throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override void
-    unknownMostDerived1AsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownMostDerived1AsBaseAsync(Ice.Current current)
     {
-        exception(new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", 
-                                          "UnknownMostDerived1.umd1"));
+        throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
     }
 
-    public override void
-    unknownMostDerived1AsKnownIntermediateAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownMostDerived1AsKnownIntermediateAsync(Ice.Current current)
     {
-        exception(new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki",
-                                          "UnknownMostDerived1.umd1"));
+        throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
     }
 
-    public override void
-    unknownMostDerived2AsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownMostDerived2AsBaseAsync(Ice.Current current)
     {
-        exception(new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui",
-                                          "UnknownMostDerived2.umd2"));
+        throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
     }
 
-    public override void
-    unknownMostDerived2AsBaseCompactAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownMostDerived2AsBaseCompactAsync(Ice.Current current)
     {
-        exception(new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui",
-                                          "UnknownMostDerived2.umd2"));
+        throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
     }
 
-    public override void knownPreservedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task knownPreservedAsBaseAsync(Ice.Current current)
     {
-        exception(new KnownPreservedDerived("base", "preserved", "derived"));
+        throw new KnownPreservedDerived("base", "preserved", "derived");
     }
 
-    public override void
-    knownPreservedAsKnownPreservedAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    knownPreservedAsKnownPreservedAsync(Ice.Current current)
     {
-        exception(new KnownPreservedDerived("base", "preserved", "derived"));
+        throw new KnownPreservedDerived("base", "preserved", "derived");
     }
 
-    public override void
-    relayKnownPreservedAsBaseAsync(RelayPrx r, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    relayKnownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        try
-        {
-            r.knownPreservedAsBase();
-            test(false);
-        }
-        catch(Ice.UserException ex)
-        {
-            exception(ex);
-        }
-        catch(Ice.LocalException ex)
-        {
-            exception(ex);
-        }
+        r.knownPreservedAsBase();
+        test(false);
+        return null;
     }
 
-    public override void
-    relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Action response, Action<Exception> exception,
-                                             Ice.Current current)
+    public override Task
+    relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        try
-        {
-            r.knownPreservedAsKnownPreserved();
-            test(false);
-        }
-        catch(Ice.UserException ex)
-        {
-            exception(ex);
-        }
-        catch(Ice.LocalException ex)
-        {
-            exception(ex);
-        }
+        r.knownPreservedAsKnownPreserved();
+        test(false);
+        return null;
     }
 
-    public override void unknownPreservedAsBaseAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task unknownPreservedAsBaseAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -167,11 +143,11 @@ public sealed class TestI : TestIntfDisp_
         ex.kpd = "derived";
         ex.p1 = new SPreservedClass("bc", "spc");
         ex.p2 = ex.p1;
-        exception(ex);
+        throw ex;
     }
 
-    public override void
-    unknownPreservedAsKnownPreservedAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    unknownPreservedAsKnownPreservedAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -179,44 +155,22 @@ public sealed class TestI : TestIntfDisp_
         ex.kpd = "derived";
         ex.p1 = new SPreservedClass("bc", "spc");
         ex.p2 = ex.p1;
-        exception(ex);
+        throw ex;
     }
 
-    public override void
-    relayUnknownPreservedAsBaseAsync(RelayPrx r, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    relayUnknownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        try
-        {
-            r.unknownPreservedAsBase();
-            test(false);
-        }
-        catch(Ice.UserException ex)
-        {
-            exception(ex);
-        }
-        catch(Ice.LocalException ex)
-        {
-            exception(ex);
-        }
+        r.unknownPreservedAsBase();
+        test(false);
+        return null;
     }
 
-    public override void
-    relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Action response, Action<Exception> exception,
-                                               Ice.Current current)
+    public override Task
+    relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        try
-        {
-            r.unknownPreservedAsKnownPreserved();
-            test(false);
-        }
-        catch(Ice.UserException ex)
-        {
-            exception(ex);
-        }
-        catch(Ice.LocalException ex)
-        {
-            exception(ex);
-        }
-
+        r.unknownPreservedAsKnownPreserved();
+        test(false);
+        return null;
     }
 }

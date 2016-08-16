@@ -35,7 +35,7 @@ interface TestIntf
 
     ["amd"] void opAsyncDispatch();
     ["amd"] int opWithResultAsyncDispatch();
-    ["amd"] int opWithUEAsyncDispatch()
+    ["amd"] void opWithUEAsyncDispatch()
         throws TestIntfException;
 };
 

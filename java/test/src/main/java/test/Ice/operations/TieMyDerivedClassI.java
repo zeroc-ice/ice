@@ -34,19 +34,6 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
 
     @Override
     public void
-    delay(int ms, Ice.Current current)
-    {
-        try
-        {
-            Thread.sleep(ms);
-        }
-        catch(InterruptedException ex)
-        {
-        }
-    }
-
-    @Override
-    public void
     opVoid(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);
@@ -718,79 +705,79 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     opDerived(Ice.Current current)
     {
     }
-    
+
     @Override
     public byte opByte1(byte value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public short opShort1(short value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public int opInt1(int value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public long opLong1(long value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public float opFloat1(float value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public double opDouble1(double value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public String opString1(String value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public String[] opStringS1(String[] value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public Map<Byte, Boolean> opByteBoolD1(Map<Byte, Boolean> value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public String[] opStringS2(String[] value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public Map<Byte, Boolean> opByteBoolD2(Map<Byte, Boolean> value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public MyClass1 opMyClass1(MyClass1 value, Ice.Current current)
     {
         return value;
     }
-    
+
     @Override
     public MyStruct1 opMyStruct1(MyStruct1 value, Ice.Current current)
     {
@@ -813,7 +800,7 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
                 s8.value,
                 s9.value,
                 s10.value,
-                
+
                 sw0.value,
                 sw1.value,
                 sw2.value,
@@ -825,24 +812,65 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
                 sw8.value,
                 sw9.value,
                 sw10.value,
-                
+
                 ss0.value,
                 ss1.value,
                 ss2.value,
                 ss3.value,
                 ss4.value,
                 ss5.value,
-                
+
                 su0.value,
                 su1.value,
                 su2.value
             };
     }
-    
+
     @Override
     public String[] opWStringLiterals(Ice.Current current)
     {
         return opStringLiterals(current);
+    }
+
+    @Override
+    public Structure opMStruct1(Ice.Current current)
+    {
+        return new Structure();
+    }
+
+    @Override
+    public Structure opMStruct2(Structure p1, StructureHolder p2, Ice.Current current)
+    {
+        p2.value = p1;
+        return p1;
+    }
+
+    @Override
+    public String[] opMSeq1(Ice.Current current)
+    {
+        return new String[0];
+    }
+
+    @Override
+    public String[] opMSeq2(String[] p1, StringSHolder p2, Ice.Current current)
+    {
+        p2.value = p1;
+        return p1;
+    }
+
+    @Override
+    public java.util.Map<String, String> opMDict1(Ice.Current current)
+    {
+        return new java.util.HashMap<String, String>();
+    }
+
+    @Override
+    public java.util.Map<String, String> opMDict2(java.util.Map<String, String> p1,
+                                                  StringStringDHolder p2,
+                                                  Ice.Current current)
+    {
+        p2.value = p1;
+        return p1;
     }
 
     private int _opByteSOnewayCallCount = 0;

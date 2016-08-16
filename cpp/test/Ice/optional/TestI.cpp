@@ -427,6 +427,66 @@ InitialI::opVoid(const Ice::Current&)
 {
 }
 
+IceUtil::Optional<Test::SmallStruct>
+InitialI::opMStruct1(const Ice::Current&)
+{
+    return Test::SmallStruct();
+}
+
+IceUtil::Optional<Test::SmallStruct>
+InitialI::opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>) p1,
+                     IceUtil::Optional<Test::SmallStruct>& p2,
+                     const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
+IceUtil::Optional<Test::StringSeq>
+InitialI::opMSeq1(const Ice::Current&)
+{
+    return Test::StringSeq();
+}
+
+IceUtil::Optional<Test::StringSeq>
+InitialI::opMSeq2(ICE_IN(IceUtil::Optional<Test::StringSeq>) p1,
+                  IceUtil::Optional<Test::StringSeq>& p2,
+                  const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
+IceUtil::Optional<Test::StringIntDict>
+InitialI::opMDict1(const Ice::Current&)
+{
+    return Test::StringIntDict();
+}
+
+IceUtil::Optional<Test::StringIntDict>
+InitialI::opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>) p1,
+                   IceUtil::Optional<Test::StringIntDict>& p2,
+                   const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
+IceUtil::Optional<Test::GPtr>
+InitialI::opMG1(const Ice::Current&)
+{
+    return ICE_MAKE_SHARED(G);
+}
+
+IceUtil::Optional<Test::GPtr>
+InitialI::opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>) p1,
+                IceUtil::Optional<Test::GPtr>& p2,
+                const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {

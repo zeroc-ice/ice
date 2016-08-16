@@ -11,6 +11,7 @@ namespace IceDiscovery
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     class Request<T>
     {
@@ -26,7 +27,7 @@ namespace IceDiscovery
             return _id;
         }
 
-        public bool addCallback(Action<Ice.ObjectPrx> cb)
+        public bool addCallback(TaskCompletionSource<Ice.ObjectPrx> cb)
         {
             callbacks_.Add(cb);
             return callbacks_.Count == 1;
@@ -39,7 +40,7 @@ namespace IceDiscovery
 
         protected LookupI lookup_;
         protected int nRetry_;
-        protected List<Action<Ice.ObjectPrx>> callbacks_ = new List<Action<Ice.ObjectPrx>>();
+        protected List<TaskCompletionSource<Ice.ObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.ObjectPrx>>();
 
         private T _id;
     };
@@ -112,7 +113,7 @@ namespace IceDiscovery
         {
             foreach(var cb in callbacks_)
             {
-                cb(proxy);
+                cb.SetResult(proxy);
             }
             callbacks_.Clear();
         }
@@ -137,7 +138,7 @@ namespace IceDiscovery
         {
             foreach(var cb in callbacks_)
             {
-                cb(proxy);
+                cb.SetResult(proxy);
             }
             callbacks_.Clear();
         }
@@ -217,7 +218,7 @@ namespace IceDiscovery
             }
         }
 
-        internal void findObject(Ice.Identity id, Action<Ice.ObjectPrx> response)
+        internal Task<Ice.ObjectPrx> findObject(Ice.Identity id)
         {
             lock(this)
             {
@@ -228,7 +229,8 @@ namespace IceDiscovery
                     _objectRequests.Add(id, request);
                 }
 
-                if(request.addCallback(response))
+                var task = new TaskCompletionSource<Ice.ObjectPrx>();
+                if(request.addCallback(task))
                 {
                     try
                     {
@@ -241,10 +243,11 @@ namespace IceDiscovery
                         _objectRequests.Remove(id);
                     }
                 }
+                return task.Task;
             }
         }
 
-        internal void findAdapter(string adapterId, Action<Ice.ObjectPrx> response)
+        internal Task<Ice.ObjectPrx> findAdapter(string adapterId)
         {
             lock(this)
             {
@@ -255,7 +258,8 @@ namespace IceDiscovery
                     _adapterRequests.Add(adapterId, request);
                 }
 
-                if(request.addCallback(response))
+                var task = new TaskCompletionSource<Ice.ObjectPrx>();
+                if(request.addCallback(task))
                 {
                     try
                     {
@@ -268,6 +272,7 @@ namespace IceDiscovery
                         _adapterRequests.Remove(adapterId);
                     }
                 }
+                return task.Task;
             }
         }
 

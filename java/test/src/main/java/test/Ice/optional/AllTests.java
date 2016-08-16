@@ -2366,6 +2366,59 @@ public class AllTests
             throw new RuntimeException(ex);
         }
 
+        out.print("testing optionals with marshaled results... ");
+        out.flush();
+        {
+            test(initial.opMStruct1().isSet());
+            test(initial.opMDict1().isSet());
+            test(initial.opMSeq1().isSet());
+            test(initial.opMG1().isSet());
+
+            {
+                Ice.Optional<SmallStruct> p1 = new Ice.Optional<SmallStruct>();
+                Ice.Optional<SmallStruct> p2 = new Ice.Optional<SmallStruct>();
+                Ice.Optional<SmallStruct> p3 = initial.opMStruct2(p1, p2);
+                test(!p2.isSet() && !p3.isSet());
+
+                p1.set(new SmallStruct());
+                p3 = initial.opMStruct2(p1, p2);
+                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+            }
+            {
+                Ice.Optional<String[]> p1 = new Ice.Optional<String[]>();
+                Ice.Optional<String[]> p2 = new Ice.Optional<String[]>();
+                Ice.Optional<String[]> p3 = initial.opMSeq2(p1, p2);
+                test(!p2.isSet() && !p3.isSet());
+
+                p1.set(new String[1]);
+                p1.get()[0] = "hello";
+                p3 = initial.opMSeq2(p1, p2);
+                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+            }
+            {
+                Ice.Optional<java.util.Map<String, Integer>> p1 = new Ice.Optional<java.util.Map<String, Integer>>();
+                Ice.Optional<java.util.Map<String, Integer>> p2 = new Ice.Optional<java.util.Map<String, Integer>>();
+                Ice.Optional<java.util.Map<String, Integer>> p3 = initial.opMDict2(p1, p2);
+                test(!p2.isSet() && !p3.isSet());
+
+                p1.set(new java.util.HashMap<String, Integer>());
+                p1.get().put("test", 54);
+                p3 = initial.opMDict2(p1, p2);
+                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+            }
+            {
+                Ice.Optional<G> p1 = new Ice.Optional<G>();
+                Ice.Optional<G> p2 = new Ice.Optional<G>();
+                Ice.Optional<G> p3 = initial.opMG2(p1, p2);
+                test(!p2.isSet() && !p3.isSet());
+
+                p1.set(new G());
+                p3 = initial.opMG2(p1, p2);
+                test(p2.isSet() && p3.isSet() && p3.get() == p2.get());
+            }
+        }
+        out.println("ok");
+
         return initial;
     }
 

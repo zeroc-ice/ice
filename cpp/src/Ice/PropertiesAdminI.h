@@ -31,15 +31,12 @@ class PropertiesAdminI : public Ice::PropertiesAdmin, public Ice::NativeProperti
 {
 public:
 
-    PropertiesAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    PropertiesAdminI(const InstancePtr&);
 
 #ifdef ICE_CPP11_MAPPING
     virtual std::string getProperty(std::string, const Ice::Current&) override;
     virtual Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&) override;
-    virtual void setPropertiesAsync(::Ice::PropertyDict,
-                                    ::std::function<void()>,
-                                    ::std::function<void(::std::exception_ptr)>,
-                                    const Ice::Current&) override;
+    virtual void setProperties(::Ice::PropertyDict, const Ice::Current&) override;
 
     virtual std::function<void()> addUpdateCallback(std::function<void(const Ice::PropertyDict&)>) override;
     void removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator);
@@ -47,7 +44,7 @@ public:
 #else
     virtual std::string getProperty(const std::string&, const Ice::Current&);
     virtual Ice::PropertyDict getPropertiesForPrefix(const std::string&, const Ice::Current&);
-    virtual void setProperties_async(const Ice::AMD_PropertiesAdmin_setPropertiesPtr&, const Ice::PropertyDict&, const Ice::Current&);
+    virtual void setProperties(const Ice::PropertyDict&, const Ice::Current&);
 
     virtual void addUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
     virtual void removeUpdateCallback(const Ice::PropertiesAdminUpdateCallbackPtr&);
@@ -63,6 +60,7 @@ private:
 #else
     std::vector<Ice::PropertiesAdminUpdateCallbackPtr> _updateCallbacks;
 #endif
+
 };
 ICE_DEFINE_PTR(PropertiesAdminIPtr, PropertiesAdminI);
 

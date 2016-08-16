@@ -14,33 +14,6 @@ using System.Diagnostics;
 namespace Ice
 {
     /// <summary>
-    /// Indicates the status of operation dispatch.
-    /// </summary>
-    public enum DispatchStatus
-    {
-        /// <summary>
-        /// Indicates that an operation was dispatched synchronously and successfully.
-        /// </summary>
-        DispatchOK,
-
-        /// <summary>
-        /// Indicates that an operation was dispatched synchronously and raised a user exception.
-        /// </summary>
-        DispatchUserException,
-
-        /// <summary>
-        /// Indicates that an operation was dispatched asynchronously.
-        /// </summary>
-        DispatchAsync
-    }
-
-    public interface DispatchInterceptorAsyncCallback
-    {
-        bool response(bool ok);
-        bool exception(System.Exception ex);
-    }
-
-    /// <summary>
     /// Interface for incoming requests.
     /// </summary>
     public interface Request
@@ -93,20 +66,10 @@ namespace Ice
         /// to a servant (or to another interceptor).
         /// </summary>
         /// <param name="request">The details of the invocation.</param>
-        /// <param name="cb">The callback object for asynchchronous dispatch. For synchronous dispatch,
-        /// the callback object must be null.</param>
-        /// <returns>The dispatch status for the operation.</returns>
-        DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
+        /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
+        Task<Ice.OutputStream> ice_dispatch(Request request);
 
-        /// <summary>
-        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-        /// to a servant (or to another interceptor).
-        /// </summary>
-        /// <param name="request">The details of the invocation.</param>
-        /// <returns>The dispatch status for the operation.</returns>
-        DispatchStatus ice_dispatch(Request request);
-
-        DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
+        Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inc, Current current);
     }
 
     /// <summary>
@@ -147,16 +110,17 @@ namespace Ice
             return s.Equals(ids__[0]);
         }
 
-        public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
+        public static Task<Ice.OutputStream> ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             InputStream is__ = inS__.startReadParams();
-            string __id = is__.readString();
+            var __id = is__.readString();
             inS__.endReadParams();
-            bool __ret = __obj.ice_isA(__id, __current);
-            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            var __ret = __obj.ice_isA(__id, __current);
+            var os__ = inS__.startWriteParams();
             os__.writeBool(__ret);
-            inS__.endWriteParams__(true);
-            return DispatchStatus.DispatchOK;
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
+            return null;
         }
 
         /// <summary>
@@ -168,12 +132,12 @@ namespace Ice
             // Nothing to do.
         }
 
-        public static DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
+        public static Task<Ice.OutputStream> ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
             __obj.ice_ping(__current);
-            inS__.writeEmptyParams__();
-            return DispatchStatus.DispatchOK;
+            inS__.setResult(inS__.writeEmptyParams());
+            return null;
         }
 
         /// <summary>
@@ -186,14 +150,15 @@ namespace Ice
             return ids__;
         }
 
-        public static DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
+        public static Task<Ice.OutputStream> ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
-            string[] ret__ = __obj.ice_ids(__current);
-            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            var ret__ = __obj.ice_ids(__current);
+            var os__ = inS__.startWriteParams();
             os__.writeStringSeq(ret__);
-            inS__.endWriteParams__(true);
-            return DispatchStatus.DispatchOK;
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
+            return null;
         }
 
         /// <summary>
@@ -206,14 +171,15 @@ namespace Ice
             return ids__[0];
         }
 
-        public static DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
+        public static Task<Ice.OutputStream> ice_id___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
-            string __ret = __obj.ice_id(__current);
-            OutputStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
+            var __ret = __obj.ice_id(__current);
+            var os__ = inS__.startWriteParams();
             os__.writeString(__ret);
-            inS__.endWriteParams__(true);
-            return DispatchStatus.DispatchOK;
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
+            return null;
         }
 
         /// <summary>
@@ -235,42 +201,15 @@ namespace Ice
         /// to a servant (or to another interceptor).
         /// </summary>
         /// <param name="request">The details of the invocation.</param>
-        /// <param name="cb">The callback object for asynchchronous dispatch. For synchronous dispatch, the
-        /// callback object must be null.</param>
-        /// <returns>The dispatch status for the operation.</returns>
-        public virtual DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
+        /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
+        public virtual Task<Ice.OutputStream> ice_dispatch(Request request)
         {
-            IceInternal.Incoming inc = (IceInternal.Incoming)request;
-            if(cb != null)
-            {
-                inc.push(cb);
-            }
-            try
-            {
-                inc.startOver(); // may raise ResponseSentException
-                return dispatch__(inc, inc.getCurrent());
-            }
-            finally
-            {
-                if(cb != null)
-                {
-                    inc.pop();
-                }
-            }
+            var inc = (IceInternal.Incoming)request;
+            inc.startOver();
+            return dispatch__(inc, inc.getCurrent());
         }
 
-        /// <summary>
-        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-        /// to a servant (or to another interceptor).
-        /// </summary>
-        /// <param name="request">The details of the invocation.</param>
-        /// <returns>The dispatch status for the operation.</returns>
-        public virtual DispatchStatus ice_dispatch(Request request)
-        {
-            return ice_dispatch(request, null);
-        }
-
-        public virtual DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public virtual Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inc, Current current)
         {
             int pos = System.Array.BinarySearch(all__, current.operation);
             if(pos < 0)
@@ -364,20 +303,13 @@ namespace Ice
         /// Ice run-time exception, it must throw it directly.</returns>
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
-        public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
+        public override Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inS, Current current)
         {
-            byte[] inEncaps = inS__.readParamEncaps();
+            byte[] inEncaps = inS.readParamEncaps();
             byte[] outEncaps;
             bool ok = ice_invoke(inEncaps, out outEncaps, current);
-            inS__.writeParamEncaps__(outEncaps, ok);
-            if(ok)
-            {
-                return DispatchStatus.DispatchOK;
-            }
-            else
-            {
-                return DispatchStatus.DispatchUserException;
-            }
+            inS.setResult(inS.writeParamEncaps(outEncaps, ok));
+            return null;
         }
     }
 
@@ -385,34 +317,14 @@ namespace Ice
     {
         public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
-        public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
+        public override Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inS, Current current)
         {
-            byte[] inEncaps = inS__.readParamEncaps();
-            var in__ = new IceInternal.IncomingAsync(inS__);
-
-            try
+            byte[] inEncaps = inS.readParamEncaps();
+            return ice_invokeAsync(inEncaps, current).ContinueWith((Task<Ice.Object_Ice_invokeResult> t) =>
             {
-                ice_invokeAsync(inEncaps, current).ContinueWith(
-                    (t) =>
-                    {
-                        try
-                        {
-                            var ret__ = t.Result;
-                            in__.writeParamEncaps__(ret__.outEncaps, ret__.returnValue);
-                        }
-                        catch(AggregateException ae)
-                        {
-                            in__.exception__(ae.InnerException);
-                            return;
-                        }
-                        in__.response__();
-                    });
-            }
-            catch(System.Exception ex)
-            {
-                in__.ice_exception(ex);
-            }
-            return DispatchStatus.DispatchAsync;
+                var ret = t.GetAwaiter().GetResult();
+                return Task.FromResult<Ice.OutputStream>(inS.writeParamEncaps(ret.outEncaps, ret.returnValue));
+            }).Unwrap();
         }
     }
 }

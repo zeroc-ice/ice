@@ -195,6 +195,15 @@
     return _f;
 }
 
+-(TestObjectsB*) getMB:(ICECurrent*)current
+{
+    return _b1;
+}
+
+-(TestObjectsB*) getAMDMB:(ICECurrent*)current
+{
+    return _b1;
+}
 
 -(void) getAll:(TestObjectsB **)b1 b2:(TestObjectsB **)b2 theC:(TestObjectsC **)theC theD:(TestObjectsD **)theD current:(ICECurrent *)current;
 {

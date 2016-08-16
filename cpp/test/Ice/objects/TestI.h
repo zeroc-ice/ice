@@ -96,8 +96,18 @@ public:
     virtual Test::DPtr getD(const Ice::Current&);
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
+
+    virtual Test::BPtr getMB(const Ice::Current&);
+#ifdef ICE_CPP11_MAPPING
+    virtual void getAMDMBAsync(std::function<void(const std::shared_ptr<Test::B>&)>,
+                               std::function<void(std::exception_ptr)>,
+                               const Ice::Current&);
+#else
+    virtual void getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr&, const Ice::Current&);
+#endif
+
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
-    
+
 #ifdef ICE_CPP11_MAPPING
     virtual ::std::shared_ptr<::Ice::Value> getI(const Ice::Current&);
     virtual ::std::shared_ptr<::Ice::Value> getJ(const Ice::Current&);
@@ -119,13 +129,13 @@ public:
     virtual Test::BaseSeq opBaseSeq(ICE_IN(Test::BaseSeq), Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);
-    
+
     virtual Test::Inner::APtr getInnerA(const Ice::Current&);
     virtual Test::Inner::Sub::APtr getInnerSubA(const Ice::Current&);
-    
+
     virtual void throwInnerEx(const Ice::Current&);
     virtual void throwInnerSubEx(const Ice::Current&);
-    
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

@@ -260,6 +260,14 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing marshaled results...");
+        out.flush();
+        b1 = initial.getMB();
+        test(b1 != null && b1.theB == b1);
+        b1 = initial.end_getAMDMB(initial.begin_getAMDMB());
+        test(b1 != null && b1.theB == b1);
+        out.println("ok");
+
         out.print("testing UnexpectedObjectException...");
         out.flush();
         ref = "uoet:default -p 12010";

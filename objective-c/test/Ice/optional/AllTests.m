@@ -1744,5 +1744,52 @@ optionalAllTests(id<ICECommunicator> communicator)
     }
     tprintf("ok\n");
 
+    tprintf("testing optionals with marshaled results... ");
+    {
+        test([initial opMStruct1]);
+        test([initial opMDict1]);
+        test([initial opMSeq1]);
+        test([initial opMG1]);
+
+        {
+            id p1, p2, p3;
+            p3 = [initial opMStruct2:ICENone p2:&p2];
+            test(p2 == ICENone && p3 == ICENone);
+
+            p1 = [TestOptionalSmallStruct smallStruct];
+            p3 = [initial opMStruct2:p1 p2:&p2];
+            test([p2 isEqual:p1] && [p3 isEqual:p1]);
+        }
+        {
+            id p1, p2, p3;
+            p3 = [initial opMSeq2:ICENone p2:&p2];
+            test(p2 == ICENone && p3 == ICENone);
+
+            p1 = [TestOptionalStringSeq arrayWithObject:@"hello"];
+            p3 = [initial opMSeq2:p1 p2:&p2];
+            test([[p2 objectAtIndex:0] isEqualToString:@"hello"] &&
+                 [[p3 objectAtIndex:0] isEqualToString:@"hello"]);
+        }
+        {
+            id p1, p2, p3;
+            p3 = [initial opMDict2:ICENone p2:&p2];
+            test(p2 == ICENone && p3 == ICENone);
+
+            p1 = [TestOptionalStringIntDict dictionaryWithObjectsAndKeys:@54, @"test", nil];
+            p3 = [initial opMDict2:p1 p2:&p2];
+            test([[p2 objectForKey:@"test"] isEqual:@54] && [[p3 objectForKey:@"test"] isEqual:@54]);
+        }
+        {
+            id p1, p2, p3;
+            p3 = [initial opMG2:ICENone p2:&p2];
+            test(p2 == ICENone && p3 == ICENone);
+
+            p1 = [TestOptionalG g];
+            p3 = [initial opMG2:p1 p2:&p2];
+            test(p2 != ICENone && p3 != ICENone && p3 == p2);
+        }
+    }
+    tprintf("ok\n");
+
     return initial;
 }

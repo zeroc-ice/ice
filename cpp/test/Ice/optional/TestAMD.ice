@@ -311,6 +311,21 @@ class Initial
 
     void opVoid();
 
+    ["marshaled-result"] optional(1) SmallStruct opMStruct1();
+    ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
+                                                            out optional(3)SmallStruct p2);
+
+    ["marshaled-result"] optional(1) StringSeq opMSeq1();
+    ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
+                                                       out optional(3) StringSeq p2);
+
+    ["marshaled-result"] optional(1) StringIntDict opMDict1();
+    ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
+                                                            out optional(3) StringIntDict p2);
+
+    ["marshaled-result"] optional(1) G opMG1();
+    ["marshaled-result"] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
+
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();

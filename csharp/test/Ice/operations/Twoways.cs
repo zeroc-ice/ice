@@ -54,9 +54,8 @@ class Twoways
 
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
-
         string[] literals = p.opStringLiterals();
-        
+
         test(Test.s0.value.Equals("\\") &&
              Test.s0.value.Equals(Test.sw0.value) &&
              Test.s0.value.Equals(literals[0]) &&
@@ -71,8 +70,8 @@ class Twoways
              Test.s2.value.Equals(Test.sw2.value) &&
              Test.s2.value.Equals(literals[2]) &&
              Test.s2.value.Equals(literals[13]));
-        
-        test(Test.s3.value.Equals("A21") && 
+
+        test(Test.s3.value.Equals("A21") &&
              Test.s3.value.Equals(Test.sw3.value) &&
              Test.s3.value.Equals(literals[3]) &&
              Test.s3.value.Equals(literals[14]));
@@ -101,7 +100,7 @@ class Twoways
              Test.s8.value.Equals(Test.sw8.value) &&
              Test.s8.value.Equals(literals[8]) &&
              Test.s8.value.Equals(literals[19]));
-        
+
         test(Test.s9.value.Equals("\U0001F34C") &&
              Test.s9.value.Equals(Test.sw9.value) &&
              Test.s9.value.Equals(literals[9]) &&
@@ -111,14 +110,14 @@ class Twoways
              Test.s10.value.Equals(Test.sw10.value) &&
              Test.s10.value.Equals(literals[10]) &&
              Test.s10.value.Equals(literals[21]));
-    
+
         test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v") &&
              Test.ss0.value.Equals(Test.ss1.value) &&
              Test.ss0.value.Equals(Test.ss2.value) &&
              Test.ss0.value.Equals(literals[22]) &&
              Test.ss0.value.Equals(literals[23]) &&
              Test.ss0.value.Equals(literals[24]));
-        
+
         test(Test.ss3.value.Equals("\\\\U\\u\\") &&
              Test.ss3.value.Equals(literals[25]));
 
@@ -127,7 +126,7 @@ class Twoways
 
         test(Test.ss5.value.Equals("\\u0041\\") &&
              Test.ss5.value.Equals(literals[27]));
-             
+
         test(Test.su0.value.Equals(Test.su1.value) &&
              Test.su0.value.Equals(Test.su2.value) &&
              Test.su0.value.Equals(literals[28]) &&
@@ -136,7 +135,7 @@ class Twoways
 
         p.ice_ping();
 
-        
+
         test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
         test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
 
@@ -1513,7 +1512,7 @@ class Twoways
         {
             p.opNonmutating();
         }
-        
+
         {
             test(p.opByte1(0xFF) == 0xFF);
             test(p.opShort1(0x7FFF) == 0x7FFF);
@@ -1526,8 +1525,8 @@ class Twoways
             test(p.opByteBoolD1(null).Count == 0);
             test(p.opStringS2(null).Length == 0);
             test(p.opByteBoolD2(null).Count == 0);
-            
-            
+
+
             Test.MyDerivedClassPrx d = Test.MyDerivedClassPrxHelper.uncheckedCast(p);
             Test.MyStruct1 s = new Test.MyStruct1();
             s.tesT = "Test.MyStruct1.s";
@@ -1545,6 +1544,34 @@ class Twoways
             test(c.tesT.Equals("Test.MyClass1.testT"));
             test(c.myClass == null);
             test(c.myClass1.Equals("Test.MyClass1.myClass1"));
+        }
+
+        {
+            Test.Structure p1 = p.opMStruct1();
+            p1.e = Test.MyEnum.enum3;
+            Test.Structure p2, p3;
+            p3 = p.opMStruct2(p1, out p2);
+            test(p2.Equals(p1) && p3.Equals(p1));
+        }
+
+        {
+            p.opMSeq1();
+
+            string[] p1 = new string[1];
+            p1[0] = "test";
+            string[] p2, p3;
+            p3 = p.opMSeq2(p1, out p2);
+            test(Ice.CollectionComparer.Equals(p2, p1) && Ice.CollectionComparer.Equals(p3, p1));
+        }
+
+        {
+            p.opMDict1();
+
+            Dictionary<string, string> p1 = new Dictionary<string, string>();
+            p1["test"] = "test";
+            Dictionary<string, string> p2, p3;
+            p3 = p.opMDict2(p1, out p2);
+            test(Ice.CollectionComparer.Equals(p2, p1) && Ice.CollectionComparer.Equals(p3, p1));
         }
     }
 }

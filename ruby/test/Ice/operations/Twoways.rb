@@ -10,9 +10,9 @@
 
 
 def twoways(communicator, p)
-    
+
     literals = p.opStringLiterals();
-    
+
     test(Test::S0 == "\\" &&
          Test::S0 == Test::Sw0 &&
          Test::S0 == literals[0] &&
@@ -27,8 +27,8 @@ def twoways(communicator, p)
          Test::S2 == Test::Sw2 &&
          Test::S2 == literals[2] &&
          Test::S2 == literals[13]);
-    
-    test(Test::S3 == "A21" && 
+
+    test(Test::S3 == "A21" &&
          Test::S3 == Test::Sw3 &&
          Test::S3 == literals[3] &&
          Test::S3 == literals[14]);
@@ -57,7 +57,7 @@ def twoways(communicator, p)
          Test::S8 == Test::Sw8 &&
          Test::S8 == literals[8] &&
          Test::S8 == literals[19]);
-    
+
     test(Test::S9 == "\xf0\x9f\x8d\x8c" &&
          Test::S9 == Test::Sw9 &&
          Test::S9 == literals[9] &&
@@ -74,7 +74,7 @@ def twoways(communicator, p)
          Test::Ss0 == literals[22] &&
          Test::Ss0 == literals[23] &&
          Test::Ss0 == literals[24]);
-    
+
     test(Test::Ss3 == "\\\\U\\u\\" &&
          Test::Ss3 == literals[25]);
 
@@ -83,7 +83,7 @@ def twoways(communicator, p)
 
     test(Test::Ss5 == "\\u0041\\" &&
          Test::Ss5 == literals[27]);
-            
+
     test(Test::Su0 == Test::Su1 &&
          Test::Su0 == Test::Su2 &&
          Test::Su0 == literals[28] &&
@@ -1211,6 +1211,22 @@ def twoways(communicator, p)
     test(c.tesT == "Test.MyClass1.testT")
     test(c.myClass == nil)
     test(c.myClass1 == "Test.MyClass1.myClass1")
+
+    p1 = p.opMStruct1()
+    p1.e = Test::MyEnum::Enum3
+    (p3, p2) = p.opMStruct2(p1)
+    test(p2 == p1 && p3 == p1)
+
+    p.opMSeq1();
+    p1 = ["test"]
+    (p3, p2) = p.opMSeq2(p1)
+    test(p2[0] == "test" && p3[0] == "test");
+
+    p.opMDict1();
+
+    p1 = { "test" => "test" }
+    (p3, p2) = p.opMDict2(p1)
+    test(p3["test"] == "test" && p2["test"] == "test")
 
     #
     # Test implicit context propagation

@@ -2119,5 +2119,55 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         }
     }
     cout << "ok" << endl;
+
+    cout << "testing optionals with marshaled results... " << flush;
+    {
+        test(initial->opMStruct1());
+        test(initial->opMDict1());
+        test(initial->opMSeq1());
+        test(initial->opMG1());
+
+        {
+            IceUtil::Optional<Test::SmallStruct> p1, p2, p3;
+            p3 = initial->opMStruct2(IceUtil::None, p2);
+            test(!p2 && !p3);
+
+            p1 = Test::SmallStruct();
+            p3 = initial->opMStruct2(p1, p2);
+            test(p2 == p1 && p3 == p1);
+        }
+        {
+            IceUtil::Optional<Test::StringSeq> p1, p2, p3;
+            p3 = initial->opMSeq2(IceUtil::None, p2);
+            test(!p2 && !p3);
+
+            Test::StringSeq seq;
+            seq.push_back("hello");
+            p1 = seq;
+            p3 = initial->opMSeq2(p1, p2);
+            test(p2 == p1 && p3 == p1);
+        }
+        {
+            IceUtil::Optional<Test::StringIntDict> p1, p2, p3;
+            p3 = initial->opMDict2(IceUtil::None, p2);
+            test(!p2 && !p3);
+
+            Test::StringIntDict dict;
+            dict["test"] = 54;
+            p1 = dict;
+            p3 = initial->opMDict2(p1, p2);
+            test(p2 == p1 && p3 == p1);
+        }
+        {
+            IceUtil::Optional<Test::GPtr> p1, p2, p3;
+            p3 = initial->opMG2(IceUtil::None, p2);
+            test(!p2 && !p3);
+
+            p1 = ICE_MAKE_SHARED(Test::G);
+            p3 = initial->opMG2(p1, p2);
+            test(p2 && p3 && *p3 == *p2);
+        }
+    }
+    cout << "ok" << endl;
     return initial;
 }

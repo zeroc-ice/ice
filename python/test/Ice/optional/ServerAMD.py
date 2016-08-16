@@ -148,6 +148,30 @@ class InitialI(Test.Initial):
     def opVoid_async(self, cb, current=None):
         cb.ice_response()
 
+    def opMStruct1_async(self, cb, current):
+        cb.ice_response(Test.SmallStruct())
+
+    def opMStruct2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
+    def opMSeq1_async(self, cb, current):
+        cb.ice_response([])
+
+    def opMSeq2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
+    def opMDict1_async(self, cb, current):
+        cb.ice_response({})
+
+    def opMDict2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
+    def opMG1_async(self, cb, current):
+        cb.ice_response(Test.G())
+
+    def opMG2_async(self, cb, p1, current):
+        cb.ice_response(p1, p1)
+
     def supportsRequiredParams_async(self, cb, current=None):
         cb.ice_response(False)
 

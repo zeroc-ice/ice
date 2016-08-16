@@ -8,70 +8,62 @@
 // **********************************************************************
 
 using System.Collections.Generic;
-using System;
+using System.Threading.Tasks;
 using Test;
 
 public sealed class MyClassI : MyClassDisp_
 {
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void
-    opNVAsync(Dictionary<int, int> i, Action<MyClass_OpNVResult> response, Action<Exception> exception,
-              Ice.Current current)
+    public override Task<MyClass_OpNVResult>
+    opNVAsync(Dictionary<int, int> i, Ice.Current current)
     {
-        response(new MyClass_OpNVResult(i, i));
+        return Task.FromResult<MyClass_OpNVResult>(new MyClass_OpNVResult(i, i));
     }
 
-    public override void
-    opNRAsync(Dictionary<string, string> i, Action<MyClass_OpNRResult> response, Action<Exception> exception,
-              Ice.Current current)
+    public override Task<MyClass_OpNRResult>
+    opNRAsync(Dictionary<string, string> i, Ice.Current current)
     {
-        response(new MyClass_OpNRResult(i, i));
+        return Task.FromResult<MyClass_OpNRResult>(new MyClass_OpNRResult(i, i));
     }
 
-    public override void
-    opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Action<MyClass_OpNDVResult> response,
-               Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpNDVResult>
+    opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Ice.Current current)
     {
-        response(new MyClass_OpNDVResult(i, i));
+        return Task.FromResult<MyClass_OpNDVResult>(new MyClass_OpNDVResult(i, i));
     }
 
-    public override void
-    opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Action<MyClass_OpNDRResult> response,
-               Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpNDRResult>
+    opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Ice.Current current)
     {
-        response(new MyClass_OpNDRResult(i, i));
+        return Task.FromResult<MyClass_OpNDRResult>(new MyClass_OpNDRResult(i, i));
     }
 
-    public override void
-    opNDAISAsync(Dictionary<string, int[]> i, Action<MyClass_OpNDAISResult> response,
-                 Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpNDAISResult>
+    opNDAISAsync(Dictionary<string, int[]> i, Ice.Current current)
     {
-        response(new MyClass_OpNDAISResult(i, i));
+        return Task.FromResult<MyClass_OpNDAISResult>(new MyClass_OpNDAISResult(i, i));
     }
 
-    public override void
-    opNDGISAsync(Dictionary<string, List<int>> i, Action<MyClass_OpNDGISResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<MyClass_OpNDGISResult>
+    opNDGISAsync(Dictionary<string, List<int>> i, Ice.Current current)
     {
-        response(new MyClass_OpNDGISResult(i, i));
+        return Task.FromResult<MyClass_OpNDGISResult>(new MyClass_OpNDGISResult(i, i));
     }
 
-    public override void
-    opNDASSAsync(Dictionary<string, string[]> i, Action<MyClass_OpNDASSResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<MyClass_OpNDASSResult>
+    opNDASSAsync(Dictionary<string, string[]> i, Ice.Current current)
     {
-        response(new MyClass_OpNDASSResult(i, i));
+        return Task.FromResult<MyClass_OpNDASSResult>(new MyClass_OpNDASSResult(i, i));
     }
 
-    public override void
-    opNDGSSAsync(Dictionary<string, List<string>> i, Action<MyClass_OpNDGSSResult> response,
-                 Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpNDGSSResult>
+    opNDGSSAsync(Dictionary<string, List<string>> i, Ice.Current current)
     {
-        response(new MyClass_OpNDGSSResult(i, i));
+        return Task.FromResult<MyClass_OpNDGSSResult>(new MyClass_OpNDGSSResult(i, i));
     }
 }

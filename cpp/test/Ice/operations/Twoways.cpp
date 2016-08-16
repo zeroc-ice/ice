@@ -1847,5 +1847,31 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
     Test::ByteBoolD dict;
     p->opByteBoolD1(dict);
 
+    {
+        Test::Structure p1 = p->opMStruct1();
+        p1.e = ICE_ENUM(MyEnum, enum3);
+        Test::Structure p2, p3;
+        p3 = p->opMStruct2(p1, p2);
+        test(p2.e == p1.e && p3.e == p1.e);
+    }
 
+    {
+        p->opMSeq1();
+
+        StringS p1;
+        p1.push_back("test");
+        StringS p2, p3;
+        p3 = p->opMSeq2(p1, p2);
+        test(p2 == p1 && p3 == p1);
+    }
+
+    {
+        p->opMDict1();
+
+        map<string, string> p1;
+        p1["test"] = "test";
+        map<string, string> p2, p3;
+        p3 = p->opMDict2(p1, p2);
+        test(p2 == p1 && p3 == p1);
+    }
 }

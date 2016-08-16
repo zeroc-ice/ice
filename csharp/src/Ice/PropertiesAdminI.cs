@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -30,10 +31,10 @@ namespace IceInternal
 {
     sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
     {
-        internal PropertiesAdminI(Ice.Properties properties, Ice.Logger logger)
+        internal PropertiesAdminI(IceInternal.Instance instance)
         {
-            _properties = properties;
-            _logger = logger;
+            _properties = instance.initializationData().properties;
+            _logger = instance.initializationData().logger;
         }
 
         public override string
@@ -48,10 +49,8 @@ namespace IceInternal
             return _properties.getPropertiesForPrefix(name);
         }
 
-        public override void setPropertiesAsync(Dictionary<string, string> props,
-                                                Action response,
-                                                Action<Exception> exception,
-                                                Ice.Current current)
+        public override void
+        setProperties(Dictionary<string, string> props, Ice.Current current)
         {
             lock(this)
             {
@@ -179,19 +178,8 @@ namespace IceInternal
                     _properties.setProperty(e.Key, "");
                 }
 
-                //
-                // Send the response now so that we do not block the client during the call to the update callback.
-                //
-                response();
-
                 if(_updateCallbacks.Count > 0)
                 {
-                    //
-                    // Copy the callbacks to allow callbacks to update the callbacks.
-                    //
-                    List<Ice.PropertiesAdminUpdateCallback> callbacks =
-                        new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
-
                     Dictionary<string, string> changes = new Dictionary<string, string>(added);
                     foreach(KeyValuePair<string, string> e in changed)
                     {
@@ -202,15 +190,19 @@ namespace IceInternal
                         changes.Add(e.Key, e.Value);
                     }
 
-                    foreach(Ice.PropertiesAdminUpdateCallback callback in callbacks)
+                    // Copy callbacks to allow callbacks to update callbacks
+                    foreach(var callback in new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks))
                     {
                         try
                         {
                             callback.updated(changes);
                         }
-                        catch(System.Exception)
+                        catch(Exception ex)
                         {
-                            // Ignore.
+                            if(_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                            {
+                                _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
+                            }
                         }
                     }
                 }

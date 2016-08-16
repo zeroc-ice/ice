@@ -1004,7 +1004,7 @@ namespace IceInternal
                 PropertiesAdminI propsAdmin = null;
                 if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                 {
-                     propsAdmin= new PropertiesAdminI(_initData.properties, _initData.logger);
+                     propsAdmin= new PropertiesAdminI(this);
                     _adminFacets.Add(propertiesFacetName, propsAdmin);
                 }
 

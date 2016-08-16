@@ -749,7 +749,7 @@ public class AllTests : TestCommon.TestApp
             }
             catch(AggregateException ae)
             {
-                ae.Handle((ex) =>
+                    ae.Handle((ex) =>
                 {
                     return ex is Test.TestIntfException;
                 });

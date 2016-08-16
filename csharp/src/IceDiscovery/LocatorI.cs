@@ -11,18 +11,18 @@ namespace IceDiscovery
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     class LocatorRegistryI : Ice.LocatorRegistryDisp_
     {
-        public 
+        public
         LocatorRegistryI(Ice.Communicator com)
         {
             _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
         }
 
-        public override void 
-        setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy,  Action response,
-                                   Action<Exception> exception, Ice.Current current)
+        public override Task
+        setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
         {
             lock(this)
             {
@@ -34,13 +34,13 @@ namespace IceDiscovery
                 {
                     _adapters.Remove(adapterId);
                 }
-                response();
             }
+            return null;
         }
 
-        public override void
+        public override Task
         setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.ObjectPrx proxy,
-                                             Action response, Action<Exception> exception, Ice.Current current)
+                                             Ice.Current current)
         {
             lock(this)
             {
@@ -69,14 +69,13 @@ namespace IceDiscovery
                     }
                 }
             }
-            response();
+            return null;
         }
 
-        public override void
-        setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Action response, Action<Exception> exception,
-                                   Ice.Current current)
+        public override Task
+        setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
         {
-            response();
+            return null;
         }
 
         internal Ice.ObjectPrx findObject(Ice.Identity id)
@@ -116,7 +115,7 @@ namespace IceDiscovery
                         }
                     }
                 }
-                
+
                 if(adapterIds.Count == 0)
                 {
                     return null;
@@ -136,7 +135,7 @@ namespace IceDiscovery
                     isReplicaGroup = false;
                     return result;
                 }
-                
+
                 HashSet<string> adapterIds;
                 if(_replicaGroups.TryGetValue(adapterId, out adapterIds))
                 {
@@ -148,15 +147,15 @@ namespace IceDiscovery
                         {
                             continue; // TODO: Inconsistency
                         }
-                        
+
                         if(result == null)
                         {
                             result = proxy;
                         }
-                        
+
                         endpoints.AddRange(proxy.ice_getEndpoints());
                     }
-                    
+
                     if(result != null)
                     {
                         isReplicaGroup = true;
@@ -182,25 +181,23 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public override void
-        findObjectByIdAsync(Ice.Identity id, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                            Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
-            _lookup.findObject(id, response);
+            return _lookup.findObject(id);
         }
 
-        public override void
-        findAdapterByIdAsync(string adapterId, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                             Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findAdapterByIdAsync(string adapterId, Ice.Current current)
         {
-            _lookup.findAdapter(adapterId, response);
+            return _lookup.findAdapter(adapterId);
         }
 
         public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
         {
             return _registry;
         }
- 
+
         private LookupI _lookup;
         private Ice.LocatorRegistryPrx _registry;
    };

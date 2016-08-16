@@ -2829,18 +2829,14 @@ namespace Ice
             return inc;
         }
 
-        private void reclaimIncoming(IceInternal.Incoming inc)
+        internal void reclaimIncoming(IceInternal.Incoming inc)
         {
-            if(_cacheBuffers)
+            if(_cacheBuffers && inc.reclaim())
             {
                 lock(_incomingCacheMutex)
                 {
                     inc.next = _incomingCache;
                     _incomingCache = inc;
-                    //
-                    // Clear references to Ice objects as soon as possible.
-                    //
-                    _incomingCache.reclaim();
                 }
             }
         }

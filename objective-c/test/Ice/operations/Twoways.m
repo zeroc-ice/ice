@@ -1790,6 +1790,34 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     [p opStringS1:[TestOperationsStringS array]];
     [p opByteBoolD1:[TestOperationsByteBoolD dictionary]];
 
+    {
+        TestOperationsStructure* p1 = [p opMStruct1];
+        p1.e = TestOperationsenum3;
+        TestOperationsStructure* p2,* p3;
+        p3 = [p opMStruct2:p1 p2:&p2];
+        test([p2 isEqual:p1] && [p3 isEqual:p1]);
+    }
+
+    {
+        [p opMSeq1];
+
+        TestOperationsMutableStringS* p1 = [TestOperationsMutableStringS arrayWithCapacity:1];
+        [p1 addObject:@"test"];
+        TestOperationsMutableStringS* p2,* p3;
+        p3 = [p opMSeq2:p1 p2:&p2];
+        test([[p2 objectAtIndex:0] isEqualToString:@"test"] && [[p3 objectAtIndex:0] isEqualToString:@"test"]);
+    }
+
+    {
+        [p opMDict1];
+
+        TestOperationsMutableStringStringD* p1 = [TestOperationsMutableStringStringD dictionary];
+        [p1 setObject:@"test" forKey:@"test"];
+        TestOperationsMutableStringStringD* p2,* p3;
+        p3 = [p opMDict2:p1 p2:&p2];
+        test([[p2 objectForKey:@"test"] isEqualToString:@"test"] && [[p3 objectForKey:@"test"] isEqualToString:@"test"]);
+    }
+
     //
     // TestOperationss below are for Objective-C only. They test that we do the right thing if NSNull
     // is passed as part of the sequence or dictionary.

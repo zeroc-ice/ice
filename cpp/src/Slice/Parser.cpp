@@ -63,6 +63,39 @@ filterOrderedOptionalDataMembers(const DataMemberList& members)
     return result;
 }
 
+bool
+isMutableAfterReturnType(const TypePtr& type)
+{
+    //
+    // Returns true if the type contains data types which can be referenced by user code
+    // and mutated after a dispatch returns.
+    //
+
+    if(ClassDeclPtr::dynamicCast(type))
+    {
+        return true;
+    }
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+    {
+        return true;
+    }
+
+    if(SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))
+    {
+        return true;
+    }
+
+    StructPtr s = StructPtr::dynamicCast(type);
+    if(s)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 }
 
 namespace Slice
@@ -4970,6 +5003,29 @@ Slice::Operation::sendMode() const
     }
 }
 
+bool
+Slice::Operation::hasMarshaledResult() const
+{
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container());
+    assert(cl);
+    if(cl->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
+    {
+        if(returnType() && isMutableAfterReturnType(returnType()))
+        {
+            return true;
+        }
+        for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+        {
+            ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
+            if(q->isOutParam() && isMutableAfterReturnType(q->type()))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
 {
@@ -5066,6 +5122,36 @@ Slice::Operation::parameters() const
     {
         ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
         if(q)
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+ParamDeclList
+Slice::Operation::inParameters() const
+{
+    ParamDeclList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
+        if(!q->isOutParam())
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+ParamDeclList
+Slice::Operation::outParameters() const
+{
+    ParamDeclList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
+        if(q->isOutParam())
         {
             result.push_back(q);
         }

@@ -36,9 +36,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\AMDInterceptorI.cs">
-      <Link>AMDInterceptorI.cs</Link>
-    </Compile>
     <Compile Include="..\..\Client.cs">
       <Link>Client.cs</Link>
     </Compile>

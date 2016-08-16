@@ -380,6 +380,74 @@ InitialI::opVoidAsync(::std::function<void()> response,
 }
 
 void
+InitialI::opMStruct1Async(function<void(const Ice::optional<SmallStruct>&)> response,
+                          function<void(exception_ptr)>,
+                          const Ice::Current&)
+{
+    response(Test::SmallStruct());
+}
+
+void
+InitialI::opMStruct2Async(Ice::optional<SmallStruct> p1,
+                          function<void(const Ice::optional<SmallStruct>&, const Ice::optional<SmallStruct>&)> response,
+                          function<void(exception_ptr)>,
+                          const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
+InitialI::opMSeq1Async(function<void(const Ice::optional<Test::StringSeq>&)> response,
+                       function<void(exception_ptr)>,
+                       const Ice::Current&)
+{
+    response(Test::StringSeq());
+}
+
+void
+InitialI::opMSeq2Async(Ice::optional<Test::StringSeq> p1,
+                       function<void(const Ice::optional<Test::StringSeq>&, const Ice::optional<Test::StringSeq>&)> response,
+                       function<void(exception_ptr)>,
+                       const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
+InitialI::opMDict1Async(function<void(const Ice::optional<StringIntDict>&)> response,
+                        function<void(exception_ptr)>,
+                        const Ice::Current&)
+{
+    response(StringIntDict());
+}
+
+void
+InitialI::opMDict2Async(Ice::optional<StringIntDict> p1,
+                        function<void(const Ice::optional<StringIntDict>&, const Ice::optional<StringIntDict>&)> response,
+                        function<void(exception_ptr)>,
+                        const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
+InitialI::opMG1Async(function<void(const Ice::optional<shared_ptr<G>>&)> response,
+                     function<void(exception_ptr)>,
+                     const Ice::Current&)
+{
+    response(ICE_MAKE_SHARED(G));
+}
+
+void
+InitialI::opMG2Async(Ice::optional<GPtr> p1,
+                     function<void(const Ice::optional<shared_ptr<G>>&, const Ice::optional<shared_ptr<G>>&)> response,
+                     function<void(exception_ptr)>,
+                     const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
 InitialI::supportsRequiredParamsAsync(::std::function<void(bool)> response,
                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
@@ -788,6 +856,62 @@ InitialI::opVoid_async(const ::Test::AMD_Initial_opVoidPtr& cb,
                        const Ice::Current&)
 {
     cb->ice_response();
+}
+
+void
+InitialI::opMStruct1_async(const Test::AMD_Initial_opMStruct1Ptr& cb, const Ice::Current&)
+{
+    cb->ice_response(Test::SmallStruct());
+}
+
+void
+InitialI::opMStruct2_async(const Test::AMD_Initial_opMStruct2Ptr& cb,
+                           const IceUtil::Optional< Test::SmallStruct>& p1,
+                           const Ice::Current&)
+{
+    cb->ice_response(p1, p1);
+}
+
+void
+InitialI::opMSeq1_async(const Test::AMD_Initial_opMSeq1Ptr& cb, const Ice::Current&)
+{
+    cb->ice_response(Test::StringSeq());
+}
+
+void
+InitialI::opMSeq2_async(const Test::AMD_Initial_opMSeq2Ptr& cb,
+                        const IceUtil::Optional< Test::StringSeq>& p1,
+                        const Ice::Current&)
+{
+    cb->ice_response(p1, p1);
+}
+
+void
+InitialI::opMDict1_async(const Test::AMD_Initial_opMDict1Ptr& cb, const Ice::Current&)
+{
+    cb->ice_response(Test::StringIntDict());
+}
+
+void
+InitialI::opMDict2_async(const Test::AMD_Initial_opMDict2Ptr& cb,
+                         const IceUtil::Optional< Test::StringIntDict>& p1,
+                         const Ice::Current&)
+{
+    cb->ice_response(p1, p1);
+}
+
+void
+InitialI::opMG1_async(const Test::AMD_Initial_opMG1Ptr& cb, const Ice::Current&)
+{
+    cb->ice_response(new Test::G());
+}
+
+void
+InitialI::opMG2_async(const Test::AMD_Initial_opMG2Ptr& cb,
+                      const IceUtil::Optional<Test::GPtr>& p1,
+                      const Ice::Current&)
+{
+    cb->ice_response(p1, p1);
 }
 
 void

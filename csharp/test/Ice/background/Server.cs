@@ -10,6 +10,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -21,21 +22,19 @@ public class Server
 {
     internal class LocatorI : Ice.LocatorDisp_
     {
-        public override void
-        findAdapterByIdAsync(string adapter, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                             Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findAdapterByIdAsync(string adapter,  Ice.Current current)
         {
             _controller.checkCallPause(current);
             Ice.Communicator communicator = current.adapter.getCommunicator();
-            response(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
+            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
-        public override void
-        findObjectByIdAsync(Ice.Identity id, Action<Ice.ObjectPrx> response, Action<Exception> exception,
-                            Ice.Current current)
+        public override Task<Ice.ObjectPrx>
+        findObjectByIdAsync(Ice.Identity id,  Ice.Current current)
         {
             _controller.checkCallPause(current);
-            response(current.adapter.createDirectProxy(id));
+            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
         }
 
         public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)

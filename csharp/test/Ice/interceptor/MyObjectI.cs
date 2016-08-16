@@ -12,18 +12,18 @@ using System.Threading.Tasks;
 
 class MySystemException : Ice.SystemException
 {
-    public 
+    public
     MySystemException()
     {
     }
-    
-    override public string 
+
+    override public string
     ice_id()
     {
         return "::MySystemException";
     }
 };
- 
+
 class MyObjectI : Test.MyObjectDisp_
 {
     protected static void
@@ -35,13 +35,13 @@ class MyObjectI : Test.MyObjectDisp_
         }
     }
 
-    public override int 
+    public override int
     add(int x, int y, Ice.Current current)
     {
         return x + y;
-    } 
-    
-    public override int 
+    }
+
+    public override int
     addWithRetry(int x, int y, Ice.Current current)
     {
         test(current != null);
@@ -52,69 +52,87 @@ class MyObjectI : Test.MyObjectDisp_
             return x + y;
         }
         throw new Test.RetryException();
-    } 
+    }
 
-    public override int 
+    public override int
     badAdd(int x, int y, Ice.Current current)
     {
         throw new Test.InvalidInputException();
-    } 
+    }
 
-    public override int 
+    public override int
     notExistAdd(int x, int y, Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();
-    } 
-    
-    public override int 
+    }
+
+    public override int
     badSystemAdd(int x, int y, Ice.Current current)
     {
         throw new MySystemException();
-    } 
+    }
 
 
     //
     // AMD
     //
-    public override async void 
-    amdAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
+    public override async Task<int>
+    amdAddAsync(int x, int y, Ice.Current current)
     {
         await Task.Delay(10);
-        response(x + y);
+        return x + y;
     }
 
-    public override async void
-    amdAddWithRetryAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
+    // public override Task<int>
+    // amdAddWithRetryAsync(int x, int y, Ice.Current current)
+    // {
+    //     //
+    //     // NOTE: we can't use "async" dispatch here because otherwise the exception wouldn't be catch
+    //     // synchronously by the dispatch interceptor. It would be wrapped into the task as if the
+    //     // exception was raised asynchronously.
+    //     //
+    //     if(current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
+    //     {
+    //         return Task.Delay(10).ContinueWith((t) => { return Task.FromResult<int>(x + y); }).Unwrap();
+    //     }
+    //     else
+    //     {
+    //         throw new Test.RetryException();
+    //     }
+    // }
+
+    public override async Task<int>
+    amdAddWithRetryAsync(int x, int y, Ice.Current current)
     {
-        await Task.Delay(10);
         if(current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
         {
-            response(x + y);
+            await Task.Delay(10);
+            return x + y;
         }
         else
         {
-            exception(new Test.RetryException());
+            throw new Test.RetryException();
         }
-    } 
-    
-    public override async void
-    amdBadAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
-    {
-        await Task.Delay(10);
-        exception(new Test.InvalidInputException());
-    } 
+    }
 
-    public override async void
-    amdNotExistAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
+    public override async Task<int>
+    amdBadAddAsync(int x, int y, Ice.Current current)
     {
         await Task.Delay(10);
-        exception(new Ice.ObjectNotExistException());
-    } 
-    
-    public override async void
-    amdBadSystemAddAsync(int x, int y, Action<int> response, Action<Exception> exception, Ice.Current current)
+        throw new Test.InvalidInputException();
+    }
+
+    public override async Task<int>
+    amdNotExistAddAsync(int x, int y, Ice.Current current)
     {
         await Task.Delay(10);
-        exception(new MySystemException());
-    } 
+        throw new Ice.ObjectNotExistException();
+    }
+
+    public override async Task<int>
+    amdBadSystemAddAsync(int x, int y, Ice.Current current)
+    {
+        await Task.Delay(10);
+        throw new MySystemException();
+    }
 }

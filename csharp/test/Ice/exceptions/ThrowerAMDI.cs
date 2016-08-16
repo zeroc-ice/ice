@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Test;
 
 public class ThrowerI : ThrowerDisp_
@@ -17,131 +18,139 @@ public class ThrowerI : ThrowerDisp_
     {
     }
 
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void
-    supportsUndeclaredExceptionsAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public override Task<bool>
+    supportsUndeclaredExceptionsAsync(Ice.Current current)
     {
-        response(true);
+        return Task.FromResult<bool>(true);
     }
 
-    public override void
-    supportsAssertExceptionAsync(Action<bool> response, Action<Exception> exception, Ice.Current current)
+    public override Task<bool>
+    supportsAssertExceptionAsync(Ice.Current current)
     {
-        response(false);
+        return Task.FromResult<bool>(false);
     }
 
-    public override void throwAasAAsync(int a, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwAasAAsync(int a, Ice.Current current)
     {
-        exception(new A(a));
+        throw new A(a);
     }
 
-    public override void throwAorDasAorDAsync(int a, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwAorDasAorDAsync(int a, Ice.Current current)
     {
         if(a > 0)
         {
-            exception(new A(a));
+            throw new A(a);
         }
         else
         {
-            exception(new D(a));
+            throw new D(a);
         }
     }
 
-    public override void
-    throwBasAAsync(int a, int b, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwBasAAsync(int a, int b, Ice.Current current)
     {
-        exception(new B(a, b));
+        //throw new B(a, b);
+        var s = new TaskCompletionSource<object>();
+        s.SetException(new B(a,b));
+        return s.Task;
     }
 
-    public override void
-    throwBasBAsync(int a, int b, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwBasBAsync(int a, int b, Ice.Current current)
     {
-        exception(new B(a, b));
+        throw new B(a, b);
     }
 
-    public override void
-    throwCasAAsync(int a, int b, int c, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwCasAAsync(int a, int b, int c, Ice.Current current)
     {
-        exception(new C(a, b, c));
+        throw new C(a, b, c);
     }
 
-    public override void
-    throwCasBAsync(int a, int b, int c, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwCasBAsync(int a, int b, int c, Ice.Current current)
     {
-        exception(new C(a, b, c));
+        throw new C(a, b, c);
     }
 
-    public override void
-    throwCasCAsync(int a, int b, int c, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwCasCAsync(int a, int b, int c, Ice.Current current)
     {
-        exception(new C(a, b, c));
+        throw new C(a, b, c);
     }
 
-    public override void
-    throwUndeclaredAAsync(int a, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwUndeclaredAAsync(int a, Ice.Current current)
     {
-        exception(new A(a));
+        throw new A(a);
     }
 
-    public override void
-    throwUndeclaredBAsync(int a, int b, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwUndeclaredBAsync(int a, int b, Ice.Current current)
     {
-        exception(new B(a, b));
+        throw new B(a, b);
     }
 
-    public override void
-    throwUndeclaredCAsync(int a, int b, int c, Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwUndeclaredCAsync(int a, int b, int c, Ice.Current current)
     {
-        exception(new C(a, b, c));
+        throw new C(a, b, c);
     }
 
-    public override void
-    throwLocalExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
-    {
-        exception(new Ice.TimeoutException());
-    }
-
-    public override void
-    throwNonIceExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
-    {
-        throw new Exception();
-    }
-
-    public override void
-    throwAssertExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
-    {
-        Debug.Assert(false);
-    }
-
-    public override void
-    throwMemoryLimitExceptionAsync(byte[] seq, Action<byte[]> response, Action<Exception> exception,
-                                   Ice.Current current)
-    {
-        response(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
-    }
-
-    public override void
-    throwLocalExceptionIdempotentAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwLocalExceptionAsync(Ice.Current current)
     {
         throw new Ice.TimeoutException();
     }
-    
-    public override void
-    throwAfterResponseAsync(Action response, Action<Exception> exception, Ice.Current current)
+
+    public override Task
+    throwNonIceExceptionAsync(Ice.Current current)
     {
-        response();
         throw new Exception();
     }
 
-    public override void
-    throwAfterExceptionAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task
+    throwAssertExceptionAsync(Ice.Current current)
     {
-        exception(new A());
-        throw new Exception();
+        Debug.Assert(false);
+        return null;
+    }
+
+    public override Task<byte[]>
+    throwMemoryLimitExceptionAsync(byte[] seq, Ice.Current current)
+    {
+        return Task.FromResult<byte[]>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+    }
+
+    public override Task
+    throwLocalExceptionIdempotentAsync(Ice.Current current)
+    {
+        throw new Ice.TimeoutException();
+    }
+
+    public override Task
+    throwAfterResponseAsync(Ice.Current current)
+    {
+        // Only supported with callback based AMD API
+        return null;
+        //throw new Exception();
+    }
+
+    public override Task
+    throwAfterExceptionAsync(Ice.Current current)
+    {
+        // Only supported with callback based AMD API
+        throw new A();
+        //throw new Exception();
     }
 }

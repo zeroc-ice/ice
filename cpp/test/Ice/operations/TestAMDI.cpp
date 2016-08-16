@@ -110,15 +110,6 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
 }
 
 void
-MyDerivedClassI::delayAsync(Ice::Int ms, function<void()> response,
-                            function<void(exception_ptr)>,
-                            const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
-    response();
-}
-
-void
 MyDerivedClassI::opVoidAsync(function<void()> response,
                              function<void(exception_ptr)>,
                              const Ice::Current& current)
@@ -135,7 +126,6 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
     _opVoidThread = new Thread_opVoid(response);
     _opVoidThread->start();
 }
-
 
 void
 MyDerivedClassI::opByteAsync(Ice::Byte p1,
@@ -1004,6 +994,58 @@ MyDerivedClassI::opWStringLiteralsAsync(function<void(const Test::WStringS&)> re
 
     response(data);
 }
+
+void
+MyDerivedClassI::opMStruct1Async(function<void(const Test::Structure&)> response,
+                                 function<void(std::exception_ptr)>,
+                                 const Ice::Current&)
+{
+    response(Test::Structure());
+}
+
+void
+MyDerivedClassI::opMStruct2Async(Test::Structure p1,
+                                 function<void(const Test::Structure&, const Test::Structure&)> response,
+                                 function<void(std::exception_ptr)>,
+                                 const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
+MyDerivedClassI::opMSeq1Async(function<void(const Test::StringS&)> response,
+                              function<void(std::exception_ptr)>,
+                              const Ice::Current&)
+{
+    response(Test::StringS());
+}
+
+void
+MyDerivedClassI::opMSeq2Async(Test::StringS p1,
+                              function<void(const Test::StringS&, const Test::StringS&)> response,
+                              function<void(std::exception_ptr)>,
+                              const Ice::Current&)
+{
+    response(p1, p1);
+}
+
+void
+MyDerivedClassI::opMDict1Async(function<void(const Test::StringStringD&)> response,
+                               function<void(std::exception_ptr)>,
+                               const Ice::Current&)
+{
+    response(Test::StringStringD());
+}
+
+void
+MyDerivedClassI::opMDict2Async(Test::StringStringD p1,
+                               function<void(const Test::StringStringD&, const Test::StringStringD&)> response,
+                               function<void(std::exception_ptr)>,
+                               const Ice::Current&)
+{
+    response(p1, p1);
+}
+
 #else
 
 class Thread_opVoid : public IceUtil::Thread
@@ -1038,13 +1080,6 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
     }
 
     current.adapter->getCommunicator()->shutdown();
-    cb->ice_response();
-}
-
-void
-MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
     cb->ice_response();
 }
 
@@ -1729,13 +1764,15 @@ MyDerivedClassI::opByteBoolD2_async(const Test::AMD_MyClass_opByteBoolD2Ptr& cb,
 }
 
 void
-MyDerivedClassI::opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr& cb, const Test::MyStruct1& s, const Ice::Current&)
+MyDerivedClassI::opMyStruct1_async(const Test::AMD_MyDerivedClass_opMyStruct1Ptr& cb, const Test::MyStruct1& s,
+                                   const Ice::Current&)
 {
     cb->ice_response(s);
 }
 
 void
-MyDerivedClassI::opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr& cb, const Test::MyClass1Ptr& c, const Ice::Current&)
+MyDerivedClassI::opMyClass1_async(const Test::AMD_MyDerivedClass_opMyClass1Ptr& cb, const Test::MyClass1Ptr& c,
+                                  const Ice::Current&)
 {
     cb->ice_response(c);
 }
@@ -1823,4 +1860,51 @@ MyDerivedClassI::opWStringLiterals_async(const Test::AMD_MyClass_opWStringLitera
     data.push_back(Test::wsu2);
     cb->ice_response(data);
 }
+
+void
+MyDerivedClassI::opMStruct1_async(const Test::AMD_MyClass_opMStruct1Ptr& cb,
+                                  const Ice::Current&)
+{
+    return cb->ice_response(Test::Structure());
+}
+
+void
+MyDerivedClassI::opMStruct2_async(const Test::AMD_MyClass_opMStruct2Ptr& cb,
+                                  const Test::Structure& p1,
+                                  const Ice::Current&)
+{
+    cb->ice_response(p1,p1);
+}
+
+void
+MyDerivedClassI::opMSeq1_async(const Test::AMD_MyClass_opMSeq1Ptr& cb,
+                               const Ice::Current&)
+{
+    cb->ice_response(Test::StringS());
+}
+
+void
+MyDerivedClassI::opMSeq2_async(const Test::AMD_MyClass_opMSeq2Ptr& cb,
+                               const Test::StringS& p1,
+                               const Ice::Current&)
+{
+    cb->ice_response(p1,p1);
+}
+
+void
+MyDerivedClassI::opMDict1_async(const Test::AMD_MyClass_opMDict1Ptr& cb,
+                                const Ice::Current&)
+{
+    cb->ice_response(Test::StringStringD());
+}
+
+void
+MyDerivedClassI::opMDict2_async(const Test::AMD_MyClass_opMDict2Ptr& cb,
+                                const Test::StringStringD& p1,
+                                const Ice::Current&)
+{
+    cb->ice_response(p1,p1);
+}
+
 #endif
+

@@ -20,7 +20,7 @@ using OneOptionalPrxPtr = std::shared_ptr<Ice::ObjectPrx>;
 #endif
 
 
-class InitialI : 
+class InitialI :
 #ifdef ICE_CPP11_MAPPING
     public Test::InitialDisp
 #else
@@ -145,7 +145,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
      virtual Ice::optional<::Test::StringSeq> opStringSeq(
-         Ice::optional<::Test::StringSeq>, 
+         Ice::optional<::Test::StringSeq>,
          Ice::optional<::Test::StringSeq>&, const ::Ice::Current& = ::Ice::noExplicitCurrent) ;
 #else
     virtual IceUtil::Optional< ::Test::StringSeq> opStringSeq(
@@ -173,7 +173,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual Ice::optional<::Test::VarStructSeq> opVarStructSeq(
-        Ice::optional<::Test::VarStructSeq>, Ice::optional<::Test::VarStructSeq>&, 
+        Ice::optional<::Test::VarStructSeq>, Ice::optional<::Test::VarStructSeq>&,
         const ::Ice::Current& = ::Ice::noExplicitCurrent);
 #else
     virtual IceUtil::Optional< ::Test::VarStructSeq> opVarStructSeq(
@@ -217,6 +217,30 @@ public:
     virtual ::Test::GPtr opG(ICE_IN(::Test::GPtr) g, const Ice::Current&);
 
     virtual void opVoid(const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::SmallStruct> opMStruct1(const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::SmallStruct> opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>),
+                                                            IceUtil::Optional<Test::SmallStruct>&,
+                                                            const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::StringSeq> opMSeq1(const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::StringSeq> opMSeq2(ICE_IN(IceUtil::Optional<Test::StringSeq>),
+                                                       IceUtil::Optional<Test::StringSeq>&,
+                                                       const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::StringIntDict> opMDict1(const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::StringIntDict> opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>),
+                                                            IceUtil::Optional<Test::StringIntDict>&,
+                                                            const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::GPtr> opMG1(const Ice::Current&);
+
+    virtual IceUtil::Optional<Test::GPtr> opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>),
+                                                IceUtil::Optional<Test::GPtr>&,
+                                                const Ice::Current&);
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 

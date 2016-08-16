@@ -78,12 +78,6 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
 }
 
 void
-MyDerivedClassI::delay(Ice::Int ms, const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
-}
-
-void
 MyDerivedClassI::opVoid(const Ice::Current& current)
 {
     test(current.mode == ICE_ENUM(OperationMode, Normal));
@@ -848,3 +842,44 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
 
     return data;
 }
+
+Test::Structure
+MyDerivedClassI::opMStruct1(const Ice::Current&)
+{
+    return Test::Structure();
+}
+
+
+Test::Structure
+MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, Test::Structure& p2, const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
+Test::StringS
+MyDerivedClassI::opMSeq1(const Ice::Current&)
+{
+    return Test::StringS();
+}
+
+Test::StringS
+MyDerivedClassI::opMSeq2(ICE_IN(Test::StringS) p1, Test::StringS& p2, const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+
+Test::StringStringD
+MyDerivedClassI::opMDict1(const Ice::Current&)
+{
+    return Test::StringStringD();
+}
+
+Test::StringStringD
+MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, Test::StringStringD& p2, const Ice::Current&)
+{
+    p2 = p1;
+    return p1;
+}
+

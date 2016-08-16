@@ -297,9 +297,9 @@ namespace IceInternal
                         break;
                     }
 
-                    Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
-                                               requestId);
-                    @in.invoke(servantManager, iss);
+                    Incoming inS = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
+                                                requestId);
+                    inS.invoke(servantManager, iss);
                     --invokeNum;
                 }
             }

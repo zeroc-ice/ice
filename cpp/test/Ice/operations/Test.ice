@@ -98,8 +98,6 @@ class MyClass
 {
     void shutdown();
 
-    void delay(int ms);
-
     void opVoid();
 
     byte opByte(byte p1, byte p2,
@@ -255,6 +253,15 @@ class MyClass
 
     StringS opStringLiterals();
     WStringS opWStringLiterals();
+
+    ["marshaled-result"] Structure opMStruct1();
+    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+
+    ["marshaled-result"] StringS opMSeq1();
+    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+
+    ["marshaled-result"] StringStringD opMDict1();
+    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 };
 
 struct MyStruct1
@@ -274,8 +281,8 @@ class MyClass1
 class MyDerivedClass extends MyClass
 {
     void opDerived();
-    MyClass1 opMyClass1(MyClass1 c);
-    MyStruct1 opMyStruct1(MyStruct1 c);
+    MyClass1 opMyClass1(MyClass1 opMyClass1);
+    MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
 };
 
 //

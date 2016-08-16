@@ -8,547 +8,481 @@
 // **********************************************************************
 
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Test;
 
 public sealed class MyClassI : MyClassDisp_
 {
-    public override void shutdownAsync(Action response, Action<Exception> exception, Ice.Current current)
+    public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        response();
+        return null;
     }
 
-    public override void
-    opAByteSAsync(byte[] i, Action<MyClass_OpAByteSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpAByteSResult>
+    opAByteSAsync(byte[] i, Ice.Current current)
     {
-        response(new MyClass_OpAByteSResult(i, i));
+        return Task.FromResult<MyClass_OpAByteSResult>(new MyClass_OpAByteSResult(i, i));
     }
 
-    public override void
-    opLByteSAsync(List<byte> i, Action<MyClass_OpLByteSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpLByteSResult>
+    opLByteSAsync(List<byte> i, Ice.Current current)
     {
-        response(new MyClass_OpLByteSResult(i, i));
+        return Task.FromResult<MyClass_OpLByteSResult>(new MyClass_OpLByteSResult(i, i));
     }
 
-    public override void
-    opKByteSAsync(LinkedList<byte> i, Action<MyClass_OpKByteSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpKByteSResult>
+    opKByteSAsync(LinkedList<byte> i, Ice.Current current)
     {
-        response(new MyClass_OpKByteSResult(i, i));
+        return Task.FromResult<MyClass_OpKByteSResult>(new MyClass_OpKByteSResult(i, i));
     }
 
-    public override void
-    opQByteSAsync(Queue<byte> i, Action<MyClass_OpQByteSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpQByteSResult>
+    opQByteSAsync(Queue<byte> i, Ice.Current current)
     {
-        response(new MyClass_OpQByteSResult(i, i));
+        return Task.FromResult<MyClass_OpQByteSResult>(new MyClass_OpQByteSResult(i, i));
     }
 
-    public override void
-    opSByteSAsync(Stack<byte> i, Action<MyClass_OpSByteSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpSByteSResult>
+    opSByteSAsync(Stack<byte> i, Ice.Current current)
     {
-        response(new MyClass_OpSByteSResult(i, i));
+        return Task.FromResult<MyClass_OpSByteSResult>(new MyClass_OpSByteSResult(i, i));
     }
 
-    public override void
-    opABoolSAsync(bool[] i, Action<MyClass_OpABoolSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpABoolSResult>
+    opABoolSAsync(bool[] i, Ice.Current current)
     {
-        response(new MyClass_OpABoolSResult(i, i));
+        return Task.FromResult<MyClass_OpABoolSResult>(new MyClass_OpABoolSResult(i, i));
     }
 
-    public override void 
-    opLBoolSAsync(List<bool> i, Action<MyClass_OpLBoolSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpLBoolSResult>
+    opLBoolSAsync(List<bool> i, Ice.Current current)
     {
-        response(new MyClass_OpLBoolSResult(i, i));
+        return Task.FromResult<MyClass_OpLBoolSResult>(new MyClass_OpLBoolSResult(i, i));
     }
 
-    public override void
-    opKBoolSAsync(LinkedList<bool> i, Action<MyClass_OpKBoolSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpKBoolSResult>
+    opKBoolSAsync(LinkedList<bool> i, Ice.Current current)
     {
-        response(new MyClass_OpKBoolSResult(i, i));
+        return Task.FromResult<MyClass_OpKBoolSResult>(new MyClass_OpKBoolSResult(i, i));
     }
 
-    public override void
-    opQBoolSAsync(Queue<bool> i, Action<MyClass_OpQBoolSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpQBoolSResult>
+    opQBoolSAsync(Queue<bool> i, Ice.Current current)
     {
-        response(new MyClass_OpQBoolSResult(i, i));
+        return Task.FromResult<MyClass_OpQBoolSResult>(new MyClass_OpQBoolSResult(i, i));
     }
 
-    public override void
-    opSBoolSAsync(Stack<bool> i, Action<MyClass_OpSBoolSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpSBoolSResult>
+    opSBoolSAsync(Stack<bool> i, Ice.Current current)
     {
-        response(new MyClass_OpSBoolSResult(i, i));
+        return Task.FromResult<MyClass_OpSBoolSResult>(new MyClass_OpSBoolSResult(i, i));
     }
 
-    public override void
-    opAShortSAsync(short[] i, Action<MyClass_OpAShortSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpAShortSResult>
+    opAShortSAsync(short[] i, Ice.Current current)
     {
-        response(new MyClass_OpAShortSResult(i, i));
+        return Task.FromResult<MyClass_OpAShortSResult>(new MyClass_OpAShortSResult(i, i));
     }
 
-    public override void
-    opLShortSAsync(List<short> i, Action<MyClass_OpLShortSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpLShortSResult>
+    opLShortSAsync(List<short> i, Ice.Current current)
     {
-        response(new MyClass_OpLShortSResult(i, i));
+        return Task.FromResult<MyClass_OpLShortSResult>(new MyClass_OpLShortSResult(i, i));
     }
 
-    public override void
-    opKShortSAsync(LinkedList<short> i, Action<MyClass_OpKShortSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpKShortSResult>
+    opKShortSAsync(LinkedList<short> i, Ice.Current current)
     {
-        response(new MyClass_OpKShortSResult(i, i));
+        return Task.FromResult<MyClass_OpKShortSResult>(new MyClass_OpKShortSResult(i, i));
     }
 
-    public override void
-    opQShortSAsync(Queue<short> i, Action<MyClass_OpQShortSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpQShortSResult>
+    opQShortSAsync(Queue<short> i, Ice.Current current)
     {
-        response(new MyClass_OpQShortSResult(i, i));
+        return Task.FromResult<MyClass_OpQShortSResult>(new MyClass_OpQShortSResult(i, i));
     }
 
-    public override void
-    opSShortSAsync(Stack<short> i, Action<MyClass_OpSShortSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpSShortSResult>
+    opSShortSAsync(Stack<short> i, Ice.Current current)
     {
-        response(new MyClass_OpSShortSResult(i, i));
+        return Task.FromResult<MyClass_OpSShortSResult>(new MyClass_OpSShortSResult(i, i));
     }
 
-    public override void
-    opAIntSAsync(int[] i, Action<MyClass_OpAIntSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpAIntSResult>
+    opAIntSAsync(int[] i, Ice.Current current)
     {
-        response(new MyClass_OpAIntSResult(i, i));
+        return Task.FromResult<MyClass_OpAIntSResult>(new MyClass_OpAIntSResult(i, i));
     }
 
-    public override void
-    opLIntSAsync(List<int> i, Action<MyClass_OpLIntSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpLIntSResult>
+    opLIntSAsync(List<int> i, Ice.Current current)
     {
-        response(new MyClass_OpLIntSResult(i, i));
+        return Task.FromResult<MyClass_OpLIntSResult>(new MyClass_OpLIntSResult(i, i));
     }
 
-    public override void
-    opKIntSAsync(LinkedList<int> i, Action<MyClass_OpKIntSResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<MyClass_OpKIntSResult>
+    opKIntSAsync(LinkedList<int> i, Ice.Current current)
     {
-        response(new MyClass_OpKIntSResult(i, i));
+        return Task.FromResult<MyClass_OpKIntSResult>(new MyClass_OpKIntSResult(i, i));
     }
 
-    public override void
-    opQIntSAsync(Queue<int> i, Action<MyClass_OpQIntSResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<MyClass_OpQIntSResult>
+    opQIntSAsync(Queue<int> i, Ice.Current current)
     {
-        response(new MyClass_OpQIntSResult(i, i));
+        return Task.FromResult<MyClass_OpQIntSResult>(new MyClass_OpQIntSResult(i, i));
     }
 
-    public override void
-    opSIntSAsync(Stack<int> i, Action<MyClass_OpSIntSResult> response, Action<Exception> exception,
-                 Ice.Current current)
+    public override Task<MyClass_OpSIntSResult>
+    opSIntSAsync(Stack<int> i, Ice.Current current)
     {
-        response(new MyClass_OpSIntSResult(i, i));
+        return Task.FromResult<MyClass_OpSIntSResult>(new MyClass_OpSIntSResult(i, i));
     }
 
-    public override void
-    opALongSAsync(long[] i, Action<MyClass_OpALongSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpALongSResult>
+    opALongSAsync(long[] i, Ice.Current current)
     {
-        response(new MyClass_OpALongSResult(i, i));
+        return Task.FromResult<MyClass_OpALongSResult>(new MyClass_OpALongSResult(i, i));
     }
 
-    public override void
-    opLLongSAsync(List<long> i, Action<MyClass_OpLLongSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpLLongSResult>
+    opLLongSAsync(List<long> i, Ice.Current current)
     {
-        response(new MyClass_OpLLongSResult(i, i));
+        return Task.FromResult<MyClass_OpLLongSResult>(new MyClass_OpLLongSResult(i, i));
     }
 
-    public override void
-    opKLongSAsync(LinkedList<long> i, Action<MyClass_OpKLongSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpKLongSResult>
+    opKLongSAsync(LinkedList<long> i, Ice.Current current)
     {
-        response(new MyClass_OpKLongSResult(i, i));
+        return Task.FromResult<MyClass_OpKLongSResult>(new MyClass_OpKLongSResult(i, i));
     }
 
-    public override void
-    opQLongSAsync(Queue<long> i, Action<MyClass_OpQLongSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpQLongSResult>
+    opQLongSAsync(Queue<long> i, Ice.Current current)
     {
-        response(new MyClass_OpQLongSResult(i, i));
+        return Task.FromResult<MyClass_OpQLongSResult>(new MyClass_OpQLongSResult(i, i));
     }
 
-    public override void
-    opSLongSAsync(Stack<long> i, Action<MyClass_OpSLongSResult> response, Action<Exception> exception,
-                  Ice.Current current)
+    public override Task<MyClass_OpSLongSResult>
+    opSLongSAsync(Stack<long> i, Ice.Current current)
     {
-        response(new MyClass_OpSLongSResult(i, i));
+        return Task.FromResult<MyClass_OpSLongSResult>(new MyClass_OpSLongSResult(i, i));
     }
 
-    public override void
-    opAFloatSAsync(float[] i, Action<MyClass_OpAFloatSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpAFloatSResult>
+    opAFloatSAsync(float[] i, Ice.Current current)
     {
-        response(new MyClass_OpAFloatSResult(i, i));
+        return Task.FromResult<MyClass_OpAFloatSResult>(new MyClass_OpAFloatSResult(i, i));
     }
 
-    public override void
-    opLFloatSAsync(List<float> i, Action<MyClass_OpLFloatSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpLFloatSResult>
+    opLFloatSAsync(List<float> i, Ice.Current current)
     {
-        response(new MyClass_OpLFloatSResult(i, i));
+        return Task.FromResult<MyClass_OpLFloatSResult>(new MyClass_OpLFloatSResult(i, i));
     }
 
-    public override void
-    opKFloatSAsync(LinkedList<float> i, Action<MyClass_OpKFloatSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpKFloatSResult>
+    opKFloatSAsync(LinkedList<float> i, Ice.Current current)
     {
-        response(new MyClass_OpKFloatSResult(i, i));
+        return Task.FromResult<MyClass_OpKFloatSResult>(new MyClass_OpKFloatSResult(i, i));
     }
 
-    public override void
-    opQFloatSAsync(Queue<float> i, Action<MyClass_OpQFloatSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpQFloatSResult>
+    opQFloatSAsync(Queue<float> i, Ice.Current current)
     {
-        response(new MyClass_OpQFloatSResult(i, i));
+        return Task.FromResult<MyClass_OpQFloatSResult>(new MyClass_OpQFloatSResult(i, i));
     }
 
-    public override void
-    opSFloatSAsync(Stack<float> i, Action<MyClass_OpSFloatSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpSFloatSResult>
+    opSFloatSAsync(Stack<float> i, Ice.Current current)
     {
-        response(new MyClass_OpSFloatSResult(i, i));
+        return Task.FromResult<MyClass_OpSFloatSResult>(new MyClass_OpSFloatSResult(i, i));
     }
 
-    public override void
-    opADoubleSAsync(double[] i, Action<MyClass_OpADoubleSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpADoubleSResult>
+    opADoubleSAsync(double[] i, Ice.Current current)
     {
-        response(new MyClass_OpADoubleSResult(i, i));
+        return Task.FromResult<MyClass_OpADoubleSResult>(new MyClass_OpADoubleSResult(i, i));
     }
 
-    public override void
-    opLDoubleSAsync(List<double> i, Action<MyClass_OpLDoubleSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpLDoubleSResult>
+    opLDoubleSAsync(List<double> i, Ice.Current current)
     {
-        response(new MyClass_OpLDoubleSResult(i, i));
+        return Task.FromResult<MyClass_OpLDoubleSResult>(new MyClass_OpLDoubleSResult(i, i));
     }
 
-    public override void
-    opKDoubleSAsync(LinkedList<double> i, Action<MyClass_OpKDoubleSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpKDoubleSResult>
+    opKDoubleSAsync(LinkedList<double> i, Ice.Current current)
     {
-        response(new MyClass_OpKDoubleSResult(i, i));
+        return Task.FromResult<MyClass_OpKDoubleSResult>(new MyClass_OpKDoubleSResult(i, i));
     }
 
-    public override void
-    opQDoubleSAsync(Queue<double> i, Action<MyClass_OpQDoubleSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpQDoubleSResult>
+    opQDoubleSAsync(Queue<double> i, Ice.Current current)
     {
-        response(new MyClass_OpQDoubleSResult(i, i));
+        return Task.FromResult<MyClass_OpQDoubleSResult>(new MyClass_OpQDoubleSResult(i, i));
     }
 
-    public override void
-    opSDoubleSAsync(Stack<double> i, Action<MyClass_OpSDoubleSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpSDoubleSResult>
+    opSDoubleSAsync(Stack<double> i, Ice.Current current)
     {
-        response(new MyClass_OpSDoubleSResult(i, i));
+        return Task.FromResult<MyClass_OpSDoubleSResult>(new MyClass_OpSDoubleSResult(i, i));
     }
 
-    public override void
-    opAStringSAsync(string[] i, Action<MyClass_OpAStringSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpAStringSResult>
+    opAStringSAsync(string[] i, Ice.Current current)
     {
-        response(new MyClass_OpAStringSResult(i, i));
+        return Task.FromResult<MyClass_OpAStringSResult>(new MyClass_OpAStringSResult(i, i));
     }
 
-    public override void
-    opLStringSAsync(List<string> i, Action<MyClass_OpLStringSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpLStringSResult>
+    opLStringSAsync(List<string> i, Ice.Current current)
     {
-        response(new MyClass_OpLStringSResult(i, i));
+        return Task.FromResult<MyClass_OpLStringSResult>(new MyClass_OpLStringSResult(i, i));
     }
 
-    public override void
-    opKStringSAsync(LinkedList<string> i, Action<MyClass_OpKStringSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpKStringSResult>
+    opKStringSAsync(LinkedList<string> i, Ice.Current current)
     {
-        response(new MyClass_OpKStringSResult(i, i));
+        return Task.FromResult<MyClass_OpKStringSResult>(new MyClass_OpKStringSResult(i, i));
     }
 
-    public override void
-    opQStringSAsync(Queue<string> i, Action<MyClass_OpQStringSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpQStringSResult>
+    opQStringSAsync(Queue<string> i, Ice.Current current)
     {
-        response(new MyClass_OpQStringSResult(i, i));
+        return Task.FromResult<MyClass_OpQStringSResult>(new MyClass_OpQStringSResult(i, i));
     }
 
-    public override void
-    opSStringSAsync(Stack<string> i, Action<MyClass_OpSStringSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpSStringSResult>
+    opSStringSAsync(Stack<string> i, Ice.Current current)
     {
-        response(new MyClass_OpSStringSResult(i, i));
+        return Task.FromResult<MyClass_OpSStringSResult>(new MyClass_OpSStringSResult(i, i));
     }
 
-    public override void opAObjectSAsync(Ice.Value[] i, Action<MyClass_OpAObjectSResult> response, Action<Exception> exception,
-                                         Ice.Current current)
+    public override Task<MyClass_OpAObjectSResult> opAObjectSAsync(Ice.Value[] i, Ice.Current current)
     {
-        response(new MyClass_OpAObjectSResult(i, i));
+        return Task.FromResult<MyClass_OpAObjectSResult>(new MyClass_OpAObjectSResult(i, i));
     }
 
-    public override void
-    opLObjectSAsync(List<Ice.Value> i, Action<MyClass_OpLObjectSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpLObjectSResult>
+    opLObjectSAsync(List<Ice.Value> i, Ice.Current current)
     {
-        response(new MyClass_OpLObjectSResult(i, i));
+        return Task.FromResult<MyClass_OpLObjectSResult>(new MyClass_OpLObjectSResult(i, i));
     }
 
-    public override void
-    opAObjectPrxSAsync(Ice.ObjectPrx[] i, Action<MyClass_OpAObjectPrxSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpAObjectPrxSResult>
+    opAObjectPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current)
     {
-        response(new MyClass_OpAObjectPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpAObjectPrxSResult>(new MyClass_OpAObjectPrxSResult(i, i));
     }
 
-    public override void
-    opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Action<MyClass_OpLObjectPrxSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpLObjectPrxSResult>
+    opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpLObjectPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpLObjectPrxSResult>(new MyClass_OpLObjectPrxSResult(i, i));
     }
 
-    public override void
-    opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Action<MyClass_OpKObjectPrxSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpKObjectPrxSResult>
+    opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpKObjectPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpKObjectPrxSResult>(new MyClass_OpKObjectPrxSResult(i, i));
     }
 
-    public override void
-    opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Action<MyClass_OpQObjectPrxSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpQObjectPrxSResult>
+    opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpQObjectPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpQObjectPrxSResult>(new MyClass_OpQObjectPrxSResult(i, i));
     }
 
-    public override void
-    opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Action<MyClass_OpSObjectPrxSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpSObjectPrxSResult>
+    opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpSObjectPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpSObjectPrxSResult>(new MyClass_OpSObjectPrxSResult(i, i));
     }
 
-    public override void
-    opAStructSAsync(S[] i, Action<MyClass_OpAStructSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpAStructSResult>
+    opAStructSAsync(S[] i, Ice.Current current)
     {
-        response(new MyClass_OpAStructSResult(i, i));
+        return Task.FromResult<MyClass_OpAStructSResult>(new MyClass_OpAStructSResult(i, i));
     }
 
-    public override void
-    opLStructSAsync(List<S> i, Action<MyClass_OpLStructSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpLStructSResult>
+    opLStructSAsync(List<S> i, Ice.Current current)
     {
-        response(new MyClass_OpLStructSResult(i, i));
+        return Task.FromResult<MyClass_OpLStructSResult>(new MyClass_OpLStructSResult(i, i));
     }
 
-    public override void
-    opKStructSAsync(LinkedList<S> i, Action<MyClass_OpKStructSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpKStructSResult>
+    opKStructSAsync(LinkedList<S> i, Ice.Current current)
     {
-        response(new MyClass_OpKStructSResult(i, i));
+        return Task.FromResult<MyClass_OpKStructSResult>(new MyClass_OpKStructSResult(i, i));
     }
 
-    public override void
-    opQStructSAsync(Queue<S> i, Action<MyClass_OpQStructSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpQStructSResult>
+    opQStructSAsync(Queue<S> i, Ice.Current current)
     {
-        response(new MyClass_OpQStructSResult(i, i));
+        return Task.FromResult<MyClass_OpQStructSResult>(new MyClass_OpQStructSResult(i, i));
     }
 
-    public override void
-    opSStructSAsync(Stack<S> i, Action<MyClass_OpSStructSResult> response, Action<Exception> exception,
-                    Ice.Current current)
+    public override Task<MyClass_OpSStructSResult>
+    opSStructSAsync(Stack<S> i, Ice.Current current)
     {
-        response(new MyClass_OpSStructSResult(i, i));
+        return Task.FromResult<MyClass_OpSStructSResult>(new MyClass_OpSStructSResult(i, i));
     }
 
-    public override void
-    opAStructSDAsync(SD[] i, Action<MyClass_OpAStructSDResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpAStructSDResult>
+    opAStructSDAsync(SD[] i, Ice.Current current)
     {
-        response(new MyClass_OpAStructSDResult(i, i));
+        return Task.FromResult<MyClass_OpAStructSDResult>(new MyClass_OpAStructSDResult(i, i));
     }
 
-    public override void
-    opLStructSDAsync(List<SD> i, Action<MyClass_OpLStructSDResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpLStructSDResult>
+    opLStructSDAsync(List<SD> i, Ice.Current current)
     {
-        response(new MyClass_OpLStructSDResult(i, i));
+        return Task.FromResult<MyClass_OpLStructSDResult>(new MyClass_OpLStructSDResult(i, i));
     }
 
-    public override void
-    opKStructSDAsync(LinkedList<SD> i, Action<MyClass_OpKStructSDResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpKStructSDResult>
+    opKStructSDAsync(LinkedList<SD> i, Ice.Current current)
     {
-        response(new MyClass_OpKStructSDResult(i, i));
+        return Task.FromResult<MyClass_OpKStructSDResult>(new MyClass_OpKStructSDResult(i, i));
     }
 
-    public override void
-    opQStructSDAsync(Queue<SD> i, Action<MyClass_OpQStructSDResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpQStructSDResult>
+    opQStructSDAsync(Queue<SD> i, Ice.Current current)
     {
-        response(new MyClass_OpQStructSDResult(i, i));
+        return Task.FromResult<MyClass_OpQStructSDResult>(new MyClass_OpQStructSDResult(i, i));
     }
 
-    public override void
-    opSStructSDAsync(Stack<SD> i, Action<MyClass_OpSStructSDResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpSStructSDResult>
+    opSStructSDAsync(Stack<SD> i, Ice.Current current)
     {
-        response(new MyClass_OpSStructSDResult(i, i));
+        return Task.FromResult<MyClass_OpSStructSDResult>(new MyClass_OpSStructSDResult(i, i));
     }
 
-    public override void
-    opACVSAsync(CV[] i, Action<MyClass_OpACVSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpACVSResult>
+    opACVSAsync(CV[] i, Ice.Current current)
     {
-        response(new MyClass_OpACVSResult(i, i));
+        return Task.FromResult<MyClass_OpACVSResult>(new MyClass_OpACVSResult(i, i));
     }
 
-    public override void
-    opLCVSAsync(List<CV> i, Action<MyClass_OpLCVSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpLCVSResult>
+    opLCVSAsync(List<CV> i, Ice.Current current)
     {
-        response(new MyClass_OpLCVSResult(i, i));
+        return Task.FromResult<MyClass_OpLCVSResult>(new MyClass_OpLCVSResult(i, i));
     }
 
-    public override void
-    opACVPrxSAsync(CVPrx[] i, Action<MyClass_OpACVPrxSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpACVPrxSResult>
+    opACVPrxSAsync(CVPrx[] i, Ice.Current current)
     {
-        response(new MyClass_OpACVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpACVPrxSResult>(new MyClass_OpACVPrxSResult(i, i));
     }
 
-    public override void
-    opLCVPrxSAsync(List<CVPrx> i, Action<MyClass_OpLCVPrxSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpLCVPrxSResult>
+    opLCVPrxSAsync(List<CVPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpLCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpLCVPrxSResult>(new MyClass_OpLCVPrxSResult(i, i));
     }
 
-    public override void
-    opKCVPrxSAsync(LinkedList<CVPrx> i, Action<MyClass_OpKCVPrxSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpKCVPrxSResult>
+    opKCVPrxSAsync(LinkedList<CVPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpKCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpKCVPrxSResult>(new MyClass_OpKCVPrxSResult(i, i));
     }
 
-    public override void
-    opQCVPrxSAsync(Queue<CVPrx> i, Action<MyClass_OpQCVPrxSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpQCVPrxSResult>
+    opQCVPrxSAsync(Queue<CVPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpQCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpQCVPrxSResult>(new MyClass_OpQCVPrxSResult(i, i));
     }
 
-    public override void
-    opSCVPrxSAsync(Stack<CVPrx> i, Action<MyClass_OpSCVPrxSResult> response, Action<Exception> exception,
-                   Ice.Current current)
+    public override Task<MyClass_OpSCVPrxSResult>
+    opSCVPrxSAsync(Stack<CVPrx> i, Ice.Current current)
     {
-        response(new MyClass_OpSCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpSCVPrxSResult>(new MyClass_OpSCVPrxSResult(i, i));
     }
 
-    public override void
-    opACRSAsync(CR[] i, Action<MyClass_OpACRSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpACRSResult>
+    opACRSAsync(CR[] i, Ice.Current current)
     {
-        response(new MyClass_OpACRSResult(i, i));
+        return Task.FromResult<MyClass_OpACRSResult>(new MyClass_OpACRSResult(i, i));
     }
 
-    public override void
-    opLCRSAsync(List<CR> i, Action<MyClass_OpLCRSResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<MyClass_OpLCRSResult>
+    opLCRSAsync(List<CR> i, Ice.Current current)
     {
-        response(new MyClass_OpLCRSResult(i, i));
+        return Task.FromResult<MyClass_OpLCRSResult>(new MyClass_OpLCRSResult(i, i));
     }
 
-    public override void opAEnSAsync(En[] i, Action<MyClass_OpAEnSResult> response, Action<Exception> exception,
-                                     Ice.Current current)
+    public override Task<MyClass_OpAEnSResult> opAEnSAsync(En[] i, Ice.Current current)
     {
-        response(new MyClass_OpAEnSResult(i, i));
+        return Task.FromResult<MyClass_OpAEnSResult>(new MyClass_OpAEnSResult(i, i));
     }
 
-    public override void
-    opLEnSAsync(List<En> i, Action<MyClass_OpLEnSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpLEnSResult>
+    opLEnSAsync(List<En> i, Ice.Current current)
     {
-        response(new MyClass_OpLEnSResult(i, i));
+        return Task.FromResult<MyClass_OpLEnSResult>(new MyClass_OpLEnSResult(i, i));
     }
 
-    public override void
-    opKEnSAsync(LinkedList<En> i, Action<MyClass_OpKEnSResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<MyClass_OpKEnSResult>
+    opKEnSAsync(LinkedList<En> i, Ice.Current current)
     {
-        response(new MyClass_OpKEnSResult(i, i));
+        return Task.FromResult<MyClass_OpKEnSResult>(new MyClass_OpKEnSResult(i, i));
     }
 
-    public override void
-    opQEnSAsync(Queue<En> i, Action<MyClass_OpQEnSResult> response, Action<Exception> exception, Ice.Current current)
+    public override Task<MyClass_OpQEnSResult>
+    opQEnSAsync(Queue<En> i, Ice.Current current)
     {
-        response(new MyClass_OpQEnSResult(i, i));
+        return Task.FromResult<MyClass_OpQEnSResult>(new MyClass_OpQEnSResult(i, i));
     }
 
-    public override void
-    opSEnSAsync(Stack<En> i, Action<MyClass_OpSEnSResult> response, Action<Exception> exception,
-                Ice.Current current)
+    public override Task<MyClass_OpSEnSResult>
+    opSEnSAsync(Stack<En> i, Ice.Current current)
     {
-        response(new MyClass_OpSEnSResult(i, i));
+        return Task.FromResult<MyClass_OpSEnSResult>(new MyClass_OpSEnSResult(i, i));
     }
 
-    public override void
-    opCustomIntSAsync(Custom<int> i, Action<MyClass_OpCustomIntSResult> response, Action<Exception> exception,
-                      Ice.Current current)
+    public override Task<MyClass_OpCustomIntSResult>
+    opCustomIntSAsync(Custom<int> i, Ice.Current current)
     {
-        response(new MyClass_OpCustomIntSResult(i, i));
+        return Task.FromResult<MyClass_OpCustomIntSResult>(new MyClass_OpCustomIntSResult(i, i));
     }
 
-    public override void
-    opCustomCVSAsync(Custom<CV> i, Action<MyClass_OpCustomCVSResult> response, Action<Exception> exception,
-                     Ice.Current current)
+    public override Task<MyClass_OpCustomCVSResult>
+    opCustomCVSAsync(Custom<CV> i, Ice.Current current)
     {
-        response(new MyClass_OpCustomCVSResult(i, i));
+        return Task.FromResult<MyClass_OpCustomCVSResult>(new MyClass_OpCustomCVSResult(i, i));
     }
 
-    public override void
-    opCustomIntSSAsync(Custom<Custom<int>> i, Action<MyClass_OpCustomIntSSResult> response, Action<Exception> exception,
-                       Ice.Current current)
+    public override Task<MyClass_OpCustomIntSSResult>
+    opCustomIntSSAsync(Custom<Custom<int>> i, Ice.Current current)
     {
-        response(new MyClass_OpCustomIntSSResult(i, i));
+        return Task.FromResult<MyClass_OpCustomIntSSResult>(new MyClass_OpCustomIntSSResult(i, i));
     }
 
-    public override void
-    opCustomCVSSAsync(Custom<Custom<CV>> i, Action<MyClass_OpCustomCVSSResult> response, Action<Exception> exception,
-                      Ice.Current current)
+    public override Task<MyClass_OpCustomCVSSResult>
+    opCustomCVSSAsync(Custom<Custom<CV>> i, Ice.Current current)
     {
-        response(new MyClass_OpCustomCVSSResult(i, i));
+        return Task.FromResult<MyClass_OpCustomCVSSResult>(new MyClass_OpCustomCVSSResult(i, i));
     }
 
-    public override void
-    opSerialSmallCSharpAsync(Serialize.Small i, Action<MyClass_OpSerialSmallCSharpResult> response, Action<Exception> exception,
-                             Ice.Current current)
+    public override Task<MyClass_OpSerialSmallCSharpResult>
+    opSerialSmallCSharpAsync(Serialize.Small i, Ice.Current current)
     {
-        response(new MyClass_OpSerialSmallCSharpResult(i, i));
+        return Task.FromResult<MyClass_OpSerialSmallCSharpResult>(new MyClass_OpSerialSmallCSharpResult(i, i));
     }
 
-    public override void
-    opSerialLargeCSharpAsync(Serialize.Large i, Action<MyClass_OpSerialLargeCSharpResult> response, Action<Exception> exception,
-                             Ice.Current current)
+    public override Task<MyClass_OpSerialLargeCSharpResult>
+    opSerialLargeCSharpAsync(Serialize.Large i, Ice.Current current)
     {
-        response(new MyClass_OpSerialLargeCSharpResult(i, i));
+        return Task.FromResult<MyClass_OpSerialLargeCSharpResult>(new MyClass_OpSerialLargeCSharpResult(i, i));
     }
 
-    public override void
-    opSerialStructCSharpAsync(Serialize.Struct i, Action<MyClass_OpSerialStructCSharpResult> response, Action<Exception> exception,
-                              Ice.Current current)
+    public override Task<MyClass_OpSerialStructCSharpResult>
+    opSerialStructCSharpAsync(Serialize.Struct i, Ice.Current current)
     {
-        response(new MyClass_OpSerialStructCSharpResult(i, i));
+        return Task.FromResult<MyClass_OpSerialStructCSharpResult>(new MyClass_OpSerialStructCSharpResult(i, i));
     }
 }

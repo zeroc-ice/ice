@@ -67,9 +67,9 @@ public class AllTests : TestCommon.TestApp
             this.obj = obj;
         }
 
-        public override void write(Ice.OutputStream @out)
+        public override void write(Ice.OutputStream outS)
         {
-            obj.write__(@out);
+            obj.write__(outS);
             called = true;
         }
 
@@ -79,10 +79,10 @@ public class AllTests : TestCommon.TestApp
 
     private class TestValueReader : Ice.ValueReader
     {
-        public override void read(Ice.InputStream @in)
+        public override void read(Ice.InputStream inS)
         {
             obj = new MyClass();
-            obj.read__(@in);
+            obj.read__(inS);
             called = true;
         }
 
@@ -136,41 +136,41 @@ public class AllTests : TestCommon.TestApp
 
         communicator.getValueFactoryManager().add(factoryWrapper.create, MyClass.ice_staticId());
 
-        Ice.InputStream @in;
-        Ice.OutputStream @out;
+        Ice.InputStream inS;
+        Ice.OutputStream outS;
 
         Write("testing primitive types... ");
         Flush();
 
         {
             byte[] data = new byte[0];
-            @in = new Ice.InputStream(communicator, data);
+            inS = new Ice.InputStream(communicator, data);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.startEncapsulation();
-            @out.writeBool(true);
-            @out.endEncapsulation();
-            var data = @out.finished();
+            outS = new Ice.OutputStream(communicator);
+            outS.startEncapsulation();
+            outS.writeBool(true);
+            outS.endEncapsulation();
+            var data = outS.finished();
 
-            @in = new Ice.InputStream(communicator, data);
-            @in.startEncapsulation();
-            test(@in.readBool());
-            @in.endEncapsulation();
+            inS = new Ice.InputStream(communicator, data);
+            inS.startEncapsulation();
+            test(inS.readBool());
+            inS.endEncapsulation();
 
-            @in = new Ice.InputStream(communicator, data);
-            @in.startEncapsulation();
-            test(@in.readBool());
-            @in.endEncapsulation();
+            inS = new Ice.InputStream(communicator, data);
+            inS.startEncapsulation();
+            test(inS.readBool());
+            inS.endEncapsulation();
         }
 
         {
             var data = new byte[0];
-            @in = new Ice.InputStream(communicator, data);
+            inS = new Ice.InputStream(communicator, data);
             try
             {
-                @in.readBool();
+                inS.readBool();
                 test(false);
             }
             catch (Ice.UnmarshalOutOfBoundsException)
@@ -179,67 +179,67 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeBool(true);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readBool());
+            outS = new Ice.OutputStream(communicator);
+            outS.writeBool(true);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readBool());
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeByte(1);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readByte() == 1);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeByte(1);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readByte() == 1);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeShort(2);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readShort() == 2);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeShort(2);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readShort() == 2);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeInt(3);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readInt() == 3);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeInt(3);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readInt() == 3);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeLong(4);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readLong() == 4);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeLong(4);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readLong() == 4);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeFloat((float)5.0);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readFloat() == (float)5.0);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeFloat((float)5.0);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readFloat() == (float)5.0);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeDouble(6.0);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readDouble() == 6.0);
+            outS = new Ice.OutputStream(communicator);
+            outS.writeDouble(6.0);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readDouble() == 6.0);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            @out.writeString("hello world");
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            test(@in.readString().Equals("hello world"));
+            outS = new Ice.OutputStream(communicator);
+            outS.writeString("hello world");
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            test(inS.readString().Equals("hello world"));
         }
 
         WriteLine("ok");
@@ -248,16 +248,16 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            @out = new Ice.OutputStream(communicator);
-            MyEnumHelper.write(@out, MyEnum.enum3);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var e = MyEnumHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            MyEnumHelper.write(outS, MyEnum.enum3);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var e = MyEnumHelper.read(inS);
             test(e == MyEnum.enum3);
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var s = new SmallStruct();
             s.bo = true;
             s.by = 1;
@@ -269,28 +269,26 @@ public class AllTests : TestCommon.TestApp
             s.str = "7";
             s.e = MyEnum.enum2;
             s.p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            s.write__(@out);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var s2 = new SmallStruct();
-            s2.read__(@in);
+            SmallStruct.write(outS, s);
+            var data = outS.finished();
+            var s2 = SmallStruct.read(new Ice.InputStream(communicator, data));
             test(s2.Equals(s));
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var o = new OptionalClass();
             o.bo = true;
             o.by = 5;
             o.sh = 4;
             o.i = 3;
-            @out.writeValue(o);
-            @out.writePendingValues();
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
+            outS.writeValue(o);
+            outS.writePendingValues();
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
             TestReadValueCallback cb = new TestReadValueCallback();
-            @in.readValue(cb.invoke);
-            @in.readPendingValues();
+            inS.readValue(cb.invoke);
+            inS.readPendingValues();
             var o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -307,19 +305,19 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator, Ice.Util.Encoding_1_0);
+            outS = new Ice.OutputStream(communicator, Ice.Util.Encoding_1_0);
             var o = new OptionalClass();
             o.bo = true;
             o.by = 5;
             o.sh = 4;
             o.i = 3;
-            @out.writeValue(o);
-            @out.writePendingValues();
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, Ice.Util.Encoding_1_0, data);
+            outS.writeValue(o);
+            outS.writePendingValues();
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, Ice.Util.Encoding_1_0, data);
             var cb = new TestReadValueCallback();
-            @in.readValue(cb.invoke);
-            @in.readPendingValues();
+            inS.readValue(cb.invoke);
+            inS.readPendingValues();
             var o2 = (OptionalClass)cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
@@ -329,120 +327,120 @@ public class AllTests : TestCommon.TestApp
 
         {
             bool[] arr = { true, false, true, false };
-            @out = new Ice.OutputStream(communicator);
-            Ice.BoolSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.BoolSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.BoolSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.BoolSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             bool[][] arrS = { arr, new bool[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            BoolSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = BoolSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            BoolSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = BoolSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             byte[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
-            Ice.ByteSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.ByteSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.ByteSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.ByteSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             byte[][] arrS = { arr, new byte[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            ByteSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = ByteSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            ByteSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = ByteSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             Serialize.Small small = new Serialize.Small();
             small.i = 99;
-            @out = new Ice.OutputStream(communicator);
-            @out.writeSerializable(small);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var small2 = (Serialize.Small)@in.readSerializable();
+            outS = new Ice.OutputStream(communicator);
+            outS.writeSerializable(small);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var small2 = (Serialize.Small)inS.readSerializable();
             test(small2.i == 99);
         }
 
         {
             short[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
-            Ice.ShortSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.ShortSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.ShortSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.ShortSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             short[][] arrS = { arr, new short[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            ShortSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = ShortSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            ShortSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = ShortSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             int[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
-            Ice.IntSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.IntSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.IntSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.IntSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             int[][] arrS = { arr, new int[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            IntSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = IntSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            IntSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = IntSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             long[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
-            Ice.LongSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.LongSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.LongSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.LongSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             long[][] arrS = { arr, new long[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            LongSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = LongSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            LongSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = LongSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             float[] arr = {1, 2, 3, 4};
-            @out = new Ice.OutputStream(communicator);
-            Ice.FloatSeqHelper.write(@out, arr);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            float[] arr2 = Ice.FloatSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.FloatSeqHelper.write(outS, arr);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            float[] arr2 = Ice.FloatSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             float[][] arrS = { arr, new float[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            FloatSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = FloatSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            FloatSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = FloatSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
@@ -454,55 +452,55 @@ public class AllTests : TestCommon.TestApp
                 (double)3,
                 (double)4
             };
-            @out = new Ice.OutputStream(communicator);
-            Ice.DoubleSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.DoubleSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.DoubleSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.DoubleSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             double[][] arrS = { arr, new double[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            DoubleSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = DoubleSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            DoubleSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = DoubleSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             string[] arr = { "string1", "string2", "string3", "string4" };
-            @out = new Ice.OutputStream(communicator);
-            Ice.StringSeqHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = Ice.StringSeqHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            Ice.StringSeqHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = Ice.StringSeqHelper.read(inS);
             test(Compare(arr2, arr));
 
             string[][] arrS = { arr, new string[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            StringSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = StringSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            StringSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = StringSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
         {
             MyEnum[] arr = { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2 };
-            @out = new Ice.OutputStream(communicator);
-            MyEnumSHelper.write(@out, arr);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = MyEnumSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            MyEnumSHelper.write(outS, arr);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = MyEnumSHelper.read(inS);
             test(Compare(arr2, arr));
 
             MyEnum[][] arrS = { arr, new MyEnum[0], arr };
-            @out = new Ice.OutputStream(communicator);
-            MyEnumSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = MyEnumSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            MyEnumSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = MyEnumSSHelper.read(inS);
             test(Compare(arr2S, arrS));
         }
 
@@ -545,13 +543,13 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
-            MyClassSHelper.write(@out, myClassArray);
-            @out.writePendingValues();
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2 = MyClassSHelper.read(@in);
-            @in.readPendingValues();
+            outS = new Ice.OutputStream(communicator);
+            MyClassSHelper.write(outS, myClassArray);
+            outS.writePendingValues();
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = MyClassSHelper.read(inS);
+            inS.readPendingValues();
             test(arr2.Length == myClassArray.Length);
             for (int i = 0; i < arr2.Length; ++i)
             {
@@ -572,11 +570,11 @@ public class AllTests : TestCommon.TestApp
             }
 
             MyClass[][] arrS = { myClassArray, new MyClass[0], myClassArray };
-            @out = new Ice.OutputStream(communicator);
-            MyClassSSHelper.write(@out, arrS);
-            data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var arr2S = MyClassSSHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            MyClassSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = MyClassSSHelper.read(inS);
             test(arr2S.Length == arrS.Length);
             test(arr2S[0].Length == arrS[0].Length);
             test(arr2S[1].Length == arrS[1].Length);
@@ -584,20 +582,20 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var obj = new MyClass();
             obj.s = new SmallStruct();
             obj.s.e = MyEnum.enum2;
             var writer = new TestValueWriter(obj);
-            @out.writeValue(writer);
-            @out.writePendingValues();
-            var data = @out.finished();
+            outS.writeValue(writer);
+            outS.writePendingValues();
+            var data = outS.finished();
             test(writer.called);
             factoryWrapper.setFactory(TestObjectFactory);
-            @in = new Ice.InputStream(communicator, data);
+            inS = new Ice.InputStream(communicator, data);
             var cb = new TestReadValueCallback();
-            @in.readValue(cb.invoke);
-            @in.readPendingValues();
+            inS.readValue(cb.invoke);
+            inS.readPendingValues();
             test(cb.obj != null);
             test(cb.obj is TestValueReader);
             var reader = (TestValueReader)cb.obj;
@@ -608,7 +606,7 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var ex = new MyException();
 
             var c = new MyClass();
@@ -631,13 +629,13 @@ public class AllTests : TestCommon.TestApp
 
             ex.c = c;
 
-            @out.writeException(ex);
-            var data = @out.finished();
+            outS.writeException(ex);
+            var data = outS.finished();
 
-            @in = new Ice.InputStream(communicator, data);
+            inS = new Ice.InputStream(communicator, data);
             try
             {
-                @in.throwException();
+                inS.throwException();
                 test(false);
             }
             catch (MyException ex1)
@@ -663,11 +661,11 @@ public class AllTests : TestCommon.TestApp
             var dict = new Dictionary<byte, bool>();
             dict.Add(4, true);
             dict.Add(1, false);
-            @out = new Ice.OutputStream(communicator);
-            ByteBoolDHelper.write(@out, dict);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = ByteBoolDHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            ByteBoolDHelper.write(outS, dict);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = ByteBoolDHelper.read(inS);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
@@ -675,11 +673,11 @@ public class AllTests : TestCommon.TestApp
             var dict = new Dictionary<short, int>();
             dict.Add(1, 9);
             dict.Add(4, 8);
-            @out = new Ice.OutputStream(communicator);
-            ShortIntDHelper.write(@out, dict);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = ShortIntDHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            ShortIntDHelper.write(outS, dict);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = ShortIntDHelper.read(inS);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
@@ -687,11 +685,11 @@ public class AllTests : TestCommon.TestApp
             var dict = new Dictionary<long, float>();
             dict.Add(123809828, 0.51f);
             dict.Add(123809829, 0.56f);
-            @out = new Ice.OutputStream(communicator);
-            LongFloatDHelper.write(@out, dict);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = LongFloatDHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            LongFloatDHelper.write(outS, dict);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = LongFloatDHelper.read(inS);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
@@ -699,11 +697,11 @@ public class AllTests : TestCommon.TestApp
             var dict = new Dictionary<string, string>();
             dict.Add("key1", "value1");
             dict.Add("key2", "value2");
-            @out = new Ice.OutputStream(communicator);
-            StringStringDHelper.write(@out, dict);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = StringStringDHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            StringStringDHelper.write(outS, dict);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = StringStringDHelper.read(inS);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
@@ -717,13 +715,13 @@ public class AllTests : TestCommon.TestApp
             c.s = new SmallStruct();
             c.s.e = MyEnum.enum3;
             dict.Add("key2", c);
-            @out = new Ice.OutputStream(communicator);
-            StringMyClassDHelper.write(@out, dict);
-            @out.writePendingValues();
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = StringMyClassDHelper.read(@in);
-            @in.readPendingValues();
+            outS = new Ice.OutputStream(communicator);
+            StringMyClassDHelper.write(outS, dict);
+            outS.writePendingValues();
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = StringMyClassDHelper.read(inS);
+            inS.readPendingValues();
             test(dict2.Count == dict.Count);
             test(dict2["key1"].s.e == MyEnum.enum2);
             test(dict2["key2"].s.e == MyEnum.enum3);
@@ -731,44 +729,44 @@ public class AllTests : TestCommon.TestApp
 
         {
             bool[] arr = { true, false, true, false };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<bool>(arr);
-            BoolListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = BoolListHelper.read(@in);
+            BoolListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = BoolListHelper.read(inS);
             test(Compare(l, l2));
         }
 
         {
             byte[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<byte>(arr);
-            ByteListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = ByteListHelper.read(@in);
+            ByteListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = ByteListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             MyEnum[] arr = { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<MyEnum>(arr);
-            MyEnumListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = MyEnumListHelper.read(@in);
+            MyEnumListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyEnumListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<SmallStruct>(smallStructArray);
-            SmallStructListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = SmallStructListHelper.read(@in);
+            SmallStructListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = SmallStructListHelper.read(inS);
             test(l2.Count == l.Count);
             for (int i = 0; i < l2.Count; ++i)
             {
@@ -777,14 +775,14 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<MyClass>(myClassArray);
-            MyClassListHelper.write(@out, l);
-            @out.writePendingValues();
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = MyClassListHelper.read(@in);
-            @in.readPendingValues();
+            MyClassListHelper.write(outS, l);
+            outS.writePendingValues();
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyClassListHelper.read(inS);
+            inS.readPendingValues();
             test(l2.Count == l.Count);
             for (int i = 0; i < l2.Count; ++i)
             {
@@ -809,55 +807,55 @@ public class AllTests : TestCommon.TestApp
             var arr = new MyClassPrx[2];
             arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
             arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<MyClassPrx>(arr);
-            MyClassProxyListHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = MyClassProxyListHelper.read(@in);
+            MyClassProxyListHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyClassProxyListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             short[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new LinkedList<short>(arr);
-            ShortLinkedListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = ShortLinkedListHelper.read(@in);
+            ShortLinkedListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = ShortLinkedListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             int[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             LinkedList<int> l = new LinkedList<int>(arr);
-            Test.IntLinkedListHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            LinkedList<int> l2 = Test.IntLinkedListHelper.read(@in);
+            Test.IntLinkedListHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            LinkedList<int> l2 = Test.IntLinkedListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             MyEnum[] arr = { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
-            Test.MyEnumLinkedListHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            LinkedList<Test.MyEnum> l2 = Test.MyEnumLinkedListHelper.read(@in);
+            Test.MyEnumLinkedListHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            LinkedList<Test.MyEnum> l2 = Test.MyEnumLinkedListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new LinkedList<Test.SmallStruct>(smallStructArray);
-            SmallStructLinkedListHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = SmallStructLinkedListHelper.read(@in);
+            SmallStructLinkedListHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = SmallStructLinkedListHelper.read(inS);
             test(l2.Count == l.Count);
             var e = l.GetEnumerator();
             var e2 = l2.GetEnumerator();
@@ -869,33 +867,33 @@ public class AllTests : TestCommon.TestApp
 
         {
             long[] arr = { 0x01, 0x11, 0x12, 0x22 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Stack<long>(arr);
-            LongStackHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = LongStackHelper.read(@in);
+            LongStackHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = LongStackHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             float[] arr = { 1, 2, 3, 4 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Stack<float>(arr);
-            FloatStackHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = FloatStackHelper.read(@in);
+            FloatStackHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = FloatStackHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Stack<SmallStruct>(smallStructArray);
-            SmallStructStackHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = SmallStructStackHelper.read(@in);
+            SmallStructStackHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = SmallStructStackHelper.read(inS);
             test(l2.Count == l.Count);
             var e = l.GetEnumerator();
             var e2 = l2.GetEnumerator();
@@ -909,44 +907,44 @@ public class AllTests : TestCommon.TestApp
             var arr = new MyClassPrx[2];
             arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
             arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Stack<MyClassPrx>(arr);
-            MyClassProxyStackHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = MyClassProxyStackHelper.read(@in);
+            MyClassProxyStackHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyClassProxyStackHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             double[] arr = { 1, 2, 3, 4 };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Queue<double>(arr);
-            DoubleQueueHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = DoubleQueueHelper.read(@in);
+            DoubleQueueHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = DoubleQueueHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             string[] arr = { "string1", "string2", "string3", "string4" };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Queue<string>(arr);
-            StringQueueHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = StringQueueHelper.read(@in);
+            StringQueueHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = StringQueueHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Queue<SmallStruct>(smallStructArray);
-            SmallStructQueueHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = SmallStructQueueHelper.read(@in);
+            SmallStructQueueHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = SmallStructQueueHelper.read(inS);
             test(l2.Count == l.Count);
             var e = l.GetEnumerator();
             var e2 = l2.GetEnumerator();
@@ -959,24 +957,24 @@ public class AllTests : TestCommon.TestApp
         {
             string[] arr = { "string1", "string2", "string3", "string4" };
             string[][] arrS = { arr, new string[0], arr };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new List<string[]>(arrS);
-            StringSListHelper.write(@out, l);
-            byte[] data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = StringSListHelper.read(@in);
+            StringSListHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = StringSListHelper.read(inS);
             test(Compare(l2, l));
         }
 
         {
             string[] arr = { "string1", "string2", "string3", "string4" };
             string[][] arrS = { arr, new string[0], arr };
-            @out = new Ice.OutputStream(communicator);
+            outS = new Ice.OutputStream(communicator);
             var l = new Stack<string[]>(arrS);
-            StringSStackHelper.write(@out, l);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var l2 = StringSStackHelper.read(@in);
+            StringSStackHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = StringSStackHelper.read(inS);
             test(Compare(l2, l));
         }
 
@@ -984,11 +982,11 @@ public class AllTests : TestCommon.TestApp
             var dict = new SortedDictionary<string, string>();
             dict.Add("key1", "value1");
             dict.Add("key2", "value2");
-            @out = new Ice.OutputStream(communicator);
-            SortedStringStringDHelper.write(@out, dict);
-            var data = @out.finished();
-            @in = new Ice.InputStream(communicator, data);
-            var dict2 = SortedStringStringDHelper.read(@in);
+            outS = new Ice.OutputStream(communicator);
+            SortedStringStringDHelper.write(outS, dict);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var dict2 = SortedStringStringDHelper.read(inS);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 

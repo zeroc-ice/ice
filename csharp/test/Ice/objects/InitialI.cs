@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System.Threading.Tasks;
 using Test;
 
 public sealed class InitialI : InitialDisp_
@@ -43,7 +44,7 @@ public sealed class InitialI : InitialDisp_
         c = _c;
         d = _d;
     }
-
+    
     public override B getB1(Ice.Current current)
     {
         return _b1;
@@ -139,6 +140,16 @@ public sealed class InitialI : InitialDisp_
     public override void throwInnerSubEx(Ice.Current current)
     {
         throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
+    }
+
+    public override Initial_GetMBMarshaledResult getMB(Ice.Current current)
+    {
+        return new Initial_GetMBMarshaledResult(_b1, current);
+    }
+
+    public override Task<Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current)
+    {
+        return Task.FromResult(new Initial_GetAMDMBMarshaledResult(_b1, current));
     }
 
     private Ice.ObjectAdapter _adapter;

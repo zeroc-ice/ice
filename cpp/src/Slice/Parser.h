@@ -594,8 +594,11 @@ public:
     int returnTag() const;
     Mode mode() const;
     Mode sendMode() const;
+    bool hasMarshaledResult() const;
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
     ParamDeclList parameters() const;
+    ParamDeclList inParameters() const;
+    ParamDeclList outParameters() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;

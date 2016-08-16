@@ -10,6 +10,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 public class TwowaysAMI
@@ -53,38 +54,38 @@ public class TwowaysAMI
 
         public bool _called;
     }
-    
+
     private class GenericCallback<T> : CallbackBase
     {
         public GenericCallback(T value)
         {
             this._value = value;
         }
-        
+
         public void response(T value)
         {
             _value = value;
             _succeeded = true;
             called();
         }
-        
+
         public void exception(Ice.Exception ex)
         {
             _succeeded = false;
             called();
         }
-        
+
         public bool succeeded()
         {
             check();
             return _succeeded;
         }
-        
+
         public T value()
         {
             return _value;
         }
-        
+
         private T _value;
         private bool _succeeded = false;
     }
@@ -3662,5 +3663,34 @@ public class TwowaysAMI
                 });
             test(cb.succeeded() && cb.value().Count == 0);
         }
+
+        Func<Task> task = async () =>
+        {
+            {
+                var p1 = await p.opMStruct1Async();
+
+                p1.e = Test.MyEnum.enum3;
+                var r = await p.opMStruct2Async(p1);
+                test(r.p2.Equals(p1) && r.returnValue.Equals(p1));
+            }
+
+            {
+                await p.opMSeq1Async();
+
+                var p1 = new string[1];
+                p1[0] = "test";
+                var r = await p.opMSeq2Async(p1);
+                test(Ice.CollectionComparer.Equals(r.p2, p1) && Ice.CollectionComparer.Equals(r.returnValue, p1));
+            }
+
+            {
+                await p.opMDict1Async();
+
+                var p1 = new Dictionary<string, string>();
+                p1["test"] = "test";
+                var r = await p.opMDict2Async(p1);
+                test(Ice.CollectionComparer.Equals(r.p2, p1) && Ice.CollectionComparer.Equals(r.returnValue, p1));
+            }
+        };
     }
 }

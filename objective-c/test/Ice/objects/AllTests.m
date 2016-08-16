@@ -235,8 +235,15 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
     tprintf("ok\n");
 
-//     if(!collocated)
-//     {
+    tprintf("testing marshaled results...");
+    b1 = [initial getMB];
+    test(b1 != nil && b1.theB == b1);
+    b1.theB = nil;
+    b1 = [initial end_getAMDMB:[initial begin_getAMDMB]];
+    test(b1 != nil && b1.theB == b1);
+    b1.theB = nil;
+    tprintf("ok\n");
+
     tprintf("testing UnexpectedObjectException... ");
     ref = @"uoet:default -p 12010";
     base = [communicator stringToProxy:ref];
