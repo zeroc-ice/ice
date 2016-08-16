@@ -1905,7 +1905,7 @@ def getTestEnv(lang, testdir):
     # DB CLASSPATH, in Windows db.jar come from Ice home or
     # from Third Party Home
     #
-    if lang in ["cpp", "java", "csharp", "python", "ruby", "js"]:
+    if lang in ["cpp", "java", "csharp", "python", "ruby", "js", "php"]:
         if isWin32():
             if iceHome:
                 addClasspath(os.path.join(getIceDir("java", testdir), "lib", "db.jar"), env)
@@ -1978,7 +1978,7 @@ def getTestEnv(lang, testdir):
     elif isAIX():
         addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:
-        # C++ binaries use rpath $ORIGIN or similar to find the Ice libraries 
+        # C++ binaries use rpath $ORIGIN or similar to find the Ice libraries
         addLdPath(getCppLibDir(lang), env)
 
     if lang == "java":
