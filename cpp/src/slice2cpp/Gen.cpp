@@ -2090,10 +2090,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string deprecateSymbol = getDeprecateSymbol(p, cl);
     H << sp << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name) << spar << paramsDecl
       << "const ::Ice::Context& __ctx = ::Ice::noExplicitContext" << epar;
-    H << sb;
+    H << sb << nl;
     if(ret)
     {
-        H << nl << "return ";
+        H << "return ";
     }
     H << "end_" << name << spar << outParamNamesAMI << "__begin_" + name << spar << argsAMI;
     H << "__ctx" << "::IceInternal::__dummyCallback" << "0" << "true" << epar << epar << ';';
