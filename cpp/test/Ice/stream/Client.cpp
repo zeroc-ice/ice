@@ -397,12 +397,13 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         Ice::InputStream in(communicator, data);
         SmallStruct s2;
         in.read(s2);
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No comparison operator generated in C++11.
-        //
-        test(s2 == s);
+
+#ifdef ICE_CPP11_MAPPING
+        test(targetEqualTo(s2.p, s.p));
+        s2.p = s.p; // otherwise the s2 == s below will fail
 #endif
+
+        test(s2 == s);
     }
 
 #ifndef ICE_CPP11_MAPPING
@@ -758,15 +759,15 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         in.read(arr2);
         in.readPendingValues();
         test(arr2.size() == arr.size());
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No comparison operator generated in C++11.
-        //
+
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
+#ifdef ICE_CPP11_MAPPING
+            test(targetEqualTo(arr[j].p, arr2[j].p));
+            arr2[j].p = arr[j].p;
+#endif
             test(arr[j] == arr2[j]);
         }
-#endif
 
         SmallStructSS arrS;
         arrS.push_back(arr);
@@ -781,9 +782,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         SmallStructSS arr2S;
         in2.read(arr2S);
 #ifndef ICE_CPP11_MAPPING
-        //
-        // No comparison operator generated in C++11.
-        //
+        // With C++11, we need targetEqualTo to compare proxies
         test(arr2S == arrS);
 #endif
     }
@@ -1151,12 +1150,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         Ice::InputStream in(communicator, data);
         NestedStruct s2;
         in.read(s2);
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No comparison operator generated in C++11.
-        //
         test(s2 == s);
-#endif
     }
 
 #ifndef ICE_CPP11_MAPPING
@@ -1223,12 +1217,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         Ice::InputStream in(communicator, data);
         NestedStruct2 s2;
         in.read(s2);
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No comparison operator generated in C++11.
-        //
         test(s2 == s);
-#endif
     }
 
 #ifndef ICE_CPP11_MAPPING

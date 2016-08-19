@@ -969,10 +969,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cl13->end_ice_ping(cl13->begin_ice_ping());
 #endif
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // TODO port this once the C++11 streaming API is done
-    //
     try
     {
         // Send request with bogus 1.2 encoding.
@@ -985,7 +981,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)
@@ -1006,7 +1002,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)
@@ -1014,7 +1010,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // The server thrown an UnsupportedEncodingException
         test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
     }
-#endif
 
     cout << "ok" << endl;
 
