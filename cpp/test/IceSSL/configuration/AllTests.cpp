@@ -757,7 +757,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
+
+#   ifdef ICE_CPP11_MAPPING
+            test(!serverCert->checkValidity(std::chrono::system_clock::time_point()));
+#   else
             test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
+#   endif
 #endif
 
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
@@ -765,7 +770,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(ICE_TARGET_EQUAL_TO(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
+
+#   ifdef ICE_CPP11_MAPPING
+            test(!caCert->checkValidity(std::chrono::system_clock::time_point()));
+#   else
             test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
+#   endif
 #endif
 
             test(!serverCert->verify(serverCert));
@@ -785,8 +795,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
+
+#   ifdef ICE_CPP11_MAPPING
+            test(!info->nativeCerts[0]->checkValidity(std::chrono::system_clock::time_point()) &&
+                 !info->nativeCerts[1]->checkValidity(std::chrono::system_clock::time_point()));
+#   else
             test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
                  !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
+#   endif
 #endif
             test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
             test(info->nativeCerts.size() == 2 &&

@@ -17,6 +17,7 @@
 #include <Ice/Object.h>
 #include <Ice/Base64.h>
 #include <Ice/StringConverter.h>
+#include <IceUtil/Time.h>
 
 #if defined(ICE_USE_OPENSSL)
 #  include <openssl/x509v3.h>
@@ -230,7 +231,11 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
     return pairs;
 }
 
+#ifdef ICE_CPP11_MAPPING
+chrono::system_clock::time_point
+#else
 IceUtil::Time
+#endif
 getX509Date(SecCertificateRef cert, CFTypeRef key)
 {
     assert(key == kSecOIDX509V1ValidityNotAfter || key == kSecOIDX509V1ValidityNotBefore);
@@ -242,7 +247,14 @@ getX509Date(SecCertificateRef cert, CFTypeRef key)
         CFNumberGetValue(date, kCFNumberDoubleType, &seconds);
         CFRelease(property);
     }
-    return IceUtil::Time::secondsDouble(kCFAbsoluteTimeIntervalSince1970 + seconds);
+
+    IceUtil::Time time = IceUtil::Time::secondsDouble(kCFAbsoluteTimeIntervalSince1970 + seconds);
+
+#ifdef ICE_CPP11_MAPPING
+    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+#else
+    return time;
+#endif
 }
 
 string
@@ -447,14 +459,26 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const string& file)
     loadCertificate(cert, &buffer[0], static_cast<DWORD>(buffer.size()));
 }
 
+#ifdef ICE_CPP11_MAPPING
+chrono::system_clock::time_point
+#else
 IceUtil::Time
+#endif
 filetimeToTime(FILETIME ftime)
 {
     Ice::Long value = 0;
     DWORD* dest = reinterpret_cast<DWORD*>(&value);
     *dest++ = ftime.dwLowDateTime;
     *dest = ftime.dwHighDateTime;
-    return IceUtil::Time::milliSeconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH);
+
+    IceUtil::Time time = IceUtil::Time::milliSeconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH);
+
+#ifdef ICE_CPP11_MAPPING
+    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+#else
+    return time;
+#endif
+
 }
 
 string
@@ -686,8 +710,12 @@ Init init;
 
 }
 
+#ifdef ICE_CPP11_MAPPING
+chrono::system_clock::time_point
+#else
 static IceUtil::Time
-ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
+#endif
+ASMUtcTimeToTime(const ASN1_UTCTIME* s)
 {
     struct tm tm;
     int offset;
@@ -729,7 +757,14 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
         time_t now = time(0);
         tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
     }
-    return IceUtil::Time::seconds(mktime(&tm) - offset*60 + tzone);
+
+    IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - offset * 60 + tzone);
+
+#ifdef ICE_CPP11_MAPPING
+    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+#else
+    return time;
+#endif
 }
 
 static string
@@ -1445,17 +1480,29 @@ Certificate::encode() const
 bool
 Certificate::checkValidity() const
 {
+#ifdef ICE_CPP11_MAPPING
+    auto now = chrono::system_clock::now();
+#else
     IceUtil::Time now = IceUtil::Time::now();
+#endif
     return now > getNotBefore() && now <= getNotAfter();
 }
 
 bool
+#ifdef ICE_CPP11_MAPPING
+Certificate::checkValidity(const chrono::system_clock::time_point& now) const
+#else
 Certificate::checkValidity(const IceUtil::Time& now) const
+#endif
 {
     return now > getNotBefore() && now <= getNotAfter();
 }
 
+#ifdef ICE_CPP11_MAPPING
+chrono::system_clock::time_point
+#else
 IceUtil::Time
+#endif
 Certificate::getNotAfter() const
 {
 #if defined(ICE_USE_SECURE_TRANSPORT)
@@ -1463,16 +1510,26 @@ Certificate::getNotAfter() const
 #elif defined(ICE_USE_SCHANNEL)
     return filetimeToTime(_certInfo->NotAfter);
 #elif defined(ICE_USE_OPENSSL)
-    return ASMUtcTimeToIceUtilTime(X509_get_notAfter(_cert));
+    return ASMUtcTimeToTime(X509_get_notAfter(_cert));
 #elif defined(ICE_OS_WINRT)
     // Convert 100ns time from January 1, 1601 to ms from January 1, 1970
-    return IceUtil::Time::milliSeconds(_cert->ValidTo.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
+    IceUtil::Time time = IceUtil::Time::milliSeconds(_cert->ValidTo.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
+#   ifdef ICE_CPP11_MAPPING
+    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+#   else
+    return time;
+#   endif
+
 #else
 #   error "Unknown platform"
 #endif
 }
 
+#ifdef ICE_CPP11_MAPPING
+chrono::system_clock::time_point
+#else
 IceUtil::Time
+#endif
 Certificate::getNotBefore() const
 {
 #if defined(ICE_USE_SECURE_TRANSPORT)
@@ -1480,10 +1537,16 @@ Certificate::getNotBefore() const
 #elif defined(ICE_USE_SCHANNEL)
     return filetimeToTime(_certInfo->NotBefore);
 #elif defined(ICE_USE_OPENSSL)
-    return ASMUtcTimeToIceUtilTime(X509_get_notBefore(_cert));
+    return ASMUtcTimeToTime(X509_get_notBefore(_cert));
 #elif defined(ICE_OS_WINRT)
     // Convert 100ns time from January 1, 1601 to ms from January 1, 1970
-    return IceUtil::Time::milliSeconds(_cert->ValidFrom.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
+    IceUtil::Time time = IceUtil::Time::milliSeconds(_cert->ValidFrom.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
+#   ifdef ICE_CPP11_MAPPING
+    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+#   else
+    return time;
+#   endif
+
 #else
 #   error "Unknown platform"
 #endif
@@ -1645,8 +1708,16 @@ Certificate::toString() const
     os << "issuer: " << string(getIssuerDN()) << "\n";
     os << "subject: " << string(getSubjectDN()) << "\n";
 #if !defined(ICE_USE_SECURE_TRANSPORT_IOS)
+
+#   ifdef ICE_CPP11_MAPPING
+    // Precision is only seconds here, which is probably fine
+    os << "notBefore: " << IceUtil::Time::seconds(chrono::system_clock::to_time_t(getNotBefore())).toDateTime() << "\n";
+    os << "notAfter: " << IceUtil::Time::seconds(chrono::system_clock::to_time_t(getNotAfter())).toDateTime();
+#   else
     os << "notBefore: " << getNotBefore().toDateTime() << "\n";
     os << "notAfter: " << getNotAfter().toDateTime();
+#   endif
+
 #endif
     return os.str();
 }

@@ -10,10 +10,15 @@
 #ifndef ICE_SSL_PLUGIN_H
 #define ICE_SSL_PLUGIN_H
 
-#include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
 #include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfo.h>
+
+#ifdef ICE_CPP11_MAPPING
+#   include <chrono>
+#else
+#   include <IceUtil/Time.h>
+#endif
 
 #include <vector>
 #include <list>
@@ -367,17 +372,30 @@ public:
     //
     // Checks that the certificate is valid at the given time.
     //
+#   ifdef ICE_CPP11_MAPPING
+    bool checkValidity(const std::chrono::system_clock::time_point&) const;
+#   else
     bool checkValidity(const IceUtil::Time&) const;
+#   endif
 
     //
     // Get the not-after validity time.
     //
+#   ifdef ICE_CPP11_MAPPING
+    std::chrono::system_clock::time_point getNotAfter() const;
+#   else
     IceUtil::Time getNotAfter() const;
+#   endif
 
     //
     // Get the not-before validity time.
     //
+#   ifdef ICE_CPP11_MAPPING
+    std::chrono::system_clock::time_point getNotBefore() const;
+#   else
     IceUtil::Time getNotBefore() const;
+#   endif
+
 #endif
 
     //
