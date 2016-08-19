@@ -846,7 +846,9 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
 Test::Structure
 MyDerivedClassI::opMStruct1(const Ice::Current&)
 {
-    return Test::Structure();
+    Test::Structure s;
+    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    return s;
 }
 
 

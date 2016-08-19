@@ -1000,7 +1000,9 @@ MyDerivedClassI::opMStruct1Async(function<void(const Test::Structure&)> response
                                  function<void(std::exception_ptr)>,
                                  const Ice::Current&)
 {
-    response(Test::Structure());
+    Test::Structure s;
+    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    response(s);
 }
 
 void
