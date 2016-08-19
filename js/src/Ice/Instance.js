@@ -7,15 +7,13 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
         "../Ice/DefaultsAndOverrides",
         "../Ice/EndpointFactoryManager",
-        "../Ice/HashMap",
         "../Ice/ImplicitContextI",
         "../Ice/IdentityUtil",
         "../Ice/LocatorManager",
@@ -41,39 +39,38 @@ Ice.__M.require(module,
         "../Ice/ACM"
     ]);
 
-var IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
-var AsyncResultBase = Ice.AsyncResultBase;
-var Debug = Ice.Debug;
-var DefaultsAndOverrides = Ice.DefaultsAndOverrides;
-var EndpointFactoryManager = Ice.EndpointFactoryManager;
-var HashMap = Ice.HashMap;
-var ImplicitContextI = Ice.ImplicitContextI;
-var LocatorManager = Ice.LocatorManager;
-var Logger = Ice.Logger;
-var ObjectAdapterFactory = Ice.ObjectAdapterFactory;
-var ValueFactoryManagerI = Ice.ValueFactoryManagerI;
-var OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
-var Promise = Ice.Promise;
-var Properties = Ice.Properties;
-var ProxyFactory = Ice.ProxyFactory;
-var RetryQueue = Ice.RetryQueue;
-var RouterManager = Ice.RouterManager;
-var Timer = Ice.Timer;
-var TraceLevels = Ice.TraceLevels;
-var ReferenceFactory = Ice.ReferenceFactory;
-var RequestHandlerFactory = Ice.RequestHandlerFactory;
-var ACMConfig = Ice.ACMConfig;
+const AsyncResultBase = Ice.AsyncResultBase;
+const Debug = Ice.Debug;
+const DefaultsAndOverrides = Ice.DefaultsAndOverrides;
+const EndpointFactoryManager = Ice.EndpointFactoryManager;
+const ImplicitContextI = Ice.ImplicitContextI;
+const LocatorManager = Ice.LocatorManager;
+const Logger = Ice.Logger;
+const ObjectAdapterFactory = Ice.ObjectAdapterFactory;
+const ValueFactoryManagerI = Ice.ValueFactoryManagerI;
+const OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
+const Properties = Ice.Properties;
+const ProxyFactory = Ice.ProxyFactory;
+const RetryQueue = Ice.RetryQueue;
+const RouterManager = Ice.RouterManager;
+const Timer = Ice.Timer;
+const TraceLevels = Ice.TraceLevels;
+const ReferenceFactory = Ice.ReferenceFactory;
+const RequestHandlerFactory = Ice.RequestHandlerFactory;
+const ACMConfig = Ice.ACMConfig;
 
-var StateActive = 0;
-var StateDestroyInProgress = 1;
-var StateDestroyed = 2;
+const StateActive = 0;
+const StateDestroyInProgress = 1;
+const StateDestroyed = 2;
 
 //
 // Instance - only for use by Communicator
 //
-var Instance = Ice.Class({
-    __init__: function(initData)
+class Instance
+{
+    constructor(initData)
     {
         this._state = StateActive;
         this._initData = initData;
@@ -95,8 +92,9 @@ var Instance = Ice.Class({
         this._endpointHostResolver = null;
         this._endpointFactoryManager = null;
         this._objectFactoryMap = null;
-    },
-    initializationData: function()
+    }
+
+    initializationData()
     {
         //
         // No check for destruction. It must be possible to access the
@@ -105,20 +103,23 @@ var Instance = Ice.Class({
         // This value is immutable.
         //
         return this._initData;
-    },
-    traceLevels: function()
+    }
+
+    traceLevels()
     {
         // This value is immutable.
         Debug.assert(this._traceLevels !== null);
         return this._traceLevels;
-    },
-    defaultsAndOverrides: function()
+    }
+
+    defaultsAndOverrides()
     {
         // This value is immutable.
         Debug.assert(this._defaultsAndOverrides !== null);
         return this._defaultsAndOverrides;
-    },
-    routerManager: function()
+    }
+
+    routerManager()
     {
         if(this._state === StateDestroyed)
         {
@@ -127,8 +128,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._routerManager !== null);
         return this._routerManager;
-    },
-    locatorManager: function()
+    }
+
+    locatorManager()
     {
         if(this._state === StateDestroyed)
         {
@@ -137,8 +139,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._locatorManager !== null);
         return this._locatorManager;
-    },
-    referenceFactory: function()
+    }
+
+    referenceFactory()
     {
         if(this._state === StateDestroyed)
         {
@@ -147,8 +150,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._referenceFactory !== null);
         return this._referenceFactory;
-    },
-    requestHandlerFactory: function()
+    }
+
+    requestHandlerFactory()
     {
         if(this._state === StateDestroyed)
         {
@@ -157,8 +161,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._requestHandlerFactory !== null);
         return this._requestHandlerFactory;
-    },
-    proxyFactory: function()
+    }
+
+    proxyFactory()
     {
         if(this._state === StateDestroyed)
         {
@@ -167,8 +172,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._proxyFactory !== null);
         return this._proxyFactory;
-    },
-    outgoingConnectionFactory: function()
+    }
+
+    outgoingConnectionFactory()
     {
         if(this._state === StateDestroyed)
         {
@@ -177,8 +183,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._outgoingConnectionFactory !== null);
         return this._outgoingConnectionFactory;
-    },
-    objectAdapterFactory: function()
+    }
+
+    objectAdapterFactory()
     {
         if(this._state === StateDestroyed)
         {
@@ -187,8 +194,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._objectAdapterFactory !== null);
         return this._objectAdapterFactory;
-    },
-    retryQueue: function()
+    }
+
+    retryQueue()
     {
         if(this._state === StateDestroyed)
         {
@@ -197,8 +205,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._retryQueue !== null);
         return this._retryQueue;
-    },
-    timer: function()
+    }
+
+    timer()
     {
         if(this._state === StateDestroyed)
         {
@@ -207,8 +216,9 @@ var Instance = Ice.Class({
 
         Debug.assert(this._timer !== null);
         return this._timer;
-    },
-    endpointFactoryManager: function()
+    }
+
+    endpointFactoryManager()
     {
         if(this._state === StateDestroyed)
         {
@@ -217,27 +227,32 @@ var Instance = Ice.Class({
 
         Debug.assert(this._endpointFactoryManager !== null);
         return this._endpointFactoryManager;
-    },
-    messageSizeMax: function()
+    }
+
+    messageSizeMax()
     {
         // This value is immutable.
         return this._messageSizeMax;
-    },
-    batchAutoFlushSize: function()
+    }
+
+    batchAutoFlushSize()
     {
         // This value is immutable.
         return this._batchAutoFlushSize;
-    },
-    clientACM: function()
+    }
+
+    clientACM()
     {
         // This value is immutable.
         return this._clientACM;
-    },
-    getImplicitContext: function()
+    }
+
+    getImplicitContext()
     {
         return this._implicitContext;
-    },
-    setDefaultLocator: function(locator)
+    }
+
+    setDefaultLocator(locator)
     {
         if(this._state == StateDestroyed)
         {
@@ -245,8 +260,9 @@ var Instance = Ice.Class({
         }
 
         this._referenceFactory = this._referenceFactory.setDefaultLocator(locator);
-    },
-    setDefaultRouter: function(router)
+    }
+
+    setDefaultRouter(router)
     {
         if(this._state == StateDestroyed)
         {
@@ -254,18 +270,19 @@ var Instance = Ice.Class({
         }
 
         this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
-    },
-    setLogger: function(logger)
+    }
+
+    setLogger(logger)
     {
         this._initData.logger = logger;
-    },
-    finishSetup: function(communicator, promise)
+    }
+
+    finishSetup(communicator, promise)
     {
         //
         // If promise == null, it means the caller is requesting a synchronous setup.
         // Otherwise, we resolve the promise after all initialization is complete.
         //
-
         try
         {
             if(this._initData.properties === null)
@@ -290,8 +307,8 @@ var Instance = Ice.Class({
 
             this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties, this._initData.logger);
 
-            var defMessageSizeMax = 1024;
-            var num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
+            const defMessageSizeMax = 1024;
+            let num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
             if(num < 1 || num > 0x7fffffff / 1024)
             {
                 this._messageSizeMax = 0x7fffffff;
@@ -345,20 +362,20 @@ var Instance = Ice.Class({
 
             this._endpointFactoryManager = new EndpointFactoryManager(this);
 
-            var tcpInstance = new Ice.ProtocolInstance(this, Ice.TCPEndpointType, "tcp", false);
-            var tcpEndpointFactory = new Ice.TcpEndpointFactory(tcpInstance);
+            const tcpInstance = new Ice.ProtocolInstance(this, Ice.TCPEndpointType, "tcp", false);
+            const tcpEndpointFactory = new Ice.TcpEndpointFactory(tcpInstance);
             this._endpointFactoryManager.add(tcpEndpointFactory);
 
-            var wsInstance = new Ice.ProtocolInstance(this, Ice.WSEndpointType, "ws", false);
-            var wsEndpointFactory = new Ice.WSEndpointFactory(wsInstance, tcpEndpointFactory.clone(wsInstance));
+            const wsInstance = new Ice.ProtocolInstance(this, Ice.WSEndpointType, "ws", false);
+            const wsEndpointFactory = new Ice.WSEndpointFactory(wsInstance, tcpEndpointFactory.clone(wsInstance));
             this._endpointFactoryManager.add(wsEndpointFactory);
 
-            var sslInstance = new Ice.ProtocolInstance(this, Ice.SSLEndpointType, "ssl", true);
-            var sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
+            const sslInstance = new Ice.ProtocolInstance(this, Ice.SSLEndpointType, "ssl", true);
+            const sslEndpointFactory = new Ice.TcpEndpointFactory(sslInstance);
             this._endpointFactoryManager.add(sslEndpointFactory);
 
-            var wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss", true);
-            var wssEndpointFactory = new Ice.WSEndpointFactory(wssInstance, sslEndpointFactory.clone(wssInstance));
+            const wssInstance = new Ice.ProtocolInstance(this, Ice.WSSEndpointType, "wss", true);
+            const wssEndpointFactory = new Ice.WSEndpointFactory(wssInstance, sslEndpointFactory.clone(wssInstance));
             this._endpointFactoryManager.add(wssEndpointFactory);
 
             this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
@@ -373,13 +390,13 @@ var Instance = Ice.Class({
             this._retryQueue = new RetryQueue(this);
             this._timer = new Timer(this._initData.logger);
 
-            var router = Ice.RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
+            const router = Ice.RouterPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Router"));
             if(router !== null)
             {
                 this._referenceFactory = this._referenceFactory.setDefaultRouter(router);
             }
 
-            var loc = Ice.LocatorPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Locator"));
+            const loc = Ice.LocatorPrx.uncheckedCast(this._proxyFactory.propertyToProxy("Ice.Default.Locator"));
             if(loc !== null)
             {
                 this._referenceFactory = this._referenceFactory.setDefaultLocator(loc);
@@ -387,7 +404,7 @@ var Instance = Ice.Class({
 
             if(promise !== null)
             {
-                promise.succeed(communicator);
+                promise.resolve(communicator);
             }
         }
         catch(ex)
@@ -396,14 +413,11 @@ var Instance = Ice.Class({
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.destroy().finally(function()
-                                            {
-                                                promise.fail(ex);
-                                            });
+                    this.destroy().finally(() => promise.reject(ex));
                 }
                 else
                 {
-                    promise.fail(ex);
+                    promise.reject(ex);
                 }
             }
             else
@@ -415,13 +429,14 @@ var Instance = Ice.Class({
                 throw ex;
             }
         }
-    },
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
-    destroy: function()
+    destroy()
     {
-        var promise = new AsyncResultBase(null, "destroy", null, this, null);
+        const promise = new AsyncResultBase(null, "destroy", null, this, null);
 
         //
         // If destroy is in progress, wait for it to be done. This is
@@ -443,153 +458,131 @@ var Instance = Ice.Class({
         // Shutdown and destroy all the incoming and outgoing Ice
         // connections and wait for the connections to be finished.
         //
-        var self = this;
-        Ice.Promise.try(
-            function()
+        Ice.Promise.try(() =>
             {
-                if(self._objectAdapterFactory)
+                if(this._objectAdapterFactory)
                 {
-                    return self._objectAdapterFactory.shutdown();
+                    return this._objectAdapterFactory.shutdown();
                 }
             }
-        ).then(
-            function()
+        ).then(() =>
             {
-                if(self._outgoingConnectionFactory !== null)
+                if(this._outgoingConnectionFactory !== null)
                 {
-                    self._outgoingConnectionFactory.destroy();
+                    this._outgoingConnectionFactory.destroy();
                 }
 
-                if(self._objectAdapterFactory !== null)
+                if(this._objectAdapterFactory !== null)
                 {
-                    return self._objectAdapterFactory.destroy();
+                    return this._objectAdapterFactory.destroy();
                 }
             }
-        ).then(
-            function()
+        ).then(() =>
             {
-                if(self._outgoingConnectionFactory !== null)
+                if(this._outgoingConnectionFactory !== null)
                 {
-                    return self._outgoingConnectionFactory.waitUntilFinished();
+                    return this._outgoingConnectionFactory.waitUntilFinished();
                 }
             }
-        ).then(
-            function()
+        ).then(() =>
             {
-                if(self._retryQueue)
+                if(this._retryQueue)
                 {
-                    self._retryQueue.destroy();
+                    this._retryQueue.destroy();
                 }
-                if(self._timer)
+                if(this._timer)
                 {
-                    self._timer.destroy();
-                }
-
-                if(self._objectFactoryMap !== null)
-                {
-                    self._objectFactoryMap.forEach(function(arg, id, factory)
-                        {
-                            factory.destroy();
-                        });
-                    self._objectFactoryMap.clear();
+                    this._timer.destroy();
                 }
 
-                if(self._routerManager)
+                if(this._objectFactoryMap !== null)
                 {
-                    self._routerManager.destroy();
-                }
-                if(self._locatorManager)
-                {
-                    self._locatorManager.destroy();
-                }
-                if(self._endpointFactoryManager)
-                {
-                    self._endpointFactoryManager.destroy();
+                    this._objectFactoryMap.forEach(factory => factory.destroy());
+                    this._objectFactoryMap.clear();
                 }
 
-                var i;
-                if(self._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+                if(this._routerManager)
                 {
-                    var unusedProperties = self._initData.properties.getUnusedProperties();
+                    this._routerManager.destroy();
+                }
+                if(this._locatorManager)
+                {
+                    this._locatorManager.destroy();
+                }
+                if(this._endpointFactoryManager)
+                {
+                    this._endpointFactoryManager.destroy();
+                }
+
+                if(this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+                {
+                    const unusedProperties = this._initData.properties.getUnusedProperties();
                     if(unusedProperties.length > 0)
                     {
-                        var message = [];
+                        const message = [];
                         message.push("The following properties were set but never read:");
-                        for(i = 0; i < unusedProperties.length; ++i)
-                        {
-                            message.push("\n    ");
-                            message.push(unusedProperties[i]);
-                        }
-                        self._initData.logger.warning(message.join(""));
+                        unusedProperties.forEach(p => message.push("\n    ", p));
+                        this._initData.logger.warning(message.join(""));
                     }
                 }
 
-                self._objectAdapterFactory = null;
-                self._outgoingConnectionFactory = null;
-                self._retryQueue = null;
-                self._timer = null;
+                this._objectAdapterFactory = null;
+                this._outgoingConnectionFactory = null;
+                this._retryQueue = null;
+                this._timer = null;
 
-                self._referenceFactory = null;
-                self._requestHandlerFactory = null;
-                self._proxyFactory = null;
-                self._routerManager = null;
-                self._locatorManager = null;
-                self._endpointFactoryManager = null;
+                this._referenceFactory = null;
+                this._requestHandlerFactory = null;
+                this._proxyFactory = null;
+                this._routerManager = null;
+                this._locatorManager = null;
+                this._endpointFactoryManager = null;
 
-                self._state = StateDestroyed;
+                this._state = StateDestroyed;
 
                 if(this._destroyPromises)
                 {
-                    for(i = 0; i < this._destroyPromises.length; ++i)
-                    {
-                        this._destroyPromises[i].succeed(this._destroyPromises[i]);
-                    }
+                    this._destroyPromises.forEach(p => p.resolve());
                 }
-                promise.succeed(promise);
+                promise.resolve();
             }
-        ).exception(
-            function(ex)
+        ).catch(ex =>
             {
                 if(this._destroyPromises)
                 {
-                    for(var i = 0; i < this._destroyPromises.length; ++i)
-                    {
-                        this._destroyPromises[i].fail(ex, this._destroyPromises[i]);
-                    }
+                    this._destroyPromises.forEach(p => p.reject(ex));
                 }
-                promise.fail(ex, promise);
-            }
-        );
+                promise.reject(ex);
+            });
         return promise;
-    },
-    addObjectFactory: function(factory, id)
+    }
+
+    addObjectFactory(factory, id)
     {
         //
         // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
         // with the value factory manager. This may raise AlreadyRegisteredException.
         //
-        this._initData.valueFactoryManager.add(function(typeId)
-            {
-                return factory.create(typeId);
-            }, id);
+        this._initData.valueFactoryManager.add(typeId => factory.create(typeId), id);
 
         if(this._objectFactoryMap === null)
         {
-            this._objectFactoryMap = new HashMap();
+            this._objectFactoryMap = new Map();
         }
 
         this._objectFactoryMap.set(id, factory);
-    },
-    findObjectFactory: function(id)
+    }
+
+    findObjectFactory(id)
     {
-        var factory = null;
+        let factory = null;
         if(this._objectFactoryMap !== null)
         {
             factory = this._objectFactoryMap.get(id);
         }
         return factory !== undefined ? factory : null;
     }
-});
+}
 
 Ice.Instance = Instance;
 module.exports.Ice = Ice;

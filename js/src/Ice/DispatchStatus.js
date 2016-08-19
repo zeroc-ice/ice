@@ -7,6 +7,6 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.DispatchStatus = {DispatchOK: 0, DispatchUserException: 1, DispatchAsync: 2};
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.DispatchStatus = { DispatchOK: 0, DispatchUserException: 1, DispatchAsync: 2 };
 module.exports.Ice = Ice;

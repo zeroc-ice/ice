@@ -7,15 +7,13 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
         "../Ice/Identity",
         "../Ice/LocalException",
-        "../Ice/Promise",
         "../Ice/PropertyNames",
         "../Ice/Router",
         "../Ice/ServantManager",
@@ -23,15 +21,14 @@ Ice.__M.require(module,
         "../Ice/UUID"
     ]);
 
-var AsyncResultBase = Ice.AsyncResultBase;
-var Debug = Ice.Debug;
-var Identity = Ice.Identity;
-var Promise = Ice.Promise;
-var PropertyNames = Ice.PropertyNames;
-var ServantManager = Ice.ServantManager;
-var StringUtil = Ice.StringUtil;
+const AsyncResultBase = Ice.AsyncResultBase;
+const Debug = Ice.Debug;
+const Identity = Ice.Identity;
+const PropertyNames = Ice.PropertyNames;
+const ServantManager = Ice.ServantManager;
+const StringUtil = Ice.StringUtil;
 
-var _suffixes =
+const _suffixes =
 [
     "ACM",
     "AdapterId",
@@ -69,19 +66,20 @@ var _suffixes =
     "ThreadPool.Serialize"
 ];
 
-var StateUninitialized = 0; // Just constructed.
-//var StateHeld = 1;
-//var StateWaitActivate = 2;
-//var StateActive = 3;
-//var StateDeactivating = 4;
-var StateDeactivated = 5;
-var StateDestroyed  = 6;
+const StateUninitialized = 0; // Just constructed.
+//const StateHeld = 1;
+//const StateWaitActivate = 2;
+//const StateActive = 3;
+//const StateDeactivating = 4;
+const StateDeactivated = 5;
+const StateDestroyed  = 6;
 
 //
 // Only for use by IceInternal.ObjectAdapterFactory
 //
-var ObjectAdapterI = Ice.Class({
-    __init__: function(instance, communicator, objectAdapterFactory, name, router, noConfig, promise)
+class ObjectAdapterI
+{
+    constructor(instance, communicator, objectAdapterFactory, name, router, noConfig, promise)
     {
         this._instance = instance;
         this._communicator = communicator;
@@ -97,24 +95,21 @@ var ObjectAdapterI = Ice.Class({
         {
             this._reference = this._instance.referenceFactory().createFromString("dummy -t", "");
             this._messageSizeMax = this._instance.messageSizeMax();
-            promise.succeed(this, promise);
+            promise.resolve(this);
             return;
         }
 
-        var properties = this._instance.initializationData().properties;
-        var unknownProps = [];
-        var noProps = this.filterProperties(unknownProps);
+        const properties = this._instance.initializationData().properties;
+        const unknownProps = [];
+        const noProps = this.filterProperties(unknownProps);
 
         //
         // Warn about unknown object adapter properties.
         //
         if(unknownProps.length !== 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
-            var message = ["found unknown properties for object adapter `" + name + "':"];
-            for(var i = 0; i < unknownProps.length; ++i)
-            {
-                message.push("\n    " + unknownProps[i]);
-            }
+            const message = ["found unknown properties for object adapter `" + name + "':"];
+            unknownProps.forEach(unknownProp => message.push("\n    " + unknownProp));
             this._instance.initializationData().logger.warning(message.join(""));
         }
 
@@ -123,16 +118,14 @@ var ObjectAdapterI = Ice.Class({
         //
         if(router === null && noProps)
         {
-            var ex = new Ice.InitializationException();
-            ex.reason = "object adapter `" + this._name + "' requires configuration";
-            throw ex;
+            throw new Ice.InitializationException(`object adapter \`${this._name}' requires configuration`);
         }
 
         //
         // Setup a reference to be used to get the default proxy options
         // when creating new proxies. By default, create twoway proxies.
         //
-        var proxyOptions = properties.getPropertyWithDefault(this._name + ".ProxyOptions", "-t");
+        const proxyOptions = properties.getPropertyWithDefault(this._name + ".ProxyOptions", "-t");
         try
         {
             this._reference = this._instance.referenceFactory().createFromString("dummy " + proxyOptions, "");
@@ -141,9 +134,8 @@ var ObjectAdapterI = Ice.Class({
         {
             if(e instanceof Ice.ProxyParseException)
             {
-                var ex = new Ice.InitializationException();
-                ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + name + "'";
-                throw ex;
+                throw new Ice.InitializationException(
+                    `invalid proxy options \`${proxyOptions}' for object adapter \`${name}'`);
             }
             else
             {
@@ -152,8 +144,8 @@ var ObjectAdapterI = Ice.Class({
         }
 
         {
-            var defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
-            var num = properties.getPropertyAsIntWithDefault(this._name + ".MessageSizeMax", defaultMessageSizeMax);
+            const defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
+            const num = properties.getPropertyAsIntWithDefault(this._name + ".MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || num > 0x7fffffff / 1024)
             {
                 this._messageSizeMax = 0x7fffffff;
@@ -191,33 +183,21 @@ var ObjectAdapterI = Ice.Class({
                 // Add the router's server proxy endpoints to this object
                 // adapter.
                 //
-                var self = this;
                 this._routerInfo.getServerEndpoints().then(
-                    function(endpoints)
+                    (endpoints) =>
                     {
-                        var i;
-
-                        for(i = 0; i < endpoints.length; ++i)
-                        {
-                            self._routerEndpoints.push(endpoints[i]);
-                        }
-                        self._routerEndpoints.sort(     // Must be sorted.
-                            function(e1, e2)
-                            {
-                                return e1.compareTo(e2);
-                            });
+                        endpoints.forEach(endpoint => this._routerEndpoints.push(endpoint));
+                        this._routerEndpoints.sort((e1, e2) => e1.compareTo(e2));    // Must be sorted.
 
                         //
                         // Remove duplicate endpoints, so we have a list of unique
                         // endpoints.
                         //
-                        for(i = 0; i < self._routerEndpoints.length - 1;)
+                        for(let i = 0; i < this._routerEndpoints.length - 1;)
                         {
-                            var e1 = self._routerEndpoints[i];
-                            var e2 = self._routerEndpoints[i + 1];
-                            if(e1.equals(e2))
+                            if(this._routerEndpoints[i].equals(this._routerEndpoints[i + 1]))
                             {
-                                self._routerEndpoints.splice(i, 1);
+                                this._routerEndpoints.splice(i, 1);
                             }
                             else
                             {
@@ -230,33 +210,25 @@ var ObjectAdapterI = Ice.Class({
                         // new outgoing connections to the router's client proxy will
                         // use this object adapter for callbacks.
                         //
-                        self._routerInfo.setAdapter(self);
+                        this._routerInfo.setAdapter(this);
 
                         //
                         // Also modify all existing outgoing connections to the
                         // router's client proxy to use this object adapter for
                         // callbacks.
                         //
-                        return self._instance.outgoingConnectionFactory().setRouterInfo(self._routerInfo);
+                        return this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
                     }
-                ).then(
-                    function()
-                    {
-                        promise.succeed(self, promise);
-                    },
-                    function(ex)
-                    {
-                        promise.fail(ex, promise);
-                    });
+                ).then(() => promise.resolve(this), promise.reject);
             }
             else
             {
-                var endpoints = properties.getProperty(this._name + ".Endpoints");
+                const endpoints = properties.getProperty(this._name + ".Endpoints");
                 if(endpoints.length > 0)
                 {
                     throw new Ice.FeatureNotSupportedException("object adapter endpoints not supported");
                 }
-                promise.succeed(this, promise);
+                promise.resolve(this);
             }
         }
         catch(ex)
@@ -264,75 +236,81 @@ var ObjectAdapterI = Ice.Class({
             this.destroy();
             throw ex;
         }
-    },
-    getName: function()
+    }
+
+    getName()
     {
         //
         // No mutex lock necessary, _name is immutable.
         //
         return this._noConfig ? "" : this._name;
-    },
-    getCommunicator: function()
+    }
+
+    getCommunicator()
     {
         return this._communicator;
-    },
-    activate: function()
+    }
+
+    activate()
     {
-    },
-    hold: function()
+    }
+
+    hold()
     {
         this.checkForDeactivation();
-    },
-    waitForHold: function()
+    }
+
+    waitForHold()
     {
-        var promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
-        if(this.checkForDeactivation(promise))
-        {
-            return promise;
-        }
-        return promise.succeed(promise);
-    },
-    deactivate: function()
+        const promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
+        return this.checkForDeactivation(promise) ? promise : promise.resolve();
+    }
+
+    deactivate()
     {
-        var promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
+        const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if(this._state < StateDeactivated)
         {
             this._state = StateDeactivated;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
-        return promise.succeed(promise);
-    },
-    waitForDeactivate: function()
+        promise.resolve();
+        return promise;
+    }
+
+    waitForDeactivate()
     {
-        var promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
-        return promise.succeed(promise);
-    },
-    isDeactivated: function()
+        return new AsyncResultBase(this._communicator, "deactivate", null, null, this).resolve();
+    }
+
+    isDeactivated()
     {
         return this._state >= StateDeactivated;
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
-        var promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
-        var self = this;
-        var destroyInternal = function()
+        const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
+        const destroyInternal = () =>
         {
-            if(self._state < StateDestroyed)
+            if(this._state < StateDestroyed)
             {
-                self._state = StateDestroyed;
-                self._servantManager.destroy();
-                self._objectAdapterFactory.removeObjectAdapter(self);
+                this._state = StateDestroyed;
+                this._servantManager.destroy();
+                this._objectAdapterFactory.removeObjectAdapter(this);
             }
-            return promise.succeed(promise);
+            return promise.resolve();
         };
 
         return this._state < StateDeactivated ? this.deactivate().then(destroyInternal) : destroyInternal();
-    },
-    add: function(object, ident)
+    }
+
+    add(object, ident)
     {
         return this.addFacet(object, ident, "");
-    },
-    addFacet: function(object, ident, facet)
+    }
+
+    addFacet(object, ident, facet)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
@@ -342,172 +320,184 @@ var ObjectAdapterI = Ice.Class({
         // Create a copy of the Identity argument, in case the caller
         // reuses it.
         //
-        var id = ident.clone();
+        const id = ident.clone();
 
         this._servantManager.addServant(object, id, facet);
 
         return this.newProxy(id, facet);
-    },
-    addWithUUID: function(object)
+    }
+
+    addWithUUID(object)
     {
         return this.addFacetWithUUID(object, "");
-    },
-    addFacetWithUUID: function(object, facet)
+    }
+
+    addFacetWithUUID(object, facet)
     {
         return this.addFacet(object, new Identity(Ice.generateUUID(), ""), facet);
-    },
-    addDefaultServant: function(servant, category)
+    }
+
+    addDefaultServant(servant, category)
     {
         this.checkServant(servant);
         this.checkForDeactivation();
 
         this._servantManager.addDefaultServant(servant, category);
-    },
-    remove: function(ident)
+    }
+
+    remove(ident)
     {
         return this.removeFacet(ident, "");
-    },
-    removeFacet: function(ident, facet)
+    }
+
+    removeFacet(ident, facet)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
 
         return this._servantManager.removeServant(ident, facet);
-    },
-    removeAllFacets: function(ident)
+    }
+
+    removeAllFacets(ident)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
 
         return this._servantManager.removeAllFacets(ident);
-    },
-    removeDefaultServant: function(category)
+    }
+
+    removeDefaultServant(category)
     {
         this.checkForDeactivation();
 
         return this._servantManager.removeDefaultServant(category);
-    },
-    find: function(ident)
+    }
+
+    find(ident)
     {
         return this.findFacet(ident, "");
-    },
-    findFacet: function(ident, facet)
+    }
+
+    findFacet(ident, facet)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
-
         return this._servantManager.findServant(ident, facet);
-    },
-    findAllFacets: function(ident)
+    }
+
+    findAllFacets(ident)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
-
         return this._servantManager.findAllFacets(ident);
-    },
-    findByProxy: function(proxy)
+    }
+    
+    findByProxy(proxy)
     {
         this.checkForDeactivation();
-
-        var ref = proxy.__reference();
+        const ref = proxy.__reference();
         return this.findFacet(ref.getIdentity(), ref.getFacet());
-    },
-    findDefaultServant: function(category)
+    }
+
+    findDefaultServant(category)
     {
         this.checkForDeactivation();
-
         return this._servantManager.findDefaultServant(category);
-    },
-    addServantLocator: function(locator, prefix)
+    }
+
+    addServantLocator(locator, prefix)
     {
         this.checkForDeactivation();
-
         this._servantManager.addServantLocator(locator, prefix);
-    },
-    removeServantLocator: function(prefix)
+    }
+
+    removeServantLocator(prefix)
     {
         this.checkForDeactivation();
-
         return this._servantManager.removeServantLocator(prefix);
-    },
-    findServantLocator: function(prefix)
+    }
+
+    findServantLocator(prefix)
     {
         this.checkForDeactivation();
-
         return this._servantManager.findServantLocator(prefix);
-    },
-    createProxy: function(ident)
+    }
+    
+    createProxy(ident)
     {
         this.checkForDeactivation();
         this.checkIdentity(ident);
-
         return this.newProxy(ident, "");
-    },
-    createDirectProxy: function(ident)
+    }
+
+    createDirectProxy(ident)
     {
         return this.createProxy(ident);
-    },
-    createIndirectProxy: function(ident)
+    }
+
+    createIndirectProxy(ident)
+    {
+        throw new Ice.FeatureNotSupportedException("createIndirectProxy not supported");
+    }
+
+    setLocator(locator)
     {
         throw new Ice.FeatureNotSupportedException("setLocator not supported");
-    },
-    setLocator: function(locator)
-    {
-        throw new Ice.FeatureNotSupportedException("setLocator not supported");
-    },
-    refreshPublishedEndpoints: function()
+    }
+
+    refreshPublishedEndpoints()
     {
         throw new Ice.FeatureNotSupportedException("refreshPublishedEndpoints not supported");
-    },
-    getEndpoints: function()
+    }
+
+    getEndpoints()
     {
         return [];
-    },
-    getPublishedEndpoints: function()
+    }
+
+    getPublishedEndpoints()
     {
         return [];
-    },
-    getServantManager: function()
+    }
+
+    getServantManager()
     {
         //
         // _servantManager is immutable.
         //
         return this._servantManager;
-    },
-    messageSizeMax: function()
+    }
+
+    messageSizeMax()
     {
         return this._messageSizeMax;
-    },
-    newProxy: function(ident, facet)
-    {
-        var endpoints = [];
+    }
 
+    newProxy(ident, facet)
+    {
         //
         // Now we also add the endpoints of the router's server proxy, if
         // any. This way, object references created by this object adapter
         // will also point to the router's server proxy endpoints.
         //
-        for(var i = 0; i < this._routerEndpoints.length; ++i)
-        {
-            endpoints.push(this._routerEndpoints[i]);
-        }
-
         //
         // Create a reference and return a proxy for this reference.
         //
-        var ref = this._instance.referenceFactory().create(ident, facet, this._reference, endpoints);
-        return this._instance.proxyFactory().referenceToProxy(ref);
-    },
-    checkForDeactivation: function(promise)
+        return this._instance.proxyFactory().referenceToProxy(
+            this._instance.referenceFactory().create(ident, facet, this._reference, 
+                                                     Array.from(this._routerEndpoints)));
+    }
+
+    checkForDeactivation(promise)
     {
         if(this._state >= StateDeactivated)
         {
-            var ex = new Ice.ObjectAdapterDeactivatedException();
+            const ex = new Ice.ObjectAdapterDeactivatedException();
             ex.name = this.getName();
 
             if(promise !== undefined)
             {
-                promise.fail(ex, promise);
+                promise.reject(ex);
                 return true;
             }
             else
@@ -517,8 +507,9 @@ var ObjectAdapterI = Ice.Class({
         }
 
         return false;
-    },
-    checkIdentity: function(ident)
+    }
+
+    checkIdentity(ident)
     {
         if(ident.name === undefined || ident.name === null || ident.name.length === 0)
         {
@@ -529,22 +520,24 @@ var ObjectAdapterI = Ice.Class({
         {
             ident.category = "";
         }
-    },
-    checkServant: function(servant)
+    }
+
+    checkServant(servant)
     {
         if(servant === undefined || servant === null)
         {
             throw new Ice.IllegalServantException("cannot add null servant to Object Adapter");
         }
-    },
-    filterProperties: function(unknownProps)
+    }
+
+    filterProperties(unknownProps)
     {
         //
         // Do not create unknown properties list if Ice prefix, i.e., Ice, Glacier2, etc.
         //
-        var addUnknown = true, i;
-        var prefix = this._name + ".";
-        for(i = 0; i < PropertyNames.clPropNames.length; ++i)
+        let addUnknown = true;
+        const prefix = this._name + ".";
+        for(let i = 0; i < PropertyNames.clPropNames.length; ++i)
         {
             if(prefix.indexOf(PropertyNames.clPropNames[i] + ".") === 0)
             {
@@ -553,14 +546,14 @@ var ObjectAdapterI = Ice.Class({
             }
         }
 
-        var noProps = true;
-        var props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for(var e = props.entries; e !== null; e = e.next)
+        let noProps = true;
+        let props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
+        for(let [key, value] of props)
         {
-            var valid = false;
-            for(i = 0; i < _suffixes.length; ++i)
+            let valid = false;
+            for(let i = 0; i < _suffixes.length; ++i)
             {
-                if(e.key === prefix + _suffixes[i])
+                if(key === prefix + _suffixes[i])
                 {
                     noProps = false;
                     valid = true;
@@ -570,13 +563,13 @@ var ObjectAdapterI = Ice.Class({
 
             if(!valid && addUnknown)
             {
-                unknownProps.push(e.key);
+                unknownProps.push(key);
             }
         }
 
         return noProps;
     }
-});
+}
 
 Ice.ObjectAdapterI = ObjectAdapterI;
 module.exports.Ice = Ice;

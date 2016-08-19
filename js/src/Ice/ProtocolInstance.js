@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
 // NOTE: the protocol instance class is a bit different from other
@@ -23,8 +22,9 @@ Ice.__M.require(module, ["../Ice/Class"]);
 // endpoint and suppress the secure member of the protocol instance
 // class bellow.
 //
-var ProtocolInstance = Ice.Class({
-    __init__: function(instance, type, protocol, secure)
+class ProtocolInstance 
+{
+    constructor(instance, type, protocol, secure)
     {
         this._instance = instance;
         this._traceLevel = instance.traceLevels().network;
@@ -34,58 +34,68 @@ var ProtocolInstance = Ice.Class({
         this._type = type;
         this._protocol = protocol;
         this._secure = secure;
-    },
-    traceLevel: function()
+    }
+
+    traceLevel()
     {
         return this._traceLevel;
-    },
-    traceCategory: function()
+    }
+
+    traceCategory()
     {
         return this._traceCategory;
-    },
-    logger: function()
+    }
+
+    logger()
     {
         return this._logger;
-    },
-    protocol: function()
+    }
+
+    protocol()
     {
         return this._protocol;
-    },
-    type: function()
+    }
+
+    type()
     {
         return this._type;
-    },
-    secure: function()
+    }
+
+    secure()
     {
         return this._secure;
-    },
-    properties: function()
+    }
+
+    properties()
     {
         return this._properties;
-    },
-    defaultHost: function()
+    }
+
+    defaultHost()
     {
         return this._instance.defaultsAndOverrides().defaultHost;
-    },
-    defaultSourceAddress: function()
+    }
+
+    defaultSourceAddress()
     {
         return this._instance.defaultsAndOverrides().defaultSourceAddress;
-    },
-    defaultEncoding: function()
+    }
+
+    defaultEncoding()
     {
         return this._instance.defaultsAndOverrides().defaultEncoding;
-    },
-    defaultTimeout: function()
+    }
+
+    defaultTimeout()
     {
         return this._instance.defaultsAndOverrides().defaultTimeout;
-    },
-    messageSizeMax: function()
+    }
+
+    messageSizeMax()
     {
         return this._instance.messageSizeMax();
     }
-});
+}
 
 Ice.ProtocolInstance = ProtocolInstance;
 module.exports.Ice = Ice;
-
-

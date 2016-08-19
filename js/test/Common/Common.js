@@ -25,9 +25,10 @@ var run = function(m)
     var id = new Ice.InitializationData();
     id.properties = Ice.createProperties(process.argv);
     var test = m.require("./Client").__test__;
-    test({write: write, writeLine: writeLine}, id).exception(
-        function(ex, r)
+    test({write: write, writeLine: writeLine}, id).catch(
+        function(values)
         {
+            let [ex, r] = values;
             console.log(ex.toString());
             if(r instanceof Ice.AsyncResult)
             {

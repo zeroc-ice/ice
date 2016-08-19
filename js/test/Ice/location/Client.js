@@ -29,7 +29,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -377,14 +377,10 @@
                         test(count == newCount);
                         Ice.Timer.setTimeout(
                             function(){
-                                p.succeed(count);
+                                p.resolve(count);
                             }, 1200);
                     },
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    }
-                );
+                    p.reject);
                 return p;
             }
         ).then(
@@ -443,14 +439,14 @@
                     function(newCount)
                     {
                         test(count == newCount);
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
+                ).catch(
                     function(ex)
                     {
                         Ice.Timer.setTimeout(
                             function(){
-                                p.fail(ex);
+                                p.reject(ex);
                             }, 1200);
                     });
                 return p;
@@ -512,13 +508,9 @@
                     function(newCount)
                     {
                         test(count == newCount);
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    });
+                ).catch(p.reject);
                 return p;
             }
         ).then(
@@ -535,13 +527,9 @@
                     function(newCount)
                     {
                         test(count == newCount);
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    });
+                ).catch(p.reject);
                 return p;
             }
         ).then(
@@ -558,13 +546,9 @@
                     function(newCount)
                     {
                         test(count == newCount);
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    });
+                ).catch(p.reject);
                 return p;
             }
         ).then(
@@ -579,14 +563,14 @@
             function(o)
             {
                 obj = o;
-                return Promise.all(obj.getHello(), obj.getReplicatedHello());
+                return Promise.all([obj.getHello(), obj.getReplicatedHello()]);
             }
         ).then(
-            function(r1, r2)
+            function(r)
             {
-                hello = r1[0];
+                hello = r[0];
                 test(hello.ice_getAdapterId() == "TestAdapter");
-                hello = r2[0];
+                hello = r[1];
                 test(hello.ice_getAdapterId() == "ReplicatedAdapter");
                 return hello.sayHello();
             }
@@ -633,12 +617,9 @@
                     function(newCount)
                     {
                         test(++count == newCount);
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
-                    function(ex){
-                        p.fail(ex);
-                    });
+                ).catch(p.reject);
                 return p;
             }
         ).then(
@@ -652,7 +633,7 @@
 
                 var p = new Promise();
 
-                Promise.all.apply(Promise, all).then(
+                Promise.all(all).then(
                     function()
                     {
                         return locator.getRequestCount();
@@ -668,13 +649,9 @@
                         }
                         hello = hello.ice_adapterId("unknown");
                         count = newCount;
-                        p.succeed(count);
+                        p.resolve(count);
                     }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    });
+                ).catch(p.reject);
                 return p;
             }
         ).then(
@@ -696,13 +673,13 @@
                     }
                     else
                     {
-                        p.succeed();
+                        p.resolve();
                     }
                 };
 
                 var okCB = function()
                 {
-                    p.fail("test failed");
+                    p.reject("test failed");
                 };
 
                 for(var i = 0; i < 1000; ++i)
@@ -951,12 +928,9 @@
                             {
                                 count += 3;
                                 test(count === newCount);
-                                p1.succeed(count);
+                                p1.resolve(count);
                             }
-                        ).exception(
-                            function(ex){
-                                p1.fail(ex);
-                            });
+                        ).catch(p1.reject);
 
                         return p1;
                     }
@@ -992,14 +966,10 @@
                                 test(count = newCount);
                                 Ice.Timer.setTimeout(
                                     function(){
-                                        p1.succeed(count);
+                                        p1.resolve(count);
                                     }, 1200);
                             }
-                        ).exception(
-                            function(ex)
-                            {
-                                p1.fail(ex);
-                            });
+                        ).catch(p1.reject);
                         return p1;
                     }
                 ).then(
@@ -1016,18 +986,7 @@
                                 // 1s timeout.
                                 return ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping();
                             }
-                        ).then(
-                            function()
-                            {
-                                p1.succeed();
-                            }
-                        ).exception(
-                            function(ex)
-                            {
-                                p1.fail(ex);
-                            }
-                        );
-
+                        ).then(p1.resolve, p1.reject);
                         return p1;
                     }
                 ).then(
@@ -1045,19 +1004,14 @@
                                 {
                                     if(ex instanceof Ice.LocalException)
                                     {
-                                        p1.succeed();
+                                        p1.resolve();
                                     }
                                     else
                                     {
-                                        p1.fail(ex);
+                                        p1.reject(ex);
                                     }
                                 }
-                            ).exception(
-                                function(ex)
-                                {
-                                    p1.fail(ex);
-                                }
-                            );
+                            ).catch(p1.reject);
                         };
 
                         f1();
@@ -1074,24 +1028,20 @@
                             ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping().then(
                                 function()
                                 {
-                                    Ice.Timer.setTimeout(function(){ f1(); }, 10000);
+                                    Ice.Timer.setTimeout(f1, 10000);
                                 },
                                 function(ex)
                                 {
                                     if(ex instanceof Ice.LocalException)
                                     {
-                                        p1.succeed();
+                                        p1.resolve();
                                     }
                                     else
                                     {
-                                        p1.fail(ex);
+                                        p1.reject(ex);
                                     }
                                 }
-                            ).exception(
-                                function(ex)
-                                {
-                                    p1.fail(ex);
-                                });
+                            ).catch(p1.reject);
                         };
 
                         f1();
@@ -1102,17 +1052,7 @@
                     {
                         return ic.destroy();
                     }
-                ).then(
-                    function()
-                    {
-                        p.succeed();
-                    }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    }
-                );
+                ).then(p.resolve, p.reject);
                 return p;
             }
         ).then(
@@ -1237,14 +1177,9 @@
                     function(newCount)
                     {
                         test(++count == newCount);
-                        p.succeed();
+                        p.resolve();
                     }
-                ).exception(
-                    function(ex)
-                    {
-                        p.fail(ex);
-                    }
-                );
+                ).catch(p.reject);
 
                 return p;
             }
@@ -1299,16 +1234,7 @@
             {
                 out.writeLine("ok");
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 

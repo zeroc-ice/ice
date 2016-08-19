@@ -7,56 +7,77 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 Ice.TraceLevels = function(properties)
 {
-    var networkCat = "Network";
-    var protocolCat = "Protocol";
-    var retryCat = "Retry";
-    var locationCat = "Locator";
-    var slicingCat = "Slicing";
+    const networkCat = "Network";
+    const protocolCat = "Protocol";
+    const retryCat = "Retry";
+    const locationCat = "Locator";
+    const slicingCat = "Slicing";
 
-    var keyBase = "Ice.Trace.";
+    const keyBase = "Ice.Trace.";
 
-    var network = properties.getPropertyAsInt(keyBase + networkCat);
-    var protocol = properties.getPropertyAsInt(keyBase + protocolCat);
-    var retry = properties.getPropertyAsInt(keyBase + retryCat);
-    var location = properties.getPropertyAsInt(keyBase + locationCat);
-    var slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+    const network = properties.getPropertyAsInt(keyBase + networkCat);
+    const protocol = properties.getPropertyAsInt(keyBase + protocolCat);
+    const retry = properties.getPropertyAsInt(keyBase + retryCat);
+    const location = properties.getPropertyAsInt(keyBase + locationCat);
+    const slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+
     properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
 
-    return Object.create(null, {
-        'network': {
-            get: function() { return network; }
-        },
-        'networkCat': {
-            get: function() { return networkCat; }
-        },
-        'protocol': {
-            get: function() { return protocol; }
-        },
-        'protocolCat': {
-            get: function() { return protocolCat; }
-        },
-        'retry': {
-            get: function() { return retry; }
-        },
-        'retryCat': {
-            get: function() { return retryCat; }
-        },
-        'location': {
-            get: function() { return location; }
-        },
-        'locationCat': {
-            get: function() { return locationCat; }
-        },
-        'slicing': {
-            get: function() { return slicing; }
-        },
-        'slicingCat': {
-            get: function() { return slicingCat; }
+    return class 
+    {
+        static get network()
+        {
+            return network;
         }
-    });
+
+        static get networkCat()
+        {
+            return networkCat;
+        }
+        
+        static get protocol()
+        {
+            return protocol;
+        }
+        
+        static get protocolCat()
+        {
+            return protocolCat;
+        }
+
+        static get retry()
+        {
+            return retry;
+        }
+        
+        static get retryCat()
+        {
+            return retryCat;
+        }
+        
+        static get location()
+        {
+            return location;
+        }
+        
+        static get locationCat()
+        {
+            return locationCat;
+        }
+        
+        static get slicing()
+        {
+            return slicing;
+        }
+        
+        static get slicingCat()
+        {
+            return slicingCat;
+        }
+    };
 };
 module.exports.Ice = Ice;

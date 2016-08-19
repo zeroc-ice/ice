@@ -22,8 +22,7 @@
 
     var run = function(out)
     {
-        return Promise.try(
-            function()
+        return Promise.try(() =>
             {
                 out.write("Testing Ice.Long... ");
                 //

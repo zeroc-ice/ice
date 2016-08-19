@@ -7,15 +7,13 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/ArrayUtil",
         "../Ice/AsyncResult",
         "../Ice/Debug",
         "../Ice/FormatType",
-        "../Ice/HashMap",
         "../Ice/OutgoingAsync",
         "../Ice/ReferenceMode",
         "../Ice/Current",
@@ -25,44 +23,49 @@ Ice.__M.require(module,
         "../Ice/Object"
     ]);
 
-var ArrayUtil = Ice.ArrayUtil;
-var AsyncResultBase = Ice.AsyncResultBase;
-var AsyncResult = Ice.AsyncResult;
-var Debug = Ice.Debug;
-var FormatType = Ice.FormatType;
-var HashMap = Ice.HashMap;
-var OutgoingAsync = Ice.OutgoingAsync;
-var ProxyFlushBatch = Ice.ProxyFlushBatch;
-var ProxyGetConnection = Ice.ProxyGetConnection;
-var RefMode = Ice.ReferenceMode;
-var OperationMode = Ice.OperationMode;
+const ArrayUtil = Ice.ArrayUtil;
+const AsyncResultBase = Ice.AsyncResultBase;
+const AsyncResult = Ice.AsyncResult;
+const Debug = Ice.Debug;
+const FormatType = Ice.FormatType;
+const OutgoingAsync = Ice.OutgoingAsync;
+const ProxyFlushBatch = Ice.ProxyFlushBatch;
+const ProxyGetConnection = Ice.ProxyGetConnection;
+const RefMode = Ice.ReferenceMode;
+const OperationMode = Ice.OperationMode;
 
 //
 // Ice.ObjectPrx
 //
-var ObjectPrx = Ice.Class({
-    __init__: function()
+class ObjectPrx
+{
+    constructor()
     {
         this._reference = null;
         this._requestHandler = null;
-    },
-    hashCode: function(r)
+    }
+    
+    hashCode(r)
     {
         return this._reference.hashCode();
-    },
-    ice_getCommunicator: function()
+    }
+
+    ice_getCommunicator()
     {
         return this._reference.getCommunicator();
-    },
-    toString: function()
+    }
+
+    toString()
     {
         return this._reference.toString();
-    },
-    ice_getIdentity: function()
+    }
+
+    ice_getIdentity()
     {
         return this._reference.getIdentity().clone();
-    },
-    ice_identity: function(newIdentity)
+    }
+
+    ice_identity(newIdentity)
     {
         if(newIdentity === undefined || newIdentity === null || newIdentity.name.length === 0)
         {
@@ -74,24 +77,28 @@ var ObjectPrx = Ice.Class({
         }
         else
         {
-            var proxy = new ObjectPrx();
+            const proxy = new ObjectPrx();
             proxy.__setup(this._reference.changeIdentity(newIdentity));
             return proxy;
         }
-    },
-    ice_getContext: function()
+    }
+
+    ice_getContext()
     {
-        return new HashMap(this._reference.getContext());
-    },
-    ice_context: function(newContext)
+        return new Map(this._reference.getContext());
+    }
+
+    ice_context(newContext)
     {
         return this.__newInstance(this._reference.changeContext(newContext));
-    },
-    ice_getFacet: function()
+    }
+
+    ice_getFacet()
     {
         return this._reference.getFacet();
-    },
-    ice_facet: function(newFacet)
+    }
+
+    ice_facet(newFacet)
     {
         if(newFacet === undefined || newFacet === null)
         {
@@ -104,16 +111,18 @@ var ObjectPrx = Ice.Class({
         }
         else
         {
-            var proxy = new ObjectPrx();
+            const proxy = new ObjectPrx();
             proxy.__setup(this._reference.changeFacet(newFacet));
             return proxy;
         }
-    },
-    ice_getAdapterId: function()
+    }
+
+    ice_getAdapterId()
     {
         return this._reference.getAdapterId();
-    },
-    ice_adapterId: function(newAdapterId)
+    }
+
+    ice_adapterId(newAdapterId)
     {
         if(newAdapterId === undefined || newAdapterId === null)
         {
@@ -128,12 +137,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeAdapterId(newAdapterId));
         }
-    },
-    ice_getEndpoints: function()
+    }
+
+    ice_getEndpoints()
     {
         return ArrayUtil.clone(this._reference.getEndpoints());
-    },
-    ice_endpoints: function(newEndpoints)
+    }
+
+    ice_endpoints(newEndpoints)
     {
         if(newEndpoints === undefined || newEndpoints === null)
         {
@@ -148,12 +159,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeEndpoints(newEndpoints));
         }
-    },
-    ice_getLocatorCacheTimeout: function()
+    }
+
+    ice_getLocatorCacheTimeout()
     {
         return this._reference.getLocatorCacheTimeout();
-    },
-    ice_locatorCacheTimeout: function(newTimeout)
+    }
+
+    ice_locatorCacheTimeout(newTimeout)
     {
         if(newTimeout < -1)
         {
@@ -167,12 +180,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeLocatorCacheTimeout(newTimeout));
         }
-    },
-    ice_getInvocationTimeout: function()
+    }
+
+    ice_getInvocationTimeout()
     {
         return this._reference.getInvocationTimeout();
-    },
-    ice_invocationTimeout: function(newTimeout)
+    }
+
+    ice_invocationTimeout(newTimeout)
     {
         if(newTimeout < 1 && newTimeout !== -1)
         {
@@ -186,12 +201,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeInvocationTimeout(newTimeout));
         }
-    },
-    ice_isConnectionCached: function()
+    }
+
+    ice_isConnectionCached()
     {
         return this._reference.getCacheConnection();
-    },
-    ice_connectionCached: function(newCache)
+    }
+
+    ice_connectionCached(newCache)
     {
         if(newCache === this._reference.getCacheConnection())
         {
@@ -201,12 +218,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeCacheConnection(newCache));
         }
-    },
-    ice_getEndpointSelection: function()
+    }
+
+    ice_getEndpointSelection()
     {
         return this._reference.getEndpointSelection();
-    },
-    ice_endpointSelection: function(newType)
+    }
+
+    ice_endpointSelection(newType)
     {
         if(newType === this._reference.getEndpointSelection())
         {
@@ -216,12 +235,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeEndpointSelection(newType));
         }
-    },
-    ice_isSecure: function()
+    }
+
+    ice_isSecure()
     {
         return this._reference.getSecure();
-    },
-    ice_secure: function(b)
+    }
+
+    ice_secure(b)
     {
         if(b === this._reference.getSecure())
         {
@@ -231,12 +252,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeSecure(b));
         }
-    },
-    ice_getEncodingVersion: function()
+    }
+
+    ice_getEncodingVersion()
     {
         return this._reference.getEncoding().clone();
-    },
-    ice_encodingVersion: function(e)
+    }
+
+    ice_encodingVersion(e)
     {
         if(e.equals(this._reference.getEncoding()))
         {
@@ -246,12 +269,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeEncoding(e));
         }
-    },
-    ice_isPreferSecure: function()
+    }
+
+    ice_isPreferSecure()
     {
         return this._reference.getPreferSecure();
-    },
-    ice_preferSecure: function(b)
+    }
+
+    ice_preferSecure(b)
     {
         if(b === this._reference.getPreferSecure())
         {
@@ -261,15 +286,17 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changePreferSecure(b));
         }
-    },
-    ice_getRouter: function()
+    }
+
+    ice_getRouter()
     {
-        var ri = this._reference.getRouterInfo();
+        const ri = this._reference.getRouterInfo();
         return ri !== null ? ri.getRouter() : null;
-    },
-    ice_router: function(router)
+    }
+
+    ice_router(router)
     {
-        var ref = this._reference.changeRouter(router);
+        const ref = this._reference.changeRouter(router);
         if(ref.equals(this._reference))
         {
             return this;
@@ -278,15 +305,17 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(ref);
         }
-    },
-    ice_getLocator: function()
+    }
+
+    ice_getLocator()
     {
-        var ri = this._reference.getLocatorInfo();
+        const ri = this._reference.getLocatorInfo();
         return ri !== null ? ri.getLocator() : null;
-    },
-    ice_locator: function(locator)
+    }
+
+    ice_locator(locator)
     {
-        var ref = this._reference.changeLocator(locator);
+        const ref = this._reference.changeLocator(locator);
         if(ref.equals(this._reference))
         {
             return this;
@@ -295,12 +324,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(ref);
         }
-    },
-    ice_isTwoway: function()
+    }
+
+    ice_isTwoway()
     {
         return this._reference.getMode() === RefMode.ModeTwoway;
-    },
-    ice_twoway: function()
+    }
+
+    ice_twoway()
     {
         if(this._reference.getMode() === RefMode.ModeTwoway)
         {
@@ -310,12 +341,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeMode(RefMode.ModeTwoway));
         }
-    },
-    ice_isOneway: function()
+    }
+
+    ice_isOneway()
     {
         return this._reference.getMode() === RefMode.ModeOneway;
-    },
-    ice_oneway: function()
+    }
+
+    ice_oneway()
     {
         if(this._reference.getMode() === RefMode.ModeOneway)
         {
@@ -325,12 +358,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeMode(RefMode.ModeOneway));
         }
-    },
-    ice_isBatchOneway: function()
+    }
+
+    ice_isBatchOneway()
     {
         return this._reference.getMode() === RefMode.ModeBatchOneway;
-    },
-    ice_batchOneway: function()
+    }
+
+    ice_batchOneway()
     {
         if(this._reference.getMode() === RefMode.ModeBatchOneway)
         {
@@ -340,12 +375,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeMode(RefMode.ModeBatchOneway));
         }
-    },
-    ice_isDatagram: function()
+    }
+
+    ice_isDatagram()
     {
         return this._reference.getMode() === RefMode.ModeDatagram;
-    },
-    ice_datagram: function()
+    }
+
+    ice_datagram()
     {
         if(this._reference.getMode() === RefMode.ModeDatagram)
         {
@@ -355,12 +392,14 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeMode(RefMode.ModeDatagram));
         }
-    },
-    ice_isBatchDatagram: function()
+    }
+
+    ice_isBatchDatagram()
     {
         return this._reference.getMode() === RefMode.ModeBatchDatagram;
-    },
-    ice_batchDatagram: function()
+    }
+
+    ice_batchDatagram()
     {
         if(this._reference.getMode() === RefMode.ModeBatchDatagram)
         {
@@ -370,10 +409,11 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(this._reference.changeMode(RefMode.ModeBatchDatagram));
         }
-    },
-    ice_compress: function(co)
+    }
+
+    ice_compress(co)
     {
-        var ref = this._reference.changeCompress(co);
+        const ref = this._reference.changeCompress(co);
         if(ref.equals(this._reference))
         {
             return this;
@@ -382,14 +422,15 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(ref);
         }
-    },
-    ice_timeout: function(t)
+    }
+
+    ice_timeout(t)
     {
         if(t < 1 && t !== -1)
         {
             throw new Error("invalid value passed to ice_timeout: " + t);
         }
-        var ref = this._reference.changeTimeout(t);
+        const ref = this._reference.changeTimeout(t);
         if(ref.equals(this._reference))
         {
             return this;
@@ -398,14 +439,16 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(ref);
         }
-    },
-    ice_getConnectionId: function()
+    }
+
+    ice_getConnectionId()
     {
         return this._reference.getConnectionId();
-    },
-    ice_connectionId: function(id)
+    }
+
+    ice_connectionId(id)
     {
-        var ref = this._reference.changeConnectionId(id);
+        const ref = this._reference.changeConnectionId(id);
         if(ref.equals(this._reference))
         {
             return this;
@@ -414,10 +457,11 @@ var ObjectPrx = Ice.Class({
         {
             return this.__newInstance(ref);
         }
-    },
-    ice_getConnection: function()
+    }
+
+    ice_getConnection()
     {
-        var r = new ProxyGetConnection(this, "ice_getConnection");
+        const r = new ProxyGetConnection(this, "ice_getConnection");
         try
         {
             r.__invoke();
@@ -427,14 +471,16 @@ var ObjectPrx = Ice.Class({
             r.__abort(ex);
         }
         return r;
-    },
-    ice_getCachedConnection: function()
+    }
+
+    ice_getCachedConnection()
     {
         return this._requestHandler ? this._requestHandler.getConnection() : null;
-    },
-    ice_flushBatchRequests: function()
+    }
+
+    ice_flushBatchRequests()
     {
-        var r = new ProxyFlushBatch(this, "ice_flushBatchRequests");
+        const r = new ProxyFlushBatch(this, "ice_flushBatchRequests");
         try
         {
             r.__invoke();
@@ -444,8 +490,9 @@ var ObjectPrx = Ice.Class({
             r.__abort(ex);
         }
         return r;
-    },
-    equals: function(r)
+    }
+
+    equals(r)
     {
         if(this === r)
         {
@@ -458,25 +505,29 @@ var ObjectPrx = Ice.Class({
         }
 
         return false;
-    },
-    __write: function(os)
+    }
+
+    __write(os)
     {
         this._reference.getIdentity().__write(os);
         this._reference.streamWrite(os);
-    },
-    __reference: function()
+    }
+
+    __reference()
     {
         return this._reference;
-    },
-    __copyFrom: function(from)
+    }
+
+    __copyFrom(from)
     {
         Debug.assert(this._reference === null);
         Debug.assert(this._requestHandler === null);
 
         this._reference = from._reference;
         this._requestHandler = from._requestHandler;
-    },
-    __handleException: function(ex, handler, mode, sent, sleep, cnt)
+    }
+
+    __handleException(ex, handler, mode, sent, sleep, cnt)
     {
         this.__updateRequestHandler(handler, null); // Clear the request handler
 
@@ -526,15 +577,17 @@ var ObjectPrx = Ice.Class({
         {
             throw ex;
         }
-    },
-    __checkAsyncTwowayOnly: function(name)
+    }
+
+    __checkAsyncTwowayOnly(name)
     {
         if(!this.ice_isTwoway())
         {
             throw new Error("`" + name + "' can only be called with a twoway proxy");
         }
-    },
-    __getRequestHandler: function()
+    }
+
+    __getRequestHandler()
     {
         if(this._reference.getCacheConnection())
         {
@@ -544,16 +597,18 @@ var ObjectPrx = Ice.Class({
             }
         }
         return this._reference.getRequestHandler(this);
-    },
-    __getBatchRequestQueue: function()
+    }
+
+    __getBatchRequestQueue()
     {
         if(!this._batchRequestQueue)
         {
             this._batchRequestQueue = this._reference.getBatchRequestQueue();
         }
         return this._batchRequestQueue;
-    },
-    __setRequestHandler: function(handler)
+    }
+
+    __setRequestHandler(handler)
     {
         if(this._reference.getCacheConnection())
         {
@@ -564,8 +619,9 @@ var ObjectPrx = Ice.Class({
             return this._requestHandler;
         }
         return handler;
-    },
-    __updateRequestHandler: function(previous, handler)
+    }
+
+    __updateRequestHandler(previous, handler)
     {
         if(this._reference.getCacheConnection() && previous !== null)
         {
@@ -574,23 +630,26 @@ var ObjectPrx = Ice.Class({
                 this._requestHandler = this._requestHandler.update(previous, handler);
             }
         }
-    },
+    }
+
     //
     // Only for use by IceInternal.ProxyFactory
     //
-    __setup: function(ref)
+    __setup(ref)
     {
         Debug.assert(this._reference === null);
 
         this._reference = ref;
-    },
-    __newInstance: function(ref)
+    }
+
+    __newInstance(ref)
     {
-        var proxy = new this.constructor();
+        const proxy = new this.constructor();
         proxy.__setup(ref);
         return proxy;
-    },
-    ice_instanceof: function(T)
+    }
+
+    ice_instanceof(T)
     {
         if(T)
         {
@@ -602,347 +661,313 @@ var ObjectPrx = Ice.Class({
         }
         return false;
     }
-});
-
-//
-// Generic invocation for operations that have input parameters.
-//
-ObjectPrx.__invoke = function(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args)
-{
-    if(unmarshalFn !== null || userEx.length > 0)
-    {
-        p.__checkAsyncTwowayOnly(name);
-    }
-
-    var __r = new OutgoingAsync(p, name,
-        function(__res)
-        {
-            ObjectPrx.__completed(__res, unmarshalFn, userEx);
-        });
-
-    try
-    {
-        __r.__prepare(name, mode, ctx);
-        if(marshalFn === null)
-        {
-            __r.__writeEmptyParams();
-        }
-        else
-        {
-            var __os = __r.__startWriteParams(fmt);
-            marshalFn.call(null, __os, args);
-            __r.__endWriteParams();
-        }
-        __r.__invoke();
-    }
-    catch(ex)
-    {
-        __r.__abort(ex);
-    }
-    return __r;
-};
-
-//
-// Handles the completion of an invocation.
-//
-ObjectPrx.__completed = function(__r, unmarshalFn, userEx)
-{
-    if(!ObjectPrx.__check(__r, userEx))
-    {
-        return;
-    }
-
-    try
-    {
-        if(unmarshalFn === null)
-        {
-            __r.__readEmptyParams();
-            __r.succeed(__r);
-        }
-        else
-        {
-            var results = unmarshalFn(__r);
-            __r.succeed.apply(__r, results);
-        }
-    }
-    catch(ex)
-    {
-        ObjectPrx.__dispatchLocalException(__r, ex);
-        return;
-    }
-};
-
-//
-// Unmarshal callback for operations that return a bool as the only result.
-//
-ObjectPrx.__returns_bool = function(__is, __results)
-{
-    __results.push(__is.readBool());
-};
-
-//
-// Unmarshal callback for operations that return a byte as the only result.
-//
-ObjectPrx.__returns_byte = function(__is, __results)
-{
-    __results.push(__is.readByte());
-};
-
-//
-// Unmarshal callback for operations that return a short as the only result.
-//
-ObjectPrx.__returns_short = function(__is, __results)
-{
-    __results.push(__is.readShort());
-};
-
-//
-// Unmarshal callback for operations that return an int as the only result.
-//
-ObjectPrx.__returns_int = function(__is, __results)
-{
-    __results.push(__is.readInt());
-};
-
-//
-// Unmarshal callback for operations that return a long as the only result.
-//
-ObjectPrx.__returns_long = function(__is, __results)
-{
-    __results.push(__is.readLong());
-};
-
-//
-// Unmarshal callback for operations that return a float as the only result.
-//
-ObjectPrx.__returns_float = function(__is, __results)
-{
-    __results.push(__is.readFloat());
-};
-
-//
-// Unmarshal callback for operations that return a double as the only result.
-//
-ObjectPrx.__returns_double = function(__is, __results)
-{
-    __results.push(__is.readDouble());
-};
-
-//
-// Unmarshal callback for operations that return a string as the only result.
-//
-ObjectPrx.__returns_string = function(__is, __results)
-{
-    __results.push(__is.readString());
-};
-
-//
-// Unmarshal callback for operations that return a proxy as the only result.
-//
-ObjectPrx.__returns_ObjectPrx = function(__is, __results)
-{
-    __results.push(__is.readProxy());
-};
-
-//
-// Unmarshal callback for operations that return an object as the only result.
-//
-ObjectPrx.__returns_Object = function(__is, __results)
-{
-    __is.readValue(function(obj){ __results.push(obj); }, Ice.Object);
-    __is.readPendingValues();
-};
-
-//
-// Handles user exceptions.
-//
-ObjectPrx.__check = function(__r, __uex)
-{
+    
     //
-    // If __uex is non-null, it must be an array of exception types.
+    // Generic invocation for operations that have input parameters.
     //
-    try
+    static __invoke(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args)
     {
-        __r.__throwUserException();
-    }
-    catch(ex)
-    {
-        if(ex instanceof Ice.UserException)
+        if(unmarshalFn !== null || userEx.length > 0)
         {
-            if(__uex !== null)
+            p.__checkAsyncTwowayOnly(name);
+        }
+
+        const __r = new OutgoingAsync(p, name,
+            __res =>
             {
-                for(var i = 0; i < __uex.length; ++i)
-                {
-                    if(ex instanceof __uex[i])
-                    {
-                        __r.fail(ex, __r);
-                        return false;
-                    }
-                }
+                this.__completed(__res, unmarshalFn, userEx);
+            });
+
+        try
+        {
+            __r.__prepare(name, mode, ctx);
+            if(marshalFn === null)
+            {
+                __r.__writeEmptyParams();
             }
-            __r.fail(new Ice.UnknownUserException(ex.ice_name()), __r);
-            return false;
-        }
-        else
-        {
-            __r.fail(ex, __r);
-            return false;
-        }
-    }
-
-    return true;
-};
-
-ObjectPrx.__dispatchLocalException = function(__r, __ex)
-{
-    __r.fail(__ex, __r);
-};
-
-ObjectPrx.ice_staticId = Ice.Object.ice_staticId;
-
-ObjectPrx.checkedCast = function(prx, facet, ctx)
-{
-    var __r = null;
-
-    if(prx === undefined || prx === null)
-    {
-        __r = new AsyncResultBase(null, "checkedCast", null, null, null);
-        __r.succeed(null, __r);
-    }
-    else
-    {
-        if(facet !== undefined)
-        {
-            prx = prx.ice_facet(facet);
-        }
-
-        var self = this;
-        __r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
-        prx.ice_isA(this.ice_staticId(), ctx).then(
-            function(__res, __ret)
+            else
             {
-                if(__ret)
-                {
-                    var __h = new self();
-                    __h.__copyFrom(prx);
-                    __r.succeed(__h, __r);
-                }
-                else
-                {
-                    __r.succeed(null, __r);
-                }
-            }).exception(
-                function(__ex)
-                {
-                    if(__ex instanceof Ice.FacetNotExistException)
-                    {
-                        __r.succeed(null, __r);
-                    }
-                    else
-                    {
-                        __r.fail(__ex, __r);
-                    }
-                });
-    }
-
-    return __r;
-};
-
-ObjectPrx.uncheckedCast = function(prx, facet)
-{
-    var r = null;
-    if(prx !== undefined && prx !== null)
-    {
-        r = new this();
-        if(facet !== undefined)
-        {
-            prx = prx.ice_facet(facet);
+                const __os = __r.__startWriteParams(fmt);
+                marshalFn.call(null, __os, args);
+                __r.__endWriteParams();
+            }
+            __r.__invoke();
         }
-        r.__copyFrom(prx);
+        catch(ex)
+        {
+            __r.__abort(ex);
+        }
+        return __r;
     }
-    return r;
-};
 
-Object.defineProperty(ObjectPrx, "minWireSize", {
-    get: function(){ return 2; }
-});
-
-ObjectPrx.write = function(os, v)
-{
-    os.writeProxy(v);
-};
-
-ObjectPrx.read = function(is)
-{
-    return is.readProxy(this);
-};
-
-ObjectPrx.writeOptional = function(os, tag, v)
-{
-    os.writeOptionalProxy(tag, v);
-};
-
-ObjectPrx.readOptional = function(is, tag)
-{
-    return is.readOptionalProxy(tag, this);
-};
-
-ObjectPrx.__instanceof = function(T)
-{
-    if(T === this)
+    //
+    // Handles the completion of an invocation.
+    //
+    static __completed(__r, unmarshalFn, userEx)
     {
+        if(!this.__check(__r, userEx))
+        {
+            return;
+        }
+
+        try
+        {
+            if(unmarshalFn === null)
+            {
+                __r.__readEmptyParams();
+                __r.resolve();
+            }
+            else
+            {
+                __r.resolve(unmarshalFn(__r));
+            }
+        }
+        catch(ex)
+        {
+            this.__dispatchLocalException(__r, ex);
+            return;
+        }
+    }
+
+    //
+    // Unmarshal callback for operations that return a bool as the only result.
+    //
+    static __returns_bool(__is, __results)
+    {
+        __results.push(__is.readBool());
+    }
+
+    //
+    // Unmarshal callback for operations that return a byte as the only result.
+    //
+    static __returns_byte(__is, __results)
+    {
+        __results.push(__is.readByte());
+    }
+
+    //
+    // Unmarshal callback for operations that return a short as the only result.
+    //
+    static __returns_short(__is, __results)
+    {
+        __results.push(__is.readShort());
+    }
+
+    //
+    // Unmarshal callback for operations that return an int as the only result.
+    //
+    static __returns_int(__is, __results)
+    {
+        __results.push(__is.readInt());
+    }
+
+    //
+    // Unmarshal callback for operations that return a long as the only result.
+    //
+    static __returns_long(__is, __results)
+    {
+        __results.push(__is.readLong());
+    }
+
+    //
+    // Unmarshal callback for operations that return a float as the only result.
+    //
+    static __returns_float(__is, __results)
+    {
+        __results.push(__is.readFloat());
+    }
+
+    //
+    // Unmarshal callback for operations that return a double as the only result.
+    //
+    static __returns_double(__is, __results)
+    {
+        __results.push(__is.readDouble());
+    }
+
+    //
+    // Unmarshal callback for operations that return a string as the only result.
+    //
+    static __returns_string(__is, __results)
+    {
+        __results.push(__is.readString());
+    }
+
+    //
+    // Unmarshal callback for operations that return a proxy as the only result.
+    //
+    static __returns_ObjectPrx(__is, __results)
+    {
+        __results.push(__is.readProxy());
+    }
+
+    //
+    // Unmarshal callback for operations that return an object as the only result.
+    //
+    static __returns_Object(__is, __results)
+    {
+        __is.readValue(obj => __results.push(obj), Ice.Object);
+        __is.readPendingValues();
+    }
+
+    //
+    // Handles user exceptions.
+    //
+    static __check(__r, __uex)
+    {
+        //
+        // If __uex is non-null, it must be an array of exception types.
+        //
+        try
+        {
+            __r.__throwUserException();
+        }
+        catch(ex)
+        {
+            if(ex instanceof Ice.UserException)
+            {
+                if(__uex !== null)
+                {
+                    for(let i = 0; i < __uex.length; ++i)
+                    {
+                        if(ex instanceof __uex[i])
+                        {
+                            __r.reject(ex);
+                            return false;
+                        }
+                    }
+                }
+                __r.reject(new Ice.UnknownUserException(ex.ice_name()));
+                return false;
+            }
+            else
+            {
+                __r.reject(ex);
+                return false;
+            }
+        }
+
         return true;
     }
 
-    for(var i in this.__implements)
+    static __dispatchLocalException(__r, __ex)
     {
-        if(this.__implements[i].__instanceof(T))
+        __r.reject(__ex);
+    }
+
+    static checkedCast(prx, facet, ctx)
+    {
+        let __r = null;
+
+        if(prx === undefined || prx === null)
+        {
+            __r = new AsyncResultBase(null, "checkedCast", null, null, null);
+            __r.resolve(null);
+        }
+        else
+        {
+            if(facet !== undefined)
+            {
+                prx = prx.ice_facet(facet);
+            }
+            __r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
+            prx.ice_isA(this.ice_staticId(), ctx).then(
+                __ret =>
+                {
+                    if(__ret)
+                    {
+                        const __h = new this();
+                        __h.__copyFrom(prx);
+                        __r.resolve(__h);
+                    }
+                    else
+                    {
+                        __r.resolve(null);
+                    }
+                }).catch(
+                    __ex =>
+                    {
+                        if(__ex instanceof Ice.FacetNotExistException)
+                        {
+                            __r.resolve(null);
+                        }
+                        else
+                        {
+                            __r.reject(__ex);
+                        }
+                    });
+        }
+
+        return __r;
+    }
+
+    static uncheckedCast(prx, facet)
+    {
+        let r = null;
+        if(prx !== undefined && prx !== null)
+        {
+            r = new this();
+            if(facet !== undefined)
+            {
+                prx = prx.ice_facet(facet);
+            }
+            r.__copyFrom(prx);
+        }
+        return r;
+    }
+
+    static get minWireSize()
+    {
+        return 2;
+    }
+
+    static write(os, v)
+    {
+        os.writeProxy(v);
+    }
+
+    static read(is)
+    {
+        return is.readProxy(this);
+    }
+
+    static writeOptional(os, tag, v)
+    {
+        os.writeOptionalProxy(tag, v);
+    }
+
+    static readOptional(is, tag)
+    {
+        return is.readOptionalProxy(tag, this);
+    }
+
+    static __instanceof(T)
+    {
+        if(T === this)
         {
             return true;
         }
+
+        for(let i in this.__implements)
+        {
+            if(this.__implements[i].__instanceof(T))
+            {
+                return true;
+            }
+        }
+
+        if(this.__parent)
+        {
+            return this.__parent.__instanceof(T);
+        }
+        return false;
     }
-
-    if(this.__parent)
+    
+    static ice_staticId()
     {
-        return this.__parent.__instanceof(T);
+        return "::Ice::Object";
     }
-    return false;
-};
-
-var Slice = Ice.Slice;
-Slice.defineProxy = function(base, staticId, prxInterfaces)
-{
-    var prx = function()
-    {
-        base.call(this);
-    };
-    prx.__parent = base;
-    prx.__implements = prxInterfaces;
-
-    // All generated proxies inherit from ObjectPrx
-    prx.prototype = new base();
-    prx.prototype.constructor = prx;
-
-    // Static methods
-    prx.ice_staticId = staticId;
-
-    // Copy static methods inherited from ObjectPrx
-    prx.checkedCast = ObjectPrx.checkedCast;
-    prx.uncheckedCast = ObjectPrx.uncheckedCast;
-    prx.write = ObjectPrx.write;
-    prx.writeOptional = ObjectPrx.writeOptional;
-    prx.read = ObjectPrx.read;
-    prx.readOptional = ObjectPrx.readOptional;
-
-    prx.__instanceof = ObjectPrx.__instanceof;
-
-    // Static properties
-    Object.defineProperty(prx, "minWireSize", {
-        get: function(){ return 2; }
-    });
-
-    return prx;
-};
+}
 
 Ice.ObjectPrx = ObjectPrx;
 module.exports.Ice = Ice;

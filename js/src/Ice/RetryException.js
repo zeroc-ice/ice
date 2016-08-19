@@ -7,12 +7,14 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/Exception", "../Ice/Debug", "../Ice/LocalException"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, ["../Ice/Debug", "../Ice/LocalException"]);
 
-var RetryException = Ice.Class(Error, {
-    __init__: function(ex)
+class RetryException extends Error
+{
+    constructor(ex)
     {
+        super();
         if(ex instanceof Ice.LocalException)
         {
             this._ex = ex;
@@ -23,13 +25,12 @@ var RetryException = Ice.Class(Error, {
             this._ex = ex._ex;
         }
     }
-});
-
-var prototype = RetryException.prototype;
-
-Object.defineProperty(prototype, "inner", {
-    get: function() { return this._ex; }
-});
+    
+    get inner()
+    {
+        return this._ex;
+    }
+}
 
 Ice.RetryException = RetryException;
 module.exports.Ice = Ice;

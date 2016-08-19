@@ -28,14 +28,13 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
         };
 
-        Promise.try(
-            function()
+        Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "retry:default -p 12010";
@@ -47,16 +46,14 @@
                 out.write("testing checked cast... ");
                 return Test.RetryPrx.checkedCast(base1);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 retry1 = obj;
                 test(retry1 !== null);
                 test(retry1.equals(base1));
                 return Test.RetryPrx.checkedCast(base2);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 retry2 = obj;
                 test(retry2 !== null);
@@ -65,19 +62,14 @@
                 out.write("calling regular operation with first proxy... ");
                 return retry1.op(false);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("calling operation to kill connection with second proxy... ");
                 return retry2.op(true);
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
+        ).then(() => test(false),
+               ex =>
             {
                 if(typeof(window) === 'undefined' && typeof(WorkerGlobalScope) === 'undefined') // Nodejs
                 {
@@ -91,59 +83,39 @@
                 out.write("calling regular operation with first proxy again... ");
                 return retry1.op(false);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing idempotent operation... ");
                 return retry1.opIdempotent(4);
             }
-        ).then(
-            function(count)
+        ).then(count =>
             {
                 test(count === 4);
                 out.writeLine("ok");
                 out.write("testing non-idempotent operation... ");
                 return retry1.opNotIdempotent();
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
+        ).then(() => test(false),
+               ex =>
             {
                 out.writeLine("ok");
                 out.write("testing invocation timeout and retries... ");
                 retry2 = Test.RetryPrx.uncheckedCast(communicator2.stringToProxy(retry1.toString()));
                 return retry2.ice_invocationTimeout(500).opIdempotent(4);
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
+        ).then(() => test(false),
             function(ex)
             {
                 test(ex instanceof Ice.InvocationTimeoutException);
                 return retry2.opIdempotent(-1);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 return retry1.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 
@@ -170,18 +142,12 @@
         id2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
         var c2 = Ice.initialize(id2);
 
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c, c2);
-            }
-        ).finally(
-            function()
+        return Promise.try(() => allTests(out, c, c2)).finally(
+            () =>
             {
                 c2.destroy();
                 return c.destroy();
-            }
-        );
+            });
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

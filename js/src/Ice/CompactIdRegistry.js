@@ -7,6 +7,6 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/HashMap").Ice;
-Ice.CompactIdRegistry = new Ice.HashMap();
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.CompactIdRegistry = new Map();
 module.exports.Ice = Ice;

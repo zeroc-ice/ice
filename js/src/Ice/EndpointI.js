@@ -7,17 +7,11 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
-    [
-        "../Ice/Class",
-        "../Ice/Endpoint",
-    ]);
+const Ice = require("../Ice/Endpoint").Ice;
 
-var Class = Ice.Class;
-
-var EndpointI = Class(Ice.Endpoint, {
-    toString: function()
+class EndpointI extends Ice.Endpoint
+{
+    toString()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -27,14 +21,14 @@ var EndpointI = Class(Ice.Endpoint, {
         // format of proxyToString() before changing this and related code.
         //
         return this.protocol() + this.options();
-    },
-    initWithOptions: function(args)
-    {
-        var unknown = [];
+    }
 
-        var i;
-        var str = "`" + this.protocol();
-        for(i = 0; i < args.length; ++i)
+    initWithOptions(args)
+    {
+        const unknown = [];
+
+        let str = "`" + this.protocol();
+        for(let i = 0; i < args.length; ++i)
         {
             if(args[i].search(/[ \t\n\r]+/) !== -1)
             {
@@ -47,17 +41,16 @@ var EndpointI = Class(Ice.Endpoint, {
         }
         str += "'";
 
-        i = 0;
-        while(i < args.length)
+        for(let i = 0; i < args.length;)
         {
-            var option = args[i++];
+            let option = args[i++];
             if(option.length < 2 || option.charAt(0) != '-')
             {
                 unknown.push(option);
                 continue;
             }
 
-            var argument = null;
+            let argument = null;
             if(i < args.length && args[i].charAt(0) != '-')
             {
                 argument = args[i++];
@@ -74,27 +67,28 @@ var EndpointI = Class(Ice.Endpoint, {
         }
 
         args.length = 0;
-        for(i = 0; i < unknown.length; i++)
+        for(let i = 0; i < unknown.length; i++)
         {
             args.push(unknown[i]);
         }
-    },
+    }
     //
     // Compare endpoints for sorting purposes
     //
-    equals: function(p)
+    equals(p)
     {
         if(!(p instanceof EndpointI))
         {
             return false;
         }
         return this.compareTo(p) === 0;
-    },
-    checkOption: function()
+    }
+
+    checkOption()
     {
         return false;
     }
-});
+}
 
 Ice.EndpointI = EndpointI;
 module.exports.Ice = Ice;

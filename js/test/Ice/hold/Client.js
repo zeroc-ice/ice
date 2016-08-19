@@ -49,7 +49,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -82,7 +82,7 @@
                 out.write("changing state between active and hold rapidly... ");
 
                 var i;
-                var r = new Ice.Promise().succeed();
+                var r = Ice.Promise.resolve();
                 /*jshint -W083 */
                 // Ignore this since we do not use i and
                 // have only a small number of iterations
@@ -307,12 +307,13 @@
             function()
             {
                 out.writeLine("ok");
-                p.succeed();
+                p.resolve();
             },
             function(ex)
             {
+                console.log(ex);
                 out.writeLine("failed!");
-                p.fail(ex);
+                p.reject(ex);
             });
         return p;
     };

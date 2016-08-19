@@ -8,13 +8,10 @@
 // **********************************************************************
 
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/StringUtil",
-        "../Ice/HashMap",
-        "../Ice/Promise",
         "../Ice/PropertyNames",
         "../Ice/Debug",
         "../Ice/ProcessLogger",
@@ -22,24 +19,23 @@ Ice.__M.require(module,
         "../Ice/LocalException"
     ]);
 
-var StringUtil = Ice.StringUtil;
-var HashMap = Ice.HashMap;
-var Promise = Ice.Promise;
-var PropertyNames = Ice.PropertyNames;
-var Debug = Ice.Debug;
-var ProcessLogger = Ice.ProcessLogger;
-var getProcessLogger = Ice.getProcessLogger;
-var InitializationException = Ice.InitializationException;
+const StringUtil = Ice.StringUtil;
+const PropertyNames = Ice.PropertyNames;
+const Debug = Ice.Debug;
+const ProcessLogger = Ice.ProcessLogger;
+const getProcessLogger = Ice.getProcessLogger;
+const InitializationException = Ice.InitializationException;
 
-var ParseStateKey = 0;
-var ParseStateValue = 1;
+const ParseStateKey = 0;
+const ParseStateValue = 1;
 //
 // Ice.Properties
 //
-var Properties = Ice.Class({
-    __init__: function(args, defaults)
+class Properties
+{
+    constructor(args, defaults)
     {
-        this._properties = new HashMap();
+        this._properties = new Map();
 
         if(defaults !== undefined && defaults !== null)
         {
@@ -47,30 +43,32 @@ var Properties = Ice.Class({
             // NOTE: we can't just do a shallow copy of the map as the map values
             // would otherwise be shared between the two PropertiesI object.
             //
-            //_properties = new HashMap(pi._properties);
-            for(var e = defaults._properties.entries; e !== null; e = e.next)
+            //_properties = new Map(pi._properties);
+            for(let [key, property] of defaults._properties)
             {
-                this._properties.set(e.key, { 'value': e.value.value, 'used': false });
+                this._properties.set(key, { 'value': property.value, 'used': false });
             }
         }
 
         if(args !== undefined && args !== null)
         {
-            var v = this.parseIceCommandLineOptions(args);
+            let v = this.parseIceCommandLineOptions(args);
             args.length = 0;
-            for(var i = 0; i < v.length; ++i)
+            for(let i = 0; i < v.length; ++i)
             {
                 args.push(v[i]);
             }
         }
-    },
-    getProperty: function(key)
+    }
+
+    getProperty(key)
     {
         return this.getPropertyWithDefault(key, "");
-    },
-    getPropertyWithDefault: function(key, value)
+    }
+
+    getPropertyWithDefault(key, value)
     {
-        var pv = this._properties.get(key);
+        const pv = this._properties.get(key);
         if(pv !== undefined)
         {
             pv.used = true;
@@ -80,14 +78,16 @@ var Properties = Ice.Class({
         {
             return value;
         }
-    },
-    getPropertyAsInt: function(key)
+    }
+
+    getPropertyAsInt(key)
     {
         return this.getPropertyAsIntWithDefault(key, 0);
-    },
-    getPropertyAsIntWithDefault: function(key, value)
+    }
+    
+    getPropertyAsIntWithDefault(key, value)
     {
-        var pv = this._properties.get(key);
+        const pv = this._properties.get(key);
         if(pv !== undefined)
         {
             pv.used = true;
@@ -97,24 +97,26 @@ var Properties = Ice.Class({
         {
             return value;
         }
-    },
-    getPropertyAsList: function(key)
+    }
+
+    getPropertyAsList(key)
     {
         return this.getPropertyAsListWithDefault(key, 0);
-    },
-    getPropertyAsListWithDefault: function(key, value)
+    }
+
+    getPropertyAsListWithDefault(key, value)
     {
         if(value === undefined || value === null)
         {
             value = [];
         }
 
-        var pv = this._properties.get(key);
+        const pv = this._properties.get(key);
         if(pv !== undefined)
         {
             pv.used = true;
 
-            var result = StringUtil.splitString(pv.value, ", \t\r\n");
+            let result = StringUtil.splitString(pv.value, ", \t\r\n");
             if(result === null)
             {
                 getProcessLogger().warning("mismatched quotes in property " + key + "'s value, returning default value");
@@ -130,26 +132,28 @@ var Properties = Ice.Class({
         {
             return value;
         }
-    },
-    getPropertiesForPrefix: function(prefix)
+    }
+
+    getPropertiesForPrefix(prefix = "")
     {
-        var result = new HashMap();
-        for(var e = this._properties.entries; e !== null; e = e.next)
-        {
-            if(prefix === undefined || prefix === null || e.key.indexOf(prefix) === 0)
+        const result = new Map();
+        this._properties.forEach((property, key) =>
             {
-                e.value.used = true;
-                result.set(e.key, e.value.value);
-            }
-        }
+                if(key.indexOf(prefix) === 0)
+                {
+                    property.used = true;
+                    result.set(key, property.value);
+                }
+            });
         return result;
-    },
-    setProperty: function(key, value)
+    }
+
+    setProperty(key = "", value = "")
     {
         //
         // Trim whitespace
         //
-        if(key !== null && key !== undefined)
+        if(key !== null)
         {
             key = key.trim();
         }
@@ -157,38 +161,37 @@ var Properties = Ice.Class({
         //
         // Check if the property is legal.
         //
-        var logger = getProcessLogger();
-        if(key === null || key === undefined || key.length === 0)
+        const logger = getProcessLogger();
+        if(key === null || key.length === 0)
         {
             throw new InitializationException("Attempt to set property with empty key");
         }
 
-        var dotPos = key.indexOf(".");
+        let dotPos = key.indexOf(".");
         if(dotPos !== -1)
         {
-            var prefix = key.substr(0, dotPos);
-            for(var i = 0; i < PropertyNames.validProps.length; ++i)
+            const prefix = key.substr(0, dotPos);
+            for(let i = 0; i < PropertyNames.validProps.length; ++i)
             {
-                var pattern = PropertyNames.validProps[i][0].pattern;
+                let pattern = PropertyNames.validProps[i][0].pattern;
                 dotPos = pattern.indexOf(".");
                 //
                 // Each top level prefix describes a non-empty namespace. Having a string without a
                 // prefix followed by a dot is an error.
                 //
                 Debug.assert(dotPos != -1);
-                var propPrefix = pattern.substring(0, dotPos - 1);
-                if(propPrefix != prefix)
+                if(pattern.substring(0, dotPos - 1) != prefix)
                 {
                     continue;
                 }
                 
-                var found = false;
-                var mismatchCase = false;
-                var otherKey;
-                for(var j = 0; j < PropertyNames.validProps[i][j].length && !found; ++j)
+                let found = false;
+                let mismatchCase = false;
+                let otherKey;
+                for(let j = 0; j < PropertyNames.validProps[i][j].length && !found; ++j)
                 {
                     pattern = PropertyNames.validProps[i][j].pattern();
-                    var pComp = new RegExp(pattern);
+                    let pComp = new RegExp(pattern);
                     found = pComp.test(key);
 
                     if(found && PropertyNames.validProps[i][j].deprecated)
@@ -233,9 +236,9 @@ var Properties = Ice.Class({
         //
         // Set or clear the property.
         //
-        if(value !== undefined && value !== null && value.length > 0)
+        if(value !== null && value.length > 0)
         {
-            var pv = this._properties.get(key);
+            let pv = this._properties.get(key);
             if(pv !== undefined)
             {
                 pv.value = value;
@@ -249,17 +252,19 @@ var Properties = Ice.Class({
         {
             this._properties.delete(key);
         }
-    },
-    getCommandLineOptions: function()
+    }
+
+    getCommandLineOptions()
     {
-        var result = [];
-        for(var e = this._properties.entries; e !== null; e = e.next)
-        {
-            result.push("--" + e.key + "=" + e.pv.value);
-        }
+        const result = [];
+        this._properties.forEach((property, key) =>
+            {
+                result.push("--" + key + "=" + property.value);
+            });
         return result;
-    },
-    parseCommandLineOptions: function(pfx, options)
+    }
+
+    parseCommandLineOptions(pfx, options)
     {
         if(pfx.length > 0 && pfx.charAt(pfx.length - 1) != ".")
         {
@@ -267,11 +272,9 @@ var Properties = Ice.Class({
         }
         pfx = "--" + pfx;
 
-        var result = [];
+        const result = [];
         
-        var self = this;
-        options.forEach(
-            function(opt)
+        options.forEach(opt =>
             {
                 if(opt.indexOf(pfx) === 0)
                 {
@@ -280,7 +283,7 @@ var Properties = Ice.Class({
                         opt += "=1";
                     }
 
-                    self.parseLine(opt.substring(2));
+                    this.parseLine(opt.substring(2));
                 }
                 else
                 {
@@ -288,41 +291,37 @@ var Properties = Ice.Class({
                 }
             });
         return result;
-    },
-    parseIceCommandLineOptions: function(options)
+    }
+
+    parseIceCommandLineOptions(options)
     {
-        var args = options.slice();
-        for(var i = 0; i < PropertyNames.clPropNames.length; ++i)
+        let args = options.slice();
+        for(let i = 0; i < PropertyNames.clPropNames.length; ++i)
         {
             args = this.parseCommandLineOptions(PropertyNames.clPropNames[i], args);
         }
         return args;
-    },
-    parse: function(data)
-    {
-        var lines = data.match(/[^\r\n]+/g);
-        
-        var line;
-        
-        while((line = lines.shift()))
-        {
-            this.parseLine(line);
-        }
-    },
-    parseLine: function(line)
-    {
-        var key = "";
-        var value = "";
+    }
 
-        var state = ParseStateKey;
+    parse(data)
+    {
+        data.match(/[^\r\n]+/g).forEach(line => this.parseLine(line));
+    }
 
-        var whitespace = "";
-        var escapedspace = "";
-        var finished = false;
+    parseLine(line)
+    {
+        let key = "";
+        let value = "";
+
+        let state = ParseStateKey;
+
+        let whitespace = "";
+        let escapedspace = "";
+        let finished = false;
         
-        for(var i = 0; i < line.length; ++i)
+        for(let i = 0; i < line.length; ++i)
         {
-            var c = line.charAt(i);
+            let c = line.charAt(i);
             switch(state)
             {
                 case ParseStateKey:
@@ -465,7 +464,7 @@ var Properties = Ice.Class({
         value += escapedspace;
 
         if((state === ParseStateKey && key.length !== 0) ||
-        (state == ParseStateValue && key.length === 0))
+           (state == ParseStateValue && key.length === 0))
         {
             getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
             return;
@@ -476,29 +475,31 @@ var Properties = Ice.Class({
         }
         
         this.setProperty(key, value);
-    },
-    clone: function()
+    }
+
+    clone()
     {
         return new Properties(null, this);
-    },
-    getUnusedProperties: function()
+    }
+
+    getUnusedProperties()
     {
-        var unused = [];
-        for(var e = this._properties.entries; e !== null; e = e.next)
-        {
-            if(!e.pv.used)
+        const unused = [];
+        this._properties.forEach((property, key) =>
             {
-                unused.push(e.key);
-            }
-        }
+                if(!property.used)
+                {
+                    unused.push(key);
+                }
+            });
         return unused;
     }
-});
-
-Properties.createProperties = function(args, defaults)
-{
-    return new Properties(args, defaults);
-};
+    
+    static createProperties(args, defaults)
+    {
+        return new Properties(args, defaults);
+    }
+}
 
 Ice.Properties = Properties;
 module.exports.Ice = Ice;

@@ -26,7 +26,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -131,19 +131,16 @@
                 test(d !== null);
                 test(d.equals(db));
 
-                return Promise.all(
-                    d.callA(),
-                    d.callB(),
-                    d.callC(),
-                    d.callD());
+                return Promise.all([d.callA(), d.callB(), d.callC(), d.callD()]);
             }
         ).then(
-            function(r1, r2, r3, r4)
+            function(r)
             {
-                test(r1[0] == "A");
-                test(r2[0] == "B");
-                test(r3[0] == "C");
-                test(r4[0] == "D");
+                var [r1, r2, r3, r4] = r;
+                test(r1 == "A");
+                test(r2 == "B");
+                test(r3 == "C");
+                test(r4 == "D");
                 out.writeLine("ok");
                 out.write("testing facets A, B, C, and D... ");
                 return Test.DPrx.checkedCast(d, "facetABCD");
@@ -154,19 +151,16 @@
                 df = obj;
                 test(df !== null);
 
-                return Promise.all(
-                    df.callA(),
-                    df.callB(),
-                    df.callC(),
-                    df.callD());
+                return Promise.all([df.callA(), df.callB(), df.callC(), df.callD()]);
             }
         ).then(
-            function(r1, r2, r3, r4)
+            function(r)
             {
-                test(r1[0] == "A");
-                test(r2[0] == "B");
-                test(r3[0] == "C");
-                test(r4[0] == "D");
+                var [r1, r2, r3, r4] = r;
+                test(r1 == "A");
+                test(r2 == "B");
+                test(r3 == "C");
+                test(r4 == "D");
                 out.writeLine("ok");
                 out.write("testing facets E and F... ");
                 return Test.FPrx.checkedCast(d, "facetEF");
@@ -177,15 +171,14 @@
                 ff = obj;
                 test(ff !== null);
 
-                return Promise.all(
-                    ff.callE(),
-                    ff.callF());
+                return Promise.all([ff.callE(), ff.callF()]);
             }
         ).then(
-            function(r1, r2)
+            function(r)
             {
-                test(r1[0] == "E");
-                test(r2[0] == "F");
+                var [r1, r2] = r;
+                test(r1 == "E");
+                test(r2 == "F");
                 out.writeLine("ok");
                 out.write("testing facet G... ");
                 return Test.GPrx.checkedCast(ff, "facetGH");
@@ -211,28 +204,19 @@
                 hf = obj;
                 test(hf !== null);
 
-                return Promise.all(
-                    hf.callG(),
-                    hf.callH());
+                return Promise.all([hf.callG(), hf.callH()]);
             }
         ).then(
-            function(r1, r2)
+            function(r)
             {
-                test(r1[0] == "G");
-                test(r2[0] == "H");
+                var [r1, r2] = r;
+                test(r1 == "G");
+                test(r2 == "H");
                 out.writeLine("ok");
                 return gf.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
+
         return p;
     };
 

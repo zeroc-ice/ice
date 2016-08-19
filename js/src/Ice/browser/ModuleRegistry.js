@@ -8,12 +8,12 @@
 // **********************************************************************
 
 /* globals self */
-var __root = typeof(window) !== "undefined" ? window : self;
+const __root = typeof(window) !== "undefined" ? window : typeof(global) !== "undefined" ? global : typeof(self) !== "undefined" ? self : {};
 /* globals -self */
 
-var __M =
+class __M
 {
-    module: function(name)
+    static module(name)
     {
         var m =  __root[name];
         if(m === undefined)
@@ -22,12 +22,14 @@ var __M =
             __root[name] =  m;
         }
         return m;
-    },
-    require: function(name)
+    }
+    
+    static require(name)
     {
         return __root;
-    },
-    type: function(scoped)
+    }
+    
+    static type(scoped)
     {
         if(scoped === undefined)
         {
@@ -46,9 +48,9 @@ var __M =
         }
         return T;
     }
-};
+}
 
-var Ice = __M.module("Ice");
+const Ice = __M.module("Ice");
 
 Ice.__require = function()
 {

@@ -7,38 +7,27 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
-        "../Ice/AsyncResult",
         "../Ice/AsyncStatus",
-        "../Ice/Stream",
         "../Ice/ConnectionRequestHandler",
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/RetryException",
-        "../Ice/OutgoingAsync",
-        "../Ice/Protocol",
         "../Ice/ReferenceMode",
         "../Ice/Exception",
-        "../Ice/Promise"
     ]);
 
-var AsyncResult = Ice.AsyncResult;
-var AsyncStatus = Ice.AsyncStatus;
-var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
-var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
-var RetryException = Ice.RetryException;
-var OutgoingAsync = Ice.OutgoingAsync;
-var Protocol = Ice.Protocol;
-var ReferenceMode = Ice.ReferenceMode;
-var LocalException = Ice.LocalException;
-var Promise = Ice.Promise;
+const AsyncStatus = Ice.AsyncStatus;
+const ConnectionRequestHandler = Ice.ConnectionRequestHandler;
+const Debug = Ice.Debug;
+const RetryException = Ice.RetryException;
+const ReferenceMode = Ice.ReferenceMode;
+const LocalException = Ice.LocalException;
 
-var ConnectRequestHandler = Ice.Class({
-    __init__: function(ref, proxy)
+class ConnectRequestHandler
+{
+    constructor(ref, proxy)
     {
         this._reference = ref;
         this._response = ref.getMode() === ReferenceMode.ModeTwoway;
@@ -50,20 +39,23 @@ var ConnectRequestHandler = Ice.Class({
         this._compress = false;
         this._exception = null;
         this._requests = [];
-    },
-    connect: function(proxy)
+    }
+
+    connect(proxy)
     {
         if(!this.initialized())
         {
             this._proxies.push(proxy);
         }
         return this._requestHandler ? this._requestHandler : this;
-    },
-    update: function(previousHandler, newHandler)
+    }
+
+    update(previousHandler, newHandler)
     {
         return previousHandler === this ? newHandler : this;
-    },
-    sendAsyncRequest: function(out)
+    }
+
+    sendAsyncRequest(out)
     {
         if(!this._initialized)
         {
@@ -76,8 +68,9 @@ var ConnectRequestHandler = Ice.Class({
             return AsyncStatus.Queued;
         }
         return out.__invokeRemote(this._connection, this._compress, this._response);
-    },
-    asyncRequestCanceled: function(out, ex)
+    }
+
+    asyncRequestCanceled(out, ex)
     {
         if(this._exception !== null)
         {
@@ -86,7 +79,7 @@ var ConnectRequestHandler = Ice.Class({
 
         if(!this.initialized())
         {
-            for(var i = 0; i < this._requests.length; i++)
+            for(let i = 0; i < this._requests.length; i++)
             {
                 if(this._requests[i] === out)
                 {
@@ -98,12 +91,14 @@ var ConnectRequestHandler = Ice.Class({
             Debug.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
         }
         this._connection.asyncRequestCanceled(out, ex);
-    },
-    getReference: function()
+    }
+
+    getReference()
     {
         return this._reference;
-    },
-    getConnection: function()
+    }
+
+    getConnection()
     {
         if(this._exception !== null)
         {
@@ -113,37 +108,30 @@ var ConnectRequestHandler = Ice.Class({
         {
             return this._connection;
         }
-    },
+    }
+
     //
     // Implementation of Reference_GetConnectionCallback
     //
-    setConnection: function(connection, compress)
+    setConnection(values)
     {
         Debug.assert(this._exception === null && this._connection === null);
 
-        this._connection = connection;
-        this._compress = compress;
+        [this._connection, this._compress] = values;
 
         //
         // If this proxy is for a non-local object, and we are using a router, then
         // add this proxy to the router info object.
         //
-        var ri = this._reference.getRouterInfo();
+        let ri = this._reference.getRouterInfo();
         if(ri !== null)
         {
-            var self = this;
-            ri.addProxy(this._proxy).then(function()
-                                          {
-                                              //
-                                              // The proxy was added to the router info, we're now ready to send the
-                                              // queued requests.
-                                              //
-                                              self.flushRequests();
-                                          },
-                                          function(ex)
-                                          {
-                                              self.setException(ex);
-                                          });
+                                                                                  //
+            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router 
+                                                                                  // info, we're now ready to send the
+                                                                                  // queued requests.
+                                                                                  //
+                                          ex => this.setException(ex));
             return; // The request handler will be initialized once addProxy completes.
         }
 
@@ -151,8 +139,9 @@ var ConnectRequestHandler = Ice.Class({
         // We can now send the queued requests.
         //
         this.flushRequests();
-    },
-    setException: function(ex)
+    }
+
+    setException(ex)
     {
         Debug.assert(!this._initialized && this._exception === null);
 
@@ -175,17 +164,17 @@ var ConnectRequestHandler = Ice.Class({
             // Ignore
         }
 
-        for(var i = 0; i < this._requests.length; ++i)
-        {
-            var request = this._requests[i];
-            if(request !== null)
+        this._requests.forEach(request =>
             {
-                request.__completedEx(this._exception);
-            }
-        }
+                if(request !== null)
+                {
+                    request.__completedEx(this._exception);
+                }
+            });
         this._requests.length = 0;
-    },
-    initialized: function()
+    }
+
+    initialized()
     {
         if(this._initialized)
         {
@@ -213,47 +202,44 @@ var ConnectRequestHandler = Ice.Class({
                 return this._initialized;
             }
         }
-    },
-    flushRequests: function()
+    }
+
+    flushRequests()
     {
         Debug.assert(this._connection !== null && !this._initialized);
 
-        var exception = null;
-        for(var i = 0; i < this._requests.length; ++i)
-        {
-            var request = this._requests[i];
-            try
+        let exception = null;
+        this._requests.forEach(request =>
             {
-                request.__invokeRemote(this._connection, this._compress, this._response);
-            }
-            catch(ex)
-            {
-                if(ex instanceof RetryException)
+                try
                 {
-                    exception = ex.inner;
-
-                    // Remove the request handler before retrying.
-                    this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-
-                    request.__retryException(ex.inner);
+                    request.__invokeRemote(this._connection, this._compress, this._response);
                 }
-                else
+                catch(ex)
                 {
-                    Debug.assert(ex instanceof LocalException);
-                    exception = ex;
-                    request.out.__completedEx(ex);
+                    if(ex instanceof RetryException)
+                    {
+                        exception = ex.inner;
+
+                        // Remove the request handler before retrying.
+                        this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
+
+                        request.__retryException(ex.inner);
+                    }
+                    else
+                    {
+                        Debug.assert(ex instanceof LocalException);
+                        exception = ex;
+                        request.out.__completedEx(ex);
+                    }
                 }
-            }
-        }
+            });
         this._requests.length = 0;
 
         if(this._reference.getCacheConnection() && exception === null)
         {
             this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-            for(var k = 0; k < this._proxies.length; ++k)
-            {
-                this._proxies[k].__updateRequestHandler(this, this._requestHandler);
-            }
+            this._proxies.forEach(proxy => proxy.__updateRequestHandler(this, this._requestHandler));
         }
 
         Debug.assert(!this._initialized);
@@ -269,7 +255,7 @@ var ConnectRequestHandler = Ice.Class({
         this._proxies.length = 0;
         this._proxy = null; // Break cyclic reference count.
     }
-});
+}
 
 Ice.ConnectRequestHandler = ConnectRequestHandler;
 module.exports.Ice = Ice;

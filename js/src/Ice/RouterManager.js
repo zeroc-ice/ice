@@ -7,31 +7,34 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, ["../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
 
-var HashMap = Ice.HashMap;
-var RouterInfo = Ice.RouterInfo;
-var RouterPrx = Ice.RouterPrx;
+const HashMap = Ice.HashMap;
+const RouterInfo = Ice.RouterInfo;
+const RouterPrx = Ice.RouterPrx;
 
-var RouterManager = Ice.Class({
-    __init__: function()
+class RouterManager
+{
+    constructor()
     {
         this._table = new HashMap(HashMap.compareEquals); // Map<Ice.RouterPrx, RouterInfo>
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
-        for(var e = this._table.entries; e !== null; e = e.next)
+        for(let router of this._table.values())
         {
-            e.value.destroy();
+            router.destroy();
         }
         this._table.clear();
-    },
+    }
+
     //
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    find: function(rtr)
+    find(rtr)
     {
         if(rtr === null)
         {
@@ -41,9 +44,9 @@ var RouterManager = Ice.Class({
         //
         // The router cannot be routed.
         //
-        var router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+        const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
-        var info = this._table.get(router);
+        let info = this._table.get(router);
         if(info === undefined)
         {
             info = new RouterInfo(router);
@@ -51,20 +54,21 @@ var RouterManager = Ice.Class({
         }
 
         return info;
-    },
-    erase: function(rtr)
+    }
+
+    erase(rtr)
     {
-        var info = null;
+        let info = null;
         if(rtr !== null)
         {
             // The router cannot be routed.
-            var router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+            let router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
             info = this._table.get(router);
             this._table.delete(router);
         }
         return info;
     }
-});
+}
 Ice.RouterManager = RouterManager;
 module.exports.Ice = Ice;

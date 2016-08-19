@@ -8,10 +8,10 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/Logger").Ice;
-var Logger = Ice.Logger;
+const Ice = require("../Ice/Logger").Ice;
+const Logger = Ice.Logger;
 
-var processLogger = null;
+let processLogger = null;
 
 Ice.getProcessLogger = function()
 {

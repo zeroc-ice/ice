@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var TestAMD = require("TestAMD").TestAMD;
 
-    var Class = Ice.Class;
-
     var test = function(b)
     {
         if(!b)
@@ -22,17 +20,20 @@
         }
     };
 
-    var AMDInitialI = Class(TestAMD.Initial, {
-        shutdown_async: function(cb, current)
+    class AMDInitialI extends TestAMD.Initial
+    {
+        shutdown_async(cb, current)
         {
             current.adapter.getCommunicator().shutdown();
             cb.ice_response();
-        },
-        pingPong_async: function(cb, obj, current)
+        }
+
+        pingPong_async(cb, obj, current)
         {
             cb.ice_response(obj);
-        },
-        opOptionalException_async: function(cb, a, b, o, current)
+        }
+
+        opOptionalException_async(cb, a, b, o, current)
         {
             var ex = new TestAMD.OptionalException();
             if(a !== undefined)
@@ -52,8 +53,9 @@
                 ex.o = o;
             }
             cb.ice_exception(ex);
-        },
-        opDerivedException_async: function(cb, a, b, o, current)
+        }
+
+        opDerivedException_async(cb, a, b, o, current)
         {
             var ex = new TestAMD.DerivedException();
             if(a !== undefined)
@@ -79,8 +81,9 @@
                 ex.o2 = o;
             }
             cb.ice_exception(ex);
-        },
-        opRequiredException_async: function(cb, a, b, o, current)
+        }
+
+        opRequiredException_async(cb, a, b, o, current)
         {
             var ex = new TestAMD.RequiredException();
             if(a !== undefined)
@@ -102,164 +105,203 @@
                 ex.o2 = o;
             }
             cb.ice_exception(ex);
-        },
-        opByte_async: function(cb, p1, current)
+        }
+
+        opByte_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opBool_async: function(cb, p1, current)
+        }
+
+        opBool_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opShort_async: function(cb, p1, current)
+        }
+
+        opShort_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opInt_async: function(cb, p1, current)
+        }
+
+        opInt_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opLong_async: function(cb, p1, current)
+        }
+
+        opLong_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opFloat_async: function(cb, p1, current)
+        }
+
+        opFloat_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opDouble_async: function(cb, p1, current)
+        }
+
+        opDouble_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opString_async: function(cb, p1, current)
+        }
+
+        opString_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opMyEnum_async: function(cb, p1, current)
+        }
+
+        opMyEnum_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opSmallStruct_async: function(cb, p1, current)
+        }
+
+        opSmallStruct_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opFixedStruct_async: function(cb, p1, current)
+        }
+
+        opFixedStruct_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opVarStruct_async: function(cb, p1, current)
+        }
+
+        opVarStruct_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opOneOptional_async: function(cb, p1, current)
+        }
+
+        opOneOptional_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opOneOptionalProxy_async: function(cb, p1, current)
+        }
+
+        opOneOptionalProxy_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opByteSeq_async: function(cb, p1, current)
+        }
+
+        opByteSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opBoolSeq_async: function(cb, p1, current)
+        }
+
+        opBoolSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opShortSeq_async: function(cb, p1, current)
+        }
+
+        opShortSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opIntSeq_async: function(cb, p1, current)
+        }
+
+        opIntSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opLongSeq_async: function(cb, p1, current)
+        }
+
+        opLongSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opFloatSeq_async: function(cb, p1, current)
+        }
+
+        opFloatSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opDoubleSeq_async: function(cb, p1, current)
+        }
+
+        opDoubleSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opStringSeq_async: function(cb, p1, current)
+        }
+
+        opStringSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opSmallStructSeq_async: function(cb, p1, current)
+        }
+
+        opSmallStructSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opSmallStructList_async: function(cb, p1, current)
+        }
+
+        opSmallStructList_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opFixedStructSeq_async: function(cb, p1, current)
+        }
+
+        opFixedStructSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opFixedStructList_async: function(cb, p1, current)
+        }
+
+        opFixedStructList_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opVarStructSeq_async: function(cb, p1, current)
+        }
+
+        opVarStructSeq_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opSerializable_async: function(cb, p1, current)
+        }
+
+        opSerializable_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opIntIntDict_async: function(cb, p1, current)
+        }
+
+        opIntIntDict_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opStringIntDict_async: function(cb, p1, current)
+        }
+
+        opStringIntDict_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opIntOneOptionalDict_async: function(cb, p1, current)
+        }
+
+        opIntOneOptionalDict_async(cb, p1, current)
         {
             cb.ice_response(p1, p1);
-        },
-        opClassAndUnknownOptional_async: function(cb, p, current)
+        }
+
+        opClassAndUnknownOptional_async(cb, p, current)
         {
             cb.ice_response();
-        },
-        sendOptionalClass_async: function(cb, req, current)
+        }
+
+        sendOptionalClass_async(cb, req, current)
         {
             cb.ice_response();
-        },
-        returnOptionalClass_async: function(cb, req, current)
+        }
+
+        returnOptionalClass_async(cb, req, current)
         {
             cb.ice_response(new TestAMD.OneOptional(53));
-        },
-        opG_async: function(cb, g, current)
+        }
+
+        opG_async(cb, g, current)
         {
             cb.ice_response(g);
-        },
-        opVoid_async: function(cb, current)
+        }
+
+        opVoid_async(cb, current)
         {
             cb.ice_response();
-        },
-        supportsRequiredParams_async: function(cb, current)
-        {
-            cb.ice_response(false);
-        },
-        supportsJavaSerializable_async: function(cb, current)
-        {
-            cb.ice_response(false);
-        },
-        supportsCsharpSerializable_async: function(cb, current)
+        }
+
+        supportsRequiredParams_async(cb, current)
         {
             cb.ice_response(false);
         }
-    });
+
+        supportsJavaSerializable_async(cb, current)
+        {
+            cb.ice_response(false);
+        }
+
+        supportsCsharpSerializable_async(cb, current)
+        {
+            cb.ice_response(false);
+        }
+    }
 
     exports.AMDInitialI = AMDInitialI;
 }

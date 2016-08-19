@@ -26,7 +26,7 @@
                 }
                 catch(err)
                 {
-                    promise.fail(err);
+                    promise.reject(err);
                     throw err;
                 }
             }
@@ -39,19 +39,16 @@
                 connectionId = "";
             }
             var p = proxy;
-            return p.ice_connectionId(connectionId).ice_getConnection().then(
-                function(c)
+            return p.ice_connectionId(connectionId).ice_getConnection().then(c =>
                 {
                     p = p.constructor.uncheckedCast(c.createProxy(proxy.ice_getIdentity())).ice_batchOneway();
                     return p.ice_getConnection();
                 }
-            ).then(
-                function(c)
+            ).then(c =>
                 {
                     test(p.ice_getCachedConnection() === c);
                     return p;
-                }
-            );
+                });
         };
 
         var result = null;
@@ -62,108 +59,52 @@
         var b1 = null;
         var b2 = null;
 
-        Promise.try(
-            function()
+        Promise.try(() =>
             {
                 out.write("testing batch requests with proxy... ");
-                return p.opBatchCount().then(
-                    function(count)
+                return p.opBatchCount().then(count =>
                     {
                         test(count === 0);
                         b1 = p.ice_batchOneway();
-                        test(b1.opBatch().completed());
-                        test(b1.opBatch().completed());
+                        test(b1.opBatch());
+                        test(b1.opBatch());
                         return b1.ice_flushBatchRequests();
                     }
-                ).then(
-                    function(r1)
-                    {
-                        test(r1.completed());
-                        return p.waitForBatch(2);
-                    }
-                ).then(
-                    function()
-                    {
-                        return b1.ice_flushBatchRequests();
-                    }
-                ).then(
-                    function(r2)
-                    {
-                        test(r2.completed());
-                    }
-                ).then(
-                    function()
-                    {
-                        out.writeLine("ok");
-                    }
-                );
+                ).then(() => p.waitForBatch(2)
+                ).then(() => b1.ice_flushBatchRequests()
+                ).then(() => out.writeLine("ok"));
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("testing batch requests with connection... ");
-                return p.opBatchCount().then(
-                    function(count)
+                return p.opBatchCount().then(count =>
                     {
                         test(count === 0);
-                        return getConnectionBatchProxy(p).then(
-                            function(prx)
+                        return getConnectionBatchProxy(p).then(prx =>
                             {
                                 b1 = prx;
                                 var connection = b1.ice_getCachedConnection();
-                                test(b1.opBatch().completed());
-                                test(b1.opBatch().completed());
+                                test(b1.opBatch());
+                                test(b1.opBatch());
                                 return connection.flushBatchRequests();
                             });
                     }
-                ).then(
-                    function(r1)
-                    {
-                        test(r1.completed());
-                        return p.waitForBatch(2);
-                    }
-                ).then(
-                    function()
-                    {
-                        return b1.ice_getConnection().then(function(connection)
-                                                           {
-                                                               return connection.flushBatchRequests();
-                                                           });
-                    }
-                ).then(
-                    function(r2)
-                    {
-                        test(r2.completed());
-                    }
-                ).then(
-                    function()
-                    {
-                        out.writeLine("ok");
-                    }
-                );
+                ).then(() => p.waitForBatch(2)
+                ).then(() => b1.ice_getConnection().then(connection => connection.flushBatchRequests())
+                ).then(() => out.writeLine("ok"));
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("testing batch requests with communicator... ");
-                return p.opBatchCount().then(
-                    function(count)
+                return p.opBatchCount().then(count =>
                     {
                         test(count === 0);
-                        test(b1.opBatch().completed());
-                        test(b1.opBatch().completed());
-                        return communicator.flushBatchRequests().then(function(r1)
-                                                                      {
-                                                                          test(r1.completed());
-                                                                          return p.waitForBatch(2).then(
-                                                                              function()
-                                                                              {
-                                                                                  return p.opBatchCount();
-                                                                              });
-                                                                      });
+                        test(b1.opBatch());
+                        test(b1.opBatch());
+                        return communicator.flushBatchRequests().then(() => p.waitForBatch(2))
+                                                                .then(() => p.opBatchCount());
                     }
-                ).then(
-                    function(batchCount)
+                ).then(batchCount =>
                     {
                         //
                         // AsyncResult exception - 1 connection.
@@ -171,27 +112,20 @@
                         test(batchCount === 0);
                         b1.opBatch();
                         b1.ice_getCachedConnection().close(false);
-                        return communicator.flushBatchRequests().then(function(r)
-                                                                      {
-                                                                          test(r.completed());
-                                                                          return p.opBatchCount();
-                                                                      });
+                        return communicator.flushBatchRequests().then(() => p.opBatchCount());
                     }
-                ).then(
-                    function(batchCount)
+                ).then(batchCount =>
                     {
                         //
                         // AsyncResult exception - 2 connections
                         //
                         test(batchCount === 0);
-                        return getConnectionBatchProxy(p).then(
-                            function(prx)
+                        return getConnectionBatchProxy(p).then(prx =>
                             {
                                 b1 = prx;
                                 return getConnectionBatchProxy(p, "2");
                             }
-                        ).then( // Ensure connection is established.
-                            function(prx)
+                        ).then(prx => // Ensure connection is established.
                             {
                                 b2 = prx;
                                 b1.opBatch();
@@ -200,18 +134,10 @@
                                 b2.opBatch();
                                 return communicator.flushBatchRequests();
                             }
-                        ).then(function(r)
-                               {
-                                   test(r.completed());
-                                   return p.waitForBatch(4).then(
-                                       function()
-                                       {
-                                           return p.opBatchCount();
-                                       });
-                               });
+                        ).then(() => p.waitForBatch(4))
+                         .then(() => p.opBatchCount());
                     }
-                ).then(
-                    function(batchCount)
+                ).then(batchCount =>
                     {
                         //
                         // AsyncResult exception - 2 connections - 1 failure.
@@ -220,14 +146,12 @@
                         // Exceptions should not be reported.
                         //
                         test(batchCount === 0);
-                        return getConnectionBatchProxy(p).then(
-                            function(prx)
+                        return getConnectionBatchProxy(p).then(prx =>
                             {
                                 b1 = prx;
                                 return getConnectionBatchProxy(p, "2");
                             }
-                        ).then( // Ensure connection is established.
-                            function(prx)
+                        ).then(prx => // Ensure connection is established.
                             {
                                 b2 = prx;
                                 b1.opBatch();
@@ -235,18 +159,10 @@
                                 b1.ice_getCachedConnection().close(false);
                                 return communicator.flushBatchRequests();
                             }
-                        ).then(function(r)
-                               {
-                                   test(r.completed());
-                                   return p.waitForBatch(1).then(
-                                       function()
-                                       {
-                                           return p.opBatchCount();
-                                       });
-                               });
+                        ).then(() => p.waitForBatch(1)
+                        ).then(() => p.opBatchCount());
                     }
-                ).then(
-                    function(batchCount)
+                ).then(batchCount =>
                     {
                         //
                         // AsyncResult exception - 2 connections - 2 failures.
@@ -255,14 +171,12 @@
                         // Exceptions should not be reported.
                         //
                         test(batchCount === 0);
-                        return getConnectionBatchProxy(p).then(
-                            function(prx)
+                        return getConnectionBatchProxy(p).then(prx =>
                             {
                                 b1 = prx;
                                 return getConnectionBatchProxy(p, "2");
                             }
-                        ).then( // Ensure connection is established.
-                            function(prx)
+                        ).then(prx => // Ensure connection is established.
                             {
                                 b2 = prx;
                                 b1.opBatch();
@@ -271,52 +185,29 @@
                                 b2.ice_getCachedConnection().close(false);
                                 return communicator.flushBatchRequests();
                             }
-                        ).then(function(r)
-                               {
-                                   test(r.completed());
-                                   return p.opBatchCount();
-                               });
+                        ).then(() => p.opBatchCount());
                     }
-                ).then(
-                    function(batchCount)
+                ).then(batchCount =>
                     {
                         test(batchCount === 0);
                         out.writeLine("ok");
-                    }
-                );
+                    });
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("testing AsyncResult operations... ");
 
                 var indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"));
-                return indirect.op().exception(
-                    function(ex, r)
-                    {
-                        try
-                        {
-                            r.throwLocalException();
-                        }
-                        catch(ex)
-                        {
-                            test(ex instanceof Ice.NoEndpointException);
-                        }
-                    }
-                ).then(
-                    function()
-                    {
-                        return testController.holdAdapter();
-                    }
-                ).then(
-                    function()
+                
+                return indirect.op().catch(ex => test(ex instanceof Ice.NoEndpointException)
+                ).then(() => testController.holdAdapter()
+                ).then(() =>
                     {
                         var r1 = p.op();
                         var r2 = null;
                         var seq = Ice.Buffer.createNative(new Array(100000));
 
                         while((r2 = p.opWithPayload(seq)).sentSynchronously());
-
                         test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
                              !r1.sentSynchronously() && !r1.isCompleted());
 
@@ -327,23 +218,19 @@
                         test(r1.operation === "op");
                         test(r2.operation === "opWithPayload");
 
-                        return r1.then(
-                            function()
+                        return r1.then(() =>
                             {
                                 test(r1.isSent());
                                 test(r1.isCompleted());
                                 return r2;
                             }
-                        ).then(
-                            function()
+                        ).then(() =>
                             {
                                 test(r2.isSent());
                                 test(r2.isCompleted());
-                            }
-                        );
+                            });
                     }
-                ).then(
-                    function()
+                ).then(() =>
                     {
                         r = p.ice_ping();
                         test(r.operation === "ice_ping");
@@ -389,21 +276,16 @@
                         test(r.communicator == communicator);
                         test(r.proxy === null);
                     }
-                ).then(
-                    function()
+                ).then(() => testController.holdAdapter()
+                ).then(() =>
                     {
-                        return testController.holdAdapter();
-                    }
-                ).then(
-                    function()
-                    {
-                        var seq = Ice.Buffer.createNative(new Array(100024));
+                        var seq = Ice.Buffer.createNative(new Array(100000));
                         while((r = p.opWithPayload(seq)).sentSynchronously());
-
                         test(!r.isSent());
 
                         var r1 = p.ice_ping();
                         var r2 = p.ice_id();
+                    
                         r1.cancel();
                         r2.cancel();
 
@@ -416,6 +298,7 @@
                         {
                             test(ex instanceof Ice.InvocationCanceledException);
                         }
+
                         try
                         {
                             r2.throwLocalException();
@@ -426,29 +309,20 @@
                             test(ex instanceof Ice.InvocationCanceledException);
                         }
 
-                        return testController.resumeAdapter().then(
-                            function()
-                            {
-                                return p.ice_ping().then(
-                                    function()
-                                    {
-                                        test(!r1.isSent() && r1.isCompleted());
-                                        test(!r2.isSent() && r2.isCompleted());
-                                    });
-                            });
+                        return testController.resumeAdapter()
+                            .then(() => p.ice_ping())
+                            .then(() =>
+                                {
+                                    test(!r1.isSent() && r1.isCompleted());
+                                    test(!r2.isSent() && r2.isCompleted());
+                                });
                     }
-                ).then(
-                    function()
-                    {
-                        return testController.holdAdapter();
-                    }
-                ).then(
-                    function()
+                ).then(() => testController.holdAdapter()
+                ).then(() =>
                     {
                         var r1 = p.op();
                         var r2 = p.ice_id();
-                        return p.ice_oneway().ice_ping().then(
-                            function()
+                        return p.ice_oneway().ice_ping().then(() =>
                             {
                                 r1.cancel();
                                 r2.cancel();
@@ -474,36 +348,23 @@
                                 testController.resumeAdapter();
                             });
                     }
-                ).then(
-                    function()
-                    {
-                        out.writeLine("ok");
-                    });
+                ).then(() => out.writeLine("ok"));
             }
         ).then(
-            function()
-            {
-                return p.shutdown();
-            },
-            function(ex)
+            () => p.shutdown(),
+            ex =>
             {
                 console.log("unexpected exception:\n" + ex);
                 test(false);
             }
-        ).then(
-            function()
-            {
-                promise.succeed();
-            }
-        );
+        ).then(promise.resolve, promise.reject);
         return promise;
     }
 
     exports.__test__ = function(out, id)
     {
         var communicator = Ice.initialize(id);
-        return Promise.try(
-            function()
+        return Promise.try(() =>
             {
                 if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {
@@ -515,13 +376,7 @@
                 {
                     return allTests(communicator, out);
                 }
-            }
-        ).finally(
-            function()
-            {
-                communicator.destroy();
-            }
-        );
+            }).finally(() => communicator.destroy());
     };
     exports.__runServer__ = true;
 }

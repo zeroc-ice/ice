@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Address",
         "../Ice/HashUtil",
         "../Ice/StringUtil",
@@ -18,65 +17,73 @@ Ice.__M.require(module,
         "../Ice/LocalException"
     ]);
 
-var Address = Ice.Address;
-var HashUtil = Ice.HashUtil;
-var StringUtil = Ice.StringUtil;
-var Class = Ice.Class;
-var EndpointParseException = Ice.EndpointParseException;
+const Address = Ice.Address;
+const HashUtil = Ice.HashUtil;
+const StringUtil = Ice.StringUtil;
+const EndpointParseException = Ice.EndpointParseException;
 
-var IPEndpointI = Class(Ice.EndpointI, {
-    __init__: function(instance, ho, po, sa, conId)
+class IPEndpointI extends Ice.EndpointI
+{
+    constructor(instance, ho, po, sa, conId)
     {
+        super();
         this._instance = instance;
         this._host = ho === undefined ? null : ho;
         this._port = po === undefined ? null : po;
         this._sourceAddr = sa === undefined ? null : sa;
         this._connectionId = conId === undefined ? "" : conId;
-    },
+    }
+
     //
     // Marshal the endpoint
     //
-    streamWrite: function(s)
+    streamWrite(s)
     {
         s.startEncapsulation();
         this.streamWriteImpl(s);
         s.endEncapsulation();
-    },
-    getInfo: function()
+    }
+
+    getInfo()
     {
-        var info = new Ice.IPEndpointInfo();
+        const info = new Ice.IPEndpointInfo();
         this.fillEndpointInfo(info);
         return info;
-    },
+    }
+
     //
     // Return the endpoint type
     //
-    type: function()
+    type()
     {
         return this._instance.type();
-    },
+    }
+
     //
     // Return the protocol string
     //
-    protocol: function()
+    protocol()
     {
         return this._instance.protocol();
-    },
+    }
+
     //
     // Return true if the endpoint is secure.
     //
-    secure: function()
+    secure()
     {
         return this._instance.secure();
-    },
-    connectionId: function()
+    }
+
+    connectionId()
     {
         return this._connectionId;
-    },
+    }
+
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId: function(connectionId)
+    changeConnectionId(connectionId)
     {
         if(connectionId === this._connectionId)
         {
@@ -86,19 +93,21 @@ var IPEndpointI = Class(Ice.EndpointI, {
         {
             return this.createEndpoint(this._host, this._port, connectionId);
         }
-    },
+    }
+
     //
     // Return the endpoint information.
     //
-    hashCode: function()
+    hashCode()
     {
         if(this._hashCode === undefined)
         {
             this._hashCode = this.hashInit(5381);
         }
         return this._hashCode;
-    },
-    options: function()
+    }
+
+    options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -107,12 +116,12 @@ var IPEndpointI = Class(Ice.EndpointI, {
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        var s = "";
+        let s = "";
 
         if(this._host !== null && this._host.length > 0)
         {
             s += " -h ";
-            var addQuote = this._host.indexOf(':') != -1;
+            const addQuote = this._host.indexOf(':') != -1;
             if(addQuote)
             {
                 s += "\"";
@@ -131,8 +140,9 @@ var IPEndpointI = Class(Ice.EndpointI, {
             s += " --sourceAddr " + this._sourceAddr;
         }
         return s;
-    },
-    compareTo: function(p)
+    }
+
+    compareTo(p)
     {
         if(this === p)
         {
@@ -174,24 +184,28 @@ var IPEndpointI = Class(Ice.EndpointI, {
         }
 
         return 0;
-    },
-    getAddress: function()
+    }
+
+    getAddress()
     {
         return new Address(this._host, this._port);
-    },
+    }
+
     //
     // Convert the endpoint to its Connector string form
     //
-    toConnectorString: function()
+    toConnectorString()
     {
         return this._host + ":" + this._port;
-    },
-    streamWriteImpl: function(s)
+    }
+
+    streamWriteImpl(s)
     {
         s.writeString(this._host);
         s.writeInt(this._port);
-    },
-    hashInit: function(h)
+    }
+    
+    hashInit(h)
     {
         h = HashUtil.addNumber(h, this.type());
         h = HashUtil.addString(h, this._host);
@@ -199,20 +213,21 @@ var IPEndpointI = Class(Ice.EndpointI, {
         h = HashUtil.addString(h, this._sourceAddr);
         h = HashUtil.addString(h, this._connectionId);
         return h;
-    },
-    fillEndpointInfo: function(info)
+    }
+
+    fillEndpointInfo(info)
     {
-        var self = this;
-        info.type = function() { return self.type(); };
-        info.datagram = function() { return self.datagram(); };
-        info.secure = function() { return self.secure(); };
+        info.type = () => this.type();
+        info.datagram = () => this.datagram();
+        info.secure = () => this.secure();
         info.host = this._host;
         info.port = this._port;
         info.sourceAddress = this._sourceAddr;
-    },
-    initWithOptions: function(args, oaEndpoint)
+    }
+
+    initWithOptions(args, oaEndpoint)
     {
-        Ice.EndpointI.prototype.initWithOptions.call(this, args);
+        super.initWithOptions(args);
 
         if(this._host === null || this._host.length === 0)
         {
@@ -246,13 +261,15 @@ var IPEndpointI = Class(Ice.EndpointI, {
         {
             throw new EndpointParseException("`--sourceAddress not valid for object adapter endpoint `" + this + "'");
         }
-    },
-    initWithStream: function(s)
+    }
+
+    initWithStream(s)
     {
         this._host = s.readString();
         this._port = s.readInt();
-    },
-    checkOption: function(option, argument, str)
+    }
+
+    checkOption(option, argument, str)
     {
         if(option === "-h")
         {
@@ -299,8 +316,7 @@ var IPEndpointI = Class(Ice.EndpointI, {
         }
         return true;
     }
-});
+}
 
 Ice.IPEndpointI = IPEndpointI;
 module.exports.Ice = Ice;
-

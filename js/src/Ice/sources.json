@@ -33,7 +33,7 @@
         "AsyncStatus.js",
         "Base64.js",
         "BatchRequestQueue.js",
-        "Class.js",
+        "Buffer.js",
         "Communicator.js",
         "CompactIdRegistry.js",
         "ConnectionI.js",
@@ -60,6 +60,7 @@
         "LocatorTable.js",
         "Logger.js",
         "Long.js",
+        "MapUtil.js",
         "Object.js",
         "ObjectAdapterFactory.js",
         "ObjectAdapterI.js",
@@ -103,7 +104,6 @@
         "WSEndpointFactory.js"],
 
     "node":[
-        "Buffer.js",
         "Debug.js",
         "Ice.js",
         "ModuleRegistry.js",
@@ -111,7 +111,6 @@
         "TimerUtil.js"],
 
     "browser":[
-        "browser/Buffer.js",
         "browser/Debug.js",
         "browser/ModuleRegistry.js",
         "browser/TimerUtil.js",

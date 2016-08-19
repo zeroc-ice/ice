@@ -7,22 +7,23 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module, ["../Ice/Class", "../Ice/Exception"]);
 
-Ice.AssertionFailedException = Ice.Class(Error, 
-    {
-        __init__: function(message)
-        {
-            Error.call(this);
-            Ice.Exception.captureStackTrace(this);
-            this.message = message;
-        }
-    });
-
-Ice.Debug =
+class AssertionFailedException extends Error
 {
-    assert: function(b, msg)
+    constructor(message)
+    {
+        super();
+        Ice.Exception.captureStackTrace(this);
+        this.message = message;
+    }
+}
+Ice.AssertionFailedException = AssertionFailedException;
+
+class Debug
+{
+    static assert(b, msg)
     {
         if(!b)
         {
@@ -31,5 +32,7 @@ Ice.Debug =
             throw new Ice.AssertionFailedException(msg === undefined ? "assertion failed" : msg);
         }
     }
-};
+}
+
+Ice.Debug = Debug;
 module.exports.Ice = Ice;

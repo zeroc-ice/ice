@@ -60,8 +60,11 @@ function Init()
         var match = req.url.pathname.match("^\/test/(.*)/index\.html");
         if(match)
         {
+            var es5 = match[1].indexOf("/es5/") !== -1;
+            var m = es5 ? match[1].replace("/es5/", "/") : match[1];
+
             // That is a test case
-            var testCase = TestCases[match[1]];
+            var testCase = TestCases[m];
             if(testCase === undefined)
             {
                 res.writeHead(404);
@@ -70,7 +73,7 @@ function Init()
             }
             else
             {
-                TestData.current = match[1];
+                TestData.current = m;
                 if(req.url.query.next == "true")
                 {
                     var testCase = TestData.tests[0];
@@ -100,6 +103,11 @@ function Init()
                         protocol = "http";
                     }
 
+                    if(es5)
+                    {
+                        testCase = testCase.replace("Ice/", "Ice/es5/");
+                    }
+
                     var location = url.format(
                         {
                             protocol: protocol,
@@ -117,13 +125,30 @@ function Init()
                 {
                     if(req.url.query.worker != "true")
                     {
-                        TestData.scripts =
+                        TestData.scripts = [];
+                        
+                        if(es5)
+                        {
+                            TestData.scripts =
                             [
-                                "/lib/Ice.js",
+                                "/node_modules/babel-polyfill/dist/polyfill.js",
+                                "/node_modules/regenerator-runtime/runtime.js",
+                                "/lib/es5/Ice.js",
                                 "/test/Common/TestRunner.js",
                                 "/test/Common/TestSuite.js",
-                                "/test/Common/Controller.js"
+                                "/test/Common/es5/Controller.js"
                             ].concat(testCase.files);
+                        }
+                        else
+                        {
+                            TestData.scripts =
+                                [
+                                    "/lib/Ice.js",
+                                    "/test/Common/TestRunner.js",
+                                    "/test/Common/TestSuite.js",
+                                    "/test/Common/Controller.js"
+                                ].concat(testCase.files);
+                        }
                     }
                     else
                     {

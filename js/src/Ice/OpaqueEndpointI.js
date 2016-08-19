@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Base64",
         "../Ice/Debug",
         "../Ice/FormatType",
@@ -21,111 +20,124 @@ Ice.__M.require(module,
         "../Ice/LocalException"
     ]);
 
-var Base64 = Ice.Base64;
-var Debug = Ice.Debug;
-var HashUtil = Ice.HashUtil;
-var Protocol = Ice.Protocol;
-var StringUtil = Ice.StringUtil;
-var EndpointParseException = Ice.EndpointParseException;
+const Base64 = Ice.Base64;
+const Debug = Ice.Debug;
+const HashUtil = Ice.HashUtil;
+const Protocol = Ice.Protocol;
+const StringUtil = Ice.StringUtil;
+const EndpointParseException = Ice.EndpointParseException;
 
-var Class = Ice.Class;
-
-var OpaqueEndpointI = Class(Ice.EndpointI, {
-    __init__: function(type)
+class OpaqueEndpointI extends Ice.EndpointI
+{
+    constructor(type)
     {
+        super();
         this._rawEncoding = Ice.Encoding_1_0;
         this._type = type === undefined ? -1 : type;
         this._rawBytes = null;
-    },
+    }
+
     //
     // Marshal the endpoint
     //
-    streamWrite: function(s)
+    streamWrite(s)
     {
         s.startEncapsulation(this._rawEncoding, Ice.FormatType.DefaultFormat);
         s.writeBlob(this._rawBytes);
         s.endEncapsulation();
-    },
+    }
+
     //
     // Return the endpoint information.
     //
-    getInfo: function()
+    getInfo()
     {
         return new OpaqueEndpointInfoI(null, -1, false, this._rawEncoding, this._rawBytes, this._type);
-    },
+    }
+
     //
     // Return the endpoint type
     //
-    type: function()
+    type()
     {
         return this._type;
-    },
-    protocol: function()
+    }
+
+    protocol()
     {
         return "opaque";
-    },
+    }
+
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    timeout: function()
+    timeout()
     {
         return -1;
-    },
+    }
+
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    changeTimeout: function(t)
+    changeTimeout(t)
     {
         return this;
-    },
+    }
+
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId: function(connectionId)
+    changeConnectionId(connectionId)
     {
         return this;
-    },
+    }
+
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    compress: function()
+    compress()
     {
         return false;
-    },
+    }
+
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    changeCompress: function(compress)
+    changeCompress(compress)
     {
         return this;
-    },
+    }
+
     //
     // Return true if the endpoint is datagram-based.
     //
-    datagram: function()
+    datagram()
     {
         return false;
-    },
+    }
+
     //
     // Return true if the endpoint is secure.
     //
-    secure: function()
+    secure()
     {
         return false;
-    },
+    }
+
     //
     // Get the encoded endpoint.
     //
-    rawBytes: function()
+    rawBytes()
     {
         return this._rawBytes; // Returns a Uint8Array
-    },
+    }
+
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
@@ -133,11 +145,12 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    transceiver: function(endpoint)
+    transceiver(endpoint)
     {
         endpoint.value = null;
         return null;
-    },
+    }
+
     //
     // Return an acceptor for this endpoint, or null if no acceptors
     // is available. In case an acceptor is created, this operation
@@ -145,39 +158,43 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    acceptor: function(endpoint, adapterName)
+    acceptor(endpoint, adapterName)
     {
         endpoint.value = this;
         return null;
-    },
-    connect: function()
+    }
+
+    connect()
     {
         return null;
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         if(this._hashCode === undefined)
         {
-            var h = 5381;
+            let h = 5381;
             h = HashUtil.addNumber(h, this._type);
             h = HashUtil.addHashable(h, this._rawEncoding);
             h = HashUtil.addArray(h, this._rawBytes, HashUtil.addNumber);
             this._hashCode = h;
         }
         return this._hashCode;
-    },
-    options: function()
+    }
+
+    options()
     {
-        var s = "";
-        s+= " -t " + this._type;
+        let s = "";
+        s += " -t " + this._type;
         s += " -e " + Ice.encodingVersionToString(this._rawEncoding);
         s += " -v " + Base64.encode(this._rawBytes);
         return s;
-    },
+    }
+
     //
     // Compare endpoints for sorting purposes
     //
-    equals: function(p)
+    equals(p)
     {
         if(!(p instanceof OpaqueEndpointI))
         {
@@ -203,7 +220,7 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
         {
             return false;
         }
-        for(var i = 0; i < this._rawBytes.length; i++)
+        for(let i = 0; i < this._rawBytes.length; i++)
         {
             if(this._rawBytes[i] !== p._rawBytes[i])
             {
@@ -212,8 +229,9 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
         }
 
         return true;
-    },
-    compareTo: function(p)
+    }
+
+    compareTo(p)
     {
         if(this === p)
         {
@@ -265,7 +283,7 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
         {
             return 1;
         }
-        for(var i = 0; i < this._rawBytes.length; i++)
+        for(let i = 0; i < this._rawBytes.length; i++)
         {
             if(this._rawBytes[i] < p._rawBytes[i])
             {
@@ -278,8 +296,9 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
         }
 
         return 0;
-    },
-    checkOption: function(option, argument, endpoint)
+    }
+
+    checkOption(option, argument, endpoint)
     {
         switch(option.charAt(1))
         {
@@ -294,7 +313,7 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
                     throw new EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
                 }
 
-                var type;
+                let type;
 
                 try
                 {
@@ -325,13 +344,13 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
                 {
                     throw new EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
                 }
-                for(var j = 0; j < argument.length; ++j)
+                for(let i = 0; i < argument.length; ++i)
                 {
-                    if(!Base64.isBase64(argument.charAt(j)))
+                    if(!Base64.isBase64(argument.charAt(i)))
                     {
-                        throw new EndpointParseException("invalid base64 character `" + argument.charAt(j) +
-                                                            "' (ordinal " + argument.charCodeAt(j) +
-                                                            ") in endpoint " + endpoint);
+                        throw new EndpointParseException("invalid base64 character `" + argument.charAt(i) +
+                                                         "' (ordinal " + argument.charCodeAt(i) +
+                                                         ") in endpoint " + endpoint);
                     }
                 }
                 this._rawBytes = Base64.decode(argument);
@@ -361,10 +380,11 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
                 return false;
             }
         }
-    },
-    initWithOptions: function(args)
+    }
+
+    initWithOptions(args)
     {
-        Ice.EndpointI.prototype.initWithOptions.call(this, args);
+        super.initWithOptions(args);
         Debug.assert(this._rawEncoding);
 
         if(this._type < 0)
@@ -375,34 +395,38 @@ var OpaqueEndpointI = Class(Ice.EndpointI, {
         {
             throw new EndpointParseException("no -v option in endpoint `" + this + "'");
         }
-    },
-    initWithStream: function(s)
+    }
+
+    initWithStream(s)
     {
         this._rawEncoding = s.getEncoding();
-        var sz = s.getEncapsulationSize();
-        this._rawBytes = s.readBlob(sz);
+        this._rawBytes = s.readBlob(s.getEncapsulationSize());
     }
-});
+}
 
-var OpaqueEndpointInfoI = Class(Ice.OpaqueEndpointInfo, {
-    __init__: function(timeout, compress, rawEncoding, rawBytes, type)
+class OpaqueEndpointInfoI extends Ice.OpaqueEndpointInfo
+{
+    constructor(timeout, compress, rawEncoding, rawBytes, type)
     {
-        Ice.OpaqueEndpointInfo.call(this, -1, false, rawEncoding, rawBytes);
+        super(-1, false, rawEncoding, rawBytes);
         this._type = type;
-    },
-    type: function()
+    }
+
+    type()
     {
         return this._type;
-    },
-    datagram: function()
-    {
-        return false;
-    },
-    secure: function()
+    }
+
+    datagram()
     {
         return false;
     }
-});
+
+    secure()
+    {
+        return false;
+    }
+}
 
 Ice.OpaqueEndpointI = OpaqueEndpointI;
 module.exports.Ice = Ice;

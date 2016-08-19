@@ -322,7 +322,7 @@ function bundle(args)
                 var sb = new StringBuffer();
 
                 sb.write(preamble);
-                sb.write("    var __root = typeof(window) !== \"undefined\" ? window : self;\n");
+                sb.write("    var __root = typeof(window) !== \"undefined\" ? window : typeof(global) !== \"undefined\" ? global : typeof(self) !== \"undefined\" ? self : {};\n");
                 lineOffset += 3;
                 args.modules.forEach(
                     function(m){
@@ -378,7 +378,7 @@ function bundle(args)
                         // Get rid of require statements, the bundle include all required files,
                         // so require statements are not required.
                         //
-                        if(line.match(/var .* require\(".*"\).*;/))
+                        if(line.match(/const .* require\(".*"\).*;/))
                         {
                             continue;
                         }
@@ -397,7 +397,7 @@ function bundle(args)
                         // Get rid of __M.module statements, in browser top level modules are
                         // global.
                         //
-                        if(line.match(/var .* = __M.module\(/))
+                        if(line.match(/const .* = __M.module\(/))
                         {
                             if(line.lastIndexOf(";") === -1)
                             {

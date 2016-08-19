@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Debug",
         "../Ice/HashUtil",
         "../Ice/StringUtil",
@@ -20,44 +19,47 @@ Ice.__M.require(module,
         "../Ice/EndpointInfo"
     ]);
 
-var IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
-var Debug = Ice.Debug;
-var HashUtil = Ice.HashUtil;
-var StringUtil = Ice.StringUtil;
-var TcpTransceiver = typeof(Ice.TcpTransceiver) !== "undefined" ? Ice.TcpTransceiver : null;
-var Class = Ice.Class;
+const Debug = Ice.Debug;
+const HashUtil = Ice.HashUtil;
+const StringUtil = Ice.StringUtil;
+const TcpTransceiver = typeof(Ice.TcpTransceiver) !== "undefined" ? Ice.TcpTransceiver : null;
 
-var TcpEndpointI = Class(Ice.IPEndpointI, {
-    __init__: function(instance, ho, po, sif, ti, conId, co)
+class TcpEndpointI extends Ice.IPEndpointI
+{
+    constructor(instance, ho, po, sif, ti, conId, co)
     {
-        Ice.IPEndpointI.call(this, instance, ho, po, sif, conId);
+        super(instance, ho, po, sif, conId);
         this._timeout = ti === undefined ? (instance ? instance.defaultTimeout() : undefined) : ti;
         this._compress = co === undefined ? false : co;
-    },
+    }
+
     //
     // Return the endpoint information.
     //
-    getInfo: function()
+    getInfo()
     {
-        var info = new Ice.TCPEndpointInfo();
+        const info = new Ice.TCPEndpointInfo();
         this.fillEndpointInfo(info);
         return this.secure() ? new IceSSL.EndpointInfo(info, info.timeout, info.compress) : info;
-    },
+    }
+
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    timeout: function()
+    timeout()
     {
         return this._timeout;
-    },
+    }
+
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    changeTimeout: function(timeout)
+    changeTimeout(timeout)
     {
         if(timeout === this._timeout)
         {
@@ -68,11 +70,12 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, timeout,
                                     this._connectionId, this._compress);
         }
-    },
+    }
+
     //
     // Return a new endpoint with a different connection id.
     //
-    changeConnectionId: function(connectionId)
+    changeConnectionId(connectionId)
     {
         if(connectionId === this._connectionId)
         {
@@ -83,21 +86,23 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                     connectionId, this._compress);
         }
-    },
+    }
+
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    compress: function()
+    compress()
     {
         return this._compress;
-    },
+    }
+
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    changeCompress: function(compress)
+    changeCompress(compress)
     {
         if(compress === this._compress)
         {
@@ -108,31 +113,35 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                     this._connectionId, compress);
         }
-    },
+    }
+
     //
     // Return true if the endpoint is datagram-based.
     //
-    datagram: function()
+    datagram()
     {
         return false;
-    },
-    connectable: function()
+    }
+
+    connectable()
     {
         //
         // TCP endpoints are not connectable when running in a browser, SSL
         // isn't currently supported.
         //
         return TcpTransceiver !== null && !this.secure();
-    },
-    connect: function()
+    }
+
+    connect()
     {
         Debug.assert(!this.secure());
         return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
-    },
+    }
+
     //
     // Convert the endpoint to its string form
     //
-    options: function()
+    options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -141,7 +150,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        var s = Ice.IPEndpointI.prototype.options.call(this);
+        let s = super.options();
         if(this._timeout == -1)
         {
             s += " -t infinite";
@@ -156,8 +165,9 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             s += " -z";
         }
         return s;
-    },
-    compareTo: function(p)
+    }
+
+    compareTo(p)
     {
         if(this === p)
         {
@@ -192,36 +202,41 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             return 1;
         }
 
-        return Ice.IPEndpointI.prototype.compareTo.call(this, p);
-    },
-    streamWriteImpl: function(s)
+        return super.compareTo(p);
+    }
+
+    streamWriteImpl(s)
     {
-        Ice.IPEndpointI.prototype.streamWriteImpl.call(this, s);
+        super.streamWriteImpl(s);
         s.writeInt(this._timeout);
         s.writeBool(this._compress);
-    },
-    hashInit: function(h)
+    }
+
+    hashInit(h)
     {
-        h = Ice.IPEndpointI.prototype.hashInit.call(this, h);
+        h = super.hashInit(h);
         h = HashUtil.addNumber(h, this._timeout);
         h = HashUtil.addBoolean(h, this._compress);
         return h;
-    },
-    fillEndpointInfo: function(info)
+    }
+
+    fillEndpointInfo(info)
     {
-        Ice.IPEndpointI.prototype.fillEndpointInfo.call(this, info);
+        super.fillEndpointInfo(info);
         info.timeout = this._timeout;
         info.compress = this._compress;
-    },
-    initWithStream: function(s)
+    }
+
+    initWithStream(s)
     {
-        Ice.IPEndpointI.prototype.initWithStream.call(this, s);
+        super.initWithStream(s);
         this._timeout = s.readInt();
         this._compress = s.readBool();
-    },
-    checkOption: function(option, argument, endpoint)
+    }
+
+    checkOption(option, argument, endpoint)
     {
-        if(Ice.IPEndpointI.prototype.checkOption.call(this, option, argument, endpoint))
+        if(super.checkOption(option, argument, endpoint))
         {
             return true;
         }
@@ -239,7 +254,7 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             }
             else
             {
-                var invalid = false;
+                let invalid = false;
                 try
                 {
                     this._timeout = StringUtil.toInt(argument);
@@ -270,12 +285,13 @@ var TcpEndpointI = Class(Ice.IPEndpointI, {
             return false;
         }
         return true;
-    },
-    createEndpoint: function(host, port, conId)
+    }
+
+    createEndpoint(host, port, conId)
     {
         return new TcpEndpointI(this._instance, host, port, this._sourceAddr, this._timeout, conId, this._compress);
     }
-});
+}
 
 Ice.TcpEndpointI = TcpEndpointI;
 module.exports.Ice = Ice;

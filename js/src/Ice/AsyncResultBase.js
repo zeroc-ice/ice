@@ -7,53 +7,46 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/Debug", "../Ice/Promise", "../Ice/Exception"]);
+const Ice = require("../Ice/Promise").Ice;
 
-var Promise = Ice.Promise;
-
-var AsyncResultBase = Ice.Class(Promise, {
-    __init__: function(communicator, op, connection, proxy, adapter)
+class AsyncResultBase extends Ice.Promise
+{
+    constructor(communicator, op, connection, proxy, adapter)
     {
-        //
-        // AsyncResultBase can be constructed by a sub-type's prototype, in which case the
-        // arguments are undefined.
-        //
-        Promise.call(this);
-        if(communicator !== undefined)
-        {
-            this._communicator = communicator;
-            this._instance = communicator !== null ? communicator.instance : null;
-            this._operation = op;
-            this._connection = connection;
-            this._proxy = proxy;
-            this._adapter = adapter;
-        }
+        super();
+        this._communicator = communicator;
+        this._instance = communicator !== null ? communicator.instance : null;
+        this._operation = op;
+        this._connection = connection;
+        this._proxy = proxy;
+        this._adapter = adapter;
     }
-});
 
-var prototype = AsyncResultBase.prototype;
-var defineProperty = Object.defineProperty;
+    get communicator()
+    {
+        return this._communicator;
+    }
 
-defineProperty(prototype, "communicator", {
-    get: function() { return this._communicator; }
-});
+    get connection()
+    {
+        return this._connection;
+    }
 
-defineProperty(prototype, "connection", {
-    get: function() { return this._connection; }
-});
+    get proxy()
+    {
+        return this._proxy;
+    }
 
-defineProperty(prototype, "proxy", {
-    get: function() { return this._proxy; }
-});
+    get adapter()
+    {
+        return this._adapter; 
+    }
 
-defineProperty(prototype, "adapter", {
-    get: function() { return this._adapter; }
-});
-
-defineProperty(prototype, "operation", {
-    get: function() { return this._operation; }
-});
+    get operation()
+    {
+        return this._operation;
+    }
+}
 
 Ice.AsyncResultBase = AsyncResultBase;
 

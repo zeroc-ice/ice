@@ -39,7 +39,7 @@ protected:
 
     std::string getValue(const std::string&, const TypePtr&);
 
-    void writeConstantValue(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+    std::string writeConstantValue(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
     static StringList splitComment(const ContainedPtr&);
     void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");

@@ -7,30 +7,31 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/Reference",
         "../Ice/ConnectRequestHandler"
     ]);
 
-var Debug = Ice.Debug;
-var HashMap = Ice.HashMap;
-var ConnectRequestHandler = Ice.ConnectRequestHandler;
+const Debug = Ice.Debug;
+const HashMap = Ice.HashMap;
+const ConnectRequestHandler = Ice.ConnectRequestHandler;
 
-var RequestHandlerFactory = Ice.Class({
-    __init__: function(instance)
+class RequestHandlerFactory
+{
+    constructor(instance)
     {
         this._instance = instance;
         this._handlers = new HashMap(HashMap.compareEquals);
-    },
-    getRequestHandler: function(ref, proxy)
+    }
+
+    getRequestHandler(ref, proxy)
     {
-        var connect = false;
-        var handler;
+        let connect = false;
+        let handler;
         if(ref.getCacheConnection())
         {
             handler = this._handlers.get(ref);
@@ -49,18 +50,19 @@ var RequestHandlerFactory = Ice.Class({
 
         if(connect)
         {
-            ref.getConnection().then(function(connection, compress)
+            ref.getConnection().then(values => 
                                      {
-                                         handler.setConnection(connection, compress);
+                                         handler.setConnection(values);
                                      },
-                                     function(ex)
+                                     ex =>
                                      {
                                          handler.setException(ex);
                                      });
         }
         return proxy.__setRequestHandler(handler.connect(proxy));
-    },
-    removeRequestHandler: function(ref, handler)
+    }
+
+    removeRequestHandler(ref, handler)
     {
         if(ref.getCacheConnection())
         {
@@ -70,7 +72,7 @@ var RequestHandlerFactory = Ice.Class({
             }
         }
     }
-});
+}
 
 Ice.RequestHandlerFactory = RequestHandlerFactory;
 module.exports.Ice = Ice;

@@ -7,14 +7,12 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/ArrayUtil",
         "../Ice/BatchRequestQueue",
         "../Ice/Debug",
-        "../Ice/HashMap",
         "../Ice/HashUtil",
         "../Ice/OpaqueEndpointI",
         "../Ice/Promise",
@@ -30,29 +28,27 @@ Ice.__M.require(module,
         "../Ice/Version",
         "../Ice/PropertyNames",
         "../Ice/ConnectionRequestHandler",
+        "../Ice/MapUtil"
     ]);
 
-var ArrayUtil = Ice.ArrayUtil;
-var Debug = Ice.Debug;
-var BatchRequestQueue = Ice.BatchRequestQueue;
-var HashMap = Ice.HashMap;
-var HashUtil = Ice.HashUtil;
-var OpaqueEndpointI = Ice.OpaqueEndpointI;
-var Promise = Ice.Promise;
-var Protocol = Ice.Protocol;
-var RefMode = Ice.ReferenceMode;
-var StringUtil = Ice.StringUtil;
-var StringSeqHelper = Ice.StringSeqHelper;
-var EndpointSelectionType = Ice.EndpointSelectionType;
-var Identity = Ice.Identity;
-var RouterPrx = Ice.RouterPrx;
-var LocatorPrx = Ice.LocatorPrx;
-var PropertyNames = Ice.PropertyNames;
-var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
+const ArrayUtil = Ice.ArrayUtil;
+const Debug = Ice.Debug;
+const BatchRequestQueue = Ice.BatchRequestQueue;
+const HashUtil = Ice.HashUtil;
+const OpaqueEndpointI = Ice.OpaqueEndpointI;
+const Protocol = Ice.Protocol;
+const RefMode = Ice.ReferenceMode;
+const StringUtil = Ice.StringUtil;
+const StringSeqHelper = Ice.StringSeqHelper;
+const EndpointSelectionType = Ice.EndpointSelectionType;
+const Identity = Ice.Identity;
+const RouterPrx = Ice.RouterPrx;
+const LocatorPrx = Ice.LocatorPrx;
+const PropertyNames = Ice.PropertyNames;
+const ConnectionRequestHandler = Ice.ConnectionRequestHandler;
+const MapUtil = Ice.MapUtil;
 
-var Class = Ice.Class;
-
-var suffixes =
+const suffixes =
 [
     "EndpointSelection",
     "ConnectionCached",
@@ -68,15 +64,17 @@ var suffixes =
 //
 // Only for use by Instance
 //
-var ReferenceFactory = Class({
-    __init__: function(instance, communicator)
+class ReferenceFactory
+{
+    constructor(instance, communicator)
     {
         this._instance = instance;
         this._communicator = communicator;
         this._defaultRouter = null;
         this._defaultLocator = null;
-    },
-    create: function(ident, facet, tmpl, endpoints)
+    }
+
+    create(ident, facet, tmpl, endpoints)
     {
         if(ident.name.length === 0 && ident.category.length === 0)
         {
@@ -84,9 +82,10 @@ var ReferenceFactory = Class({
         }
 
         return this.createImpl(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                            endpoints, null, null);
-    },
-    createWithAdapterId: function(ident, facet, tmpl, adapterId)
+                               endpoints, null, null);
+    }
+
+    createWithAdapterId(ident, facet, tmpl, adapterId)
     {
         if(ident.name.length === 0 && ident.category.length === 0)
         {
@@ -94,9 +93,10 @@ var ReferenceFactory = Class({
         }
 
         return this.createImpl(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                            null, adapterId, null);
-    },
-    createFixed: function(ident, fixedConnection)
+                               null, adapterId, null);
+    }
+
+    createFixed(ident, fixedConnection)
     {
         if(ident.name.length === 0 && ident.category.length === 0)
         {
@@ -106,7 +106,7 @@ var ReferenceFactory = Class({
         //
         // Create new reference
         //
-        var ref = new FixedReference(
+        return new FixedReference(
             this._instance,
             this._communicator,
             ident,
@@ -115,30 +115,29 @@ var ReferenceFactory = Class({
             fixedConnection.endpoint().secure(),
             this._instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection);
-        return ref;
-    },
-    copy: function(r)
+    }
+
+    copy(r)
     {
-        var ident = r.getIdentity();
+        const ident = r.getIdentity();
         if(ident.name.length === 0 && ident.category.length === 0)
         {
             return null;
         }
         return r.clone();
-    },
-    createFromString: function(s, propertyPrefix)
+    }
+
+    createFromString(s, propertyPrefix)
     {
         if(s === undefined || s === null || s.length === 0)
         {
             return null;
         }
 
-        var delim = " \t\n\r";
+        const delim = " \t\n\r";
 
-        var beg;
-        var end = 0;
-
-        beg = StringUtil.findFirstNotOf(s, delim, end);
+        let end = 0;
+        let beg = StringUtil.findFirstNotOf(s, delim, end);
         if(beg == -1)
         {
             throw new Ice.ProxyParseException("no non-whitespace characters found in `" + s + "'");
@@ -148,7 +147,7 @@ var ReferenceFactory = Class({
         // Extract the identity, which may be enclosed in single
         // or double quotation marks.
         //
-        var idstr = null;
+        let idstr = null;
         end = StringUtil.checkQuote(s, beg);
         if(end === -1)
         {
@@ -178,7 +177,7 @@ var ReferenceFactory = Class({
         //
         // Parsing the identity may raise IdentityParseException.
         //
-        var ident = Ice.stringToIdentity(idstr);
+        const ident = Ice.stringToIdentity(idstr);
 
         if(ident.name.length === 0)
         {
@@ -206,12 +205,12 @@ var ReferenceFactory = Class({
             }
         }
 
-        var facet = "";
-        var mode = RefMode.ModeTwoway;
-        var secure = false;
-        var encoding = this._instance.defaultsAndOverrides().defaultEncoding;
-        var protocol = Ice.Protocol_1_0;
-        var adapter = "";
+        let facet = "";
+        let mode = RefMode.ModeTwoway;
+        let secure = false;
+        let encoding = this._instance.defaultsAndOverrides().defaultEncoding;
+        let protocol = Ice.Protocol_1_0;
+        let adapter = "";
 
         while(true)
         {
@@ -237,7 +236,7 @@ var ReferenceFactory = Class({
                 break;
             }
 
-            var option = s.substring(beg, end);
+            const option = s.substring(beg, end);
             if(option.length != 2 || option.charAt(0) != '-')
             {
                 throw new Ice.ProxyParseException("expected a proxy option but found `" + option + "' in `" + s + "'");
@@ -248,11 +247,11 @@ var ReferenceFactory = Class({
             // argument may be enclosed in single or double
             // quotation marks.
             //
-            var argument = null;
-            var argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+            let argument = null;
+            let argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
             if(argumentBeg != -1)
             {
-                var ch = s.charAt(argumentBeg);
+                let ch = s.charAt(argumentBeg);
                 if(ch != "@" && ch != ":" && ch != "-")
                 {
                     beg = argumentBeg;
@@ -260,7 +259,7 @@ var ReferenceFactory = Class({
                     if(end == -1)
                     {
                         throw new Ice.ProxyParseException("mismatched quotes around value for " + option +
-                                                        " option in `" + s + "'");
+                                                          " option in `" + s + "'");
                     }
                     else if(end === 0)
                     {
@@ -310,7 +309,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -t option in `" + s + "'");
+                                                          "' provided for -t option in `" + s + "'");
                     }
                     mode = RefMode.ModeTwoway;
                     break;
@@ -321,7 +320,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -o option in `" + s + "'");
+                                                          "' provided for -o option in `" + s + "'");
                     }
                     mode = RefMode.ModeOneway;
                     break;
@@ -332,7 +331,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -O option in `" + s + "'");
+                                                          "' provided for -O option in `" + s + "'");
                     }
                     mode = RefMode.ModeBatchOneway;
                     break;
@@ -343,7 +342,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -d option in `" + s + "'");
+                                                          "' provided for -d option in `" + s + "'");
                     }
                     mode = RefMode.ModeDatagram;
                     break;
@@ -354,7 +353,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -D option in `" + s + "'");
+                                                          "' provided for -D option in `" + s + "'");
                     }
                     mode = RefMode.ModeBatchDatagram;
                     break;
@@ -365,7 +364,7 @@ var ReferenceFactory = Class({
                     if(argument !== null)
                     {
                         throw new Ice.ProxyParseException("unexpected argument `" + argument +
-                                                            "' provided for -s option in `" + s + "'");
+                                                          "' provided for -s option in `" + s + "'");
                     }
                     secure = true;
                     break;
@@ -385,7 +384,7 @@ var ReferenceFactory = Class({
                     catch(e) // VersionParseException
                     {
                         throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s +
-                                                            "':\n" + e.str);
+                                                          "':\n" + e.str);
                     }
                     break;
                 }
@@ -404,7 +403,7 @@ var ReferenceFactory = Class({
                     catch(e) // VersionParseException
                     {
                         throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s +
-                                                            "':\n" + e.str);
+                                                          "':\n" + e.str);
                     }
                     break;
                 }
@@ -421,11 +420,11 @@ var ReferenceFactory = Class({
             return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
-        var endpoints = [];
+        let endpoints = [];
 
         if(s.charAt(beg) == ':')
         {
-            var unknownEndpoints = [];
+            let unknownEndpoints = [];
             end = beg;
 
             while(end < s.length && s.charAt(end) == ':')
@@ -443,8 +442,8 @@ var ReferenceFactory = Class({
                     }
                     else
                     {
-                        var quoted = false;
-                        var quote = beg;
+                        let quoted = false;
+                        let quote = beg;
                         while(true)
                         {
                             quote = s.indexOf("\"", quote);
@@ -475,8 +474,8 @@ var ReferenceFactory = Class({
                     }
                 }
 
-                var es = s.substring(beg, end);
-                var endp = this._instance.endpointFactoryManager().create(es, false);
+                let es = s.substring(beg, end);
+                let endp = this._instance.endpointFactoryManager().create(es, false);
                 if(endp !== null)
                 {
                     endpoints.push(endp);
@@ -492,16 +491,16 @@ var ReferenceFactory = Class({
                 throw new Ice.EndpointParseException("invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'");
             }
             else if(unknownEndpoints.length !== 0 &&
-                this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+                    this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
             {
-                var msg = [];
+                const msg = [];
                 msg.push("Proxy contains unknown endpoints:");
-                for(var i = 0; i < unknownEndpoints.length; ++i)
-                {
-                    msg.push(" `");
-                    msg.push(unknownEndpoints[i]);
-                    msg.push("'");
-                }
+                unknownEndpoints.forEach(unknownEndpoint =>
+                    {
+                        msg.push(" `");
+                        msg.push(unknownEndpoint);
+                        msg.push("'");
+                    });
                 this._instance.initializationData().logger.warning(msg.join(""));
             }
 
@@ -515,7 +514,7 @@ var ReferenceFactory = Class({
                 throw new Ice.ProxyParseException("missing adapter id in `" + s + "'");
             }
 
-            var adapterstr = null;
+            let adapterstr = null;
             end = StringUtil.checkQuote(s, beg);
             if(end === -1)
             {
@@ -559,8 +558,9 @@ var ReferenceFactory = Class({
         }
 
         throw new Ice.ProxyParseException("malformed proxy `" + s + "'");
-    },
-    createFromStream: function(ident, s)
+    }
+
+    createFromStream(ident, s)
     {
         //
         // Don't read the identity here. Operations calling this
@@ -575,8 +575,8 @@ var ReferenceFactory = Class({
         //
         // For compatibility with the old FacetPath.
         //
-        var facetPath = StringSeqHelper.read(s); // String[]
-        var facet;
+        const facetPath = StringSeqHelper.read(s); // String[]
+        let facet;
         if(facetPath.length > 0)
         {
             if(facetPath.length > 1)
@@ -590,16 +590,16 @@ var ReferenceFactory = Class({
             facet = "";
         }
 
-        var mode = s.readByte();
+        const mode = s.readByte();
         if(mode < 0 || mode > RefMode.ModeLast)
         {
             throw new Ice.ProxyUnmarshalException();
         }
 
-        var secure = s.readBool();
+        const secure = s.readBool();
 
-        var protocol = null;
-        var encoding = null;
+        let protocol = null;
+        let encoding = null;
         if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
@@ -613,14 +613,14 @@ var ReferenceFactory = Class({
             encoding = Ice.Encoding_1_0;
         }
 
-        var endpoints = null; // EndpointI[]
-        var adapterId = null;
+        let endpoints = null; // EndpointI[]
+        let adapterId = null;
 
-        var sz = s.readSize();
+        const sz = s.readSize();
         if(sz > 0)
         {
             endpoints = [];
-            for(var i = 0; i < sz; i++)
+            for(let i = 0; i < sz; i++)
             {
                 endpoints[i] = this._instance.endpointFactoryManager().read(s);
             }
@@ -631,46 +631,51 @@ var ReferenceFactory = Class({
         }
 
         return this.createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, null);
-    },
-    setDefaultRouter: function(defaultRouter)
+    }
+
+    setDefaultRouter(defaultRouter)
     {
         if(this._defaultRouter === null ? defaultRouter === null : this._defaultRouter.equals(defaultRouter))
         {
             return this;
         }
 
-        var factory = new ReferenceFactory(this._instance, this._communicator);
+        const factory = new ReferenceFactory(this._instance, this._communicator);
         factory._defaultLocator = this._defaultLocator;
         factory._defaultRouter = defaultRouter;
         return factory;
-    },
-    getDefaultRouter: function()
+    }
+
+    getDefaultRouter()
     {
         return this._defaultRouter;
-    },
-    setDefaultLocator: function(defaultLocator)
+    }
+
+    setDefaultLocator(defaultLocator)
     {
         if(this._defaultLocator === null ? defaultLocator === null : this._defaultLocator.equals(defaultLocator))
         {
             return this;
         }
 
-        var factory = new ReferenceFactory(this._instance, this._communicator);
+        const factory = new ReferenceFactory(this._instance, this._communicator);
         factory._defaultRouter = this._defaultRouter;
         factory._defaultLocator = defaultLocator;
         return factory;
-    },
-    getDefaultLocator: function()
+    }
+
+    getDefaultLocator()
     {
         return this._defaultLocator;
-    },
-    checkForUnknownProperties: function(prefix)
+    }
+
+    checkForUnknownProperties(prefix)
     {
-        var unknownProps = [], i, length;
+        const unknownProps = [];
         //
         // Do not warn about unknown properties for Ice prefixes (Ice, Glacier2, etc.)
         //
-        for(i = 0; i < PropertyNames.clPropNames.length; ++i)
+        for(let i = 0; i < PropertyNames.clPropNames.length; ++i)
         {
             if(prefix.indexOf(PropertyNames.clPropNames[i] + ".") === 0)
             {
@@ -678,47 +683,34 @@ var ReferenceFactory = Class({
             }
         }
 
-        var props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        for(var e = props.entries; e !== null; e = e.next)
+        let properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+        for(let key of properties.keys())
         {
-            var valid = false;
-            for(i = 0, length = suffixes.length; i < length; ++i)
+            if(!suffixes.some(suffix => key === (prefix + "." + suffix)))
             {
-                if(e.key === prefix + "." + suffixes[i])
-                {
-                    valid = true;
-                    break;
-                }
-            }
-
-            if(!valid)
-            {
-                unknownProps.push(e.key);
+                unknownProps.push(key);
             }
         }
 
         if(unknownProps.length > 0)
         {
-            var message = [];
+            let message = [];
             message.push("found unknown properties for proxy '");
             message.push(prefix);
             message.push("':");
-            for(i = 0, length = unknownProps.length; i < length; ++i)
-            {
-                message.push("\n    ");
-                message.push(unknownProps[i]);
-            }
+            unknownProps.forEach(unknownProp => message.push("\n    ", unknownProp));
             this._instance.initializationData().logger.warning(message.join(""));
         }
-    },
-    createImpl: function(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, propertyPrefix)
+    }
+
+    createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, propertyPrefix)
     {
-        var defaultsAndOverrides = this._instance.defaultsAndOverrides();
+        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
 
         //
         // Default local proxy options.
         //
-        var locatorInfo = null;
+        let locatorInfo = null;
         if(this._defaultLocator !== null)
         {
             if(!this._defaultLocator.__reference().getEncoding().equals(encoding))
@@ -731,19 +723,19 @@ var ReferenceFactory = Class({
                 locatorInfo = this._instance.locatorManager().find(this._defaultLocator);
             }
         }
-        var routerInfo = this._instance.routerManager().find(this._defaultRouter);
-        var cacheConnection = true;
-        var preferSecure = defaultsAndOverrides.defaultPreferSecure;
-        var endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
-        var locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        var invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
+        let routerInfo = this._instance.routerManager().find(this._defaultRouter);
+        let cacheConnection = true;
+        let preferSecure = defaultsAndOverrides.defaultPreferSecure;
+        let endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
+        let locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+        let invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
 
         //
         // Override the defaults with the proxy properties if a property prefix is defined.
         //
         if(propertyPrefix !== null && propertyPrefix.length > 0)
         {
-            var properties = this._instance.initializationData().properties;
+            const properties = this._instance.initializationData().properties;
 
             //
             // Warn about unknown properties.
@@ -753,10 +745,8 @@ var ReferenceFactory = Class({
                 this.checkForUnknownProperties(propertyPrefix);
             }
 
-            var property;
-
-            property = propertyPrefix + ".Locator";
-            var locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));
+            let property = propertyPrefix + ".Locator";
+            const locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if(locator !== null)
             {
                 if(!locator.__reference().getEncoding().equals(encoding))
@@ -770,15 +760,15 @@ var ReferenceFactory = Class({
             }
 
             property = propertyPrefix + ".Router";
-            var router = RouterPrx.uncheckedCast(this._communicator.propertyToProxy(property));
+            const router = RouterPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if(router !== null)
             {
-                var match = ".Router";
+                const match = ".Router";
                 if(propertyPrefix.lastIndexOf(match) == propertyPrefix.length - match.length)
                 {
-                    var s = "`" + property + "=" + properties.getProperty(property) +
-                        "': cannot set a router on a router; setting ignored";
-                    this._instance.initializationData().logger.warning(s);
+                    this._instance.initializationData().logger.warning(
+                        "`" + property + "=" + properties.getProperty(property) +
+                        "': cannot set a router on a router; setting ignored");
                 }
                 else
                 {
@@ -795,7 +785,7 @@ var ReferenceFactory = Class({
             property = propertyPrefix + ".EndpointSelection";
             if(properties.getProperty(property).length > 0)
             {
-                var type = properties.getProperty(property);
+                const type = properties.getProperty(property);
                 if(type == "Random")
                 {
                     endpointSelection = EndpointSelectionType.Random;
@@ -807,12 +797,12 @@ var ReferenceFactory = Class({
                 else
                 {
                     throw new Ice.EndpointSelectionTypeParseException("illegal value `" + type +
-                                                                        "'; expected `Random' or `Ordered'");
+                                                                      "'; expected `Random' or `Ordered'");
                 }
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            var value = properties.getProperty(property);
+            let value = properties.getProperty(property);
             if(value.length !== 0)
             {
                 locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
@@ -861,12 +851,13 @@ var ReferenceFactory = Class({
                                      locatorCacheTimeout,
                                      invocationTimeout);
     }
-});
+}
 
 Ice.ReferenceFactory = ReferenceFactory;
 
-var Reference = Class({
-    __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
+class Reference
+{
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
     {
         //
         // Validate string arguments.
@@ -888,271 +879,309 @@ var Reference = Class({
         this._hashInitialized = false;
         this._overrideCompress = false;
         this._compress = false; // Only used if _overrideCompress == true
-    },
-    getMode: function()
+    }
+
+    getMode()
     {
         return this._mode;
-    },
-    getSecure: function()
+    }
+
+    getSecure()
     {
         return this._secure;
-    },
-    getProtocol: function()
+    }
+
+    getProtocol()
     {
         return this._protocol;
-    },
-    getEncoding: function()
+    }
+
+    getEncoding()
     {
         return this._encoding;
-    },
-    getIdentity: function()
+    }
+
+    getIdentity()
     {
         return this._identity;
-    },
-    getFacet: function()
+    }
+
+    getFacet()
     {
         return this._facet;
-    },
-    getInstance: function()
+    }
+
+    getInstance()
     {
         return this._instance;
-    },
-    getContext: function()
+    }
+
+    getContext()
     {
-        return this._context; // HashMap
-    },
-    getInvocationTimeout: function()
+        return this._context; // Map
+    }
+
+    getInvocationTimeout()
     {
         return this._invocationTimeout;
-    },
-    getCommunicator: function()
+    }
+
+    getCommunicator()
     {
         return this._communicator;
-    },
-    getEndpoints: function()
+    }
+
+    getEndpoints()
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    getAdapterId: function()
+    }
+
+    getAdapterId()
     {
         // Abstract
         Debug.assert(false);
         return "";
-    },
-    getRouterInfo: function()
+    }
+
+    getRouterInfo()
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    getLocatorInfo: function()
+    }
+
+    getLocatorInfo()
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    getCacheConnection: function()
+    }
+
+    getCacheConnection()
     {
         // Abstract
         Debug.assert(false);
         return false;
-    },
-    getPreferSecure: function()
+    }
+
+    getPreferSecure()
     {
         // Abstract
         Debug.assert(false);
         return false;
-    },
-    getEndpointSelection: function()
+    }
+
+    getEndpointSelection()
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    getLocatorCacheTimeout: function()
+    }
+
+    getLocatorCacheTimeout()
     {
         // Abstract
         Debug.assert(false);
         return 0;
-    },
-    getConnectionId: function()
+    }
+
+    getConnectionId()
     {
         // Abstract
         Debug.assert(false);
         return "";
-    },
+    }
+
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
     // corresponding value changed.
     //
-    changeContext: function(newContext)
+    changeContext(newContext)
     {
         if(newContext === undefined || newContext === null)
         {
             newContext = Reference._emptyContext;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         if(newContext.size === 0)
         {
             r._context = Reference._emptyContext;
         }
         else
         {
-            r._context = new HashMap(newContext);
+            r._context = new Map(newContext);
         }
         return r;
-    },
-    changeMode: function(newMode)
+    }
+
+    changeMode(newMode)
     {
         if(newMode === this._mode)
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._mode = newMode;
         return r;
-    },
-    changeSecure: function(newSecure)
+    }
+
+    changeSecure(newSecure)
     {
         if(newSecure === this._secure)
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._secure = newSecure;
         return r;
-    },
-    changeIdentity: function(newIdentity)
+    }
+
+    changeIdentity(newIdentity)
     {
         if(newIdentity.equals(this._identity))
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._identity = new Identity(newIdentity.name, newIdentity.category);
         return r;
-    },
-    changeFacet: function(newFacet)
+    }
+
+    changeFacet(newFacet)
     {
         if(newFacet === this._facet)
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._facet = newFacet;
         return r;
-    },
-    changeInvocationTimeout: function(newInvocationTimeout)
+    }
+
+    changeInvocationTimeout(newInvocationTimeout)
     {
         if(newInvocationTimeout === this._invocationTimeout)
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._invocationTimeout = newInvocationTimeout;
         return r;
-    },
-    changeEncoding: function(newEncoding)
+    }
+
+    changeEncoding(newEncoding)
     {
         if(newEncoding.equals(this._encoding))
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._encoding = newEncoding;
         return r;
-    },
-    changeCompress: function(newCompress)
+    }
+
+    changeCompress(newCompress)
     {
         if(this._overrideCompress && this._compress === newCompress)
         {
             return this;
         }
-        var r = this._instance.referenceFactory().copy(this);
+        const r = this._instance.referenceFactory().copy(this);
         r._compress = newCompress;
         r._overrideCompress = true;
         return r;
-    },
-    changeAdapterId: function(newAdapterId)
+    }
+
+    changeAdapterId(newAdapterId)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeEndpoints: function(newEndpoints)
+    }
+
+    changeEndpoints(newEndpoints)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeLocator: function(newLocator)
+    }
+
+    changeLocator(newLocator)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeRouter: function(newRouter)
+    }
+
+    changeRouter(newRouter)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeCacheConnection: function(newCache)
+    }
+
+    changeCacheConnection(newCache)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changePreferSecure: function(newPreferSecure)
+    }
+
+    changePreferSecure(newPreferSecure)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeEndpointSelection: function(newType)
+    }
+
+    changeEndpointSelection(newType)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeLocatorCacheTimeout: function(newTimeout)
+    }
+
+    changeLocatorCacheTimeout(newTimeout)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeTimeout: function(newTimeout)
+    }
+
+    changeTimeout(newTimeout)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    changeConnectionId: function(connectionId)
+    }
+
+    changeConnectionId(connectionId)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         if(this._hashInitialized)
         {
             return this._hashValue;
         }
 
-        var h = 5381;
+        let h = 5381;
         h = HashUtil.addNumber(h, this._mode);
         h = HashUtil.addBoolean(h, this._secure);
         h = HashUtil.addHashable(h, this._identity);
         if(this._context !== null && this._context !== undefined)
         {
-            for(var e = this._context.entries; e !== null; e = e.next)
+            for(let [key, value] of this._context)
             {
-                h = HashUtil.addString(h, e.key);
-                h = HashUtil.addString(h, e.value);
+                h = HashUtil.addString(h, key);
+                h = HashUtil.addString(h, value);
             }
         }
         h = HashUtil.addString(h, this._facet);
@@ -1169,26 +1198,29 @@ var Reference = Class({
         this._hashInitialized = true;
 
         return this._hashValue;
-    },
+    }
+
     //
     // Utility methods
     //
-    isIndirect: function()
+    isIndirect()
     {
         // Abstract
         Debug.assert(false);
         return false;
-    },
-    isWellKnown: function()
+    }
+
+    isWellKnown()
     {
         // Abstract
         Debug.assert(false);
         return false;
-    },
+    }
+
     //
     // Marshal the reference.
     //
-    streamWrite: function(s)
+    streamWrite(s)
     {
         //
         // Don't write the identity here. Operations calling streamWrite
@@ -1219,11 +1251,12 @@ var Reference = Class({
         }
 
         // Derived class writes the remainder of the reference.
-    },
+    }
+
     //
     // Convert the reference to its string form.
     //
-    toString: function()
+    toString()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -1232,14 +1265,14 @@ var Reference = Class({
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        var s = [];
+        const s = [];
 
         //
         // If the encoded identity string contains characters which
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        var id = Ice.identityToString(this._identity);
+        const id = Ice.identityToString(this._identity);
         if(id.search(/[ :@]/) != -1)
         {
             s.push('"');
@@ -1259,7 +1292,7 @@ var Reference = Class({
             // the facet string in quotes.
             //
             s.push(" -f ");
-            var fs = StringUtil.escapeString(this._facet, "");
+            const fs = StringUtil.escapeString(this._facet, "");
             if(fs.search(/[ :@]/) != -1)
             {
                 s.push('"');
@@ -1333,27 +1366,31 @@ var Reference = Class({
         return s.join("");
 
         // Derived class writes the remainder of the string.
-    },
+    }
+
     //
     // Convert the reference to its property form.
     //
-    toProperty: function(prefix)
+    toProperty(prefix)
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    getRequestHandler: function(proxy)
+    }
+
+    getRequestHandler(proxy)
     {
         // Abstract
         Debug.assert(false);
-    },
-    getBatchRequestQueue: function()
+    }
+
+    getBatchRequestQueue()
     {
         // Abstract
         Debug.assert(false);
-    },
-    equals: function(r)
+    }
+
+    equals(r)
     {
         //
         // Note: if(this === r) and type test are performed by each non-abstract derived class.
@@ -1374,7 +1411,7 @@ var Reference = Class({
             return false;
         }
 
-        if(!this._context.equals(r._context))
+        if(!MapUtil.equals(this._context, r._context))
         {
             return false;
         }
@@ -1386,7 +1423,7 @@ var Reference = Class({
 
         if(this._overrideCompress !== r._overrideCompress)
         {
-        return false;
+            return false;
         }
         if(this._overrideCompress && this._compress !== r._compress)
         {
@@ -1409,14 +1446,16 @@ var Reference = Class({
         }
 
         return true;
-    },
-    clone: function()
+    }
+
+    clone()
     {
         // Abstract
         Debug.assert(false);
         return null;
-    },
-    copyMembers: function(r)
+    }
+
+    copyMembers(r)
     {
         //
         // Copy the members that are not passed to the constructor.
@@ -1425,123 +1464,150 @@ var Reference = Class({
         r._overrideCompress = this._overrideCompress;
         r._compress = this._compress;
     }
-});
+}
 
-Reference._emptyContext = new HashMap();
+Reference._emptyContext = new Map();
 Reference._emptyEndpoints = [];
 
 Ice.Reference = Reference;
 
-var FixedReference = Class(Reference, {
-    __init__: function(instance, communicator, identity, facet, mode, secure, encoding, connection)
+class FixedReference extends Reference
+{
+    constructor(instance, communicator, identity, facet, mode, secure, encoding, connection)
     {
-        Reference.call(this, instance, communicator, identity, facet, mode, secure, Ice.Protocol_1_0, encoding);
+        super(instance, communicator, identity, facet, mode, secure, Ice.Protocol_1_0, encoding);
         this._fixedConnection = connection;
-    },
-    getEndpoints: function()
+    }
+
+    getEndpoints()
     {
         return Reference._emptyEndpoints;
-    },
-    getAdapterId: function()
+    }
+
+    getAdapterId()
     {
         return "";
-    },
-    getRouterInfo: function()
+    }
+
+    getRouterInfo()
     {
         return null;
-    },
-    getLocatorInfo: function()
+    }
+
+    getLocatorInfo()
     {
         return null;
-    },
-    getCacheConnection: function()
+    }
+
+    getCacheConnection()
     {
         return true;
-    },
-    getPreferSecure: function()
+    }
+
+    getPreferSecure()
     {
         return false;
-    },
-    getEndpointSelection: function()
+    }
+
+    getEndpointSelection()
     {
         return EndpointSelectionType.Random;
-    },
-    getLocatorCacheTimeout: function()
+    }
+
+    getLocatorCacheTimeout()
     {
         return 0;
-    },
-    getConnectionId: function()
+    }
+
+    getConnectionId()
     {
         return "";
-    },
-    changeAdapterId: function(newAdapterId)
+    }
+
+    changeAdapterId(newAdapterId)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeEndpoints: function(newEndpoints)
+    }
+
+    changeEndpoints(newEndpoints)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeLocator: function(newLocator)
+    }
+
+    changeLocato(newLocator)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeRouter: function(newRouter)
+    }
+
+    changeRouter(newRouter)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeCacheConnection: function(newCache)
+    }
+
+    changeCacheConnection(newCache)
     {
         throw new Ice.FixedProxyException();
-    },
-    changePreferSecure: function(prefSec)
+    }
+
+    changePreferSecure(prefSec)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeEndpointSelection: function(newType)
+    }
+
+    changeEndpointSelection(newType)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeLocatorCacheTimeout: function(newTimeout)
+    }
+
+    changeLocatorCacheTimeout(newTimeout)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeTimeout: function(newTimeout)
+    }
+
+    changeTimeout(newTimeout)
     {
         throw new Ice.FixedProxyException();
-    },
-    changeConnectionId: function(connectionId)
+    }
+
+    changeConnectionId(connectionId)
     {
         throw new Ice.FixedProxyException();
-    },
-    isIndirect: function()
+    }
+
+    isIndirect()
     {
         return false;
-    },
-    isWellKnown: function()
+    }
+
+    isWellKnown()
     {
         return false;
-    },
-    streamWrite: function(s)
+    }
+
+    streamWrite(s)
     {
         throw new Ice.FixedProxyException();
-    },
-    toString: function()
+    }
+
+    toString()
     {
         throw new Ice.FixedProxyException();
-    },
-    toProperty: function(prefix)
+    }
+
+    toProperty(prefix)
     {
         throw new Ice.FixedProxyException();
-    },
-    clone: function()
+    }
+
+    clone()
     {
-        var r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                    this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
+        const r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
+                                     this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
         this.copyMembers(r);
         return r;
-    },
-    getRequestHandler: function(proxy)
+    }
+
+    getRequestHandler(proxy)
     {
         switch(this.getMode())
         {
@@ -1571,16 +1637,8 @@ var FixedReference = Class(Reference, {
         // If a secure connection is requested or secure overrides is set,
         // check if the connection is secure.
         //
-        var secure;
-        var defaultsAndOverrides = this.getInstance().defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideSecure)
-        {
-            secure = defaultsAndOverrides.overrideSecureValue;
-        }
-        else
-        {
-            secure = this.getSecure();
-        }
+        const defaultsAndOverrides = this.getInstance().defaultsAndOverrides();
+        const secure = defaultsAndOverrides.overrideSecure ? defaultsAndOverrides.overrideSecureValue : this.getSecure();
         if(secure && !this._fixedConnection.endpoint().secure())
         {
             throw new Ice.NoEndpointException("");
@@ -1588,7 +1646,7 @@ var FixedReference = Class(Reference, {
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        var compress;
+        let compress;
         if(defaultsAndOverrides.overrideCompress)
         {
             compress = defaultsAndOverrides.overrideCompressValue;
@@ -1603,12 +1661,14 @@ var FixedReference = Class(Reference, {
         }
 
         return proxy.__setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
-    },
-    getBatchRequestQueue: function()
+    }
+    
+    getBatchRequestQueue()
     {
         return this._fixedConnection.getBatchRequestQueue();
-    },
-    equals: function(rhs)
+    }
+
+    equals(rhs)
     {
         if(this === rhs)
         {
@@ -1618,23 +1678,23 @@ var FixedReference = Class(Reference, {
         {
             return false;
         }
-        if(!Reference.prototype.equals.call(this, rhs))
+        if(!super.equals(rhs))
         {
             return false;
         }
         return this._fixedConnection.equals(rhs._fixedConnection);
     }
-});
+}
 
 Ice.FixedReference = FixedReference;
 
-var RoutableReference = Class(Reference, {
-    __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
-                        adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
-                        locatorCacheTimeout, invocationTimeout)
+class RoutableReference extends Reference
+{
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
+                adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
+                locatorCacheTimeout, invocationTimeout)
     {
-        Reference.call(this, instance, communicator, identity, facet, mode, secure, protocol, encoding,
-                        invocationTimeout);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout);
         this._endpoints = endpoints;
         this._adapterId = adapterId;
         this._locatorInfo = locatorInfo;
@@ -1656,223 +1716,226 @@ var RoutableReference = Class(Reference, {
         }
         this._connectionId = "";
         Debug.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
-    },
-    getEndpoints: function()
+    }
+
+    getEndpoints()
     {
         return this._endpoints;
-    },
-    getAdapterId: function()
+    }
+
+    getAdapterId()
     {
         return this._adapterId;
-    },
-    getRouterInfo: function()
+    }
+
+    getRouterInfo()
     {
         return this._routerInfo;
-    },
-    getLocatorInfo: function()
+    }
+
+    getLocatorInfo()
     {
         return this._locatorInfo;
-    },
-    getCacheConnection: function()
+    }
+
+    getCacheConnection()
     {
         return this._cacheConnection;
-    },
-    getPreferSecure: function()
+    }
+
+    getPreferSecure()
     {
         return this._preferSecure;
-    },
-    getEndpointSelection: function()
+    }
+
+    getEndpointSelection()
     {
         return this._endpointSelection;
-    },
-    getLocatorCacheTimeout: function()
+    }
+
+    getLocatorCacheTimeout()
     {
         return this._locatorCacheTimeout;
-    },
-    getConnectionId: function()
+    }
+
+    getConnectionId()
     {
         return this._connectionId;
-    },
-    changeEncoding: function(newEncoding)
+    }
+
+    changeEncoding(newEncoding)
     {
-        var r = Reference.prototype.changeEncoding.call(this, newEncoding);
+        const r = super.changeEncoding(newEncoding);
         if(r !== this)
         {
-            var locInfo = r._locatorInfo;
-            if(locInfo !== null && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding))
+            if(r._locatorInfo !== null && !r._locatorInfo.getLocator().ice_getEncodingVersion().equals(newEncoding))
             {
                 r._locatorInfo = this.getInstance().locatorManager().find(
-                    locInfo.getLocator().ice_encodingVersion(newEncoding));
+                    r._locatorInfo.getLocator().ice_encodingVersion(newEncoding));
             }
         }
         return r;
-    },
-    changeCompress: function(newCompress)
+    }
+
+    changeCompress(newCompress)
     {
-        var r = Reference.prototype.changeCompress.call(this, newCompress);
+        const r = super.changeCompress(newCompress);
         if(r !== this && this._endpoints.length > 0) // Also override the compress flag on the endpoints if it was updated.
         {
-            var newEndpoints = [];
-            for(var i = 0; i < this._endpoints.length; i++)
-            {
-                newEndpoints[i] = this._endpoints[i].changeCompress(newCompress);
-            }
-            r._endpoints = newEndpoints;
+            r._endpoints = this._endpoints.map(endpoint => endpoint.changeCompress(newCompress));
         }
         return r;
-    },
-    changeAdapterId: function(newAdapterId)
+    }
+
+    changeAdapterId(newAdapterId)
     {
         if(this._adapterId === newAdapterId)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._adapterId = newAdapterId;
         r._endpoints = Reference._emptyEndpoints;
         return r;
-    },
-    changeEndpoints: function(newEndpoints)
+    }
+
+    changeEndpoints(newEndpoints)
     {
         if(ArrayUtil.equals(newEndpoints, this._endpoints, function(e1, e2) { return e1.equals(e2); }))
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._endpoints = newEndpoints;
         r._adapterId = "";
         r.applyOverrides(r._endpoints);
         return r;
-    },
-    changeLocator: function(newLocator)
+    }
+
+    changeLocator(newLocator)
     {
-        var newLocatorInfo = this.getInstance().locatorManager().find(newLocator);
+        const newLocatorInfo = this.getInstance().locatorManager().find(newLocator);
         if(newLocatorInfo !== null && this._locatorInfo !== null && newLocatorInfo.equals(this._locatorInfo))
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._locatorInfo = newLocatorInfo;
         return r;
-    },
-    changeRouter: function(newRouter)
+    }
+
+    changeRouter(newRouter)
     {
-        var newRouterInfo = this.getInstance().routerManager().find(newRouter);
+        const newRouterInfo = this.getInstance().routerManager().find(newRouter);
         if(newRouterInfo !== null && this._routerInfo !== null && newRouterInfo.equals(this._routerInfo))
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._routerInfo = newRouterInfo;
         return r;
-    },
-    changeCacheConnection: function(newCache)
+    }
+
+    changeCacheConnection(newCache)
     {
         if(newCache === this._cacheConnection)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._cacheConnection = newCache;
         return r;
-    },
-    changePreferSecure: function(newPreferSecure)
+    }
+
+    changePreferSecure(newPreferSecure)
     {
         if(newPreferSecure === this._preferSecure)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._preferSecure = newPreferSecure;
         return r;
-    },
-    changeEndpointSelection: function(newType)
+    }
+
+    changeEndpointSelection(newType)
     {
         if(newType === this._endpointSelection)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
         return r;
-    },
-    changeLocatorCacheTimeout: function(newTimeout)
+    }
+
+    changeLocatorCacheTimeout(newTimeout)
     {
         if(this._locatorCacheTimeout === newTimeout)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
         return r;
-    },
-    changeTimeout: function(newTimeout)
+    }
+
+    changeTimeout(newTimeout)
     {
         if(this._overrideTimeout && this._timeout === newTimeout)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._timeout = newTimeout;
         r._overrideTimeout = true;
-        if(this._endpoints.length > 0)
-        {
-            var newEndpoints = [];
-            for(var i = 0; i < this._endpoints.length; i++)
-            {
-                newEndpoints[i] = this._endpoints[i].changeTimeout(newTimeout);
-            }
-            r._endpoints = newEndpoints;
-        }
+        r._endpoints = this._endpoints.map(endpoint => endpoint.changeTimeout(newTimeout));
         return r;
-    },
-    changeConnectionId: function(id)
+    }
+
+    changeConnectionId(id)
     {
         if(this._connectionId === id)
         {
             return this;
         }
-        var r = this.getInstance().referenceFactory().copy(this);
+        const r = this.getInstance().referenceFactory().copy(this);
         r._connectionId = id;
-        if(this._endpoints.length > 0)
-        {
-            var newEndpoints = [];
-            for(var i = 0; i < this._endpoints.length; i++)
-            {
-                newEndpoints[i] = this._endpoints[i].changeConnectionId(id);
-            }
-            r._endpoints = newEndpoints;
-        }
+        r._endpoints = this._endpoints.map(endpoint => endpoint.changeConnectionId(id));
         return r;
-    },
-    isIndirect: function()
+    }
+
+    isIndirect()
     {
         return this._endpoints.length === 0;
-    },
-    isWellKnown: function()
+    }
+
+    isWellKnown()
     {
         return this._endpoints.length === 0 && this._adapterId.length === 0;
-    },
-    streamWrite: function(s)
+    }
+
+    streamWrite(s)
     {
-        Reference.prototype.streamWrite.call(this, s);
+        super.streamWrite(s);
 
         s.writeSize(this._endpoints.length);
         if(this._endpoints.length > 0)
         {
             Debug.assert(this._adapterId.length === 0);
-            for(var i = 0; i < this._endpoints.length; ++i)
-            {
-                s.writeShort(this._endpoints[i].type());
-                this._endpoints[i].streamWrite(s);
-            }
+            this._endpoints.forEach(endpoint =>
+                {
+                    s.writeShort(endpoint.type());
+                    endpoint.streamWrite(s);
+                });
         }
         else
         {
             s.writeString(this._adapterId); // Adapter id.
         }
-    },
-    toString: function()
+    }
+
+    toString()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -1881,19 +1944,19 @@ var RoutableReference = Class(Reference, {
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        var s = [];
-        s.push(Reference.prototype.toString.call(this));
+        const s = [];
+        s.push(super.toString());
         if(this._endpoints.length > 0)
         {
-            for(var i = 0; i < this._endpoints.length; ++i)
-            {
-                var endp = this._endpoints[i].toString();
-                if(endp !== null && endp.length > 0)
+            this._endpoints.forEach(endpoint =>
                 {
-                    s.push(':');
-                    s.push(endp);
-                }
-            }
+                    const endp = endpoint.toString();
+                    if(endp !== null && endp.length > 0)
+                    {
+                        s.push(':');
+                        s.push(endp);
+                    }
+                });
         }
         else if(this._adapterId.length > 0)
         {
@@ -1904,7 +1967,7 @@ var RoutableReference = Class(Reference, {
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            var a = StringUtil.escapeString(this._adapterId, null);
+            const a = StringUtil.escapeString(this._adapterId, null);
             if(a.search(/[ :@]/) != -1)
             {
                 s.push('"');
@@ -1917,53 +1980,48 @@ var RoutableReference = Class(Reference, {
             }
         }
         return s.join("");
-    },
-    toProperty: function(prefix)
+    }
+
+    toProperty(prefix)
     {
-        var properties = new HashMap(), e;
+        const properties = new Map();
 
         properties.set(prefix, this.toString());
         properties.set(prefix + ".CollocationOptimized", "0");
         properties.set(prefix + ".ConnectionCached", this._cacheConnection ? "1" : "0");
         properties.set(prefix + ".PreferSecure", this._preferSecure ? "1" : "0");
         properties.set(prefix + ".EndpointSelection",
-                    this._endpointSelection === EndpointSelectionType.Random ? "Random" : "Ordered");
+                       this._endpointSelection === EndpointSelectionType.Random ? "Random" : "Ordered");
 
         properties.set(prefix + ".LocatorCacheTimeout", "" + this._locatorCacheTimeout);
         properties.set(prefix + ".InvocationTimeout", "" + this.getInvocationTimeout());
 
         if(this._routerInfo !== null)
         {
-            var h = this._routerInfo.getRouter();
-            var routerProperties = h.__reference().toProperty(prefix + ".Router");
-            for(e = routerProperties.entries; e !== null; e = e.next)
-            {
-                properties.set(e.key, e.value);
-            }
+            this._routerInfo.getRouter().__reference().toProperty(prefix + ".Router").forEach(
+                (value, key) => properties.set(key, value));
         }
 
         if(this._locatorInfo !== null)
         {
-            var p = this._locatorInfo.getLocator();
-            var locatorProperties = p.__reference().toProperty(prefix + ".Locator");
-            for(e = locatorProperties.entries; e !== null; e = e.next)
-            {
-                properties.set(e.key, e.value);
-            }
+            this._locatorInfo.getLocator().__reference().toProperty(prefix + ".Locator").forEach(
+                (value, key) => properties.set(key, value));
         }
 
         return properties;
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         if(!this._hashInitialized)
         {
-            Reference.prototype.hashCode.call(this); // Initializes _hashValue.
+            super.hashCode(); // Initializes _hashValue.
             this._hashValue = HashUtil.addString(this._hashValue, this._adapterId);
         }
         return this._hashValue;
-    },
-    equals: function(rhs)
+    }
+
+    equals(rhs)
     {
         if(this === rhs)
         {
@@ -1974,7 +2032,7 @@ var RoutableReference = Class(Reference, {
             return false;
         }
 
-        if(!Reference.prototype.equals.call(this, rhs))
+        if(!super.equals(rhs))
         {
             return false;
         }
@@ -2024,18 +2082,21 @@ var RoutableReference = Class(Reference, {
             return false;
         }
         return true;
-    },
-    getRequestHandler: function(proxy)
+    }
+
+    getRequestHandler(proxy)
     {
         return this._instance.requestHandlerFactory().getRequestHandler(this, proxy);
-    },
-    getBatchRequestQueue: function()
+    }
+
+    getBatchRequestQueue()
     {
         return new BatchRequestQueue(this._instance, this._mode === RefMode.ModeBatchDatagram);
-    },
-    getConnection: function()
+    }
+
+    getConnection()
     {
-        var promise = new Promise(); // success callback receives (connection, compress)
+        const p = new Ice.Promise(); // success callback receives (connection, compress)
 
         if(this._routerInfo !== null)
         {
@@ -2043,117 +2104,90 @@ var RoutableReference = Class(Reference, {
             // If we route, we send everything to the router's client
             // proxy endpoints.
             //
-            var self = this;
-            this._routerInfo.getClientEndpoints().then(
-                function(endpts)
+            this._routerInfo.getClientEndpoints().then(endpts =>
                 {
                     if(endpts.length > 0)
                     {
-                        self.applyOverrides(endpts);
-                        self.createConnection(endpts).then(
-                            function(connection, compress)
-                            {
-                                promise.succeed(connection, compress);
-                            },
-                            function(ex)
-                            {
-                                promise.fail(ex);
-                            });
+                        this.applyOverrides(endpts);
+                        this.createConnection(endpts).then(p.resolve, p.reject);
                     }
                     else
                     {
-                        self.getConnectionNoRouterInfo(promise);
+                        this.getConnectionNoRouterInfo(p);
                     }
-                }).exception(
-                    function(ex)
-                    {
-                        promise.fail(ex);
-                    });
+                }).catch(p.reject);
         }
         else
         {
-            this.getConnectionNoRouterInfo(promise);
+            this.getConnectionNoRouterInfo(p);
         }
+        return p;
+    }
 
-        return promise;
-    },
-    getConnectionNoRouterInfo: function(promise)
+    getConnectionNoRouterInfo(p)
     {
         if(this._endpoints.length > 0)
         {
-            this.createConnection(this._endpoints).then(
-                function(connection, compress)
-                {
-                    promise.succeed(connection, compress);
-                }).exception(
-                    function(ex)
-                    {
-                        promise.fail(ex);
-                    });
+            this.createConnection(this._endpoints).then(p.resolve).catch(p.reject);
             return;
         }
 
-        var self = this;
         if(this._locatorInfo !== null)
         {
             this._locatorInfo.getEndpoints(this, null, this._locatorCacheTimeout).then(
-                function(endpoints, cached)
+                values =>
                 {
+                    const [endpoints, cached] = values;
                     if(endpoints.length === 0)
                     {
-                        promise.fail(new Ice.NoEndpointException(self.toString()));
+                        p.reject(new Ice.NoEndpointException(this.toString()));
                         return;
                     }
 
-                    self.applyOverrides(endpoints);
-                    self.createConnection(endpoints).then(
-                        function(connection, compress)
-                        {
-                            promise.succeed(connection, compress);
-                        },
-                        function(ex)
+                    this.applyOverrides(endpoints);
+                    this.createConnection(endpoints).then(
+                        p.resolve,
+                        ex =>
                         {
                             if(ex instanceof Ice.NoEndpointException)
                             {
                                 //
                                 // No need to retry if there's no endpoints.
                                 //
-                                promise.fail(ex);
+                                p.reject(ex);
                             }
                             else
                             {
-                                Debug.assert(self._locatorInfo !== null);
-                                self.getLocatorInfo().clearCache(self);
+                                Debug.assert(this._locatorInfo !== null);
+                                this.getLocatorInfo().clearCache(this);
                                 if(cached)
                                 {
-                                    var traceLevels = self.getInstance().traceLevels();
+                                    const traceLevels = this.getInstance().traceLevels();
                                     if(traceLevels.retry >= 2)
                                     {
-                                        var s = "connection to cached endpoints failed\n" +
-                                                "removing endpoints from cache and trying one more time\n" +
-                                                ex.toString();
-                                        self.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
+                                        this.getInstance().initializationData().logger.trace(
+                                            traceLevels.retryCat,
+                                            "connection to cached endpoints failed\n" +
+                                            "removing endpoints from cache and trying one more time\n" +
+                                            ex.toString());
                                     }
-                                    self.getConnectionNoRouterInfo(promise); // Retry.
+                                    this.getConnectionNoRouterInfo(p); // Retry.
                                     return;
                                 }
-                                promise.fail(ex);
+                                p.reject(ex);
                             }
                         });
-                }).exception(
-                    function(ex)
-                    {
-                        promise.fail(ex);
-                    });
+                }).catch(p.reject);
         }
         else
         {
-            promise.fail(new Ice.NoEndpointException(this.toString()));
+            p.reject(new Ice.NoEndpointException(this.toString()));
         }
-    },
-    clone: function()
+    }
+
+    clone()
     {
-        var r = new RoutableReference(this.getInstance(),
+        const r = new RoutableReference(this.getInstance(),
                                         this.getCommunicator(),
                                         this.getIdentity(),
                                         this.getFacet(),
@@ -2172,23 +2206,25 @@ var RoutableReference = Class(Reference, {
                                         this._invocationTimeout);
         this.copyMembers(r);
         return r;
-    },
-    copyMembers: function(rhs)
+    }
+
+    copyMembers(rhs)
     {
         //
         // Copy the members that are not passed to the constructor.
         //
-        Reference.prototype.copyMembers.call(this, rhs);
+        super.copyMembers(rhs);
         rhs._overrideTimeout = this._overrideTimeout;
         rhs._timeout = this._timeout;
         rhs._connectionId = this._connectionId;
-    },
-    applyOverrides: function(endpts)
+    }
+
+    applyOverrides(endpts)
     {
         //
         // Apply the endpoint overrides to each endpoint.
         //
-        for(var i = 0; i < endpts.length; ++i)
+        for(let i = 0; i < endpts.length; ++i)
         {
             endpts[i] = endpts[i].changeConnectionId(this._connectionId);
             if(this._overrideCompress)
@@ -2200,21 +2236,14 @@ var RoutableReference = Class(Reference, {
                 endpts[i] = endpts[i].changeTimeout(this._timeout);
             }
         }
-    },
-    filterEndpoints: function(allEndpoints)
-    {
-        var endpoints = [];
+    }
 
+    filterEndpoints(allEndpoints)
+    {
         //
         // Filter out opaque endpoints or endpoints which can't connect.
         //
-        for(var i = 0; i < allEndpoints.length; ++i)
-        {
-            if(!(allEndpoints[i] instanceof OpaqueEndpointI) && allEndpoints[i].connectable())
-            {
-                endpoints.push(allEndpoints[i]);
-            }
-        }
+        let endpoints = allEndpoints.filter(e => !(e instanceof OpaqueEndpointI) && e.connectable());
 
         //
         // Filter out endpoints according to the mode of the reference.
@@ -2228,7 +2257,7 @@ var RoutableReference = Class(Reference, {
                 //
                 // Filter out datagram endpoints.
                 //
-                endpoints = ArrayUtil.filter(endpoints, function(e, index, arr) { return !e.datagram(); });
+                endpoints = endpoints.filter(e => !e.datagram());
                 break;
             }
 
@@ -2238,7 +2267,7 @@ var RoutableReference = Class(Reference, {
                 //
                 // Filter out non-datagram endpoints.
                 //
-                endpoints = ArrayUtil.filter(endpoints, function(e, index, arr) { return e.datagram(); });
+                endpoints = endpoints.filter(e => e.datagram());
                 break;
             }
         }
@@ -2274,18 +2303,18 @@ var RoutableReference = Class(Reference, {
         // make secure endpoints prefered. By default make non-secure
         // endpoints preferred over secure endpoints.
         //
-        var overrides = this.getInstance().defaultsAndOverrides();
+        const overrides = this.getInstance().defaultsAndOverrides();
         if(overrides.overrideSecure ? overrides.overrideSecureValue : this.getSecure())
         {
-            endpoints = ArrayUtil.filter(endpoints, function(e, index, arr) { return e.secure(); });
+            endpoints = endpoints.filter(e => e.secure());
         }
         else
         {
-            var preferSecure = this.getPreferSecure();
-            var compare = function(e1, e2)
+            const preferSecure = this.getPreferSecure();
+            const compare = (e1, e2) =>
             {
-                var ls = e1.secure();
-                var rs = e2.secure();
+                const ls = e1.secure();
+                const rs = e2.secure();
                 if((ls && rs) || (!ls && !rs))
                 {
                     return 0;
@@ -2302,37 +2331,30 @@ var RoutableReference = Class(Reference, {
             endpoints.sort(compare);
         }
         return endpoints;
-    },
-    createConnection: function(allEndpoints)
+    }
+
+    createConnection(allEndpoints)
     {
-        var endpoints = this.filterEndpoints(allEndpoints);
+        const endpoints = this.filterEndpoints(allEndpoints);
         if(endpoints.length === 0)
         {
-            return new Promise().fail(new Ice.NoEndpointException(this.toString()));
+            return Ice.Promise.reject(new Ice.NoEndpointException(this.toString()));
         }
 
         //
         // Finally, create the connection.
         //
-        var promise = new Promise();
-        var factory = this.getInstance().outgoingConnectionFactory();
-        var cb;
+        const promise = new Ice.Promise();
+        const factory = this.getInstance().outgoingConnectionFactory();
         if(this.getCacheConnection() || endpoints.length == 1)
         {
             //
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            cb = new CreateConnectionCallback(this, null, promise);
+            const cb = new CreateConnectionCallback(this, null, promise);
             factory.create(endpoints, false, this.getEndpointSelection()).then(
-                function(connection, compress)
-                {
-                    cb.setConnection(connection, compress);
-                }).exception(
-                    function(ex)
-                    {
-                        cb.setException(ex);
-                    });
+                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
         }
         else
         {
@@ -2343,37 +2365,31 @@ var RoutableReference = Class(Reference, {
             // create a new connection even if there's an existing
             // connection for one of the endpoints.
             //
-            var v = [ endpoints[0] ];
-            cb = new CreateConnectionCallback(this, endpoints, promise);
-            factory.create(v, true, this.getEndpointSelection()).then(
-                function(connection, compress)
-                {
-                    cb.setConnection(connection, compress);
-                }).exception(
-                    function(ex)
-                    {
-                        cb.setException(ex);
-                    });
+            const cb = new CreateConnectionCallback(this, endpoints, promise);
+            factory.create([ endpoints[0] ], true, this.getEndpointSelection()).then(
+                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
         }
-
         return promise;
     }
-});
+}
 
 Ice.RoutableReference = RoutableReference;
 module.exports.Ice = Ice;
 
-var CreateConnectionCallback = Class({
-    __init__: function(r, endpoints, promise)
+class CreateConnectionCallback
+{
+    constructor(r, endpoints, promise)
     {
         this.ref = r;
         this.endpoints = endpoints;
         this.promise = promise;
         this.i = 0;
         this.exception = null;
-    },
-    setConnection: function(connection, compress)
+    }
+
+    setConnection(values)
     {
+        const [connection, compress] = values;
         //
         // If we have a router, set the object adapter for this router
         // (if any) to the new connection, so that callbacks from the
@@ -2383,9 +2399,10 @@ var CreateConnectionCallback = Class({
         {
             connection.setAdapter(this.ref.getRouterInfo().getAdapter());
         }
-        this.promise.succeed(connection, compress);
-    },
-    setException: function(ex)
+        this.promise.resolve(values);
+    }
+
+    setException(ex)
     {
         if(this.exception === null)
         {
@@ -2394,21 +2411,14 @@ var CreateConnectionCallback = Class({
 
         if(this.endpoints === null || ++this.i === this.endpoints.length)
         {
-            this.promise.fail(this.exception);
+            this.promise.reject(this.exception);
             return;
         }
 
-        var more = this.i != this.endpoints.length - 1;
-        var arr = [ this.endpoints[this.i] ];
-        var self = this;
-        this.ref.getInstance().outgoingConnectionFactory().create(arr, more, this.ref.getEndpointSelection()).then(
-            function(connection, compress)
-            {
-                self.setConnection(connection, compress);
-            }).exception(
-                function(ex)
-                {
-                    self.setException(ex);
-                });
+        this.ref.getInstance().outgoingConnectionFactory().create(
+            [ this.endpoints[this.i] ], 
+            this.i != this.endpoints.length - 1, 
+            this.ref.getEndpointSelection()).then(values => this.setConnection(values))
+                                            .catch(ex => this.setException(ex));
     }
-});
+}

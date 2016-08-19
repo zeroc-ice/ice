@@ -22,51 +22,37 @@
     {
         var ref, base, cl, derived;
 
-        return Promise.try(
-            function()
+        return Promise.try(() =>
             {
                 out.write("testing twoway operations... ");
                 ref = "test:default -p 12010";
                 base = communicator.stringToProxy(ref);
                 return Test.MyClassPrx.checkedCast(base);
             }
-        ).then(
-            function(prx)
+        ).then(prx =>
             {
                 cl = prx;
                 return Test.MyDerivedClassPrx.checkedCast(cl);
-            },
-            function(ex)
-            {
-                console.log(ex);
             }
-        ).then(
-            function(prx)
+        ).then(prx =>
             {
                 derived = prx;
                 return Twoways.run(communicator, cl, Test, bidir);
             }
-        ).then(
-            function()
-            {
-                return Twoways.run(communicator, derived, Test, bidir);
-            }
-        ).then(
-            function()
+        ).then(() => Twoways.run(communicator, derived, Test, bidir)
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing oneway operations... ");
                 return Oneways.run(communicator, cl, Test, bidir);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing batch oneway operations... ");
                 return BatchOneways.run(communicator, cl, Test, bidir);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 return cl;
@@ -77,22 +63,9 @@
     {
         id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
         var c = Ice.initialize(id);
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c, Test, false);
-            }
-        ).then(
-            function(cl)
-            {
-                return cl.shutdown();
-            }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
+        return Promise.try(() => allTests(out, c, Test, false)
+            ).then(cl => cl.shutdown()
+            ).finally(() => c.destroy());
     };
     exports.__test__ = run;
     exports.__clientAllTests__ = allTests;

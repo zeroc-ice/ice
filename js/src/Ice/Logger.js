@@ -7,10 +7,11 @@
 //
 // **********************************************************************
     
-var Ice = require("../Ice/Class").Ice;
-    
-var Logger = Ice.Class({
-    __init__: function(prefix)
+const Ice = require("../Ice/ModuleRegistry").Ice;
+
+class Logger
+{
+    constructor(prefix)
     {
         if(prefix !== undefined && prefix.length > 0)
         {
@@ -20,6 +21,7 @@ var Logger = Ice.Class({
         {
             this._prefix = "";
         }
+
         this._dateformat = 
         {
             year: 'numeric',
@@ -30,15 +32,17 @@ var Logger = Ice.Class({
             second: 'numeric',
             hour12: false
         };
-    },
-    print: function(message)
+    }
+    
+    print(message)
     {
         this.write(message, false);
-    },
-    trace: function(category, message)
+    }
+
+    trace(category, message)
     {
-        var s = [];
-        var d = new Date();
+        const s = [];
+        const d = new Date();
         s.push("-- ");
         s.push(this.timestamp());
         s.push(' ');
@@ -47,11 +51,12 @@ var Logger = Ice.Class({
         s.push(": ");
         s.push(message);
         this.write(s.join(""), true);
-    },
-    warning: function(message)
+    }
+
+    warning(message)
     {
-        var s = [];
-        var d = new Date();
+        const s = [];
+        const d = new Date();
         s.push("-! ");
         s.push(this.timestamp());
         s.push(' ');
@@ -59,11 +64,12 @@ var Logger = Ice.Class({
         s.push("warning: ");
         s.push(message);
         this.write(s.join(""), true);
-    },
-    error: function(message)
+    }
+
+    error(message)
     {
-        var s = [];
-        var d = new Date();
+        const s = [];
+        const d = new Date();
         s.push("!! ");
         s.push(this.timestamp());
         s.push(' ');
@@ -71,12 +77,14 @@ var Logger = Ice.Class({
         s.push("error: ");
         s.push(message);
         this.write(s.join(""), true);
-    },
-    cloneWithPrefix: function(prefix)
+    }
+
+    cloneWithPrefix(prefix)
     {
         return new Logger(prefix);
-    },
-    write: function(message, indent)
+    }
+
+    write(message, indent)
     {
         if(indent)
         {
@@ -84,12 +92,14 @@ var Logger = Ice.Class({
         }
 
         console.log(message);
-    },
-    timestamp: function()
+    }
+
+    timestamp()
     {
-        var d = new Date();
+        const d = new Date();
         return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
-});
+}
+
 Ice.Logger = Logger;
 module.exports.Ice = Ice;

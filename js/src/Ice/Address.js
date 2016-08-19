@@ -8,10 +8,16 @@
 // **********************************************************************
     
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.Address = function(host, port)
+const Ice = require("../Ice/ModuleRegistry").Ice;
+
+class Address
 {
-    this.host = host;
-    this.port = port;
-};
+    constructor(host, port)
+    {
+        this.host = host;
+        this.port = port;
+    }
+}
+
+Ice.Address = Address;
 module.exports.Ice = Ice;

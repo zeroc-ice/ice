@@ -7,43 +7,40 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/HashMap", "../Ice/LocalException"]);
+const Ice = require("../Ice/LocalException").Ice;
 
-var HashMap = Ice.HashMap;
-var AlreadyRegisteredException = Ice.AlreadyRegisteredException;
-var NotRegisteredException = Ice.NotRegisteredException;
+const AlreadyRegisteredException = Ice.AlreadyRegisteredException;
+const NotRegisteredException = Ice.NotRegisteredException;
 
 //
 // Only for use by Instance
 //
-var ValueFactoryManagerI = Ice.Class({
-    __init__: function()
+class ValueFactoryManagerI
+{
+    constructor()
     {
-        this._factoryMap = new HashMap(); // Map<String, ValueFactory>
-    },
-    add: function(factory, id)
+        this._factoryMap = new Map(); // Map<String, ValueFactory>
+    }
+
+    add(factory, id)
     {
-        var o, ex;
-        o = this._factoryMap.get(id);
-        if(o !== undefined)
+        if(this._factoryMap.has(id))
         {
-            ex = new AlreadyRegisteredException();
-            ex.id = id;
-            ex.kindOfObject = "value factory";
-            throw ex;
+            throw new AlreadyRegisteredException("value factory", id);
         }
         this._factoryMap.set(id, factory);
-    },
-    find: function(id)
+    }
+
+    find(id)
     {
         return this._factoryMap.get(id);
-    },
-    destroy: function()
-    {
-        this._factoryMap = new HashMap(); // Map<String, ValueFactory>
     }
-});
+
+    destroy()
+    {
+        this._factoryMap = new Map(); // Map<String, ValueFactory>
+    }
+}
 
 Ice.ValueFactoryManagerI = ValueFactoryManagerI;
 module.exports.Ice = Ice;

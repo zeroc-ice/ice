@@ -352,3 +352,12 @@ xcuserdata
 xcshareddata
 IceSDK
 cpp/test/ios/Bundles*
+
+
+#
+# Babel generated files
+#
+js/src/es5/
+js/test/Glacier2/es5/
+js/test/Ice/es5/
+

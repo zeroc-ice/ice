@@ -7,21 +7,20 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Promise", "../Ice/Class", "../Ice/ReferenceMode"]);
+const Ice = require("../Ice/ReferenceMode").Ice;
+const ReferenceMode = Ice.ReferenceMode;
 
-var Promise = Ice.Promise;
-var ReferenceMode = Ice.ReferenceMode;
-
-var ConnectionRequestHandler = Ice.Class({
-    __init__: function(ref, connection, compress)
+class ConnectionRequestHandler
+{
+    constructor(ref, connection, compress)
     {
         this._reference = ref;
         this._response = ref.getMode() == ReferenceMode.ModeTwoway;
         this._connection = connection;
         this._compress = compress;
-    },
-    update: function(previousHandler, newHandler)
+    }
+
+    update(previousHandler, newHandler)
     {
         try
         {
@@ -44,24 +43,28 @@ var ConnectionRequestHandler = Ice.Class({
             // Ignore
         }
         return this;
-    },
-    sendAsyncRequest: function(out)
+    }
+
+    sendAsyncRequest(out)
     {
         return out.__invokeRemote(this._connection, this._compress, this._response);
-    },
-    asyncRequestCanceled: function(out)
+    }
+
+    asyncRequestCanceled(out)
     {
         return this._connection.asyncRequestCanceled(out);
-    },
-    getReference: function()
+    }
+
+    getReference()
     {
         return this._reference;
-    },
-    getConnection: function()
+    }
+
+    getConnection()
     {
         return this._connection;
-    },
-});
+    }
+}
 
 Ice.ConnectionRequestHandler = ConnectionRequestHandler;
 module.exports.Ice = Ice;

@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/LocalException").Ice;
+const Ice = require("../Ice/LocalException").Ice;
 
 //
 // Local aliases.
 //
-var UnexpectedObjectException = Ice.UnexpectedObjectException;
-var MemoryLimitException = Ice.MemoryLimitException;
+const UnexpectedObjectException = Ice.UnexpectedObjectException;
+const MemoryLimitException = Ice.MemoryLimitException;
 
 //
 // Exception utilities
@@ -23,7 +23,7 @@ Ice.ExUtil =
 {
     throwUOE: function(expectedType, v)
     {
-        var type = v.ice_id();
+        const type = v.ice_id();
         throw new UnexpectedObjectException("expected element of type `" + expectedType + "' but received '" +
                                             type, type, expectedType);
     },

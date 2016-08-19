@@ -7,12 +7,11 @@
 //
 // **********************************************************************
 
-var net = require("net");
+const net = require("net");
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Debug",
         "../Ice/ExUtil",
         "../Ice/SocketOperation",
@@ -22,39 +21,41 @@ Ice.__M.require(module,
         "../Ice/Timer"
     ]);
 
-var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
-var Network = Ice.Network;
-var SocketOperation = Ice.SocketOperation;
-var LocalException = Ice.LocalException;
-var SocketException = Ice.SocketException;
-var Timer = Ice.Timer;
+const Debug = Ice.Debug;
+const ExUtil = Ice.ExUtil;
+const Network = Ice.Network;
+const SocketOperation = Ice.SocketOperation;
+const LocalException = Ice.LocalException;
+const SocketException = Ice.SocketException;
+const Timer = Ice.Timer;
 
-var StateNeedConnect = 0;
-var StateConnectPending = 1;
-var StateProxyConnectRequest = 2;
-var StateProxyConnectRequestPending = 3;
-var StateConnected = 4;
-var StateClosed = 5;
+const StateNeedConnect = 0;
+const StateConnectPending = 1;
+const StateProxyConnectRequest = 2;
+const StateProxyConnectRequestPending = 3;
+const StateConnected = 4;
+const StateClosed = 5;
 
-var TcpTransceiver = Ice.Class({
-    __init__: function(instance)
+class TcpTransceiver
+{
+    constructor(instance)
     {
         this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
         this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
-    },
-    setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
+    }
+
+    setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
     {
         this._connectedCallback = connectedCallback;
         this._bytesAvailableCallback = bytesAvailableCallback;
         this._bytesWrittenCallback = bytesWrittenCallback;
-    },
+    }
     //
     // Returns SocketOperation.None when initialization is complete.
     //
-    initialize: function(readBuffer, writeBuffer)
+    initialize(readBuffer, writeBuffer)
     {
         try
         {
@@ -70,9 +71,8 @@ var TcpTransceiver = Ice.Class({
                                                  host: this._addr.host,
                                                  localAddress: this._sourceAddr});
 
-                var self = this;
-                this._fd.on("connect", function() { self.socketConnected(); });
-                this._fd.on("data", function(buf) { self.socketBytesAvailable(buf); });
+                this._fd.on("connect", () => this.socketConnected());
+                this._fd.on("data", buf => this.socketBytesAvailable(buf));
 
                 //
                 // The error callback can be triggered from the socket
@@ -81,8 +81,8 @@ var TcpTransceiver = Ice.Class({
                 // setImmediate. We do the same for close as a
                 // precaution. See also issue #6226.
                 //
-                this._fd.on("close", function(err) { Timer.setImmediate(function() { self.socketClosed(err); }); });
-                this._fd.on("error", function(err) { Timer.setImmediate(function() { self.socketError(err); }); });
+                this._fd.on("close", err => Timer.setImmediate(() => this.socketClosed(err)));
+                this._fd.on("error", err => Timer.setImmediate(() => this.socketError(err)));
 
                 return SocketOperation.Connect; // Waiting for connect to complete.
             }
@@ -123,8 +123,9 @@ var TcpTransceiver = Ice.Class({
 
         Debug.assert(this._state === StateConnected);
         return SocketOperation.None;
-    },
-    register: function()
+    }
+
+    register()
     {
         this._registered = true;
         this._fd.resume();
@@ -132,8 +133,9 @@ var TcpTransceiver = Ice.Class({
         {
             this._bytesAvailableCallback();
         }
-    },
-    unregister: function()
+    }
+
+    unregister()
     {
         if(this._fd === null)
         {
@@ -142,8 +144,9 @@ var TcpTransceiver = Ice.Class({
         }
         this._registered = false;
         this._fd.pause();
-    },
-    close: function()
+    }
+
+    close()
     {
         if(this._fd === null)
         {
@@ -163,19 +166,18 @@ var TcpTransceiver = Ice.Class({
         {
             this._fd = null;
         }
-    },
+    }
     //
     // Returns true if all of the data was flushed to the kernel buffer.
     //
-    write: function(byteBuffer)
+    write(byteBuffer)
     {
         if(this._exception)
         {
             throw this._exception;
         }
 
-        var bytesTotal = byteBuffer.remaining;
-        var packetSize = bytesTotal;
+        let packetSize = byteBuffer.remaining;
         Debug.assert(packetSize > 0);
 
         if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
@@ -185,17 +187,17 @@ var TcpTransceiver = Ice.Class({
 
         while(packetSize > 0)
         {
-            var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+            const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
-            var self = this;
-            var sync = true;
+            let sync = true;
             /*jshint -W083 */
-            sync = this._fd.write(slice, null, function() {
-                if(!sync)
+            sync = this._fd.write(new Buffer(slice), null, () =>
                 {
-                    self._bytesWrittenCallback();
-                }
-            });
+                    if(!sync)
+                    {
+                        this._bytesWrittenCallback();
+                    }
+                });
             /*jshint +W083 */
 
             byteBuffer.position = byteBuffer.position + packetSize;
@@ -214,8 +216,9 @@ var TcpTransceiver = Ice.Class({
             }
         }
         return true;
-    },
-    read: function(byteBuffer, moreData)
+    }
+
+    read(byteBuffer, moreData)
     {
         if(this._exception)
         {
@@ -229,9 +232,8 @@ var TcpTransceiver = Ice.Class({
             return false; // No data available.
         }
 
-        var avail = this._readBuffers[0].length - this._readPosition;
+        let avail = this._readBuffers[0].length - this._readPosition;
         Debug.assert(avail > 0);
-        var remaining = byteBuffer.remaining;
 
         while(byteBuffer.remaining > 0)
         {
@@ -240,8 +242,8 @@ var TcpTransceiver = Ice.Class({
                 avail = byteBuffer.remaining;
             }
 
-            this._readBuffers[0].copy(byteBuffer.b, byteBuffer.position, this._readPosition,
-                                        this._readPosition + avail);
+            this._readBuffers[0].copy(new Buffer(byteBuffer.b), byteBuffer.position, this._readPosition,
+                                      this._readPosition + avail);
 
             byteBuffer.position += avail;
             this._readPosition += avail;
@@ -265,15 +267,17 @@ var TcpTransceiver = Ice.Class({
         moreData.value = this._readBuffers.length > 0;
 
         return byteBuffer.remaining === 0;
-    },
-    type: function()
+    }
+
+    type()
     {
         return "tcp";
-    },
-    getInfo: function()
+    }
+
+    getInfo()
     {
         Debug.assert(this._fd !== null);
-        var info = new Ice.TCPConnectionInfo();
+        const info = new Ice.TCPConnectionInfo();
         info.localAddress = this._fd.localAddress;
         info.localPort = this._fd.localPort;
         info.remoteAddress = this._fd.remoteAddress;
@@ -281,24 +285,29 @@ var TcpTransceiver = Ice.Class({
         info.rcvSize = -1;
         info.sndSize = this._maxSendPacketSize;
         return info;
-    },
-    checkSendSize: function(stream)
+    }
+
+    checkSendSize(stream)
     {
-    },
-    setBufferSize: function(rcvSize, sndSize)
+    }
+
+    setBufferSize(rcvSize, sndSize)
     {
         this._maxSendPacketSize = sndSize;
-    },
-    toString: function()
+    }
+
+    toString()
     {
         return this._desc;
-    },
-    socketConnected: function()
+    }
+
+    socketConnected()
     {
         Debug.assert(this._connectedCallback !== null);
         this._connectedCallback();
-    },
-    socketBytesAvailable: function(buf)
+    }
+
+    socketBytesAvailable(buf)
     {
         Debug.assert(this._bytesAvailableCallback !== null);
 
@@ -311,8 +320,9 @@ var TcpTransceiver = Ice.Class({
             this._readBuffers.push(buf);
             this._bytesAvailableCallback();
         }
-    },
-    socketClosed: function(err)
+    }
+
+    socketClosed(err)
     {
         //
         // Don't call the closed callback if an error occurred; the error callback
@@ -322,8 +332,9 @@ var TcpTransceiver = Ice.Class({
         {
             this.socketError(null);
         }
-    },
-    socketError: function(err)
+    }
+
+    socketError(err)
     {
         this._exception = translateError(this._state, err);
         if(this._state < StateConnected)
@@ -335,7 +346,37 @@ var TcpTransceiver = Ice.Class({
             this._bytesAvailableCallback();
         }
     }
-});
+    
+    static createOutgoing(instance, addr, sourceAddr)
+    {
+        const transceiver = new TcpTransceiver(instance);
+
+        transceiver._fd = null;
+        transceiver._addr = addr;
+        transceiver._sourceAddr = sourceAddr;
+        transceiver._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
+        transceiver._state = StateNeedConnect;
+        transceiver._registered = false;
+        transceiver._exception = null;
+
+        return transceiver;
+    }
+
+    static createIncoming(instance, fd)
+    {
+        const transceiver = new TcpTransceiver(instance);
+
+        transceiver._fd = fd;
+        transceiver._addr = null;
+        transceiver._sourceAddr = null;
+        transceiver._desc = fdToString(fd);
+        transceiver._state = StateConnected;
+        transceiver._registered = false;
+        transceiver._exception = null;
+
+        return transceiver;
+    }
+}
 
 function fdToString(fd, targetAddr)
 {
@@ -376,7 +417,7 @@ function addressesToString(localHost, localPort, remoteHost, remotePort, targetA
     remoteHost = remoteHost === undefined ? null : remoteHost;
     targetAddr = targetAddr === undefined ? null : targetAddr;
 
-    var s = [];
+    const s = [];
     s.push("local address = ");
     s.push(localHost + ":" + localPort);
 
@@ -399,46 +440,16 @@ function addressesToString(localHost, localPort, remoteHost, remotePort, targetA
     return s.join("");
 }
 
-TcpTransceiver.createOutgoing = function(instance, addr, sourceAddr)
-{
-    var transceiver = new TcpTransceiver(instance);
 
-    transceiver._fd = null;
-    transceiver._addr = addr;
-    transceiver._sourceAddr = sourceAddr;
-    transceiver._desc = "local address = <not connected>\nremote address = " + addr.host + ":" + addr.port;
-    transceiver._state = StateNeedConnect;
-    transceiver._registered = false;
-    transceiver._exception = null;
-
-    return transceiver;
-};
-
-TcpTransceiver.createIncoming = function(instance, fd)
-{
-    var transceiver = new TcpTransceiver(instance);
-
-    transceiver._fd = fd;
-    transceiver._addr = null;
-    transceiver._sourceAddr = null;
-    transceiver._desc = fdToString(fd);
-    transceiver._state = StateConnected;
-    transceiver._registered = false;
-    transceiver._exception = null;
-
-    return transceiver;
-};
-
-
-var ECONNABORTED = "ECONNABORTED";
-var ECONNREFUSED = "ECONNREFUSED";
-var ECONNRESET = "ECONNRESET";
-var EHOSTUNREACH = "EHOSTUNREACH";
-var ENETUNREACH = "ENETUNREACH";
-var ENOTCONN = "ENOTCONN";
-var EPIPE = "EPIPE";
-var ESHUTDOWN = "ESHUTDOWN";
-var ETIMEDOUT = "ETIMEDOUT";
+const ECONNABORTED = "ECONNABORTED";
+const ECONNREFUSED = "ECONNREFUSED";
+const ECONNRESET = "ECONNRESET";
+const EHOSTUNREACH = "EHOSTUNREACH";
+const ENETUNREACH = "ENETUNREACH";
+const ENOTCONN = "ENOTCONN";
+const EPIPE = "EPIPE";
+const ESHUTDOWN = "ESHUTDOWN";
+const ETIMEDOUT = "ETIMEDOUT";
 
 function connectionRefused(err)
 {

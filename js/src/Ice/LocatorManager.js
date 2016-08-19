@@ -7,43 +7,44 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class", 
         "../Ice/HashMap", 
         "../Ice/LocatorInfo", 
         "../Ice/LocatorTable", 
         "../Ice/Locator"
     ]);
 
-var HashMap = Ice.HashMap;
-var LocatorInfo = Ice.LocatorInfo;
-var LocatorTable = Ice.LocatorTable;
-var LocatorPrx = Ice.LocatorPrx;
+const HashMap = Ice.HashMap;
+const LocatorInfo = Ice.LocatorInfo;
+const LocatorTable = Ice.LocatorTable;
+const LocatorPrx = Ice.LocatorPrx;
 
-var LocatorManager = Ice.Class({
-    __init__: function(properties)
+class LocatorManager
+{
+    constructor(properties)
     {
         this._background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
-
         this._table = new HashMap(HashMap.compareEquals); // Map<Ice.LocatorPrx, LocatorInfo>
         this._locatorTables = new HashMap(HashMap.compareEquals); // Map<Ice.Identity, LocatorTable>
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
-        for(var e = this._table.entries; e !== null; e = e.next)
+        for(let locator of this._table.values())
         {
-            e.value.destroy();
+            locator.destroy();
         }
         this._table.clear();
         this._locatorTables.clear();
-    },
+    }
+
     //
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    find: function(loc)
+    find(loc)
     {
         if(loc === null)
         {
@@ -53,13 +54,12 @@ var LocatorManager = Ice.Class({
         //
         // The locator can't be located.
         //
-        var locator = LocatorPrx.uncheckedCast(loc.ice_locator(null));
+        const locator = LocatorPrx.uncheckedCast(loc.ice_locator(null));
 
         //
         // TODO: reap unused locator info objects?
         //
-
-        var info = this._table.get(locator);
+        let info = this._table.get(locator);
         if(info === undefined)
         {
             //
@@ -67,7 +67,7 @@ var LocatorManager = Ice.Class({
             // have only one table per locator (not one per locator
             // proxy).
             //
-            var table = this._locatorTables.get(locator.ice_getIdentity());
+            let table = this._locatorTables.get(locator.ice_getIdentity());
             if(table === undefined)
             {
                 table = new LocatorTable();
@@ -80,7 +80,7 @@ var LocatorManager = Ice.Class({
 
         return info;
     }
-});
+}
 
 Ice.LocatorManager = LocatorManager;
 module.exports.Ice = Ice;

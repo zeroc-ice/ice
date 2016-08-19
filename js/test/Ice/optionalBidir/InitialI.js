@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Class = Ice.Class;
-
     var test = function(b)
     {
         if(!b)
@@ -22,16 +20,19 @@
         }
     };
 
-    var InitialI = Class(Test.Initial, {
-        shutdown: function(current)
+    class InitialI extends Test.Initial
+    {
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-        },
-        pingPong: function(obj, current)
+        }
+
+        pingPong(obj, current)
         {
             return obj;
-        },
-        opOptionalException: function(a, b, o, current)
+        }
+
+        opOptionalException(a, b, o, current)
         {
             var ex = new Test.OptionalException();
             if(a !== undefined)
@@ -51,8 +52,9 @@
                 ex.o = o;
             }
             throw ex;
-        },
-        opDerivedException: function(a, b, o, current)
+        }
+
+        opDerivedException(a, b, o, current)
         {
             var ex = new Test.DerivedException();
             if(a !== undefined)
@@ -78,8 +80,9 @@
                 ex.o2 = o;
             }
             throw ex;
-        },
-        opRequiredException: function(a, b, o, current)
+        }
+
+        opRequiredException(a, b, o, current)
         {
             var ex = new Test.RequiredException();
             if(a !== undefined)
@@ -101,162 +104,200 @@
                 ex.o2 = o;
             }
             throw ex;
-        },
-        opByte: function(p1, current)
+        }
+
+        opByte(p1, current)
         {
             return [p1, p1];
-        },
-        opBool: function(p1, current)
+        }
+
+        opBool(p1, current)
         {
             return [p1, p1];
-        },
-        opShort: function(p1, current)
+        }
+
+        opShort(p1, current)
         {
             return [p1, p1];
-        },
-        opInt: function(p1, current)
+        }
+
+        opInt(p1, current)
         {
             return [p1, p1];
-        },
-        opLong: function(p1, current)
+        }
+
+        opLong(p1, current)
         {
             return [p1, p1];
-        },
-        opFloat: function(p1, current)
+        }
+
+        opFloat(p1, current)
         {
             return [p1, p1];
-        },
-        opDouble: function(p1, current)
+        }
+
+        opDouble(p1, current)
         {
             return [p1, p1];
-        },
-        opString: function(p1, current)
+        }
+
+        opString(p1, current)
         {
             return [p1, p1];
-        },
-        opMyEnum: function(p1, current)
+        }
+
+        opMyEnum(p1, current)
         {
             return [p1, p1];
-        },
-        opSmallStruct: function(p1, current)
+        }
+
+        opSmallStruct(p1, current)
         {
             return [p1, p1];
-        },
-        opFixedStruct: function(p1, current)
+        }
+
+        opFixedStruct(p1, current)
         {
             return [p1, p1];
-        },
-        opVarStruct: function(p1, current)
+        }
+
+        opVarStruct(p1, current)
         {
             return [p1, p1];
-        },
-        opOneOptional: function(p1, current)
+        }
+
+        opOneOptional(p1, current)
         {
             return [p1, p1];
-        },
-        opOneOptionalProxy: function(p1, current)
+        }
+
+        opOneOptionalProxy(p1, current)
         {
             return [p1, p1];
-        },
-        opByteSeq: function(p1, current)
+        }
+
+        opByteSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opBoolSeq: function(p1, current)
+        }
+
+        opBoolSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opShortSeq: function(p1, current)
+        }
+
+        opShortSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opIntSeq: function(p1, current)
+        }
+
+        opIntSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opLongSeq: function(p1, current)
+        }
+
+        opLongSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opFloatSeq: function(p1, current)
+        }
+
+        opFloatSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opDoubleSeq: function(p1, current)
+        }
+
+        opDoubleSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opStringSeq: function(p1, current)
+        }
+
+        opStringSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opSmallStructSeq: function(p1, current)
+        }
+
+        opSmallStructSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opSmallStructList: function(p1, current)
+        }
+
+        opSmallStructList(p1, current)
         {
             return [p1, p1];
-        },
-        opFixedStructSeq: function(p1, current)
+        }
+
+        opFixedStructSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opFixedStructList: function(p1, current)
+        }
+
+        opFixedStructList(p1, current)
         {
             return [p1, p1];
-        },
-        opVarStructSeq: function(p1, current)
+        }
+
+        opVarStructSeq(p1, current)
         {
             return [p1, p1];
-        },
-        opSerializable: function(p1, current)
+        }
+
+        opSerializable(p1, current)
         {
             return [p1, p1];
-        },
-        opIntIntDict: function(p1, current)
+        }
+
+        opIntIntDict(p1, current)
         {
             return [p1, p1];
-        },
-        opStringIntDict: function(p1, current)
+        }
+
+        opStringIntDict(p1, current)
         {
             return [p1, p1];
-        },
-        opIntOneOptionalDict: function(p1, current)
+        }
+
+        opIntOneOptionalDict(p1, current)
         {
             return [p1, p1];
-        },
-        opClassAndUnknownOptional: function(p, current)
+        }
+
+        opClassAndUnknownOptional(p, current)
         {
-        },
-        sendOptionalClass: function(req, current)
+        }
+
+        sendOptionalClass(req, current)
         {
-        },
-        opG: function(g, current)
+        }
+
+        opG(g, current)
         {
             return g;
-        },
-        opVoid: function()
+        }
+
+        opVoid()
         {
-        },
-        returnOptionalClass: function(req, current)
+        }
+
+        returnOptionalClass(req, current)
         {
             return new Test.OneOptional(53);
-        },
-        supportsRequiredParams: function(current)
-        {
-            return false;
-        },
-        supportsJavaSerializable: function(current)
-        {
-            return false;
-        },
-        supportsCsharpSerializable: function(current)
+        }
+
+        supportsRequiredParams(current)
         {
             return false;
         }
-    });
 
+        supportsJavaSerializable(current)
+        {
+            return false;
+        }
+
+        supportsCsharpSerializable(current)
+        {
+            return false;
+        }
+    }
     exports.InitialI = InitialI;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

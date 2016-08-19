@@ -35,7 +35,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -128,15 +128,7 @@
                         return Client.__clientAllTests__(out, communicator);
                     });
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            });
+        ).then(p.resolve, p.reject);
 
         return p;
     };

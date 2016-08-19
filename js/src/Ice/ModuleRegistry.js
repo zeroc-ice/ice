@@ -7,39 +7,42 @@
 //
 // **********************************************************************
 
-var __modules__ = {};
+const __modules__ = {};
 
-var __M =
+class __M
 {
-    module: function(name)
+    static module(name)
     {
-        var m =  __modules__[name];
+        let m =  __modules__[name];
         if(m === undefined)
         {
             m = {};
             __modules__[name] =  m;
         }
         return m;
-    },
-    require: function(m, paths)
+    }
+
+    static require(m, paths)
     {
-        var i = 0, length = paths.length, o;
-        for(; i < length; ++i)
-        {
-            o = m.require(paths[i]);
-        }
+        let o;
+        paths.forEach(path =>
+            {
+                o = m.require(path);
+            });
         return o;
-    },
-    type: function(scoped)
+    }
+
+    static type(scoped)
     {
         if(scoped === undefined)
         {
             return undefined;
         }
-        var components = scoped.split(".");
-        var T = __modules__;
 
-        for(var i = 0, length = components.length; i < length; ++i)
+        const components = scoped.split(".");
+        let T = __modules__;
+
+        for(let i = 0; i < components.length; ++i)
         {
             T = T[components[i]];
             if(T === undefined)
@@ -49,9 +52,9 @@ var __M =
         }
         return T;
     }
-};
+}
 
-var Ice = __M.module("Ice");
+const Ice = __M.module("Ice");
 Ice.Slice = Ice.Slice || {};
 Ice.__M = __M;
 exports.Ice = Ice;

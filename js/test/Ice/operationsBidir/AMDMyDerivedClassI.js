@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var TestAMD = require("TestAMD").TestAMD;
 
-    var Class = Ice.Class;
-
     var test = function(b)
     {
         if(!b)
@@ -22,301 +20,346 @@
         }
     };
 
-    var AMDMyDerivedClassI = Class(TestAMD.MyDerivedClass, {
+    class AMDMyDerivedClassI extends TestAMD.MyDerivedClass
+    {
         //
         // Override the Object "pseudo" operations to verify the operation mode.
         //
-        __init__: function()
+        constructor()
         {
+            super();
             this._opByteSOnewayCount = 0;
-        },
-        ice_isA: function(id, current)
+        }
+        
+        ice_isA(id, current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_isA.call(this, id, current);
-        },
-        ice_ping: function(current)
+        }
+
+        ice_ping(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             Ice.Object.prototype.ice_ping.call(this, current);
-        },
-        ice_ids: function(current)
+        }
+
+        ice_ids(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_ids.call(this, current);
-        },
-        ice_id: function(current)
+        }
+
+        ice_id(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_id.call(this, current);
-        },
-        shutdown_async: function(cb, current)
+        }
+
+        shutdown_async(cb, current)
         {
             current.adapter.getCommunicator().shutdown();
             cb.ice_response();
-        },
-        delay_async: function(cb, ms, current)
+        }
+
+        delay_async(cb, ms, current)
         {
-            Ice.Timer.setTimeout(
-                function()
-                {
-                    cb.ice_response();
-                }, ms);
-        },
-        opVoid_async: function(cb, current)
+            Ice.Timer.setTimeout(() => cb.ice_response(), ms);
+        }
+
+        opVoid_async(cb, current)
         {
             test(current.mode === Ice.OperationMode.Normal);
             cb.ice_response();
-        },
-        opBool_async: function(cb, p1, p2, current)
+        }
+
+        opBool_async(cb, p1, p2, current)
         {
             cb.ice_response(p2, p1);
-        },
-        opBoolS_async: function(cb, p1, p2, current)
+        }
+
+        opBoolS_async(cb, p1, p2, current)
         {
             var p3 = p1.concat(p2);
             cb.ice_response(p1.reverse(), p3);
-        },
-        opBoolSS_async: function(cb, p1, p2, current)
+        }
+
+        opBoolSS_async(cb, p1, p2, current)
         {
             var p3 = p1.concat(p2);
             cb.ice_response(p1.reverse(), p3);
-        },
-        opByte_async: function(cb, p1, p2, current)
+        }
+
+        opByte_async(cb, p1, p2, current)
         {
             cb.ice_response(p1, (p1 ^ p2) & 0xff);
-        },
-        opByteBoolD_async: function(cb, p1, p2, current)
+        }
+
+        opByteBoolD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             cb.ice_response(r, p1);
-        },
-        opByteS_async: function(cb, p1, p2, current)
+        }
+
+        opByteS_async(cb, p1, p2, current)
         {
-            var i;
             var p3 = Ice.Buffer.createNative(p1.length);
-            for(i = 0; i < p1.length; i++)
+            for(let i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
             var r = Ice.Buffer.createNative(p1.length + p2.length);
-            for(i = 0; i < p1.length; ++i)
+            for(let i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];
             }
-            for(i = 0; i < p2.length; ++i)
+            for(let i = 0; i < p2.length; ++i)
             {
                 r[i + p1.length] = p2[i];
             }
             cb.ice_response(r, p3);
-        },
-        opByteSS_async: function(cb, p1, p2, current)
+        }
+
+        opByteSS_async(cb, p1, p2, current)
         {
             var r = p1.concat(p2);
             cb.ice_response(r, p1.reverse());
-        },
-        opFloatDouble_async: function(cb, p1, p2, current)
+        }
+
+        opFloatDouble_async(cb, p1, p2, current)
         {
             cb.ice_response(p2, p1, p2);
-        },
-        opFloatDoubleS_async: function(cb, p1, p2, current)
+        }
+
+        opFloatDoubleS_async(cb, p1, p2, current)
         {
             var r = p2.concat(p1);
             var p4 = p2.reverse();
             cb.ice_response(r, p1, p4);
-        },
-        opFloatDoubleSS_async: function(cb, p1, p2, current)
+        }
+
+        opFloatDoubleSS_async(cb, p1, p2, current)
         {
             var r = p2.concat(p2);
             var p4 = p2.reverse();
             cb.ice_response(r, p1, p4);
-        },
-        opLongFloatD_async: function(cb, p1, p2, current)
+        }
+
+        opLongFloatD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
             cb.ice_response(r, p1);
-        },
-        opMyClass_async: function(cb, p1, current)
+        }
+
+        opMyClass_async(cb, p1, current)
         {
             var p2 = p1;
             var p3 = TestAMD.MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
             var r = TestAMD.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
             cb.ice_response(r, p2, p3);
-        },
-        opMyEnum_async: function(cb, p1, current)
+        }
+
+        opMyEnum_async(cb, p1, current)
         {
             cb.ice_response(TestAMD.MyEnum.enum3, p1);
-        },
-        opShortIntD_async: function(cb, p1, p2, current)
+        }
+
+        opShortIntD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             cb.ice_response(r, p1);
-        },
-        opShortIntLong_async: function(cb, p1, p2, p3, current)
+        }
+
+        opShortIntLong_async(cb, p1, p2, p3, current)
         {
             cb.ice_response(p3, p1, p2, p3);
-        },
-        opShortIntLongS_async: function(cb, p1, p2, p3, current)
+        }
+
+        opShortIntLongS_async(cb, p1, p2, p3, current)
         {
             cb.ice_response(p3, p1, p2.reverse(), p3.concat(p3));
-        },
-        opShortIntLongSS_async: function(cb, p1, p2, p3, current)
+        }
+
+        opShortIntLongSS_async(cb, p1, p2, p3, current)
         {
             cb.ice_response(p3, p1, p2.reverse(), p3.concat(p3));
-        },
-        opString_async: function(cb, p1, p2, current)
+        }
+
+        opString_async(cb, p1, p2, current)
         {
             cb.ice_response(p1 + " " + p2, p2 + " " + p1);
-        },
-        opStringMyEnumD_async: function(cb, p1, p2, current)
-        {
-            var r = p1.clone();
-            r.merge(p2);
-            cb.ice_response(r, p1);
-        },
-        opMyEnumStringD_async: function(cb, p1, p2, current)
-        {
-            var r = p1.clone();
-            r.merge(p2);
-            cb.ice_response(r, p1);
-        },
-        opMyStructMyEnumD_async: function(cb, p1, p2, current)
-        {
-            var r = p1.clone();
-            r.merge(p2);
-            cb.ice_response(r, p1);
-        },
-        opByteBoolDS_async: function(cb, p1, p2, current)
-        {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            cb.ice_response(r, p3);
-        },
-        opShortIntDS_async: function(cb, p1, p2, current)
-        {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            cb.ice_response(r, p3);
-        },
+        }
 
-        opLongFloatDS_async: function(cb, p1, p2, current)
+        opStringMyEnumD_async(cb, p1, p2, current)
+        {
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            cb.ice_response(r, p1);
+        }
+
+        opMyEnumStringD_async(cb, p1, p2, current)
+        {
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            cb.ice_response(r, p1);
+        }
+
+        opMyStructMyEnumD_async(cb, p1, p2, current)
+        {
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            cb.ice_response(r, p1);
+        }
+
+        opByteBoolDS_async(cb, p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opStringStringDS_async: function(cb, p1, p2, current)
+        }
+
+        opShortIntDS_async(cb, p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opStringMyEnumDS_async: function(cb, p1, p2, current)
+        }
+
+        opLongFloatDS_async(cb, p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opMyEnumStringDS_async: function(cb, p1, p2, current)
+        }
+
+        opStringStringDS_async(cb, p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opMyStructMyEnumDS_async: function(cb, p1, p2, current)
+        }
+
+        opStringMyEnumDS_async(cb, p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opByteByteSD_async: function(cb, p1, p2, current)
+        }
+
+        opMyEnumStringDS_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opBoolBoolSD_async: function(cb, p1, p2, current)
+        }
+
+        opMyStructMyEnumDS_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var p3 = p2.concat(p1);
+            var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opShortShortSD_async: function(cb, p1, p2, current)
+        }
+    
+        opByteByteSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opIntIntSD_async: function(cb, p1, p2, current)
+        }
+
+        opBoolBoolSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opLongLongSD_async: function(cb, p1, p2, current)
+        }
+
+        opShortShortSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opStringFloatSD_async: function(cb, p1, p2, current)
+        }
+
+        opIntIntSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opStringDoubleSD_async: function(cb, p1, p2, current)
+        }
+
+        opLongLongSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Ice.HashMap(p2);
             cb.ice_response(r, p3);
-        },
-        opStringStringSD_async: function(cb, p1, p2, current)
+        }
+
+        opStringFloatSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opMyEnumMyEnumSD_async: function(cb, p1, p2, current)
+        }
+
+        opStringDoubleSD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             cb.ice_response(r, p3);
-        },
-        opIntS_async: function(cb, s, current)
+        }
+
+        opStringStringSD_async(cb, p1, p2, current)
+        {
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
+            cb.ice_response(r, p3);
+        }
+
+        opMyEnumMyEnumSD_async(cb, p1, p2, current)
+        {
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
+            cb.ice_response(r, p3);
+        }
+
+        opIntS_async(cb, s, current)
         {
             cb.ice_response(s.map(function(v, i, arr) { return -v; }));
-        },
-        opByteSOneway_async: function(cb, s, current)
+        }
+
+        opByteSOneway_async(cb, s, current)
         {
             this._opByteSOnewayCount += 1;
             cb.ice_response();
-        },
-        opByteSOnewayCallCount_async: function(cb, current)
+        }
+
+        opByteSOnewayCallCount_async(cb, current)
         {
             var count = this._opByteSOnewayCount;
             this._opByteSOnewayCount = 0;
             cb.ice_response(count);
-        },
-        opContext_async: function(cb, current)
+        }
+
+        opContext_async(cb, current)
         {
             cb.ice_response(current.ctx);
-        },
-        opDoubleMarshaling_async: function(cb, p1, p2, current)
+        }
+
+        opDoubleMarshaling_async(cb, p1, p2, current)
         {
             var d = 1278312346.0 / 13.0;
             test(p1 === d);
@@ -325,103 +368,125 @@
                 test(p2[i] === d);
             }
             cb.ice_response();
-        },
-        opStringS_async: function(cb, p1, p2, current)
+        }
+
+        opStringS_async(cb, p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p1.reverse();
             cb.ice_response(r, p3);
-        },
-        opStringSS_async: function(cb, p1, p2, current)
+        }
+
+        opStringSS_async(cb, p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p2.reverse();
             cb.ice_response(r, p3);
-        },
-        opStringSSS_async: function(cb, p1, p2, current)
+        }
+
+        opStringSSS_async(cb, p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p2.reverse();
             cb.ice_response(r, p3);
-        },
-        opStringStringD_async: function(cb, p1, p2, current)
+        }
+
+        opStringStringD_async(cb, p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             cb.ice_response(r, p1);
-        },
-        opStruct_async: function(cb, p1, p2, current)
+        }
+
+        opStruct_async(cb, p1, p2, current)
         {
             p1.s.s = "a new string";
             cb.ice_response(p2, p1);
-        },
-        opIdempotent_async: function(cb, current)
+        }
+
+        opIdempotent_async(cb, current)
         {
             test(current.mode === Ice.OperationMode.Idempotent);
             cb.ice_response();
-        },
-        opNonmutating_async: function(cb, current)
+        }
+
+        opNonmutating_async(cb, current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             cb.ice_response();
-        },
-        opDerived_async: function(cb, current)
+        }
+
+        opDerived_async(cb, current)
         {
             cb.ice_response();
-        },
-        opByte1_async: function(cb, value, current)
+        }
+
+        opByte1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opShort1_async: function(cb, value, current)
+        }
+
+        opShort1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opInt1_async: function(cb, value, current)
+        }
+
+        opInt1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opLong1_async: function(cb, value, current)
+        }
+
+        opLong1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opFloat1_async: function(cb, value, current)
+        }
+
+        opFloat1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opDouble1_async: function(cb, value, current)
+        }
+
+        opDouble1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opString1_async: function(cb, value, current)
+        }
+
+        opString1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opStringS1_async: function(cb, value, current)
+        }
+
+        opStringS1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opByteBoolD1_async: function(cb, value, current)
+        }
+
+        opByteBoolD1_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opStringS2_async: function(cb, value, current)
+        }
+
+        opStringS2_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opByteBoolD2_async: function(cb, value, current)
+        }
+
+        opByteBoolD2_async(cb, value, current)
         {
             cb.ice_response(value);
-        },
-        opMyClass1_async: function(cb, value, current)
+        }
+
+        opMyClass1_async(cb, value, current)
         {
             return cb.ice_response(value);
-        },
-        opMyStruct1_async: function(cb, value, current)
+        }
+
+        opMyStruct1_async(cb, value, current)
         {
             return cb.ice_response(value);
-        },
-        opStringLiterals_async: function(cb, current)
+        }
+
+        opStringLiterals_async(cb, current)
         {
             return cb.ice_response([
                 TestAMD.s0, TestAMD.s1, TestAMD.s2, TestAMD.s3, TestAMD.s4, TestAMD.s5, TestAMD.s6, TestAMD.s7, TestAMD.s8, TestAMD.s9, TestAMD.s10,
@@ -429,7 +494,7 @@
                 TestAMD.ss0, TestAMD.ss1, TestAMD.ss2, TestAMD.ss3, TestAMD.ss4, TestAMD.ss5,
                 TestAMD.su0, TestAMD.su1, TestAMD.su2]);
         }
-    });
+    }
 
     exports.AMDMyDerivedClassI = AMDMyDerivedClassI;
 }

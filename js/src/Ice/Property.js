@@ -7,25 +7,31 @@
 //
 // **********************************************************************
 
-var Property = function Property(pattern, deprecated, deprecatedBy)
+const Ice = require("../Ice/ModuleRegistry").Ice;
+
+Ice.Property = class
 {
-    this._pattern = pattern;
-    this._deprecated = deprecated;
-    this._deprecatedBy = deprecatedBy;
+    constructor(pattern, deprecated, deprecatedBy)
+    {
+        this._pattern = pattern;
+        this._deprecated = deprecated;
+        this._deprecatedBy = deprecatedBy;
+    }
+    
+    get pattern()
+    {
+        return this._pattern;
+    }
+
+    get deprecated()
+    {
+        return this._deprecated;
+    }
+
+    get deprecatedBy()
+    {
+        return this._deprecatedBy;
+    }
 };
 
-Object.defineProperty(Property.prototype, "pattern",{
-    get: function() { return this._pattern; }
-});
-
-Object.defineProperty(Property.prototype, "deprecated",{
-    get: function() { return this._deprecated; }
-});
-
-Object.defineProperty(Property.prototype, "deprecatedBy",{
-    get: function() { return this._deprecatedBy; }
-});
-
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.Property = Property;
 module.exports.Ice = Ice;

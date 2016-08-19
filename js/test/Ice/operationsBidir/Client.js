@@ -20,8 +20,7 @@
 
     var allTests = function(out, communicator, amd)
     {
-        return communicator.createObjectAdapter("").then(
-            function(adapter)
+        return communicator.createObjectAdapter("").then(adapter =>
             {
                 if(amd)
                 {
@@ -32,8 +31,7 @@
                     adapter.add(new MyDerivedClassI(), Ice.stringToIdentity("test"));
                 }
                 var base = communicator.stringToProxy("test:default -p 12010");
-                return base.ice_getConnection().then(
-                    function(conn)
+                return base.ice_getConnection().then(conn =>
                     {
                         conn.setAdapter(adapter);
                         return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test, true);
@@ -45,46 +43,26 @@
     {
         id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
         var communicator = Ice.initialize(id);
-        return Promise.try(
-            function()
+        return Promise.try(() =>
             {
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
                 return allTests(out, communicator, false);
             }
-        ).then(
-            function()
-            {
-                return communicator.destroy();
-            }
-        ).then(
-            function()
+        ).then(() => communicator.destroy()
+        ).then(() =>
             {
                 communicator = Ice.initialize(id);
                 out.writeLine("testing bidir callbacks with asynchronous dispatch...");
                 return allTests(out, communicator, true);
             }
-        ).then(
-            function()
-            {
-                return communicator.destroy();
-            }
-        ).then(
-            function()
+        ).then(() => communicator.destroy()
+        ).then(() =>
             {
                 communicator = Ice.initialize(id);
                 return Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
             }
-        ).then(
-            function(prx)
-            {
-                return prx.shutdown();
-            }
-        ).finally(
-            function()
-            {
-                return communicator.destroy();
-            }
-        );
+        ).then(prx => prx.shutdown()
+        ).finally(() => communicator.destroy());
     };
     exports.__test__ = run;
     exports.__runEchoServer__ = true;

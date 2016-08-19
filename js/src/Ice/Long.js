@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/Class").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
 // The Long type represents a signed 64-bit integer as two 32-bit values
 // corresponding to the high and low words.
 //
-
-var Long = Ice.Class({
-    __init__: function(high, low)
+class Long
+{
+    constructor(high, low)
     {
         if(low < 0 || low > Long.MAX_UINT32)
         {
@@ -28,12 +28,14 @@ var Long = Ice.Class({
         
         this.high = high;
         this.low = low;
-    },
-    hashCode: function()
+    }
+    
+    hashCode()
     {
         return this.low;
-    },
-    equals: function(rhs)
+    }
+
+    equals(rhs)
     {
         if(this === rhs)
         {
@@ -44,12 +46,14 @@ var Long = Ice.Class({
             return false;
         }
         return this.high === rhs.high && this.low === rhs.low;
-    },
-    toString: function()
+    }
+
+    toString()
     {
         return this.high + ":" + this.low;
-    },
-    toNumber: function()
+    }
+
+    toNumber()
     {
 
         if((this.high & Long.SIGN_MASK) !== 0)
@@ -59,7 +63,7 @@ var Long = Ice.Class({
                 return -(~this.low + 1);
             }
  
-            var high = ~this.high + 1;
+            const high = ~this.high + 1;
 
             if(high > Long.HIGH_MAX)
             {
@@ -77,7 +81,7 @@ var Long = Ice.Class({
             return (this.high * Long.HIGH_MASK) + this.low;
         }
     }
-});
+}
 
 //
 // 2^32

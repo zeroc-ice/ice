@@ -46,9 +46,16 @@ $(document).ready(
         
         function nextTest()
         {
+            var path = $("#test").val();
+            if(document.location.pathname.indexOf("/es5/") !== -1 &&
+               path.indexOf("/es5/") === -1)
+            {
+                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+            }
+
             document.location.assign(new URI()
                 .host(document.location.host)
-                .pathname($("#test").val())
+                .pathname(path)
                 .search(
                     {
                         language: $("#language").val(),
@@ -96,9 +103,16 @@ $(document).ready(
         
         function updateLocation()
         {
+            var path = $("#test").val();
+            if(document.location.pathname.indexOf("/es5/") !== -1 &&
+               path.indexOf("/es5/") === -1)
+            {
+                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+            }
+
             document.location.assign(new URI()
                 .host(document.location.host)
-                .pathname($("#test").val())
+                .pathname(path)
                 .search(
                     {
                         language: $("#language").val(),
@@ -130,6 +144,7 @@ $(document).ready(
                             next(e.data.success);
                         }
                     };
+
                     worker.postMessage(
                         {
                             type: "RunTest",
@@ -140,7 +155,8 @@ $(document).ready(
                                 defaultHost: document.location.hostname || "127.0.0.1",
                                 protocol: $("#protocol").val(),
                                 configurations: TestCases[current].configurations,
-                                files: TestCases[current].files
+                                files: TestCases[current].files,
+                                es5: document.location.pathname.indexOf("/es5/") !== -1
                             }
                         });
                 }

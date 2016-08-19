@@ -7,9 +7,11 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
-var Timer = {};
+class Timer
+{
+}
 
 Timer.setTimeout = setTimeout;
 Timer.clearTimeout = clearTimeout;

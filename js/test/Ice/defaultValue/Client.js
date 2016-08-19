@@ -196,16 +196,7 @@
 
                 out.writeLine("ok");
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
     exports.__test__ = run;

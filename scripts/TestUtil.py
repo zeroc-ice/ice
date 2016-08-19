@@ -26,6 +26,7 @@ x86 = False                     # Binary distribution is 32-bit
 global armv7l
 armv7l = False                  # Binary distribution is armv7l
 cpp11 = False                   # Binary distribution is c++11
+es5 = False                     # Use JavaScript ES5 (Babel compiled code)
 static = False                  # Static build
 global buildMode
 buildMode = None
@@ -488,6 +489,7 @@ def run(tests, root = False):
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
+          --es5                Use JavaScript ES5 (Babel compiled code)
           --static             Binary distribution is static.
           --cross=lang         Run cross language test.
           --client-home=<dir>  Run cross test clients from the given Ice source distribution.
@@ -509,7 +511,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "mode=", "cross=", "client-home=", "x64", "x86",
                                     "script", "env", "arg=", "service-dir=", "appverifier", "compact",
-                                    "winrt", "server", "mx", "c++11", "static", "controller=", "configName="])
+                                    "winrt", "server", "mx", "c++11", "es5", "static", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -581,6 +583,9 @@ def run(tests, root = False):
         elif o == "--c++11":
             global cpp11
             cpp11 = True
+        elif o == "--es5":
+            global es5
+            es5 = True
         elif o == "--static":
             global static
             static = True
@@ -591,7 +596,7 @@ def run(tests, root = False):
             global x64
             x64 = True
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--socks", "--ice-home", "--mode", "--x86", "--x64", "--c++11", "--static", "--env", \
+                  "--socks", "--ice-home", "--mode", "--x86", "--x64", "--c++11", "--es5", "--static", "--env", \
                   "--service-dir", "--appverifier", "--compact", "--winrt", \
                   "--server", "--mx", "--client-home", "--controller", "--configName"):
             arg += " " + o
@@ -998,6 +1003,7 @@ class DriverConfig:
     x64 = False
     x86 = False
     cpp11 = False
+    es5 = False
     static = False
     serviceDir = None
     mx = False
@@ -1017,6 +1023,7 @@ class DriverConfig:
         global x64
         global x86
         global cpp11
+        global es5
         global static
         global serviceDir
         global compact
@@ -1037,6 +1044,7 @@ class DriverConfig:
         self.x64 = x64
         self.x86 = x86
         self.cpp11 = cpp11
+        self.es5 = es5
         self.static = static
         self.serviceDir = serviceDir
         self.compact = compact
@@ -1223,6 +1231,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName =
         output.write(" -f \""+ exe +"\" -- ")
     elif config.lang == "js":
         output.write(nodeCmd)
+        output.write(" --harmony")
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
@@ -1436,6 +1445,8 @@ def getMirrorDir(base, mapping):
     """Get the mirror directory for the current test in the given mapping."""
     lang = getDefaultMapping()
     after = []
+    if lang == "js":
+        base = base.replace("/es5", "")
     before = base
     while len(before) > 0:
         current = os.path.basename(before)
@@ -1498,6 +1509,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
                      interpreterOptions = ""):
     lang = getDefaultMapping()
     testdir = os.getcwd()
+    
     # Setup the server.
     if lang in ["ruby", "php", "js"]:
         serverdir = getMirrorDir(testdir, "cpp")
@@ -1593,6 +1605,10 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
             sys.stdout.flush()
             if not controller:
                 cfgName = None
+            if clientLang == "js" and es5 and client.find("/es5/") == -1:
+                client = client.replace("test/Ice/", "test/Ice/es5/")
+                client = client.replace("test/Glacier2/", "test/Glacier2/es5/")
+
             client = getCommandLine(client, clientCfg, additionalClientOptions, interpreterOptions, cfgName)
             clientProc = spawnClient(client, env = clientenv, cwd = clientdir, startReader = False, lang=clientCfg.lang)
             print("ok")
@@ -1727,6 +1743,10 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
             else:
                 sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
             sys.stdout.flush()
+            
+            if clientLang == "js" and es5 and client.find("/es5/") == -1:
+                client = client.replace("test/Ice/", "test/Ice/es5/")
+
             client = getCommandLine(client, clientCfg, additionalClientOptions)
             clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
             print("ok")
@@ -1907,11 +1927,17 @@ def getTestEnv(lang, testdir):
     elif lang == "java":
         addClasspath(os.path.join(testToplevel, "java", "lib", "test.jar"), env)
     elif lang == "js":
+        if es5 and testdir.find("/es5/") == -1:
+            testdir = testdir.replace("test/Ice/", "test/Ice/es5/")
+            testdir = testdir.replace("test/Glacier2/", "test/Glacier2/es5/")
         addPathToEnv("NODE_PATH", os.path.join(testdir), env)
 
         # NodeJS is always installed locally even when testing against a binary installation
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
-            addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
+            if es5:
+                addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src", "es5"), env)
+            else:
+                addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
     if isWin32():
         if lang == "java" and javaLibraryPath:
@@ -2077,6 +2103,7 @@ def processCmdLine():
           --x86                Binary distribution is 32-bit.
           --x64                Binary distribution is 64-bit.
           --c++11              Binary distribution is c++11.
+          --es5                Use JavaScript ES5 (Babel compiled code)
           --static             Binary distribution is static.
           --env                Print important environment variables.
           --cross=lang         Run cross language test.
@@ -2096,7 +2123,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "mode=", "x86", "x64", "cross=", "client-home=", "env", \
                                "service-dir=", "appverifier", "arg=", \
-                               "compact", "winrt", "server", "mx", "c++11", "static", "controller=", "configName="])
+                               "compact", "winrt", "server", "mx", "c++11", "es5", "static", "controller=", "configName="])
     except getopt.GetoptError:
         usage()
 
@@ -2137,6 +2164,9 @@ def processCmdLine():
         elif o == "--c++11":
             global cpp11
             cpp11 = True
+        elif o == "--es5":
+            global es5
+            es5 = True
         elif o == "--static":
             global static
             static = True
@@ -2422,6 +2452,8 @@ def runTests(start, expanded, num = 0, script = False):
                     print("  exit 1")
                 print("fi")
             else:
+                if es5 and dir.find("/es5/") == -1:
+                    dir = dir.replace("test/Ice/", "test/Ice/es5/").replace("test/Glacier2/", "test/Glacier2/es5/")
                 status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
                 if status:
                     status = status if isWin32() else (status >> 8)

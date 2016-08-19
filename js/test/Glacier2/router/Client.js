@@ -25,40 +25,43 @@
     var CallbackPrx = Test.CallbackPrx;
     var CallbackReceiverPrx = Test.CallbackReceiverPrx;
 
-    var CallbackReceiverI = function()
+    class CallbackReceiverI extends Test.CallbackReceiver
     {
-        this._callback = false;
-        this._p = new Promise();
-    };
-    CallbackReceiverI.prototype = new Test.CallbackReceiver();
-    CallbackReceiverI.prototype.constructor = CallbackReceiverI;
-
-    CallbackReceiverI.prototype.callback = function(current)
-    {
-        test(!this._callback);
-        this._p.succeed();
-    };
-
-    CallbackReceiverI.prototype.callbackEx = function(current)
-    {
-        this.callback(current);
-        var ex = new Test.CallbackException();
-        ex.someValue = 3.14;
-        ex.someString = "3.14";
-        throw ex;
-    };
-
-    CallbackReceiverI.prototype.callbackOK = function()
-    {
-        var p = new Promise();
-        var self = this;
-        this._p.then(function(){
-            p.succeed();
+        constructor()
+        {
+            super();
             this._callback = false;
-            self._p = new Promise();
-        });
-        return p;
-    };
+            this._p = new Promise();
+        }
+
+
+        callback(current)
+        {
+            test(!this._callback);
+            this._p.resolve();
+        }
+
+        callbackEx(current)
+        {
+            this.callback(current);
+            var ex = new Test.CallbackException();
+            ex.someValue = 3.14;
+            ex.someString = "3.14";
+            throw ex;
+        }
+
+        callbackOK()
+        {
+            var p = new Promise();
+            this._p.then(() =>
+                {
+                    p.resolve();
+                    this._callback = false;
+                    this._p = new Promise();
+                });
+            return p;
+        }
+    }
 
     var allTests = function(out, communicator)
     {
@@ -376,7 +379,7 @@
                 test(ex instanceof Ice.LocalException);
                 out.writeLine("ok");
             }
-        );
+        ).catch(e => console.log(e));
     };
 
     var run = function(out, id)

@@ -7,12 +7,10 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Debug",
-        "../Ice/HashMap",
         "../Ice/ObjectPrx",
         "../Ice/StringUtil",
         "../Ice/Identity",
@@ -20,29 +18,29 @@ Ice.__M.require(module,
         "../Ice/LocalException"
     ]);
 
-var Debug = Ice.Debug;
-var HashMap = Ice.HashMap;
-var ObjectPrx = Ice.ObjectPrx;
-var StringUtil = Ice.StringUtil;
-var Identity = Ice.Identity;
+const Debug = Ice.Debug;
+const ObjectPrx = Ice.ObjectPrx;
+const StringUtil = Ice.StringUtil;
+const Identity = Ice.Identity;
 
 //
 // Only for use by Instance.
 //
-var ProxyFactory = Ice.Class({
-    __init__: function(instance)
+class ProxyFactory
+{
+    constructor(instance)
     {
         this._instance = instance;
 
-        var arr = this._instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
+        const arr = this._instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
         if(arr.length > 0)
         {
             this._retryIntervals = [];
 
-            for(var i = 0; i < arr.length; i++)
+            for(let i = 0; i < arr.length; i++)
             {
-                var v;
+                let v;
 
                 try
                 {
@@ -68,53 +66,42 @@ var ProxyFactory = Ice.Class({
         {
             this._retryIntervals = [ 0 ];
         }
-    },
-    stringToProxy: function(str)
-    {
-        var ref = this._instance.referenceFactory().createFromString(str, null);
-        return this.referenceToProxy(ref);
-    },
-    proxyToString: function(proxy)
-    {
-        if(proxy !== null)
-        {
-            return proxy.__reference().toString();
-        }
-        else
-        {
-            return "";
-        }
-    },
-    propertyToProxy: function(prefix)
-    {
-        var proxy = this._instance.initializationData().properties.getProperty(prefix);
-        var ref = this._instance.referenceFactory().createFromString(proxy, prefix);
-        return this.referenceToProxy(ref);
-    },
-    proxyToProperty: function(proxy, prefix)
-    {
-        if(proxy !== null)
-        {
-            return proxy.__reference().toProperty(prefix);
-        }
-        else
-        {
-            return new HashMap();
-        }
-    },
-    streamToProxy: function(s, type)
-    {
-        var ident = new Identity();
-        ident.__read(s);
+    }
 
-        var ref = this._instance.referenceFactory().createFromStream(ident, s);
-        return this.referenceToProxy(ref, type);
-    },
-    referenceToProxy: function(ref, type)
+    stringToProxy(str)
+    {
+        return this.referenceToProxy(this._instance.referenceFactory().createFromString(str, null));
+    }
+
+    proxyToString(proxy)
+    {
+        return proxy === null ? "" : proxy.__reference().toString();
+    }
+
+    propertyToProxy(prefix)
+    {
+        const proxy = this._instance.initializationData().properties.getProperty(prefix);
+        const ref = this._instance.referenceFactory().createFromString(proxy, prefix);
+        return this.referenceToProxy(ref);
+    }
+
+    proxyToProperty(proxy, prefix)
+    {
+        return proxy === null ? new Map() : proxy.__reference().toProperty(prefix);
+    }
+
+    streamToProxy(s, type)
+    {
+        const ident = new Identity();
+        ident.__read(s);
+        return this.referenceToProxy(this._instance.referenceFactory().createFromStream(ident, s), type);
+    }
+
+    referenceToProxy(ref, type)
     {
         if(ref !== null)
         {
-            var proxy = type ? new type() : new ObjectPrx();
+            const proxy = type ? new type() : new ObjectPrx();
             proxy.__setup(ref);
             return proxy;
         }
@@ -122,11 +109,12 @@ var ProxyFactory = Ice.Class({
         {
             return null;
         }
-    },
-    checkRetryAfterException: function(ex, ref, sleepInterval, cnt)
+    }
+
+    checkRetryAfterException(ex, ref, sleepInterval, cnt)
     {
-        var traceLevels = this._instance.traceLevels();
-        var logger = this._instance.initializationData().logger;
+        const traceLevels = this._instance.traceLevels();
+        const logger = this._instance.initializationData().logger;
 
         //
         // We don't retry batch requests because the exception might have caused
@@ -140,9 +128,7 @@ var ProxyFactory = Ice.Class({
 
         if(ex instanceof Ice.ObjectNotExistException)
         {
-            var one = ex;
-
-            if(ref.getRouterInfo() !== null && one.operation === "ice_add_proxy")
+            if(ref.getRouterInfo() !== null && ex.operation === "ice_add_proxy")
             {
                 //
                 // If we have a router, an ObjectNotExistException with an
@@ -176,7 +162,7 @@ var ProxyFactory = Ice.Class({
 
                 if(ref.isWellKnown())
                 {
-                    var li = ref.getLocatorInfo();
+                    const li = ref.getLocatorInfo();
                     if(li !== null)
                     {
                         li.clearCache(ref);
@@ -246,7 +232,7 @@ var ProxyFactory = Ice.Class({
         ++cnt;
         Debug.assert(cnt > 0);
 
-        var interval;
+        let interval;
         if(cnt === (this._retryIntervals.length + 1) && ex instanceof Ice.CloseConnectionException)
         {
             //
@@ -271,7 +257,7 @@ var ProxyFactory = Ice.Class({
 
         if(traceLevels.retry >= 1)
         {
-            var msg = "retrying operation call";
+            let msg = "retrying operation call";
             if(interval > 0)
             {
                 msg += " in " + interval + "ms";
@@ -285,7 +271,7 @@ var ProxyFactory = Ice.Class({
 
         return cnt;
     }
-});
+}
 
 Ice.ProxyFactory = ProxyFactory;
 module.exports.Ice = Ice;

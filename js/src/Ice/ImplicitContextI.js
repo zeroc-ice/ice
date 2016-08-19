@@ -7,25 +7,28 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/LocalException", "../Ice/Current", "../Ice/Class"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, ["../Ice/LocalException", "../Ice/Current"]);
 
-var Context = Ice.Context;
-var InitializationException = Ice.InitializationException;
+const Context = Ice.Context;
+const InitializationException = Ice.InitializationException;
 
 //
 // The base class for all ImplicitContext implementations
 //
-var ImplicitContextI = Ice.Class({
-    __init__: function()
+class ImplicitContextI
+{
+    constructor()
     {
         this._context = new Context();
-    },
-    getContext: function()
+    }
+    
+    getContext()
     {
         return new Context(this._context);
-    },
-    setContext: function(context)
+    }
+    
+    setContext(context)
     {
         if(context !== null && context.size > 0)
         {
@@ -35,8 +38,9 @@ var ImplicitContextI = Ice.Class({
         {
             this._context.clear();
         }
-    },
-    containsKey: function(key)
+    }
+
+    containsKey(key)
     {
         if(key === null)
         {
@@ -44,23 +48,25 @@ var ImplicitContextI = Ice.Class({
         }
 
         return this._context.has(key);
-    },
-    get: function(key)
+    }
+
+    get(key)
     {
         if(key === null)
         {
             key = "";
         }
 
-        var val = this._context.get(key);
+        let val = this._context.get(key);
         if(val === null)
         {
             val = "";
         }
 
         return val;
-    },
-    put: function(key, value)
+    }
+
+    put(key, value)
     {
         if(key === null)
         {
@@ -71,7 +77,7 @@ var ImplicitContextI = Ice.Class({
             value = "";
         }
 
-        var oldVal = this._context.get(key);
+        let oldVal = this._context.get(key);
         if(oldVal === null)
         {
             oldVal = "";
@@ -80,15 +86,16 @@ var ImplicitContextI = Ice.Class({
         this._context.set(key, value);
 
         return oldVal;
-    },
-    remove: function(key)
+    }
+
+    remove(key)
     {
         if(key === null)
         {
             key = "";
         }
 
-        var val = this._context.get(key);
+        let val = this._context.get(key);
         this._context.delete(key);
 
         if(val === null)
@@ -96,8 +103,9 @@ var ImplicitContextI = Ice.Class({
             val = "";
         }
         return val;
-    },
-    write: function(prxContext, os)
+    }
+
+    write(prxContext, os)
     {
         if(prxContext.size === 0)
         {
@@ -105,7 +113,7 @@ var ImplicitContextI = Ice.Class({
         }
         else
         {
-            var ctx = null;
+            let ctx = null;
             if(this._context.size === 0)
             {
                 ctx = prxContext;
@@ -113,27 +121,31 @@ var ImplicitContextI = Ice.Class({
             else
             {
                 ctx = new Context(this._context);
-                ctx.merge(prxContext);
+                for(let [key, value] of prxContext)
+                {
+                    ctx.set(key, value);
+                }
             }
             Ice.ContextHelper.write(os, ctx);
         }
     }
-});
+    
+    static create(kind)
+    {
+        if(kind.length === 0 || kind === "None")
+        {
+            return null;
+        }
+        else if(kind === "Shared")
+        {
+            return new ImplicitContextI();
+        }
+        else
+        {
+            throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
+        }
+    }
+}
 
-ImplicitContextI.create = function(kind)
-{
-    if(kind.length === 0 || kind === "None")
-    {
-        return null;
-    }
-    else if(kind === "Shared")
-    {
-        return new ImplicitContextI();
-    }
-    else
-    {
-        throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
-    }
-};
 Ice.ImplicitContextI = ImplicitContextI;
 module.exports.Ice = Ice;

@@ -26,11 +26,77 @@ function isWorker()
 
 function runTest(name, language, defaultHost, protocol, configurations, out)
 {
+    //
+    // This logger is setup to work with Web Workers and normal scripts using
+    // the received out object. With some browser like Safari using console.log
+    // method doesn't work when running inside a web worker.
+    //
+    var Logger =
+    {
+        print(message)
+        {
+            out.writeLine(message, false);
+        },
+        trace:function(category, message)
+        {
+            var s = [];
+            var d = new Date();
+            s.push("-- ");
+            s.push(this.timestamp());
+            s.push(' ');
+            s.push(this._prefix);
+            s.push(category);
+            s.push(": ");
+            s.push(message);
+            out.writeLine(s.join(""), true);
+        },
+        warning:function(message)
+        {
+            var s = [];
+            var d = new Date();
+            s.push("-! ");
+            s.push(this.timestamp());
+            s.push(' ');
+            s.push(this._prefix);
+            s.push("warning: ");
+            s.push(message);
+            out.writeLine(s.join(""), true);
+        },
+        error:function(message)
+        {
+            var s = [];
+            var d = new Date();
+            s.push("!! ");
+            s.push(this.timestamp());
+            s.push(' ');
+            s.push(this._prefix);
+            s.push("error: ");
+            s.push(message);
+            out.writeLine(s.join(""), true);
+        },
+        getPrefix: function()
+        {
+            return "";
+        },
+        cloneWithPrefix: function(prefix)
+        {
+            return Logger;
+        },
+        timestamp:function()
+        {
+            var d = new Date();
+            return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
+        }
+    };
+    
     var server, communicator;
     var id = new Ice.InitializationData();
+    id.logger = Logger;
     id.properties = Ice.createProperties();
     id.properties.setProperty("Ice.Default.Host", defaultHost);
     id.properties.setProperty("Ice.Default.Protocol", protocol);
+    //id.properties.setProperty("Ice.Trace.Protocol", "1");
+    //id.properties.setProperty("Ice.Trace.Network", "3");
 
     return Ice.Promise.try(
         function()
@@ -55,7 +121,7 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
                     configurations = [ { configName: "", desc: "default configuration" } ];
                 }
 
-                var prev = new Ice.Promise().succeed();
+                var prev = Ice.Promise.resolve();
                 configurations.forEach(
                     function(config)
                     {
@@ -101,7 +167,7 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
                                             return server.waitTestSuccess();
                                         }
                                     }
-                                ).exception(
+                                ).catch(
                                     function(ex)
                                     {
                                         if(server)
@@ -143,13 +209,9 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
         {
             return true;
         },
-        function(ex, r)
+        function(ex)
         {
             out.writeLine("");
-            if(r instanceof Ice.AsyncResult)
-            {
-                out.writeLine("exception occurred in call to " + r.operation);
-            }
             if(ex instanceof Test.Common.ServerFailedException)
             {
                 out.writeLine("Server failed to start:\n");

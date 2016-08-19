@@ -22,30 +22,31 @@
         }
     };
 
-    var ThrowerI = Class(Test.Thrower, {
-        shutdown: function(current)
+    class ThrowerI extends Test.Thrower
+    {
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-        },
+        }
 
-        supportsUndeclaredExceptions: function(current)
+        supportsUndeclaredExceptions(current)
         {
             return true;
-        },
+        }
 
-        supportsAssertException: function(current)
+        supportsAssertException(current)
         {
             return false;
-        },
+        }
 
-        throwAasA: function(a, current)
+        throwAasA(a, current)
         {
             var ex = new Test.A();
             ex.aMem = a;
             throw ex;
-        },
+        }
 
-        throwAorDasAorD: function(a, current)
+        throwAorDasAorD(a, current)
         {
             var ex;
             if(a > 0)
@@ -60,104 +61,104 @@
                 ex.dMem = a;
                 throw ex;
             }
-        },
+        }
 
-        throwBasA: function(a, b, current)
+        throwBasA(a, b, current)
         {
             this.throwBasB(a, b, current);
-        },
+        }
 
-        throwBasB: function(a, b, current)
+        throwBasB(a, b, current)
         {
             var ex = new Test.B();
             ex.aMem = a;
             ex.bMem = b;
             throw ex;
-        },
+        }
 
-        throwCasA: function(a, b, c, current)
+        throwCasA(a, b, c, current)
         {
             this.throwCasC(a, b, c, current);
-        },
+        }
 
-        throwCasB: function(a, b, c, current)
+        throwCasB(a, b, c, current)
         {
             this.throwCasC(a, b, c, current);
-        },
+        }
 
-        throwCasC: function(a, b, c, current)
+        throwCasC(a, b, c, current)
         {
             var ex = new Test.C();
             ex.aMem = a;
             ex.bMem = b;
             ex.cMem = c;
             throw ex;
-        },
+        }
 
-        throwUndeclaredA: function(a, current)
+        throwUndeclaredA(a, current)
         {
             var ex = new Test.A();
             ex.aMem = a;
             throw ex;
-        },
+        }
 
-        throwUndeclaredB: function(a, b, current)
+        throwUndeclaredB(a, b, current)
         {
             var ex = new Test.B();
             ex.aMem = a;
             ex.bMem = b;
             throw ex;
-        },
+        }
 
-        throwUndeclaredC: function(a, b, c, current)
+        throwUndeclaredC(a, b, c, current)
         {
             var ex = new Test.C();
             ex.aMem = a;
             ex.bMem = b;
             ex.cMem = c;
             throw ex;
-        },
+        }
 
-        throwLocalException: function(current)
+        throwLocalException(current)
         {
             throw new Ice.TimeoutException();
-        },
+        }
 
-        throwLocalExceptionIdempotent: function(current)
+        throwLocalExceptionIdempotent(current)
         {
             throw new Ice.TimeoutException();
-        },
+        }
 
-        throwNonIceException: function(current)
+        throwNonIceException(current)
         {
             throw new Error();
-        },
+        }
 
-        throwAssertException: function(current)
+        throwAssertException(current)
         {
             test(false);
-        },
+        }
 
-        throwMemoryLimitException: function(seq, current)
+        throwMemoryLimitException(seq, current)
         {
             return Ice.Buffer.createNative(1024 * 20); // 20KB is over the configured 10KB message size max.
-        },
+        }
 
-        throwAfterResponse: function(current)
+        throwAfterResponse(current)
         {
             //
             // Only relevant for AMD.
             //
-        },
+        }
 
-        throwAfterException: function(current)
+        throwAfterException(current)
         {
             //
             // Only relevant for AMD.
             //
             throw new Test.A();
-        },
-    });
+        }
+    }
 
     exports.ThrowerI = ThrowerI;
 }

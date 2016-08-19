@@ -12,64 +12,64 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Class = Ice.Class;
-
-    var DI = Class(Test.D, {
-        callA: function(current)
+    exports.DI = class extends Test.D
+    {
+        callA(current)
         {
             return "A";
-        },
-        callB: function(current)
+        }
+
+        callB(current)
         {
             return "B";
-        },
-        callC: function(current)
+        }
+
+        callC(current)
         {
             return "C";
-        },
-        callD: function(current)
+        }
+
+        callD(current)
         {
             return "D";
         }
-    });
+    };
 
-    exports.DI = DI;
+    exports.EmptyI = class extends Test.Empty
+    {
+    };
 
-    var EmptyI = Class(Test.Empty, {});
-
-    exports.EmptyI = EmptyI;
-
-    var FI = Class(Test.F, {
-        callE: function(current)
+    exports.FI = class extends Test.F
+    {
+        callE(current)
         {
             return "E";
-        },
-        callF: function(current)
+        }
+
+        callF(current)
         {
             return "F";
         }
-    });
+    };
 
-    exports.FI = FI;
-
-    var HI = Class(Test.H, {
-        callG: function(current)
+    exports.HI = class extends Test.H
+    {
+        callG(current)
         {
             return "G";
-        },
-        callH: function(current)
+        }
+
+        callH(current)
         {
             return "H";
-        },
-        shutdown: function(current)
+        }
+
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
         }
-    });
-
-    exports.HI = HI;
+    };
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
-

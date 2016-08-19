@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
 // Using a separate module for these constants so that ObjectPrx does

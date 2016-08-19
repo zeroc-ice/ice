@@ -14,107 +14,82 @@
 
     var Promise = Ice.Promise;
 
-    var BI = function()
+    class BI extends Test.B
     {
-        Test.B.call(this);
-    };
-
-    BI.prototype = new Test.B();
-
-    BI.prototype.ice_preMarshal = function()
-    {
-        this.preMarshalInvoked = true;
-    };
-
-    BI.prototype.ice_postUnmarshal = function()
-    {
-        this.postUnmarshalInvoked = true;
-    };
-
-    var CI = function()
-    {
-        Test.C.call(this);
-    };
-
-    CI.prototype = new Test.C();
-
-    CI.prototype.ice_preMarshal = function()
-    {
-        this.preMarshalInvoked = true;
-    };
-
-    CI.prototype.ice_postUnmarshal = function()
-    {
-        this.postUnmarshalInvoked = true;
-    };
-
-    var DI = function()
-    {
-        Test.D.call(this);
-    };
-
-    DI.prototype = new Test.D();
-
-    DI.prototype.ice_preMarshal = function()
-    {
-        this.preMarshalInvoked = true;
-    };
-
-    DI.prototype.ice_postUnmarshal = function()
-    {
-        this.postUnmarshalInvoked = true;
-    };
-
-    var EI = function()
-    {
-        Test.E.call(this, 1, "hello");
-    };
-
-    EI.prototype = new Test.E();
-
-    EI.prototype.constructor = EI;
-
-    EI.prototype.checkValues = function(current)
-    {
-        return this.i == 1 && this.s == "hello";
-    };
-
-    var FI = function(e)
-    {
-        if(e !== undefined)
+        ice_preMarshal()
         {
-            Test.F.call(this, e, e);
+            this.preMarshalInvoked = true;
         }
-    };
 
-    FI.prototype = new Test.F();
+        ice_postUnmarshal()
+        {
+            this.postUnmarshalInvoked = true;
+        }
+    }
 
-    FI.prototype.checkValues = function(current)
+    class CI extends Test.C
     {
-        return this.e1 !== null && this.e1 === this.e2;
-    };
+        ice_preMarshal()
+        {
+            this.preMarshalInvoked = true;
+        }
 
-    var HI = function()
+        ice_postUnmarshal()
+        {
+            this.postUnmarshalInvoked = true;
+        }
+    }
+
+    class DI extends Test.D
     {
-        Test.H.call(this);
-    };
+        ice_preMarshal()
+        {
+            this.preMarshalInvoked = true;
+        }
 
-    HI.prototype = new Test.H();
-    HI.prototype.constructor = HI;
+        ice_postUnmarshal()
+        {
+            this.postUnmarshalInvoked = true;
+        }
+    }
 
-    var II = function()
+    class EI extends Test.E
     {
-        Test.I.call(this);
-    };
-    II.prototype = new Test.I();
-    II.prototype.constructor = II;
+        constructor()
+        {
+            super(1, "hello");
+        }
 
-    var JI = function()
+        checkValues(current)
+        {
+            return this.i == 1 && this.s == "hello";
+        }
+    }
+
+    class FI extends Test.F
     {
-        Test.J.call(this);
-    };
-    JI.prototype = new Test.J();
-    JI.prototype.constructor = JI;
+        constructor(e)
+        {
+            super(e, e);
+        }
+
+        checkValues(current)
+        {
+            return this.e1 !== null && this.e1 === this.e2;
+        }
+    }
+
+    class HI extends Test.H
+    {
+    }
+
+    class II extends Test.I
+    {
+    }
+
+    class JI extends Test.J
+    {
+    }
 
     function MyValueFactory(type)
     {
@@ -146,23 +121,18 @@
         return null;
     }
 
-    var MyObjectFactory = function()
+    class MyObjectFactory extends Ice.ObjectFactory
     {
-        Ice.ObjectFactory.call(this);
-    };
 
-    MyObjectFactory.prototype = new Ice.ObjectFactory();
+        create(type)
+        {
+            return null;
+        }
 
-    MyObjectFactory.prototype.constructor = MyObjectFactory;
-
-    MyObjectFactory.prototype.create = function(type)
-    {
-        return null;
-    };
-
-    MyObjectFactory.prototype.destroy = function()
-    {
-    };
+        destroy()
+        {
+        }
+    }
 
     var allTests = function(out, communicator)
     {
@@ -179,7 +149,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -210,22 +180,19 @@
                 out.write("testing checked cast... ");
                 return Test.InitialPrx.checkedCast(base);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 initial = obj;
                 test(initial !== null);
                 test(initial.equals(base));
                 out.writeLine("ok");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("getting B1... ");
                 return initial.getB1();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 b1 = obj;
                 test(b1 !== null);
@@ -233,8 +200,7 @@
                 out.write("getting B2... ");
                 return initial.getB2();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 b2 = obj;
                 test(b2 !== null);
@@ -242,8 +208,7 @@
                 out.write("getting C... ");
                 return initial.getC();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 c = obj;
                 test(c !== null);
@@ -251,15 +216,13 @@
                 out.write("getting D... ");
                 return initial.getD();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 d = obj;
                 test(d !== null);
                 out.writeLine("ok");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("checking consistency... ");
                 test(b1 !== b2);
@@ -293,9 +256,9 @@
 
                 return initial.getAll();
             }
-        ).then(
-            function(b1, b2, c, d)
+        ).then(r =>
             {
+                var [b1, b2, c, d] = r;
                 test(b1);
                 test(b2);
                 test(c);
@@ -332,14 +295,12 @@
                 out.write("testing protected members... ");
                 return initial.getE();
             }
-        ).then(
-            function(e)
+        ).then(e =>
             {
                 test(e.checkValues());
                 return initial.getF();
             }
-        ).then(
-            function(f)
+        ).then(f =>
             {
                 test(f.checkValues());
                 test(f.e2.checkValues());
@@ -347,22 +308,19 @@
                 out.write("getting I, J and H... ");
                 return initial.getI();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 i = obj;
                 test(i);
                 return initial.getJ();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 j = obj;
                 test(j);
                 return initial.getH();
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 h = obj;
                 test(h);
@@ -373,8 +331,7 @@
                                                  new Test.A1("a3"),
                                                  new Test.A1("a4")));
             }
-        ).then(
-            function(d1)
+        ).then(d1 =>
             {
                 test(d1.a1.name == "a1");
                 test(d1.a2.name == "a2");
@@ -384,12 +341,8 @@
                 out.write("throw EDerived... ");
                 return initial.throwEDerived();
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
+        ).then(() => test(false),
+            ex =>
             {
                 test(ex instanceof Test.EDerived);
                 test(ex.a1.name == "a1");
@@ -400,39 +353,29 @@
                 out.write("setting I... ");
                 return initial.setI(i);
             }
-        ).then(
-            function()
-            {
-                return initial.setI(j);
-            }
-        ).then(
-            function()
-            {
-                return initial.setI(h);
-            }
-        ).then(
-            function()
+        ).then(() => initial.setI(j)
+        ).then(() => initial.setI(h)
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing sequences... ");
                 return initial.opBaseSeq([]);
             }
-        ).then(
-            function(retS, outS)
+        ).then(r =>
             {
+                var [retS, outS] = r;
                 return initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
             }
-        ).then(
-            function(retS, outS)
+        ).then(r =>
             {
+                var [retS, outS] = r;
                 test(retS.length === 1 && outS.length === 1);
                 out.writeLine("ok");
                 out.write("testing compact ID... ");
 
                 return initial.getCompact();
             }
-        ).then(
-            function(compact)
+        ).then(compact =>
             {
                 test(compact !== null);
                 out.writeLine("ok");
@@ -444,54 +387,42 @@
                 test(uoet !== null);
                 return uoet.op();
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 test(false);
             },
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.UnexpectedObjectException);
                 test(ex.type == "::Test::AlsoEmpty");
                 test(ex.expectedType == "::Test::Empty");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing inner modules... ");
                 return initial.getInnerA();
             }
-        ).then(
-            function(innerA)
+        ).then(innerA =>
             {
                 test(innerA instanceof Test.Inner.A);
                 test(innerA.theA instanceof Test.B);
                 return initial.getInnerSubA();
             }
-        ).then(
-            function(innerA)
+        ).then(innerA =>
             {
                 test(innerA instanceof Test.Inner.Sub.A);
                 test(innerA.theA instanceof Test.Inner.A);
                 return initial.throwInnerEx();
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
+        ).then(() => test(false),
+            ex =>
             {
                 test(ex.reason == "Inner::Ex");
                 return initial.throwInnerSubEx();
             }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
+        ).then(() => test(false),
+            ex =>
             {
                 test(ex.reason == "Inner::Sub::Ex");
                 out.writeLine("ok");
@@ -505,33 +436,14 @@
 
                 return initial.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c);
-            }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
+        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

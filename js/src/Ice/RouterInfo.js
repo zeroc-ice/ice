@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/ArrayUtil",
         "../Ice/Debug",
         "../Ice/HashMap",
@@ -19,13 +18,13 @@ Ice.__M.require(module,
         "../Ice/Exception"
     ]);
 
-var ArrayUtil = Ice.ArrayUtil;
-var Debug = Ice.Debug;
-var HashMap = Ice.HashMap;
-var Promise = Ice.Promise;
+const ArrayUtil = Ice.ArrayUtil;
+const Debug = Ice.Debug;
+const HashMap = Ice.HashMap;
 
-var RouterInfo = Ice.Class({
-    __init__: function(router)
+class RouterInfo
+{
+    constructor(router)
     {
         this._router = router;
 
@@ -36,15 +35,17 @@ var RouterInfo = Ice.Class({
         this._adapter = null;
         this._identities = new HashMap(HashMap.compareEquals); // Set<Identity> = Map<Identity, 1>
         this._evictedIdentities = [];
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
         this._clientEndpoints = [];
         this._serverEndpoints = [];
         this._adapter = null;
         this._identities.clear();
-    },
-    equals: function(rhs)
+    }
+
+    equals(rhs)
     {
         if(this === rhs)
         {
@@ -57,59 +58,51 @@ var RouterInfo = Ice.Class({
         }
 
         return false;
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         return this._router.hashCode();
-    },
-    getRouter: function()
+    }
+
+    getRouter()
     {
         //
         // No mutex lock necessary, _router is immutable.
         //
         return this._router;
-    },
-    getClientEndpoints: function()
+    }
+
+    getClientEndpoints()
     {
-        var promise = new Promise();
+        const promise = new Ice.Promise();
 
         if(this._clientEndpoints !== null)
         {
-            promise.succeed(this._clientEndpoints);
+            promise.resolve(this._clientEndpoints);
         }
         else
         {
-            var self = this;
-            this._router.getClientProxy().then(
-                function(clientProxy)
-                {
-                    self.setClientEndpoints(clientProxy, promise);
-                }).exception(
-                    function(ex)
-                    {
-                        promise.fail(ex);
-                    });
+            this._router.getClientProxy().then(proxy => this.setClientEndpoints(proxy, promise)).catch(promise.reject);
         }
 
         return promise;
-    },
-    getServerEndpoints: function()
+    }
+    
+
+    getServerEndpoints()
     {
         if(this._serverEndpoints !== null) // Lazy initialization.
         {
-            return new Promise().succeed(this._serverEndpoints);
+            return Ice.Promise.resolve(this._serverEndpoints);
         }
         else
         {
-            var self = this;
-            return this._router.getServerProxy().then(
-                function(proxy)
-                {
-                    return self.setServerEndpoints(proxy);
-                });
+            return this._router.getServerProxy().then(proxy => this.setServerEndpoints(proxy));
         }
-    },
-    addProxy: function(proxy)
+    }
+
+    addProxy(proxy)
     {
         Debug.assert(proxy !== null);
 
@@ -118,31 +111,34 @@ var RouterInfo = Ice.Class({
             //
             // Only add the proxy to the router if it's not already in our local map.
             //
-            return new Promise().succeed();
+            return Ice.Promise.resolve();
         }
         else
         {
-            var self = this;
             return this._router.addProxies([ proxy ]).then(
-                function(evictedProxies)
+                evictedProxies =>
                 {
-                    self.addAndEvictProxies(proxy, evictedProxies);
+                    this.addAndEvictProxies(proxy, evictedProxies);
                 });
         }
-    },
-    setAdapter: function(adapter)
+    }
+
+    setAdapter(adapter)
     {
         this._adapter = adapter;
-    },
-    getAdapter: function()
+    }
+
+    getAdapter()
     {
         return this._adapter;
-    },
-    clearCache: function(ref)
+    }
+
+    clearCache(ref)
     {
         this._identities.delete(ref.getIdentity());
-    },
-    setClientEndpoints: function(clientProxy, promise)
+    }
+
+    setClientEndpoints(clientProxy, promise)
     {
         if(this._clientEndpoints === null)
         {
@@ -152,7 +148,7 @@ var RouterInfo = Ice.Class({
                 // If getClientProxy() return nil, use router endpoints.
                 //
                 this._clientEndpoints = this._router.__reference().getEndpoints();
-                promise.succeed(this._clientEndpoints);
+                promise.resolve(this._clientEndpoints);
             }
             else
             {
@@ -163,26 +159,21 @@ var RouterInfo = Ice.Class({
                 // router, we must use the same timeout as the already
                 // existing connection.
                 //
-                var self = this;
                 this._router.ice_getConnection().then(
-                    function(con)
+                    con =>
                     {
-                        var proxy = clientProxy.ice_timeout(con.timeout());
-                        self._clientEndpoints = proxy.__reference().getEndpoints();
-                        promise.succeed(self._clientEndpoints);
-                    }).exception(
-                        function(ex)
-                        {
-                            promise.fail(ex);
-                        });
+                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout()).__reference().getEndpoints();
+                        promise.resolve(this._clientEndpoints);
+                    }).catch(promise.reject);
             }
         }
         else
         {
-            promise.succeed(this._clientEndpoints);
+            promise.resolve(this._clientEndpoints);
         }
-    },
-    setServerEndpoints: function(serverProxy)
+    }
+
+    setServerEndpoints(serverProxy)
     {
         if(serverProxy === null)
         {
@@ -192,16 +183,16 @@ var RouterInfo = Ice.Class({
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         this._serverEndpoints = serverProxy.__reference().getEndpoints();
         return this._serverEndpoints;
-    },
-    addAndEvictProxies: function(proxy, evictedProxies)
+    }
+
+    addAndEvictProxies(proxy, evictedProxies)
     {
         //
         // Check if the proxy hasn't already been evicted by a
         // concurrent addProxies call. If it's the case, don't
         // add it to our local map.
         //
-        var index = ArrayUtil.indexOf(this._evictedIdentities, proxy.ice_getIdentity(),
-                                    function(i1, i2) { return i1.equals(i2); });
+        const index = this._evictedIdentities.findIndex(e => e.equals(proxy.ice_getIdentity()));
         if(index >= 0)
         {
             this._evictedIdentities.splice(index, 1);
@@ -218,12 +209,12 @@ var RouterInfo = Ice.Class({
         //
         // We also must remove whatever proxies the router evicted.
         //
-        for(var i = 0; i < evictedProxies.length; ++i)
-        {
-            this._identities.delete(evictedProxies[i].ice_getIdentity());
-        }
+        evictedProxies.forEach(proxy =>
+            {
+                this._identities.delete(proxy.ice_getIdentity());
+            });
     }
-});
+}
 
 Ice.RouterInfo = RouterInfo;
 module.exports.Ice = Ice;

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
         "../Ice/StringUtil", 
@@ -16,9 +16,9 @@ Ice.__M.require(module,
         "../Ice/Buffer"
     ]);
 
-var StringUtil = Ice.StringUtil;
+const StringUtil = Ice.StringUtil;
 
-var Protocol = {};
+const Protocol = {};
 
 Ice.Encoding_1_0 = new Ice.EncodingVersion(1, 0);
 Ice.Encoding_1_1 = new Ice.EncodingVersion(1, 1);
@@ -267,56 +267,48 @@ module.exports.Ice = Ice;
 
 function stringToMajor(str)
 {
-    var pos = str.indexOf('.');
+    const pos = str.indexOf('.');
     if(pos === -1)
     {
         throw new Ice.VersionParseException("malformed version value `" + str + "'");
     }
-        
-    var majStr = str.substring(0, pos);
-    var majVersion;
+
     try
     {
-        majVersion = StringUtil.toInt(majStr);
+        const majVersion = StringUtil.toInt(str.substring(0, pos));
+        if(majVersion < 1 || majVersion > 255)
+        {
+            throw new Ice.VersionParseException("range error in version `" + str + "'");
+        }
+        return majVersion;
     }
     catch(ex)
     {
         throw new Ice.VersionParseException("invalid version value `" + str + "'");
     }
-    
-    if(majVersion < 1 || majVersion > 255)
-    {
-        throw new Ice.VersionParseException("range error in version `" + str + "'");
-    }
-
-    return majVersion;
 }
 
 function stringToMinor(str)
 {
-    var pos = str.indexOf('.');
+    const pos = str.indexOf('.');
     if(pos === -1)
     {
         throw new Ice.VersionParseException("malformed version value `" + str + "'");
     }
-        
-    var minStr = str.substring(pos + 1);
-    var minVersion;
+
     try
     {
-        minVersion = StringUtil.toInt(minStr);
+        const minVersion = StringUtil.toInt(str.substring(pos + 1));
+        if(minVersion < 0 || minVersion > 255)
+        {
+            throw new Ice.VersionParseException("range error in version `" + str + "'");
+        }
+        return minVersion;
     }
     catch(ex)
     {
         throw new Ice.VersionParseException("invalid version value `" + str + "'");
     }
-    
-    if(minVersion < 0 || minVersion > 255)
-    {
-        throw new Ice.VersionParseException("range error in version `" + str + "'");
-    }
-
-    return minVersion;
 }
 
 function majorMinorToString(major, minor)

@@ -27,7 +27,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -144,73 +144,73 @@
                 return proxy.opByte(Test.ByteEnum.benum1);
             }
         ).then(
-            function(r, b1)
+            function(r)
             {
-                test(r === b1);
-                test(r === Test.ByteEnum.benum1);
+                var [ret, b1] = r;
+                test(ret === b1);
+                test(ret === Test.ByteEnum.benum1);
                 return proxy.opByte(Test.ByteEnum.benum11);
             }
         ).then(
-            function(r, b11)
+            function(r)
             {
-                test(r === b11);
-                test(r === Test.ByteEnum.benum11);
+                var [ret, b11] = r;
+                test(ret === b11);
+                test(ret === Test.ByteEnum.benum11);
                 return proxy.opShort(Test.ShortEnum.senum1);
             }
         ).then(
-            function(r, s1)
+            function(r)
             {
-                test(r === s1);
-                test(r === Test.ShortEnum.senum1);
+                var [ret, s1] = r;
+                test(ret === s1);
+                test(ret === Test.ShortEnum.senum1);
                 return proxy.opShort(Test.ShortEnum.senum11);
             }
         ).then(
-            function(r, s11)
+            function(r)
             {
-                test(r === s11);
-                test(r === Test.ShortEnum.senum11);
+                var [ret, s11] = r;
+                test(ret === s11);
+                test(ret === Test.ShortEnum.senum11);
                 return proxy.opInt(Test.IntEnum.ienum1);
             }
         ).then(
-            function(r, i1)
+            function(r)
             {
-                test(r === i1);
-                test(r === Test.IntEnum.ienum1);
+                var [ret, i1] = r;
+                test(ret === i1);
+                test(ret === Test.IntEnum.ienum1);
                 return proxy.opInt(Test.IntEnum.ienum11);
             }
         ).then(
-            function(r, i11)
+            function(r)
             {
-                test(r === i11);
-                test(r === Test.IntEnum.ienum11);
+                var [ret, i11] = r;
+                test(ret === i11);
+                test(ret === Test.IntEnum.ienum11);
                 return proxy.opInt(Test.IntEnum.ienum12);
             }
         ).then(
-            function(r, i12)
+            function(r)
             {
-                test(r === i12);
-                test(r === Test.IntEnum.ienum12);
+                var [ret, i12] = r;
+                test(ret === i12);
+                test(ret === Test.IntEnum.ienum12);
                 return proxy.opSimple(Test.SimpleEnum.green);
             }
         ).then(
-            function(r, g)
+            function(r)
             {
-                test(r === g);
-                test(r === Test.SimpleEnum.green);
+                var [ret, g] = r;
+                test(ret === g);
+                test(ret === Test.SimpleEnum.green);
 
                 out.writeLine("ok");
                 return proxy.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
+        
         return p;
     };
 
@@ -226,8 +226,10 @@
             function()
             {
                 return c.destroy();
-            }
-        );
+            }).catch(e =>
+            {
+               console.log(e); 
+            });
     };
     exports.__test__ = run;
     exports.__runServer__ = true;

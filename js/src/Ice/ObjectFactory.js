@@ -7,15 +7,20 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/Class").Ice;
-Ice.ObjectFactory = Ice.Class({
-    create: function(type)
-    {
-        throw new Error("not implemented");
-    },
-    destroy: function()
+const Ice = require("../Ice/ModuleRegistry").Ice;
+
+class ObjectFactory
+{
+    create(type)
     {
         throw new Error("not implemented");
     }
-});
+
+    destroy()
+    {
+        throw new Error("not implemented");
+    }
+}
+
+Ice.ObjectFactory = ObjectFactory;
 module.exports.Ice = Ice;

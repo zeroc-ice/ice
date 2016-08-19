@@ -33,14 +33,13 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
         };
 
-        Promise.try(
-            function()
+        Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "initial:default -p 12010";
@@ -56,8 +55,7 @@
                 out.write("testing checked cast... ");
                 return Test.InitialPrx.checkedCast(base);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 initial = obj;
                 test(initial !== null);
@@ -67,20 +65,17 @@
 
                 return initial.pingPong(new Test.OneOptional());
             }
-        ).then(
-            function(oo4)
+        ).then(oo4 =>
             {
                 test(oo4.a === undefined);
                 return initial.pingPong(oo1);
             }
-        ).then(
-            function(oo5)
+        ).then(oo5 =>
             {
                 test(oo5.a === oo1.a);
                 return initial.pingPong(new Test.MultiOptional());
             }
-        ).then(
-            function(mo4)
+        ).then(mo4 =>
             {
                 test(mo4.a === undefined);
                 test(mo4.b === undefined);
@@ -132,9 +127,9 @@
                 mo1.k = mo1;
                 mo1.bs = Ice.Buffer.createNative([5]);
                 mo1.ss = ["test", "test2"];
-                mo1.iid = new Ice.HashMap();
+                mo1.iid = new Map();
                 mo1.iid.set(4, 3);
-                mo1.sid = new Ice.HashMap();
+                mo1.sid = new Map();
                 mo1.sid.set("test", 10);
                 mo1.fs = new Test.FixedStruct();
                 mo1.fs.m = 78;
@@ -148,23 +143,22 @@
                 mo1.oos = [oo1];
                 mo1.oops = [Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))];
 
-                mo1.ied = new Ice.HashMap();
+                mo1.ied = new Map();
                 mo1.ied.set(4, Test.MyEnum.MyEnumMember);
-                mo1.ifsd = new Ice.HashMap();
+                mo1.ifsd = new Map();
                 mo1.ifsd.set(4, mo1.fs);
-                mo1.ivsd = new Ice.HashMap();
+                mo1.ivsd = new Map();
                 mo1.ivsd.set(5, mo1.vs);
-                mo1.iood = new Ice.HashMap();
+                mo1.iood = new Map();
                 mo1.iood.set(5, new Test.OneOptional(15));
-                mo1.ioopd = new Ice.HashMap();
+                mo1.ioopd = new Map();
                 mo1.ioopd.set(5, Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test")));
 
                 mo1.bos = [false, true, false];
 
                 return initial.pingPong(mo1);
             }
-        ).then(
-            function(mo5)
+        ).then(mo5 =>
             {
                 test(mo1.a == mo5.a);
                 test(mo1.b == mo5.b);
@@ -217,8 +211,7 @@
 
                 return initial.pingPong(mo6);
             }
-        ).then(
-            function(mo7)
+        ).then(mo7 =>
             {
                 test(mo7.a === undefined);
                 test(mo7.b == mo1.b);
@@ -274,8 +267,7 @@
 
                 return initial.pingPong(mo8);
             }
-        ).then(
-            function(mo9)
+        ).then(mo9 =>
             {
                 test(mo9.a == mo1.a);
                 test(mo9.b === undefined);
@@ -316,31 +308,17 @@
                 initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
                 var oo = new Test.OneOptional(53);
 
-                return initial.sendOptionalClass(true, oo).then(
-                        function()
-                        {
-                            return initial2.sendOptionalClass(true, oo);
-                        }
-                    ).then(
-                        function()
-                        {
-                            return initial.returnOptionalClass(true);
-                        }
-                    ).then(
-                        function(oo1)
+                return initial.sendOptionalClass(true, oo)
+                     .then(() => initial2.sendOptionalClass(true, oo)
+                    ).then(() => initial.returnOptionalClass(true)
+                    ).then(oo1 =>
                         {
                             test(oo1 !== undefined && oo1.a == 53);
                             return initial2.returnOptionalClass(true);
                         }
-                    ).then(
-                        function(oo1)
-                        {
-                            test(oo1 === undefined);
-                        }
-                    );
+                    ).then(oo1 => test(oo1 === undefined));
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 var g = new Test.G();
                 g.gg1Opt = new Test.G1("gg1Opt");
@@ -349,22 +327,19 @@
                 g.gg1 = new Test.G1("gg1");
                 return initial.opG(g);
             }
-        ).then(
-            function(g)
+        ).then(g =>
             {
                 test(g.gg1Opt.a == "gg1Opt");
                 test(g.gg2.a.equals(new Ice.Long(0, 10)));
                 test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
                 test(g.gg1.a == "gg1");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 var init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
                 return init2.opVoid(5, "test");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.writeLine("ok");
                 out.write("testing marshaling of large containers with fixed size elements... ");
@@ -380,15 +355,14 @@
                     mc.fss[i] = new Test.FixedStruct();
                 }
 
-                mc.ifsd = new Ice.HashMap();
+                mc.ifsd = new Map();
                 for(i = 0; i < 300; ++i)
                 {
                     mc.ifsd.set(i, new Test.FixedStruct());
                 }
                 return initial.pingPong(mc);
             }
-        ).then(
-            function(mc)
+        ).then(mc =>
             {
                 test(mc.bs.length == 1000);
                 test(mc.shs.length == 300);
@@ -399,8 +373,7 @@
                 out.write("testing tag marshaling... ");
                 return initial.pingPong(new Test.B());
             }
-        ).then(
-            function(b)
+        ).then(b =>
             {
                 test(b.ma === undefined);
                 test(b.mb === undefined);
@@ -413,8 +386,7 @@
 
                 return initial.pingPong(b);
             }
-        ).then(
-            function(b)
+        ).then(b =>
             {
                 test(b.ma == 10);
                 test(b.mb == 11);
@@ -429,8 +401,7 @@
                 f.ae = f.af;
                 return initial.pingPong(f);
             }
-        ).then(
-            function(f)
+        ).then(f =>
             {
                 test(f.ae === f.af);
 
@@ -439,8 +410,7 @@
 
                 return initial.pingPong(new Test.WD());
             }
-        ).then(
-            function(wd)
+        ).then(wd =>
             {
                 test(wd.a == 5);
                 test(wd.s == "test");
@@ -448,8 +418,7 @@
                 wd.s = undefined;
                 return initial.pingPong(wd);
             }
-        ).then(
-            function(wd)
+        ).then(wd =>
             {
                 test(wd.a === undefined);
                 test(wd.s === undefined);
@@ -459,231 +428,231 @@
 
                 return initial.opByte(); // same as initial.opByte(undefined);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opByte(56);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === 56);
                 test(p2 === 56);
                 return initial.opBool();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opBool(true);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === true);
                 test(p2 === true);
                 return initial.opShort();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opShort(56);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === 56);
                 test(p2 === 56);
                 return initial.opInt();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opInt(56);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === 56);
                 test(p2 === 56);
                 return initial.opLong();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opLong(new Ice.Long(0, 56));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.equals(new Ice.Long(0, 56)));
                 test(p2.equals(new Ice.Long(0, 56)));
                 return initial.opFloat();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opFloat(1.0);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === 1.0);
                 test(p2 === 1.0);
                 return initial.opDouble();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opDouble(1.0);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === 1.0);
                 test(p2 === 1.0);
                 return initial.opString();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opString("test");
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === "test");
                 test(p2 === "test");
                 return initial.opMyEnum();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opMyEnum(Test.MyEnum.MyEnumMember);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === Test.MyEnum.MyEnumMember);
                 test(p2 === Test.MyEnum.MyEnumMember);
                 return initial.opMyEnum(null); // Test null enum
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === Test.MyEnum.MyEnumMember);
                 test(p2 === Test.MyEnum.MyEnumMember);
                 return initial.opSmallStruct();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opSmallStruct(new Test.SmallStruct(56));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.equals(new Test.SmallStruct(56)));
                 test(p2.equals(new Test.SmallStruct(56)));
                 return initial.opSmallStruct(null); // Test null struct
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.equals(new Test.SmallStruct(0)));
                 test(p2.equals(new Test.SmallStruct(0)));
                 return initial.opFixedStruct();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opFixedStruct(new Test.FixedStruct(56));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.equals(new Test.FixedStruct(56)));
                 test(p2.equals(new Test.FixedStruct(56)));
 
                 return initial.opVarStruct();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opVarStruct(new Test.VarStruct("test"));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.equals(new Test.VarStruct("test")));
                 test(p2.equals(new Test.VarStruct("test")));
                 return initial.opOneOptional();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opOneOptional(new Test.OneOptional(58));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === p2);
                 test(p2.a === 58);
                 return initial.opOneOptionalProxy();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 return initial.opOneOptionalProxy(
                     Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test")));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 var p3 = Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"));
                 test(p1.equals(p3));
                 test(p2.equals(p3));
                 return initial.opByteSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 56; }
                 return initial.opByteSeq(Ice.Buffer.createNative(data));
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -693,18 +662,18 @@
                 }
                 return initial.opBoolSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = true; }
                 return initial.opBoolSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -714,18 +683,18 @@
                 }
                 return initial.opShortSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 56; }
                 return initial.opShortSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -735,18 +704,18 @@
                 }
                 return initial.opIntSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 56; }
                 return initial.opIntSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -756,18 +725,18 @@
                 }
                 return initial.opLongSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = new Ice.Long(0, 56); }
                 return initial.opLongSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -777,18 +746,18 @@
                 }
                 return initial.opFloatSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 1.0; }
                 return initial.opFloatSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -798,18 +767,18 @@
                 }
                 return initial.opDoubleSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 1.0; }
                 return initial.opDoubleSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -819,18 +788,18 @@
                 }
                 return initial.opStringSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = "test1"; }
                 return initial.opStringSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.length === 100);
                 test(p2.length === 100);
                 for(var i = 0; i < 100; ++i)
@@ -840,18 +809,18 @@
                 }
                 return initial.opSmallStructSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = new Test.SmallStruct(); }
                 return initial.opSmallStructSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 var s = new Test.SmallStruct();
                 test(p1.length === 100);
                 test(p2.length === 100);
@@ -862,18 +831,18 @@
                 }
                 return initial.opFixedStructSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = new Test.FixedStruct(); }
                 return initial.opFixedStructSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 var s = new Test.FixedStruct();
                 test(p1.length === 100);
                 test(p2.length === 100);
@@ -884,18 +853,18 @@
                 }
                 return initial.opVarStructSeq();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = new Test.VarStruct(""); }
                 return initial.opVarStructSeq(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 var s = new Test.VarStruct("");
                 test(p1.length === 100);
                 test(p2.length === 100);
@@ -906,51 +875,51 @@
                 }
                 return initial.opIntIntDict();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
-                var data = new Ice.HashMap();
+                var data = new Map();
                 data.set(1, 2);
                 data.set(2, 3);
                 return initial.opIntIntDict(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
-                test(p1.equals(p2));
+                var [p1, p2] = r;
+                test(Ice.MapUtil.equals(p1, p2));
                 return initial.opStringIntDict();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
-                var data = new Ice.HashMap();
+                var data = new Map();
                 data.set("1", 1);
                 data.set("2", 2);
                 return initial.opStringIntDict(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
-                test(p1.equals(p2));
+                var [p1, p2] = r;
+                test(Ice.MapUtil.equals(p1, p2));
                 return initial.opIntOneOptionalDict();
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
-                var data = new Ice.HashMap();
+                var data = new Map();
                 data.set(1, new Test.OneOptional(58));
                 data.set(2, new Test.OneOptional(59));
                 return initial.opIntOneOptionalDict(data);
             }
-        ).then(
-            function(p1, p2)
+        ).then(r =>
             {
+                var [p1, p2] = r;
                 test(p1.get(1).a === 58 && p2.get(2).a === 59);
 
                 out.writeLine("ok");
@@ -960,7 +929,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Test.OptionalException);
                 test(ex.a === undefined);
@@ -971,7 +940,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Test.OptionalException);
                 test(ex.a === 30);
@@ -981,7 +950,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Test.DerivedException);
                 test(ex.a === undefined);
@@ -993,7 +962,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Test.DerivedException);
                 test(ex.a === 30);
@@ -1004,17 +973,7 @@
 
                 out.writeLine("ok");
                 return initial.shutdown();
-            }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+            }).then(p.resolve, p.reject);
 
         return p;
     };
@@ -1022,17 +981,7 @@
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c, Test);
-            }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
+        return Promise.try(() => allTests(out, c, Test)).finally(() => c.destroy());
     };
     exports.__clientAllTests__ = allTests;
     exports.__test__ = run;

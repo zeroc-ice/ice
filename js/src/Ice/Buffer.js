@@ -7,46 +7,42 @@
 //
 // **********************************************************************
 
-//
-// Ice.Buffer implementation to be used by Node.js, it uses node Buffer
-// as the store.
-//
+const Ice = require("../Ice/Long").Ice;
+const Long = Ice.Long;
+
+const __BufferOverflowException__ = "BufferOverflowException";
+const __BufferUnderflowException__ = "BufferUnderflowException";
+const __IndexOutOfBoundsException__ = "IndexOutOfBoundsException";
 
 //
-// Define Node.Buffer as an alias to NodeJS global Buffer type,
-// that allow us to refer to Ice.Buffer as Buffer in this file.
+// Buffer implementation to be used by web browsers, it uses ArrayBuffer as
+// the store.
 //
-var Node = { Buffer: global.Buffer };
-
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Long", "../Ice/Class"]);
-
-var Long = Ice.Long;
-
-var __BufferOverflowException__ = "BufferOverflowException";
-var __BufferUnderflowException__ = "BufferUnderflowException";
-var __IndexOutOfBoundsException__ = "IndexOutOfBoundsException";
-
-var Buffer = Ice.Class({
-    __init__: function(buffer)
+class Buffer
+{
+    constructor(buffer)
     {
         if(buffer !== undefined)
         {
             this.b = buffer;
+            this.v = new DataView(this.b);
         }
         else
         {
-            this.b = null;
+            this.b = null; // ArrayBuffer
+            this.v = null; // DataView
         }
         this._position = 0;
         this._limit = 0;
         this._shrinkCounter = 0;
-    },
-    empty: function()
+    }
+
+    empty()
     {
         return this._limit === 0;
-    },
-    resize: function(n)
+    }
+
+    resize(n)
     {
         if(n === 0)
         {
@@ -57,28 +53,32 @@ var Buffer = Ice.Class({
             this.reserve(n);
         }
         this._limit = n;
-    },
-    clear: function()
+    }
+
+    clear()
     {
         this.b = null;
+        this.v = null;
         this._position = 0;
         this._limit = 0;
-    },
+    }
+
     //
     // Call expand(n) to add room for n additional bytes. Note that expand()
     // examines the current position of the buffer first; we don't want to
     // expand the buffer if the caller is writing to a location that is
     // already in the buffer.
     //
-    expand: function(n)
+    expand(n)
     {
         var sz = this.capacity === 0 ? n : this._position + n;
         if(sz > this._limit)
         {
             this.resize(sz);
         }
-    },
-    reset: function()
+    }
+
+    reset()
     {
         if(this._limit > 0 && this._limit * 2 < this.capacity)
         {
@@ -100,331 +100,333 @@ var Buffer = Ice.Class({
         }
         this._limit = 0;
         this._position = 0;
-    },
-    reserve: function(n)
+    }
+
+    reserve(n)
     {
-        var b, capacity;
         if(n > this.capacity)
         {
-            capacity = Math.max(n, 2 * this.capacity);
+            var capacity = Math.max(n, 2 * this.capacity);
             capacity = Math.max(1024, capacity);
-            if(this.b === null)
+            if(!this.b)
             {
-                this.b = new Node.Buffer(capacity);
+                this.b = new ArrayBuffer(capacity);
             }
             else
             {
-                b = new Node.Buffer(capacity);
-                this.b.copy(b);
-                this.b = b;
+                var b = new Uint8Array(capacity);
+                b.set(new Uint8Array(this.b));
+                this.b = b.buffer;
             }
+            this.v = new DataView(this.b);
         }
         else if(n < this.capacity)
         {
             this.b = this.b.slice(0, this.capacity);
+            this.v = new DataView(this.b);
         }
         else
         {
             return;
         }
-    },
-    put: function(v)
+    }
+
+    put(v)
     {
         if(this._position === this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeUInt8(v, this._position, true);
+        this.v.setUint8(this._position, v);
         this._position++;
-    },
-    putAt: function(i, v)
+    }
+
+    putAt(i, v)
     {
         if(i >= this._limit)
         {
             throw new Error(__IndexOutOfBoundsException__);
         }
-        this.b.writeUInt8(v, i, true);
-    },
-    putArray: function(v)
+        this.v.setUint8(i, v);
+    }
+
+    putArray(v)
     {
-        //Expects a Nodejs Buffer
-        if(!Node.Buffer.isBuffer(v))
+        //Expects an Uint8Array
+        if(!(v instanceof Uint8Array))
         {
-            throw new TypeError("argument is not a Node.Buffer");
+            throw new TypeError('argument is not a Uint8Array');
         }
-        if(this._position + v.length > this._limit)
+        if(v.byteLength > 0)
         {
-            throw new Error(__BufferOverflowException__);
+            if(this._position + v.length > this._limit)
+            {
+                throw new Error(__BufferOverflowException__);
+            }
+            new Uint8Array(this.b, 0, this.b.byteLength).set(v, this._position);
+            this._position += v.byteLength;
         }
-        v.copy(this.b, this._position);
-        this._position += v.length;
-    },
-    putShort: function(v)
+    }
+
+    putShort(v)
     {
         if(this._position + 2 > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeInt16LE(v, this._position, true);
+        this.v.setInt16(this._position, v, true);
         this._position += 2;
-    },
-    putShortAt: function(i, v)
-    {
-        if(i + 2 > this._limit || i < 0)
-        {
-            throw new Error(__IndexOutOfBoundsException__);
-        }
-        this.b.writeInt16LE(v, i, true);
-    },
-    putInt: function(v)
+    }
+
+    putInt(v)
     {
         if(this._position + 4 > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeInt32LE(v, this._position, true);
+        this.v.setInt32(this._position, v, true);
         this._position += 4;
-    },
-    putIntAt: function(i, v)
+    }
+
+    putIntAt(i, v)
     {
         if(i + 4 > this._limit || i < 0)
         {
             throw new Error(__IndexOutOfBoundsException__);
         }
-        this.b.writeInt32LE(v, i, true);
-    },
-    putFloat: function(v)
+        this.v.setInt32(i, v, true);
+    }
+
+    putFloat(v)
     {
         if(this._position + 4 > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeFloatLE(v, this._position, true);
+        this.v.setFloat32(this._position, v, true);
         this._position += 4;
-    },
-    putFloatAt: function(i, v)
-    {
-        if(i + 4 > this._limit || i < 0)
-        {
-            throw new Error(__IndexOutOfBoundsException__);
-        }
-        this.b.writeFloatLE(v, i, true);
-    },
-    putDouble: function(v)
+    }
+
+    putDouble(v)
     {
         if(this._position + 8 > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeDoubleLE(v, this._position, true);
+        this.v.setFloat64(this._position, v, true);
         this._position += 8;
-    },
-    putDoubleAt: function(i, v)
-    {
-        if(i + 8 > this._limit || i < 0)
-        {
-            throw new Error(__IndexOutOfBoundsException__);
-        }
-        this.b.writeDoubleLE(v, i, true);
-    },
-    putLong: function(v)
+    }
+
+    putLong(v)
     {
         if(this._position + 8 > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        this.b.writeUInt32LE(v.low, this._position, true);
+        this.v.setInt32(this._position, v.low, true);
         this._position += 4;
-        this.b.writeUInt32LE(v.high, this._position, true);
+        this.v.setInt32(this._position, v.high, true);
         this._position += 4;
-    },
-    putLongAt: function(i, v)
+    }
+
+    writeString(stream, v)
     {
-        if(i + 8 > this._limit || i < 0)
-        {
-            throw new Error(__IndexOutOfBoundsException__);
-        }
-        this.b.writeUInt32LE(v.low, i, true);
-        this.b.writeUInt32LE(v.high, i + 4, true);
-    },
-    writeString: function(stream, v)
-    {
-        var sz = Node.Buffer.byteLength(v);
-        stream.writeSize(sz);
-        stream.expand(sz);
-        this.putString(v, sz);
-    },
-    putString: function(v, sz)
+        //
+        // Encode the string as utf8
+        //
+        var encoded = unescape(encodeURIComponent(v));
+
+        stream.writeSize(encoded.length);
+        stream.expand(encoded.length);
+        this.putString(encoded, encoded.length);
+    }
+
+    putString(v, sz)
     {
         if(this._position + sz > this._limit)
         {
             throw new Error(__BufferOverflowException__);
         }
-        var bytes = this.b.write(v, this._position);
-        //
-        // Check all bytes were written
-        //
-        if(bytes < sz)
+        for(var i = 0; i < sz; ++i)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            this.v.setUint8(this._position, v.charCodeAt(i));
+            this._position++;
         }
-        this._position += sz;
-    },
-    get: function()
+    }
+
+    get()
     {
         if(this._position >= this._limit)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var v = this.b.readUInt8(this._position, true);
+        var v = this.v.getUint8(this._position);
         this._position++;
         return v;
-    },
-    getAt: function(i)
+    }
+
+    getAt(i)
     {
         if(i < 0 || i >= this._limit)
         {
             throw new Error(__IndexOutOfBoundsException__);
         }
-        return this.b.readUInt8(i, true);
-    },
-    getArray: function(length)
+        return this.v.getUint8(i);
+    }
+
+    getArray(length)
     {
         if(this._position + length > this._limit)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var buffer = new Node.Buffer(length);
-        this.b.slice(this._position, this._position + length).copy(buffer);
+        var buffer = this.b.slice(this._position, this._position + length);
         this._position += length;
-        return buffer;
-    },
-    getArrayAt: function(position, length)
+        return new Uint8Array(buffer);
+    }
+
+    getArrayAt(position, length)
     {
         if(position + length > this._limit)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        length = length === undefined ? (this.b.length - position) : length;
-        var buffer = new Node.Buffer(length);
-        this.b.slice(position, position + length).copy(buffer);
-        return buffer;
-    },
-    getShort: function()
+        length = length === undefined ? (this.b.byteLength - position) : length;
+        return new Uint8Array(this.b.slice(position, position + length));
+    }
+
+    getShort()
     {
-        var v;
         if(this._limit - this._position < 2)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        v = this.b.readInt16LE(this._position, true);
+        var v = this.v.getInt16(this._position, true);
         this._position += 2;
         return v;
-    },
-    getInt: function()
-    {
-        var v;
-        if(this._limit - this._position < 4)
-        {
-            throw new Error(__BufferUnderflowException__);
-        }
-        v = this.b.readInt32LE(this._position, true);
-        this._position += 4;
-        return v;
-    },
-    getFloat: function()
+    }
+
+    getInt()
     {
         if(this._limit - this._position < 4)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var v = this.b.readFloatLE(this._position, true);
+        var v = this.v.getInt32(this._position, true);
         this._position += 4;
         return v;
-    },
-    getDouble: function()
+    }
+
+    getFloat()
+    {
+        if(this._limit - this._position < 4)
+        {
+            throw new Error(__BufferUnderflowException__);
+        }
+        var v = this.v.getFloat32(this._position, true);
+        this._position += 4;
+        return v;
+    }
+
+    getDouble()
     {
         if(this._limit - this._position < 8)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var v = this.b.readDoubleLE(this._position, true);
+        var v = this.v.getFloat64(this._position, true);
         this._position += 8;
         return v;
-    },
-    getLong: function()
+    }
+
+    getLong()
     {
         if(this._limit - this._position < 8)
         {
             throw new Error(__BufferUnderflowException__);
         }
         var v = new Long();
-        v.low = this.b.readUInt32LE(this._position, true);
+        v.low = this.v.getUint32(this._position, true);
         this._position += 4;
-        v.high = this.b.readUInt32LE(this._position, true);
+        v.high = this.v.getUint32(this._position, true);
         this._position += 4;
         return v;
-    },
-    getString: function(length)
+    }
+
+    getString(length)
     {
         if(this._position + length > this._limit)
         {
             throw new Error(__BufferUnderflowException__);
         }
-        var s =this.b.toString("utf8", this._position, this._position + length);
+
+        var data = new DataView(this.b, this._position, length);
+        var s = "";
+
+        for(var i = 0; i < length; ++i)
+        {
+            s += String.fromCharCode(data.getUint8(i));
+        }
         this._position += length;
+        s = decodeURIComponent(escape(s));
         return s;
     }
-});
-
-var prototype = Buffer.prototype;
-
-Object.defineProperty(prototype, "position", {
-    get: function() { return this._position; },
-    set: function(position){
-        if(position >= 0 && position <= this._limit)
+    
+    get position()
+    {
+        return this._position;
+    }
+    
+    set position(value)
+    {
+        if(value >= 0 && value <= this._limit)
         {
-            this._position = position;
+            this._position = value;
         }
     }
-});
-
-Object.defineProperty(prototype, "limit", {
-    get: function() { return this._limit; },
-    set: function(limit){
-        if(limit <= this.capacity)
+    
+    get limit()
+    {
+        return this._limit;
+    }
+    
+    set limit(value)
+    {
+        if(value <= this.capacity)
         {
-            this._limit = limit;
-            if(this._position > limit)
+            this._limit = value;
+            if(this._position > value)
             {
-                this._position = limit;
+                this._position = value;
             }
         }
     }
-});
-
-Object.defineProperty(prototype, "capacity", {
-    get: function() { return this.b === null ? 0 : this.b.length; }
-});
-
-Object.defineProperty(prototype, "remaining", {
-    get: function() { return this._limit - this._position; }
-});
-
-//
-// Create a native buffer from an array of bytes.
-//
-Buffer.createNative = function(data)
-{
-    if(data === undefined)
+    
+    get capacity()
     {
-        return new Node.Buffer(0);
+        return this.b === null ? 0 : this.b.byteLength;
     }
-    else
+    
+    get remaining()
     {
-        return new Node.Buffer(data);
+        return this._limit - this._position;
     }
-};
+    
+    //
+    // Create a native buffer from an array of bytes.
+    //
+    static createNative(data)
+    {
+        if(data === undefined)
+        {
+            return new Uint8Array(0);
+        }
+        else
+        {
+            return new Uint8Array(data);
+        }
+    }
+}
 
 Ice.Buffer = Buffer;
 module.exports.Ice = Ice;

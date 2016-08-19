@@ -7,11 +7,10 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/HashUtil",
         "../Ice/StringUtil",
         "../Ice/EndpointI",
@@ -19,49 +18,56 @@ Ice.__M.require(module,
         "../Ice/WSTransceiver",
         "../Ice/EndpointInfo"
     ]);
-var IceSSL = Ice.__M.module("IceSSL");
 
-var HashUtil = Ice.HashUtil;
-var StringUtil = Ice.StringUtil;
-var EndpointI = Ice.EndpointI;
-var Class = Ice.Class;
+const IceSSL = Ice.__M.module("IceSSL");
+const HashUtil = Ice.HashUtil;
+const StringUtil = Ice.StringUtil;
+const EndpointI = Ice.EndpointI;
 
-var WSEndpoint = Class(EndpointI, {
-    __init__: function(instance, del, re)
+class WSEndpoint extends EndpointI
+{
+    constructor(instance, del, re)
     {
+        super();
         this._instance = instance;
         this._delegate = del;
         this._resource = re || "/";
-    },
-    getInfo: function()
+    }
+
+    getInfo()
     {
-        var info = new Ice.WSEndpointInfo();
+        let info = new Ice.WSEndpointInfo();
         info.resource = this._resource;
         info.underlying = this._delegate.getInfo();
         info.timeout = info.underlying.timeout;
         info.compress = info.underlying.compress;
         return info;
-    },
-    type: function()
+    }
+
+    type()
     {
         return this._delegate.type();
-    },
-    protocol: function()
+    }
+
+    protocol()
     {
         return this._delegate.protocol();
-    },
-    streamWrite: function(s)
+    }
+
+    streamWrite(s)
     {
         s.startEncapsulation();
         this._delegate.streamWriteImpl(s);
         s.writeString(this._resource);
         s.endEncapsulation();
-    },
-    timeout: function()
+    }
+
+    timeout()
     {
         return this._delegate.timeout();
-    },
-    changeTimeout: function(timeout)
+    }
+
+    changeTimeout(timeout)
     {
         if(timeout === this._delegate.timeout())
         {
@@ -71,8 +77,9 @@ var WSEndpoint = Class(EndpointI, {
         {
             return new WSEndpoint(this._instance, this._delegate.changeTimeout(timeout), this._resource);
         }
-    },
-    changeConnectionId: function(connectionId)
+    }
+
+    changeConnectionId(connectionId)
     {
         if(connectionId === this._delegate.connectionId())
         {
@@ -82,12 +89,14 @@ var WSEndpoint = Class(EndpointI, {
         {
             return new WSEndpoint(this._instance, this._delegate.changeConnectionId(connectionId), this._resource);
         }
-    },
-    compress: function()
+    }
+
+    compress()
     {
         return this._delegate.compress();
-    },
-    changeCompress: function(compress)
+    }
+
+    changeCompress(compress)
     {
         if(compress === this._delegate.compress())
         {
@@ -97,23 +106,27 @@ var WSEndpoint = Class(EndpointI, {
         {
             return new WSEndpoint(this._instance, this._delegate.changeCompress(compress), this._resource);
         }
-    },
-    datagram: function()
+    }
+
+    datagram()
     {
         return this._delegate.datagram();
-    },
-    secure: function()
+    }
+
+    secure()
     {
         return this._delegate.secure();
-    },
-    connect: function()
+    }
+
+    connect()
     {
         return Ice.WSTransceiver.createOutgoing(this._instance,
                                                 this._delegate.secure(),
                                                 this._delegate.getAddress(),
                                                 this._resource);
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         if(this._hashCode === undefined)
         {
@@ -121,8 +134,9 @@ var WSEndpoint = Class(EndpointI, {
             this._hashCode = HashUtil.addString(this._hashCode, this._resource);
         }
         return this._hashCode;
-    },
-    compareTo: function(p)
+    }
+
+    compareTo(p)
     {
         if(this === p)
         {
@@ -139,7 +153,7 @@ var WSEndpoint = Class(EndpointI, {
             return this.type() < p.type() ? -1 : 1;
         }
 
-        var r = this._delegate.compareTo(p._delegate);
+        let r = this._delegate.compareTo(p._delegate);
         if(r !== 0)
         {
             return r;
@@ -151,8 +165,9 @@ var WSEndpoint = Class(EndpointI, {
         }
 
         return 0;
-    },
-    options: function()
+    }
+
+    options()
     {
         //
         // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -161,7 +176,7 @@ var WSEndpoint = Class(EndpointI, {
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        var s = this._delegate.options();
+        let s = this._delegate.options();
 
         if(this._resource !== null && this._resource.length > 0)
         {
@@ -170,16 +185,19 @@ var WSEndpoint = Class(EndpointI, {
         }
 
         return s;
-    },
-    toConnectorString: function()
+    }
+
+    toConnectorString()
     {
         return this._delegate.toConnectorString();
-    },
-    initWithStream: function(s)
+    }
+
+    initWithStream(s)
     {
         this._resource = s.readString();
-    },
-    checkOption: function(option, argument, endpoint)
+    }
+
+    checkOption(option, argument, endpoint)
     {
         if(option === "-r")
         {
@@ -194,8 +212,8 @@ var WSEndpoint = Class(EndpointI, {
             return false;
         }
         return true;
-    },
-});
+    }
+}
 
 if(typeof(Ice.WSTransceiver) !== "undefined")
 {

@@ -7,45 +7,51 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/StringUtil").Ice;
-var StringUtil = Ice.StringUtil;
+const Ice = require("../Ice/StringUtil").Ice;
+const StringUtil = Ice.StringUtil;
 
-Ice.HashUtil =
+class HashUtil
 {
-    addBoolean: function(h, b)
+    static addBoolean(h, b)
     {
         return ((h << 5) + h) ^ (b ? 0 : 1);
-    },
-    addString: function(h, str)
+    }
+
+    static addString(h, str)
     {
         if(str !== undefined && str !== null)
         {
             h = ((h << 5) + h) ^ StringUtil.hashCode(str);
         }
         return h;
-    },
-    addNumber: function(h, num)
+    }
+
+    static addNumber(h, num)
     {
         return ((h << 5) + h) ^ num;
-    },
-    addHashable: function(h, obj)
+    }
+
+    static addHashable(h, obj)
     {
         if(obj !== undefined && obj !== null)
         {
             h = ((h << 5) + h) ^ obj.hashCode();
         }
         return h;
-    },
-    addArray: function(h, arr, hashCode)
+    }
+    
+    static addArray(h, arr, hashCode)
     {
         if(arr !== undefined && arr !== null)
         {
-            for(var i = 0; i < arr.length; ++i)
+            for(let i = 0; i < arr.length; ++i)
             {
                 h = hashCode(h, arr[i]);
             }
         }
         return h;
     }
-};
+}
+
+Ice.HashUtil = HashUtil;
 module.exports.Ice = Ice;

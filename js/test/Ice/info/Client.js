@@ -134,7 +134,7 @@
                         connection.setBufferSize(1024, 2048);
 
                         info = connection.getInfo();
-                        ipinfo = getTCPConnectionInfo(info);
+                        let ipinfo = getTCPConnectionInfo(info);
                         test(!info.incoming);
                         test(info.adapterName.length === 0);
                         if(connection.type() != "ws" && connection.type() != "wss")
@@ -207,7 +207,12 @@
         ).finally(
             function()
             {
-                communicator.destroy();
+                out.write("communicator destroy... ");
+                communicator.destroy().then(
+                    function()
+                    {
+                        out.writeLine("ok");
+                    });
             }
         );
     };

@@ -7,42 +7,48 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/WSEndpoint"]);
+const Ice = require("../Ice/WSEndpoint").Ice;
+const WSEndpoint = Ice.WSEndpoint;
 
-var WSEndpoint = Ice.WSEndpoint;
-
-var WSEndpointFactory = Ice.Class({
-    __init__:function(instance, delegate)
+class WSEndpointFactory extends WSEndpoint
+{
+    constructor(instance, delegate)
     {
+        super();
         this._instance = instance;
         this._delegate = delegate;
-    },
-    type: function()
+    }
+
+    type()
     {
         return this._instance.type();
-    },
-    protocol: function()
+    }
+
+    protocol()
     {
         return this._instance.protocol();
-    },
-    create: function(args, oaEndpoint)
+    }
+
+    create(args, oaEndpoint)
     {
-        var e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
+        let e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
         e.initWithOptions(args);
         return e;
-    },
-    read: function(s)
+    }
+
+    read(s)
     {
-        var e = new WSEndpoint(this._instance, this._delegate.read(s));
+        let e = new WSEndpoint(this._instance, this._delegate.read(s));
         e.initWithStream(s);
         return e;
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
         this._delegate.destroy();
         this._instance = null;
     }
-});
+}
+
 Ice.WSEndpointFactory = WSEndpointFactory;
 exports.Ice = Ice;

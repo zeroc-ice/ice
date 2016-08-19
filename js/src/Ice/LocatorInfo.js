@@ -7,44 +7,44 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Debug",
-        "../Ice/HashMap",
         "../Ice/Promise",
         "../Ice/Protocol",
         "../Ice/Locator",
         "../Ice/LocalException",
-        "../Ice/Exception"
+        "../Ice/Exception",
+        "../Ice/HashMap",
+        "../Ice/IdentityUtil"
     ]);
 
-var Debug = Ice.Debug;
-var HashMap = Ice.HashMap;
-var Promise = Ice.Promise;
-var Protocol = Ice.Protocol;
-var LocatorRegistryPrx = Ice.LocatorRegisterPrx;
+const Debug = Ice.Debug;
+const Protocol = Ice.Protocol;
+const LocatorRegistryPrx = Ice.LocatorRegisterPrx;
+const HashMap = Ice.HashMap;
 
-var  Class = Ice.Class;
-
-var LocatorInfo = Class({
-    __init__: function(locator, table, background)
+class LocatorInfo
+{
+    constructor(locator, table, background)
     {
         this._locator = locator;
         this._locatorRegistry = null;
         this._table = table;
         this._background = background;
 
-        this._adapterRequests = new HashMap(); // Map<String, Request>
+        this._adapterRequests = new Map(); // Map<String, Request>
         this._objectRequests = new HashMap(HashMap.compareEquals); // Map<Ice.Identity, Request>
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
         this._locatorRegistry = null;
         this._table.clear();
-    },
-    equals: function(rhs)
+    }
+
+    equals(rhs)
     {
         if(this === rhs)
         {
@@ -57,43 +57,45 @@ var LocatorInfo = Class({
         }
 
         return false;
-    },
-    hashCode: function()
+    }
+    
+    hashCode()
     {
         return this._locator.hashCode();
-    },
-    getLocator: function()
+    }
+
+    getLocator()
     {
         return this._locator;
-    },
-    getLocatorRegistry: function()
+    }
+
+    getLocatorRegistry()
     {
         if(this._locatorRegistry !== null)
         {
-            return new Promise().succeed(this._locatorRegistry);
+            return Ice.Promise.resolve(this._locatorRegistry);
         }
 
-        var self = this;
-        return this._locator.getRegistry().then(
-            function(reg)
+        return this._locator.getRegistry().then(reg =>
             {
                 //
                 // The locator registry can't be located. We use ordered
                 // endpoint selection in case the locator returned a proxy
                 // with some endpoints which are prefered to be tried first.
                 //
-                self._locatorRegistry = LocatorRegistryPrx.uncheckedCast(reg.ice_locator(null).ice_endpointSelection(
+                this._locatorRegistry = LocatorRegistryPrx.uncheckedCast(reg.ice_locator(null).ice_endpointSelection(
                     Ice.EndpointSelectionType.Ordered));
-                return self._locatorRegistry;
+                return this._locatorRegistry;
             });
-    },
-    getEndpoints: function(ref, wellKnownRef, ttl, p)
+    }
+
+    getEndpoints(ref, wellKnownRef, ttl, p)
     {
-        var promise = p || new Promise(); // success callback receives (endpoints, cached)
+        const promise = p || new Ice.Promise(); // success callback receives (endpoints, cached)
 
         Debug.assert(ref.isIndirect());
-        var endpoints = null;
-        var cached = { value: false };
+        let endpoints = null;
+        const cached = { value: false };
         if(!ref.isWellKnown())
         {
             endpoints = this._table.getAdapterEndpoints(ref.getAdapterId(), ttl, cached);
@@ -112,7 +114,7 @@ var LocatorInfo = Class({
         }
         else
         {
-            var r = this._table.getObjectReference(ref.getIdentity(), ttl, cached);
+            const r = this._table.getObjectReference(ref.getIdentity(), ttl, cached);
             if(!cached.value)
             {
                 if(this._background && r !== null)
@@ -142,17 +144,18 @@ var LocatorInfo = Class({
         {
             this.getEndpointsTrace(ref, endpoints, true);
         }
-        promise.succeed(endpoints, true);
+        promise.resolve([endpoints, true]);
 
         return promise;
-    },
-    clearCache: function(ref)
+    }
+
+    clearCache(ref)
     {
         Debug.assert(ref.isIndirect());
 
         if(!ref.isWellKnown())
         {
-            var endpoints = this._table.removeAdapterEndpoints(ref.getAdapterId());
+            const endpoints = this._table.removeAdapterEndpoints(ref.getAdapterId());
 
             if(endpoints !== null && ref.getInstance().traceLevels().location >= 2)
             {
@@ -161,7 +164,7 @@ var LocatorInfo = Class({
         }
         else
         {
-            var r =  this._table.removeObjectReference(ref.getIdentity());
+            const r =  this._table.removeObjectReference(ref.getIdentity());
             if(r !== null)
             {
                 if(!r.isIndirect())
@@ -177,12 +180,13 @@ var LocatorInfo = Class({
                 }
             }
         }
-    },
-    trace: function(msg, ref, endpoints)
+    }
+
+    trace(msg, ref, endpoints)
     {
         Debug.assert(ref.isIndirect());
 
-        var s = [];
+        const s = [];
         s.push(msg);
         s.push("\n");
         if(!ref.isWellKnown())
@@ -199,23 +203,15 @@ var LocatorInfo = Class({
         }
 
         s.push("endpoints = ");
-        for(var i = 0; i < endpoints.length; i++)
-        {
-            s.push(endpoints[i].toString());
-            if(i + 1 < endpoints.length)
-            {
-                s.push(":");
-            }
-        }
-
+        s.push(endpoints.map(e => e.toString()).join(":"));
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.join(""));
-    },
-    getEndpointsException: function(ref, exc)
+    }
+
+    getEndpointsException(ref, exc)
     {
         Debug.assert(ref.isIndirect());
 
-        var instance = ref.getInstance();
-        var s, e;
+        const instance = ref.getInstance();
         try
         {
             throw exc;
@@ -226,14 +222,14 @@ var LocatorInfo = Class({
             {
                 if(instance.traceLevels().location >= 1)
                 {
-                    s = [];
+                    const s = [];
                     s.push("adapter not found\n");
                     s.push("adapter = ");
                     s.push(ref.getAdapterId());
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
-                e = new Ice.NotRegisteredException();
+                const e = new Ice.NotRegisteredException();
                 e.kindOfObject = "object adapter";
                 e.id = ref.getAdapterId();
                 throw e;
@@ -242,14 +238,14 @@ var LocatorInfo = Class({
             {
                 if(instance.traceLevels().location >= 1)
                 {
-                    s = [];
+                    const s = [];
                     s.push("object not found\n");
                     s.push("object = ");
                     s.push(Ice.identityToString(ref.getIdentity()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
-                e = new Ice.NotRegisteredException();
+                const e = new Ice.NotRegisteredException();
                 e.kindOfObject = "object";
                 e.id = Ice.identityToString(ref.getIdentity());
                 throw e;
@@ -262,7 +258,7 @@ var LocatorInfo = Class({
             {
                 if(instance.traceLevels().location >= 1)
                 {
-                    s = [];
+                    const s = [];
                     s.push("couldn't contact the locator to retrieve adapter endpoints\n");
                     if(ref.getAdapterId().length > 0)
                     {
@@ -286,8 +282,9 @@ var LocatorInfo = Class({
                 Debug.assert(false);
             }
         }
-    },
-    getEndpointsTrace: function(ref, endpoints, cached)
+    }
+
+    getEndpointsTrace(ref, endpoints, cached)
     {
         if(endpoints !== null && endpoints.length > 0)
         {
@@ -302,8 +299,8 @@ var LocatorInfo = Class({
         }
         else
         {
-            var instance = ref.getInstance();
-            var s = [];
+            const instance = ref.getInstance();
+            const s = [];
             s.push("no endpoints configured for ");
             if(ref.getAdapterId().length > 0)
             {
@@ -321,20 +318,21 @@ var LocatorInfo = Class({
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
-    },
-    getAdapterRequest: function(ref)
+    }
+
+    getAdapterRequest(ref)
     {
         if(ref.getInstance().traceLevels().location >= 1)
         {
-            var instance = ref.getInstance();
-            var s = [];
+            const instance = ref.getInstance();
+            const s = [];
             s.push("searching for adapter by id\n");
             s.push("adapter = ");
             s.push(ref.getAdapterId());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
 
-        var request = this._adapterRequests.get(ref.getAdapterId());
+        let request = this._adapterRequests.get(ref.getAdapterId());
         if(request !== undefined)
         {
             return request;
@@ -342,20 +340,21 @@ var LocatorInfo = Class({
         request = new AdapterRequest(this, ref);
         this._adapterRequests.set(ref.getAdapterId(), request);
         return request;
-    },
-    getObjectRequest: function(ref)
+    }
+
+    getObjectRequest(ref)
     {
         if(ref.getInstance().traceLevels().location >= 1)
         {
-            var instance = ref.getInstance();
-            var s = [];
+            const instance = ref.getInstance();
+            const s = [];
             s.push("searching for object by id\n");
             s.push("object = ");
             s.push(Ice.identityToString(ref.getIdentity()));
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
 
-        var request = this._objectRequests.get(ref.getIdentity());
+        let request = this._objectRequests.get(ref.getIdentity());
         if(request !== undefined)
         {
             return request;
@@ -363,8 +362,9 @@ var LocatorInfo = Class({
         request = new ObjectRequest(this, ref);
         this._objectRequests.set(ref.getIdentity(), request);
         return request;
-    },
-    finishRequest: function(ref, wellKnownRefs, proxy, notRegistered)
+    }
+
+    finishRequest(ref, wellKnownRefs, proxy, notRegistered)
     {
         if(proxy === null || proxy.__reference().isIndirect())
         {
@@ -372,7 +372,7 @@ var LocatorInfo = Class({
             // Remove the cached references of well-known objects for which we tried
             // to resolved the endpoints if these endpoints are empty.
             //
-            for(var i = 0; i < wellKnownRefs.length; ++i)
+            for(let i = 0; i < wellKnownRefs.length; ++i)
             {
                 this._table.removeObjectReference(wellKnownRefs[i].getIdentity());
             }
@@ -409,23 +409,25 @@ var LocatorInfo = Class({
             this._objectRequests.delete(ref.getIdentity());
         }
     }
-});
+}
 
 Ice.LocatorInfo = LocatorInfo;
 
-var RequestCallback = Class({
-    __init__: function(ref, ttl, promise)
+class RequestCallback
+{
+    constructor(ref, ttl, promise)
     {
         this._ref = ref;
         this._ttl = ttl;
         this._promise = promise;
-    },
-    response: function(locatorInfo, proxy)
+    }
+
+    response(locatorInfo, proxy)
     {
-        var endpoints = null;
+        let endpoints = null;
         if(proxy !== null)
         {
-            var r = proxy.__reference();
+            let r = proxy.__reference();
             if(this._ref.isWellKnown() && !Protocol.isSupported(this._ref.getEncoding(), r.getEncoding()))
             {
                 //
@@ -445,20 +447,19 @@ var RequestCallback = Class({
                 // by the locator is an indirect proxy. We now need to resolve the endpoints
                 // of this indirect proxy.
                 //
-                var self = this;
                 locatorInfo.getEndpoints(r, this._ref, this._ttl).then(
-                    function(endpts, b)
+                    values =>
                     {
-                        if(self._promise !== null)
+                        if(this._promise !== null)
                         {
-                            self._promise.succeed(endpts, b);
+                            this._promise.resolve(values);
                         }
                     },
-                    function(ex)
+                    ex =>
                     {
-                        if(self._promise !== null)
+                        if(this._promise !== null)
                         {
-                            self._promise.fail(ex);
+                            this._promise.reject(ex);
                         }
                     });
                 return;
@@ -472,10 +473,11 @@ var RequestCallback = Class({
 
         if(this._promise !== null)
         {
-            this._promise.succeed(endpoints === null ? [] : endpoints, false);
+            this._promise.resolve(endpoints === null ? [[], false] : [endpoints, false]);
         }
-    },
-    exception: function(locatorInfo, exc)
+    }
+
+    exception(locatorInfo, exc)
     {
         try
         {
@@ -485,14 +487,15 @@ var RequestCallback = Class({
         {
             if(this._promise !== null)
             {
-                this._promise.fail(ex);
+                this._promise.reject(ex);
             }
         }
     }
-});
+}
 
-var Request = Class({
-    __init__: function(locatorInfo, ref)
+class Request
+{
+    constructor(locatorInfo, ref)
     {
         this._locatorInfo = locatorInfo;
         this._ref = ref;
@@ -503,10 +506,11 @@ var Request = Class({
         this._response = false;
         this._proxy = null;
         this._exception = null;
-    },
-    addCallback: function(ref, wellKnownRef, ttl, promise)
+    }
+
+    addCallback(ref, wellKnownRef, ttl, promise)
     {
-        var callback = new RequestCallback(ref, ttl, promise);
+        const callback = new RequestCallback(ref, ttl, promise);
         if(this._response)
         {
             callback.response(this._locatorInfo, this._proxy);
@@ -528,82 +532,74 @@ var Request = Class({
                 this.send();
             }
         }
-    },
-    response: function(proxy)
+    }
+
+    response(proxy)
     {
         this._locatorInfo.finishRequest(this._ref, this._wellKnownRefs, proxy, false);
         this._response = true;
         this._proxy = proxy;
-        for(var i = 0; i < this._callbacks.length; ++i)
+        for(let i = 0; i < this._callbacks.length; ++i)
         {
             this._callbacks[i].response(this._locatorInfo, proxy);
         }
-    },
-    exception: function(ex)
+    }
+
+    exception(ex)
     {
         this._locatorInfo.finishRequest(this._ref, this._wellKnownRefs, null, ex instanceof Ice.UserException);
         this._exception = ex;
-        for(var i = 0; i < this._callbacks.length; ++i)
+        for(let i = 0; i < this._callbacks.length; ++i)
         {
             this._callbacks[i].exception(this._locatorInfo, ex);
         }
     }
-});
+}
 
-var ObjectRequest = Class(Request, {
-    __init__: function(locatorInfo, reference)
+class ObjectRequest extends Request
+{
+    constructor(locatorInfo, reference)
     {
-        Request.call(this, locatorInfo, reference);
+        super(locatorInfo, reference);
         Debug.assert(reference.isWellKnown());
-    },
-    send: function()
-    {
-        try
-        {
-            var self = this;
-            this._locatorInfo.getLocator().findObjectById(this._ref.getIdentity()).then(
-                function(proxy)
-                {
-                    self.response(proxy);
-                },
-                function(ex)
-                {
-                    self.exception(ex);
-                });
-        }
-        catch(ex)
-        {
-            this.exception(ex);
-        }
     }
-});
 
-var AdapterRequest = Class(Request, {
-    __init__: function(locatorInfo, reference)
-    {
-        Request.call(this, locatorInfo, reference);
-        Debug.assert(reference.isIndirect());
-    },
-    send: function()
+    send()
     {
         try
         {
-            var self = this;
-            this._locatorInfo.getLocator().findAdapterById(this._ref.getAdapterId()).then(
-                function(proxy)
-                {
-                    self.response(proxy);
-                },
-                function(ex)
-                {
-                    self.exception(ex);
-                });
+            this._locatorInfo.getLocator().findObjectById(this._ref.getIdentity()).then(
+                proxy => this.response(proxy),
+                ex => this.exception(ex));
         }
         catch(ex)
         {
             this.exception(ex);
         }
     }
-});
+}
+
+class AdapterRequest extends Request
+{
+    constructor(locatorInfo, reference)
+    {
+        super(locatorInfo, reference);
+        Debug.assert(reference.isIndirect());
+    }
+
+    send()
+    {
+        try
+        {
+            this._locatorInfo.getLocator().findAdapterById(this._ref.getAdapterId()).then(
+                proxy => this.response(proxy),
+                ex => this.exception(ex));
+        }
+        catch(ex)
+        {
+            this.exception(ex);
+        }
+    }
+}
 
 module.exports.Ice = Ice;

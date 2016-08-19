@@ -14,7 +14,7 @@
 /* global WorkerGlobalScope */
 
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
 // Create a timer object that uses the default browser methods. Note that we also
@@ -24,36 +24,57 @@ var Ice = require("../Ice/ModuleRegistry").Ice;
 //
 function createTimerObject()
 {
-    var Timer = {};
-    Timer.setTimeout = function () { setTimeout.apply(null, arguments); };
-    Timer.clearTimeout = function () { clearTimeout.apply(null, arguments); };
-    Timer.setInterval = function () { setInterval.apply(null, arguments); };
-    Timer.clearInterval = function () { clearInterval.apply(null, arguments); };
-    Timer.setImmediate = typeof(setImmediate) == "function" ?
-        function () { setImmediate.apply(null, arguments); } : 
-        function () { setTimeout.apply(null, arguments); };
+    let Timer = class
+    {
+        static setTimeout()
+        {
+            setTimeout.apply(null, arguments);
+        }
+
+        static clearTimeout()
+        {
+            clearTimeout.apply(null, arguments);
+        }
+
+        static setInterval()
+        {
+            setInterval.apply(null, arguments);
+        }
+
+        static clearInterval()
+        {
+            clearInterval.apply(null, arguments);
+        }
+    };
+    
+    if(typeof(setImmediate) == "function")
+    {
+        Timer.setImmediate = function()
+        {
+            setImmediate.apply(null, arguments);
+        };
+    }
+    else
+    {
+        Timer.setImmediate = function()
+        {
+            setTimeout.apply(null, arguments);
+        };
+    }
+
     return Timer;
 }
 
+const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER  || 9007199254740991;
 
-Ice.__M.require(module,
-    [
-        "../Ice/HashMap",
-    ]);
+const _timers = new Map();
 
-var HashMap = Ice.HashMap;
+const _SetTimeoutType = 0,
+      _SetIntervalType = 1,
+      _SetImmediateType = 2,
+      _ClearTimeoutType = 3,
+      _ClearIntervalType = 4;
 
-var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER  || 9007199254740991;
-
-var _timers = new HashMap();
-
-var _SetTimeoutType = 0,
-    _SetIntervalType = 1,
-    _SetImmediateType = 2,
-    _ClearTimeoutType = 3,
-    _ClearIntervalType = 4;
-
-var Timer = {};
 var worker;
 
 var _nextId = 0;
@@ -67,59 +88,62 @@ var nextId = function()
     return _nextId++;
 };
 
-Timer.setTimeout = function(cb, ms)
+class Timer
 {
-    var id = nextId();
-    _timers.set(id, cb);
-    worker.postMessage({type: _SetTimeoutType, id: id, ms: ms});
-    return id;
-};
-
-Timer.clearTimeout = function(id)
-{
-    _timers.delete(id);
-    worker.postMessage({type: _ClearTimeoutType, id: id});
-};
-
-Timer.setInterval = function(cb, ms)
-{
-    var id = nextId();
-    _timers.set(id, cb);
-    worker.postMessage({type: _SetIntervalType, id: id, ms: ms});
-    return id;
-};
-
-Timer.clearInterval = function(id)
-{
-    _timers.delete(id);
-    worker.postMessage({type: _ClearIntervalType, id: id});
-};
-
-Timer.setImmediate = function(cb)
-{
-    var id = nextId();
-    _timers.set(id, cb);
-    worker.postMessage({type: _SetImmediateType, id: id});
-    return id;
-};
-
-Timer.onmessage = function(e)
-{
-    var cb;
-    if(e.data.type === _SetIntervalType)
+    static setTimeout(cb, ms)
     {
-        cb = _timers.get(e.data.id);
-    }
-    else
-    {
-        cb = _timers.delete(e.data.id);
+        var id = nextId();
+        _timers.set(id, cb);
+        worker.postMessage({type: _SetTimeoutType, id: id, ms: ms});
+        return id;
     }
 
-    if(cb !== undefined)
+    static clearTimeout(id)
     {
-        cb.call();
+        _timers.delete(id);
+        worker.postMessage({type: _ClearTimeoutType, id: id});
     }
-};
+
+    static setInterval(cb, ms)
+    {
+        var id = nextId();
+        _timers.set(id, cb);
+        worker.postMessage({type: _SetIntervalType, id: id, ms: ms});
+        return id;
+    }
+
+    static clearInterval(id)
+    {
+        _timers.delete(id);
+        worker.postMessage({type: _ClearIntervalType, id: id});
+    }
+
+    static setImmediate(cb)
+    {
+        var id = nextId();
+        _timers.set(id, cb);
+        worker.postMessage({type: _SetImmediateType, id: id});
+        return id;
+    }
+
+    static onmessage(e)
+    {
+        var cb;
+        if(e.data.type === _SetIntervalType)
+        {
+            cb = _timers.get(e.data.id);
+        }
+        else
+        {
+            cb = _timers.delete(e.data.id);
+        }
+
+        if(cb !== undefined)
+        {
+            cb.call();
+        }
+    }
+}
 
 var workerCode = function()
 {
@@ -137,23 +161,15 @@ var workerCode = function()
 
         var timers = {};
 
-        self.onmessage = function(e)
+        self.onmessage = e =>
         {
             if(e.data.type == _wSetTimeoutType)
             {
-                timers[e.data.id] = setTimeout(function()
-                    {
-                        self.postMessage(e.data);
-                    },
-                    e.data.ms);
+                timers[e.data.id] = setTimeout(() => self.postMessage(e.data), e.data.ms);
             }
             else if(e.data.type == _wSetIntervalType)
             {
-                timers[e.data.id] = setInterval(function()
-                    {
-                        self.postMessage(e.data);
-                    },
-                    e.data.ms);
+                timers[e.data.id] = setInterval(() => self.postMessage(e.data), e.data.ms);
             }
             else if(e.data.type == _wSetImmediateType)
             {
@@ -177,7 +193,14 @@ var workerCode = function()
     }.toString() + "());";
 };
 
-if(worker === undefined)
+if(self == this)
+{
+    //
+    // If we are running in a worker don't spawn a separate worker for the timer
+    //
+    Ice.Timer = createTimerObject();
+}
+else if(worker === undefined)
 {
     var url;
     try

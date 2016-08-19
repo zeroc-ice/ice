@@ -7,66 +7,58 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/Debug").Ice;    
-var Debug = Ice.Debug;
+const Ice = require("../Ice/Debug").Ice;    
+const Debug = Ice.Debug;
 
-Ice.StringUtil =
+Ice.StringUtil = class
 {
     //
     // Return the index of the first character in str to
     // appear in match, starting from start. Returns -1 if none is
     // found.
     //
-    findFirstOf: function(str, match, start)
+    static findFirstOf(str, match, start)
     {
         start = start === undefined ? 0 : start;
-
-        var len = str.length;
-        for(var i = start; i < len; i++)
+        for(let i = start; i < str.length; i++)
         {
-            var ch = str.charAt(i);
+            const ch = str.charAt(i);
             if(match.indexOf(ch) != -1)
             {
                 return i;
             }
         }
-
         return -1;
-    },
+    }
     //
     // Return the index of the first character in str which does
     // not appear in match, starting from start. Returns -1 if none is
     // found.
     //
-    findFirstNotOf: function(str, match, start)
+    static findFirstNotOf(str, match, start)
     {
         start = start === undefined ? 0 : start;
-
-        var len = str.length;
-        for(var i = start; i < len; i++)
+        for(let i = start; i < str.length; i++)
         {
-            var ch = str.charAt(i);
+            const ch = str.charAt(i);
             if(match.indexOf(ch) == -1)
             {
                 return i;
             }
         }
-
         return -1;
-    },
+    }
     //
     // Add escape sequences (such as "\n", or "\007") to make a string
     // readable in ASCII. Any characters that appear in special are
     // prefixed with a backlash in the returned string.
     //
-    escapeString: function(s, special)
+    static escapeString(s, special)
     {
         special = special === undefined ? null : special;
-
-        var i, length;
         if(special !== null)
         {
-            for(i = 0, length = special.length; i < length; ++i)
+            for(let i = 0; i < special.length; ++i)
             {
                 if(special.charCodeAt(i) < 32 || special.charCodeAt(i) > 126)
                 {
@@ -75,10 +67,10 @@ Ice.StringUtil =
             }
         }
 
-        var result = [], c;
-        for(i = 0, length = s.length; i < length; ++i)
+        let result = [];
+        for(let i = 0; i < s.length; ++i)
         {
-            c = s.charCodeAt(i);
+            const c = s.charCodeAt(i);
             if(c < 128)
             {
                 encodeChar(c, result, special);
@@ -97,33 +89,32 @@ Ice.StringUtil =
         }
 
         return result.join("");
-    },
+    }
     //
     // Remove escape sequences added by escapeString. Throws Error
     // for an invalid input string.
     //
-    unescapeString: function(s, start, end)
+    static unescapeString(s, start, end)
     {
         start = start === undefined ? 0 : start;
         end = end === undefined ? s.length : end;
 
         Debug.assert(start >= 0 && start <= end && end <= s.length);
 
-        var arr = [];
+        const arr = [];
         decodeString(s, start, end, arr);
 
         return arr.join("");
-    },
+    }
     //
     // Split string helper; returns null for unmatched quotes
     //
-    splitString: function(str, delim)
+    static splitString(str, delim)
     {
-        var v = [];
-        var s = "";
-        var pos = 0;
-
-        var quoteChar = null;
+        const v = [];
+        let s = "";
+        let pos = 0;
+        let quoteChar = null;
         while(pos < str.length)
         {
             if(quoteChar === null && (str.charAt(pos) === '"' || str.charAt(pos) === '\''))
@@ -177,24 +168,23 @@ Ice.StringUtil =
         }
 
         return v;
-    },
+    }
     //
     // If a single or double quotation mark is found at the start position,
     // then the position of the matching closing quote is returned. If no
     // quotation mark is found at the start position, then 0 is returned.
     // If no matching closing quote is found, then -1 is returned.
     //
-    checkQuote: function(s, start)
+    static checkQuote(s, start)
     {
         start = start === undefined ? 0 : start;
 
-        var quoteChar = s.charAt(start);
+        let quoteChar = s.charAt(start);
         if(quoteChar == '"' || quoteChar == '\'')
         {
             start++;
-            var len = s.length;
-            var pos;
-            while(start < len && (pos = s.indexOf(quoteChar, start)) != -1)
+            let pos;
+            while(start < s.length && (pos = s.indexOf(quoteChar, start)) != -1)
             {
                 if(s.charAt(pos - 1) != '\\')
                 {
@@ -205,22 +195,19 @@ Ice.StringUtil =
             return -1; // Unmatched quote
         }
         return 0; // Not quoted
-    },
-    hashCode: function(s)
+    }
+    static hashCode(s)
     {
-        var hash = 0;
-        var n = s.length;
-
-        for(var i = 0; i < n; i++)
+        let hash = 0;
+        for(let i = 0; i < s.length; i++)
         {
             hash = 31 * hash + s.charCodeAt(i);
         }
-
         return hash;
-    },
-    toInt: function(s)
+    }
+    static toInt(s)
     {
-        var n = parseInt(s, 10);
+        const n = parseInt(s, 10);
         if(isNaN(n))
         {
             throw new Error("conversion of `" + s + "' to int failed");
@@ -285,7 +272,7 @@ function encodeChar(b, sb, special)
             if(!(b >= 32 && b <= 126))
             {
                 sb.push('\\');
-                var octal = b.toString(8);
+                const octal = b.toString(8);
                 //
                 // Add leading zeroes so that we avoid problems during
                 // decoding. For example, consider the encoded string
@@ -294,7 +281,7 @@ function encodeChar(b, sb, special)
                 // the result would be incorrectly interpreted by the
                 // decoder as a single character with value 11.
                 //
-                for(var j = octal.length; j < 3; j++)
+                for(let j = octal.length; j < 3; j++)
                 {
                     sb.push('0');
                 }
@@ -302,7 +289,7 @@ function encodeChar(b, sb, special)
             }
             else
             {
-                var c = String.fromCharCode(b);
+                const c = String.fromCharCode(b);
                 if(special !== null && special.indexOf(c) !== -1)
                 {
                     sb.push('\\');
@@ -318,10 +305,10 @@ function encodeChar(b, sb, special)
 }
 function checkChar(s, pos)
 {
-    var n = s.charCodeAt(pos);
+    const n = s.charCodeAt(pos);
     if(!(n >= 32 && n <= 126))
     {
-        var msg;
+        let msg;
         if(pos > 0)
         {
             msg = "character after `" + s.substring(0, pos) + "'";
@@ -351,7 +338,7 @@ function decodeChar(s, start, end, nextStart)
         throw new Error("EOF while decoding string");
     }
 
-    var c;
+    let c;
 
     if(s.charAt(start) != '\\')
     {
@@ -411,11 +398,11 @@ function decodeChar(s, start, end, nextStart)
             case '6':
             case '7':
             {
-                var octalChars = "01234567";
-                var val = 0;
-                for(var j = 0; j < 3 && start < end; ++j)
+                const octalChars = "01234567";
+                let val = 0;
+                for(let j = 0; j < 3 && start < end; ++j)
                 {
-                    var ch = s.charAt(start++);
+                    const ch = s.charAt(start++);
                     if(octalChars.indexOf(ch) == -1)
                     {
                         --start;
@@ -425,8 +412,7 @@ function decodeChar(s, start, end, nextStart)
                 }
                 if(val > 255)
                 {
-                    var msg = "octal value \\" + val.toString(8) + " (" + val + ") is out of range";
-                    throw new Error(msg);
+                    throw new Error("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
                 }
                 c = val;
                 break;
@@ -448,10 +434,10 @@ function decodeChar(s, start, end, nextStart)
 //
 function decodeString(s, start, end, arr)
 {
-    var nextStart = { 'value': 0 }, c, c2, c3;
+    let nextStart = { 'value': 0 };
     while(start < end)
     {
-        c = decodeChar(s, start, end, nextStart);
+        const c = decodeChar(s, start, end, nextStart);
         start = nextStart.value;
 
         if(c < 128)
@@ -460,15 +446,15 @@ function decodeString(s, start, end, arr)
         }
         else if(c > 191 && c < 224)
         {
-            c2 = decodeChar(s, start, end, nextStart);
+            const c2 = decodeChar(s, start, end, nextStart);
             start = nextStart.value;
             arr.push(String.fromCharCode(((c & 31) << 6) | (c2 & 63)));
         }
         else
         {
-            c2 = decodeChar(s, start, end, nextStart);
+            const c2 = decodeChar(s, start, end, nextStart);
             start = nextStart.value;
-            c3 = decodeChar(s, start, end, nextStart);
+            const c3 = decodeChar(s, start, end, nextStart);
             start = nextStart.value;
             arr.push(String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63)));
         }

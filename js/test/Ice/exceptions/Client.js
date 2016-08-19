@@ -16,29 +16,25 @@
 
     var allTests = function(out, communicator, Test, bidir)
     {
-        var EmptyI = function()
+        class EmptyI extends Test.Empty
         {
-        };
+        }
 
-        EmptyI.prototype = new Test.Empty();
-        EmptyI.prototype.constructor = EmptyI;
-
-        var ServantLocatorI = function()
+        class ServantLocatorI 
         {
-        };
+            locate(curr, cookie)
+            {
+                return null;
+            }
 
-        ServantLocatorI.prototype.locate = function(curr, cookie)
-        {
-            return null;
-        };
+            finished(curr, servant, cookie)
+            {
+            }
 
-        ServantLocatorI.prototype.finished = function(curr, servant, cookie)
-        {
-        };
-
-        ServantLocatorI.prototype.deactivate = function(category)
-        {
-        };
+            deactivate(category)
+            {
+            }
+        }
 
         function ValueFactoryI()
         {
@@ -56,7 +52,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -249,7 +245,7 @@
                 out.write("testing checked cast... ");
                 return Test.ThrowerPrx.checkedCast(base);
             }
-            ).then(
+        ).then(
             function(obj)
             {
                 thrower = obj;
@@ -460,16 +456,7 @@
                 out.writeLine("ok");
                 return thrower.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 
@@ -483,12 +470,7 @@
             {
                 return allTests(out, c, Test);
             }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
+        ).finally(() => c.destroy);
     };
     exports.__test__ = run;
     exports.__clientAllTests__ = allTests;

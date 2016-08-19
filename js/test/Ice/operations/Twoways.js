@@ -25,7 +25,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -34,8 +34,7 @@
         var failCB = function(){ test(false); };
 
         var si1, si2, ctx, combined;
-        Ice.Promise.try(
-            function()
+        Ice.Promise.try(() =>
             {
                 ctx = new Ice.Context();
                 ctx.set("one", "ONE");
@@ -44,8 +43,7 @@
 
                 return prx.opStringLiterals();
             }
-        ).then(
-            function(literals)
+        ).then(literals =>
             {
                 test(Test.s0 == "\\" &&
                      Test.s0 == Test.sw0 &&
@@ -126,52 +124,41 @@
         
                 return prx.ice_ping();
             }
-        ).then(
-            function()
-            {
-                return prx.ice_isA(Test.MyClass.ice_staticId());
-            }
-        ).then(
-            function(b)
+        ).then(() => prx.ice_isA(Test.MyClass.ice_staticId())
+        ).then(b =>
             {
                 test(b);
                 return prx.ice_id();
             }
-        ).then(
-            function(id)
+        ).then(id =>
             {
                 test(id === Test.MyDerivedClass.ice_staticId());
                 return prx.ice_ids();
             }
-        ).then(
-            function(ids)
+        ).then(ids =>
             {
                 test(ids.length === 3);
                 return prx.opVoid();
             }
-        ).then(
-            function()
+        ).then(() => prx.opByte(0xff, 0x0f)
+        ).then(r =>
             {
-                return prx.opByte(0xff, 0x0f);
-            }
-        ).then(
-            function(retval, p3)
-            {
+                var [retval, p3] = r;
                 test(p3 === 0xf0);
                 test(retval === 0xff);
                 return prx.opBool(true, false);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3);
                 test(!retval);
                 var lo = new Ice.Long(0, 12);
                 return prx.opShortIntLong(10, 11, lo);
             }
-        ).then(
-            function(retval, s, i, l)
+        ).then(r =>
             {
+                var [retval, s, i, l] = r;
                 var lo = new Ice.Long(0, 12);
                 test(s === 10);
                 test(i === 11);
@@ -179,9 +166,9 @@
                 test(retval.equals(lo));
                 return prx.opFloatDouble(3.14, 1.1E10);
             }
-       ).then(
-            function(retval, f, d)
+       ).then(r =>
             {
+                var [retval, f, d] = r;
                 test((f - 3.14) <= 0.01);
                 test(d == 1.1E10);
                 test(retval == 1.1E10);
@@ -189,126 +176,126 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opShortIntLong(-32768 - 1, 0, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opShortIntLong(32767 + 1, 0, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opShortIntLong(0, -2147483648 - 1, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opShortIntLong(0, 2147483647 + 1, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opShortIntLong(0, 0, new Ice.Long(0, 0xFFFFFFFF + 1));
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof RangeError);
                 return prx.opShortIntLong(0, 0, new Ice.Long(0xFFFFFFFF + 1, 0));
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof RangeError);
                 return prx.opShortIntLong(0, 0, new Ice.Long(0, -1));
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof RangeError);
                 return prx.opShortIntLong(Number.NaN, 0, new Ice.Long(0, 0));
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opFloatDouble(Number.MAX_VALUE, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opFloatDouble(-Number.MAX_VALUE, 0);
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(ex instanceof Ice.MarshalException);
                 return prx.opFloatDouble(Number.NaN, Number.NaN);
             }
-        ).then(
-            function(retval, f, d)
+        ).then(r =>
             {
+                var [retval, f, d] = r;
                 return prx.opFloatDouble(-Number.NaN, -Number.NaN);
             }
-        ).then(
-            function(retval, f, d)
+        ).then(r =>
             {
+                var [retval, f, d] = r;
                 return prx.opFloatDouble(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
             }
-        ).then(
-            function(retval, f, d)
+        ).then(r =>
             {
+                var [retval, f, d] = r;
                 return prx.opFloatDouble(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
             }
-        ).then(
-            function(retval, f, d)
+        ).then(r =>
             {
+                var [retval, f, d] = r;
                 return prx.opString("hello", "world");
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3 === "world hello");
                 test(retval === "hello world");
                 return prx.opMyEnum(Test.MyEnum.enum2);
             }
-        ).then(
-            function(retval, p2)
+        ).then(r =>
             {
+                var [retval, p2] = r;
                 test(p2 === Test.MyEnum.enum2);
                 test(retval === Test.MyEnum.enum3);
                 // Test null enum
                 return prx.opMyEnum(null);
             }
-        ).then(
-            function(retval, p2)
+        ).then(r =>
             {
+                var [retval, p2] = r;
                 test(p2 === Test.MyEnum.enum1);
                 test(retval === Test.MyEnum.enum3);
                 return prx.opMyClass(prx);
             }
-        ).then(
-            function(retval, p2, p3)
+        ).then(r =>
             {
+                var [retval, p2, p3] = r;
                 test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
                 test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
                 test(retval.ice_getIdentity().equals(Ice.stringToIdentity("test")));
@@ -325,9 +312,9 @@
                 si2.s.s = "def";
                 return prx.opStruct(si1, si2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.p === null);
                 test(retval.e === Test.MyEnum.enum2);
                 test(retval.s.s === "def");
@@ -340,9 +327,9 @@
                 // Test null struct
                 return prx.opStruct(si1, si2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.p === null);
                 test(retval.e === Test.MyEnum.enum1);
                 test(retval.s.s === "");
@@ -354,9 +341,9 @@
                 var bsi2 = Ice.Buffer.createNative([ 0xf1, 0xf2, 0xf3, 0xf4 ]);
                 return prx.opByteS(bsi1, bsi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.length === 4);
                 test(p3[0] === 0x22);
                 test(p3[1] === 0x12);
@@ -376,9 +363,9 @@
                 var bsi2 = [ false ];
                 return prx.opBoolS(bsi1, bsi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.length == 4);
                 test(p3[0]);
                 test(p3[1]);
@@ -397,9 +384,9 @@
                 var lsi = [ l1, l2, l3 ];
                 return prx.opShortIntLongS(ssi, isi, lsi);
             }
-        ).then(
-            function(retval, sso, iso, lso)
+        ).then(r =>
             {
+                var [retval, sso, iso, lso] = r;
                 var l1 = new Ice.Long(0, 10);
                 var l2 = new Ice.Long(0, 30);
                 var l3 = new Ice.Long(0, 20);
@@ -428,9 +415,9 @@
                 var dsi = [ 1.1E10, 1.2E10, 1.3E10 ];
                 return prx.opFloatDoubleS(fsi, dsi);
             }
-        ).then(
-            function(retval, fso, dso)
+        ).then(r =>
             {
+                var [retval, fso, dso] = r;
                 test(fso.length === 2);
                 test((fso[0] - 3.14) <= 0.01);
                 test((fso[1] - 1.11) <= 0.01);
@@ -448,9 +435,9 @@
                 var ssi2 = [ "xyz" ];
                 return prx.opStringS(ssi1, ssi2);
             }
-        ).then(
-            function(retval, sso)
+        ).then(r =>
             {
+                var [retval, sso] = r;
                 test(sso.length === 4);
                 test(sso[0] === "abc");
                 test(sso[1] === "de");
@@ -473,9 +460,9 @@
                     ];
                 return prx.opByteSS(bsi1, bsi2);
             }
-        ).then(
-            function(retval, bso)
+        ).then(r =>
             {
+                var [retval, bso] = r;
                 test(bso.length === 2);
                 test(bso[0].length === 1);
                 test(bso[0][0] === 0xff);
@@ -508,9 +495,9 @@
                 ];
                 return prx.opBoolSS(bsi1, bsi2);
             }
-        ).then(
-            function(retval, bso)
+        ).then(r =>
             {
+                var [retval, bso] = r;
                 test(bso.length === 4);
                 test(bso[0].length === 1);
                 test(bso[0][0]);
@@ -552,9 +539,9 @@
                 return prx.opShortIntLongSS(ssi, isi, lsi);
 
             }
-        ).then(
-            function(retval, sso, iso, lso)
+        ).then(r =>
             {
+                var [retval, sso, iso, lso] = r;
                 var l1 = new Ice.Long(0, 496);
                 var l2 = new Ice.Long(0, 1729);
 
@@ -596,9 +583,9 @@
                     ];
                 return prx.opFloatDoubleSS(fsi, dsi);
             }
-        ).then(
-            function(retval, fso, dso)
+        ).then(r =>
             {
+                var [retval, fso, dso] = r;
                 test(fso.length === 3);
                 test(fso[0].length === 1);
                 test((fso[0][0] - 3.14) <= 0.01);
@@ -633,9 +620,9 @@
                     ];
                 return prx.opStringSS(ssi1, ssi2);
             }
-        ).then(
-            function(retval, sso)
+        ).then(r =>
             {
+                var [retval, sso] = r;
                 test(sso.length === 5);
                 test(sso[0].length === 1);
                 test(sso[0][0] === "abc");
@@ -676,9 +663,9 @@
                 ];
                 return prx.opStringSSS(sssi1, sssi2);
             }
-        ).then(
-            function(retval, ssso)
+        ).then(r =>
             {
+                var [retval, ssso] = r;
                 test(ssso.length === 5);
                 test(ssso[0].length === 2);
                 test(ssso[0][0].length === 2);
@@ -722,13 +709,13 @@
 
                 return prx.opByteBoolD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.ByteBoolD();
                 tmp.set(10, true);
                 tmp.set(100, false);
-                test(p3.equals(tmp));
+                test(Ice.MapUtil.equals(p3, tmp));
                 test(retval.size === 4);
                 test(retval.get(10) === true);
                 test(retval.get(11) === false);
@@ -745,13 +732,13 @@
 
                 return prx.opShortIntD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.ShortIntD();
                 tmp.set(110, -1);
                 tmp.set(1100, 123123);
-                test(p3.equals(tmp));
+                test(Ice.MapUtil.equals(p3, tmp));
                 test(retval.size === 4);
                 test(retval.get(110) === -1);
                 test(retval.get(111) === -100);
@@ -768,16 +755,14 @@
 
                 return prx.opLongFloatD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.LongFloatD();
                 tmp.set(new Ice.Long(0, 999999110), -1.1);
                 tmp.set(new Ice.Long(0, 999999111), 123123.2);
 
-                test(p3.equals(tmp,
-                               function(v1, v2) {
-                                return (Math.abs(v1) - Math.abs(v2)) <= 0.01; }));
+                test(p3.equals(tmp, (v1, v2) => (Math.abs(v1) - Math.abs(v2)) <= 0.01));
                 test(retval.size === 4);
                 test(Math.abs(retval.get(new Ice.Long(0, 999999110))) - Math.abs(-1.1) <= 0.01);
                 test(Math.abs(retval.get(new Ice.Long(0, 999999120))) - Math.abs(-100.4) <= 0.01);
@@ -794,13 +779,13 @@
 
                 return prx.opStringStringD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.StringStringD();
                 tmp.set("foo", "abc -1.1");
                 tmp.set("bar", "abc 123123.2");
-                test(p3.equals(tmp));
+                test(Ice.MapUtil.equals(p3, tmp));
                 test(retval.size == 4);
                 test(retval.get("foo") === "abc -1.1");
                 test(retval.get("FOO") === "abc -100.4");
@@ -817,13 +802,13 @@
 
                 return prx.opStringMyEnumD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.StringMyEnumD();
                 tmp.set("abc", Test.MyEnum.enum1);
                 tmp.set("", Test.MyEnum.enum2);
-                test(p3.equals(tmp));
+                test(Ice.MapUtil.equals(p3, tmp));
                 test(retval.size === 4);
                 test(retval.get("abc") === Test.MyEnum.enum1);
                 test(retval.get("qwerty") === Test.MyEnum.enum3);
@@ -838,12 +823,12 @@
 
                 return prx.opMyEnumStringD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.MyEnumStringD();
                 tmp.set(Test.MyEnum.enum1, "abc");
-                test(p3.equals(tmp));
+                test(Ice.MapUtil.equals(p3, tmp));
                 test(retval.size === 3);
                 test(retval.get(Test.MyEnum.enum1) === "abc");
                 test(retval.get(Test.MyEnum.enum2) === "Hello!!");
@@ -863,9 +848,9 @@
 
                 return prx.opMyStructMyEnumD(di1, di2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var tmp = new Test.MyStructMyEnumD();
                 var ts11 = new Test.MyStruct(1, 1);
                 var ts12 = new Test.MyStruct(1, 2);
@@ -893,9 +878,9 @@
 
                 return prx.opByteBoolDS([ds1, ds2], [ds3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length == 2);
                 test(retval[0].size == 3);
                 test(retval[0].get(10) === true);
@@ -928,9 +913,9 @@
 
                 return prx.opShortIntDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length == 2);
                 test(retval[0].size == 3);
                 test(retval[0].get(110) === -1);
@@ -963,9 +948,9 @@
 
                 return prx.opLongFloatDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length == 2);
                 test(retval[0].size == 3);
                 test(retval[0].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
@@ -998,9 +983,9 @@
 
                 return prx.opStringStringDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length === 2);
                 test(retval[0].size === 3);
                 test(retval[0].get("foo") === "abc -1.1");
@@ -1033,9 +1018,9 @@
 
                 return prx.opStringMyEnumDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length == 2);
                 test(retval[0].size == 3);
                 test(retval[0].get("abc") == Test.MyEnum.enum1);
@@ -1066,9 +1051,9 @@
 
                 return prx.opMyEnumStringDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(retval.length == 2);
                 test(retval[0].size == 2);
                 test(retval[0].get(Test.MyEnum.enum2) === "Hello!!");
@@ -1103,9 +1088,9 @@
 
                 return prx.opMyStructMyEnumDS([di1, di2], [di3]);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 var s11 = new Test.MyStruct(1, 1);
                 var s12 = new Test.MyStruct(1, 2);
                 var s22 = new Test.MyStruct(2, 2);
@@ -1139,9 +1124,9 @@
 
                 return prx.opByteByteSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size == 1);
                 test(p3.get(0xf1).length === 2);
                 test(p3.get(0xf1)[0] === 0xf2);
@@ -1167,9 +1152,9 @@
 
                 return prx.opBoolBoolSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get(false).length === 2);
                 test(p3.get(false)[0] === true);
@@ -1196,9 +1181,9 @@
 
                 return prx.opShortShortSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get(4).length === 2);
                 test(p3.get(4)[0] === 6);
@@ -1228,9 +1213,9 @@
 
                 return prx.opIntIntSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get(400).length === 2);
                 test(p3.get(400)[0] === 600);
@@ -1260,9 +1245,9 @@
 
                 return prx.opLongLongSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size == 1);
                 test(p3.get(new Ice.Long(0, 999999992)).length === 2);
                 test(p3.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
@@ -1292,9 +1277,9 @@
 
                 return prx.opStringFloatSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get("aBc").length === 2);
                 test(p3.get("aBc")[0] - Math.abs(3.14) <= 0.1);
@@ -1324,9 +1309,9 @@
 
                 return prx.opStringDoubleSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get("").length === 2);
                 test(p3.get("")[0] === 1.6E10);
@@ -1356,9 +1341,9 @@
 
                 return prx.opStringStringSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size === 1);
                 test(p3.get("ghi").length ===2);
                 test(p3.get("ghi")[0] === "and");
@@ -1388,9 +1373,9 @@
 
                 return prx.opMyEnumMyEnumSD(sdi1, sdi2);
             }
-        ).then(
-            function(retval, p3)
+        ).then(r =>
             {
+                var [retval, p3] = r;
                 test(p3.size == 1);
                 test(p3.get(Test.MyEnum.enum1).length == 2);
                 test(p3.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
@@ -1434,107 +1419,97 @@
 
                 return next(0);
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 test(prx.ice_getContext().size === 0);
-
                 return prx.opContext();
             }
-        ).then(
-            function(c)
+        ).then(c =>
             {
-                test(!c.equals(ctx));
+                test(!Ice.MapUtil.equals(c, ctx));
                 return prx.opContext(ctx);
             }
-        ).then(
-            function(c)
+        ).then(c =>
             {
-                test(c.equals(ctx));
+                test(Ice.MapUtil.equals(c, ctx));
                 return Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
             }
-        ).then(
-            function(p2)
+        ).then(p2 =>
             {
-                test(p2.ice_getContext().equals(ctx));
-                return p2.opContext();
+                test(Ice.MapUtil.equals(p2.ice_getContext(), ctx));
+                return p2.opContext().then(c =>
+                    {
+                        test(Ice.MapUtil.equals(c, ctx));
+                        return p2.opContext(ctx);
+                    }
+                ).then(c =>
+                    {
+                        test(Ice.MapUtil.equals(c, ctx));
+                        if(!bidir)
+                        {
+                            var p3, ic;
+                            return Ice.Promise.try(() =>
+                                {
+                                    test(Ice.MapUtil.equals(c, ctx));
+
+                                    //
+                                    // Test implicit context propagation
+                                    //
+
+                                    var initData = new Ice.InitializationData();
+                                    initData.properties = communicator.getProperties().clone();
+                                    initData.properties.setProperty("Ice.ImplicitContext", "Shared");
+                                    ic = Ice.initialize(initData);
+                                    p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+                                    ic.getImplicitContext().setContext(ctx);
+                                    test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));
+                                    return p3.opContext();
+                                }
+                            ).then(c =>
+                                {
+                                    ic.getImplicitContext().put("zero", "ZERO");
+                                    return p3.opContext();
+                                }
+                            ).then(c =>
+                                {
+                                    test(Ice.MapUtil.equals(c, ic.getImplicitContext().getContext()));
+
+                                    ctx = ic.getImplicitContext().getContext();
+
+                                    var prxContext = new Ice.Context();
+                                    prxContext.set("one", "UN");
+                                    prxContext.set("four", "QUATRE");
+
+                                    combined = new Ice.Context(ctx);
+                                    for(let [key, value] of prxContext)
+                                    {
+                                        combined.set(key, value);
+                                    }
+                                    test(combined.get("one") === "UN");
+
+                                    p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext));
+
+                                    ic.getImplicitContext().setContext(null);
+
+                                    return p3.opContext();
+                                }
+                            ).then(c =>
+                                {
+                                    test(Ice.MapUtil.equals(c, p3.ice_getContext()));
+                                    ic.getImplicitContext().setContext(ctx);
+
+                                    return p3.opContext();
+                                }
+                            ).then(c =>
+                                {
+                                    test(Ice.MapUtil.equals(c, combined));
+
+                                    return ic.destroy();  
+                                });
+                        }
+                    });
             }
-        ).then(
-            function(c, r)
-            {
-                test(c.equals(ctx));
-                return r.proxy.opContext(ctx);
-            }
-        ).then(
-            function(c, r)
-            {
-                test(c.equals(ctx));
-                if(!bidir)
-                {
-                    return Ice.Promise.try(
-                        function()
-                        {
-                            test(c.equals(ctx));
-
-                            //
-                            // Test implicit context propagation
-                            //
-
-                            var initData = new Ice.InitializationData();
-                            initData.properties = communicator.getProperties().clone();
-                            initData.properties.setProperty("Ice.ImplicitContext", "Shared");
-                            var ic = Ice.initialize(initData);
-                            var p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
-                            ic.getImplicitContext().setContext(ctx);
-                            test(ic.getImplicitContext().getContext().equals(ctx));
-                            return p3.opContext();
-                        }
-                    ).then(
-                        function(c, r)
-                        {
-                            r.communicator.getImplicitContext().put("zero", "ZERO");
-                            return r.proxy.opContext();
-                        }
-                    ).then(
-                        function(c, r)
-                        {
-                            test(c.equals(r.communicator.getImplicitContext().getContext()));
-
-                            ctx = r.communicator.getImplicitContext().getContext();
-
-                            var prxContext = new Ice.Context();
-                            prxContext.set("one", "UN");
-                            prxContext.set("four", "QUATRE");
-
-                            combined = new Ice.Context(ctx);
-                            combined.merge(prxContext);
-                            test(combined.get("one") === "UN");
-
-                            var p3 = Test.MyClassPrx.uncheckedCast(r.proxy.ice_context(prxContext));
-
-                            r.communicator.getImplicitContext().setContext(null);
-
-                            return p3.opContext();
-                        }
-                    ).then(
-                        function(c, r)
-                        {
-                            test(c.equals(r.proxy.ice_getContext()));
-                            r.communicator.getImplicitContext().setContext(ctx);
-
-                            return r.proxy.opContext();
-                        }
-                    ).then(
-                        function(c, r)
-                        {
-                            test(c.equals(combined));
-
-                            return r.communicator.destroy();
-                        });
-                }
-            }
-        ).then(
-            function()
+        ).then(() =>
             {
                 var d = 1278312346.0 / 13.0;
                 var ds = [];
@@ -1545,28 +1520,11 @@
 
                 return prx.opDoubleMarshaling(d, ds);
             }
-        ).then(
-            function()
-            {
-                return prx.opIdempotent();
-            }
-        ).then(
-            function()
-            {
-                return prx.opNonmutating();
-            }
-        ).then(
-            function()
-            {
-                return Test.MyDerivedClassPrx.checkedCast(prx);
-            }
-        ).then(
-            function(d)
-            {
-                return d.opDerived();
-            }
-        ).then(
-            function()
+        ).then(() => prx.opIdempotent()
+        ).then(() => prx.opNonmutating()
+        ).then(() => Test.MyDerivedClassPrx.checkedCast(prx)
+        ).then(d => d.opDerived()
+        ).then(() =>
             {
                 var d = Test.MyDerivedClassPrx.uncheckedCast(prx);
                 var s = new Test.MyStruct1();
@@ -1595,43 +1553,33 @@
                         d.opMyStruct1(s),
                         d.opMyClass1(c)
                     ]
-                ).then(
-                    function()
+                ).then(r =>
                     {
-                        test(arguments[0][0] == 0xFF);
-                        test(arguments[1][0] == 0x7FFF);
-                        test(arguments[2][0] == 0x7FFFFFFF);
-                        var l = arguments[3][0];
+                        test(r[0] == 0xFF);
+                        test(r[1] == 0x7FFF);
+                        test(r[2] == 0x7FFFFFFF);
+                        var l = r[3];
                         test(l.high == 0x7FFFFFFF && l.low == 0xFFFFFFFF);
-                        test(arguments[4][0] == 1.0);
-                        test(arguments[5][0] == 1.0);
-                        test(arguments[6][0] == "opString1");
-                        test(arguments[7][0].length === 0);
-                        test(arguments[8][0].size === 0);
-                        test(arguments[9][0].length === 0);
-                        test(arguments[10][0].size === 0);
+                        test(r[4] == 1.0);
+                        test(r[5] == 1.0);
+                        test(r[6] == "opString1");
+                        test(r[7].length === 0);
+                        test(r[8].size === 0);
+                        test(r[9].length === 0);
+                        test(r[10].size === 0);
 
-                        s = arguments[11][0];
+                        s = r[11];
                         test(s.tesT == "Test.MyStruct1.s");
                         test(s.myClass === null);
                         test(s.myStruct1 == "Test.MyStruct1.myStruct1");
 
-                        c = arguments[12][0];
+                        c = r[12];
                         test(c.tesT == "Test.MyClass1.testT");
                         test(c.myClass === null);
                         test(c.myClass1 == "Test.MyClass1.myClass1");
                     });
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 

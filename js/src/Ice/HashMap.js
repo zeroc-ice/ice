@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-var __M = Ice.__M;
-__M.require(module, ["../Ice/Class", "../Ice/StringUtil", "../Ice/UUID"]);
-var StringUtil = Ice.StringUtil;
+const Ice = require("../Ice/ModuleRegistry").Ice;
+const __M = Ice.__M;
+__M.require(module, ["../Ice/StringUtil", "../Ice/UUID"]);
+const StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)
 {
     //
     // Search for an entry with the same key.
     //
-    for(var e = map._table[index]; e !== null; e = e._nextInBucket)
+    for(let e = map._table[index]; e !== null; e = e._nextInBucket)
     {
         if(e._hash === hash && map.keysEqual(key, e._key))
         {
@@ -54,16 +54,15 @@ function compareIdentity(v1, v2)
     return v1 === v2;
 }
 
-var HashMap = Ice.Class({
-    __init__: function(arg1, arg2)
+class HashMap
+{
+    constructor(arg1, arg2)
     {
         //
         // The first argument can be a HashMap or the keyComparator, the second
         // argument if present is always the value comparator.
         // 
-        var args = arguments;
-
-        var h, keyComparator, valueComparator;
+        let h, keyComparator, valueComparator;
 
         if(typeof arg1 == "function")
         {
@@ -86,13 +85,11 @@ var HashMap = Ice.Class({
         this._keyComparator = (typeof keyComparator == "function") ? keyComparator : compareIdentity;
         this._valueComparator = (typeof valueComparator == "function") ? valueComparator : compareIdentity;
 
-        var i, length;
         if(h instanceof HashMap && h._size > 0)
         {
             this._threshold = h._threshold;
-            length = h._table.length;
-            this._table.length = length;
-            for(i = 0; i < length; i++)
+            this._table.length = h._table.length;
+            for(let i = 0; i < h._table.length; i++)
             {
                 this._table[i] = null;
             }
@@ -101,42 +98,46 @@ var HashMap = Ice.Class({
         else
         {
             this._threshold = this._initialCapacity * this._loadFactor;
-            for(i = 0; i < this._initialCapacity; i++)
+            for(let i = 0; i < this._initialCapacity; i++)
             {
                 this._table[i] = null;
             }
         }
-    },
-    set: function(key, value)
-    {
-        var r = this.computeHash(key); // Returns an object with key,hash members.
+    }
 
-        var index = this.hashIndex(r.hash, this._table.length);
+    set(key, value)
+    {
+        const r = this.computeHash(key); // Returns an object with key,hash members.
+
+        const index = this.hashIndex(r.hash, this._table.length);
 
         return setInternal(this, r.key, value, r.hash, index);
-    },
-    get: function(key)
+    }
+    
+    get(key)
     {
-        var r = this.computeHash(key); // Returns an object with key,hash members.
-        var e = this.findEntry(r.key, r.hash);
+        const r = this.computeHash(key); // Returns an object with key,hash members.
+        const e = this.findEntry(r.key, r.hash);
         return e !== undefined ? e._value : undefined;
-    },
-    has: function(key)
-    {
-        var r = this.computeHash(key); // Returns an object with key,hash members.
-        return this.findEntry(r.key, r.hash) !== undefined;
-    },
-    delete: function(key)
-    {
-        var r = this.computeHash(key); // Returns an object with key,hash members.
+    }
 
-        var index = this.hashIndex(r.hash, this._table.length);
+    has(key)
+    {
+        const r = this.computeHash(key); // Returns an object with key,hash members.
+        return this.findEntry(r.key, r.hash) !== undefined;
+    }
+
+    delete(key)
+    {
+        const r = this.computeHash(key); // Returns an object with key,hash members.
+
+        const index = this.hashIndex(r.hash, this._table.length);
 
         //
         // Search for an entry with the same key.
         //
-        var prev = null;
-        for(var e = this._table[index]; e !== null; e = e._nextInBucket)
+        let prev = null;
+        for(let e = this._table[index]; e !== null; e = e._nextInBucket)
         {
             if(e._hash === r.hash && this.keysEqual(r.key, e._key))
             {
@@ -181,85 +182,88 @@ var HashMap = Ice.Class({
         }
 
         return undefined;
-    },
-    clear: function()
+    }
+    
+    clear()
     {
-        for(var i = 0; i < this._table.length; ++i)
+        for(let i = 0; i < this._table.length; ++i)
         {
             this._table[i] = null;
         }
         this._head = null;
         this._size = 0;
-    },
-    forEach: function(fn, obj)
+    }
+
+    forEach(fn, obj)
     {
         obj = obj === undefined ? fn : obj;
-        for(var e = this._head; e !== null; e = e._next)
+        for(let e = this._head; e !== null; e = e._next)
         {
-            fn.call(obj, e._key, e._value);
+            fn.call(obj, e._value, e._key);
         }
-    },
-    keys: function()
+    }
+
+    *entries()
     {
-        var k = [];
-        var i = 0;
-        for(var e = this._head; e !== null; e = e._next)
+        for(let e = this._head; e !== null; e = e._next)
         {
-            k[i++] = e._key;
+            yield [e._key, e._value];
         }
-        return k;
-    },
-    values: function()
+    }
+
+    *keys()
     {
-        var v = [];
-        var i = 0;
-        for(var e = this._head; e !== null; e = e._next)
+        for(let e = this._head; e !== null; e = e._next)
         {
-            v[i++] = e._value;
+            yield e._key;
         }
-        return v;
-    },
-    equals: function(other, valuesEqual)
+    }
+
+    *values()
+    {
+        for(let e = this._head; e !== null; e = e._next)
+        {
+            yield e._value;
+        }
+    }
+
+    equals(other, valuesEqual)
     {
         if(other === null || !(other instanceof HashMap) || this._size !== other._size)
         {
             return false;
         }
 
-        var self = this;
-        var eq = valuesEqual || function(v1, v2)
+        const eq = valuesEqual || ((v1, v2) =>
             {
-                return self._valueComparator.call(self._valueComparator, v1, v2);
-            };
+                return this._valueComparator.call(this._valueComparator, v1, v2);
+            });
         
-        for(var e = this._head; e !== null; e = e._next)
+        for(let e = this._head; e !== null; e = e._next)
         {
-            var oe = other.findEntry(e._key, e._hash);
+            const oe = other.findEntry(e._key, e._hash);
             if(oe === undefined || !eq(e._value, oe._value))
             {
                 return false;
             }
         }
-
         return true;
-    },
-    clone: function()
+    }
+
+    merge(from)
     {
-        return new HashMap(this);
-    },
-    merge: function(from)
-    {
-        for(var e = from._head; e !== null; e = e._next)
+        for(let e = from._head; e !== null; e = e._next)
         {
             setInternal(this, e._key, e._value, e._hash, this.hashIndex(e._hash, this._table.length));
         }
-    },
-    add: function(key, value, hash, index)
+    }
+
+    add(key, value, hash, index)
     {
         //
         // Create a new table entry.
         //
-        var e = Object.create(null, {
+        let e = Object.create(null, {
             "key": {
                 enumerable: true,
                 get: function() { return this._key; }
@@ -318,37 +322,33 @@ var HashMap = Ice.Class({
         {
             this.resize(this._table.length * 2);
         }
-    },
-    resize: function(capacity)
-    {
-        var oldTable = this._table;
+    }
 
-        var newTable = [];
-        for(var i = 0; i < capacity; i++)
-        {
-            newTable[i] = null;
-        }
+    resize(capacity)
+    {
+        const newTable = new Array(capacity).fill(null);
 
         //
         // Re-assign all entries to buckets.
         //
-        for(var e = this._head; e !== null; e = e._next)
+        for(let e = this._head; e !== null; e = e._next)
         {
-            var index = this.hashIndex(e._hash, capacity);
+            let index = this.hashIndex(e._hash, capacity);
             e._nextInBucket = newTable[index];
             newTable[index] = e;
         }
 
         this._table = newTable;
         this._threshold = (capacity * this._loadFactor);
-    },
-    findEntry: function(key, hash)
+    }
+
+    findEntry(key, hash)
     {
-        var index = this.hashIndex(hash, this._table.length);
+        let index = this.hashIndex(hash, this._table.length);
         //
         // Search for an entry with the same key.
         //
-        for(var e = this._table[index]; e !== null; e = e._nextInBucket)
+        for(let e = this._table[index]; e !== null; e = e._nextInBucket)
         {
             if(e._hash === hash && this.keysEqual(key, e._key))
             {
@@ -357,14 +357,15 @@ var HashMap = Ice.Class({
         }
 
         return undefined;
-    },
-    hashIndex: function(hash, len)
+    }
+
+    hashIndex(hash, len)
     {
         return hash & (len - 1);
-    },
-    computeHash: function(v)
+    }
+
+    computeHash(v)
     {
-        var uuid;
         if(v === 0 || v === -0)
         {
             return {key:0, hash:0};
@@ -374,7 +375,7 @@ var HashMap = Ice.Class({
         {
             if(HashMap._null === null)
             {
-                uuid = Ice.generateUUID();
+                let uuid = Ice.generateUUID();
                 HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
@@ -390,7 +391,7 @@ var HashMap = Ice.Class({
             return {key:v, hash:v.hashCode()};
         }
 
-        var type = typeof(v);
+        const type = typeof(v);
         if(type === "string" || v instanceof String)
         {
             return {key:v, hash:StringUtil.hashCode(v)};
@@ -401,7 +402,7 @@ var HashMap = Ice.Class({
             {
                 if(HashMap._nan === null)
                 {
-                    uuid = Ice.generateUUID();
+                    let uuid = Ice.generateUUID();
                     HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;
@@ -414,12 +415,21 @@ var HashMap = Ice.Class({
         }
 
         throw new Error("cannot compute hash for value of type " + type);
-    },
-    keysEqual: function(k1, k2)
+    }
+
+    keysEqual(k1, k2)
     {
         return this._keyComparator.call(this._keyComparator, k1, k2);
     }
-});
+    
+    get size()
+    {
+        return this._size;
+    }
+}
+
+HashMap.prototype[Symbol.iterator] = HashMap.prototype.entries;
+
 Ice.HashMap = HashMap;
 
 HashMap.compareEquals = compareEquals;
@@ -427,20 +437,15 @@ HashMap.compareIdentity = compareIdentity;
 HashMap._null = null;
 HashMap._nan = null;
 
-var prototype = HashMap.prototype;
+const Slice = Ice.Slice;
 
-Object.defineProperty(prototype, "size", {
-    get: function() { return this._size; }
-});
-
-Object.defineProperty(prototype, "entries", {
-    get: function() { return this._head; }
-});
-
-var Slice = Ice.Slice;
-Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelper, fixed, keysEqual, valueType, valuesEqual)
+Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelper, fixed, keysEqual, valueType)
 {
-    if(keysEqual !== undefined || valuesEqual !== undefined)
+    if(keysEqual === undefined)
+    {
+        module[name] = Map;
+    }
+    else
     {
         //
         // Define a constructor function for a dictionary whose key type requires
@@ -449,28 +454,25 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
         //
         module[name] = function(h)
         {
-            return new HashMap(h || keysEqual, valuesEqual);
+            return new HashMap(h || keysEqual);
         };
     }
-    else
-    {
-        module[name] = HashMap;
-    }
-
-    var helper = null;
+    
+    let helper = null;
     Object.defineProperty(module, helperName,
     {
         get: function()
+        {
+            if(helper === null)
             {
-                if(helper === null)
-                {
-                    /*jshint -W061 */
-                    helper = Ice.StreamHelpers.generateDictHelper(__M.type(keyHelper), __M.type(valueHelper), fixed, 
-                                                                  __M.type(valueType), module[name]);
-                    /*jshint +W061 */
-                }
-                return helper;
+                helper = Ice.StreamHelpers.generateDictHelper(__M.type(keyHelper),
+                                                              __M.type(valueHelper),
+                                                              fixed, 
+                                                              __M.type(valueType),
+                                                              module[name]);
             }
+            return helper;
+        }
     });
 };
 module.exports.Ice = Ice;

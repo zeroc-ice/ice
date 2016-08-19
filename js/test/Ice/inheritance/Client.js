@@ -28,7 +28,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -54,18 +54,19 @@
                 out.writeLine("ok");
 
                 out.write("getting proxies for class hierarchy... ");
-                return Promise.all(initial.caop(),
-                                   initial.cbop(),
-                                   initial.ccop(),
-                                   initial.cdop());
+                return Promise.all([initial.caop(), initial.cbop(),initial.ccop(), initial.cdop()]);
             }
         ).then(
-            function(r1, r2, r3, r4)
+            function(r)
             {
-                ca = r1[0];
-                cb = r2[0];
-                cc = r3[0];
-                cd = r4[0];
+                var r1 = r[0], 
+                    r2 = r[1],
+                    r3 = r[2], 
+                    r4 = r[3];
+                ca = r1;
+                cb = r2;
+                cc = r3;
+                cd = r4;
 
                 test(ca !== cb);
                 test(ca !== cc);
@@ -76,19 +77,17 @@
                 out.writeLine("ok");
                 out.write("getting proxies for interface hierarchy... ");
 
-                return Promise.all(initial.iaop(),
-                                   initial.ib1op(),
-                                   initial.ib2op(),
-                                   initial.icop());
+                return Promise.all([initial.iaop(), initial.ib1op(), initial.ib2op(), initial.icop()]);
             }
         ).then(
-            function(r1, r2, r3, r4)
+            function(r)
             {
-                ia = r1[0];
-                ib1 = r2[0];
+                var [r1, r2, r3, r4] = r;
+                ia = r1;
+                ib1 = r2;
                 test(ib1.ice_instanceof(Test.MB.IB1Prx));
-                ib2 = r3[0];
-                ic = r4[0];
+                ib2 = r3;
+                ic = r4;
 
                 test(ia !== ib1);
                 test(ia !== ib2);
@@ -97,7 +96,7 @@
                 test(ib2 !== ic);
                 out.writeLine("ok");
                 out.write("invoking proxy operations on class hierarchy... ");
-                return Promise.all(
+                return Promise.all([
                     ca.caop(ca),  // r1
                     ca.caop(cb),  // r2
                     ca.caop(cc),  // r3
@@ -117,42 +116,41 @@
                     cc.cbop(cc),  // r17
                     cc.ccop(cc),  // r18
                     cc.ccop(cc),  // r19
-                    cc.ccop(cc)); // r20
+                    cc.ccop(cc)]); // r20
             }
         ).then(
-            function(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10,
-                     r11, r12, r13, r14, r15, r16, r17, r18, r19, r20)
+            function(r)
             {
-                test(r1[0].equals(ca));
-                test(r2[0].equals(cb));
-                test(r3[0].equals(cc));
-                test(r4[0].equals(ca));
-                test(r5[0].equals(cb));
-                test(r6[0].equals(cc));
-                test(r7[0].equals(ca));
-                test(r8[0].equals(cb));
-                test(r9[0].equals(cc));
-                test(r10[0].equals(cb));
-                test(r11[0].equals(cb));
-                test(r12[0].equals(cc));
-                test(r13[0].equals(cc));
-                test(r14[0].equals(cb));
-                test(r15[0].equals(cb));
-                test(r16[0].equals(cc));
-                test(r17[0].equals(cc));
-                test(r18[0].equals(cc));
-                test(r19[0].equals(cc));
-                test(r20[0].equals(cc));
+                test(r[0].equals(ca));
+                test(r[1].equals(cb));
+                test(r[2].equals(cc));
+                test(r[3].equals(ca));
+                test(r[4].equals(cb));
+                test(r[5].equals(cc));
+                test(r[6].equals(ca));
+                test(r[7].equals(cb));
+                test(r[8].equals(cc));
+                test(r[9].equals(cb));
+                test(r[10].equals(cb));
+                test(r[11].equals(cc));
+                test(r[12].equals(cc));
+                test(r[13].equals(cb));
+                test(r[14].equals(cb));
+                test(r[15].equals(cc));
+                test(r[16].equals(cc));
+                test(r[17].equals(cc));
+                test(r[18].equals(cc));
+                test(r[19].equals(cc));
 
                 out.writeLine("ok");
                 out.write("ditto, but for interface hierarchy... ");
 
-                return Promise.all(
+                return Promise.all([
                     ia.iaop(ia),    // r1
                     ia.iaop(ib1),   // r2
                     ia.iaop(ib2),   // r3
                     ia.iaop(ic),    // r4
-                    ib1.ib1op(ia),   // r5
+                    ib1.ib1op(ia),  // r5
                     ib1.iaop(ib1),  // r6
                     ib1.iaop(ib2),  // r7
                     ib1.iaop(ic),   // r8
@@ -183,55 +181,52 @@
                     ic.icop(ic),    // r33
                     ic.icop(ic),    // r34
                     ic.icop(ic),    // r35
-                    ic.icop(ic));   // r36
+                    ic.icop(ic)]);  // r36
             }
         ).then(
-            function(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10,
-                     r11, r12, r13, r14, r15, r16, r17, r18, r19, r20,
-                     r21, r22, r23, r24, r25, r26, r27, r28, r29, r30,
-                     r31, r32, r33, r34, r35, r36)
+            function(r)
             {
-                test(r1[0].equals(ia));
-                test(r2[0].equals(ib1));
-                test(r3[0].equals(ib2));
-                test(r4[0].equals(ic));
-                test(r5[0].equals(ia));
-                test(r6[0].equals(ib1));
-                test(r7[0].equals(ib2));
-                test(r8[0].equals(ic));
-                test(r9[0].equals(ia));
-                test(r10[0].equals(ib1));
-                test(r11[0].equals(ib2));
-                test(r12[0].equals(ic));
-                test(r13[0].equals(ia));
-                test(r14[0].equals(ib1));
-                test(r15[0].equals(ib2));
-                test(r16[0].equals(ic));
-                test(r17[0].equals(ib1));
-                test(r18[0].equals(ib1));
-                test(r19[0].equals(ic));
-                test(r20[0].equals(ic));
-                test(r21[0].equals(ib1));
-                test(r22[0].equals(ib1));
-                test(r23[0].equals(ic));
-                test(r24[0].equals(ic));
-                test(r25[0].equals(ib2));
-                test(r26[0].equals(ib2));
-                test(r27[0].equals(ic));
-                test(r28[0].equals(ic));
-                test(r29[0].equals(ib2));
-                test(r30[0].equals(ib2));
-                test(r31[0].equals(ic));
-                test(r32[0].equals(ic));
-                test(r33[0].equals(ic));
-                test(r34[0].equals(ic));
-                test(r35[0].equals(ic));
-                test(r36[0].equals(ic));
+                test(r[0].equals(ia));
+                test(r[1].equals(ib1));
+                test(r[2].equals(ib2));
+                test(r[3].equals(ic));
+                test(r[4].equals(ia));
+                test(r[5].equals(ib1));
+                test(r[6].equals(ib2));
+                test(r[7].equals(ic));
+                test(r[8].equals(ia));
+                test(r[9].equals(ib1));
+                test(r[10].equals(ib2));
+                test(r[11].equals(ic));
+                test(r[12].equals(ia));
+                test(r[13].equals(ib1));
+                test(r[14].equals(ib2));
+                test(r[15].equals(ic));
+                test(r[16].equals(ib1));
+                test(r[17].equals(ib1));
+                test(r[18].equals(ic));
+                test(r[19].equals(ic));
+                test(r[20].equals(ib1));
+                test(r[21].equals(ib1));
+                test(r[22].equals(ic));
+                test(r[23].equals(ic));
+                test(r[24].equals(ib2));
+                test(r[25].equals(ib2));
+                test(r[26].equals(ic));
+                test(r[27].equals(ic));
+                test(r[28].equals(ib2));
+                test(r[29].equals(ib2));
+                test(r[30].equals(ic));
+                test(r[31].equals(ic));
+                test(r[32].equals(ic));
+                test(r[33].equals(ic));
+                test(r[34].equals(ic));
+                test(r[35].equals(ic));
 
                 out.writeLine("ok");
                 out.write("ditto, but for class implementing interfaces... ");
 
-                return Promise.all(
+                return Promise.all([
                     cd.caop(cd),    // r1
                     cd.cbop(cd),    // r2
                     cd.ccop(cd),    // r3
@@ -243,37 +238,27 @@
                     cd.cdop(cd),    // r9
                     cd.cdop(cd),    // r10
                     cd.cdop(cd),    // r11
-                    cd.cdop(cd));    // r12
+                    cd.cdop(cd)]);  // r12
             }
         ).then(
-            function(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10,
-                     r11, r12)
+            function(r)
             {
-                test(r1[0].equals(cd));
-                test(r2[0].equals(cd));
-                test(r3[0].equals(cd));
-                test(r4[0].equals(cd));
-                test(r5[0].equals(cd));
-                test(r6[0].equals(cd));
-                test(r7[0].equals(cd));
-                test(r8[0].equals(cd));
-                test(r9[0].equals(cd));
-                test(r10[0].equals(cd));
-                test(r11[0].equals(cd));
-                test(r12[0].equals(cd));
+                test(r[0].equals(cd));
+                test(r[1].equals(cd));
+                test(r[2].equals(cd));
+                test(r[3].equals(cd));
+                test(r[4].equals(cd));
+                test(r[5].equals(cd));
+                test(r[6].equals(cd));
+                test(r[7].equals(cd));
+                test(r[8].equals(cd));
+                test(r[9].equals(cd));
+                test(r[10].equals(cd));
+                test(r[11].equals(cd));
                 out.writeLine("ok");
                 return initial.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            },
-            function(ex)
-            {
-                p.fail(ex);
-            }
-        );
+        ).then(p.resolve, p.reject);
         return p;
     };
 

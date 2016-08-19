@@ -102,18 +102,6 @@ fixIds(const StringList& ids)
     return newIds;
 }
 
-static string
-fixSuffix(const string& param)
-{
-    const string thisSuffix = "this.";
-    string p = param;
-    if(p.find(thisSuffix) == 0)
-    {
-        p = "self." + p.substr(thisSuffix.size());
-    }
-    return p;
-}
-
 bool
 Slice::JsGenerator::isClassType(const TypePtr& type)
 {
@@ -323,7 +311,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type, bool optional)
 }
 
 string
-Slice::JsGenerator::getLocalScope(const string& scope)
+Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
 {
     assert(!scope.empty());
 
@@ -354,7 +342,7 @@ Slice::JsGenerator::getLocalScope(const string& scope)
     {
         if(i != ids.begin())
         {
-            result << '.';
+            result << separator;
         }
         result << *i;
     }
@@ -563,8 +551,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".readValue(function(__o){ " << fixSuffix(param) << " = __o; }, "
-                << typeToString(type) << ");";
+            out << nl << stream << ".readValue(__o => " << param << " = __o, " << typeToString(type) << ");";
         }
         return;
     }
@@ -602,8 +589,8 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".readOptionalValue(" << tag << ", function(__o){ " << fixSuffix(param)
-                << " = __o; }, " << typeToString(type) << ");";
+            out << nl << stream << ".readOptionalValue(" << tag << ", __o => " << param << " = __o, "
+                << typeToString(type) << ");";
         }
         return;
     }

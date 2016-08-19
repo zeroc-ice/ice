@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Class = Ice.Class;
-
     var test = function(b)
     {
         if(!b)
@@ -22,297 +20,343 @@
         }
     };
 
-    var MyDerivedClassI = Class(Test.MyDerivedClass, {
+    class MyDerivedClassI extends Test.MyDerivedClass
+    {
         //
         // Override the Object "pseudo" operations to verify the operation mode.
         //
-        __init__: function()
+        constructor()
         {
+            super();
             this._opByteSOnewayCount = 0;
-        },
-        ice_isA: function(id, current)
+        }
+
+        ice_isA(id, current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_isA.call(this, id, current);
-        },
-        ice_ping: function(current)
+        }
+
+        ice_ping(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             Ice.Object.prototype.ice_ping.call(this, current);
-        },
-        ice_ids: function(current)
+        }
+
+        ice_ids(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_ids.call(this, current);
-        },
-        ice_id: function(current)
+        }
+
+        ice_id(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
             return Ice.Object.prototype.ice_id.call(this, current);
-        },
-        shutdown: function(current)
+        }
+
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-        },
-        delay: function(cb, ms, current)
+        }
+
+        delay(cb, ms, current)
         {
-            Ice.Timer.setTimeout(
-                function()
-                {
-                    cb.ice_response();
-                }, ms);
-        },
-        opVoid: function(current)
+            Ice.Timer.setTimeout(() => cb.ice_response(), ms);
+        }
+
+        opVoid(current)
         {
             test(current.mode === Ice.OperationMode.Normal);
-        },
-        opBool: function(p1, p2, current)
+        }
+
+        opBool(p1, p2, current)
         {
             return [p2, p1];
-        },
-        opBoolS: function(p1, p2, current)
+        }
+
+        opBoolS(p1, p2, current)
         {
             var p3 = p1.concat(p2);
             return [p1.reverse(), p3];
-        },
-        opBoolSS: function(p1, p2, current)
+        }
+
+        opBoolSS(p1, p2, current)
         {
             var p3 = p1.concat(p2);
             return [p1.reverse(), p3];
-        },
-        opByte: function(p1, p2, current)
+        }
+
+        opByte(p1, p2, current)
         {
             return [p1, (p1 ^ p2) & 0xff];
-        },
-        opByteBoolD: function(p1, p2, current)
+        }
+
+        opByteBoolD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opByteS: function(p1, p2, current)
+        }
+
+        opByteS(p1, p2, current)
         {
-            var i;
             var p3 = Ice.Buffer.createNative(p1.length);
-            for(i = 0; i < p1.length; i++)
+            for(let i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
             var r = Ice.Buffer.createNative(p1.length + p2.length);
-            for(i = 0; i < p1.length; ++i)
+            for(let i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];
             }
-            for(i = 0; i < p2.length; ++i)
+            for(let i = 0; i < p2.length; ++i)
             {
                 r[i + p1.length] = p2[i];
             }
             return [r, p3];
-        },
-        opByteSS: function(p1, p2, current)
+        }
+
+        opByteSS(p1, p2, current)
         {
             var r = p1.concat(p2);
             return [r, p1.reverse()];
-        },
-        opFloatDouble: function(p1, p2, current)
+        }
+
+        opFloatDouble(p1, p2, current)
         {
             return [p2, p1, p2];
-        },
-        opFloatDoubleS: function(p1, p2, current)
+        }
+
+        opFloatDoubleS(p1, p2, current)
         {
             var r = p2.concat(p1);
             var p4 = p2.reverse();
             return [r, p1, p4];
-        },
-        opFloatDoubleSS: function(p1, p2, current)
+        }
+
+        opFloatDoubleSS(p1, p2, current)
         {
             var r = p2.concat(p2);
             var p4 = p2.reverse();
             return [r, p1, p4];
-        },
-        opLongFloatD: function(p1, p2, current)
+        }
+
+        opLongFloatD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opMyClass: function(p1, current)
+        }
+
+        opMyClass(p1, current)
         {
             var p2 = p1;
             var p3 = Test.MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
             var r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
             return [r, p2, p3];
-        },
-        opMyEnum: function(p1, current)
+        }
+
+        opMyEnum(p1, current)
         {
             return [Test.MyEnum.enum3, p1];
-        },
-        opShortIntD: function(p1, p2, current)
+        }
+
+        opShortIntD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opShortIntLong: function(p1, p2, p3, current)
+        }
+
+        opShortIntLong(p1, p2, p3, current)
         {
             return [p3, p1, p2, p3];
-        },
-        opShortIntLongS: function(p1, p2, p3, current)
+        }
+
+        opShortIntLongS(p1, p2, p3, current)
         {
             return [p3, p1, p2.reverse(), p3.concat(p3)];
-        },
-        opShortIntLongSS: function(p1, p2, p3, current)
+        }
+
+        opShortIntLongSS(p1, p2, p3, current)
         {
             return [p3, p1, p2.reverse(), p3.concat(p3)];
-        },
-        opString: function(p1, p2, current)
+        }
+
+        opString(p1, p2, current)
         {
             return [p1 + " " + p2, p2 + " " + p1];
-        },
-        opStringMyEnumD: function(p1, p2, current)
+        }
+
+        opStringMyEnumD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opMyEnumStringD: function(p1, p2, current)
+        }
+
+        opMyEnumStringD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opMyStructMyEnumD: function(p1, p2, current)
+        }
+
+        opMyStructMyEnumD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opByteBoolDS: function(p1, p2, current)
+        }
+
+        opByteBoolDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opShortIntDS: function(p1, p2, current)
+        }
+
+        opShortIntDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opLongFloatDS: function(p1, p2, current)
+        }
+
+        opLongFloatDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opStringStringDS: function(p1, p2, current)
+        }
+
+        opStringStringDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opStringMyEnumDS: function(p1, p2, current)
+        }
+
+        opStringMyEnumDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opMyEnumStringDS: function(p1, p2, current)
+        }
+
+        opMyEnumStringDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opMyStructMyEnumDS: function(p1, p2, current)
+        }
+
+        opMyStructMyEnumDS(p1, p2, current)
         {
             var p3 = p2.concat(p1);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opByteByteSD: function(p1, p2, current)
+        }
+
+        opByteByteSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opBoolBoolSD: function(p1, p2, current)
+        }
+
+        opBoolBoolSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opShortShortSD: function(p1, p2, current)
+        }
+
+        opShortShortSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opIntIntSD: function(p1, p2, current)
+        }
+
+        opIntIntSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opLongLongSD: function(p1, p2, current)
+        }
+
+        opLongLongSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Ice.HashMap(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Ice.HashMap(p2);
             return [r, p3];
-        },
-        opStringFloatSD: function(p1, p2, current)
+        }
+
+        opStringFloatSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opStringDoubleSD: function(p1, p2, current)
+        }
+
+        opStringDoubleSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opStringStringSD: function(p1, p2, current)
+        }
+
+        opStringStringSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opMyEnumMyEnumSD: function(p1, p2, current)
+        }
+
+        opMyEnumMyEnumSD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
-            var p3 = p2.clone();
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
+            var p3 = new Map(p2);
             return [r, p3];
-        },
-        opIntS: function(s, current)
+        }
+
+        opIntS(s, current)
         {
             return s.map(function(v, i, arr) { return -v; });
-        },
-        opByteSOneway: function(s, current)
+        }
+
+        opByteSOneway(s, current)
         {
             this._opByteSOnewayCount += 1;
-        },
-        opByteSOnewayCallCount: function(current)
+        }
+
+        opByteSOnewayCallCount(current)
         {
             var count = this._opByteSOnewayCount;
             this._opByteSOnewayCount = 0;
             return count;
-        },
-        opContext: function(current)
+        }
+
+        opContext(current)
         {
             return current.ctx;
-        },
-        opDoubleMarshaling: function(p1, p2, current)
+        }
+
+        opDoubleMarshaling(p1, p2, current)
         {
             var d = 1278312346.0 / 13.0;
             test(p1 === d);
@@ -320,100 +364,122 @@
             {
                 test(p2[i] === d);
             }
-        },
-        opStringS: function(p1, p2, current)
+        }
+
+        opStringS(p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p1.reverse();
             return [r, p3];
-        },
-        opStringSS: function(p1, p2, current)
+        }
+
+        opStringSS(p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p2.reverse();
             return [r, p3];
-        },
-        opStringSSS: function(p1, p2, current)
+        }
+
+        opStringSSS(p1, p2, current)
         {
             var p3 = p1.concat(p2);
             var r = p2.reverse();
             return [r, p3];
-        },
-        opStringStringD: function(p1, p2, current)
+        }
+
+        opStringStringD(p1, p2, current)
         {
-            var r = p1.clone();
-            r.merge(p2);
+            var r = new Map(p1);
+            p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
-        },
-        opStruct: function(p1, p2, current)
+        }
+
+        opStruct(p1, p2, current)
         {
             p1.s.s = "a new string";
             return [p2, p1];
-        },
-        opIdempotent: function(current)
+        }
+
+        opIdempotent(current)
         {
             test(current.mode === Ice.OperationMode.Idempotent);
-        },
-        opNonmutating: function(current)
+        }
+
+        opNonmutating(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
-        },
-        opDerived: function(current)
+        }
+
+        opDerived(current)
         {
-        },
-        opByte1: function(value, current)
-        {
-            return value;
-        },
-        opShort1: function(value, current)
+        }
+
+        opByte1(value, current)
         {
             return value;
-        },
-        opInt1: function(value, current)
+        }
+
+        opShort1(value, current)
         {
             return value;
-        },
-        opLong1: function(value, current)
+        }
+
+        opInt1(value, current)
         {
             return value;
-        },
-        opFloat1: function(value, current)
+        }
+
+        opLong1(value, current)
         {
             return value;
-        },
-        opDouble1: function(value, current)
+        }
+
+        opFloat1(value, current)
         {
             return value;
-        },
-        opString1: function(value, current)
+        }
+
+        opDouble1(value, current)
         {
             return value;
-        },
-        opStringS1: function(value, current)
+        }
+
+        opString1(value, current)
         {
             return value;
-        },
-        opByteBoolD1: function(value, current)
+        }
+
+        opStringS1(value, current)
         {
             return value;
-        },
-        opStringS2: function(value, current)
+        }
+
+        opByteBoolD1(value, current)
         {
             return value;
-        },
-        opByteBoolD2: function(value, current)
+        }
+
+        opStringS2(value, current)
         {
             return value;
-        },
-        opMyClass1: function(value, current)
+        }
+
+        opByteBoolD2(value, current)
         {
             return value;
-        },
-        opMyStruct1: function(value, current)
+        }
+
+        opMyClass1(value, current)
         {
             return value;
-        },
-        opStringLiterals: function(current)
+        }
+
+        opMyStruct1(value, current)
+        {
+            return value;
+        }
+
+        opStringLiterals(current)
         {
             return [
                 Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
@@ -421,7 +487,7 @@
                 Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
                 Test.su0, Test.su1, Test.su2];
         }
-    });
+    }
 
     exports.MyDerivedClassI = MyDerivedClassI;
 }

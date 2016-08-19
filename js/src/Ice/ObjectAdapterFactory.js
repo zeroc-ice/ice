@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/AsyncResultBase",
         "../Ice/LocalException",
         "../Ice/ObjectAdapterI",
@@ -18,23 +17,25 @@ Ice.__M.require(module,
         "../Ice/UUID"
     ]);
 
-var AsyncResultBase = Ice.AsyncResultBase;
-var ObjectAdapterI = Ice.ObjectAdapterI;
-var Promise = Ice.Promise;
+const AsyncResultBase = Ice.AsyncResultBase;
+const ObjectAdapterI = Ice.ObjectAdapterI;
+const _Promise = Ice.Promise;
 
 //
 // Only for use by Instance.
 //
-var ObjectAdapterFactory = Ice.Class({
-    __init__: function(instance, communicator)
+class ObjectAdapterFactory
+{
+    constructor(instance, communicator)
     {
         this._instance = instance;
         this._communicator = communicator;
         this._adapters = [];
         this._adapterNamesInUse = [];
-        this._shutdownPromise = new Promise();
-    },
-    shutdown: function()
+        this._shutdownPromise = new _Promise();
+    }
+
+    shutdown()
     {
         //
         // Ignore shutdown requests if the object adapter factory has
@@ -47,55 +48,39 @@ var ObjectAdapterFactory = Ice.Class({
 
         this._instance = null;
         this._communicator = null;
-        this._shutdownPromise = Promise.all(
-            this._adapters.map(function(adapter)
-                               {
-                                   return adapter.deactivate();
-                               }));
+        this._shutdownPromise = _Promise.all(this._adapters.map(adapter => adapter.deactivate()));
         return this._shutdownPromise;
-    },
-    waitForShutdown: function()
+    }
+
+    waitForShutdown()
     {
-        var self = this;
-        return this._shutdownPromise.then(
-            function()
-            {
-                return Promise.all(self._adapters.map(function(adapter)
-                                                      {
-                                                          return adapter.waitForDeactivate();
-                                                      }));
-            });
-    },
-    isShutdown: function()
+        return this._shutdownPromise.then(() => _Promise.all(this._adapters.map(adapter => adapter.waitForDeactivate())));
+    }
+
+    isShutdown()
     {
         return this._instance === null;
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
-        var self = this;
-        return this.waitForShutdown().then(
-            function()
-            {
-                return Promise.all(self._adapters.map(function(adapter)
-                                                      {
-                                                          return adapter.destroy();
-                                                      }));
-            });
-    },
-    createObjectAdapter: function(name, router, promise)
+        return this.waitForShutdown().then(() => _Promise.all(this._adapters.map(adapter => adapter.destroy())));
+    }
+
+    createObjectAdapter(name, router, promise)
     {
         if(this._instance === null)
         {
             throw new Ice.ObjectAdapterDeactivatedException();
         }
 
-        var adapter = null;
+        let adapter = null;
         try
         {
             if(name.length === 0)
             {
-                var uuid = Ice.generateUUID();
-                adapter = new ObjectAdapterI(this._instance, this._communicator, this, uuid, null, true, promise);
+                adapter = new ObjectAdapterI(this._instance, this._communicator, this, Ice.generateUUID(), null, true,
+                                             promise);
             }
             else
             {
@@ -110,17 +95,18 @@ var ObjectAdapterFactory = Ice.Class({
         }
         catch(ex)
         {
-            promise.fail(ex, promise);
+            promise.reject(ex);
         }
-    },
-    removeObjectAdapter: function(adapter)
+    }
+
+    removeObjectAdapter(adapter)
     {
         if(this._instance === null)
         {
             return;
         }
 
-        var n = this._adapters.indexOf(adapter);
+        let n = this._adapters.indexOf(adapter);
         if(n !== -1)
         {
             this._adapters.splice(n, 1);
@@ -132,7 +118,7 @@ var ObjectAdapterFactory = Ice.Class({
             this._adapterNamesInUse.splice(n, 1);
         }
     }
-});
+}
 
 Ice.ObjectAdapterFactory = ObjectAdapterFactory;
 module.exports.Ice = Ice;

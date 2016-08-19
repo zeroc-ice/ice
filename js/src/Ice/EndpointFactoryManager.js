@@ -7,10 +7,9 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/StringUtil",
         "../Ice/Stream",
         "../Ice/Debug",
@@ -22,67 +21,59 @@ Ice.__M.require(module,
 //
 // Local aliases.
 //
-var Debug = Ice.Debug;
-var InputStream = Ice.InputStream;
-var OutputStream = Ice.OutputStream;
-var EndpointParseException = Ice.EndpointParseException;
-var OpaqueEndpointI = Ice.OpaqueEndpointI;
-var Protocol = Ice.Protocol;
-var StringUtil = Ice.StringUtil;
+const Debug = Ice.Debug;
+const InputStream = Ice.InputStream;
+const OutputStream = Ice.OutputStream;
+const EndpointParseException = Ice.EndpointParseException;
+const OpaqueEndpointI = Ice.OpaqueEndpointI;
+const Protocol = Ice.Protocol;
+const StringUtil = Ice.StringUtil;
 
-var EndpointFactoryManager = Ice.Class({
-    __init__: function(instance)
+class EndpointFactoryManager
+{
+    constructor(instance)
     {
         this._instance = instance;
         this._factories = [];
-    },
-    add: function(factory)
-    {
-        for(var i = 0; i < this._factories.length; ++i)
-        {
-            Debug.assert(this._factories[i].type() != factory.type());
-        }
+    }
 
+    add(factory)
+    {
+        Debug.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
         this._factories.push(factory);
-    },
-    get: function(type)
+    }
+
+    get(type)
     {
-        for(var i = 0; i < this._factories.length; ++i)
-        {
-            if(this._factories[i].type() === type)
-            {
-                return this._factories[i];
-            }
-        }
-        return null;
-    },
-    create: function(str, oaEndpoint)
+        return this._factories.find(f => type == f.type()) || null;
+    }
+
+    create(str, oaEndpoint)
     {
-        var s = str.trim();
+        const s = str.trim();
         if(s.length === 0)
         {
             throw new EndpointParseException("value has no non-whitespace characters");
         }
 
-        var arr = StringUtil.splitString(s, " \t\n\r");
+        const arr = StringUtil.splitString(s, " \t\n\r");
         if(arr.length === 0)
         {
             throw new EndpointParseException("value has no non-whitespace characters");
         }
 
-        var protocol = arr[0];
+        let protocol = arr[0];
         arr.splice(0, 1);
 
         if(protocol === "default")
         {
             protocol = this._instance.defaultsAndOverrides().defaultProtocol;
         }
-
-        for(var i = 0, length = this._factories.length; i < length; ++i)
+        for(let i = 0, length = this._factories.length; i < length; ++i)
         {
             if(this._factories[i].protocol() === protocol)
             {
-                var e = this._factories[i].create(arr, oaEndpoint);
+                const e = this._factories[i].create(arr, oaEndpoint);
                 if(arr.length > 0)
                 {
                     throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" +
@@ -98,14 +89,14 @@ var EndpointFactoryManager = Ice.Class({
         //
         if(protocol === "opaque")
         {
-            var ue = new OpaqueEndpointI();
+            const ue = new OpaqueEndpointI();
             ue.initWithOptions(arr);
             if(arr.length > 0)
             {
                 throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + str + "'");
             }
 
-            for(i = 0, length =  this._factories.length; i < length; ++i)
+            for(let i = 0, length =  this._factories.length; i < length; ++i)
             {
                 if(this._factories[i].type() == ue.type())
                 {
@@ -114,14 +105,14 @@ var EndpointFactoryManager = Ice.Class({
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    var os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                    const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
                     os.writeShort(ue.type());
                     ue.streamWrite(os);
-                    var is = new InputStream(this._instance, Protocol.currentProtocolEncoding, os.buffer);
+                    const is = new InputStream(this._instance, Protocol.currentProtocolEncoding, os.buffer);
                     is.pos = 0;
                     is.readShort(); // type
                     is.startEncapsulation();
-                    var e = this._factories[i].read(is);
+                    const e = this._factories[i].read(is);
                     is.endEncapsulation();
                     return e;
                 }
@@ -130,36 +121,34 @@ var EndpointFactoryManager = Ice.Class({
         }
 
         return null;
-    },
-    read: function(s)
+    }
+
+    read(s)
     {
-        var e;
-        var type = s.readShort();
-        for(var i = 0; i < this._factories.length; ++i)
+        const type = s.readShort();
+        for(let i = 0; i < this._factories.length; ++i)
         {
             if(this._factories[i].type() == type)
             {
                 s.startEncapsulation();
-                e = this._factories[i].read(s);
+                const e = this._factories[i].read(s);
                 s.endEncapsulation();
                 return e;
             }
         }
         s.startEncapsulation();
-        e = new OpaqueEndpointI(type);
+        const e = new OpaqueEndpointI(type);
         e.initWithStream(s);
         s.endEncapsulation();
         return e;
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
-        for(var i = 0; i < this._factories.length; ++i)
-        {
-            this._factories[i].destroy();
-        }
+        this._factories.forEach(factory => factory.destroy());
         this._factories = [];
     }
-});
+}
 
 Ice.EndpointFactoryManager = EndpointFactoryManager;
 module.exports.Ice = Ice;

@@ -7,69 +7,64 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
-        "../Ice/Promise",
         "../Ice/Protocol",
         "../Ice/Exception",
         "../Ice/Stream"
     ]);
 
-var AsyncResultBase = Ice.AsyncResultBase;
-var Debug = Ice.Debug;
-var Promise = Ice.Promise;
-var Protocol = Ice.Protocol;
-var UserException = Ice.UserException;
-var OutputStream = Ice.OutputStream;
+const AsyncResultBase = Ice.AsyncResultBase;
+const Debug = Ice.Debug;
+const Protocol = Ice.Protocol;
+const UserException = Ice.UserException;
+const OutputStream = Ice.OutputStream;
 
-var AsyncResult = Ice.Class(AsyncResultBase, {
-    __init__: function(com, op, connection, proxy, adapter, completedFn)
+class AsyncResult extends AsyncResultBase
+{
+    constructor(com, op, connection, proxy, adapter, completedFn)
     {
-        //
-        // AsyncResult can be constructed by a sub-type's prototype, in which case the
-        // arguments are undefined.
-        //
-        AsyncResultBase.call(this, com, op, connection, proxy, adapter);
-        if(com === undefined)
-        {
-            return;
-        }
-
+        super(com, op, connection, proxy, adapter);
         this._completed = completedFn;
         this._is = null;
         this._os = com !== null ? new OutputStream(this._instance, Protocol.currentProtocolEncoding) : null;
         this._state = 0;
         this._exception = null;
         this._sentSynchronously = false;
-    },
-    cancel: function()
+    }
+
+    cancel()
     {
         this.__cancel(new Ice.InvocationCanceledException());
-    },
-    isCompleted: function()
+    }
+
+    isCompleted()
     {
         return (this._state & AsyncResult.Done) > 0;
-    },
-    isSent: function()
+    }
+
+    isSent()
     {
         return (this._state & AsyncResult.Sent) > 0;
-    },
-    throwLocalException: function()
+    }
+
+    throwLocalException()
     {
         if(this._exception !== null)
         {
             throw this._exception;
         }
-    },
-    sentSynchronously: function()
+    }
+
+    sentSynchronously()
     {
         return this._sentSynchronously;
-    },
-    __markSent: function(done)
+    }
+
+    __markSent(done)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Sent;
@@ -77,10 +72,11 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         {
             this._state |= AsyncResult.Done | AsyncResult.OK;
             this._cancellationHandler = null;
-            this.succeed(this);
+            this.resolve();
         }
-    },
-    __markFinished: function(ok, completed)
+    }
+
+    __markFinished(ok, completed)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Done;
@@ -95,26 +91,29 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
         }
         else
         {
-            this.succeed(this);
+            this.resolve();
         }
-    },
-    __markFinishedEx: function(ex)
+    }
+
+    __markFinishedEx(ex)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._exception = ex;
         this._state |= AsyncResult.Done;
         this._cancellationHandler = null;
-        this.fail(ex, this);
-    },
-    __cancel: function(ex)
+        this.reject(ex);
+    }
+
+    __cancel(ex)
     {
         this._cancellationException = ex;
         if(this._cancellationHandler)
         {
             this._cancellationHandler.asyncRequestCanceled(this, ex);
         }
-    },
-    __cancelable: function(handler)
+    }
+
+    __cancelable(handler)
     {
         if(this._cancellationException)
         {
@@ -128,33 +127,40 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
             }
         }
         this._cancellationHandler = handler;
-    },
-    __os: function()
+    }
+
+    __os()
     {
         return this._os;
-    },
-    __is: function()
+    }
+
+    __is()
     {
         return this._is;
-    },
-    __startReadParams: function()
+    }
+    
+    __startReadParams()
     {
         this._is.startEncapsulation();
         return this._is;
-    },
-    __endReadParams: function()
+    }
+    
+    __endReadParams()
     {
         this._is.endEncapsulation();
-    },
-    __readEmptyParams: function()
+    }
+
+    __readEmptyParams()
     {
         this._is.skipEmptyEncapsulation();
-    },
-    __readParamEncaps: function()
+    }
+
+    __readParamEncaps()
     {
         return this._is.readEncapsulation(null);
-    },
-    __throwUserException: function()
+    }
+
+    __throwUserException()
     {
         Debug.assert((this._state & AsyncResult.Done) !== 0);
         if((this._state & AsyncResult.OK) === 0)
@@ -173,8 +179,9 @@ var AsyncResult = Ice.Class(AsyncResultBase, {
                 throw ex;
             }
         }
-    },
-});
+    }
+
+}
 
 AsyncResult.OK = 0x1;
 AsyncResult.Done = 0x2;

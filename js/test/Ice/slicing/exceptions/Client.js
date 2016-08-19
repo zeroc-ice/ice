@@ -28,7 +28,7 @@
                 }
                 catch(err)
                 {
-                    p.fail(err);
+                    p.reject(err);
                     throw err;
                 }
             }
@@ -36,8 +36,7 @@
 
         var ref, base, prx;
 
-        Promise.try(
-            function()
+        Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "Test:default -p 12010 -t 10000";
@@ -48,8 +47,7 @@
                 out.write("testing checked cast... ");
                 return Test.TestIntfPrx.checkedCast(base);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 prx = obj;
                 test(prx !== null);
@@ -60,7 +58,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "Base.b");
@@ -72,7 +70,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownDerived.b");
@@ -84,7 +82,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
                 test(ex.b == "KnownDerived.b");
@@ -97,7 +95,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
                 test(ex.b == "KnownDerived.b");
@@ -110,7 +108,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownIntermediate.b");
@@ -122,7 +120,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "KnownIntermediate.b");
@@ -135,7 +133,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
                 test(ex.b == "KnownMostDerived.b");
@@ -150,7 +148,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "KnownIntermediate.b");
@@ -162,7 +160,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
                 test(ex.b == "KnownMostDerived.b");
@@ -176,7 +174,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
                 test(ex.b == "KnownMostDerived.b");
@@ -190,7 +188,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "UnknownMostDerived1.b");
@@ -202,7 +200,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "UnknownMostDerived1.b");
@@ -216,7 +214,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownMostDerived2.b");
@@ -229,7 +227,7 @@
             }
         ).then(
             failCB,
-            function(ex)
+            ex =>
             {
                 if(Object.getPrototypeOf(ex) === Test.Base.prototype)
                 {
@@ -253,11 +251,7 @@
                 out.writeLine("ok");
                 return prx.shutdown();
             }
-        ).then(
-            function()
-            {
-                p.succeed();
-            });
+        ).then(p.resolve, p.reject);
         return p;
     };
 

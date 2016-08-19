@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-var __M = require("../Ice/ModuleRegistry").Ice.__M;
+const __M = require("../Ice/ModuleRegistry").Ice.__M;
 
 module.exports.Ice = __M.require(module,
     [
@@ -38,7 +38,8 @@ module.exports.Ice = __M.require(module,
         "../Ice/Buffer",
         "../Ice/ArrayUtil",
         "../Ice/UnknownSlicedValue",
-        "../Ice/Process"
+        "../Ice/Process",
+        "../Ice/MapUtil"
     ]).Ice;
 
 module.exports.IceMX = require("../Ice/Metrics").IceMX;

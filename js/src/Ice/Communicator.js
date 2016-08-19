@@ -7,82 +7,93 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/Instance",
-        "../Ice/Promise",
         "../Ice/UUID",
         "../Ice/AsyncResultBase"
     ]);
 
-var Instance = Ice.Instance;
-var Promise = Ice.Promise;
+const Instance = Ice.Instance;
 
 //
 // Ice.Communicator
 //
-var Communicator = Ice.Class({
-    __init__: function(initData)
+class Communicator
+{
+    constructor(initData)
     {
         this._instance = new Instance(initData);
-    },
+    }
+
     //
     // Certain initialization tasks need to be completed after the
     // constructor.
     //
-    finishSetup: function(promise)
+    finishSetup(promise)
     {
         this._instance.finishSetup(this, promise);
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
         return this._instance.destroy();
-    },
-    shutdown: function()
+    }
+
+    shutdown()
     {
         this._instance.objectAdapterFactory().shutdown();
-    },
-    waitForShutdown: function()
+    }
+
+    waitForShutdown()
     {
         return this._instance.objectAdapterFactory().waitForShutdown();
-    },
-    isShutdown: function()
+    }
+
+    isShutdown()
     {
         return this._instance.objectAdapterFactory().isShutdown();
-    },
-    stringToProxy: function(s)
+    }
+
+    stringToProxy(s)
     {
         return this._instance.proxyFactory().stringToProxy(s);
-    },
-    proxyToString: function(proxy)
+    }
+
+    proxyToString(proxy)
     {
         return this._instance.proxyFactory().proxyToString(proxy);
-    },
-    propertyToProxy: function(s)
+    }
+
+    propertyToProxy(s)
     {
         return this._instance.proxyFactory().propertyToProxy(s);
-    },
-    proxyToProperty: function(proxy, prefix)
+    }
+
+    proxyToProperty(proxy, prefix)
     {
         return this._instance.proxyFactory().proxyToProperty(proxy, prefix);
-    },
-    stringToIdentity: function(s)
+    }
+
+    stringToIdentity(s)
     {
         return Ice.stringToIdentity(s);
-    },
-    identityToString: function(ident)
+    }
+
+    identityToString(ident)
     {
         return Ice.identityToString(ident);
-    },
-    createObjectAdapter: function(name)
+    }
+
+    createObjectAdapter(name)
     {
-        var promise = new Ice.AsyncResultBase(this, "createObjectAdapter", this, null, null);
+        const promise = new Ice.AsyncResultBase(this, "createObjectAdapter", this, null, null);
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
-    },
-    createObjectAdapterWithEndpoints: function(name, endpoints)
+    }
+
+    createObjectAdapterWithEndpoints(name, endpoints)
     {
         if(name.length === 0)
         {
@@ -90,80 +101,92 @@ var Communicator = Ice.Class({
         }
 
         this.getProperties().setProperty(name + ".Endpoints", endpoints);
-        var promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithEndpoints", this, null, null);
+        const promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithEndpoints", this, null, null);
         this._instance.objectAdapterFactory().createObjectAdapter(name, null, promise);
         return promise;
-    },
-    createObjectAdapterWithRouter: function(name, router)
+    }
+
+    createObjectAdapterWithRouter(name, router)
     {
         if(name.length === 0)
         {
             name = Ice.generateUUID();
         }
 
-        var promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
+        const promise = new Ice.AsyncResultBase(this, "createObjectAdapterWithRouter", this, null, null);
 
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
-        var properties = this.proxyToProperty(router, name + ".Router");
-        for(var e = properties.entries; e !== null; e = e.next)
-        {
-            this.getProperties().setProperty(e.key, e.value);
-        }
+        this.proxyToProperty(router, name + ".Router").forEach((value, key) =>
+            {
+                this.getProperties().setProperty(key, value);
+            });
 
         this._instance.objectAdapterFactory().createObjectAdapter(name, router, promise);
         return promise;
-    },
-    addObjectFactory: function(factory, id)
+    }
+
+    addObjectFactory(factory, id)
     {
         this._instance.addObjectFactory(factory, id);
-    },
-    findObjectFactory: function(id)
+    }
+
+    findObjectFactory(id)
     {
         return this._instance.findObjectFactory(id);
-    },
-    getValueFactoryManager: function()
+    }
+
+    getValueFactoryManager()
     {
         return this._instance.initializationData().valueFactoryManager;
-    },
-    getImplicitContext: function()
+    }
+
+    getImplicitContext()
     {
         return this._instance.getImplicitContext();
-    },
-    getProperties: function()
+    }
+
+    getProperties()
     {
         return this._instance.initializationData().properties;
-    },
-    getLogger: function()
+    }
+
+    getLogger()
     {
         return this._instance.initializationData().logger;
-    },
-    getDefaultRouter: function()
+    }
+
+    getDefaultRouter()
     {
         return this._instance.referenceFactory().getDefaultRouter();
-    },
-    setDefaultRouter: function(router)
+    }
+
+    setDefaultRouter(router)
     {
         this._instance.setDefaultRouter(router);
-    },
-    getDefaultLocator: function()
+    }
+
+    getDefaultLocator()
     {
         return this._instance.referenceFactory().getDefaultLocator();
-    },
-    setDefaultLocator: function(locator)
+    }
+
+    setDefaultLocator(locator)
     {
         this._instance.setDefaultLocator(locator);
-    },
-    flushBatchRequests: function()
+    }
+    
+    flushBatchRequests()
     {
         return this._instance.outgoingConnectionFactory().flushAsyncBatchRequests();
     }
-});
 
-Object.defineProperty(Communicator.prototype, "instance", {
-    get: function() { return this._instance; }
-});
+    get instance()
+    {
+        return this._instance;
+    }
+}
 
 Ice.Communicator = Communicator;
 module.exports.Ice = Ice;

@@ -12,10 +12,9 @@
 //
 // Using IceObject in this file to avoid collisions with the native Object.
 //
-var Ice = require("../Ice/ModuleRegistry").Ice;
+const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/Class",
         "../Ice/DispatchStatus",
         "../Ice/Exception",
         "../Ice/FormatType",
@@ -23,58 +22,70 @@ Ice.__M.require(module,
         "../Ice/OptionalFormat"
     ]);
 
-var Class = Ice.Class;
+let nextAddress = 0;
 
-var nextAddress = 0;
+const Ice_Object_ids__ = ["::Ice::Object"];
 
-var IceObject = Class({
-    __init__: function()
+Ice.Object = class
+{
+    constructor()
     {
         // Fake Address used as the hashCode for this object instance.
         this.__address = nextAddress++;
-    },
-    hashCode: function()
+    }
+
+    hashCode()
     {
         return this.__address;
-    },
-    ice_isA: function(s, current)
+    }
+
+    ice_isA(s, current)
     {
         return this.__mostDerivedType().__ids.indexOf(s) >= 0;
-    },
-    ice_ping: function(current)
+    }
+
+    ice_ping(current)
     {
-    },
-    ice_ids: function(current)
+    }
+
+    ice_ids(current)
     {
         return this.__mostDerivedType().__ids;
-    },
-    ice_id: function(current)
+    }
+
+    ice_id(current)
     {
         return this.__mostDerivedType().__id;
-    },
-    toString: function()
+    }
+
+    toString()
     {
         return "[object " + this.ice_id() + "]";
-    },
-    ice_preMarshal: function()
+    }
+
+    ice_preMarshal()
     {
-    },
-    ice_postUnmarshal: function()
+    }
+
+    ice_postUnmarshal()
     {
-    },
-    __write: function(os)
+    }
+
+    __write(os)
     {
         os.startValue(null);
         __writeImpl(this, os, this.__mostDerivedType());
         os.endValue();
-    },
-    __read: function(is)
+    }
+
+    __read(is)
     {
         is.startValue();
         __readImpl(this, is, this.__mostDerivedType());
         is.endValue(false);
-    },
-    ice_instanceof: function(T)
+    }
+
+    ice_instanceof(T)
     {
         if(T)
         {
@@ -85,7 +96,8 @@ var IceObject = Class({
             return this.__mostDerivedType().__instanceof(T);
         }
         return false;
-    },
+    }
+
     //
     // __mostDerivedType returns the the most derived Ice generated class. This is
     // necessary because the user might extend Slice generated classes. The user
@@ -97,83 +109,91 @@ var IceObject = Class({
     // The __mostDerivedType is overriden by each Slice generated class, see the
     // Slice.defineObject method implementation for details.
     //
-    __mostDerivedType: function()
+    __mostDerivedType()
     {
-        return IceObject;
-    },
+        return Ice.Object;
+    }
+
     //
     // The default implementation of equals compare references.
     // 
-    equals: function(other)
+    equals(other)
     {
         return this === other;
     }
-});
-
-//
-// These methods are used for object parameters.
-//
-IceObject.write = function(os, v)
-{
-    os.writeValue(v);
-};
-
-IceObject.writeOptional = function(os, tag, v)
-{
-    os.writeOptionalValue(tag, v);
-};
-
-IceObject.read = function(is)
-{
-    var v = { value: null };
-    is.readValue(function(o) { v.value = o; }, IceObject);
-    return v;
-};
-
-IceObject.readOptional = function(is, tag)
-{
-    var v = { value: undefined };
-    is.readOptionalValue(tag, function(o) { v.value = o; }, IceObject);
-    return v;
-};
-
-IceObject.ice_staticId = function()
-{
-    return IceObject.__id;
-};
-
-IceObject.__instanceof = function(T)
-{
-    if(T === this)
+    
+    //
+    // These methods are used for object parameters.
+    //
+    static write(os, v)
     {
-        return true;
+        os.writeValue(v);
     }
 
-    for(var i in this.__implements)
+    static writeOptional(os, tag, v)
     {
-        if(this.__implements[i].__instanceof(T))
+        os.writeOptionalValue(tag, v);
+    }
+
+    static read(is)
+    {
+        const v = { value: null };
+        is.readValue(o => v.value = o, this);
+        return v;
+    }
+
+    static readOptional(is, tag)
+    {
+        const v = { value: undefined };
+        is.readOptionalValue(tag, o => v.value = o, this);
+        return v;
+    }
+
+    static ice_staticId()
+    {
+        return this.__id;
+    }
+
+    static __instanceof(T)
+    {
+        if(T === this)
         {
             return true;
         }
+
+        if(this.__implements.some(i => i.__instanceof(T)))
+        {
+            return true;
+        }
+
+        if(this.__parent)
+        {
+            return this.__parent.__instanceof(T);
+        }
+        return false;
     }
 
-    if(this.__parent)
+    static get __ids()
     {
-        return this.__parent.__instanceof(T);
+        return Ice_Object_ids__;
     }
-    return false;
-};
 
-IceObject.__ids = ["::Ice::Object"];
-IceObject.__id = IceObject.__ids[0];
-IceObject.__compactId = -1;
-IceObject.__preserved = false;
+    static get __id()
+    {
+        return Ice_Object_ids__[0];
+    }
+
+    static get __implements()
+    {
+        return [];
+    }
+};
 
 //
 // Private methods
 //
 
-var __writeImpl = function(obj, os, type)
+const __writeImpl = function(obj, os, type)
 {
     //
     // The __writeImpl method is a recursive method that goes down the
@@ -181,12 +201,14 @@ var __writeImpl = function(obj, os, type)
     // generated __writeMemberImpl method.
     //
 
-    if(type === undefined || type === IceObject)
+    if(type === undefined || type === Ice.Object)
     {
-        return; // Don't marshal anything for IceObject
+        return; // Don't marshal anything for Ice.Object
     }
 
-    os.startSlice(type.__id, type.__compactId, type.__parent === IceObject);
+    os.startSlice(type.__id, 
+                  Object.prototype.hasOwnProperty.call(type, '__compactId') ? type.__compactId : -1 ,
+                  type.__parent === Ice.Object);
     if(type.prototype.__writeMemberImpl)
     {
         type.prototype.__writeMemberImpl.call(obj, os);
@@ -195,7 +217,7 @@ var __writeImpl = function(obj, os, type)
     __writeImpl(obj, os, type.__parent);
 };
 
-var __readImpl = function(obj, is, type)
+const __readImpl = function(obj, is, type)
 {
     //
     // The __readImpl method is a recursive method that goes down the
@@ -203,9 +225,9 @@ var __readImpl = function(obj, is, type)
     // generated __readMemberImpl method.
     //
 
-    if(type === undefined || type === IceObject)
+    if(type === undefined || type === Ice.Object)
     {
-        return; // Don't marshal anything for IceObject
+        return; // Don't marshal anything for Ice.Object
     }
 
     is.startSlice();
@@ -217,7 +239,7 @@ var __readImpl = function(obj, is, type)
     __readImpl(obj, is, type.__parent);
 };
 
-var __writePreserved = function(os)
+const __writePreserved = function(os)
 {
     //
     // For Slice classes which are marked "preserved", the implementation of this method
@@ -228,7 +250,7 @@ var __writePreserved = function(os)
     os.endValue();
 };
 
-var __readPreserved = function(is)
+const __readPreserved = function(is)
 {
     //
     // For Slice classes which are marked "preserved", the implementation of this method
@@ -239,74 +261,13 @@ var __readPreserved = function(is)
     this.__slicedData = is.endValue(true);
 };
 
-Ice.Object = IceObject;
 
-var Slice = Ice.Slice;
-Slice.defineLocalObject = function(constructor, base)
+const Slice = Ice.Slice;
+
+Slice.PreservedObject = function(obj)
 {
-    var obj = constructor || function(){};
-
-    if(base !== undefined)
-    {
-        obj.prototype = new base();
-        obj.__parent = base;
-        obj.prototype.constructor = constructor;
-    }
-
-    return obj;
+    obj.prototype.__write = __writePreserved;
+    obj.prototype.__read = __readPreserved;
 };
 
-Slice.defineObject = function(constructor, base, intfs, scope, ids, compactId, writeImpl, readImpl, preserved)
-{
-    var obj = constructor || function(){};
-
-    obj.prototype = new base();
-    obj.__parent = base;
-    obj.__ids = ids;
-    obj.__id = ids[scope];
-    obj.__compactId = compactId;
-    obj.__instanceof = IceObject.__instanceof;
-    obj.__implements = intfs;
-
-    //
-    // These methods are used for object parameters.
-    //
-    obj.write = function(os, v)
-    {
-        os.writeValue(v);
-    };
-    obj.writeOptional = function(os, tag, v)
-    {
-        os.writeOptionalValue(tag, v);
-    };
-    obj.read = function(is)
-    {
-        var v = { value: null };
-        is.readValue(function(o) { v.value = o; }, obj);
-        return v;
-    };
-    obj.readOptional = function(is, tag)
-    {
-        var v = { value: undefined };
-        is.readOptionalValue(tag, function(o) { v.value = o; }, obj);
-        return v;
-    };
-
-    obj.ice_staticId = function()
-    {
-        return ids[scope];
-    };
-
-    obj.prototype.constructor = obj;
-    obj.prototype.__mostDerivedType = function() { return obj; };
-    if(preserved)
-    {
-        obj.prototype.__write = __writePreserved;
-        obj.prototype.__read = __readPreserved;
-    }
-    obj.prototype.__writeMemberImpl = writeImpl;
-    obj.prototype.__readMemberImpl = readImpl;
-
-    return obj;
-};
 module.exports.Ice = Ice;

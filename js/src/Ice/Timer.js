@@ -7,66 +7,60 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/HashMap", "../Ice/LocalException", "../Ice/Class", "../Ice/TimerUtil"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, ["../Ice/LocalException", "../Ice/TimerUtil"]);
 
-var HashMap = Ice.HashMap;
-var CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;
+const CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;
 
-var Timer = Ice.Class({
-    __init__: function(logger)
+class Timer
+{
+    constructor(logger)
     {
         this._logger = logger;
         this._destroyed = false;
         this._tokenId = 0;
-        this._tokens = new HashMap();
-    },
-    destroy: function()
+        this._tokens = new Map();
+    }
+
+    destroy()
     {
-        var self = this;
-        this._tokens.forEach(function(key, value){
-            self.cancel(key);
-        });
+        this._tokens.forEach((value, key) => this.cancel(key));
         this._destroyed = true;
         this._tokens.clear();
-    },
-    schedule: function(callback, delay)
+    }
+
+    schedule(callback, delay)
     {
         if(this._destroyed)
         {
             throw new CommunicatorDestroyedException();
         }
-
-        var token = this._tokenId++;
-        var self = this;
-        var id = Timer.setTimeout(function() { self.handleTimeout(token); }, delay);
+        const token = this._tokenId++;
+        const id = Timer.setTimeout(() => this.handleTimeout(token), delay);
         this._tokens.set(token, { callback: callback, id: id, isInterval: false });
-
         return token;
-    },
-    scheduleRepeated: function(callback, period)
+    }
+
+    scheduleRepeated(callback, period)
     {
         if(this._destroyed)
         {
             throw new CommunicatorDestroyedException();
         }
-
-        var token = this._tokenId++;
-        var self = this;
-
-        var id = Timer.setInterval(function() { self.handleInterval(token); }, period);
+        const token = this._tokenId++;
+        const id = Timer.setInterval(() => this.handleInterval(token), period);
         this._tokens.set(token, { callback: callback, id: id, isInterval: true });
-
         return token;
-    },
-    cancel: function(id)
+    }
+
+    cancel(id)
     {
         if(this._destroyed)
         {
             return false;
         }
 
-        var token = this._tokens.get(id);
+        const token = this._tokens.get(id);
         if(token === undefined)
         {
             return false;
@@ -83,15 +77,16 @@ var Timer = Ice.Class({
         }
 
         return true;
-    },
-    handleTimeout: function(id)
+    }
+
+    handleTimeout(id)
     {
         if(this._destroyed)
         {
             return;
         }
 
-        var token = this._tokens.get(id);
+        const token = this._tokens.get(id);
         if(token !== undefined)
         {
             this._tokens.delete(id);
@@ -104,15 +99,16 @@ var Timer = Ice.Class({
                 this._logger.warning("uncaught exception while executing timer:\n" + ex);
             }
         }
-    },
-    handleInterval: function(id)
+    }
+
+    handleInterval(id)
     {
         if(this._destroyed)
         {
             return;
         }
 
-        var token = this._tokens.get(id);
+        const token = this._tokens.get(id);
         if(token !== undefined)
         {
             try
@@ -125,7 +121,7 @@ var Timer = Ice.Class({
             }
         }
     }
-});
+}
 
 Timer.setTimeout = Ice.Timer.setTimeout;
 Timer.clearTimeout = Ice.Timer.clearTimeout;

@@ -116,9 +116,9 @@ namespace IceInternal
 """
 
 jsPreamble = commonPreamble + """
-var Ice = require("../Ice/Property").Ice;
-var %(classname)s = {};
-var Property = Ice.Property;
+const Ice = require("../Ice/Property").Ice;
+const %(classname)s = {};
+const Property = Ice.Property;
 """
 
 jsEpilogue = \

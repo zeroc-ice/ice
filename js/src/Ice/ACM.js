@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/Debug", "../Ice/Connection", "../Ice/Debug"]);
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, ["../Ice/Debug", "../Ice/Connection"]);
 
-var Class = Ice.Class;
-var Debug = Ice.Debug;
+const Debug = Ice.Debug;
 
-var ACMConfig = Class({
-    __init__: function(p, l, prefix, dflt)
+class ACMConfig
+{
+    constructor(p, l, prefix, dflt)
     {
         if(p === undefined)
         {
@@ -24,7 +24,7 @@ var ACMConfig = Class({
             return;
         }
 
-        var timeoutProperty;
+        let timeoutProperty;
         if((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") &&
             p.getProperty(prefix + ".Timeout").length === 0)
         {
@@ -37,7 +37,7 @@ var ACMConfig = Class({
 
         this.timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To ms
 
-        var hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.value);
+        const hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.value);
         if(hb >= 0 && hb <= Ice.ACMHeartbeat.maxValue)
         {
             this.heartbeat = Ice.ACMHeartbeat.valueOf(hb);
@@ -49,7 +49,7 @@ var ACMConfig = Class({
             this.heartbeat = dflt.heartbeat;
         }
 
-        var cl = p.getPropertyAsIntWithDefault(prefix + ".Close", dflt.close.value);
+        const cl = p.getPropertyAsIntWithDefault(prefix + ".Close", dflt.close.value);
         if(cl >= 0 && cl <= Ice.ACMClose.maxValue)
         {
             this.close = Ice.ACMClose.valueOf(cl);
@@ -61,42 +61,50 @@ var ACMConfig = Class({
             this.close = dflt.close;
         }
     }
-});
+}
 
-var ACMMonitor = Class({
-    add: function(con)
+class ACMMonitor
+{
+    add(con)
     {
-        Debug.assert(false); // Absract
-    },
-    remove: function(con)
+        Debug.assert(false); // Abstract
+    }
+
+    remove(con)
     {
-        Debug.assert(false); // Absract
-    },
-    reap: function(con)
+        Debug.assert(false); // Abstract
+    }
+
+    reap(con)
     {
-        Debug.assert(false); // Absract
-    },
-    acm: function(timeout)
+        Debug.assert(false); // Abstract
+    }
+
+    acm(timeout)
     {
-        Debug.assert(false); // Absract
+        Debug.assert(false); // Abstract
         return null;
-    },
-    getACM: function()
+    }
+
+    getACM()
     {
-        Debug.assert(false); // Absract
+        Debug.assert(false); // Abstract
         return 0;
     }
-});
+}
 
-var FactoryACMMonitor = Class(ACMMonitor, {
-    __init__: function(instance, config)
+class FactoryACMMonitor extends ACMMonitor
+{
+    constructor(instance, config)
     {
+        super();
         this._instance = instance;
         this._config = config;
         this._reapedConnections = [];
         this._connections = [];
-    },
-    destroy: function()
+    }
+
+    destroy()
     {
         if(this._instance === null)
         {
@@ -104,8 +112,9 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         }
         this._instance = null;
         this._connections = null;
-    },
-    add: function(connection)
+    }
+
+    add(connection)
     {
         if(this._config.timeout === 0)
         {
@@ -115,40 +124,37 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         this._connections.push(connection);
         if(this._connections.length == 1)
         {
-            var self = this;
             this._timerToken = this._instance.timer().scheduleRepeated(
-                function()
-                    {
-                        self.runTimerTask();
-                    },
-                this._config.timeout / 2);
+                () => this.runTimerTask(), this._config.timeout / 2);
         }
-    },
-    remove: function(connection)
+    }
+
+    remove(connection)
     {
         if(this._config.timeout === 0)
         {
             return;
         }
 
-        var i = this._connections.indexOf(connection);
+        let i = this._connections.indexOf(connection);
         Debug.assert(i >= 0);
         this._connections.splice(i, 1);
         if(this._connections.length === 0)
         {
             this._instance.timer().cancel(this._timerToken);
-            return;
         }
-    },
-    reap: function(connection)
+    }
+
+    reap(connection)
     {
         this._reapedConnections.push(connection);
-    },
-    acm: function(timeout, close, heartbeat)
+    }
+
+    acm(timeout, close, heartbeat)
     {
         Debug.assert(this._instance !== null);
 
-        var config = new ACMConfig();
+        let config = new ACMConfig();
         config.timeout = this._config.timeout;
         config.close = this._config.close;
         config.heartbeat = this._config.heartbeat;
@@ -165,22 +171,25 @@ var FactoryACMMonitor = Class(ACMMonitor, {
             config.heartbeat = heartbeat;
         }
         return new ConnectionACMMonitor(this, this._instance.timer(), config);
-    },
-    getACM: function()
+    }
+
+    getACM()
     {
         return new Ice.ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
-    },
-    swapReapedConnections: function()
+    }
+
+    swapReapedConnections()
     {
         if(this._reapedConnections.length === 0)
         {
             return null;
         }
-        var connections = this._reapedConnections;
+        let connections = this._reapedConnections;
         this._reapedConnections = [];
         return connections;
-    },
-    runTimerTask: function()
+    }
+
+    runTimerTask()
     {
         if(this._instance === null)
         {
@@ -191,20 +200,22 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         // Monitor connections outside the thread synchronization, so
         // that connections can be added or removed during monitoring.
         //
-        var now = Date.now();
-        for(var i = 0; i < this._connections.length; i++)
-        {
-            try
+        let now = Date.now();
+        
+        this._connections.forEach(connection =>
             {
-                this._connections[i].monitor(now, this._config);
-            }
-            catch(ex)
-            {
-                this.handleException(ex);
-            }
-        }
-    },
-    handleException: function(ex)
+                try
+                {
+                    connection.monitor(now, this._config);
+                }
+                catch(ex)
+                {
+                    this.handleException(ex);
+                }
+            });
+    }
+
+    handleException(ex)
     {
         if(this._instance === null)
         {
@@ -212,28 +223,30 @@ var FactoryACMMonitor = Class(ACMMonitor, {
         }
         this._instance.initializationData().logger.error("exception in connection monitor:\n" + ex);
     }
-});
+}
 
-var ConnectionACMMonitor = Class(ACMMonitor, {
-    __init__: function(parent, timer, config)
+class ConnectionACMMonitor extends ACMMonitor
+{
+    constructor(parent, timer, config)
     {
+        super();
         this._parent = parent;
         this._timer = timer;
         this._config = config;
         this._connection = null;
-    },
-    add: function(connection)
+    }
+    
+    add(connection)
     {
         Debug.assert(this._connection === null);
         this._connection = connection;
         if(this._config.timeout > 0)
         {
-            var self = this;
-            this._timerToken = this._timer.scheduleRepeated(function() { self.runTimerTask(); },
-                                                            this._config.timeout / 2);
+            this._timerToken = this._timer.scheduleRepeated(() => this.runTimerTask(), this._config.timeout / 2);
         }
-    },
-    remove: function(connection)
+    }
+    
+    remove(connection)
     {
         Debug.assert(this._connection === connection);
         this._connection = null;
@@ -241,20 +254,24 @@ var ConnectionACMMonitor = Class(ACMMonitor, {
         {
             this._timer.cancel(this._timerToken);
         }
-    },
-    reap: function(connection)
+    }
+
+    reap(connection)
     {
         this._parent.reap(connection);
-    },
-    acm: function(timeout, close, heartbeat)
+    }
+
+    acm(timeout, close, heartbeat)
     {
         return this._parent.acm(timeout, close, heartbeat);
-    },
-    getACM: function()
+    }
+    
+    getACM()
     {
         return new Ice.ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);
-    },
-    runTimerTask: function()
+    }
+
+    runTimerTask()
     {
         try
         {
@@ -265,7 +282,7 @@ var ConnectionACMMonitor = Class(ACMMonitor, {
             this._parent.handleException(ex);
         }
     }
-});
+}
 
 Ice.FactoryACMMonitor = FactoryACMMonitor;
 Ice.ACMConfig = ACMConfig;
