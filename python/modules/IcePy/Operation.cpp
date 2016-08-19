@@ -1744,12 +1744,26 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
         }
         else
         {
-            PyException pye(ex); // No traceback information available.
-            pye.raise();
+            try
+            {
+                PyException pye(ex); // No traceback information available.
+                pye.raise();
+            }
+            catch(const Ice::UnknownUserException& uue)
+            {
+                return convertException(uue);
+            }
         }
     }
 
-    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
+    //
+    // Getting here should be impossible: we can get here only if the
+    // sender has marshaled a sequence of type IDs, none of which we
+    // have a factory for. This means that sender and receiver disagree
+    // about the Slice definitions they use.
+    //
+    Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
+    return convertException(uue);
 #ifdef __SUNPRO_CC
     return 0;
 #endif
