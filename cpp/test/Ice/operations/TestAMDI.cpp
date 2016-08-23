@@ -1867,7 +1867,9 @@ void
 MyDerivedClassI::opMStruct1_async(const Test::AMD_MyClass_opMStruct1Ptr& cb,
                                   const Ice::Current&)
 {
-    return cb->ice_response(Test::Structure());
+    Test::Structure s;
+    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    return cb->ice_response(s);
 }
 
 void
