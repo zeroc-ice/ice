@@ -343,11 +343,6 @@ _Pvt_Extensions
 # IceBuilder dependency files
 IceBuilder.d
 
-#
-# Logger test
-#
-cpp/test/Ice/logger/*.log
-
 xcuserdata
 xcshareddata
 IceSDK
