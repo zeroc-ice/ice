@@ -1509,7 +1509,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
                      interpreterOptions = ""):
     lang = getDefaultMapping()
     testdir = os.getcwd()
-    
+
     # Setup the server.
     if lang in ["ruby", "php", "js"]:
         serverdir = getMirrorDir(testdir, "cpp")
@@ -1743,7 +1743,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
             else:
                 sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
             sys.stdout.flush()
-            
+
             if clientLang == "js" and es5 and client.find("/es5/") == -1:
                 client = client.replace("test/Ice/", "test/Ice/es5/")
 
@@ -2452,7 +2452,7 @@ def runTests(start, expanded, num = 0, script = False):
                     print("  exit 1")
                 print("fi")
             else:
-                if es5 and dir.find("/es5/") == -1:
+                if dir.find(os.path.join("js","test")) != -1 and es5 and dir.find("/es5/") == -1:
                     dir = dir.replace("test/Ice/", "test/Ice/es5/").replace("test/Glacier2/", "test/Glacier2/es5/")
                 status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
                 if status:
