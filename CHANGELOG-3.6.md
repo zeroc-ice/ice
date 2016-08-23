@@ -64,6 +64,9 @@ These are the changes since Ice 3.6.2.
 - Fixed a bug in the Slice compiler in which a Slice comment that begins or
   ends with a double quote could generate a bogus Python docstring.
 
+- Fixed bug where Ice::UnknownUserException would sometimes be raised in C++
+  extension instead of being passed to Python.
+
 # Changes in Ice 3.6.2
 
 These are the changes since Ice 3.6.1.
