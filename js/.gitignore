@@ -6,3 +6,15 @@ server-languages.json
 # Licnese files which are coppied in during prepublish
 ICE_LICENSE
 LICENSE
+
+#
+# Babel generated files
+#
+src/es5/Glacier2
+src/es5/Ice
+src/es5/IceGrid
+src/es5/IceMX
+src/es5/IceSSL
+src/es5/IceStorm
+test/Glacier2/es5/
+test/Ice/es5/
