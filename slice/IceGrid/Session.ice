@@ -14,9 +14,8 @@
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

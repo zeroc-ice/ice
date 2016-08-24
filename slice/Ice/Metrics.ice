@@ -12,7 +12,6 @@
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/JavaCompat.ice>
 
 /**
  *
@@ -21,7 +20,7 @@
  * metrics from Ice applications.
  *
  **/
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

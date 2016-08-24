@@ -13,9 +13,8 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Metrics.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

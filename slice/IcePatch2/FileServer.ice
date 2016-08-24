@@ -13,9 +13,8 @@
 [["cpp:include:IcePatch2/Config.h"]]
 
 #include <IcePatch2/FileInfo.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

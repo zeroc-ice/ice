@@ -12,9 +12,8 @@
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Connection.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

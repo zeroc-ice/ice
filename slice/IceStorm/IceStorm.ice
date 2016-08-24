@@ -14,11 +14,10 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/SliceChecksumDict.ice>
-#include <Ice/JavaCompat.ice>
 
 #include <IceStorm/Metrics.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

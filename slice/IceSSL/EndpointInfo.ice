@@ -12,14 +12,13 @@
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 #include <Ice/Endpoint.ice>
-#include <Ice/JavaCompat.ice>
 
 /**
  *
  * IceSSL provides a secure transport for Ice.
  *
  **/
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

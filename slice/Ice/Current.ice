@@ -15,9 +15,8 @@
 #include <Ice/ConnectionF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/Version.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

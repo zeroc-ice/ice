@@ -16,9 +16,8 @@
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <Ice/Locator.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

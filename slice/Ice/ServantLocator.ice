@@ -13,9 +13,8 @@
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Current.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

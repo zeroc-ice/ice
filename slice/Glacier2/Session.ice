@@ -14,10 +14,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
-#include <Ice/JavaCompat.ice>
 #include <Glacier2/SSLInfo.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

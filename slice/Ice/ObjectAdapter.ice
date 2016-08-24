@@ -17,9 +17,8 @@
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
 #include <Ice/Endpoint.ice>
-#include <Ice/JavaCompat.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

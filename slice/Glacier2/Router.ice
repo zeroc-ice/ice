@@ -13,11 +13,10 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Router.ice>
-#include <Ice/JavaCompat.ice>
 #include <Glacier2/Session.ice>
 #include <Glacier2/PermissionsVerifier.ice>
 
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 

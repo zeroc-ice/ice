@@ -23,7 +23,6 @@
 #include <Ice/Current.ice>
 #include <Ice/Properties.ice>
 #include <Ice/FacetMap.ice>
-#include <Ice/JavaCompat.ice>
 
 /**
  *
@@ -34,7 +33,7 @@
  * additional functionality that supports high scalability.
  *
  **/
-#ifndef JAVA_COMPAT
+#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
