@@ -14,6 +14,7 @@ addons:
     - ruby-dev
     - libdbus-glib-1-dev
     - libbluetooth-dev
+    - oracle-java8-installer
 
 env:
   global:
@@ -26,6 +27,7 @@ env:
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
     - PYTHONUSERBASE=${HOME}/python-deps
     - PYTHONPATH=${PYTHONUSERBASE}
+    - JAVA_HOME=/usr/lib/jvm/java-8-oracle
 
   matrix:
     - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-shared" TEST_FLAGS="--c++11"
