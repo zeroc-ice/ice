@@ -10,14 +10,9 @@
 ext.testDir = "${projectDir}/src/main/java/test"
 apply from: "slice.gradle"
 
-def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f
-
 sourceSets {
     main {
         java {
-            if (!hasLambda) {
-                exclude '**/lambda'
-            }
             exclude 'plugins'
             exclude 'controller'
             exclude 'ejb'

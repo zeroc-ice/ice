@@ -11,7 +11,7 @@ package test.Ice.echo;
 
 public class Server extends test.Util.Application
 {
-    class EchoI extends test.Ice.echo.Test._EchoDisp
+    class EchoI implements test.Ice.echo.Test.Echo
     {
         public EchoI(BlobjectI blob)
         {
@@ -19,45 +19,44 @@ public class Server extends test.Util.Application
         }
         
         @Override
-        public void startBatch(Ice.Current current)
+        public void startBatch(com.zeroc.Ice.Current current)
         {
             _blob.startBatch();
         }
         
         @Override
-        public void flushBatch(Ice.Current current)
+        public void flushBatch(com.zeroc.Ice.Current current)
         {
             _blob.flushBatch();
         }
         
         @Override
-        public void shutdown(Ice.Current current)
+        public void shutdown(com.zeroc.Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
 
         final private BlobjectI _blob;
-    };
+    }
 
     @Override
     public int run(String[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         BlobjectI blob = new BlobjectI();
         adapter.addDefaultServant(blob, "");
-        adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
+        adapter.add(new EchoI(blob), com.zeroc.Ice.Util.stringToIdentity("__echo"));
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.echo");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.echo");
+        return r;
     }
 
     public static void main(String[] args)

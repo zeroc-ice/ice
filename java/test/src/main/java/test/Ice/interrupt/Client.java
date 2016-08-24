@@ -18,7 +18,7 @@ public class Client extends test.Util.Application
         {
             AllTests.allTests(this);
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             e.printStackTrace();
             throw new RuntimeException();
@@ -27,32 +27,31 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
         // We need to enable the ThreadInterruptSafe property so that Ice is
         // interrupt safe for this test.
         //
-        initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
+        r.initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "20000");
         //
         // Retry up to 2 times, sleep 1s for the last retry. This is
         // useful to test interrupting the retry sleep
         //
-        initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
+        r.initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-        return initData;
+        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        return r;
     }
 
     public static void main(String[] args)

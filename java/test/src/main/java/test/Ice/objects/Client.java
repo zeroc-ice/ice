@@ -13,10 +13,10 @@ import test.Ice.objects.Test.InitialPrx;
 
 public class Client extends test.Util.Application
 {
-    private static class MyValueFactory implements Ice.ValueFactory
+    private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
     {
         @Override
-        public Ice.Object create(String type)
+        public com.zeroc.Ice.Value create(String type)
         {
             if(type.equals("::Test::B"))
             {
@@ -39,13 +39,12 @@ public class Client extends test.Util.Application
                 return new FI();
             }
             else if(type.equals("::Test::I"))
-
             {
-                return new II();
+                return new HI();
             }
             else if(type.equals("::Test::J"))
             {
-                return new JI();
+                return new HI();
             }
             else if(type.equals("::Test::H"))
             {
@@ -57,10 +56,11 @@ public class Client extends test.Util.Application
         }
     }
 
-    private static class MyObjectFactory implements Ice.ObjectFactory
+    @SuppressWarnings("deprecation")
+    private static class MyObjectFactory implements com.zeroc.Ice.ObjectFactory
     {
         @Override
-        public Ice.Object create(String type)
+        public com.zeroc.Ice.Value create(String type)
         {
             return null;
         }
@@ -72,11 +72,12 @@ public class Client extends test.Util.Application
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ValueFactory factory = new MyValueFactory();
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
         communicator.getValueFactoryManager().add(factory, "::Test::B");
         communicator.getValueFactoryManager().add(factory, "::Test::C");
         communicator.getValueFactoryManager().add(factory, "::Test::D");
@@ -94,12 +95,11 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        return r;
     }
 
     public static void main(String[] args)

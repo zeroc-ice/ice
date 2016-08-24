@@ -9,13 +9,11 @@
 
 package test.IceSSL.configuration;
 import test.IceSSL.configuration.Test.ServerPrx;
-import test.IceSSL.configuration.Test.ServerPrxHelper;
-import test.IceSSL.configuration.Test._ServerFactoryDisp;
+import test.IceSSL.configuration.Test.ServerFactory;
 
-class ServerFactoryI extends _ServerFactoryDisp
+class ServerFactoryI implements ServerFactory
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -24,32 +22,30 @@ class ServerFactoryI extends _ServerFactoryDisp
     }
 
     @Override
-    public ServerPrx
-    createServer(java.util.Map<String, String> props, Ice.Current current)
+    public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = com.zeroc.Ice.Util.createProperties();
         for(java.util.Map.Entry<String, String> i : props.entrySet())
         {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
 
         String[] args = new String[0];
-        Ice.Communicator communicator = Ice.Util.initialize(args, initData);
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-        ServerI server = new ServerI(communicator);
-        Ice.ObjectPrx obj = adapter.addWithUUID(server);
+        com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
+        com.zeroc.Ice.ObjectAdapter adapter = ir.communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        ServerI server = new ServerI(ir.communicator);
+        com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
         _servers.put(obj.ice_getIdentity(), server);
         adapter.activate();
 
-        return ServerPrxHelper.uncheckedCast(obj);
+        return ServerPrx.uncheckedCast(obj);
     }
 
     @Override
-    public void
-    destroyServer(ServerPrx srv, Ice.Current current)
+    public void destroyServer(ServerPrx srv, com.zeroc.Ice.Current current)
     {
-        Ice.Identity key = srv.ice_getIdentity();
+        com.zeroc.Ice.Identity key = srv.ice_getIdentity();
         if(_servers.containsKey(key))
         {
             ServerI server = _servers.get(key);
@@ -59,12 +55,12 @@ class ServerFactoryI extends _ServerFactoryDisp
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         test(_servers.size() == 0);
         current.adapter.getCommunicator().shutdown();
     }
 
-    private java.util.Map<Ice.Identity, ServerI> _servers = new java.util.HashMap<Ice.Identity, ServerI>();
+    private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
+        new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
 }

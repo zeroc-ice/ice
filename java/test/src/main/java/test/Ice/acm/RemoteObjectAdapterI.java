@@ -10,45 +10,43 @@
 package test.Ice.acm;
 
 import test.Ice.acm.Test.TestIntfPrx;
-import test.Ice.acm.Test.TestIntfPrxHelper;
-import test.Ice.acm.Test._RemoteObjectAdapterDisp;
+import test.Ice.acm.Test.RemoteObjectAdapter;
 
-public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
+public class RemoteObjectAdapterI implements RemoteObjectAdapter
 {
-    public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
+    public RemoteObjectAdapterI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
-                                                                 Ice.Util.stringToIdentity("test")));
+        _testIntf = TestIntfPrx.uncheckedCast(_adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test")));
         _adapter.activate();
     }
 
-    public TestIntfPrx getTestIntf(Ice.Current current)
+    public TestIntfPrx getTestIntf(com.zeroc.Ice.Current current)
     {
         return _testIntf;
     }
     
-    public void activate(Ice.Current current)
+    public void activate(com.zeroc.Ice.Current current)
     {
         _adapter.activate();
     }
 
-    public void hold(Ice.Current current)
+    public void hold(com.zeroc.Ice.Current current)
     {
         _adapter.hold();
     }
 
-    public void deactivate(Ice.Current current)
+    public void deactivate(com.zeroc.Ice.Current current)
     {
         try
         {
             _adapter.destroy();
         }
-        catch(Ice.ObjectAdapterDeactivatedException ex)
+        catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
         {
         }
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private com.zeroc.Ice.ObjectAdapter _adapter;
     private TestIntfPrx _testIntf;
-};
+}

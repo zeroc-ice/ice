@@ -9,7 +9,7 @@
 
 package test.Ice.interrupt;
 
-public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
+public class TestI implements test.Ice.interrupt.Test.TestIntf
 {
     TestI(TestControllerI controller)
     {
@@ -17,22 +17,19 @@ public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
     }
 
     @Override
-    public void
-    op(Ice.Current current)
+    public void op(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void
-    opIdempotent(Ice.Current current)
+    public void opIdempotent(com.zeroc.Ice.Current current)
     {
-        throw new Ice.UnknownException();
+        throw new com.zeroc.Ice.UnknownException();
     }
 
 
     @Override
-    public void
-    sleep(int to, Ice.Current current)
+    public void sleep(int to, com.zeroc.Ice.Current current)
         throws test.Ice.interrupt.Test.InterruptedException
     {
         _controller.addUpcallThread();
@@ -51,14 +48,12 @@ public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
     }
 
     @Override
-    public void
-    opWithPayload(byte[] seq, Ice.Current current)
+    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

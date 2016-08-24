@@ -12,33 +12,29 @@ package test.Ice.seqMapping;
 import test.Ice.seqMapping.Test.*;
 import test.Ice.seqMapping.Serialize.*;
 
-public final class MyClassI extends MyClass
+public final class MyClassI implements MyClass
 {
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public Small opSerialSmallJava(Small i, Ice.Holder<Small> o, Ice.Current current)
+    public MyClass.OpSerialSmallJavaResult opSerialSmallJava(Small i, com.zeroc.Ice.Current current)
     {
-        o.value = i;
-        return i;
+        return new MyClass.OpSerialSmallJavaResult(i, i);
     }
 
     @Override
-    public Large opSerialLargeJava(Large i, Ice.Holder<Large> o, Ice.Current current)
+    public MyClass.OpSerialLargeJavaResult opSerialLargeJava(Large i, com.zeroc.Ice.Current current)
     {
-        o.value = i;
-        return i;
+        return new MyClass.OpSerialLargeJavaResult(i, i);
     }
 
     @Override
-    public Struct opSerialStructJava(Struct i, Ice.Holder<Struct> o, Ice.Current current)
+    public MyClass.OpSerialStructJavaResult opSerialStructJava(Struct i, com.zeroc.Ice.Current current)
     {
-        o.value = i;
-        return i;
+        return new MyClass.OpSerialStructJavaResult(i, i);
     }
 }

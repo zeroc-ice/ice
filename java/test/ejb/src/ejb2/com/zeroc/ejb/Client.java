@@ -13,10 +13,9 @@ import javax.naming.*;
 
 import com.zeroc.ice.Test.*;
 
-public class Client extends Ice.Application
+public class Client extends com.zeroc.Ice.Application
 {
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
         System.out.print("initializing EJBs... ");
         System.out.flush();
@@ -37,7 +36,7 @@ public class Client extends Ice.Application
         System.out.print("setting and getting account... ");
         System.out.flush();
         String str = "ejb2/service:tcp -h localhost -p 10000";
-        ServicePrx proxy = ServicePrxHelper.checkedCast(communicator().stringToProxy(str));
+        ServicePrx proxy = ServicePrx.checkedCast(communicator().stringToProxy(str));
         proxy.addAccount(new Account("id1", "foo"));
         Account s = proxy.getAccount("id1");
         if(!s.id.equals("id1") || !s.foo.equals("foo"))
@@ -55,14 +54,13 @@ public class Client extends Ice.Application
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Client app = new Client();
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = com.zeroc.Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Default.Package", "com.zeroc.ice");
         int status = app.main("Client", args, initData);
         System.exit(status);
     }
-};
+}

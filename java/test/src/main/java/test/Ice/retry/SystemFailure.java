@@ -9,12 +9,11 @@
 
 package test.Ice.retry;
 
-class SystemFailure extends Ice.SystemException
+class SystemFailure extends com.zeroc.Ice.SystemException
 {
     @Override
-    public String
-    ice_id()
+    public String ice_id()
     {
         return "::SystemFailure";
     }
-};
+}

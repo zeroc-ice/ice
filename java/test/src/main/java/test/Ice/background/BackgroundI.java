@@ -6,29 +6,27 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package test.Ice.background;
 
-import test.Ice.background.Test._BackgroundDisp;
+import test.Ice.background.Test.Background;
 
-class BackgroundI extends _BackgroundDisp
+class BackgroundI implements Background
 {
     @Override
-    public void
-    op(Ice.Current current)
+    public void op(com.zeroc.Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
     @Override
-    public void
-    opWithPayload(byte[] seq, Ice.Current current)
+    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

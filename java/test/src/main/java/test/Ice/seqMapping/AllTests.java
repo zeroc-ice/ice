@@ -15,12 +15,11 @@ import test.Ice.seqMapping.Test.*;
 
 public class AllTests
 {
-    public static MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    public static MyClassPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
         String ref = "test:default -p 12010";
-        Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
-        MyClassPrx cl = MyClassPrxHelper.checkedCast(baseProxy);
+        com.zeroc.Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
+        MyClassPrx cl = MyClassPrx.checkedCast(baseProxy);
 
         out.print("testing twoway operations... ");
         out.flush();

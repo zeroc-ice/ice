@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+//sourceCompatibility = iceSourceCompatibility
+//targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile localDependency('ice')

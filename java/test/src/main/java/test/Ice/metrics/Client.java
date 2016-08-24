@@ -16,13 +16,13 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         try
         {
             MetricsPrx metrics = AllTests.allTests(communicator, getWriter(), _observer);
             metrics.shutdown();
         }
-        catch(Ice.UserException ex)
+        catch(com.zeroc.Ice.UserException ex)
         {
             ex.printStackTrace();
             assert(false);
@@ -32,20 +32,19 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
-        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        initData.properties.setProperty("Ice.Admin.InstanceName", "client");
-        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
+        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        r.initData.properties.setProperty("Ice.Admin.InstanceName", "client");
+        r.initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        r.initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        initData.observer = _observer;
-        return initData;
+        r.initData.observer = _observer;
+        return r;
     }
 
     public static void main(String[] args)

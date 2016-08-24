@@ -8,22 +8,21 @@
 // **********************************************************************
 
 package test.Ice.timeout;
-import test.Ice.timeout.Test._TimeoutDisp;
 
+import test.Ice.timeout.Test.Timeout;
 
-class TimeoutI extends _TimeoutDisp
+class TimeoutI implements Timeout
 {
     static class ActivateAdapterThread extends Thread
     {
-        ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
+        ActivateAdapterThread(com.zeroc.Ice.ObjectAdapter adapter, int timeout)
         {
             _adapter = adapter;
             _timeout = timeout;
         }
 
         @Override
-        public void
-        run()
+        public void run()
         {
             _adapter.waitForHold();
             try
@@ -36,25 +35,22 @@ class TimeoutI extends _TimeoutDisp
             _adapter.activate();
         }
 
-        Ice.ObjectAdapter _adapter;
+        com.zeroc.Ice.ObjectAdapter _adapter;
         int _timeout;
     }
 
     @Override
-    public void
-    op(Ice.Current current)
+    public void op(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void
-    sendData(byte[] seq, Ice.Current current)
+    public void sendData(byte[] seq, com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void
-    sleep(int to, Ice.Current current)
+    public void sleep(int to, com.zeroc.Ice.Current current)
     {
         try
         {
@@ -67,8 +63,7 @@ class TimeoutI extends _TimeoutDisp
     }
 
     @Override
-    public void
-    holdAdapter(int to, Ice.Current current)
+    public void holdAdapter(int to, com.zeroc.Ice.Current current)
     {
         current.adapter.hold();
         Thread thread = new ActivateAdapterThread(current.adapter, to);
@@ -76,8 +71,7 @@ class TimeoutI extends _TimeoutDisp
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

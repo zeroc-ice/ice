@@ -14,31 +14,30 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new TimeoutI(), com.zeroc.Ice.Util.stringToIdentity("timeout"));
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        r.initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return r;
     }
 
     public static void main(String[] args)

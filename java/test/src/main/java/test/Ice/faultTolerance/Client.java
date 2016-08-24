@@ -21,13 +21,11 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
         PrintWriter out = getWriter();
-        
-        Ice.Communicator communicator = communicator();
-        java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
+
+        java.util.List<Integer> ports = new java.util.ArrayList<>(args.length);
         for(String arg : args)
         {
             if(arg.charAt(0) == '-')
@@ -57,7 +55,7 @@ public class Client extends test.Util.Application
 
         if(ports.isEmpty())
         {
-                        out.println("Client: no ports specified");
+            out.println("Client: no ports specified");
             usage();
             return 1;
         }
@@ -70,9 +68,9 @@ public class Client extends test.Util.Application
 
         try
         {
-            AllTests.allTests(communicator, arr, out);
+            AllTests.allTests(communicator(), arr, out);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             AllTests.test(false);
@@ -82,17 +80,16 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
         //
         // This test aborts servers, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

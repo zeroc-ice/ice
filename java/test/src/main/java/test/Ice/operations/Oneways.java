@@ -10,12 +10,10 @@
 package test.Ice.operations;
 
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
 
 class Oneways
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,10 +21,9 @@ class Oneways
         }
     }
 
-    static void
-    oneways(test.Util.Application app, MyClassPrx p)
+    static void oneways(test.Util.Application app, MyClassPrx p)
     {
-        p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+        p = p.ice_oneway();
 
         {
             p.ice_ping();
@@ -45,14 +42,12 @@ class Oneways
         }
 
         {
-
-            Ice.ByteHolder b = new Ice.ByteHolder();
             try
             {
-                p.opByte((byte)0xff, (byte)0x0f, b);
+                p.opByte((byte)0xff, (byte)0x0f);
                 test(false);
             }
-            catch(Ice.TwowayOnlyException ex)
+            catch(java.lang.IllegalArgumentException ex)
             {
             }
         }

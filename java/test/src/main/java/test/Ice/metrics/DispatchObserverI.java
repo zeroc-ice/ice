@@ -9,11 +9,10 @@
 
 package test.Ice.metrics;
 
-class DispatchObserverI extends ObserverI implements Ice.Instrumentation.DispatchObserver
+class DispatchObserverI extends ObserverI implements com.zeroc.Ice.Instrumentation.DispatchObserver
 {
     @Override
-    public synchronized void 
-    reset()
+    public synchronized void reset()
     {
         super.reset();
         userExceptionCount = 0;
@@ -21,20 +20,17 @@ class DispatchObserverI extends ObserverI implements Ice.Instrumentation.Dispatc
     }
 
     @Override
-    public synchronized void 
-    userException()
+    public synchronized void userException()
     {
         ++userExceptionCount;
     }
 
     @Override
-    public synchronized void 
-    reply(int s)
+    public synchronized void reply(int s)
     {
         replySize += s;
     }
 
     int userExceptionCount;
     int replySize;
-};
-
+}

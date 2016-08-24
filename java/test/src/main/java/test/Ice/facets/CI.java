@@ -9,25 +9,22 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._CDisp;
+import test.Ice.facets.Test.C;
 
-public final class CI extends _CDisp
+public final class CI implements C
 {
-    public
-    CI()
+    public CI()
     {
     }
 
     @Override
-    public String
-    callA(Ice.Current current)
+    public String callA(com.zeroc.Ice.Current current)
     {
         return "A";
     }
 
     @Override
-    public String
-    callC(Ice.Current current)
+    public String callC(com.zeroc.Ice.Current current)
     {
         return "C";
     }

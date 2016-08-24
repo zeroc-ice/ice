@@ -14,22 +14,21 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new RetryI(), com.zeroc.Ice.Util.stringToIdentity("retry"));
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return r;
     }
 
     public static void main(String[] args)

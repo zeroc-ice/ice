@@ -14,14 +14,14 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         java.util.Timer timer = new java.util.Timer();
 
-        Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
-        adapter1.add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
+        com.zeroc.Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
+        adapter1.add(new HoldI(timer, adapter1), com.zeroc.Ice.Util.stringToIdentity("hold"));
 
-        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-        adapter2.add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
+        com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+        adapter2.add(new HoldI(timer, adapter2), com.zeroc.Ice.Util.stringToIdentity("hold"));
 
         adapter1.activate();
         adapter2.activate();
@@ -35,23 +35,22 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
+        r.initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
+        r.initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
+        r.initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
+        r.initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
-        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.Serialize", "1");
-        return initData;
+        r.initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
+        r.initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
+        r.initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
+        r.initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
+        r.initData.properties.setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+        return r;
     }
 
     public static void main(String[] args)

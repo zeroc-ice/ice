@@ -13,9 +13,4 @@ import test.Ice.classLoader.Test.AbstractClass;
 
 class AbstractClassI extends AbstractClass
 {
-    @Override
-    public void
-    op(Ice.Current current)
-    {
-    }
 }

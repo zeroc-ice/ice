@@ -14,8 +14,13 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/SliceChecksumDict.ice>
+#include <Ice/JavaCompat.ice>
 
 #include <IceStorm/Metrics.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 /**
  *
@@ -403,4 +408,3 @@ interface Finder
 };
 
 };
-

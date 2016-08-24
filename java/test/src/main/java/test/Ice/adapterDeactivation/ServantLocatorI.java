@@ -10,24 +10,22 @@
 package test.Ice.adapterDeactivation;
 
 import test.Ice.adapterDeactivation.Test.Cookie;
+import com.zeroc.Ice.ServantLocator;
 
-public final class ServantLocatorI implements Ice.ServantLocator
+public final class ServantLocatorI implements ServantLocator
 {
-    public
-    ServantLocatorI()
+    public ServantLocatorI()
     {
         _deactivated = false;
     }
 
-    protected synchronized void
-    finalize()
+    protected synchronized void finalize()
         throws Throwable
     {
         test(_deactivated);
     }
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -35,8 +33,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         }
     }
 
-    public Ice.Object
-    locate(Ice.Current current, Ice.LocalObjectHolder cookie)
+    public ServantLocator.LocateResult locate(com.zeroc.Ice.Current current)
     {
         synchronized(this)
         {
@@ -46,13 +43,10 @@ public final class ServantLocatorI implements Ice.ServantLocator
         test(current.id.category.length() == 0);
         test(current.id.name.equals("test"));
 
-        cookie.value = new CookieI();
-
-        return new TestI();
+        return new ServantLocator.LocateResult(new TestI(), new CookieI());
     }
 
-    public void
-    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
+    public void finished(com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie)
     {
         synchronized(this)
         {
@@ -63,8 +57,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         test(co.message().equals("blahblah"));
     }
 
-    public synchronized void
-    deactivate(String category)
+    public synchronized void deactivate(String category)
     {
         synchronized(this)
         {

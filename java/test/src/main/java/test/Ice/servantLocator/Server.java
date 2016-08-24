@@ -14,25 +14,24 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new ServantLocatorI("category"), "category");
         adapter.addServantLocator(new ServantLocatorI(""), "");
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("asm"));
-        adapter.add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
+        adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("asm"));
+        adapter.add(new TestActivationI(), com.zeroc.Ice.Util.stringToIdentity("test/activation"));
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

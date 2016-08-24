@@ -9,87 +9,72 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_asyncException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_asyncResponse;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_impossibleException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_intfUserException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_javaException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_localException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_requestFailedException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_shutdown;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownLocalException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownUserException;
-import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownExceptionWithServantException;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
-import test.Ice.servantLocator.AMD.Test._TestIntfDisp;
+import test.Ice.servantLocator.AMD.Test.TestIntf;
 
-public final class AMDTestI extends _TestIntfDisp
+public final class AMDTestI implements TestIntf
 {
     @Override
-    public void 
-    requestFailedException_async(AMD_TestIntf_requestFailedException cb, Ice.Current current)
+    public CompletionStage<Void> requestFailedExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void 
-    unknownUserException_async(AMD_TestIntf_unknownUserException cb, Ice.Current current)
+    public CompletionStage<Void> unknownUserExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void 
-    unknownLocalException_async(AMD_TestIntf_unknownLocalException cb, Ice.Current current)
+    public CompletionStage<Void> unknownLocalExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void 
-    unknownException_async(AMD_TestIntf_unknownException cb, Ice.Current current)
+    public CompletionStage<Void> unknownExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void 
-    localException_async(AMD_TestIntf_localException cb, Ice.Current current)
+    public CompletionStage<Void> localExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
-//     public void 
-//     userException_async(AMD_TestIntf_userException cb, Ice.Current current)
+//     public CompletionStage<Void> userExceptionAsync(com.zeroc.Ice.Current current)
 //     {
-//        cb.ice_response();
+//        return CompletableFuture.completedFuture((Void)null);
 //     }
 
     @Override
-    public void 
-    javaException_async(AMD_TestIntf_javaException cb, Ice.Current current)
+    public CompletionStage<Void> javaExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void 
-    unknownExceptionWithServantException_async(AMD_TestIntf_unknownExceptionWithServantException cb, 
-                                               Ice.Current current)
+    public CompletionStage<Void> unknownExceptionWithServantExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new Ice.ObjectNotExistException());
+        CompletableFuture<Void> f = new CompletableFuture<>();
+        f.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
+        return f;
     }
 
     @Override
-    public void
-    impossibleException_async(AMD_TestIntf_impossibleException cb, boolean _throw, Ice.Current current)
+    public CompletionStage<String> impossibleExceptionAsync(boolean _throw, com.zeroc.Ice.Current current)
     {
         if(_throw)
         {
-            cb.ice_exception(new TestImpossibleException());
+            CompletableFuture<String> f = new CompletableFuture<>();
+            f.completeExceptionally(new TestImpossibleException());
+            return f;
         }
         else
         {
@@ -97,17 +82,18 @@ public final class AMDTestI extends _TestIntfDisp
             // Return a value so we can be sure that the stream position
             // is reset correctly if finished() throws.
             //
-            cb.ice_response("Hello");
+            return CompletableFuture.completedFuture("Hello");
         }
     }
 
     @Override
-    public void
-    intfUserException_async(AMD_TestIntf_intfUserException cb, boolean _throw, Ice.Current current)
+    public CompletionStage<String> intfUserExceptionAsync(boolean _throw, com.zeroc.Ice.Current current)
     {
         if(_throw)
         {
-            cb.ice_exception(new TestIntfUserException());
+            CompletableFuture<String> f = new CompletableFuture<>();
+            f.completeExceptionally(new TestIntfUserException());
+            return f;
         }
         else
         {
@@ -115,31 +101,36 @@ public final class AMDTestI extends _TestIntfDisp
             // Return a value so we can be sure that the stream position
             // is reset correctly if finished() throws.
             //
-            cb.ice_response("Hello");
+            return CompletableFuture.completedFuture("Hello");
         }
     }
 
     @Override
-    public void
-    asyncResponse_async(AMD_TestIntf_asyncResponse cb, Ice.Current current)
+    public CompletionStage<Void> asyncResponseAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
-        throw new Ice.ObjectNotExistException();
+        //
+        // The Java 8 mapping does not support this test.
+        //
+        //return CompletableFuture.completedFuture((Void)null);
+        throw new com.zeroc.Ice.ObjectNotExistException();
     }
 
     @Override
-    public void
-    asyncException_async(AMD_TestIntf_asyncException cb, Ice.Current current)
+    public CompletionStage<Void> asyncExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new TestIntfUserException());
-        throw new Ice.ObjectNotExistException();
+        //
+        // The Java 8 mapping does not support this test.
+        //
+        //CompletableFuture<Void> f = new CompletableFuture<>();
+        //f.completeExceptionally(new TestIntfUserException());
+        //return f;
+        throw new com.zeroc.Ice.ObjectNotExistException();
     }
     
     @Override
-    public void
-    shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
+    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 }

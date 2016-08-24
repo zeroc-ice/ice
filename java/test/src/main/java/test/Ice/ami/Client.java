@@ -19,20 +19,19 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
+        r.initData.properties.setProperty("Ice.Warn.AMICallback", "0");
 
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

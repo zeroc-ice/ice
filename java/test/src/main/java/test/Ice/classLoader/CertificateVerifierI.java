@@ -9,10 +9,10 @@
 
 package test.Ice.classLoader;
 
-public class CertificateVerifierI implements IceSSL.CertificateVerifier
+public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifier
 {
     @Override
-    public boolean verify(IceSSL.NativeConnectionInfo info)
+    public boolean verify(com.zeroc.IceSSL.NativeConnectionInfo info)
     {
         return true;
     }

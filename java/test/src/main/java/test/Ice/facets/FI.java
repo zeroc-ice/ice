@@ -9,25 +9,22 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._FDisp;
+import test.Ice.facets.Test.F;
 
-public final class FI extends _FDisp
+public final class FI implements F
 {
-    public
-    FI()
+    public FI()
     {
     }
 
     @Override
-    public String
-    callE(Ice.Current current)
+    public String callE(com.zeroc.Ice.Current current)
     {
         return "E";
     }
 
     @Override
-    public String
-    callF(Ice.Current current)
+    public String callF(com.zeroc.Ice.Current current)
     {
         return "F";
     }

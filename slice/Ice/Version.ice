@@ -11,6 +11,12 @@
 
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 ["objc:prefix:ICE"]
 module Ice
 {

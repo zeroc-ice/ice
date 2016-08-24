@@ -14,8 +14,7 @@ import java.io.PrintWriter;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,13 +22,12 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
     {
         String ref = "test:default -p 12010";
-        Ice.ObjectPrx obj = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
-        TestIntfPrx proxy = TestIntfPrxHelper.checkedCast(obj);
+        TestIntfPrx proxy = TestIntfPrx.checkedCast(obj);
         test(proxy != null);
 
         out.print("testing enum values... ");
@@ -122,28 +120,28 @@ public class AllTests
         out.print("testing enum streaming... ");
         out.flush();
 
-        Ice.OutputStream os;
+        com.zeroc.Ice.OutputStream os;
         byte[] bytes;
 
         final boolean encoding_1_0 =
             communicator.getProperties().getProperty("Ice.Default.EncodingVersion").equals("1.0");
 
-        os = new Ice.OutputStream(communicator);
+        os = new com.zeroc.Ice.OutputStream(communicator);
         ByteEnum.write(os, ByteEnum.benum11);
         bytes = os.finished();
         test(bytes.length == 1); // ByteEnum should require one byte
 
-        os = new Ice.OutputStream(communicator);
+        os = new com.zeroc.Ice.OutputStream(communicator);
         ShortEnum.write(os, ShortEnum.senum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 2 : 5));
 
-        os = new Ice.OutputStream(communicator);
+        os = new com.zeroc.Ice.OutputStream(communicator);
         IntEnum.write(os, IntEnum.ienum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 4 : 5));
 
-        os = new Ice.OutputStream(communicator);
+        os = new com.zeroc.Ice.OutputStream(communicator);
         SimpleEnum.write(os, SimpleEnum.blue);
         bytes = os.finished();
         test(bytes.length == 1); // SimpleEnum should require one byte
@@ -153,29 +151,37 @@ public class AllTests
         out.print("testing enum operations... ");
         out.flush();
 
-        ByteEnumHolder byteEnum = new ByteEnumHolder();
-        test(proxy.opByte(ByteEnum.benum1, byteEnum) == ByteEnum.benum1);
-        test(byteEnum.value == ByteEnum.benum1);
-        test(proxy.opByte(ByteEnum.benum11, byteEnum) == ByteEnum.benum11);
-        test(byteEnum.value == ByteEnum.benum11);
+        {
+            TestIntf.OpByteResult r;
+            r = proxy.opByte(ByteEnum.benum1);
+            test(r.returnValue == ByteEnum.benum1 && r.b2 == ByteEnum.benum1);
+            r = proxy.opByte(ByteEnum.benum11);
+            test(r.returnValue == ByteEnum.benum11 && r.b2 == ByteEnum.benum11);
+        }
 
-        ShortEnumHolder shortEnum = new ShortEnumHolder();
-        test(proxy.opShort(ShortEnum.senum1, shortEnum) == ShortEnum.senum1);
-        test(shortEnum.value == ShortEnum.senum1);
-        test(proxy.opShort(ShortEnum.senum11, shortEnum) == ShortEnum.senum11);
-        test(shortEnum.value == ShortEnum.senum11);
+        {
+            TestIntf.OpShortResult r;
+            r = proxy.opShort(ShortEnum.senum1);
+            test(r.returnValue == ShortEnum.senum1 && r.s2 == ShortEnum.senum1);
+            r = proxy.opShort(ShortEnum.senum11);
+            test(r.returnValue == ShortEnum.senum11 && r.s2 == ShortEnum.senum11);
+        }
 
-        IntEnumHolder intEnum = new IntEnumHolder();
-        test(proxy.opInt(IntEnum.ienum1, intEnum) == IntEnum.ienum1);
-        test(intEnum.value == IntEnum.ienum1);
-        test(proxy.opInt(IntEnum.ienum11, intEnum) == IntEnum.ienum11);
-        test(intEnum.value == IntEnum.ienum11);
-        test(proxy.opInt(IntEnum.ienum12, intEnum) == IntEnum.ienum12);
-        test(intEnum.value == IntEnum.ienum12);
+        {
+            TestIntf.OpIntResult r;
+            r = proxy.opInt(IntEnum.ienum1);
+            test(r.returnValue == IntEnum.ienum1 && r.i2 == IntEnum.ienum1);
+            r = proxy.opInt(IntEnum.ienum11);
+            test(r.returnValue == IntEnum.ienum11 && r.i2 == IntEnum.ienum11);
+            r = proxy.opInt(IntEnum.ienum12);
+            test(r.returnValue == IntEnum.ienum12 && r.i2 == IntEnum.ienum12);
+        }
 
-        SimpleEnumHolder s = new SimpleEnumHolder();
-        test(proxy.opSimple(SimpleEnum.green, s) == SimpleEnum.green);
-        test(s.value == SimpleEnum.green);
+        {
+            TestIntf.OpSimpleResult r;
+            r = proxy.opSimple(SimpleEnum.green);
+            test(r.returnValue == SimpleEnum.green && r.s2 == SimpleEnum.green);
+        }
 
         out.println("ok");
 
@@ -187,13 +193,12 @@ public class AllTests
                               ByteEnum.benum6, ByteEnum.benum7, ByteEnum.benum8, ByteEnum.benum9, ByteEnum.benum10,
                               ByteEnum.benum11};
 
-            ByteEnumSeqHolder b2 = new ByteEnumSeqHolder();
-            ByteEnum b3[] = proxy.opByteSeq(b1, b2);
+            TestIntf.OpByteSeqResult r = proxy.opByteSeq(b1);
 
             for(int i = 0; i < b1.length; ++i)
             {
-                test(b1[i] == b2.value[i]);
-                test(b1[i] == b3[i]);
+                test(b1[i] == r.b2[i]);
+                test(b1[i] == r.returnValue[i]);
             }
         }
 
@@ -202,13 +207,12 @@ public class AllTests
                                ShortEnum.senum6, ShortEnum.senum7, ShortEnum.senum8, ShortEnum.senum9, ShortEnum.senum10,
                                ShortEnum.senum11};
 
-            ShortEnumSeqHolder s2 = new ShortEnumSeqHolder();
-            ShortEnum s3[] = proxy.opShortSeq(s1, s2);
+            TestIntf.OpShortSeqResult r = proxy.opShortSeq(s1);
 
             for(int i = 0; i < s1.length; ++i)
             {
-                test(s1[i] == s2.value[i]);
-                test(s1[i] == s3[i]);
+                test(s1[i] == r.s2[i]);
+                test(s1[i] == r.returnValue[i]);
             }
         }
 
@@ -217,26 +221,24 @@ public class AllTests
                              IntEnum.ienum6, IntEnum.ienum7, IntEnum.ienum8, IntEnum.ienum9, IntEnum.ienum10,
                              IntEnum.ienum11};
 
-            IntEnumSeqHolder i2 = new IntEnumSeqHolder();
-            IntEnum i3[] = proxy.opIntSeq(i1, i2);
+            TestIntf.OpIntSeqResult r = proxy.opIntSeq(i1);
 
             for(int i = 0; i < i1.length; ++i)
             {
-                test(i1[i] == i2.value[i]);
-                test(i1[i] == i3[i]);
+                test(i1[i] == r.i2[i]);
+                test(i1[i] == r.returnValue[i]);
             }
         }
 
         {
             SimpleEnum s1[] = { SimpleEnum.red, SimpleEnum.green, SimpleEnum.blue };
 
-            SimpleEnumSeqHolder s2 = new SimpleEnumSeqHolder();
-            SimpleEnum s3[] = proxy.opSimpleSeq(s1, s2);
+            TestIntf.OpSimpleSeqResult r = proxy.opSimpleSeq(s1);
 
             for(int i = 0; i < s1.length; ++i)
             {
-                test(s1[i] == s2.value[i]);
-                test(s1[i] == s3[i]);
+                test(s1[i] == r.s2[i]);
+                test(s1[i] == r.returnValue[i]);
             }
         }
 
@@ -247,85 +249,85 @@ public class AllTests
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeByte((byte)2); // Invalid enumerator
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             ByteEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeByte((byte)128); // Invalid enumerator
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             ByteEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)-1); // Negative enumerators are not supported
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             ShortEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)0); // Invalid enumerator
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             ShortEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)32767); // Invalid enumerator
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             ShortEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeInt(-1); // Negative enumerators are not supported
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             IntEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 
         try
         {
-            os = new Ice.OutputStream(communicator);
+            os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeInt(2); // Invalid enumerator
-            Ice.InputStream in = new Ice.InputStream(communicator, os.finished());
+            com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
             IntEnum.read(in);
             test(false);
         }
-        catch(Ice.MarshalException ex)
+        catch(com.zeroc.Ice.MarshalException ex)
         {
         }
 

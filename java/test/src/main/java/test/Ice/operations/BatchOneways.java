@@ -12,12 +12,10 @@ package test.Ice.operations;
 import java.io.PrintWriter;
 
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
 
 class BatchOneways
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -25,10 +23,9 @@ class BatchOneways
         }
     }
 
-    static class BatchRequestInterceptorI implements Ice.BatchRequestInterceptor
+    static class BatchRequestInterceptorI implements com.zeroc.Ice.BatchRequestInterceptor
     {
-        public void
-        enqueue(Ice.BatchRequest request, int count, int size)
+        public void enqueue(com.zeroc.Ice.BatchRequest request, int count, int size)
         {
             test(request.getOperation().equals("opByteSOneway") || request.getOperation().equals("ice_ping"));
             test(request.getProxy().ice_isBatchOneway());
@@ -42,7 +39,7 @@ class BatchOneways
 
             if(_size + request.getSize() > 25000)
             {
-                request.getProxy().begin_ice_flushBatchRequests();
+                request.getProxy().ice_flushBatchRequestsAsync();
                 _size = 18; // header
             }
 
@@ -54,14 +51,12 @@ class BatchOneways
             }
         }
 
-        public void
-        setEnqueue(boolean enabled)
+        public void setEnqueue(boolean enabled)
         {
             _enabled = enabled;
         }
 
-        public int
-        count()
+        public int count()
         {
             return _count;
         }
@@ -70,14 +65,13 @@ class BatchOneways
         private int _count;
         private int _size;
         private int _lastRequestSize;
-    };
+    }
 
-    static void
-    batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
+    static void batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
     {
         final byte[] bs1 = new byte[10  * 1024];
 
-        MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        MyClassPrx batch = p.ice_batchOneway();
         batch.ice_flushBatchRequests(); // Empty flush
 
         p.opByteSOnewayCallCount(); // Reset the call count
@@ -88,7 +82,7 @@ class BatchOneways
             {
                 batch.opByteSOneway(bs1);
             }
-            catch(Ice.MemoryLimitException ex)
+            catch(com.zeroc.Ice.MemoryLimitException ex)
             {
                 test(false);
             }
@@ -109,8 +103,8 @@ class BatchOneways
 
         if(batch.ice_getConnection() != null)
         {
-            MyClassPrx batch1 = (MyClassPrx)p.ice_batchOneway();
-            MyClassPrx batch2 = (MyClassPrx)p.ice_batchOneway();
+            MyClassPrx batch1 = p.ice_batchOneway();
+            MyClassPrx batch2 = p.ice_batchOneway();
 
             batch1.ice_ping();
             batch2.ice_ping();
@@ -128,9 +122,9 @@ class BatchOneways
             batch2.ice_ping();
         }
 
-        Ice.Identity identity = new Ice.Identity();
+        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
         identity.name = "invalid";
-        Ice.ObjectPrx batch3 = batch.ice_identity(identity);
+        com.zeroc.Ice.ObjectPrx batch3 = batch.ice_identity(identity);
         batch3.ice_ping();
         batch3.ice_flushBatchRequests();
 
@@ -142,13 +136,13 @@ class BatchOneways
 
         if(batch.ice_getConnection() != null)
         {
-            Ice.InitializationData initData = app.createInitializationData();
+            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = p.ice_getCommunicator().getProperties()._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
-            Ice.Communicator ic = app.initialize(initData);
+            com.zeroc.Ice.Communicator ic = app.initialize(initData);
 
-            batch = MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.toString()).ice_batchOneway());
+            batch = MyClassPrx.uncheckedCast(ic.stringToProxy(p.toString())).ice_batchOneway();
 
             test(interceptor.count() == 0);
             batch.ice_ping();

@@ -8,25 +8,25 @@
 // **********************************************************************
 
 package test.IceSSL.configuration;
-import test.IceSSL.configuration.Test._ServerDisp;
 
-class ServerI extends _ServerDisp
+import test.IceSSL.configuration.Test.Server;
+
+class ServerI implements Server
 {
-    ServerI(Ice.Communicator communicator)
+    ServerI(com.zeroc.Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
 
     @Override
-    public void
-    noCert(Ice.Current current)
+    public void noCert(com.zeroc.Ice.Current current)
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
             test(info.certs == null);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
@@ -34,46 +34,43 @@ class ServerI extends _ServerDisp
 
     @Override
     public void
-    checkCert(String subjectDN, String issuerDN, Ice.Current current)
+    checkCert(String subjectDN, String issuerDN, com.zeroc.Ice.Current current)
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
             java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
             test(info.verified);
             test(info.nativeCerts.length == 2 &&
                  cert.getSubjectDN().toString().equals(subjectDN) &&
                  cert.getIssuerDN().toString().equals(issuerDN));
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
     }
 
     @Override
-    public void
-    checkCipher(String cipher, Ice.Current current)
+    public void checkCipher(String cipher, com.zeroc.Ice.Current current)
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
             test(info.cipher.indexOf(cipher) >= 0);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
         _communicator.destroy();
     }
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -81,5 +78,5 @@ class ServerI extends _ServerDisp
         }
     }
 
-    private Ice.Communicator _communicator;
+    private com.zeroc.Ice.Communicator _communicator;
 }

@@ -18,48 +18,50 @@ import com.zeroc.ice.Test.*;
 public class ServiceBean implements Service
 {
     @PostConstruct
-    public void 
-    create()
+    public void create()
     {
-        Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10002");
-        database = DatabasePrxHelper.uncheckedCast(db);
+        com.zeroc.Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10002");
+        database = DatabasePrx.uncheckedCast(db);
     }
 
-    public final Account 
-    getAccount(String id)
+    static class AccountHolder
+    {
+        Account value;
+    }
+
+    public final Account getAccount(String id)
     {
         final AccountHolder holder = new AccountHolder();
-        database.begin_getAccount(id, new Callback_Database_getAccount() {
-                public void 
-                response(Account a)
+        database.getAccountAsync(id).whenComplete((result, ex) ->
+            {
+                if(ex != null)
                 {
-                    synchronized(holder)
+                    if(ex instanceof AccountNotExistException)
                     {
-                        holder.value = a;
-                        holder.notify();
+                        Account a = new Account(((AccountNotExistException)ex).id, "");
+                        database.addAccountAsync(a);
+                        synchronized(holder)
+                        {
+                            holder.value = a;
+                            holder.notify();
+                        }
+                    }
+                    else
+                    {
+                        ex.printStackTrace();
+                        assert(false);
                     }
                 }
-
-                public void 
-                exception(Ice.LocalException ex)
+                else
                 {
-                    ex.printStackTrace();
-                    assert(false);
-                }
-
-                public void 
-                exception(Ice.UserException ex)
-                {
-                    Account a = new Account(((AccountNotExistException)ex).id, "");
-                    database.begin_addAccount(a);
                     synchronized(holder)
                     {
-                        holder.value = a;
+                        holder.value = result;
                         holder.notify();
                     }
                 }
             });
-        
+
         synchronized(holder)
         {
             while(holder.value == null)
@@ -76,8 +78,7 @@ public class ServiceBean implements Service
         return holder.value;
     }
 
-    public final void
-    addAccount(Account s)
+    public final void addAccount(Account s)
     {
         database.addAccount(s);
     }

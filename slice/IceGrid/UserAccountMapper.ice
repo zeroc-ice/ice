@@ -12,6 +12,12 @@
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:IceGrid/Config.h"]]
 
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 ["objc:prefix:ICEGRID"]
 module IceGrid
 {
@@ -56,4 +62,3 @@ interface UserAccountMapper
 };
 
 };
-

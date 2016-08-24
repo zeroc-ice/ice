@@ -11,21 +11,19 @@ package test.Ice.adapterDeactivation;
 
 import test.Ice.adapterDeactivation.Test.*;
 
-public final class TestI extends _TestIntfDisp
+public final class TestI implements TestIntf
 {
-    public void
-    _transient(Ice.Current current)
+    public void _transient(com.zeroc.Ice.Current current)
     {
-        Ice.Communicator communicator = current.adapter.getCommunicator();
+        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
 
-        Ice.ObjectAdapter adapter =
+        com.zeroc.Ice.ObjectAdapter adapter =
             communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
         adapter.activate();
         adapter.destroy();
     }
 
-    public void
-    deactivate(Ice.Current current)
+    public void deactivate(com.zeroc.Ice.Current current)
     {
         current.adapter.deactivate();
         try

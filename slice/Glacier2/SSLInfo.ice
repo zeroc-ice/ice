@@ -13,6 +13,11 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:GLACIER2"]
 module Glacier2
@@ -48,4 +53,3 @@ struct SSLInfo
 };
 
 };
-

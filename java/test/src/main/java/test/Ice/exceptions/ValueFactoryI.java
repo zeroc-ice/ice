@@ -9,11 +9,10 @@
 
 package test.Ice.exceptions;
 
-
-public final class ValueFactoryI implements Ice.ValueFactory
+public final class ValueFactoryI implements com.zeroc.Ice.ValueFactory
 {
     @Override
-    public Ice.Object create(String s)
+    public com.zeroc.Ice.Value create(String s)
     {
         return null;
     }

@@ -23,8 +23,7 @@ public class Client
         }
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         int status = 0;
         try
@@ -40,7 +39,7 @@ public class Client
 
             JavaOnly c = new JavaOnly();
             test(c.lang.equals("java"));
-            test(c.version == Ice.Util.intVersion());
+            test(c.version == com.zeroc.Ice.Util.intVersion());
             System.out.println("ok");
         }
         catch(Exception ex)

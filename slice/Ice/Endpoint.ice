@@ -9,11 +9,16 @@
 
 #pragma once
 
+[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+
 #include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/EndpointF.ice>
+#include <Ice/JavaCompat.ice>
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICE"]
 module Ice
@@ -269,4 +274,3 @@ local class OpaqueEndpointInfo extends EndpointInfo
 };
 
 };
-

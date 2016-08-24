@@ -11,14 +11,11 @@ package test.Ice.retry;
 
 import java.io.PrintWriter;
 
-import test.Ice.retry.Test.Callback_Retry_op;
 import test.Ice.retry.Test.RetryPrx;
-import test.Ice.retry.Test.RetryPrxHelper;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -33,8 +30,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -50,8 +46,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        called()
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -61,75 +56,23 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMIRegular extends Callback_Retry_op
-    {
-        @Override
-        public void
-        response()
-        {
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class AMIException extends Callback_Retry_op
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.ConnectionLostException || ex instanceof Ice.UnknownLocalException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    public static RetryPrx
-    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, PrintWriter out, 
-             Instrumentation instrumentation, String ref)
+    public static RetryPrx allTests(com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.Communicator communicator2,
+                                    PrintWriter out, Instrumentation instrumentation, String ref)
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
         test(base1 != null);
-        Ice.ObjectPrx base2 = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base2 = communicator.stringToProxy(ref);
         test(base2 != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        RetryPrx retry1 = RetryPrxHelper.checkedCast(base1);
+        RetryPrx retry1 = RetryPrx.checkedCast(base1);
         test(retry1 != null);
         test(retry1.equals(base1));
-        RetryPrx retry2 = RetryPrxHelper.checkedCast(base2);
+        RetryPrx retry2 = RetryPrx.checkedCast(base2);
         test(retry2 != null);
         test(retry2.equals(base2));
         out.println("ok");
@@ -148,11 +91,11 @@ public class AllTests
             retry2.op(true);
             test(false);
         }
-        catch(Ice.UnknownLocalException ex)
+        catch(com.zeroc.Ice.UnknownLocalException ex)
         {
             // Expected with collocation
         }
-        catch(Ice.ConnectionLostException ex)
+        catch(com.zeroc.Ice.ConnectionLostException ex)
         {
         }
         instrumentation.testInvocationCount(1);
@@ -168,11 +111,15 @@ public class AllTests
         instrumentation.testRetryCount(0);
         out.println("ok");
 
-        AMIRegular cb1 = new AMIRegular();
-        AMIException cb2 = new AMIException();
+        Callback cb1 = new Callback();
+        Callback cb2 = new Callback();
 
         out.print("calling regular AMI operation with first proxy... ");
-        retry1.begin_op(false, cb1);
+        retry1.opAsync(false).whenComplete((result, ex) ->
+            {
+                test(ex == null);
+                cb1.called();
+            });
         cb1.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);
@@ -180,7 +127,12 @@ public class AllTests
         out.println("ok");
 
         out.print("calling AMI operation to kill connection with second proxy... ");
-        retry2.begin_op(true, cb2);
+        retry2.opAsync(true).whenComplete((result, ex) ->
+            {
+                test(ex != null && (ex instanceof com.zeroc.Ice.ConnectionLostException ||
+                                    ex instanceof com.zeroc.Ice.UnknownLocalException));
+                cb2.called();
+            });
         cb2.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(1);
@@ -188,7 +140,11 @@ public class AllTests
         out.println("ok");
 
         out.print("calling regular AMI operation with first proxy again... ");
-        retry1.begin_op(false, cb1);
+        retry1.opAsync(false).whenComplete((result, ex) ->
+            {
+                test(ex == null);
+                cb1.called();
+            });
         cb1.check();
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);
@@ -200,7 +156,7 @@ public class AllTests
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);
         instrumentation.testRetryCount(4);
-        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 4);
+        test(retry1.opIdempotentAsync(4).join() == 4);
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(0);
         instrumentation.testRetryCount(4);
@@ -212,7 +168,7 @@ public class AllTests
             retry1.opNotIdempotent();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         instrumentation.testInvocationCount(1);
@@ -220,11 +176,12 @@ public class AllTests
         instrumentation.testRetryCount(0);
         try
         {
-            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
+            retry1.opNotIdempotentAsync().join();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(java.util.concurrent.CompletionException ex)
         {
+            test(ex.getCause() instanceof com.zeroc.Ice.LocalException);
         }
         instrumentation.testInvocationCount(1);
         instrumentation.testFailureCount(1);
@@ -249,11 +206,12 @@ public class AllTests
             instrumentation.testRetryCount(0);
             try
             {
-                retry1.end_opSystemException(retry1.begin_opSystemException());
+                retry1.opSystemExceptionAsync().join();
                 test(false);
             }
-            catch(SystemFailure ex)
+            catch(java.util.concurrent.CompletionException ex)
             {
+                test(ex.getCause() instanceof SystemFailure);
             }
             instrumentation.testInvocationCount(1);
             instrumentation.testFailureCount(1);
@@ -264,14 +222,14 @@ public class AllTests
         out.print("testing invocation timeout and retries... ");
         out.flush();
 
-        retry2 = RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.toString()));
+        retry2 = RetryPrx.checkedCast(communicator2.stringToProxy(retry1.toString()));
         try
         {
             // No more than 2 retries before timeout kicks-in
-            ((RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
+            retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);
         }
-        catch(Ice.InvocationTimeoutException ex)
+        catch(com.zeroc.Ice.InvocationTimeoutException ex)
         {
             instrumentation.testRetryCount(2);
             retry2.opIdempotent(-1); // Reset the counter
@@ -280,12 +238,13 @@ public class AllTests
         try
         {
             // No more than 2 retries before timeout kicks-in
-            RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(500);
-            prx.end_opIdempotent(prx.begin_opIdempotent(4));
+            RetryPrx prx = retry2.ice_invocationTimeout(500);
+            prx.opIdempotentAsync(4).join();
             test(false);
         }
-        catch(Ice.InvocationTimeoutException ex)
+        catch(java.util.concurrent.CompletionException ex)
         {
+            test(ex.getCause() instanceof com.zeroc.Ice.InvocationTimeoutException);
             instrumentation.testRetryCount(2);
             retry2.opIdempotent(-1); // Reset the counter
             instrumentation.testRetryCount(-1);

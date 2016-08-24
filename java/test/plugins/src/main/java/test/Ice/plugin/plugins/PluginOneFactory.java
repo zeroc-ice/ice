@@ -9,17 +9,17 @@
 
 package test.Ice.plugin.plugins;
 
-public class PluginOneFactory implements Ice.PluginFactory
+public class PluginOneFactory implements com.zeroc.Ice.PluginFactory
 {
     @Override
-    public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
+    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginOne(communicator);
     }
 
     static class PluginOne extends BasePlugin
     {
-        public PluginOne(Ice.Communicator communicator)
+        public PluginOne(com.zeroc.Ice.Communicator communicator)
         {
             super(communicator);
         }

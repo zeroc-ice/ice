@@ -19,22 +19,21 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
+        GetInitDataResult r = super.getInitData(args);
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
 
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
-        initData.dispatcher = _dispatcher;
-        return initData;
+        r.initData.dispatcher = _dispatcher;
+        return r;
     }
 
     Dispatcher getDispatcher()

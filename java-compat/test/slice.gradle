@@ -1,0 +1,85 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+task testSliceTask {
+    slice {
+        java {
+            set1 {
+                files = fileTree(dir: testDir, includes:['Ice/adapterDeactivation/*.ice',
+                                                         'Ice/ami/*.ice',
+                                                         'Ice/admin/*.ice',
+                                                         'Ice/background/*.ice',
+                                                         'Ice/binding/*.ice',
+                                                         'Ice/classLoader/*.ice',
+                                                         'Ice/custom/*.ice',
+                                                         'Ice/defaultServant/*.ice',
+                                                         'Ice/defaultValue/*.ice',
+                                                         'Ice/dispatcher/*.ice',
+                                                         'Ice/echo/*.ice',
+                                                         'Ice/exceptions/*.ice',
+                                                         'Ice/facets/*.ice',
+                                                         'Ice/faultTolerance/*.ice',
+                                                         'Ice/hash/*.ice',
+                                                         'Ice/hold/*.ice',
+                                                         'Ice/info/*.ice',
+                                                         'Ice/inheritance/*.ice',
+                                                         'Ice/interceptor/*.ice',
+                                                         'Ice/interrupt/*.ice',
+                                                         'Ice/invoke/*.ice',
+                                                         'Ice/location/*.ice',
+                                                         'Ice/metrics/*.ice',
+                                                         'Ice/networkProxy/*.ice',
+                                                         'Ice/proxy/*.ice',
+                                                         'Ice/retry/*.ice',
+                                                         'Ice/seqMapping/*.ice',
+                                                         'Ice/servantLocator/*.ice',
+                                                         'Ice/serialize/*.ice',
+                                                         'Ice/slicing/exceptions/*.ice',
+                                                         'Ice/slicing/objects/*.ice',
+                                                         'Ice/timeout/*.ice',
+                                                         'Ice/acm/*.ice',
+                                                         'Ice/throughput/*.ice',
+                                                         'Ice/threadPoolPriority/*.ice',
+                                                         'Ice/udp/*.ice',
+                                                         'Ice/objects/*.ice',
+                                                         'Ice/optional/*.ice',
+                                                         'Ice/stream/*.ice',
+                                                         'Ice/enums/*.ice',
+                                                         'Glacier2/router/*.ice',
+                                                         'Glacier2/sessionHelper/*.ice',
+                                                         'IceDiscovery/simple/*.ice',
+                                                         'IceGrid/simple/*.ice',
+                                                         'IceBox/admin/*.ice',
+                                                         'IceBox/configuration/*.ice',
+                                                         'IceSSL/configuration/*.ice',
+                                                         'Slice/keyword/*.ice',
+                                                         'Slice/macros/*.ice',
+                                                         'Slice/structure/*.ice'])
+            }
+            set2 {
+                args = "--tie"
+                files = fileTree(dir: testDir, includes:['Ice/operations/*.ice'])
+            }
+            set4 {
+                args = "--checksum test.Ice.checksum.Test.SliceChecksums"
+                files = fileTree(dir: testDir, includes:['Ice/checksum/Test.ice',
+                                                     'Ice/checksum/Types.ice'])
+            }
+            set5 {
+                include = ["${testDir}/Ice/packagemd"]
+                files = fileTree(dir: testDir, includes:['Ice/packagemd/*.ice'])
+            }
+            set6 {
+                args = "--checksum test.Ice.checksum.server.Test.SliceChecksums"
+                files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
+                                                     'Ice/checksum/TypesServer.ice'])
+            }
+        }
+    }
+}

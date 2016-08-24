@@ -12,14 +12,10 @@ package test.Ice.faultTolerance;
 import java.io.PrintWriter;
 
 import test.Ice.faultTolerance.Test.TestIntfPrx;
-import test.Ice.faultTolerance.Test.TestIntfPrxHelper;
-import test.Ice.faultTolerance.Test.Callback_TestIntf_pid;
-import test.Ice.faultTolerance.Test.Callback_TestIntf_shutdown;
 
 public class AllTests
 {
-    public static void
-    test(boolean b)
+    public static void test(boolean b)
     {
         if(!b)
         {
@@ -34,8 +30,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -47,12 +42,11 @@ public class AllTests
                 {
                 }
             }
-            
+
             _called = false;
         }
-        
-        public synchronized void
-        called()
+
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -62,111 +56,48 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class Callback_TestIntf_pidI extends Callback_TestIntf_pid
+    private static class PidCallback extends Callback
     {
-        @Override
-        public void
-        response(int pid)
+        public void response(int pid)
         {
             _pid = pid;
-            callback.called();
+            called();
         }
-        
-        @Override
-        public void
-        exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-        
-        public int
-        pid()
+
+        public int pid()
         {
             return _pid;
         }
-        
-        public void
-        check()
-        {
-            callback.check();
-        }
 
         private int _pid;
-        
-        private Callback callback = new Callback();
     }
-    
-    private static class Callback_TestIntf_shutdownI extends Callback_TestIntf_shutdown
-    {
-        @Override
-        public void
-        response()
-        {
-            callback.called();
-        }
-        
-        @Override
-        public void
-        exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-        
-        public void
-        check()
-        {
-            callback.check();
-        }
 
-        private Callback callback = new Callback();
-    }
-    
-    private static class AbortCallback extends Ice.Callback
+    private static class AbortCallback extends Callback
     {
-        @Override
-        public void
-        completed(Ice.AsyncResult result)
+        public void completed(Throwable ex)
         {
             try
             {
-                TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(result.getProxy());
-                if(result.getOperation().equals("abort"))
-                {
-                    p.end_abort(result);
-                }
-                else if(result.getOperation().equals("idempotentAbort"))
-                {
-                    p.end_idempotentAbort(result);
-                }
-                test(false);
+                throw ex;
             }
-            catch(Ice.ConnectionLostException exc)
+            catch(com.zeroc.Ice.ConnectionLostException exc)
             {
             }
-            catch(Ice.ConnectFailedException exc)
+            catch(com.zeroc.Ice.ConnectFailedException exc)
             {
             }
-            catch(Ice.SocketException exc)
+            catch(com.zeroc.Ice.SocketException exc)
             {
             }
-            catch(Exception exc)
+            catch(Throwable exc)
             {
                 test(false);
             }
-            callback.called();
+            called();
         }
-        
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
     }
-    
-    public static void
-    allTests(Ice.Communicator communicator, int[] ports, PrintWriter out)
+
+    public static void allTests(com.zeroc.Ice.Communicator communicator, int[] ports, PrintWriter out)
     {
         out.print("testing stringToProxy... ");
         out.flush();
@@ -175,13 +106,13 @@ public class AllTests
         {
             ref += ":default -p " + port;
         }
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
+        TestIntfPrx obj = TestIntfPrx.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
         out.println("ok");
@@ -209,8 +140,12 @@ public class AllTests
             {
                 out.print("testing server #" + i + " with AMI... ");
                 out.flush();
-                Callback_TestIntf_pidI cb = new Callback_TestIntf_pidI();
-                obj.begin_pid(cb);
+                PidCallback cb = new PidCallback();
+                obj.pidAsync().whenComplete((result, ex) ->
+                    {
+                        test(ex == null);
+                        cb.response(result);
+                    });
                 cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
@@ -231,8 +166,12 @@ public class AllTests
                 {
                     out.print("shutting down server #" + i + " with AMI... ");
                     out.flush();
-                    Callback_TestIntf_shutdownI cb = new Callback_TestIntf_shutdownI();
-                    obj.begin_shutdown(cb);
+                    Callback cb = new Callback();
+                    obj.shutdownAsync().whenComplete((result, ex) ->
+                        {
+                            test(ex == null);
+                            cb.called();
+                        });
                     cb.check();
                     out.println("ok");
                 }
@@ -248,15 +187,15 @@ public class AllTests
                         obj.abort();
                         test(false);
                     }
-                    catch(Ice.ConnectionLostException ex)
+                    catch(com.zeroc.Ice.ConnectionLostException ex)
                     {
                         out.println("ok");
                     }
-                    catch(Ice.ConnectFailedException exc)
+                    catch(com.zeroc.Ice.ConnectFailedException exc)
                     {
                         out.println("ok");
                     }
-                    catch(Ice.SocketException ex)
+                    catch(com.zeroc.Ice.SocketException ex)
                     {
                         out.println("ok");
                     }
@@ -266,7 +205,11 @@ public class AllTests
                     out.print("aborting server #" + i + " with AMI... ");
                     out.flush();
                     AbortCallback cb = new AbortCallback();
-                    obj.begin_abort(cb);
+                    obj.abortAsync().whenComplete((result, ex) ->
+                        {
+                            test(ex != null);
+                            cb.completed(ex);
+                        });
                     cb.check();
                     out.println("ok");
                 }
@@ -282,15 +225,15 @@ public class AllTests
                         obj.idempotentAbort();
                         test(false);
                     }
-                    catch(Ice.ConnectionLostException ex)
+                    catch(com.zeroc.Ice.ConnectionLostException ex)
                     {
                         out.println("ok");
                     }
-                    catch(Ice.ConnectFailedException exc)
+                    catch(com.zeroc.Ice.ConnectFailedException exc)
                     {
                         out.println("ok");
                     }
-                    catch(Ice.SocketException ex)
+                    catch(com.zeroc.Ice.SocketException ex)
                     {
                         out.println("ok");
                     }
@@ -300,7 +243,11 @@ public class AllTests
                     out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
                     out.flush();
                     AbortCallback cb = new AbortCallback();
-                    obj.begin_idempotentAbort(cb);
+                    obj.idempotentAbortAsync().whenComplete((result, ex) ->
+                        {
+                            test(ex != null);
+                            cb.completed(ex);
+                        });
                     cb.check();
                     out.println("ok");
                 }
@@ -320,7 +267,7 @@ public class AllTests
             obj.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             out.println("ok");
         }

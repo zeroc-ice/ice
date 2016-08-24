@@ -9,15 +9,15 @@
 
 package test.Ice.operations;
 
-import Ice.Current;
-import test.Ice.operations.Test.*;
-
 import java.util.*;
 
-public final class MyDerivedClassI extends MyDerivedClass
+import com.zeroc.Ice.Current;
+
+import test.Ice.operations.Test.*;
+
+public final class MyDerivedClassI implements _MyDerivedClassDisp
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -30,577 +30,515 @@ public final class MyDerivedClassI extends MyDerivedClass
     //
 
     @Override
-    public boolean
-    ice_isA(String id, Ice.Current current)
+    public boolean ice_isA(String id, Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_isA(id, current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_isA(id, current);
     }
 
     @Override
-    public void
-    ice_ping(Ice.Current current)
+    public void ice_ping(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        super.ice_ping(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        _MyDerivedClassDisp.super.ice_ping(current);
     }
 
     @Override
-    public String[]
-    ice_ids(Ice.Current current)
+    public String[] ice_ids(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_ids(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_ids(current);
     }
 
     @Override
-    public String
-    ice_id(Ice.Current current)
+    public String ice_id(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_id(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_id(current);
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public void
-    opVoid(Ice.Current current)
+    public void opVoid(Current current)
     {
-        test(current.mode == Ice.OperationMode.Normal);
+        test(current.mode == com.zeroc.Ice.OperationMode.Normal);
     }
 
     @Override
-    public boolean
-    opBool(boolean p1, boolean p2,
-           Ice.BooleanHolder p3,
-           Ice.Current current)
+    public MyClass.OpBoolResult opBool(boolean p1, boolean p2, Current current)
     {
-        p3.value = p1;
-        return p2;
+        return new MyClass.OpBoolResult(p2, p1);
     }
 
     @Override
-    public boolean[]
-    opBoolS(boolean[] p1, boolean[] p2,
-            BoolSHolder p3,
-            Ice.Current current)
+    public MyClass.OpBoolSResult opBoolS(boolean[] p1, boolean[] p2, Current current)
     {
-        p3.value = new boolean[p1.length + p2.length];
-        System.arraycopy(p1, 0, p3.value, 0, p1.length);
-        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+        MyClass.OpBoolSResult r = new MyClass.OpBoolSResult();
+        r.p3 = new boolean[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        boolean[] r = new boolean[p1.length];
+        r.returnValue = new boolean[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
         return r;
     }
 
     @Override
-    public boolean[][]
-    opBoolSS(boolean[][] p1, boolean[][] p2,
-             BoolSSHolder p3,
-             Ice.Current current)
+    public MyClass.OpBoolSSResult opBoolSS(boolean[][] p1, boolean[][] p2, Current current)
     {
-        p3.value = new boolean[p1.length + p2.length][];
-        System.arraycopy(p1, 0, p3.value, 0, p1.length);
-        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+        MyClass.OpBoolSSResult r = new MyClass.OpBoolSSResult();
+        r.p3 = new boolean[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        boolean[][] r = new boolean[p1.length][];
+        r.returnValue = new boolean[p1.length][];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
         return r;
     }
 
     @Override
-    public byte
-    opByte(byte p1, byte p2,
-           Ice.ByteHolder p3,
-           Ice.Current current)
+    public MyClass.OpByteResult opByte(byte p1, byte p2, Current current)
     {
-        p3.value = (byte) (p1 ^ p2);
-        return p1;
+        return new MyClass.OpByteResult(p1, (byte) (p1 ^ p2));
     }
 
     @Override
-    public java.util.Map<Byte, Boolean>
-    opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2, ByteBoolDHolder p3,
-                Ice.Current current)
+    public MyClass.OpByteBoolDResult opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
+                                                 Current current)
     {
-        p3.value = p1;
-        java.util.Map<Byte, Boolean> r = new java.util.HashMap<Byte, Boolean>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public byte[]
-    opByteS(byte[] p1, byte[] p2,
-            ByteSHolder p3,
-            Ice.Current current)
+    public MyClass.OpByteSResult opByteS(byte[] p1, byte[] p2, Current current)
     {
-        p3.value = new byte[p1.length];
+        MyClass.OpByteSResult r = new MyClass.OpByteSResult();
+        r.p3 = new byte[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            p3.value[i] = p1[p1.length - (i + 1)];
+            r.p3[i] = p1[p1.length - (i + 1)];
         }
 
-        byte[] r = new byte[p1.length + p2.length];
-        System.arraycopy(p1, 0, r, 0, p1.length);
-        System.arraycopy(p2, 0, r, p1.length, p2.length);
+        r.returnValue = new byte[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.returnValue, 0, p1.length);
+        System.arraycopy(p2, 0, r.returnValue, p1.length, p2.length);
         return r;
     }
 
     @Override
-    public byte[][]
-    opByteSS(byte[][] p1, byte[][] p2,
-             ByteSSHolder p3,
-             Ice.Current current)
+    public MyClass.OpByteSSResult opByteSS(byte[][] p1, byte[][] p2, Current current)
     {
-        p3.value = new byte[p1.length][];
+        MyClass.OpByteSSResult r = new MyClass.OpByteSSResult();
+        r.p3 = new byte[p1.length][];
         for(int i = 0; i < p1.length; i++)
         {
-            p3.value[i] = p1[p1.length - (i + 1)];
+            r.p3[i] = p1[p1.length - (i + 1)];
         }
 
-        byte[][] r = new byte[p1.length + p2.length][];
-        System.arraycopy(p1, 0, r, 0, p1.length);
-        System.arraycopy(p2, 0, r, p1.length, p2.length);
+        r.returnValue = new byte[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.returnValue, 0, p1.length);
+        System.arraycopy(p2, 0, r.returnValue, p1.length, p2.length);
         return r;
     }
 
     @Override
-    public double
-    opFloatDouble(float p1, double p2,
-                  Ice.FloatHolder p3, Ice.DoubleHolder p4,
-                  Ice.Current current)
+    public MyClass.OpFloatDoubleResult opFloatDouble(float p1, double p2, Current current)
     {
-        p3.value = p1;
-        p4.value = p2;
-        return p2;
+        return new MyClass.OpFloatDoubleResult(p2, p1, p2);
     }
 
     @Override
-    public double[]
-    opFloatDoubleS(float[] p1, double[] p2,
-                   FloatSHolder p3, DoubleSHolder p4,
-                   Ice.Current current)
+    public MyClass.OpFloatDoubleSResult opFloatDoubleS(float[] p1, double[] p2, Current current)
     {
-        p3.value = p1;
-        p4.value = new double[p2.length];
+        MyClass.OpFloatDoubleSResult r = new MyClass.OpFloatDoubleSResult();
+        r.p3 = p1;
+        r.p4 = new double[p2.length];
         for(int i = 0; i < p2.length; i++)
         {
-            p4.value[i] = p2[p2.length - (i + 1)];
+            r.p4[i] = p2[p2.length - (i + 1)];
         }
-        double[] r = new double[p2.length + p1.length];
-        System.arraycopy(p2, 0, r, 0, p2.length);
+        r.returnValue = new double[p2.length + p1.length];
+        System.arraycopy(p2, 0, r.returnValue, 0, p2.length);
         for(int i = 0; i < p1.length; i++)
         {
-            r[p2.length + i] = p1[i];
+            r.returnValue[p2.length + i] = p1[i];
         }
         return r;
     }
 
     @Override
-    public double[][]
-    opFloatDoubleSS(float[][] p1, double[][] p2,
-                    FloatSSHolder p3, DoubleSSHolder p4,
-                    Ice.Current current)
+    public MyClass.OpFloatDoubleSSResult opFloatDoubleSS(float[][] p1, double[][] p2, Current current)
     {
-        p3.value = p1;
-        p4.value = new double[p2.length][];
+        MyClass.OpFloatDoubleSSResult r = new MyClass.OpFloatDoubleSSResult();
+        r.p3 = p1;
+        r.p4 = new double[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            p4.value[i] = p2[p2.length - (i + 1)];
+            r.p4[i] = p2[p2.length - (i + 1)];
         }
-        double[][] r = new double[p2.length * 2][];
-        System.arraycopy(p2, 0, r, 0, p2.length);
-        System.arraycopy(p2, 0, r, p2.length, p2.length);
+        r.returnValue = new double[p2.length * 2][];
+        System.arraycopy(p2, 0, r.returnValue, 0, p2.length);
+        System.arraycopy(p2, 0, r.returnValue, p2.length, p2.length);
         return r;
     }
 
     @Override
-    public java.util.Map<Long, Float>
-    opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2, LongFloatDHolder p3,
-                 Ice.Current current)
+    public MyClass.OpLongFloatDResult opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
+                                                   Current current)
     {
-        p3.value = p1;
-        java.util.Map<Long, Float> r = new java.util.HashMap<Long, Float>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public MyClassPrx
-    opMyClass(MyClassPrx p1,
-              MyClassPrxHolder p2, MyClassPrxHolder p3,
-              Ice.Current current)
+    public MyClass.OpMyClassResult opMyClass(MyClassPrx p1, Current current)
     {
-        p2.value = p1;
-        p3.value = MyClassPrxHelper.uncheckedCast(
-                current.adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
-        return MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
-    }
-
-    @Override
-    public MyEnum
-    opMyEnum(MyEnum p1,
-             MyEnumHolder p2,
-             Ice.Current current)
-    {
-        p2.value = p1;
-        return MyEnum.enum3;
-    }
-
-    @Override
-    public java.util.Map<Short, Integer>
-    opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2, ShortIntDHolder p3,
-                Ice.Current current)
-    {
-        p3.value = p1;
-        java.util.Map<Short, Integer> r = new java.util.HashMap<Short, Integer>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
+        r.p2 = p1;
+        r.p3 = MyClassPrx.uncheckedCast(
+                current.adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("noSuchIdentity")));
+        r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return r;
     }
 
     @Override
-    public long
-    opShortIntLong(short p1, int p2, long p3,
-                   Ice.ShortHolder p4, Ice.IntHolder p5, Ice.LongHolder p6,
-                   Ice.Current current)
+    public MyClass.OpMyEnumResult opMyEnum(MyEnum p1, Current current)
     {
-        p4.value = p1;
-        p5.value = p2;
-        p6.value = p3;
-        return p3;
+        return new MyClass.OpMyEnumResult(MyEnum.enum3, p1);
     }
 
     @Override
-    public long[]
-    opShortIntLongS(short[] p1, int[] p2, long[] p3,
-                    ShortSHolder p4, IntSHolder p5, LongSHolder p6,
-                    Ice.Current current)
+    public MyClass.OpShortIntDResult opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
+                                                 Current current)
     {
-        p4.value = p1;
-        p5.value = new int[p2.length];
+        MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public MyClass.OpShortIntLongResult opShortIntLong(short p1, int p2, long p3, Current current)
+    {
+        return new MyClass.OpShortIntLongResult(p3, p1, p2, p3);
+    }
+
+    @Override
+    public MyClass.OpShortIntLongSResult opShortIntLongS(short[] p1, int[] p2, long[] p3, Current current)
+    {
+        MyClass.OpShortIntLongSResult r = new MyClass.OpShortIntLongSResult();
+        r.p4 = p1;
+        r.p5 = new int[p2.length];
         for(int i = 0; i < p2.length; i++)
         {
-            p5.value[i] = p2[p2.length - (i + 1)];
+            r.p5[i] = p2[p2.length - (i + 1)];
         }
-        p6.value = new long[p3.length * 2];
-        System.arraycopy(p3, 0, p6.value, 0, p3.length);
-        System.arraycopy(p3, 0, p6.value, p3.length, p3.length);
-        return p3;
+        r.p6 = new long[p3.length * 2];
+        System.arraycopy(p3, 0, r.p6, 0, p3.length);
+        System.arraycopy(p3, 0, r.p6, p3.length, p3.length);
+        r.returnValue = p3;
+        return r;
     }
 
     @Override
-    public long[][]
-    opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
-                     ShortSSHolder p4, IntSSHolder p5, LongSSHolder p6,
-                     Ice.Current current)
+    public MyClass.OpShortIntLongSSResult opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3, Current current)
     {
-        p4.value = p1;
-        p5.value = new int[p2.length][];
+        MyClass.OpShortIntLongSSResult r = new MyClass.OpShortIntLongSSResult();
+        r.p4 = p1;
+        r.p5 = new int[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            p5.value[i] = p2[p2.length - (i + 1)];
+            r.p5[i] = p2[p2.length - (i + 1)];
         }
-        p6.value = new long[p3.length * 2][];
-        System.arraycopy(p3, 0, p6.value, 0, p3.length);
-        System.arraycopy(p3, 0, p6.value, p3.length, p3.length);
-        return p3;
-    }
-
-    @Override
-    public String
-    opString(String p1, String p2,
-             Ice.StringHolder p3,
-             Ice.Current current)
-    {
-        p3.value = p2 + " " + p1;
-        return p1 + " " + p2;
-    }
-
-    @Override
-    public java.util.Map<String, MyEnum>
-    opStringMyEnumD(java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2, StringMyEnumDHolder p3,
-                    Ice.Current current)
-    {
-        p3.value = p1;
-        java.util.Map<String, MyEnum> r = new java.util.HashMap<String, MyEnum>();
-        r.putAll(p1);
-        r.putAll(p2);
+        r.p6 = new long[p3.length * 2][];
+        System.arraycopy(p3, 0, r.p6, 0, p3.length);
+        System.arraycopy(p3, 0, r.p6, p3.length, p3.length);
+        r.returnValue = p3;
         return r;
     }
 
     @Override
-    public java.util.Map<MyEnum, String>
-    opMyEnumStringD(java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2, MyEnumStringDHolder p3,
-                    Ice.Current current)
+    public MyClass.OpStringResult opString(String p1, String p2, Current current)
     {
-        p3.value = p1;
-        java.util.Map<MyEnum, String> r = new java.util.HashMap<MyEnum, String>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringResult r = new MyClass.OpStringResult();
+        r.p3 = p2 + " " + p1;
+        r.returnValue = p1 + " " + p2;
         return r;
     }
 
     @Override
-    public java.util.Map<MyStruct, MyEnum>
-    opMyStructMyEnumD(java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2, MyStructMyEnumDHolder p3,
-                      Ice.Current current)
+    public MyClass.OpStringMyEnumDResult opStringMyEnumD(java.util.Map<String, MyEnum> p1,
+                                                         java.util.Map<String, MyEnum> p2,
+                                                         Current current)
     {
-        p3.value = p1;
-        java.util.Map<MyStruct, MyEnum> r = new java.util.HashMap<MyStruct, MyEnum>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public List<Map<Byte, Boolean>> opByteBoolDS(List<Map<Byte, Boolean>> p1,
-                                                 List<Map<Byte, Boolean>> p2,
-                                                 ByteBoolDSHolder p3,
-                                                 Ice.Current current)
+    public MyClass.OpMyEnumStringDResult opMyEnumStringD(java.util.Map<MyEnum, String> p1,
+                                                         java.util.Map<MyEnum, String> p2,
+                                                         Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
-
-        List<Map<Byte, Boolean>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
-
+        MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public List<Map<Short, Integer>> opShortIntDS(List<Map<Short, Integer>> p1,
-                                                  List<Map<Short, Integer>> p2,
-                                                  ShortIntDSHolder p3,
-                                                  Ice.Current current)
+    public MyClass.OpMyStructMyEnumDResult opMyStructMyEnumD(java.util.Map<MyStruct, MyEnum> p1,
+                                                             java.util.Map<MyStruct, MyEnum> p2,
+                                                             Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
 
-        List<Map<Short, Integer>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+    @Override
+    public MyClass.OpByteBoolDSResult opByteBoolDS(List<Map<Byte, Boolean>> p1, List<Map<Byte, Boolean>> p2,
+                                                   Current current)
+    {
+        MyClass.OpByteBoolDSResult r = new MyClass.OpByteBoolDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
+
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public List<Map<Long, Float>> opLongFloatDS(List<Map<Long, Float>> p1,
-                                                List<Map<Long, Float>> p2,
-                                                LongFloatDSHolder p3,
-                                                Ice.Current current)
+    public MyClass.OpShortIntDSResult opShortIntDS(List<Map<Short, Integer>> p1, List<Map<Short, Integer>> p2,
+                                                   Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpShortIntDSResult r = new MyClass.OpShortIntDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<Long, Float>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public List<Map<String, String>> opStringStringDS(List<Map<String, String>> p1,
-                                                      List<Map<String, String>> p2,
-                                                      StringStringDSHolder p3,
-                                                      Ice.Current current)
+    public MyClass.OpLongFloatDSResult opLongFloatDS(List<Map<Long, Float>> p1, List<Map<Long, Float>> p2,
+                                                     Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpLongFloatDSResult r = new MyClass.OpLongFloatDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<String, String>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public List<Map<String, MyEnum>> opStringMyEnumDS(List<Map<String, MyEnum>> p1,
-                                                      List<Map<String, MyEnum>> p2,
-                                                      StringMyEnumDSHolder p3,
-                                                      Ice.Current current)
+    public MyClass.OpStringStringDSResult opStringStringDS(List<Map<String, String>> p1, List<Map<String, String>> p2,
+                                                           Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpStringStringDSResult r =  new MyClass.OpStringStringDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<String, MyEnum>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public List<Map<MyEnum, String>> opMyEnumStringDS(List<Map<MyEnum, String>> p1,
-                                                      List<Map<MyEnum, String>> p2,
-                                                      MyEnumStringDSHolder p3,
-                                                      Ice.Current current)
+    public MyClass.OpStringMyEnumDSResult opStringMyEnumDS(List<Map<String, MyEnum>> p1, List<Map<String, MyEnum>> p2,
+                                                           Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpStringMyEnumDSResult r = new MyClass.OpStringMyEnumDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<MyEnum, String>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public List<Map<MyStruct, MyEnum>> opMyStructMyEnumDS(List<Map<MyStruct, MyEnum>> p1,
-                                                          List<Map<MyStruct, MyEnum>> p2,
-                                                          MyStructMyEnumDSHolder p3,
-                                                          Ice.Current current)
+    public MyClass.OpMyEnumStringDSResult opMyEnumStringDS(List<Map<MyEnum, String>> p1, List<Map<MyEnum, String>> p2,
+                                                           Current current)
     {
-        p3.value = new ArrayList<>();
-        p3.value.addAll(p2);
-        p3.value.addAll(p1);
+        MyClass.OpMyEnumStringDSResult r = new MyClass.OpMyEnumStringDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<MyStruct, MyEnum>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
         return r;
     }
 
     @Override
-    public Map<Byte, byte[]> opByteByteSD(Map<Byte, byte[]> p1,
-                                          Map<Byte, byte[]> p2,
-                                          ByteByteSDHolder p3,
-                                          Ice.Current current)
+    public MyClass.OpMyStructMyEnumDSResult opMyStructMyEnumDS(List<Map<MyStruct, MyEnum>> p1,
+                                                               List<Map<MyStruct, MyEnum>> p2,
+                                                               Current current)
     {
-        p3.value = p2;
-        Map<Byte, byte[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpMyStructMyEnumDSResult r = new MyClass.OpMyStructMyEnumDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
+
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
+
         return r;
     }
 
     @Override
-    public Map<Boolean, boolean[]> opBoolBoolSD(Map<Boolean, boolean[]> p1,
-                                                Map<Boolean, boolean[]> p2,
-                                                BoolBoolSDHolder p3,
-                                                Ice.Current current)
+    public MyClass.OpByteByteSDResult opByteByteSD(Map<Byte, byte[]> p1, Map<Byte, byte[]> p2, Current current)
     {
-        p3.value = p2;
-        Map<Boolean, boolean[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpByteByteSDResult r = new MyClass.OpByteByteSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<Short, short[]> opShortShortSD(Map<Short, short[]> p1,
-                                              Map<Short, short[]> p2,
-                                              ShortShortSDHolder p3,
-                                              Ice.Current current)
+    public MyClass.OpBoolBoolSDResult opBoolBoolSD(Map<Boolean, boolean[]> p1, Map<Boolean, boolean[]> p2,
+                                                   Current current)
     {
-        p3.value = p2;
-        Map<Short, short[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpBoolBoolSDResult r = new MyClass.OpBoolBoolSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<Integer, int[]> opIntIntSD(Map<Integer, int[]> p1,
-                                          Map<Integer, int[]> p2,
-                                          IntIntSDHolder p3,
-                                          Ice.Current current)
+    public MyClass.OpShortShortSDResult opShortShortSD(Map<Short, short[]> p1, Map<Short, short[]> p2, Current current)
     {
-        p3.value = p2;
-        Map<Integer, int[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpShortShortSDResult r = new MyClass.OpShortShortSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<Long, long[]> opLongLongSD(Map<Long, long[]> p1,
-                                          Map<Long, long[]> p2,
-                                          LongLongSDHolder p3,
-                                          Ice.Current current)
+    public MyClass.OpIntIntSDResult opIntIntSD(Map<Integer, int[]> p1, Map<Integer, int[]> p2, Current current)
     {
-        p3.value = p2;
-        Map<Long, long[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpIntIntSDResult r = new MyClass.OpIntIntSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<String, float[]> opStringFloatSD(Map<String, float[]> p1,
-                                                Map<String, float[]> p2,
-                                                StringFloatSDHolder p3,
-                                                Ice.Current current)
+    public MyClass.OpLongLongSDResult opLongLongSD(Map<Long, long[]> p1, Map<Long, long[]> p2, Current current)
     {
-        p3.value = p2;
-        Map<String, float[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpLongLongSDResult r = new MyClass.OpLongLongSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<String, double[]> opStringDoubleSD(Map<String, double[]> p1,
-                                                  Map<String, double[]> p2,
-                                                  StringDoubleSDHolder p3,
-                                                  Ice.Current current)
+    public MyClass.OpStringFloatSDResult opStringFloatSD(Map<String, float[]> p1, Map<String, float[]> p2,
+                                                         Current current)
     {
-        p3.value = p2;
-        Map<String, double[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringFloatSDResult r = new MyClass.OpStringFloatSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<String, String[]> opStringStringSD(Map<String, String[]> p1,
-                                                  Map<String, String[]> p2,
-                                                  StringStringSDHolder p3,
-                                                  Ice.Current current)
+    public MyClass.OpStringDoubleSDResult opStringDoubleSD(Map<String, double[]> p1, Map<String, double[]> p2,
+                                                           Current current)
     {
-        p3.value = p2;
-        Map<String, String[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringDoubleSDResult r = new MyClass.OpStringDoubleSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Map<MyEnum, MyEnum[]> opMyEnumMyEnumSD(Map<MyEnum, MyEnum[]> p1,
-                                                  Map<MyEnum, MyEnum[]> p2,
-                                                  MyEnumMyEnumSDHolder p3,
-                                                  Ice.Current current)
+    public MyClass.OpStringStringSDResult opStringStringSD(Map<String, String[]> p1, Map<String, String[]> p2,
+                                                           Current current)
     {
-        p3.value = p2;
-        Map<MyEnum, MyEnum[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringStringSDResult r = new MyClass.OpStringStringSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public int[]
-    opIntS(int[] s, Ice.Current current)
+    public MyClass.OpMyEnumMyEnumSDResult opMyEnumMyEnumSD(Map<MyEnum, MyEnum[]> p1, Map<MyEnum, MyEnum[]> p2,
+                                                           Current current)
+    {
+        MyClass.OpMyEnumMyEnumSDResult r = new MyClass.OpMyEnumMyEnumSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return r;
+    }
+
+    @Override
+    public int[] opIntS(int[] s, Current current)
     {
         int[] r = new int[s.length];
         for(int i = 0; i < r.length; ++i)
@@ -611,15 +549,13 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     @Override
-    public synchronized void
-    opByteSOneway(byte[] s, Ice.Current current)
+    public synchronized void opByteSOneway(byte[] s, Current current)
     {
         ++_opByteSOnewayCallCount;
     }
 
     @Override
-    public synchronized int
-    opByteSOnewayCallCount(Ice.Current current)
+    public synchronized int opByteSOnewayCallCount(Current current)
     {
         int count = _opByteSOnewayCallCount;
         _opByteSOnewayCallCount = 0;
@@ -627,15 +563,13 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     @Override
-    public java.util.Map<String, String>
-    opContext(Ice.Current current)
+    public java.util.Map<String, String> opContext(Current current)
     {
         return current.ctx;
     }
 
     @Override
-    public void
-    opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
+    public void opDoubleMarshaling(double p1, double[] p2, Current current)
     {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
@@ -646,182 +580,173 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     @Override
-    public String[]
-    opStringS(String[] p1, String[] p2,
-              StringSHolder p3,
-              Ice.Current current)
+    public MyClass.OpStringSResult opStringS(String[] p1, String[] p2, Current current)
     {
-        p3.value = new String[p1.length + p2.length];
-        System.arraycopy(p1, 0, p3.value, 0, p1.length);
-        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+        MyClass.OpStringSResult r = new MyClass.OpStringSResult();
+        r.p3 = new String[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[] r = new String[p1.length];
+        r.returnValue = new String[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
         return r;
     }
 
     @Override
-    public String[][]
-    opStringSS(String[][] p1, String[][] p2,
-               StringSSHolder p3,
-               Ice.Current current)
+    public MyClass.OpStringSSResult opStringSS(String[][] p1, String[][] p2, Current current)
     {
-        p3.value = new String[p1.length + p2.length][];
-        System.arraycopy(p1, 0, p3.value, 0, p1.length);
-        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+        MyClass.OpStringSSResult r = new MyClass.OpStringSSResult();
+        r.p3 = new String[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[][] r = new String[p2.length][];
+        r.returnValue = new String[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            r[i] = p2[p2.length - (i + 1)];
+            r.returnValue[i] = p2[p2.length - (i + 1)];
         }
         return r;
     }
 
     @Override
-    public String[][][]
-    opStringSSS(String[][][] p1, String[][][] p2,
-                StringSSSHolder p3,
-                Ice.Current current)
+    public MyClass.OpStringSSSResult opStringSSS(String[][][] p1, String[][][] p2, Current current)
     {
-        p3.value = new String[p1.length + p2.length][][];
-        System.arraycopy(p1, 0, p3.value, 0, p1.length);
-        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+        MyClass.OpStringSSSResult r = new MyClass.OpStringSSSResult();
+        r.p3 = new String[p1.length + p2.length][][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[][][] r = new String[p2.length][][];
+        r.returnValue = new String[p2.length][][];
         for(int i = 0; i < p2.length; i++)
         {
-            r[i] = p2[p2.length - (i + 1)];
+            r.returnValue[i] = p2[p2.length - (i + 1)];
         }
         return r;
     }
 
     @Override
-    public java.util.Map<String, String>
-    opStringStringD(java.util.Map<String, String> p1, java.util.Map<String, String> p2, StringStringDHolder p3,
-                    Ice.Current current)
+    public MyClass.OpStringStringDResult opStringStringD(java.util.Map<String, String> p1,
+                                                         java.util.Map<String, String> p2,
+                                                         Current current)
     {
-        p3.value = p1;
-        java.util.Map<String, String> r = new java.util.HashMap<String, String>();
-        r.putAll(p1);
-        r.putAll(p2);
+        MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
         return r;
     }
 
     @Override
-    public Structure
-    opStruct(Structure p1, Structure p2,
-             StructureHolder p3,
-             Ice.Current current)
+    public MyClass.OpStructResult opStruct(Structure p1, Structure p2, Current current)
     {
-        p3.value = p1;
-        p3.value.s.s = "a new string";
-        return p2;
+        MyClass.OpStructResult r = new MyClass.OpStructResult();
+        r.p3 = p1;
+        r.p3.s.s = "a new string";
+        r.returnValue = p2;
+        return r;
     }
 
     @Override
-    public void
-    opIdempotent(Ice.Current current)
+    public void opIdempotent(Current current)
     {
-        test(current.mode == Ice.OperationMode.Idempotent);
+        test(current.mode == com.zeroc.Ice.OperationMode.Idempotent);
     }
 
     @Override
-    public void
-    opNonmutating(Ice.Current current)
+    public void opNonmutating(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
     }
 
     @Override
-    public void
-    opDerived(Ice.Current current)
+    public void opDerived(Current current)
     {
     }
 
     @Override
-    public byte opByte1(byte value, Ice.Current current)
+    public byte opByte1(byte value, Current current)
     {
         return value;
     }
 
     @Override
-    public short opShort1(short value, Ice.Current current)
+    public short opShort1(short value, Current current)
     {
         return value;
     }
 
     @Override
-    public int opInt1(int value, Ice.Current current)
+    public int opInt1(int value, Current current)
     {
         return value;
     }
 
     @Override
-    public long opLong1(long value, Ice.Current current)
+    public long opLong1(long value, Current current)
     {
         return value;
     }
 
     @Override
-    public float opFloat1(float value, Ice.Current current)
+    public float opFloat1(float value, Current current)
     {
         return value;
     }
 
     @Override
-    public double opDouble1(double value, Ice.Current current)
+    public double opDouble1(double value, Current current)
     {
         return value;
     }
 
     @Override
-    public String opString1(String value, Ice.Current current)
+    public String opString1(String value, Current current)
     {
         return value;
     }
 
     @Override
-    public String[] opStringS1(String[] value, Ice.Current current)
+    public String[] opStringS1(String[] value, Current current)
     {
         return value;
     }
 
     @Override
-    public Map<Byte, Boolean> opByteBoolD1(Map<Byte, Boolean> value, Ice.Current current)
+    public Map<Byte, Boolean> opByteBoolD1(Map<Byte, Boolean> value, Current current)
     {
         return value;
     }
 
     @Override
-    public String[] opStringS2(String[] value, Ice.Current current)
+    public String[] opStringS2(String[] value, Current current)
     {
         return value;
     }
 
     @Override
-    public Map<Byte, Boolean> opByteBoolD2(Map<Byte, Boolean> value, Ice.Current current)
+    public Map<Byte, Boolean> opByteBoolD2(Map<Byte, Boolean> value, Current current)
     {
         return value;
     }
 
     @Override
-    public MyClass1 opMyClass1(MyClass1 value, Ice.Current current)
+    public MyClass1 opMyClass1(MyClass1 value, Current current)
     {
         return value;
     }
 
     @Override
-    public MyStruct1 opMyStruct1(MyStruct1 value, Ice.Current current)
+    public MyStruct1 opMyStruct1(MyStruct1 value, Current current)
     {
         return value;
     }
 
     @Override
-    public String[] opStringLiterals(Ice.Current current)
+    public String[] opStringLiterals(Current current)
     {
         return new String[]
             {
@@ -863,50 +788,45 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     @Override
-    public String[] opWStringLiterals(Ice.Current current)
+    public String[] opWStringLiterals(Current current)
     {
         return opStringLiterals(current);
     }
 
     @Override
-    public Structure opMStruct1(Ice.Current current)
+    public MyClass.OpMStruct1MarshaledResult opMStruct1(Current current)
     {
-        return new Structure();
+        return new MyClass.OpMStruct1MarshaledResult(new Structure(), current);
     }
 
     @Override
-    public Structure opMStruct2(Structure p1, StructureHolder p2, Ice.Current current)
+    public MyClass.OpMStruct2MarshaledResult opMStruct2(Structure p1, Current current)
     {
-        p2.value = p1;
-        return p1;
+        return new MyClass.OpMStruct2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public String[] opMSeq1(Ice.Current current)
+    public MyClass.OpMSeq1MarshaledResult opMSeq1(Current current)
     {
-        return new String[0];
+        return new MyClass.OpMSeq1MarshaledResult(new String[0], current);
     }
 
     @Override
-    public String[] opMSeq2(String[] p1, StringSHolder p2, Ice.Current current)
+    public MyClass.OpMSeq2MarshaledResult opMSeq2(String[] p1, Current current)
     {
-        p2.value = p1;
-        return p1;
+        return new MyClass.OpMSeq2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public java.util.Map<String, String> opMDict1(Ice.Current current)
+    public MyClass.OpMDict1MarshaledResult opMDict1(Current current)
     {
-        return new java.util.HashMap<String, String>();
+        return new MyClass.OpMDict1MarshaledResult(new java.util.HashMap<>(), current);
     }
 
     @Override
-    public java.util.Map<String, String> opMDict2(java.util.Map<String, String> p1,
-                                                  StringStringDHolder p2,
-                                                  Ice.Current current)
+    public MyClass.OpMDict2MarshaledResult opMDict2(java.util.Map<String, String> p1, Current current)
     {
-        p2.value = p1;
-        return p1;
+        return new MyClass.OpMDict2MarshaledResult(p1, p1, current);
     }
 
     private int _opByteSOnewayCallCount = 0;

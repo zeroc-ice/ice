@@ -14,7 +14,12 @@
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
+#include <Ice/JavaCompat.ice>
 #include <Glacier2/SSLInfo.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:GLACIER2"]
 module Glacier2
@@ -271,4 +276,3 @@ interface SSLSessionManager
 };
 
 };
-

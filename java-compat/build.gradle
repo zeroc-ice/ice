@@ -1,0 +1,73 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+subprojects {
+    project.version = iceVersion
+    project.group = "com.zeroc"
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+
+    // We set this early so that slice.jarDir is correct
+    slice.compat = true
+
+    repositories {
+        if (slice.jarDir) {
+            flatDir {
+                name "local"
+                dirs slice.jarDir
+            }
+        }
+
+        if(new File("/usr/share/maven-repo").exists()) {
+            maven {
+                url "/usr/share/maven-repo"
+            }
+        }
+
+        mavenCentral()
+
+        maven {
+            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
+        }
+    }
+
+    jar {
+        manifest {
+            attributes("Built-By": "ZeroC, Inc.")
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options"
+    }
+
+    idea.module {
+        excludeDirs -= file(buildDir)
+        buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+    }
+}
+
+task dist()
+dist.dependsOn(project(":ice-compat").assemble)
+dist.dependsOn(project(":glacier2-compat").assemble)
+dist.dependsOn(project(":icegrid-compat").assemble)
+dist.dependsOn(project(":icebox-compat").assemble)
+dist.dependsOn(project(":icediscovery-compat").assemble)
+dist.dependsOn(project(":icepatch2-compat").assemble)
+dist.dependsOn(project(":icestorm-compat").assemble)
+
+//
+// Used to build the gradle wrapper to automatically download and install
+// the version of gradle needed to build Ice.
+//
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.14"
+}

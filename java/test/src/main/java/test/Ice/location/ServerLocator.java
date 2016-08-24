@@ -9,12 +9,16 @@
 
 package test.Ice.location;
 
-import test.Ice.location.Test._TestLocatorDisp;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 
-public class ServerLocator extends _TestLocatorDisp
+import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.location.Test.TestLocator;
+
+public class ServerLocator implements TestLocator
 {
-    public
-    ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
+    public ServerLocator(ServerLocatorRegistry registry, com.zeroc.Ice.LocatorRegistryPrx registryPrx)
     {
         _registry = registry;
         _registryPrx = registryPrx;
@@ -22,16 +26,14 @@ public class ServerLocator extends _TestLocatorDisp
     }
 
     @Override
-    public void
-    findAdapterById_async(Ice.AMD_Locator_findAdapterById response, String adapter, Ice.Current current)
-        throws Ice.AdapterNotFoundException
+    public CompletionStage<ObjectPrx> findAdapterByIdAsync(String adapter, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.AdapterNotFoundException
     {
         ++_requestCount;
         if(adapter.equals("TestAdapter10") || adapter.equals("TestAdapter10-2"))
         {
-            assert(current.encoding.equals(Ice.Util.Encoding_1_0));
-            response.ice_response(_registry.getAdapter("TestAdapter"));
-            return;
+            assert(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0));
+            return CompletableFuture.completedFuture(_registry.getAdapter("TestAdapter"));
         }
 
         // We add a small delay to make sure locator request queuing gets tested when
@@ -43,13 +45,12 @@ public class ServerLocator extends _TestLocatorDisp
         catch(java.lang.InterruptedException ex)
         {
         }
-        response.ice_response(_registry.getAdapter(adapter));
+        return CompletableFuture.completedFuture(_registry.getAdapter(adapter));
     }
 
     @Override
-    public void
-    findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id, Ice.Current current)
-        throws Ice.ObjectNotFoundException
+    public CompletionStage<ObjectPrx> findObjectByIdAsync(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.ObjectNotFoundException
     {
         ++_requestCount;
         // We add a small delay to make sure locator request queuing gets tested when
@@ -61,26 +62,22 @@ public class ServerLocator extends _TestLocatorDisp
         catch(java.lang.InterruptedException ex)
         {
         }
-        response.ice_response(_registry.getObject(id));
+        return CompletableFuture.completedFuture(_registry.getObject(id));
     }
-    
+
     @Override
-    public Ice.LocatorRegistryPrx
-    getRegistry(Ice.Current current)
+    public com.zeroc.Ice.LocatorRegistryPrx getRegistry(com.zeroc.Ice.Current current)
     {
         return _registryPrx;
     }
 
     @Override
-    public int
-    getRequestCount(Ice.Current current)
+    public int getRequestCount(com.zeroc.Ice.Current current)
     {
         return _requestCount;
     }
-    
+
     private ServerLocatorRegistry _registry;
-    private Ice.LocatorRegistryPrx _registryPrx;
+    private com.zeroc.Ice.LocatorRegistryPrx _registryPrx;
     private int _requestCount;
-
 }
-

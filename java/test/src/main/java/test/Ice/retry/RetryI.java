@@ -8,18 +8,17 @@
 // **********************************************************************
 
 package test.Ice.retry;
-import test.Ice.retry.Test._RetryDisp;
 
-public final class RetryI extends _RetryDisp
+import test.Ice.retry.Test.Retry;
+
+public final class RetryI implements Retry
 {
-    public
-    RetryI()
+    public RetryI()
     {
     }
 
     @Override
-    public void
-    op(boolean kill, Ice.Current current)
+    public void op(boolean kill, com.zeroc.Ice.Current current)
     {
         if(kill)
         {
@@ -29,14 +28,13 @@ public final class RetryI extends _RetryDisp
             }
             else
             {
-                throw new Ice.ConnectionLostException();
+                throw new com.zeroc.Ice.ConnectionLostException();
             }
         }
     }
 
     @Override
-    public int
-    opIdempotent(int nRetry, Ice.Current current)
+    public int opIdempotent(int nRetry, com.zeroc.Ice.Current current)
     {
         if(nRetry < 0)
         {
@@ -47,31 +45,28 @@ public final class RetryI extends _RetryDisp
         if(nRetry > _counter)
         {
             ++_counter;
-            throw new Ice.ConnectionLostException();
+            throw new com.zeroc.Ice.ConnectionLostException();
         }
 
         int counter = _counter;
         _counter = 0;
         return counter;
     }
-    
+
     @Override
-    public void
-    opNotIdempotent(Ice.Current current)
+    public void opNotIdempotent(com.zeroc.Ice.Current current)
     {
-        throw new Ice.ConnectionLostException();
+        throw new com.zeroc.Ice.ConnectionLostException();
     }
-    
+
     @Override
-    public void
-    opSystemException(Ice.Current c)
+    public void opSystemException(com.zeroc.Ice.Current c)
     {
         throw new SystemFailure();
     }
-    
+
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

@@ -11,14 +11,12 @@ package test.Ice.background;
 
 public final class Configuration
 {
-    public synchronized void
-    connectorsException(Ice.LocalException ex)
+    public synchronized void connectorsException(com.zeroc.Ice.LocalException ex)
     {
         _connectorsException = ex;
     }
 
-    public synchronized void
-    checkConnectorsException()
+    public synchronized void checkConnectorsException()
     {
         if(_connectorsException != null)
         {
@@ -26,14 +24,12 @@ public final class Configuration
         }
     }
 
-    public synchronized void
-    connectException(Ice.LocalException ex)
+    public synchronized void connectException(com.zeroc.Ice.LocalException ex)
     {
         _connectException = ex;
     }
 
-    public synchronized void
-    checkConnectException()
+    public synchronized void checkConnectException()
     {
         if(_connectException != null)
         {
@@ -41,10 +37,9 @@ public final class Configuration
         }
     }
 
-    public synchronized void
-    initializeSocketStatus(int status)
+    public synchronized void initializeSocketStatus(int status)
     {
-        if(status == IceInternal.SocketOperation.None)
+        if(status == com.zeroc.IceInternal.SocketOperation.None)
         {
             _initializeResetCount = 0;
             return;
@@ -53,25 +48,22 @@ public final class Configuration
         _initializeSocketStatus = status;
     }
 
-    public synchronized void
-    initializeException(Ice.LocalException ex)
+    public synchronized void initializeException(com.zeroc.Ice.LocalException ex)
     {
         _initializeException = ex;
     }
-    
-    public synchronized int
-    initializeSocketStatus()
+
+    public synchronized int initializeSocketStatus()
     {
         if(_initializeResetCount == 0)
         {
-            return IceInternal.SocketOperation.None;
+            return com.zeroc.IceInternal.SocketOperation.None;
         }
         --_initializeResetCount;
         return _initializeSocketStatus;
     }
 
-    public synchronized void
-    checkInitializeException()
+    public synchronized void checkInitializeException()
     {
         if(_initializeException != null)
         {
@@ -79,20 +71,17 @@ public final class Configuration
         }
     }
 
-    public synchronized void
-    readReady(boolean ready)
+    public synchronized void readReady(boolean ready)
     {
         _readReadyCount = ready ? 0 : 10;
     }
 
-    public synchronized void
-    readException(Ice.LocalException ex)
+    public synchronized void readException(com.zeroc.Ice.LocalException ex)
     {
         _readException = ex;
     }
-    
-    public synchronized boolean
-    readReady()
+
+    public synchronized boolean readReady()
     {
         if(_readReadyCount == 0)
         {
@@ -102,8 +91,7 @@ public final class Configuration
         return false;
     }
 
-    public synchronized void
-    checkReadException()
+    public synchronized void checkReadException()
     {
         if(_readException != null)
         {
@@ -111,20 +99,17 @@ public final class Configuration
         }
     }
 
-    public synchronized void
-    writeReady(boolean ready)
+    public synchronized void writeReady(boolean ready)
     {
         _writeReadyCount = ready ? 0 : 10;
     }
 
-    public synchronized void
-    writeException(Ice.LocalException ex)
+    public synchronized void writeException(com.zeroc.Ice.LocalException ex)
     {
         _writeException = ex;
     }
-    
-    public synchronized boolean
-    writeReady()
+
+    public synchronized boolean writeReady()
     {
         if(_writeReadyCount == 0)
         {
@@ -134,8 +119,7 @@ public final class Configuration
         return false;
     }
 
-    public synchronized void
-    checkWriteException()
+    public synchronized void checkWriteException()
     {
         if(_writeException != null)
         {
@@ -143,26 +127,24 @@ public final class Configuration
         }
     }
 
-    public synchronized void
-    buffered(boolean b)
+    public synchronized void buffered(boolean b)
     {
         _buffered = b;
     }
 
-    public synchronized boolean
-    buffered()
+    public synchronized boolean buffered()
     {
         return _buffered;
     }
 
-    private Ice.LocalException _connectorsException;
-    private Ice.LocalException _connectException;
+    private com.zeroc.Ice.LocalException _connectorsException;
+    private com.zeroc.Ice.LocalException _connectException;
     private int _initializeSocketStatus;
     private int _initializeResetCount;
-    private Ice.LocalException _initializeException;
+    private com.zeroc.Ice.LocalException _initializeException;
     private int _readReadyCount;
-    private Ice.LocalException _readException;
+    private com.zeroc.Ice.LocalException _readException;
     private int _writeReadyCount;
-    private Ice.LocalException _writeException;
+    private com.zeroc.Ice.LocalException _writeException;
     private boolean _buffered;
 }

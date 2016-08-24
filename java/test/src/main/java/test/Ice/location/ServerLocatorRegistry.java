@@ -9,14 +9,19 @@
 
 package test.Ice.location;
 
-import test.Ice.location.Test._TestLocatorRegistryDisp;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 
-public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
+import com.zeroc.Ice.Identity;
+import com.zeroc.Ice.ObjectPrx;
+
+import test.Ice.location.Test.TestLocatorRegistry;
+
+public class ServerLocatorRegistry implements TestLocatorRegistry
 {
     @Override
-    public void
-    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter,
-                                Ice.ObjectPrx object, Ice.Current current)
+    public CompletionStage<Void> setAdapterDirectProxyAsync(String adapter, ObjectPrx object,
+                                                            com.zeroc.Ice.Current current)
     {
         if(object != null)
         {
@@ -26,13 +31,12 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
         {
             _adapters.remove(adapter);
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter, 
-                                          String replica, Ice.ObjectPrx object, Ice.Current current)
+    public CompletionStage<Void> setReplicatedAdapterDirectProxyAsync(String adapter, String replica,
+                                                                      ObjectPrx object, com.zeroc.Ice.Current current)
     {
         if(object != null)
         {
@@ -44,48 +48,44 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
             _adapters.remove(adapter);
             _adapters.remove(replica);
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb, String id, Ice.ProcessPrx proxy,
-                                Ice.Current current)
+    public CompletionStage<Void> setServerProcessProxyAsync(String id, com.zeroc.Ice.ProcessPrx proxy,
+                                                            com.zeroc.Ice.Current current)
     {
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    addObject(Ice.ObjectPrx object, Ice.Current current)
+    public void addObject(ObjectPrx object, com.zeroc.Ice.Current current)
     {
         _objects.put(object.ice_getIdentity(), object);
     }
 
-    public Ice.ObjectPrx
-    getAdapter(String adapter)
-        throws Ice.AdapterNotFoundException
+    public ObjectPrx getAdapter(String adapter)
+        throws com.zeroc.Ice.AdapterNotFoundException
     {
-        Ice.ObjectPrx obj = _adapters.get(adapter);
+        ObjectPrx obj = _adapters.get(adapter);
         if(obj == null)
         {
-            throw new Ice.AdapterNotFoundException();
+            throw new com.zeroc.Ice.AdapterNotFoundException();
         }
         return obj;
     }
 
-    public Ice.ObjectPrx
-    getObject(Ice.Identity id)
-        throws Ice.ObjectNotFoundException
+    public ObjectPrx getObject(Identity id)
+        throws com.zeroc.Ice.ObjectNotFoundException
     {
-        Ice.ObjectPrx obj = _objects.get(id);
+        ObjectPrx obj = _objects.get(id);
         if(obj == null)
         {
-            throw new Ice.ObjectNotFoundException();   
+            throw new com.zeroc.Ice.ObjectNotFoundException();   
         }
         return obj;
     }
 
-    private java.util.HashMap<String, Ice.ObjectPrx> _adapters = new java.util.HashMap<String, Ice.ObjectPrx>();
-    private java.util.HashMap<Ice.Identity, Ice.ObjectPrx> _objects =
-        new java.util.HashMap<Ice.Identity, Ice.ObjectPrx>();
+    private java.util.HashMap<String, ObjectPrx> _adapters = new java.util.HashMap<>();
+    private java.util.HashMap<Identity, ObjectPrx> _objects = new java.util.HashMap<>();
 }

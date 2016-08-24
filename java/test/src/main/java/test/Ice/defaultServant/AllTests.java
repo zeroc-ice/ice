@@ -8,14 +8,13 @@
 // **********************************************************************
 
 package test.Ice.defaultServant;
+
 import java.io.PrintWriter;
 import test.Ice.defaultServant.Test.MyObjectPrx;
-import test.Ice.defaultServant.Test.MyObjectPrxHelper;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,14 +22,13 @@ public class AllTests
         }
     }
 
-    public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app, PrintWriter out)
     {
-        Ice.Communicator communicator = app.communicator();
-        Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 
-        Ice.Object servant = new MyObjectI();
+        com.zeroc.Ice.Object servant = new MyObjectI();
 
         //
         // Register default servant with category "foo"
@@ -43,13 +41,13 @@ public class AllTests
         out.print("testing single category... ");
         out.flush();
 
-        Ice.Object r = oa.findDefaultServant("foo");
+        com.zeroc.Ice.Object r = oa.findDefaultServant("foo");
         test(r == servant);
 
         r = oa.findDefaultServant("bar");
         test(r == null);
 
-        Ice.Identity identity = new Ice.Identity();
+        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
         identity.category = "foo";
 
         String names[] = { "foo", "bar", "x", "y", "abcdefg" };
@@ -57,19 +55,19 @@ public class AllTests
         for(int idx = 0; idx < 5; ++idx)
         {
             identity.name = names[idx];
-            MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+            MyObjectPrx prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
             test(prx.getName().equals(names[idx]));
         }
 
         identity.name = "ObjectNotExist";
-        MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+        MyObjectPrx prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
         try
         {
             prx.ice_ping();
             test(false);
         }
-        catch(Ice.ObjectNotExistException ex)
+        catch(com.zeroc.Ice.ObjectNotExistException ex)
         {
             // Expected
         }
@@ -79,19 +77,19 @@ public class AllTests
             prx.getName();
             test(false);
         }
-        catch(Ice.ObjectNotExistException ex)
+        catch(com.zeroc.Ice.ObjectNotExistException ex)
         {
             // Expected
         }
 
         identity.name = "FacetNotExist";
-        prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+        prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
         try
         {
             prx.ice_ping();
             test(false);
         }
-        catch(Ice.FacetNotExistException ex)
+        catch(com.zeroc.Ice.FacetNotExistException ex)
         {
             // Expected
         }
@@ -101,7 +99,7 @@ public class AllTests
             prx.getName();
             test(false);
         }
-        catch(Ice.FacetNotExistException ex)
+        catch(com.zeroc.Ice.FacetNotExistException ex)
         {
             // Expected
         }
@@ -110,14 +108,14 @@ public class AllTests
         for(int idx = 0; idx < 5; idx++)
         {
             identity.name = names[idx];
-            prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+            prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
 
             try
             {
                 prx.ice_ping();
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
                 // Expected
             }
@@ -127,7 +125,7 @@ public class AllTests
                 prx.getName();
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
                 // Expected
             }
@@ -135,12 +133,12 @@ public class AllTests
 
         oa.removeDefaultServant("foo");
         identity.category = "foo";
-        prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+        prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
         try
         {
             prx.ice_ping();
         }
-        catch(Ice.ObjectNotExistException ex)
+        catch(com.zeroc.Ice.ObjectNotExistException ex)
         {
             // Expected
         }
@@ -161,7 +159,7 @@ public class AllTests
         for(int idx = 0; idx < 5; ++idx)
         {
             identity.name = names[idx];
-            prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+            prx = MyObjectPrx.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
             test(prx.getName().equals(names[idx]));
         }

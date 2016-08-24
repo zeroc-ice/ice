@@ -24,19 +24,18 @@ public class Server extends test.Util.Application
         }
 
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new ServantLocatorI(async), "");
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
+        return r;
     }
 
     public static void main(String[] args)

@@ -14,33 +14,32 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new MetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
         adapter.activate();
 
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
-        Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+        com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+        controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
         controllerAdapter.activate();
 
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        initData.properties.setProperty("Ice.Admin.InstanceName", "server");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        r.initData.properties.setProperty("Ice.Admin.InstanceName", "server");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        r.initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        return r;
     }
 
     public static void main(String[] args)

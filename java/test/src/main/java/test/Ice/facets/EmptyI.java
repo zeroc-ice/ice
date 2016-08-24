@@ -9,8 +9,8 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._EmptyDisp;
+import test.Ice.facets.Test.Empty;
 
-public final class EmptyI extends _EmptyDisp
+public final class EmptyI implements Empty
 {
 }

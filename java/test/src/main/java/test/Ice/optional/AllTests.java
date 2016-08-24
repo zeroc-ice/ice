@@ -8,14 +8,23 @@
 // **********************************************************************
 
 package test.Ice.optional;
+
 import java.io.PrintWriter;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OptionalFormat;
+import com.zeroc.Ice.OutputStream;
 
 import test.Ice.optional.Test.*;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,10 +32,14 @@ public class AllTests
         }
     }
 
-    public static InitialPrx
-    allTests(test.Util.Application app, boolean collocated, PrintWriter out)
+    static class Wrapper<T>
     {
-        Ice.Communicator communicator = app.communicator();
+        T value;
+    }
+
+    public static InitialPrx allTests(test.Util.Application app, boolean collocated, PrintWriter out)
+    {
+        com.zeroc.Ice.Communicator communicator = app.communicator();
 
         FactoryI factory = new FactoryI();
         communicator.getValueFactoryManager().add(factory, "");
@@ -34,13 +47,13 @@ public class AllTests
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:default -p 12010";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        InitialPrx initial = InitialPrxHelper.checkedCast(base);
+        InitialPrx initial = InitialPrx.checkedCast(base);
         test(initial != null);
         test(initial.equals(base));
         out.println("ok");
@@ -66,13 +79,13 @@ public class AllTests
         mo1.setG(1.0);
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
-        mo1.setJ(MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+        mo1.setJ(communicator.stringToProxy("test"));
         mo1.setK(mo1);
         mo1.setBs(new byte[] { (byte)5 });
         mo1.setSs(new String[] { "test", "test2" });
-        mo1.setIid(new java.util.HashMap<Integer, Integer>());
+        mo1.setIid(new java.util.HashMap<>());
         mo1.getIid().put(4, 3);
-        mo1.setSid(new java.util.HashMap<String, Integer>());
+        mo1.setSid(new java.util.HashMap<>());
         mo1.getSid().put("test", 10);
         FixedStruct fs = new FixedStruct();
         fs.m = 78;
@@ -86,18 +99,18 @@ public class AllTests
         mo1.setFss(new FixedStruct[] { fs });
         mo1.setVss(new VarStruct[] { vs });
         mo1.setOos(new OneOptional[] { oo1 });
-        mo1.setOops(new OneOptionalPrx[] { OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")) });
+        mo1.setOops(new com.zeroc.Ice.ObjectPrx[] { communicator.stringToProxy("test") });
 
-        mo1.setIed(new java.util.HashMap<Integer, MyEnum>());
+        mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
-        mo1.setIfsd(new java.util.HashMap<Integer, FixedStruct>());
+        mo1.setIfsd(new java.util.HashMap<>());
         mo1.getIfsd().put(4, fs);
-        mo1.setIvsd(new java.util.HashMap<Integer, VarStruct>());
+        mo1.setIvsd(new java.util.HashMap<>());
         mo1.getIvsd().put(5, vs);
-        mo1.setIood(new java.util.HashMap<Integer, OneOptional>());
+        mo1.setIood(new java.util.HashMap<>());
         mo1.getIood().put(5, new OneOptional(15));
-        mo1.setIoopd(new java.util.HashMap<Integer, OneOptionalPrx>());
-        mo1.getIoopd().put(5, OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+        mo1.setIoopd(new java.util.HashMap<>());
+        mo1.getIoopd().put(5, communicator.stringToProxy("test"));
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -113,7 +126,7 @@ public class AllTests
         test(mo1.getG() == 1.0);
         test(mo1.getH().equals("test"));
         test(mo1.getI() == MyEnum.MyEnumMember);
-        test(mo1.getJ().equals(MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.getJ().equals(communicator.stringToProxy("test")));
         test(mo1.getK() == mo1);
         test(java.util.Arrays.equals(mo1.getBs(), new byte[] { (byte)5 }));
         test(java.util.Arrays.equals(mo1.getSs(), new String[] { "test", "test2" }));
@@ -127,13 +140,13 @@ public class AllTests
         test(mo1.getFss()[0].equals(new FixedStruct(78)));
         test(mo1.getVss()[0].equals(new VarStruct("hello")));
         test(mo1.getOos()[0] == oo1);
-        test(mo1.getOops()[0].equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo1.getIood().get(5).getA() == 15);
-        test(mo1.getIoopd().get(5).equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
 
@@ -215,13 +228,13 @@ public class AllTests
         test(mo5.getFss()[0].equals(new FixedStruct(78)));
         test(mo5.getVss()[0].equals(new VarStruct("hello")));
         test(mo5.getOos()[0].getA() == 15);
-        test(mo5.getOops()[0].equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo5.getIood().get(5).getA() == 15);
-        test(mo5.getIoopd().get(5).equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
 
@@ -325,19 +338,19 @@ public class AllTests
         test(!mo9.hasFss());
         test(mo9.getVss()[0].equals(new VarStruct("hello")));
         test(!mo9.hasOos());
-        test(mo9.getOops()[0].equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo9.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());
         test(mo9.getIvsd().get(5).equals(new VarStruct("hello")));
         test(!mo9.hasIood());
-        test(mo9.getIoopd().get(5).equals(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo9.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(!mo9.hasBos());
 
         {
             OptionalWithCustom owc1 = new OptionalWithCustom();
-            java.util.ArrayList<SmallStruct> l = new java.util.ArrayList<SmallStruct>();
+            java.util.ArrayList<SmallStruct> l = new java.util.ArrayList<>();
             l.add(new SmallStruct((byte)5));
             l.add(new SmallStruct((byte)6));
             l.add(new SmallStruct((byte)7));
@@ -356,27 +369,28 @@ public class AllTests
         // are skipped even if the receiver knows nothing about them.
         //
         factory.setEnabled(true);
-        Ice.OutputStream os = new Ice.OutputStream(communicator);
+        OutputStream os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(oo1);
         os.endEncapsulation();
         byte[] inEncaps = os.finished();
-        Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-        test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-        Ice.InputStream in = new Ice.InputStream(communicator, outEncaps.value);
+        com.zeroc.Ice.Object.Ice_invokeResult inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+        test(inv.returnValue);
+        InputStream in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
         ReadValueCallbackI cb = new ReadValueCallbackI();
         in.readValue(cb);
         in.endEncapsulation();
         test(cb.obj != null && cb.obj instanceof TestObjectReader);
 
-        os = new Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(mo1);
         os.endEncapsulation();
         inEncaps = os.finished();
-        test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-        in = new Ice.InputStream(communicator, outEncaps.value);
+        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+        test(inv.returnValue);
+        in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
         in.readValue(cb);
         in.endEncapsulation();
@@ -386,15 +400,15 @@ public class AllTests
         //
         // Use the 1.0 encoding with operations whose only class parameters are optional.
         //
-        Ice.Optional<OneOptional> oo = new Ice.Optional<OneOptional>(new OneOptional(53));
+        Optional<OneOptional> oo = Optional.of(new OneOptional(53));
         initial.sendOptionalClass(true, oo);
-        InitialPrx initial2 = (InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
+        InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         initial2.sendOptionalClass(true, oo);
 
-        initial.returnOptionalClass(true, oo);
-        test(oo.isSet());
-        initial2.returnOptionalClass(true, oo);
-        test(!oo.isSet());
+        oo = initial.returnOptionalClass(true);
+        test(oo.isPresent());
+        oo = initial2.returnOptionalClass(true);
+        test(!oo.isPresent());
 
         Recursive[] recursive1 = new Recursive[1];
         recursive1[0] = new Recursive();
@@ -418,15 +432,16 @@ public class AllTests
 
         initial.opVoid();
 
-        os = new Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         os.startEncapsulation();
-        os.writeOptional(1, Ice.OptionalFormat.F4);
+        os.writeOptional(1, OptionalFormat.F4);
         os.writeInt(15);
-        os.writeOptional(1, Ice.OptionalFormat.VSize);
+        os.writeOptional(1, OptionalFormat.VSize);
         os.writeString("test");
         os.endEncapsulation();
         inEncaps = os.finished();
-        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, outEncaps));
+        inv = initial.ice_invoke("opVoid", OperationMode.Normal, inEncaps);
+        test(inv.returnValue);
 
         out.println("ok");
 
@@ -443,7 +458,7 @@ public class AllTests
             mc.getFss()[i] = new FixedStruct();
         }
 
-        mc.setIfsd(new java.util.HashMap<Integer, FixedStruct>());
+        mc.setIfsd(new java.util.HashMap<>());
         for(int i = 0; i < 300; ++i)
         {
             mc.getIfsd().put(i, new FixedStruct());
@@ -456,14 +471,14 @@ public class AllTests
         test(mc.getIfsd().size() == 300);
 
         factory.setEnabled(true);
-        os = new Ice.OutputStream(communicator);
+        os = new OutputStream(communicator);
         os.startEncapsulation();
         os.writeValue(mc);
         os.endEncapsulation();
         inEncaps = os.finished();
-        outEncaps = new Ice.ByteSeqHolder();
-        test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-        in = new Ice.InputStream(communicator, outEncaps.value);
+        inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+        test(inv.returnValue);
+        in = new InputStream(communicator, inv.outParams);
         in.startEncapsulation();
         in.readValue(cb);
         in.endEncapsulation();
@@ -493,14 +508,14 @@ public class AllTests
             test(b2.getMd() == 13);
 
             factory.setEnabled(true);
-            os = new Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(b);
             os.endEncapsulation();
             inEncaps = os.finished();
-            outEncaps = new Ice.ByteSeqHolder();
-            test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-            in = new Ice.InputStream(communicator, outEncaps.value);
+            inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+            test(inv.returnValue);
+            in = new InputStream(communicator, inv.outParams);
             in.startEncapsulation();
             in.readValue(cb);
             in.endEncapsulation();
@@ -521,26 +536,18 @@ public class AllTests
             test(rf.ae == rf.getAf());
 
             factory.setEnabled(true);
-            os = new Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.startEncapsulation();
             os.writeValue(f);
             os.endEncapsulation();
             inEncaps = os.finished();
-            in = new Ice.InputStream(communicator, inEncaps);
+            in = new InputStream(communicator, inEncaps);
             in.startEncapsulation();
-            final FHolder fholder = new FHolder();
-            in.readValue(new Ice.ReadValueCallback()
-                {
-                    @Override
-                    public void valueReady(Ice.Object obj)
-                    {
-                        fholder.value = ((FObjectReader)obj).getF();
-                    }
-                });
+            final Wrapper<F> w = new Wrapper<>();
+            in.readValue(v -> w.value = ((FObjectReader)v).getF());
             in.endEncapsulation();
             factory.setEnabled(false);
-            rf = fholder.value;
-            test(rf.ae != null && !rf.hasAf());
+            test(w.value.ae != null && !w.value.hasAf());
         }
         out.println("ok");
 
@@ -566,14 +573,15 @@ public class AllTests
                 C c = new C();
                 c.ss = "test";
                 c.setMs("testms");
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeValue(c);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 factory.setEnabled(true);
-                test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+                test(inv.returnValue);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.readValue(cb);
                 in.endEncapsulation();
@@ -581,14 +589,15 @@ public class AllTests
                 factory.setEnabled(false);
 
                 factory.setEnabled(true);
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                Ice.Object d = new DObjectWriter();
+                com.zeroc.Ice.Value d = new DObjectWriter();
                 os.writeValue(d);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                test(initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps, outEncaps));
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps);
+                test(inv.returnValue);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.readValue(cb);
                 in.endEncapsulation();
@@ -603,16 +612,17 @@ public class AllTests
             {
                 A a = new A();
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeValue(a);
-                os.writeOptional(1, Ice.OptionalFormat.Class);
+                os.writeOptional(1, OptionalFormat.Class);
                 os.writeValue(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                test(initial.ice_invoke("opClassAndUnknownOptional", Ice.OperationMode.Normal, inEncaps, outEncaps));
+                inv = initial.ice_invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps);
+                test(inv.returnValue);
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
@@ -624,645 +634,571 @@ public class AllTests
         final boolean reqParams = initial.supportsRequiredParams();
 
         {
+            Optional<Byte> p1 = Optional.empty();
+            Initial.OpByteResult r = initial.opByte(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            Ice.ByteOptional p1 = new Ice.ByteOptional();
-            Ice.ByteOptional p3 = new Ice.ByteOptional();
-            Ice.ByteOptional p2 = initial.opByte(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
-
-            p1.set((byte)56);
-            p2 = initial.opByte(p1, p3);
-            test(p2.get() == (byte)56 && p3.get() == (byte)56);
-            Ice.AsyncResult r = initial.begin_opByte(p1);
-            p2 = initial.end_opByte(p3, r);
-            test(p2.get() == (byte)56 && p3.get() == (byte)56);
-            p2 = initial.opByte(new Ice.ByteOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of((byte)56);
+            r = initial.opByte(p1);
+            test(r.returnValue.get() == (byte)56 && r.p3.get() == (byte)56);
+            r = initial.opByteAsync(p1).join();
+            test(r.returnValue.get() == (byte)56 && r.p3.get() == (byte)56);
 
             if(reqParams)
             {
-                p2 = initial.opByteReq(p1.get(), p3);
-                test(p2.get() == (byte)56 && p3.get() == (byte)56);
-                r = initial.begin_opByteReq(p1.get());
-                p2 = initial.end_opByteReq(p3, r);
-                test(p2.get() == (byte)56 && p3.get() == (byte)56);
+                Initial.OpByteReqResult rr = initial.opByteReq(p1.get());
+                test(rr.returnValue.get() == (byte)56 && rr.p3.get() == (byte)56);
+                rr = initial.opByteReqAsync(p1.get()).join();
+                test(rr.returnValue.get() == (byte)56 && rr.p3.get() == (byte)56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F1);
+                os.writeOptional(2, OptionalFormat.F1);
                 os.writeByte(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opByteReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opByteReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F1));
+                test(in.readOptional(1, OptionalFormat.F1));
                 test(in.readByte() == (byte)56);
-                test(in.readOptional(3, Ice.OptionalFormat.F1));
+                test(in.readOptional(3, OptionalFormat.F1));
                 test(in.readByte() == (byte)56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.BooleanOptional p1 = new Ice.BooleanOptional();
-            Ice.BooleanOptional p3 = new Ice.BooleanOptional();
-            Ice.BooleanOptional p2 = initial.opBool(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<Boolean> p1 = Optional.empty();
+            Initial.OpBoolResult r = initial.opBool(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(true);
-            p2 = initial.opBool(p1, p3);
-            test(p2.get() == true && p3.get() == true);
-            Ice.AsyncResult r = initial.begin_opBool(p1);
-            p2 = initial.end_opBool(p3, r);
-            test(p2.get() == true && p3.get() == true);
-            p2 = initial.opBool(new Ice.BooleanOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(true);
+            r = initial.opBool(p1);
+            test(r.returnValue.get() == true && r.p3.get() == true);
+            r = initial.opBoolAsync(p1).join();
+            test(r.returnValue.get() == true && r.p3.get() == true);
 
             if(reqParams)
             {
-                p2 = initial.opBoolReq(true, p3);
-                test(p2.get() == true && p3.get() == true);
-                r = initial.begin_opBoolReq(true);
-                p2 = initial.end_opBoolReq(p3, r);
-                test(p2.get() == true && p3.get() == true);
+                Initial.OpBoolReqResult rr = initial.opBoolReq(true);
+                test(rr.returnValue.get() == true && rr.p3.get() == true);
+                rr = initial.opBoolReqAsync(true).join();
+                test(rr.returnValue.get() == true && rr.p3.get() == true);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F1);
+                os.writeOptional(2, OptionalFormat.F1);
                 os.writeBool(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opBoolReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opBoolReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F1));
+                test(in.readOptional(1, OptionalFormat.F1));
                 test(in.readBool() == true);
-                test(in.readOptional(3, Ice.OptionalFormat.F1));
+                test(in.readOptional(3, OptionalFormat.F1));
                 test(in.readBool() == true);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.ShortOptional p1 = new Ice.ShortOptional();
-            Ice.ShortOptional p3 = new Ice.ShortOptional();
-            Ice.ShortOptional p2 = initial.opShort(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<Short> p1 = Optional.empty();
+            Initial.OpShortResult r = initial.opShort(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set((short)56);
-            p2 = initial.opShort(p1, p3);
-            test(p2.get() == 56 && p3.get() == 56);
-            Ice.AsyncResult r = initial.begin_opShort(p1);
-            p2 = initial.end_opShort(p3, r);
-            test(p2.get() == 56 && p3.get() == 56);
-            p2 = initial.opShort(new Ice.ShortOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of((short)56);
+            r = initial.opShort(p1);
+            test(r.returnValue.get() == 56 && r.p3.get() == 56);
+            r = initial.opShortAsync(p1).join();
+            test(r.returnValue.get() == 56 && r.p3.get() == 56);
 
             if(reqParams)
             {
-                p2 = initial.opShortReq(p1.get(), p3);
-                test(p2.get() == 56 && p3.get() == 56);
-                r = initial.begin_opShortReq(p1.get());
-                p2 = initial.end_opShortReq(p3, r);
-                test(p2.get() == 56 && p3.get() == 56);
+                Initial.OpShortReqResult rr = initial.opShortReq(p1.get());
+                test(rr.returnValue.get() == 56 && rr.p3.get() == 56);
+                rr = initial.opShortReqAsync(p1.get()).join();
+                test(rr.returnValue.get() == 56 && rr.p3.get() == 56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F2);
+                os.writeOptional(2, OptionalFormat.F2);
                 os.writeShort(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opShortReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opShortReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F2));
+                test(in.readOptional(1, OptionalFormat.F2));
                 test(in.readShort() == 56);
-                test(in.readOptional(3, Ice.OptionalFormat.F2));
+                test(in.readOptional(3, OptionalFormat.F2));
                 test(in.readShort() == 56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.IntOptional p1 = new Ice.IntOptional();
-            Ice.IntOptional p3 = new Ice.IntOptional();
-            Ice.IntOptional p2 = initial.opInt(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            OptionalInt p1 = OptionalInt.empty();
+            Initial.OpIntResult r = initial.opInt(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(56);
-            p2 = initial.opInt(p1, p3);
-            test(p2.get() == 56 && p3.get() == 56);
-            Ice.AsyncResult r = initial.begin_opInt(p1);
-            p2 = initial.end_opInt(p3, r);
-            test(p2.get() == 56 && p3.get() == 56);
-            p2 = initial.opInt(new Ice.IntOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = OptionalInt.of(56);
+            r = initial.opInt(p1);
+            test(r.returnValue.getAsInt() == 56 && r.p3.getAsInt() == 56);
+            r = initial.opIntAsync(p1).join();
+            test(r.returnValue.getAsInt() == 56 && r.p3.getAsInt() == 56);
 
             if(reqParams)
             {
-                p2 = initial.opIntReq(p1.get(), p3);
-                test(p2.get() == 56 && p3.get() == 56);
-                r = initial.begin_opIntReq(p1.get());
-                p2 = initial.end_opIntReq(p3, r);
-                test(p2.get() == 56 && p3.get() == 56);
+                Initial.OpIntReqResult rr = initial.opIntReq(p1.getAsInt());
+                test(rr.returnValue.getAsInt() == 56 && rr.p3.getAsInt() == 56);
+                rr = initial.opIntReqAsync(p1.getAsInt()).join();
+                test(rr.returnValue.getAsInt() == 56 && rr.p3.getAsInt() == 56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F4);
-                os.writeInt(p1.get());
+                os.writeOptional(2, OptionalFormat.F4);
+                os.writeInt(p1.getAsInt());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opIntReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opIntReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F4));
+                test(in.readOptional(1, OptionalFormat.F4));
                 test(in.readInt() == 56);
-                test(in.readOptional(3, Ice.OptionalFormat.F4));
+                test(in.readOptional(3, OptionalFormat.F4));
                 test(in.readInt() == 56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.LongOptional p1 = new Ice.LongOptional();
-            Ice.LongOptional p3 = new Ice.LongOptional();
-            Ice.LongOptional p2 = initial.opLong(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            OptionalLong p1 = OptionalLong.empty();
+            Initial.OpLongResult r = initial.opLong(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(56);
-            p2 = initial.opLong(p1, p3);
-            test(p2.get() == 56 && p3.get() == 56);
-            Ice.AsyncResult r = initial.begin_opLong(p1);
-            p2 = initial.end_opLong(p3, r);
-            test(p2.get() == 56 && p3.get() == 56);
-            p2 = initial.opLong(new Ice.LongOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = OptionalLong.of(56);
+            r = initial.opLong(p1);
+            test(r.returnValue.getAsLong() == 56 && r.p3.getAsLong() == 56);
+            r = initial.opLongAsync(p1).join();
+            test(r.returnValue.getAsLong() == 56 && r.p3.getAsLong() == 56);
 
             if(reqParams)
             {
-                p2 = initial.opLongReq(p1.get(), p3);
-                test(p2.get() == 56 && p3.get() == 56);
-                r = initial.begin_opLongReq(p1.get());
-                p2 = initial.end_opLongReq(p3, r);
-                test(p2.get() == 56 && p3.get() == 56);
+                Initial.OpLongReqResult rr = initial.opLongReq(p1.getAsLong());
+                test(rr.returnValue.getAsLong() == 56 && rr.p3.getAsLong() == 56);
+                rr = initial.opLongReqAsync(p1.getAsLong()).join();
+                test(rr.returnValue.getAsLong() == 56 && rr.p3.getAsLong() == 56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(1, Ice.OptionalFormat.F8);
-                os.writeLong(p1.get());
+                os.writeOptional(1, OptionalFormat.F8);
+                os.writeLong(p1.getAsLong());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opLongReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opLongReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(2, Ice.OptionalFormat.F8));
+                test(in.readOptional(2, OptionalFormat.F8));
                 test(in.readLong() == 56);
-                test(in.readOptional(3, Ice.OptionalFormat.F8));
+                test(in.readOptional(3, OptionalFormat.F8));
                 test(in.readLong() == 56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.FloatOptional p1 = new Ice.FloatOptional();
-            Ice.FloatOptional p3 = new Ice.FloatOptional();
-            Ice.FloatOptional p2 = initial.opFloat(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<Float> p1 = Optional.empty();
+            Initial.OpFloatResult r = initial.opFloat(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set((float)1.0);
-            p2 = initial.opFloat(p1, p3);
-            test(p2.get() == 1.0 && p3.get() == 1.0);
-            Ice.AsyncResult r = initial.begin_opFloat(p1);
-            p2 = initial.end_opFloat(p3, r);
-            test(p2.get() == 1.0 && p3.get() == 1.0);
-            p2 = initial.opFloat(new Ice.FloatOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of((float)1.0);
+            r = initial.opFloat(p1);
+            test(r.returnValue.get() == 1.0 && r.p3.get() == 1.0);
+            r = initial.opFloatAsync(p1).join();
+            test(r.returnValue.get() == 1.0 && r.p3.get() == 1.0);
 
             if(reqParams)
             {
-                p2 = initial.opFloatReq(p1.get(), p3);
-                test(p2.get() == 1.0 && p3.get() == 1.0);
-                r = initial.begin_opFloatReq(p1.get());
-                p2 = initial.end_opFloatReq(p3, r);
-                test(p2.get() == 1.0 && p3.get() == 1.0);
+                Initial.OpFloatReqResult rr = initial.opFloatReq(p1.get());
+                test(rr.returnValue.get() == 1.0 && rr.p3.get() == 1.0);
+                rr = initial.opFloatReqAsync(p1.get()).join();
+                test(rr.returnValue.get() == 1.0 && rr.p3.get() == 1.0);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F4);
+                os.writeOptional(2, OptionalFormat.F4);
                 os.writeFloat(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opFloatReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opFloatReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F4));
+                test(in.readOptional(1, OptionalFormat.F4));
                 test(in.readFloat() == 1.0);
-                test(in.readOptional(3, Ice.OptionalFormat.F4));
+                test(in.readOptional(3, OptionalFormat.F4));
                 test(in.readFloat() == 1.0);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.DoubleOptional p1 = new Ice.DoubleOptional();
-            Ice.DoubleOptional p3 = new Ice.DoubleOptional();
-            Ice.DoubleOptional p2 = initial.opDouble(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            OptionalDouble p1 = OptionalDouble.empty();
+            Initial.OpDoubleResult r = initial.opDouble(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(1.0);
-            p2 = initial.opDouble(p1, p3);
-            test(p2.get() == 1.0 && p3.get() == 1.0);
-            Ice.AsyncResult r = initial.begin_opDouble(p1);
-            p2 = initial.end_opDouble(p3, r);
-            test(p2.get() == 1.0 && p3.get() == 1.0);
-            p2 = initial.opDouble(new Ice.DoubleOptional(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = OptionalDouble.of(1.0);
+            r = initial.opDouble(p1);
+            test(r.returnValue.getAsDouble() == 1.0 && r.p3.getAsDouble() == 1.0);
+            r = initial.opDoubleAsync(p1).join();
+            test(r.returnValue.getAsDouble() == 1.0 && r.p3.getAsDouble() == 1.0);
 
             if(reqParams)
             {
-                p2 = initial.opDoubleReq(p1.get(), p3);
-                test(p2.get() == 1.0 && p3.get() == 1.0);
-                r = initial.begin_opDoubleReq(p1.get());
-                p2 = initial.end_opDoubleReq(p3, r);
-                test(p2.get() == 1.0 && p3.get() == 1.0);
+                Initial.OpDoubleReqResult rr = initial.opDoubleReq(p1.getAsDouble());
+                test(rr.returnValue.getAsDouble() == 1.0 && rr.p3.getAsDouble() == 1.0);
+                rr = initial.opDoubleReqAsync(p1.getAsDouble()).join();
+                test(rr.returnValue.getAsDouble() == 1.0 && rr.p3.getAsDouble() == 1.0);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.F8);
-                os.writeDouble(p1.get());
+                os.writeOptional(2, OptionalFormat.F8);
+                os.writeDouble(p1.getAsDouble());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opDoubleReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opDoubleReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.F8));
+                test(in.readOptional(1, OptionalFormat.F8));
                 test(in.readDouble() == 1.0);
-                test(in.readOptional(3, Ice.OptionalFormat.F8));
+                test(in.readOptional(3, OptionalFormat.F8));
                 test(in.readDouble() == 1.0);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<String> p1 = new Ice.Optional<String>();
-            Ice.Optional<String> p3 = new Ice.Optional<String>();
-            Ice.Optional<String> p2 = initial.opString(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<String> p1 = Optional.empty();
+            Initial.OpStringResult r = initial.opString(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set("test");
-            p2 = initial.opString(p1, p3);
-            test(p2.get().equals("test") && p3.get().equals("test"));
-            Ice.AsyncResult r = initial.begin_opString(p1);
-            p2 = initial.end_opString(p3, r);
-            test(p2.get().equals("test") && p3.get().equals("test"));
-            p2 = initial.opString(new Ice.Optional<String>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of("test");
+            r = initial.opString(p1);
+            test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
+            r = initial.opStringAsync(p1).join();
+            test(r.returnValue.get().equals("test") && r.p3.get().equals("test"));
 
             if(reqParams)
             {
-                p2 = initial.opStringReq(p1.get(), p3);
-                test(p2.get().equals("test") && p3.get().equals("test"));
-                r = initial.begin_opStringReq(p1.get());
-                p2 = initial.end_opStringReq(p3, r);
-                test(p2.get().equals("test") && p3.get().equals("test"));
+                Initial.OpStringReqResult rr = initial.opStringReq(p1.get());
+                test(rr.returnValue.get().equals("test") && rr.p3.get().equals("test"));
+                rr = initial.opStringReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals("test") && rr.p3.get().equals("test"));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeString(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opStringReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opStringReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 test(in.readString().equals("test"));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 test(in.readString().equals("test"));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<MyEnum> p1 = new Ice.Optional<MyEnum>();
-            Ice.Optional<MyEnum> p3 = new Ice.Optional<MyEnum>();
-            Ice.Optional<MyEnum> p2 = initial.opMyEnum(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<MyEnum> p1 = Optional.empty();
+            Initial.OpMyEnumResult r = initial.opMyEnum(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(MyEnum.MyEnumMember);
-            p2 = initial.opMyEnum(p1, p3);
-            test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
-            p1.set(MyEnum.MyEnumMember);
-            p2 = initial.opMyEnum(new Ice.Optional<MyEnum>((MyEnum)null), p3); // Test null enum
-            test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
-            Ice.AsyncResult r = initial.begin_opMyEnum(p1);
-            p2 = initial.end_opMyEnum(p3, r);
-            test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
-            p2 = initial.opMyEnum(new Ice.Optional<MyEnum>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(MyEnum.MyEnumMember);
+            r = initial.opMyEnum(p1);
+            test(r.returnValue.get() == MyEnum.MyEnumMember && r.p3.get() == MyEnum.MyEnumMember);
+            r = initial.opMyEnumAsync(p1).join();
+            test(r.returnValue.get() == MyEnum.MyEnumMember && r.p3.get() == MyEnum.MyEnumMember);
 
             if(reqParams)
             {
-                p2 = initial.opMyEnumReq(p1.get(), p3);
-                test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
-                r = initial.begin_opMyEnumReq(p1.get());
-                p2 = initial.end_opMyEnumReq(p3, r);
-                test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
+                Initial.OpMyEnumReqResult rr = initial.opMyEnumReq(p1.get());
+                test(rr.returnValue.get() == MyEnum.MyEnumMember && rr.p3.get() == MyEnum.MyEnumMember);
+                rr = initial.opMyEnumReqAsync(p1.get()).join();
+                test(rr.returnValue.get() == MyEnum.MyEnumMember && rr.p3.get() == MyEnum.MyEnumMember);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.Size);
+                os.writeOptional(2, OptionalFormat.Size);
                 MyEnum.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opMyEnumReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opMyEnumReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.Size));
+                test(in.readOptional(1, OptionalFormat.Size));
                 test(MyEnum.read(in) == MyEnum.MyEnumMember);
-                test(in.readOptional(3, Ice.OptionalFormat.Size));
+                test(in.readOptional(3, OptionalFormat.Size));
                 test(MyEnum.read(in) == MyEnum.MyEnumMember);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<SmallStruct> p1 = new Ice.Optional<SmallStruct>();
-            Ice.Optional<SmallStruct> p3 = new Ice.Optional<SmallStruct>();
-            Ice.Optional<SmallStruct> p2 = initial.opSmallStruct(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<SmallStruct> p1 = Optional.empty();
+            Initial.OpSmallStructResult r = initial.opSmallStruct(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new SmallStruct((byte)56));
-            p2 = initial.opSmallStruct(p1, p3);
-            test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
-            p2 = initial.opSmallStruct(new Ice.Optional<SmallStruct>((SmallStruct)null), p3); // Test null struct
-            test(p2.get().m == (byte)0 && p3.get().m == (byte)0);
-            Ice.AsyncResult r = initial.begin_opSmallStruct(p1);
-            p2 = initial.end_opSmallStruct(p3, r);
-            test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
-            p2 = initial.opSmallStruct(new Ice.Optional<SmallStruct>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new SmallStruct((byte)56));
+            r = initial.opSmallStruct(p1);
+            test(r.returnValue.get().m == (byte)56 && r.p3.get().m == (byte)56);
+            r = initial.opSmallStruct(Optional.of(new SmallStruct()));
+            test(r.returnValue.get().m == (byte)0 && r.p3.get().m == (byte)0);
+            r = initial.opSmallStructAsync(p1).join();
+            test(r.returnValue.get().m == (byte)56 && r.p3.get().m == (byte)56);
 
             if(reqParams)
             {
-                p2 = initial.opSmallStructReq(p1.get(), p3);
-                test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
-                r = initial.begin_opSmallStructReq(p1.get());
-                p2 = initial.end_opSmallStructReq(p3, r);
-                test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
+                Initial.OpSmallStructReqResult rr = initial.opSmallStructReq(p1.get());
+                test(rr.returnValue.get().m == (byte)56 && rr.p3.get().m == (byte)56);
+                rr = initial.opSmallStructReqAsync(p1.get()).join();
+                test(rr.returnValue.get().m == (byte)56 && rr.p3.get().m == (byte)56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(1);
                 SmallStruct.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opSmallStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opSmallStructReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 SmallStruct f = SmallStruct.read(in, null);
                 test(f.m == (byte)56);
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 SmallStruct.read(in, f);
                 test(f.m == (byte)56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<FixedStruct> p1 = new Ice.Optional<FixedStruct>();
-            Ice.Optional<FixedStruct> p3 = new Ice.Optional<FixedStruct>();
-            Ice.Optional<FixedStruct> p2 = initial.opFixedStruct(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<FixedStruct> p1 = Optional.empty();
+            Initial.OpFixedStructResult r = initial.opFixedStruct(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new FixedStruct(56));
-            p2 = initial.opFixedStruct(p1, p3);
-            test(p2.get().m == 56 && p3.get().m == 56);
-            Ice.AsyncResult r = initial.begin_opFixedStruct(p1);
-            p2 = initial.end_opFixedStruct(p3, r);
-            test(p2.get().m == 56 && p3.get().m == 56);
-            p2 = initial.opFixedStruct(new Ice.Optional<FixedStruct>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new FixedStruct(56));
+            r = initial.opFixedStruct(p1);
+            test(r.returnValue.get().m == 56 && r.p3.get().m == 56);
+            r = initial.opFixedStructAsync(p1).join();
+            test(r.returnValue.get().m == 56 && r.p3.get().m == 56);
 
             if(reqParams)
             {
-                p2 = initial.opFixedStructReq(p1.get(), p3);
-                test(p2.get().m == 56 && p3.get().m == 56);
-                r = initial.begin_opFixedStructReq(p1.get());
-                p2 = initial.end_opFixedStructReq(p3, r);
-                test(p2.get().m == 56 && p3.get().m == 56);
+                Initial.OpFixedStructReqResult rr = initial.opFixedStructReq(p1.get());
+                test(rr.returnValue.get().m == 56 && rr.p3.get().m == 56);
+                rr = initial.opFixedStructReqAsync(p1.get()).join();
+                test(rr.returnValue.get().m == 56 && rr.p3.get().m == 56);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(4);
                 FixedStruct.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opFixedStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opFixedStructReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 FixedStruct f = FixedStruct.read(in, null);
                 test(f.m == 56);
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 FixedStruct.read(in, f);
                 test(f.m == 56);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<VarStruct> p1 = new Ice.Optional<VarStruct>();
-            Ice.Optional<VarStruct> p3 = new Ice.Optional<VarStruct>();
-            Ice.Optional<VarStruct> p2 = initial.opVarStruct(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<VarStruct> p1 = Optional.empty();
+            Initial.OpVarStructResult r = initial.opVarStruct(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new VarStruct("test"));
-            p2 = initial.opVarStruct(p1, p3);
-            test(p2.get().m.equals("test") && p3.get().m.equals("test"));
-            Ice.AsyncResult r = initial.begin_opVarStruct(p1);
-            p2 = initial.end_opVarStruct(p3, r);
-            test(p2.get().m.equals("test") && p3.get().m.equals("test"));
-            p2 = initial.opVarStruct(new Ice.Optional<VarStruct>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new VarStruct("test"));
+            r = initial.opVarStruct(p1);
+            test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
+            r = initial.opVarStructAsync(p1).join();
+            test(r.returnValue.get().m.equals("test") && r.p3.get().m.equals("test"));
 
             if(reqParams)
             {
-                p2 = initial.opVarStructReq(p1.get(), p3);
-                test(p2.get().m.equals("test") && p3.get().m.equals("test"));
-                r = initial.begin_opVarStructReq(p1.get());
-                p2 = initial.end_opVarStructReq(p3, r);
-                test(p2.get().m.equals("test") && p3.get().m.equals("test"));
+                Initial.OpVarStructReqResult rr = initial.opVarStructReq(p1.get());
+                test(rr.returnValue.get().m.equals("test") && rr.p3.get().m.equals("test"));
+                rr = initial.opVarStructReqAsync(p1.get()).join();
+                test(rr.returnValue.get().m.equals("test") && rr.p3.get().m.equals("test"));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 VarStruct.write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opVarStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opVarStructReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 VarStruct v = VarStruct.read(in, null);
                 test(v.m.equals("test"));
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 VarStruct.read(in, v);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<OneOptional> p1 = new Ice.Optional<OneOptional>();
-            Ice.Optional<OneOptional> p3 = new Ice.Optional<OneOptional>();
-            Ice.Optional<OneOptional> p2 = initial.opOneOptional(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<OneOptional> p1 = Optional.empty();
+            Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new OneOptional(58));
-            p2 = initial.opOneOptional(p1, p3);
-            test(p2.get().getA() == 58 && p3.get().getA() == 58);
-            Ice.AsyncResult r = initial.begin_opOneOptional(p1);
-            p2 = initial.end_opOneOptional(p3, r);
-            test(p2.get().getA() == 58 && p3.get().getA() == 58);
-            p2 = initial.opOneOptional(new Ice.Optional<OneOptional>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new OneOptional(58));
+            r = initial.opOneOptional(p1);
+            test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
+            r = initial.opOneOptionalAsync(p1).join();
+            test(r.returnValue.get().getA() == 58 && r.p3.get().getA() == 58);
 
             if(reqParams)
             {
-                p2 = initial.opOneOptionalReq(p1.get(), p3);
-                test(p2.get().getA() == 58 && p3.get().getA() == 58);
-                r = initial.begin_opOneOptionalReq(p1.get());
-                p2 = initial.end_opOneOptionalReq(p3, r);
-                test(p2.get().getA() == 58 && p3.get().getA() == 58);
+                Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1.get());
+                test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
+                rr = initial.opOneOptionalReqAsync(p1.get()).join();
+                test(rr.returnValue.get().getA() == 58 && rr.p3.get().getA() == 58);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.Class);
+                os.writeOptional(2, OptionalFormat.Class);
                 os.writeValue(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opOneOptionalReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.Class));
+                test(in.readOptional(1, OptionalFormat.Class));
                 ReadValueCallbackI p2cb = new ReadValueCallbackI();
                 in.readValue(p2cb);
-                test(in.readOptional(3, Ice.OptionalFormat.Class));
+                test(in.readOptional(3, OptionalFormat.Class));
                 ReadValueCallbackI p3cb = new ReadValueCallbackI();
                 in.readValue(p3cb);
                 in.endEncapsulation();
                 test(((OneOptional)p2cb.obj).getA() == 58 && ((OneOptional)p3cb.obj).getA() == 58);
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<OneOptionalPrx> p1 = new Ice.Optional<OneOptionalPrx>();
-            Ice.Optional<OneOptionalPrx> p3 = new Ice.Optional<OneOptionalPrx>();
-            Ice.Optional<OneOptionalPrx> p2 = initial.opOneOptionalProxy(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<com.zeroc.Ice.ObjectPrx> p1 = Optional.empty();
+            Initial.OpOneOptionalProxyResult r = initial.opOneOptionalProxy(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
-            p2 = initial.opOneOptionalProxy(p1, p3);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opOneOptionalProxy(p1);
-            p2 = initial.end_opOneOptionalProxy(p3, r);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            p2 = initial.opOneOptionalProxy(new Ice.Optional<OneOptionalPrx>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(communicator.stringToProxy("test"));
+            r = initial.opOneOptionalProxy(p1);
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
+            r = initial.opOneOptionalProxyAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opOneOptionalProxyReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-                r = initial.begin_opOneOptionalProxyReq(p1.get());
-                p2 = initial.end_opOneOptionalProxyReq(p3, r);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+                Initial.OpOneOptionalProxyReqResult rr = initial.opOneOptionalProxyReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+                rr = initial.opOneOptionalProxyReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 os.writeProxy(p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opOneOptionalProxyReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opOneOptionalProxyReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 test(in.readProxy().equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 test(in.readProxy().equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
@@ -1272,440 +1208,427 @@ public class AllTests
         out.print("testing optional parameters and sequences... ");
         out.flush();
         {
-            Ice.Optional<byte[]> p1 = new Ice.Optional<byte[]>();
-            Ice.Optional<byte[]> p3 = new Ice.Optional<byte[]>();
-            Ice.Optional<byte[]> p2 = initial.opByteSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<byte[]> p1 = Optional.empty();
+            Initial.OpByteSeqResult r = initial.opByteSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new byte[100]);
+            p1 = Optional.of(new byte[100]);
             java.util.Arrays.fill(p1.get(), (byte)56);
-            p2 = initial.opByteSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opByteSeq(p1);
-            p2 = initial.end_opByteSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opByteSeq(new Ice.Optional<byte[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opByteSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opByteSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opByteSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opByteSeqReq(p1.get());
-                p2 = initial.end_opByteSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpByteSeqReqResult rr = initial.opByteSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opByteSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeByteSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opByteSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opByteSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 test(java.util.Arrays.equals(in.readByteSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 test(java.util.Arrays.equals(in.readByteSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<boolean[]> p1 = new Ice.Optional<boolean[]>();
-            Ice.Optional<boolean[]> p3 = new Ice.Optional<boolean[]>();
-            Ice.Optional<boolean[]> p2 = initial.opBoolSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<boolean[]> p1 = Optional.empty();
+            Initial.OpBoolSeqResult r = initial.opBoolSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new boolean[100]);
-            p2 = initial.opBoolSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opBoolSeq(p1);
-            p2 = initial.end_opBoolSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opBoolSeq(new Ice.Optional<boolean[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new boolean[100]);
+            r = initial.opBoolSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opBoolSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opBoolSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opBoolSeqReq(p1.get());
-                p2 = initial.end_opBoolSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpBoolSeqReqResult rr = initial.opBoolSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opBoolSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeBoolSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opBoolSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opBoolSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<short[]> p1 = new Ice.Optional<short[]>();
-            Ice.Optional<short[]> p3 = new Ice.Optional<short[]>();
-            Ice.Optional<short[]> p2 = initial.opShortSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<short[]> p1 = Optional.empty();
+            Initial.OpShortSeqResult r = initial.opShortSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new short[100]);
+            p1 = Optional.of(new short[100]);
             java.util.Arrays.fill(p1.get(), (short)56);
-            p2 = initial.opShortSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opShortSeq(p1);
-            p2 = initial.end_opShortSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opShortSeq(new Ice.Optional<short[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opShortSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opShortSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opShortSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opShortSeqReq(p1.get());
-                p2 = initial.end_opShortSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpShortSeqReqResult rr = initial.opShortSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opShortSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 2 + (p1.get().length > 254 ? 5 : 1));
                 os.writeShortSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opShortSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opShortSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readShortSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readShortSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<int[]> p1 = new Ice.Optional<int[]>();
-            Ice.Optional<int[]> p3 = new Ice.Optional<int[]>();
-            Ice.Optional<int[]> p2 = initial.opIntSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<int[]> p1 = Optional.empty();
+            Initial.OpIntSeqResult r = initial.opIntSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new int[100]);
+            p1 = Optional.of(new int[100]);
             java.util.Arrays.fill(p1.get(), 56);
-            p2 = initial.opIntSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opIntSeq(p1);
-            p2 = initial.end_opIntSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opIntSeq(new Ice.Optional<int[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opIntSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opIntSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opIntSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opIntSeqReq(p1.get());
-                p2 = initial.end_opIntSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpIntSeqReqResult rr = initial.opIntSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opIntSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
                 os.writeIntSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opIntSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opIntSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<long[]> p1 = new Ice.Optional<long[]>();
-            Ice.Optional<long[]> p3 = new Ice.Optional<long[]>();
-            Ice.Optional<long[]> p2 = initial.opLongSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<long[]> p1 = Optional.empty();
+            Initial.OpLongSeqResult r = initial.opLongSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new long[100]);
+            p1 = Optional.of(new long[100]);
             java.util.Arrays.fill(p1.get(), 56);
-            p2 = initial.opLongSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opLongSeq(p1);
-            p2 = initial.end_opLongSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opLongSeq(new Ice.Optional<long[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opLongSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opLongSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opLongSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opLongSeqReq(p1.get());
-                p2 = initial.end_opLongSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpLongSeqReqResult rr = initial.opLongSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opLongSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
                 os.writeLongSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opLongSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opLongSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<float[]> p1 = new Ice.Optional<float[]>();
-            Ice.Optional<float[]> p3 = new Ice.Optional<float[]>();
-            Ice.Optional<float[]> p2 = initial.opFloatSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<float[]> p1 = Optional.empty();
+            Initial.OpFloatSeqResult r = initial.opFloatSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new float[100]);
+            p1 = Optional.of(new float[100]);
             java.util.Arrays.fill(p1.get(), (float)1.0);
-            p2 = initial.opFloatSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opFloatSeq(p1);
-            p2 = initial.end_opFloatSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opFloatSeq(new Ice.Optional<float[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opFloatSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opFloatSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opFloatSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opFloatSeqReq(p1.get());
-                p2 = initial.end_opFloatSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpFloatSeqReqResult rr = initial.opFloatSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opFloatSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
                 os.writeFloatSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opFloatSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opFloatSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<double[]> p1 = new Ice.Optional<double[]>();
-            Ice.Optional<double[]> p3 = new Ice.Optional<double[]>();
-            Ice.Optional<double[]> p2 = initial.opDoubleSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<double[]> p1 = Optional.empty();
+            Initial.OpDoubleSeqResult r = initial.opDoubleSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new double[100]);
+            p1 = Optional.of(new double[100]);
             java.util.Arrays.fill(p1.get(), 1.0);
-            p2 = initial.opDoubleSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opDoubleSeq(p1);
-            p2 = initial.end_opDoubleSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opDoubleSeq(new Ice.Optional<double[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opDoubleSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opDoubleSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opDoubleSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opDoubleSeqReq(p1.get());
-                p2 = initial.end_opDoubleSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpDoubleSeqReqResult rr = initial.opDoubleSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opDoubleSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
                 os.writeDoubleSeq(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opDoubleSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opDoubleSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<String[]> p1 = new Ice.Optional<String[]>();
-            Ice.Optional<String[]> p3 = new Ice.Optional<String[]>();
-            Ice.Optional<String[]> p2 = initial.opStringSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<String[]> p1 = Optional.empty();
+            Initial.OpStringSeqResult r = initial.opStringSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new String[10]);
+            p1 = Optional.of(new String[10]);
             java.util.Arrays.fill(p1.get(), "test1");
-            p2 = initial.opStringSeq(p1, p3);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            Ice.AsyncResult r = initial.begin_opStringSeq(p1);
-            p2 = initial.end_opStringSeq(p3, r);
-            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            p2 = initial.opStringSeq(new Ice.Optional<String[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opStringSeq(p1);
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
+            r = initial.opStringSeqAsync(p1).join();
+            test(java.util.Arrays.equals(r.returnValue.get(), p1.get()) &&
+                 java.util.Arrays.equals(r.p3.get(), p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opStringSeqReq(p1.get(), p3);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-                r = initial.begin_opStringSeqReq(p1.get());
-                p2 = initial.end_opStringSeqReq(p3, r);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+                Initial.OpStringSeqReqResult rr = initial.opStringSeqReq(p1.get());
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
+                rr = initial.opStringSeqReqAsync(p1.get()).join();
+                test(java.util.Arrays.equals(rr.returnValue.get(), p1.get()) &&
+                     java.util.Arrays.equals(rr.p3.get(), p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 os.writeStringSeq(p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opStringSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opStringSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 test(java.util.Arrays.equals(in.readStringSeq(), p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 test(java.util.Arrays.equals(in.readStringSeq(), p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<SmallStruct[]> p1 = new Ice.Optional<SmallStruct[]>();
-            Ice.Optional<SmallStruct[]> p3 = new Ice.Optional<SmallStruct[]>();
-            Ice.Optional<SmallStruct[]> p2 = initial.opSmallStructSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<SmallStruct[]> p1 = Optional.empty();
+            Initial.OpSmallStructSeqResult r = initial.opSmallStructSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new SmallStruct[10]);
+            p1 = Optional.of(new SmallStruct[10]);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new SmallStruct();
             }
-            p2 = initial.opSmallStructSeq(p1, p3);
+            r = initial.opSmallStructSeq(p1);
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.p3.get()[i].equals(p1.get()[i]));
             }
-            Ice.AsyncResult r = initial.begin_opSmallStructSeq(p1);
-            p2 = initial.end_opSmallStructSeq(p3, r);
+            r = initial.opSmallStructSeqAsync(p1).join();
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
-            p2 = initial.opSmallStructSeq(new Ice.Optional<SmallStruct[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
 
             if(reqParams)
             {
-                p2 = initial.opSmallStructSeqReq(p1.get(), p3);
+                Initial.OpSmallStructSeqReqResult rr = initial.opSmallStructSeqReq(p1.get());
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
-                r = initial.begin_opSmallStructSeqReq(p1.get());
-                p2 = initial.end_opSmallStructSeqReq(p3, r);
+                rr = initial.opSmallStructSeqReqAsync(p1.get()).join();
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length + (p1.get().length > 254 ? 5 : 1));
                 SmallStructSeqHelper.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opSmallStructSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opSmallStructSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 SmallStruct[] arr = SmallStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 arr = SmallStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
@@ -1714,122 +1637,112 @@ public class AllTests
                 }
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<java.util.List<SmallStruct>> p1 = new Ice.Optional<java.util.List<SmallStruct>>();
-            Ice.Optional<java.util.List<SmallStruct>> p3 = new Ice.Optional<java.util.List<SmallStruct>>();
-            Ice.Optional<java.util.List<SmallStruct>> p2 = initial.opSmallStructList(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<java.util.List<SmallStruct>> p1 = Optional.empty();
+            Initial.OpSmallStructListResult r = initial.opSmallStructList(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new java.util.ArrayList<SmallStruct>());
+            p1 = Optional.of(new java.util.ArrayList<>());
             for(int i = 0; i < 10; ++i)
             {
                 p1.get().add(new SmallStruct());
             }
-            p2 = initial.opSmallStructList(p1, p3);
-            test(p2.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opSmallStructList(p1);
-            p2 = initial.end_opSmallStructList(p3, r);
-            test(p2.get().equals(p1.get()));
-            p2 = initial.opSmallStructList(new Ice.Optional<java.util.List<SmallStruct>>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opSmallStructList(p1);
+            test(r.returnValue.get().equals(p1.get()));
+            r = initial.opSmallStructListAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opSmallStructListReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()));
-                r = initial.begin_opSmallStructListReq(p1.get());
-                p2 = initial.end_opSmallStructListReq(p3, r);
-                test(p2.get().equals(p1.get()));
+                Initial.OpSmallStructListReqResult rr = initial.opSmallStructListReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()));
+                rr = initial.opSmallStructListReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().size() + (p1.get().size() > 254 ? 5 : 1));
                 SmallStructListHelper.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opSmallStructListReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opSmallStructListReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
                 test(arr.equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 arr = SmallStructListHelper.read(in);
                 test(arr.equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<FixedStruct[]> p1 = new Ice.Optional<FixedStruct[]>();
-            Ice.Optional<FixedStruct[]> p3 = new Ice.Optional<FixedStruct[]>();
-            Ice.Optional<FixedStruct[]> p2 = initial.opFixedStructSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<FixedStruct[]> p1 = Optional.empty();
+            Initial.OpFixedStructSeqResult r = initial.opFixedStructSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new FixedStruct[10]);
+            p1 = Optional.of(new FixedStruct[10]);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new FixedStruct();
             }
-            p2 = initial.opFixedStructSeq(p1, p3);
+            r = initial.opFixedStructSeq(p1);
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
-            Ice.AsyncResult r = initial.begin_opFixedStructSeq(p1);
-            p2 = initial.end_opFixedStructSeq(p3, r);
+            r = initial.opFixedStructSeqAsync(p1).join();
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
-            p2 = initial.opFixedStructSeq(new Ice.Optional<FixedStruct[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
 
             if(reqParams)
             {
-                p2 = initial.opFixedStructSeqReq(p1.get(), p3);
+                Initial.OpFixedStructSeqReqResult rr = initial.opFixedStructSeqReq(p1.get());
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
-                r = initial.begin_opFixedStructSeqReq(p1.get());
-                p2 = initial.end_opFixedStructSeqReq(p3, r);
+                rr = initial.opFixedStructSeqReqAsync(p1.get()).join();
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
                 FixedStructSeqHelper.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opFixedStructSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opFixedStructSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 FixedStruct[] arr = FixedStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 arr = FixedStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
@@ -1838,123 +1751,113 @@ public class AllTests
                 }
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<java.util.List<FixedStruct>> p1 = new Ice.Optional<java.util.List<FixedStruct>>();
-            Ice.Optional<java.util.List<FixedStruct>> p3 = new Ice.Optional<java.util.List<FixedStruct>>();
-            Ice.Optional<java.util.List<FixedStruct>> p2 = initial.opFixedStructList(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<java.util.List<FixedStruct>> p1 = Optional.empty();
+            Initial.OpFixedStructListResult r = initial.opFixedStructList(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new java.util.ArrayList<FixedStruct>());
+            p1 = Optional.of(new java.util.ArrayList<>());
             for(int i = 0; i < 10; ++i)
             {
                 p1.get().add(new FixedStruct());
             }
-            p2 = initial.opFixedStructList(p1, p3);
-            test(p2.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opFixedStructList(p1);
-            p2 = initial.end_opFixedStructList(p3, r);
-            test(p2.get().equals(p1.get()));
-            p2 = initial.opFixedStructList(new Ice.Optional<java.util.List<FixedStruct>>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opFixedStructList(p1);
+            test(r.returnValue.get().equals(p1.get()));
+            r = initial.opFixedStructListAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opFixedStructListReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()));
-                r = initial.begin_opFixedStructListReq(p1.get());
-                p2 = initial.end_opFixedStructListReq(p3, r);
-                test(p2.get().equals(p1.get()));
+                Initial.OpFixedStructListReqResult rr = initial.opFixedStructListReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()));
+                rr = initial.opFixedStructListReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().size() * 4 + (p1.get().size() > 254 ? 5 : 1));
                 FixedStructListHelper.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opFixedStructListReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opFixedStructListReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
                 test(arr.equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 arr = FixedStructListHelper.read(in);
                 test(arr.equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<VarStruct[]> p1 = new Ice.Optional<VarStruct[]>();
-            Ice.Optional<VarStruct[]> p3 = new Ice.Optional<VarStruct[]>();
-            Ice.Optional<VarStruct[]> p2 = initial.opVarStructSeq(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<VarStruct[]> p1 = Optional.empty();
+            Initial.OpVarStructSeqResult r = initial.opVarStructSeq(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new VarStruct[10]);
+            p1 = Optional.of(new VarStruct[10]);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 p1.get()[i] = new VarStruct("");
             }
-            p2 = initial.opVarStructSeq(p1, p3);
+            r = initial.opVarStructSeq(p1);
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
-            Ice.AsyncResult r = initial.begin_opVarStructSeq(p1);
-            p2 = initial.end_opVarStructSeq(p3, r);
+            r = initial.opVarStructSeqAsync(p1).join();
             for(int i = 0; i < p1.get().length; ++i)
             {
-                test(p2.get()[i].equals(p1.get()[i]));
+                test(r.returnValue.get()[i].equals(p1.get()[i]));
             }
-            p2 = initial.opVarStructSeq(new Ice.Optional<VarStruct[]>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
 
             if(reqParams)
             {
-                p2 = initial.opVarStructSeqReq(p1.get(), p3);
+                Initial.OpVarStructSeqReqResult rr = initial.opVarStructSeqReq(p1.get());
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
-                r = initial.begin_opVarStructSeqReq(p1.get());
-                p2 = initial.end_opVarStructSeqReq(p3, r);
+                rr = initial.opVarStructSeqReqAsync(p1.get()).join();
                 for(int i = 0; i < p1.get().length; ++i)
                 {
-                    test(p2.get()[i].equals(p1.get()[i]));
+                    test(rr.returnValue.get()[i].equals(p1.get()[i]));
                 }
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 VarStructSeqHelper.write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opVarStructSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opVarStructSeqReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 VarStruct[] arr = VarStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
                 {
                     test(arr[i].equals(p1.get()[i]));
                 }
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 arr = VarStructSeqHelper.read(in);
                 for(int i = 0; i < p1.get().length; ++i)
@@ -1963,7 +1866,7 @@ public class AllTests
                 }
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
@@ -1971,46 +1874,41 @@ public class AllTests
 
         if(supportsJavaSerializable)
         {
-            Ice.Optional<SerializableClass> p1 = new Ice.Optional<SerializableClass>();
-            Ice.Optional<SerializableClass> p3 = new Ice.Optional<SerializableClass>();
-            Ice.Optional<SerializableClass> p2 = initial.opSerializable(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<SerializableClass> p1 = Optional.empty();
+            Initial.OpSerializableResult r = initial.opSerializable(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new SerializableClass(58));
-            p2 = initial.opSerializable(p1, p3);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opSerializable(p1);
-            p2 = initial.end_opSerializable(p3, r);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            p2 = initial.opSerializable(new Ice.Optional<SerializableClass>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            p1 = Optional.of(new SerializableClass(58));
+            r = initial.opSerializable(p1);
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
+            r = initial.opSerializableAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opSerializableReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-                r = initial.begin_opSerializableReq(p1.get());
-                p2 = initial.end_opSerializableReq(p3, r);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+                Initial.OpSerializableReqResult rr = initial.opSerializableReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+                rr = initial.opSerializableReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSerializable(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opSerializableReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opSerializableReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 SerializableClass sc = SerializableHelper.read(in);
                 test(sc.equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 sc = SerializableHelper.read(in);
                 test(sc.equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
@@ -2020,159 +1918,145 @@ public class AllTests
         out.print("testing optional parameters and dictionaries... ");
         out.flush();
         {
-            Ice.Optional<java.util.Map<Integer, Integer>> p1 = new Ice.Optional<java.util.Map<Integer, Integer>>();
-            Ice.Optional<java.util.Map<Integer, Integer>> p3 = new Ice.Optional<java.util.Map<Integer, Integer>>();
-            Ice.Optional<java.util.Map<Integer, Integer>> p2 = initial.opIntIntDict(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<java.util.Map<Integer, Integer>> p1 = Optional.empty();
+            Initial.OpIntIntDictResult r = initial.opIntIntDict(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new java.util.HashMap<Integer, Integer>());
+            p1 = Optional.of(new java.util.HashMap<>());
             p1.get().put(1, 2);
             p1.get().put(2, 3);
-            p2 = initial.opIntIntDict(p1, p3);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opIntIntDict(p1);
-            p2 = initial.end_opIntIntDict(p3, r);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            p2 = initial.opIntIntDict(new Ice.Optional<java.util.Map<Integer, Integer>>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opIntIntDict(p1);
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
+            r = initial.opIntIntDictAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opIntIntDictReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-                r = initial.begin_opIntIntDictReq(p1.get());
-                p2 = initial.end_opIntIntDictReq(p3, r);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+                Initial.OpIntIntDictReqResult rr = initial.opIntIntDictReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+                rr = initial.opIntIntDictReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.VSize);
+                os.writeOptional(2, OptionalFormat.VSize);
                 os.writeSize(p1.get().size() * 8 + (p1.get().size() > 254 ? 5 : 1));
                 IntIntDictHelper.write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opIntIntDictReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opIntIntDictReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.VSize));
+                test(in.readOptional(1, OptionalFormat.VSize));
                 in.skipSize();
                 java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
                 test(m.equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.VSize));
+                test(in.readOptional(3, OptionalFormat.VSize));
                 in.skipSize();
                 m = IntIntDictHelper.read(in);
                 test(m.equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<java.util.Map<String, Integer>> p1 = new Ice.Optional<java.util.Map<String, Integer>>();
-            Ice.Optional<java.util.Map<String, Integer>> p3 = new Ice.Optional<java.util.Map<String, Integer>>();
-            Ice.Optional<java.util.Map<String, Integer>> p2 = initial.opStringIntDict(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<java.util.Map<String, Integer>> p1 = Optional.empty();
+            Initial.OpStringIntDictResult r = initial.opStringIntDict(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new java.util.HashMap<String, Integer>());
+            p1 = Optional.of(new java.util.HashMap<>());
             p1.get().put("1", 1);
             p1.get().put("2", 2);
-            p2 = initial.opStringIntDict(p1, p3);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            Ice.AsyncResult r = initial.begin_opStringIntDict(p1);
-            p2 = initial.end_opStringIntDict(p3, r);
-            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            p2 = initial.opStringIntDict(new Ice.Optional<java.util.Map<String, Integer>>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opStringIntDict(p1);
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
+            r = initial.opStringIntDictAsync(p1).join();
+            test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
             if(reqParams)
             {
-                p2 = initial.opStringIntDictReq(p1.get(), p3);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-                r = initial.begin_opStringIntDictReq(p1.get());
-                p2 = initial.end_opStringIntDictReq(p3, r);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+                Initial.OpStringIntDictReqResult rr = initial.opStringIntDictReq(p1.get());
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
+                rr = initial.opStringIntDictReqAsync(p1.get()).join();
+                test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 StringIntDictHelper.write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opStringIntDictReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opStringIntDictReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
                 test(m.equals(p1.get()));
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 m = StringIntDictHelper.read(in);
                 test(m.equals(p1.get()));
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
         }
 
         {
-            Ice.Optional<java.util.Map<Integer, OneOptional>> p1 = new Ice.Optional<java.util.Map<Integer, OneOptional>>();
-            Ice.Optional<java.util.Map<Integer, OneOptional>> p3 = new Ice.Optional<java.util.Map<Integer, OneOptional>>();
-            Ice.Optional<java.util.Map<Integer, OneOptional>> p2 = initial.opIntOneOptionalDict(p1, p3);
-            test(!p2.isSet() && !p3.isSet());
+            Optional<java.util.Map<Integer, OneOptional>> p1 = Optional.empty();
+            Optional<java.util.Map<Integer, OneOptional>> p3 = Optional.empty();
+            Initial.OpIntOneOptionalDictResult r = initial.opIntOneOptionalDict(p1);
+            test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1.set(new java.util.HashMap<Integer, OneOptional>());
+            p1 = Optional.of(new java.util.HashMap<>());
             p1.get().put(1, new OneOptional(15));
             p1.get().put(2, new OneOptional(12));
-            p2 = initial.opIntOneOptionalDict(p1, p3);
-            test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
-            test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
-            Ice.AsyncResult r = initial.begin_opIntOneOptionalDict(p1);
-            p2 = initial.end_opIntOneOptionalDict(p3, r);
-            test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
-            test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
-            p2 = initial.opIntOneOptionalDict(new Ice.Optional<java.util.Map<Integer, OneOptional>>(), p3);
-            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+            r = initial.opIntOneOptionalDict(p1);
+            test(r.returnValue.get().get(1).getA() == 15 && r.p3.get().get(1).getA() == 15);
+            test(r.returnValue.get().get(2).getA() == 12 && r.p3.get().get(2).getA() == 12);
+            r = initial.opIntOneOptionalDictAsync(p1).join();
+            test(r.returnValue.get().get(1).getA() == 15 && r.p3.get().get(1).getA() == 15);
+            test(r.returnValue.get().get(2).getA() == 12 && r.p3.get().get(2).getA() == 12);
 
             if(reqParams)
             {
-                p2 = initial.opIntOneOptionalDictReq(p1.get(), p3);
-                test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
-                test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
-                r = initial.begin_opIntOneOptionalDictReq(p1.get());
-                p2 = initial.end_opIntOneOptionalDictReq(p3, r);
-                test(p2.get().get(1).getA() == 15 && p3.get().get(1).getA() == 15);
-                test(p2.get().get(2).getA() == 12 && p3.get().get(2).getA() == 12);
+                Initial.OpIntOneOptionalDictReqResult rr = initial.opIntOneOptionalDictReq(p1.get());
+                test(rr.returnValue.get().get(1).getA() == 15 && rr.p3.get().get(1).getA() == 15);
+                test(rr.returnValue.get().get(2).getA() == 12 && rr.p3.get().get(2).getA() == 12);
+                rr = initial.opIntOneOptionalDictReqAsync(p1.get()).join();
+                test(rr.returnValue.get().get(1).getA() == 15 && rr.p3.get().get(1).getA() == 15);
+                test(rr.returnValue.get().get(2).getA() == 12 && rr.p3.get().get(2).getA() == 12);
 
-                os = new Ice.OutputStream(communicator);
+                os = new OutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.FSize);
+                os.writeOptional(2, OptionalFormat.FSize);
                 int pos = os.startSize();
                 IntOneOptionalDictHelper.write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                initial.ice_invoke("opIntOneOptionalDictReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                inv = initial.ice_invoke("opIntOneOptionalDictReq", OperationMode.Normal, inEncaps);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.FSize));
+                test(in.readOptional(1, OptionalFormat.FSize));
                 in.skip(4);
                 java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
                 test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-                test(in.readOptional(3, Ice.OptionalFormat.FSize));
+                test(in.readOptional(3, OptionalFormat.FSize));
                 in.skip(4);
                 m = IntOneOptionalDictHelper.read(in);
                 test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
                 in.endEncapsulation();
 
-                in = new Ice.InputStream(communicator, outEncaps.value);
+                in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 in.endEncapsulation();
             }
@@ -2184,29 +2068,22 @@ public class AllTests
             f.getAf().requiredA = 56;
             f.ae = f.getAf();
 
-            os = new Ice.OutputStream(communicator);
+            os = new OutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(1, Ice.OptionalFormat.Class);
+            os.writeOptional(1, OptionalFormat.Class);
             os.writeValue(f);
-            os.writeOptional(2, Ice.OptionalFormat.Class);
+            os.writeOptional(2, OptionalFormat.Class);
             os.writeValue(f.ae);
             os.endEncapsulation();
             inEncaps = os.finished();
 
-            in = new Ice.InputStream(communicator, inEncaps);
+            in = new InputStream(communicator, inEncaps);
             in.startEncapsulation();
-            test(in.readOptional(2, Ice.OptionalFormat.Class));
-            final AHolder a = new AHolder();
-            in.readValue(new Ice.ReadValueCallback()
-                {
-                    @Override
-                    public void valueReady(Ice.Object obj)
-                    {
-                        a.value = (A)obj;
-                    }
-                });
+            test(in.readOptional(2, OptionalFormat.Class));
+            final Wrapper<A> w = new Wrapper<>();
+            in.readValue(v -> w.value = (A)v);
             in.endEncapsulation();
-            test(a.value != null && a.value.requiredA == 56);
+            test(w.value != null && w.value.requiredA == 56);
         }
         out.println("ok");
 
@@ -2215,9 +2092,9 @@ public class AllTests
         {
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional();
-                Ice.Optional<String> b = new Ice.Optional<String>();
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>();
+                OptionalInt a = OptionalInt.empty();
+                Optional<String> b = Optional.empty();
+                Optional<OneOptional> o = Optional.empty();
                 initial.opOptionalException(a, b, o);
             }
             catch(OptionalException ex)
@@ -2229,9 +2106,9 @@ public class AllTests
 
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional(30);
-                Ice.Optional<String> b = new Ice.Optional<String>("test");
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>(new OneOptional(53));
+                OptionalInt a = OptionalInt.of(30);
+                Optional<String> b = Optional.of("test");
+                Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opOptionalException(a, b, o);
             }
             catch(OptionalException ex)
@@ -2246,9 +2123,9 @@ public class AllTests
                 //
                 // Use the 1.0 encoding with an exception whose only class members are optional.
                 //
-                Ice.IntOptional a = new Ice.IntOptional(30);
-                Ice.Optional<String> b = new Ice.Optional<String>("test");
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>(new OneOptional(53));
+                OptionalInt a = OptionalInt.of(30);
+                Optional<String> b = Optional.of("test");
+                Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial2.opOptionalException(a, b, o);
             }
             catch(OptionalException ex)
@@ -2260,9 +2137,9 @@ public class AllTests
 
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional();
-                Ice.Optional<String> b = new Ice.Optional<String>();
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>();
+                OptionalInt a = OptionalInt.empty();
+                Optional<String> b = Optional.empty();
+                Optional<OneOptional> o = Optional.empty();
                 initial.opDerivedException(a, b, o);
             }
             catch(DerivedException ex)
@@ -2280,9 +2157,9 @@ public class AllTests
 
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional(30);
-                Ice.Optional<String> b = new Ice.Optional<String>("test2");
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>(new OneOptional(53));
+                OptionalInt a = OptionalInt.of(30);
+                Optional<String> b = Optional.of("test2");
+                Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opDerivedException(a, b, o);
             }
             catch(DerivedException ex)
@@ -2300,9 +2177,9 @@ public class AllTests
 
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional();
-                Ice.Optional<String> b = new Ice.Optional<String>();
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>();
+                OptionalInt a = OptionalInt.empty();
+                Optional<String> b = Optional.empty();
+                Optional<OneOptional> o = Optional.empty();
                 initial.opRequiredException(a, b, o);
             }
             catch(RequiredException ex)
@@ -2320,9 +2197,9 @@ public class AllTests
 
             try
             {
-                Ice.IntOptional a = new Ice.IntOptional(30);
-                Ice.Optional<String> b = new Ice.Optional<String>("test2");
-                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>(new OneOptional(53));
+                OptionalInt a = OptionalInt.of(30);
+                Optional<String> b = Optional.of("test2");
+                Optional<OneOptional> o = Optional.of(new OneOptional(53));
                 initial.opRequiredException(a, b, o);
             }
             catch(RequiredException ex)
@@ -2340,92 +2217,13 @@ public class AllTests
         }
         out.println("ok");
 
-        //
-        // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
-        //
-        try
-        {
-            Class<?> cls = IceInternal.Util.findClass("test.Ice.optional.lambda.AllTests", null);
-            if(cls != null)
-            {
-                java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests",
-                    new Class<?>[]{test.Util.Application.class, java.io.PrintWriter.class});
-                allTests.invoke(null, app, out);
-            }
-        }
-        catch(java.lang.NoSuchMethodException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-        catch(java.lang.IllegalAccessException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-        catch(java.lang.reflect.InvocationTargetException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-
-        out.print("testing optionals with marshaled results... ");
-        out.flush();
-        {
-            test(initial.opMStruct1().isSet());
-            test(initial.opMDict1().isSet());
-            test(initial.opMSeq1().isSet());
-            test(initial.opMG1().isSet());
-
-            {
-                Ice.Optional<SmallStruct> p1 = new Ice.Optional<SmallStruct>();
-                Ice.Optional<SmallStruct> p2 = new Ice.Optional<SmallStruct>();
-                Ice.Optional<SmallStruct> p3 = initial.opMStruct2(p1, p2);
-                test(!p2.isSet() && !p3.isSet());
-
-                p1.set(new SmallStruct());
-                p3 = initial.opMStruct2(p1, p2);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            }
-            {
-                Ice.Optional<String[]> p1 = new Ice.Optional<String[]>();
-                Ice.Optional<String[]> p2 = new Ice.Optional<String[]>();
-                Ice.Optional<String[]> p3 = initial.opMSeq2(p1, p2);
-                test(!p2.isSet() && !p3.isSet());
-
-                p1.set(new String[1]);
-                p1.get()[0] = "hello";
-                p3 = initial.opMSeq2(p1, p2);
-                test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
-            }
-            {
-                Ice.Optional<java.util.Map<String, Integer>> p1 = new Ice.Optional<java.util.Map<String, Integer>>();
-                Ice.Optional<java.util.Map<String, Integer>> p2 = new Ice.Optional<java.util.Map<String, Integer>>();
-                Ice.Optional<java.util.Map<String, Integer>> p3 = initial.opMDict2(p1, p2);
-                test(!p2.isSet() && !p3.isSet());
-
-                p1.set(new java.util.HashMap<String, Integer>());
-                p1.get().put("test", 54);
-                p3 = initial.opMDict2(p1, p2);
-                test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
-            }
-            {
-                Ice.Optional<G> p1 = new Ice.Optional<G>();
-                Ice.Optional<G> p2 = new Ice.Optional<G>();
-                Ice.Optional<G> p3 = initial.opMG2(p1, p2);
-                test(!p2.isSet() && !p3.isSet());
-
-                p1.set(new G());
-                p3 = initial.opMG2(p1, p2);
-                test(p2.isSet() && p3.isSet() && p3.get() == p2.get());
-            }
-        }
-        out.println("ok");
-
         return initial;
     }
 
-    private static class TestObjectReader extends Ice.ObjectReader
+    private static class TestObjectReader extends com.zeroc.Ice.ValueReader
     {
         @Override
-        public void read(Ice.InputStream in)
+        public void read(InputStream in)
         {
             in.startValue();
             in.startSlice();
@@ -2434,10 +2232,10 @@ public class AllTests
         }
     }
 
-    private static class BObjectReader extends Ice.ObjectReader
+    private static class BObjectReader extends com.zeroc.Ice.ValueReader
     {
         @Override
-        public void read(Ice.InputStream in)
+        public void read(InputStream in)
         {
             in.startValue();
             // ::Test::B
@@ -2452,10 +2250,10 @@ public class AllTests
         }
     }
 
-    private static class CObjectReader extends Ice.ObjectReader
+    private static class CObjectReader extends com.zeroc.Ice.ValueReader
     {
         @Override
-        public void read(Ice.InputStream in)
+        public void read(InputStream in)
         {
             in.startValue();
             // ::Test::C
@@ -2473,23 +2271,23 @@ public class AllTests
         }
     }
 
-    private static class DObjectWriter extends Ice.ObjectWriter
+    private static class DObjectWriter extends com.zeroc.Ice.ValueWriter
     {
         @Override
-        public void write(Ice.OutputStream out)
+        public void write(OutputStream out)
         {
             out.startValue(null);
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
             out.writeString("test");
-            out.writeOptional(1, Ice.OptionalFormat.FSize);
+            out.writeOptional(1, OptionalFormat.FSize);
             String[] o = { "test1", "test2", "test3", "test4" };
             int pos = out.startSize();
             out.writeStringSeq(o);
             out.endSize(pos);
             A a = new A();
             a.setMc(18);
-            out.writeOptional(1000, Ice.OptionalFormat.Class);
+            out.writeOptional(1000, OptionalFormat.Class);
             out.writeValue(a);
             out.endSlice();
             // ::Test::B
@@ -2505,22 +2303,22 @@ public class AllTests
         }
     }
 
-    private static class DObjectReader extends Ice.ObjectReader
+    private static class DObjectReader extends com.zeroc.Ice.ValueReader
     {
         @Override
-        public void read(Ice.InputStream in)
+        public void read(InputStream in)
         {
             in.startValue();
             // ::Test::D
             in.startSlice();
             String s = in.readString();
             test(s.equals("test"));
-            test(in.readOptional(1, Ice.OptionalFormat.FSize));
+            test(in.readOptional(1, OptionalFormat.FSize));
             in.skip(4);
             String[] o = in.readStringSeq();
             test(o.length == 4 &&
                  o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") && o[3].equals("test4"));
-            test(in.readOptional(1000, Ice.OptionalFormat.Class));
+            test(in.readOptional(1000, OptionalFormat.Class));
             in.readValue(a);
             in.endSlice();
             // ::Test::B
@@ -2542,10 +2340,10 @@ public class AllTests
         private ReadValueCallbackI a = new ReadValueCallbackI();
     }
 
-    private static class FObjectReader extends Ice.ObjectReader
+    private static class FObjectReader extends com.zeroc.Ice.ValueReader
     {
         @Override
-        public void read(Ice.InputStream in)
+        public void read(InputStream in)
         {
             _f = new F();
             in.startValue();
@@ -2554,14 +2352,7 @@ public class AllTests
             //in.read(1, _f.af);
             in.endSlice();
             in.startSlice();
-            in.readValue(new Ice.ReadValueCallback()
-                {
-                    @Override
-                    public void valueReady(Ice.Object obj)
-                    {
-                        _f.ae = (A)obj;
-                    }
-                });
+            in.readValue(v -> _f.ae = (A)v);
             in.endSlice();
             in.endValue(false);
         }
@@ -2574,10 +2365,10 @@ public class AllTests
         private F _f;
     }
 
-    private static class FactoryI implements Ice.ValueFactory
+    private static class FactoryI implements com.zeroc.Ice.ValueFactory
     {
         @Override
-        public Ice.Object create(String typeId)
+        public com.zeroc.Ice.Value create(String typeId)
         {
             if(!_enabled)
             {
@@ -2620,14 +2411,14 @@ public class AllTests
         private boolean _enabled;
     }
 
-    private static class ReadValueCallbackI implements Ice.ReadValueCallback
+    private static class ReadValueCallbackI implements com.zeroc.Ice.ReadValueCallback
     {
         @Override
-        public void valueReady(Ice.Object obj)
+        public void valueReady(com.zeroc.Ice.Value obj)
         {
             this.obj = obj;
         }
 
-        Ice.Object obj;
+        com.zeroc.Ice.Value obj;
     }
 }

@@ -9,10 +9,12 @@
 
 package test.Ice.properties;
 
+import com.zeroc.Ice.Properties;
+import com.zeroc.Ice.Util;
+
 public class Client extends test.Util.Application
 {
-    public static void
-    test(boolean b)
+    public static void test(boolean b)
     {
         if(!b)
         {
@@ -20,28 +22,27 @@ public class Client extends test.Util.Application
         }
     }
 
-    class PropertiesClient extends Ice.Application
+    class PropertiesClient extends com.zeroc.Ice.Application
     {
         @Override
-        public int
-        run(String[] args)
+        public int run(String[] args)
         {
-            Ice.Properties properties = communicator().getProperties();
+            Properties properties = communicator().getProperties();
             test(properties.getProperty("Ice.Trace.Network").equals("1"));
             test(properties.getProperty("Ice.Trace.Protocol").equals("1"));
             test(properties.getProperty("Config.Path").equals(configPath));
             test(properties.getProperty("Ice.ProgramName").equals("PropertiesClient"));
             test(appName().equals(properties.getProperty("Ice.ProgramName")));
             return 0;
-        };
-    };
+        }
+    }
 
     @Override
     public int run(String[] args)
     {
         {
             System.out.print("testing load properties from UTF-8 path... ");
-            Ice.Properties properties = Ice.Util.createProperties();
+            Properties properties = Util.createProperties();
             properties.load(configPath);
             test(properties.getProperty("Ice.Trace.Network").equals("1"));
             test(properties.getProperty("Ice.Trace.Protocol").equals("1"));
@@ -59,17 +60,17 @@ public class Client extends test.Util.Application
             //
             System.out.print("testing using Ice.Config with multiple config files... ");
             String[] args1 = new String[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
-            Ice.Properties properties = Ice.Util.createProperties(args1);
-            test(properties.getProperty("Config1").equals("Config1"));
-            test(properties.getProperty("Config2").equals("Config2"));
-            test(properties.getProperty("Config3").equals("Config3"));
+            Util.CreatePropertiesResult cpr = Util.createProperties(args1);
+            test(cpr.properties.getProperty("Config1").equals("Config1"));
+            test(cpr.properties.getProperty("Config2").equals("Config2"));
+            test(cpr.properties.getProperty("Config3").equals("Config3"));
             System.out.println("ok");
         }
        
         {
             System.out.print("testing configuration file escapes... ");
             String[] args1 = new String[]{"--Ice.Config=config/escapes.cfg"};
-            Ice.Properties properties = Ice.Util.createProperties(args1);
+            Util.CreatePropertiesResult cpr = Util.createProperties(args1);
 
             String[] props = new String[]{"Foo\tBar", "3",
                                           "Foo\\tBar", "4",
@@ -96,7 +97,7 @@ public class Client extends test.Util.Application
             
             for(int i = 0; !props[i].isEmpty(); i += 2)
             {
-                test(properties.getProperty(props[i]).equals(props[i + 1])); 
+                test(cpr.properties.getProperty(props[i]).equals(props[i + 1])); 
             }
             System.out.println("ok");
         }

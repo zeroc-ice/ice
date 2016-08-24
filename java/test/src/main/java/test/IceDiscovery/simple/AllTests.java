@@ -19,8 +19,7 @@ import java.util.HashSet;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -28,16 +27,15 @@ public class AllTests
         }
     }
 
-    public static void
-    allTests(Ice.Communicator communicator, int num)
+    public static void allTests(com.zeroc.Ice.Communicator communicator, int num)
     {
-        List<ControllerPrx> proxies = new ArrayList<ControllerPrx>();
-        List<ControllerPrx> indirectProxies = new ArrayList<ControllerPrx>();
+        List<ControllerPrx> proxies = new ArrayList<>();
+        List<ControllerPrx> indirectProxies = new ArrayList<>();
         for(int i = 0; i < num; ++i)
         {
             String id = "controller" + i;
-            proxies.add(ControllerPrxHelper.uncheckedCast(communicator.stringToProxy(id)));
-            indirectProxies.add(ControllerPrxHelper.uncheckedCast(communicator.stringToProxy(id + "@control" + i)));
+            proxies.add(ControllerPrx.uncheckedCast(communicator.stringToProxy(id)));
+            indirectProxies.add(ControllerPrx.uncheckedCast(communicator.stringToProxy(id + "@control" + i)));
         }
 
         System.out.print("testing indirect proxies... ");
@@ -67,7 +65,7 @@ public class AllTests
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
             }
-            catch(Ice.NoEndpointException ex)
+            catch(com.zeroc.Ice.NoEndpointException ex)
             {
             }
 
@@ -77,7 +75,7 @@ public class AllTests
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
             }
 
@@ -87,7 +85,7 @@ public class AllTests
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
             }
-            catch(Ice.NoEndpointException ex)
+            catch(com.zeroc.Ice.NoEndpointException ex)
             {
             }
         }
@@ -130,14 +128,14 @@ public class AllTests
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
             }
             try
             {
                 communicator.stringToProxy("object @ oa2").ice_ping();
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
             }
 
@@ -163,12 +161,12 @@ public class AllTests
 
             communicator.stringToProxy("object @ rg").ice_ping();
 
-            Set<String> adapterIds = new HashSet<String>();
+            Set<String> adapterIds = new HashSet<>();
             adapterIds.add("oa1");
             adapterIds.add("oa2");
             adapterIds.add("oa3");
-            TestIntfPrx intf = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("object"));
-            intf = (TestIntfPrx)intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
+            TestIntfPrx intf = TestIntfPrx.uncheckedCast(communicator.stringToProxy("object"));
+            intf = intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
             while(!adapterIds.isEmpty())
             {
                 adapterIds.remove(intf.getAdapterId());
@@ -179,8 +177,7 @@ public class AllTests
                 adapterIds.add("oa1");
                 adapterIds.add("oa2");
                 adapterIds.add("oa3");
-                intf = TestIntfPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("object @ rg").ice_connectionCached(false));
+                intf = TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg").ice_connectionCached(false));
                 int nRetry = 100;
                 while(!adapterIds.isEmpty() && --nRetry > 0)
                 {
@@ -197,14 +194,12 @@ public class AllTests
 
             proxies.get(0).deactivateObjectAdapter("oa");
             proxies.get(1).deactivateObjectAdapter("oa");
-            test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa3"));
+            test(TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa3"));
             proxies.get(2).deactivateObjectAdapter("oa");
 
             proxies.get(0).activateObjectAdapter("oa", "oa1", "rg");
             proxies.get(0).addObject("oa", "object");
-            test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa1"));
+            test(TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa1"));
             proxies.get(0).deactivateObjectAdapter("oa");
         }
         System.out.println("ok");

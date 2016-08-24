@@ -11,12 +11,13 @@ package test.Ice.slicing.objects;
 
 import java.io.PrintWriter;
 
+import com.zeroc.Ice.Util;
+
 import test.Ice.slicing.objects.client.Test.*;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -31,8 +32,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -48,8 +48,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        called()
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -57,1219 +56,6 @@ public class AllTests
         }
 
         private boolean _called;
-    }
-
-    private static class Callback_TestIntf_SBaseAsObjectI extends Callback_TestIntf_SBaseAsObject
-    {
-        @Override
-        public void
-        response(Ice.Object o)
-        {
-            test(o != null);
-            test(o.ice_id().equals("::Test::SBase"));
-            SBase sb = (SBase)o;
-            test(sb != null);
-            test(sb.sb.equals("SBase.sb"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBaseAsSBaseI extends Callback_TestIntf_SBaseAsSBase
-    {
-        @Override
-        public void
-        response(SBase sb)
-        {
-            test(sb.sb.equals("SBase.sb"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBSKnownDerivedAsSBaseI extends Callback_TestIntf_SBSKnownDerivedAsSBase
-    {
-        @Override
-        public void
-        response(SBase sb)
-        {
-            test(sb.sb.equals("SBSKnownDerived.sb"));
-            SBSKnownDerived sbskd = (SBSKnownDerived)sb;
-            test(sbskd != null);
-            test(sbskd.sbskd.equals("SBSKnownDerived.sbskd"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI
-        extends Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerived
-    {
-        @Override
-        public void
-        response(SBSKnownDerived sbskd)
-        {
-            test(sbskd.sbskd.equals("SBSKnownDerived.sbskd"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseI extends Callback_TestIntf_SBSUnknownDerivedAsSBase
-    {
-        @Override
-        public void
-        response(SBase sb)
-        {
-            test(sb.sb.equals("SBSUnknownDerived.sb"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI
-        extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
-    {
-        @Override
-        public void
-        response(SBase sb)
-        {
-            test(sb.sb.equals("SBSUnknownDerived.sb"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI
-        extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
-    {
-        @Override
-        public void
-        response(SBase sb)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(exc instanceof Ice.NoValueFactoryException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SUnknownAsObjectI1 extends Callback_TestIntf_SUnknownAsObject
-    {
-        @Override
-        public void
-        response(Ice.Object o)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(exc.ice_id().equals("::Ice::NoValueFactoryException"));
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_SUnknownAsObjectI2 extends Callback_TestIntf_SUnknownAsObject
-    {
-        @Override
-        public void
-        response(Ice.Object o)
-        {
-            test(o instanceof Ice.UnknownSlicedValue);
-            test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_oneElementCycleI extends Callback_TestIntf_oneElementCycle
-    {
-        @Override
-        public void
-        response(B b)
-        {
-            test(b != null);
-            test(b.ice_id().equals("::Test::B"));
-            test(b.sb.equals("B1.sb"));
-            test(b.pb == b);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_twoElementCycleI extends Callback_TestIntf_twoElementCycle
-    {
-        @Override
-        public void
-        response(B b1)
-        {
-            test(b1 != null);
-            test(b1.ice_id().equals("::Test::B"));
-            test(b1.sb.equals("B1.sb"));
-
-            B b2 = b1.pb;
-            test(b2 != null);
-            test(b2.ice_id().equals("::Test::B"));
-            test(b2.sb.equals("B2.sb"));
-            test(b2.pb == b1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_D1AsBI extends Callback_TestIntf_D1AsB
-    {
-        @Override
-        public void
-        response(B b1)
-        {
-            test(b1 != null);
-            test(b1.ice_id().equals("::Test::D1"));
-            test(b1.sb.equals("D1.sb"));
-            test(b1.pb != null);
-            test(b1.pb != b1);
-            D1 d1 = (D1)b1;
-            test(d1 != null);
-            test(d1.sd1.equals("D1.sd1"));
-            test(d1.pd1 != null);
-            test(d1.pd1 != b1);
-            test(b1.pb == d1.pd1);
-
-            B b2 = b1.pb;
-            test(b2 != null);
-            test(b2.pb == b1);
-            test(b2.sb.equals("D2.sb"));
-            test(b2.ice_id().equals("::Test::B"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_D1AsD1I extends Callback_TestIntf_D1AsD1
-    {
-        @Override
-        public void
-        response(D1 d1)
-        {
-            test(d1 != null);
-            test(d1.ice_id().equals("::Test::D1"));
-            test(d1.sb.equals("D1.sb"));
-            test(d1.pb != null);
-            test(d1.pb != d1);
-
-            B b2 = d1.pb;
-            test(b2 != null);
-            test(b2.ice_id().equals("::Test::B"));
-            test(b2.sb.equals("D2.sb"));
-            test(b2.pb == d1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_D2AsBI extends Callback_TestIntf_D2AsB
-    {
-        @Override
-        public void
-        response(B b2)
-        {
-            test(b2 != null);
-            test(b2.ice_id().equals("::Test::B"));
-            test(b2.sb.equals("D2.sb"));
-            test(b2.pb != null);
-            test(b2.pb != b2);
-
-            B b1 = b2.pb;
-            test(b1 != null);
-            test(b1.ice_id().equals("::Test::D1"));
-            test(b1.sb.equals("D1.sb"));
-            test(b1.pb == b2);
-            D1 d1 = (D1)b1;
-            test(d1 != null);
-            test(d1.sd1.equals("D1.sd1"));
-            test(d1.pd1 == b2);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_paramTest1I extends Callback_TestIntf_paramTest1
-    {
-        @Override
-        public void
-        response(B b1, B b2)
-        {
-            test(b1 != null);
-            test(b1.ice_id().equals("::Test::D1"));
-            test(b1.sb.equals("D1.sb"));
-            test(b1.pb == b2);
-            D1 d1 = (D1)b1;
-            test(d1 != null);
-            test(d1.sd1.equals("D1.sd1"));
-            test(d1.pd1 == b2);
-
-            test(b2 != null);
-            test(b2.ice_id().equals("::Test::B"));      // No factory, must be sliced
-            test(b2.sb.equals("D2.sb"));
-            test(b2.pb == b1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_paramTest2I extends Callback_TestIntf_paramTest2
-    {
-        @Override
-        public void
-        response(B b2, B b1)
-        {
-            test(b1 != null);
-            test(b1.ice_id().equals("::Test::D1"));
-            test(b1.sb.equals("D1.sb"));
-            test(b1.pb == b2);
-            D1 d1 = (D1)b1;
-            test(d1 != null);
-            test(d1.sd1.equals("D1.sd1"));
-            test(d1.pd1 == b2);
-
-            test(b2 != null);
-            test(b2.ice_id().equals("::Test::B"));      // No factory, must be sliced
-            test(b2.sb.equals("D2.sb"));
-            test(b2.pb == b1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_returnTest1I extends Callback_TestIntf_returnTest1
-    {
-        @Override
-        public void
-        response(B r, B p1, B p2)
-        {
-            test(r == p1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_returnTest2I extends Callback_TestIntf_returnTest2
-    {
-        @Override
-        public void
-        response(B r, B p1, B p2)
-        {
-            test(r == p1);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_returnTest3I extends Callback_TestIntf_returnTest3
-    {
-        @Override
-        public void
-        response(B b)
-        {
-            r = b;
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-
-        public B r;
-    }
-
-    private static class Callback_TestIntf_paramTest3I extends Callback_TestIntf_paramTest3
-    {
-        @Override
-        public void
-        response(B ret, B p1, B p2)
-        {
-            test(p1 != null);
-            test(p1.sb.equals("D2.sb (p1 1)"));
-            test(p1.pb == null);
-            test(p1.ice_id().equals("::Test::B"));
-
-            test(p2 != null);
-            test(p2.sb.equals("D2.sb (p2 1)"));
-            test(p2.pb == null);
-            test(p2.ice_id().equals("::Test::B"));
-
-            test(ret != null);
-            test(ret.sb.equals("D1.sb (p2 2)"));
-            test(ret.pb == null);
-            test(ret.ice_id().equals("::Test::D1"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_paramTest4I extends Callback_TestIntf_paramTest4
-    {
-        @Override
-        public void
-        response(B ret, B b)
-        {
-            test(b != null);
-            test(b.sb.equals("D4.sb (1)"));
-            test(b.pb == null);
-            test(b.ice_id().equals("::Test::B"));
-
-            test(ret != null);
-            test(ret.sb.equals("B.sb (2)"));
-            test(ret.pb == null);
-            test(ret.ice_id().equals("::Test::B"));
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_sequenceTestI extends Callback_TestIntf_sequenceTest
-    {
-        @Override
-        public void
-        response(SS3 ss)
-        {
-            r = ss;
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-
-        public SS3 r;
-    }
-
-    private static class Callback_TestIntf_dictionaryTestI extends Callback_TestIntf_dictionaryTest
-    {
-        @Override
-        public void
-        response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
-        {
-            this.r = r;
-            this.bout = bout;
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-
-        public java.util.Map<Integer, B> r;
-        public java.util.Map<Integer, B> bout;
-    }
-
-    private static class Callback_TestIntf_throwBaseAsBaseI extends Callback_TestIntf_throwBaseAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                BaseException e = (BaseException)exc;
-                test(e.ice_id().equals("::Test::BaseException"));
-                test(e.sbe.equals("sbe"));
-                test(e.pb != null);
-                test(e.pb.sb.equals("sb"));
-                test(e.pb.pb == e.pb);
-            }
-            catch(Exception e)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_throwDerivedAsBaseI extends Callback_TestIntf_throwDerivedAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                DerivedException e = (DerivedException)exc;
-                test(e.ice_id().equals("::Test::DerivedException"));
-                test(e.sbe.equals("sbe"));
-                test(e.pb != null);
-                test(e.pb.sb.equals("sb1"));
-                test(e.pb.pb == e.pb);
-                test(e.sde.equals("sde1"));
-                test(e.pd1 != null);
-                test(e.pd1.sb.equals("sb2"));
-                test(e.pd1.pb == e.pd1);
-                test(e.pd1.sd1.equals("sd2"));
-                test(e.pd1.pd1 == e.pd1);
-            }
-            catch(Exception e)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_throwDerivedAsDerivedI extends Callback_TestIntf_throwDerivedAsDerived
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                DerivedException e = (DerivedException)exc;
-                test(e.ice_id().equals("::Test::DerivedException"));
-                test(e.sbe.equals("sbe"));
-                test(e.pb != null);
-                test(e.pb.sb.equals("sb1"));
-                test(e.pb.pb == e.pb);
-                test(e.sde.equals("sde1"));
-                test(e.pd1 != null);
-                test(e.pd1.sb.equals("sb2"));
-                test(e.pd1.pb == e.pd1);
-                test(e.pd1.sd1.equals("sd2"));
-                test(e.pd1.pd1 == e.pd1);
-            }
-            catch(Exception e)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_throwUnknownDerivedAsBaseI
-        extends Callback_TestIntf_throwUnknownDerivedAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                BaseException e = (BaseException)exc;
-                test(e.ice_id().equals("::Test::BaseException"));
-                test(e.sbe.equals("sbe"));
-                test(e.pb != null);
-                test(e.pb.sb.equals("sb d2"));
-                test(e.pb.pb == e.pb);
-            }
-            catch(Exception e)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_useForwardI extends Callback_TestIntf_useForward
-    {
-        @Override
-        public void
-        response(Forward f)
-        {
-             test(f != null);
-             callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI1 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            PDerived p2 = (PDerived)r;
-            test(p2.pi == 3);
-            test(p2.ps.equals("preserved"));
-            test(p2.pb == p2);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI2 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            test(!(r instanceof PCUnknown));
-            test(r.pi == 3);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI3 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            test(!(r instanceof PCDerived));
-            test(r.pi == 3);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI4 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            PCDerived p2 = (PCDerived)r;
-            test(p2.pi == 3);
-            test(p2.pbs[0] == p2);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseICompact1 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            test(!(r instanceof CompactPCDerived));
-            test(r.pi == 3);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseICompact2 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            CompactPCDerived p2 = (CompactPCDerived)r;
-            test(p2.pi == 3);
-            test(p2.pbs[0] == p2);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI5 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            test(!(r instanceof PCDerived3));
-            test(r instanceof Preserved);
-            test(r.pi == 3);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_exchangePBaseI6 extends Callback_TestIntf_exchangePBase
-    {
-        @Override
-        public void
-        response(PBase r)
-        {
-            PCDerived3 p3 = (PCDerived3)r;
-            test(p3.pi == 3);
-            for(int i = 0; i < 300; ++i)
-            {
-                PCDerived2 p2 = (PCDerived2)p3.pbs[i];
-                test(p2.pi == i);
-                test(p2.pbs.length == 1);
-                test(p2.pbs[0] == null);
-                test(p2.pcd2 == i);
-            }
-            test(p3.pcd2 == p3.pi);
-            test(p3.pcd3 == p3.pbs[10]);
-            callback.called();
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            if(exc instanceof Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
     }
 
     private static class PNodeI extends PNode
@@ -1282,10 +68,10 @@ public class AllTests
         static int counter = 0;
     }
 
-    private static class NodeFactoryI implements Ice.ValueFactory
+    private static class NodeFactoryI implements com.zeroc.Ice.ValueFactory
     {
         @Override
-        public Ice.Object create(String id)
+        public com.zeroc.Ice.Value create(String id)
         {
             if(id.equals(PNode.ice_staticId()))
             {
@@ -1305,10 +91,10 @@ public class AllTests
         static int counter = 0;
     }
 
-    private static class PreservedFactoryI implements Ice.ValueFactory
+    private static class PreservedFactoryI implements com.zeroc.Ice.ValueFactory
     {
         @Override
-        public Ice.Object create(String id)
+        public com.zeroc.Ice.Value create(String id)
         {
             if(id.equals(Preserved.ice_staticId()))
             {
@@ -1318,19 +104,23 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    private static class Wrapper<T>
+    {
+        public T v;
+    }
+
+    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:default -p 12010 -t 10000";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        TestIntfPrx test = TestIntfPrxHelper.checkedCast(base);
+        TestIntfPrx test = TestIntfPrx.checkedCast(base);
         test(test != null);
         test(test.equals(base));
         out.println("ok");
@@ -1338,7 +128,7 @@ public class AllTests
         out.print("base as Object... ");
         out.flush();
         {
-            Ice.Object o;
+            com.zeroc.Ice.Value o;
             SBase sb = null;
             try
             {
@@ -1349,6 +139,7 @@ public class AllTests
             }
             catch(Exception ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(sb != null);
@@ -1359,8 +150,17 @@ public class AllTests
         out.print("base as Object (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SBaseAsObjectI cb = new Callback_TestIntf_SBaseAsObjectI();
-            test.begin_SBaseAsObject(cb);
+            Callback cb = new Callback();
+            test.SBaseAsObjectAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::SBase"));
+                    SBase sb = (SBase)result;
+                    test(sb != null);
+                    test(sb.sb.equals("SBase.sb"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1384,8 +184,13 @@ public class AllTests
         out.print("base as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SBaseAsSBaseI cb = new Callback_TestIntf_SBaseAsSBaseI();
-            test.begin_SBaseAsSBase(cb);
+            Callback cb = new Callback();
+            test.SBaseAsSBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.sb.equals("SBase.sb"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1413,8 +218,16 @@ public class AllTests
         out.print("base with known derived as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SBSKnownDerivedAsSBaseI cb = new Callback_TestIntf_SBSKnownDerivedAsSBaseI();
-            test.begin_SBSKnownDerivedAsSBase(cb);
+            Callback cb = new Callback();
+            test.SBSKnownDerivedAsSBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.sb.equals("SBSKnownDerived.sb"));
+                    SBSKnownDerived sbskd = (SBSKnownDerived)result;
+                    test(sbskd != null);
+                    test(sbskd.sbskd.equals("SBSKnownDerived.sbskd"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1438,9 +251,13 @@ public class AllTests
         out.print("base with known derived as known derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI cb =
-                new Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI();
-            test.begin_SBSKnownDerivedAsSBSKnownDerived(cb);
+            Callback cb = new Callback();
+            test.SBSKnownDerivedAsSBSKnownDerivedAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.sbskd.equals("SBSKnownDerived.sbskd"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1458,14 +275,14 @@ public class AllTests
                 test(false);
             }
         }
-        if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+        if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
         {
             try
             {
                 SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
                 test(sb.sb.equals("SBSUnknownDerived.sb"));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1484,11 +301,11 @@ public class AllTests
                 test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
-            catch(Ice.NoValueFactoryException ex)
+            catch(com.zeroc.Ice.NoValueFactoryException ex)
             {
                 // Expected.
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1501,18 +318,33 @@ public class AllTests
         out.print("base with unknown derived as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SBSUnknownDerivedAsSBaseI cb = new Callback_TestIntf_SBSUnknownDerivedAsSBaseI();
-            test.begin_SBSUnknownDerivedAsSBase(cb);
+            Callback cb = new Callback();
+            test.SBSUnknownDerivedAsSBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.sb.equals("SBSUnknownDerived.sb"));
+                    cb.called();
+                });
             cb.check();
         }
-        if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+        if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
         {
             //
             // This test succeeds for the 1.0 encoding.
             //
-            Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI cb =
-                new Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI();
-            test.begin_SBSUnknownDerivedAsSBaseCompact(cb);
+            Callback cb = new Callback();
+            test.SBSUnknownDerivedAsSBaseCompactAsync().whenComplete((result, ex) ->
+                {
+                    if(ex != null)
+                    {
+                        test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    }
+                    else
+                    {
+                        test(result.sb.equals("SBSUnknownDerived.sb"));
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         else
@@ -1521,9 +353,14 @@ public class AllTests
             // This test fails when using the compact format because the instance cannot
             // be sliced to a known type.
             //
-            Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI cb =
-                new Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI();
-            test.begin_SBSUnknownDerivedAsSBaseCompact(cb);
+            Callback cb = new Callback();
+            test.SBSUnknownDerivedAsSBaseCompactAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null);
+                    test(ex instanceof com.zeroc.Ice.OperationNotExistException ||
+                         ex instanceof com.zeroc.Ice.NoValueFactoryException);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1531,18 +368,18 @@ public class AllTests
         out.print("unknown with Object as Object... ");
         out.flush();
         {
-            Ice.Object o;
+            com.zeroc.Ice.Value o;
             try
             {
                 o = test.SUnknownAsObject();
-                test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
-                test(o instanceof Ice.UnknownSlicedValue);
-                test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
+                test(o instanceof com.zeroc.Ice.UnknownSlicedValue);
+                test(((com.zeroc.Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
                 test.checkSUnknown(o);
             }
-            catch(Ice.NoValueFactoryException ex)
+            catch(com.zeroc.Ice.NoValueFactoryException ex)
             {
-                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
             }
             catch(Exception ex)
             {
@@ -1554,16 +391,27 @@ public class AllTests
         out.print("unknown with Object as Object (AMI)... ");
         out.flush();
         {
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                Callback_TestIntf_SUnknownAsObjectI1 cb = new Callback_TestIntf_SUnknownAsObjectI1();
-                test.begin_SUnknownAsObject(cb);
+                Callback cb = new Callback();
+                test.SUnknownAsObjectAsync().whenComplete((result, ex) ->
+                    {
+                        test(ex != null);
+                        test(((com.zeroc.Ice.LocalException)ex).ice_id().equals("::Ice::NoValueFactoryException"));
+                        cb.called();
+                    });
                 cb.check();
             }
             else
             {
-                Callback_TestIntf_SUnknownAsObjectI2 cb = new Callback_TestIntf_SUnknownAsObjectI2();
-                test.begin_SUnknownAsObject(cb);
+                Callback cb = new Callback();
+                test.SUnknownAsObjectAsync().whenComplete((result, ex) ->
+                    {
+                        test(ex == null);
+                        test(result instanceof com.zeroc.Ice.UnknownSlicedValue);
+                        test(((com.zeroc.Ice.UnknownSlicedValue)result).getUnknownTypeId().equals("::Test::SUnknown"));
+                        cb.called();
+                    });
                 cb.check();
             }
         }
@@ -1590,8 +438,16 @@ public class AllTests
         out.print("one-element cycle (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_oneElementCycleI cb = new Callback_TestIntf_oneElementCycleI();
-            test.begin_oneElementCycle(cb);
+            Callback cb = new Callback();
+            test.oneElementCycleAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::B"));
+                    test(result.sb.equals("B1.sb"));
+                    test(result.pb == result);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1622,8 +478,21 @@ public class AllTests
         out.print("two-element cycle (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_twoElementCycleI cb = new Callback_TestIntf_twoElementCycleI();
-            test.begin_twoElementCycle(cb);
+            Callback cb = new Callback();
+            test.twoElementCycleAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::B"));
+                    test(result.sb.equals("B1.sb"));
+
+                    B b2 = result.pb;
+                    test(b2 != null);
+                    test(b2.ice_id().equals("::Test::B"));
+                    test(b2.sb.equals("B2.sb"));
+                    test(b2.pb == result);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1663,8 +532,29 @@ public class AllTests
         out.print("known derived pointer slicing as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_D1AsBI cb = new Callback_TestIntf_D1AsBI();
-            test.begin_D1AsB(cb);
+            Callback cb = new Callback();
+            test.D1AsBAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::D1"));
+                    test(result.sb.equals("D1.sb"));
+                    test(result.pb != null);
+                    test(result.pb != result);
+                    D1 d1 = (D1)result;
+                    test(d1 != null);
+                    test(d1.sd1.equals("D1.sd1"));
+                    test(d1.pd1 != null);
+                    test(d1.pd1 != result);
+                    test(result.pb == d1.pd1);
+
+                    B b2 = result.pb;
+                    test(b2 != null);
+                    test(b2.pb == result);
+                    test(b2.sb.equals("D2.sb"));
+                    test(b2.ice_id().equals("::Test::B"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1698,8 +588,23 @@ public class AllTests
         out.print("known derived pointer slicing as derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_D1AsD1I cb = new Callback_TestIntf_D1AsD1I();
-            test.begin_D1AsD1(cb);
+            Callback cb = new Callback();
+            test.D1AsD1Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::D1"));
+                    test(result.sb.equals("D1.sb"));
+                    test(result.pb != null);
+                    test(result.pb != result);
+
+                    B b2 = result.pb;
+                    test(b2 != null);
+                    test(b2.ice_id().equals("::Test::B"));
+                    test(b2.sb.equals("D2.sb"));
+                    test(b2.pb == result);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1737,8 +642,27 @@ public class AllTests
         out.print("unknown derived pointer slicing as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_D2AsBI cb = new Callback_TestIntf_D2AsBI();
-            test.begin_D2AsB(cb);
+            Callback cb = new Callback();
+            test.D2AsBAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    test(result.ice_id().equals("::Test::B"));
+                    test(result.sb.equals("D2.sb"));
+                    test(result.pb != null);
+                    test(result.pb != result);
+
+                    B b1 = result.pb;
+                    test(b1 != null);
+                    test(b1.ice_id().equals("::Test::D1"));
+                    test(b1.sb.equals("D1.sb"));
+                    test(b1.pb == result);
+                    D1 d1 = (D1)b1;
+                    test(d1 != null);
+                    test(d1.sd1.equals("D1.sd1"));
+                    test(d1.pd1 == result);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1748,23 +672,21 @@ public class AllTests
         {
             try
             {
-                BHolder b1 = new BHolder();
-                BHolder b2 = new BHolder();
-                test.paramTest1(b1, b2);
+                TestIntf.ParamTest1Result r = test.paramTest1();
 
-                test(b1.value != null);
-                test(b1.value.ice_id().equals("::Test::D1"));
-                test(b1.value.sb.equals("D1.sb"));
-                test(b1.value.pb == b2.value);
-                D1 d1 = (D1)b1.value;
+                test(r.p1 != null);
+                test(r.p1.ice_id().equals("::Test::D1"));
+                test(r.p1.sb.equals("D1.sb"));
+                test(r.p1.pb == r.p2);
+                D1 d1 = (D1)r.p1;
                 test(d1 != null);
                 test(d1.sd1.equals("D1.sd1"));
-                test(d1.pd1 == b2.value);
+                test(d1.pd1 == r.p2);
 
-                test(b2.value != null);
-                test(b2.value.ice_id().equals("::Test::B"));    // No factory, must be sliced
-                test(b2.value.sb.equals("D2.sb"));
-                test(b2.value.pb == b1.value);
+                test(r.p2 != null);
+                test(r.p2.ice_id().equals("::Test::B"));    // No factory, must be sliced
+                test(r.p2.sb.equals("D2.sb"));
+                test(r.p2.pb == r.p1);
             }
             catch(Exception ex)
             {
@@ -1776,8 +698,25 @@ public class AllTests
         out.print("param ptr slicing with known first (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_paramTest1I cb = new Callback_TestIntf_paramTest1I();
-            test.begin_paramTest1(cb);
+            Callback cb = new Callback();
+            test.paramTest1Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.p1 != null);
+                    test(result.p1.ice_id().equals("::Test::D1"));
+                    test(result.p1.sb.equals("D1.sb"));
+                    test(result.p1.pb == result.p2);
+                    D1 d1 = (D1)result.p1;
+                    test(d1 != null);
+                    test(d1.sd1.equals("D1.sd1"));
+                    test(d1.pd1 == result.p2);
+
+                    test(result.p2 != null);
+                    test(result.p2.ice_id().equals("::Test::B"));      // No factory, must be sliced
+                    test(result.p2.sb.equals("D2.sb"));
+                    test(result.p2.pb == result.p1);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1787,23 +726,21 @@ public class AllTests
         {
             try
             {
-                BHolder b2 = new BHolder();
-                BHolder b1 = new BHolder();
-                test.paramTest2(b2, b1);
+                TestIntf.ParamTest2Result r = test.paramTest2();
 
-                test(b1.value != null);
-                test(b1.value.ice_id().equals("::Test::D1"));
-                test(b1.value.sb.equals("D1.sb"));
-                test(b1.value.pb == b2.value);
-                D1 d1 = (D1)b1.value;
+                test(r.p1 != null);
+                test(r.p1.ice_id().equals("::Test::D1"));
+                test(r.p1.sb.equals("D1.sb"));
+                test(r.p1.pb == r.p2);
+                D1 d1 = (D1)r.p1;
                 test(d1 != null);
                 test(d1.sd1.equals("D1.sd1"));
-                test(d1.pd1 == b2.value);
+                test(d1.pd1 == r.p2);
 
-                test(b2.value != null);
-                test(b2.value.ice_id().equals("::Test::B"));    // No factory, must be sliced
-                test(b2.value.sb.equals("D2.sb"));
-                test(b2.value.pb == b1.value);
+                test(r.p2 != null);
+                test(r.p2.ice_id().equals("::Test::B"));    // No factory, must be sliced
+                test(r.p2.sb.equals("D2.sb"));
+                test(r.p2.pb == r.p1);
             }
             catch(Exception ex)
             {
@@ -1815,8 +752,25 @@ public class AllTests
         out.print("param ptr slicing with unknown first (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_paramTest2I cb = new Callback_TestIntf_paramTest2I();
-            test.begin_paramTest2(cb);
+            Callback cb = new Callback();
+            test.paramTest2Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.p1 != null);
+                    test(result.p1.ice_id().equals("::Test::D1"));
+                    test(result.p1.sb.equals("D1.sb"));
+                    test(result.p1.pb == result.p2);
+                    D1 d1 = (D1)result.p1;
+                    test(d1 != null);
+                    test(d1.sd1.equals("D1.sd1"));
+                    test(d1.pd1 == result.p2);
+
+                    test(result.p2 != null);
+                    test(result.p2.ice_id().equals("::Test::B"));      // No factory, must be sliced
+                    test(result.p2.sb.equals("D2.sb"));
+                    test(result.p2.pb == result.p1);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1826,10 +780,8 @@ public class AllTests
         {
             try
             {
-                BHolder p1 = new BHolder();
-                BHolder p2 = new BHolder();
-                B r = test.returnTest1(p1, p2);
-                test(r == p1.value);
+                TestIntf.ReturnTest1Result r = test.returnTest1();
+                test(r.returnValue == r.p1);
             }
             catch(Exception ex)
             {
@@ -1841,8 +793,13 @@ public class AllTests
         out.print("return value identity with known first (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_returnTest1I cb = new Callback_TestIntf_returnTest1I();
-            test.begin_returnTest1(cb);
+            Callback cb = new Callback();
+            test.returnTest1Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.returnValue == result.p1);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1852,10 +809,8 @@ public class AllTests
         {
             try
             {
-                BHolder p1 = new BHolder();
-                BHolder p2 = new BHolder();
-                B r = test.returnTest2(p1, p2);
-                test(r == p1.value);
+                TestIntf.ReturnTest2Result r = test.returnTest2();
+                test(r.returnValue == r.p2);
             }
             catch(Exception ex)
             {
@@ -1867,8 +822,13 @@ public class AllTests
         out.print("return value identity with unknown first (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_returnTest2I cb = new Callback_TestIntf_returnTest2I();
-            test.begin_returnTest2(cb);
+            Callback cb = new Callback();
+            test.returnTest2Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.returnValue == result.p2);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1940,11 +900,17 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
 
-            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
-            test.begin_returnTest3(d1, d3, cb);
+            final Wrapper<B> w = new Wrapper<>();
+            Callback cb = new Callback();
+            test.returnTest3Async(d1, d3).whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    w.v = result;
+                    cb.called();
+                });
             cb.check();
-            B b1 = cb.r;
 
+            B b1 = w.v;
             test(b1 != null);
             test(b1.sb.equals("D1.sb"));
             test(b1.ice_id().equals("::Test::D1"));
@@ -2043,11 +1009,17 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
 
-            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
-            test.begin_returnTest3(d3, d1, cb);
+            final Wrapper<B> w = new Wrapper<>();
+            Callback cb = new Callback();
+            test.returnTest3Async(d3, d1).whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    w.v = result;
+                    cb.called();
+                });
             cb.check();
-            B b1 = cb.r;
 
+            B b1 = w.v;
             test(b1 != null);
             test(b1.sb.equals("D3.sb"));
             test(b1.ice_id().equals("::Test::B"));      // Sliced by server
@@ -2084,24 +1056,22 @@ public class AllTests
         {
             try
             {
-                BHolder p1 = new BHolder();
-                BHolder p2 = new BHolder();
-                B ret = test.paramTest3(p1, p2);
+                TestIntf.ParamTest3Result r = test.paramTest3();
 
-                test(p1.value != null);
-                test(p1.value.sb.equals("D2.sb (p1 1)"));
-                test(p1.value.pb == null);
-                test(p1.value.ice_id().equals("::Test::B"));
+                test(r.p1 != null);
+                test(r.p1.sb.equals("D2.sb (p1 1)"));
+                test(r.p1.pb == null);
+                test(r.p1.ice_id().equals("::Test::B"));
 
-                test(p2.value != null);
-                test(p2.value.sb.equals("D2.sb (p2 1)"));
-                test(p2.value.pb == null);
-                test(p2.value.ice_id().equals("::Test::B"));
+                test(r.p2 != null);
+                test(r.p2.sb.equals("D2.sb (p2 1)"));
+                test(r.p2.pb == null);
+                test(r.p2.ice_id().equals("::Test::B"));
 
-                test(ret != null);
-                test(ret.sb.equals("D1.sb (p2 2)"));
-                test(ret.pb == null);
-                test(ret.ice_id().equals("::Test::D1"));
+                test(r.returnValue != null);
+                test(r.returnValue.sb.equals("D1.sb (p2 2)"));
+                test(r.returnValue.pb == null);
+                test(r.returnValue.ice_id().equals("::Test::D1"));
             }
             catch(Exception ex)
             {
@@ -2113,8 +1083,26 @@ public class AllTests
         out.print("remainder unmarshaling (3 instances) (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_paramTest3I cb = new Callback_TestIntf_paramTest3I();
-            test.begin_paramTest3(cb);
+            Callback cb = new Callback();
+            test.paramTest3Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.p1 != null);
+                    test(result.p1.sb.equals("D2.sb (p1 1)"));
+                    test(result.p1.pb == null);
+                    test(result.p1.ice_id().equals("::Test::B"));
+
+                    test(result.p2 != null);
+                    test(result.p2.sb.equals("D2.sb (p2 1)"));
+                    test(result.p2.pb == null);
+                    test(result.p2.ice_id().equals("::Test::B"));
+
+                    test(result.returnValue != null);
+                    test(result.returnValue.sb.equals("D1.sb (p2 2)"));
+                    test(result.returnValue.pb == null);
+                    test(result.returnValue.ice_id().equals("::Test::D1"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2124,18 +1112,17 @@ public class AllTests
         {
             try
             {
-                BHolder b = new BHolder();
-                B ret = test.paramTest4(b);
+                TestIntf.ParamTest4Result r = test.paramTest4();
 
-                test(b.value != null);
-                test(b.value.sb.equals("D4.sb (1)"));
-                test(b.value.pb == null);
-                test(b.value.ice_id().equals("::Test::B"));
+                test(r.p != null);
+                test(r.p.sb.equals("D4.sb (1)"));
+                test(r.p.pb == null);
+                test(r.p.ice_id().equals("::Test::B"));
 
-                test(ret != null);
-                test(ret.sb.equals("B.sb (2)"));
-                test(ret.pb == null);
-                test(ret.ice_id().equals("::Test::B"));
+                test(r.returnValue != null);
+                test(r.returnValue.sb.equals("B.sb (2)"));
+                test(r.returnValue.pb == null);
+                test(r.returnValue.ice_id().equals("::Test::B"));
             }
             catch(Exception ex)
             {
@@ -2147,8 +1134,21 @@ public class AllTests
         out.print("remainder unmarshaling (4 instances) (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_paramTest4I cb = new Callback_TestIntf_paramTest4I();
-            test.begin_paramTest4(cb);
+            Callback cb = new Callback();
+            test.paramTest4Async().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result.p != null);
+                    test(result.p.sb.equals("D4.sb (1)"));
+                    test(result.p.pb == null);
+                    test(result.p.ice_id().equals("::Test::B"));
+
+                    test(result.returnValue != null);
+                    test(result.returnValue.sb.equals("B.sb (2)"));
+                    test(result.returnValue.pb == null);
+                    test(result.returnValue.ice_id().equals("::Test::B"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2203,11 +1203,17 @@ public class AllTests
             b2.sb = "B.sb(2)";
             b2.pb = b1;
 
-            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
-            test.begin_returnTest3(d3, b2, cb);
+            final Wrapper<B> w = new Wrapper<>();
+            Callback cb = new Callback();
+            test.returnTest3Async(d3, b2).whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    w.v = result;
+                    cb.called();
+                });
             cb.check();
-            B r = cb.r;
 
+            B r = w.v;
             test(r != null);
             test(r.ice_id().equals("::Test::B"));
             test(r.sb.equals("D3.sb"));
@@ -2270,11 +1276,17 @@ public class AllTests
             d12.sd1 = "D1.sd1(2)";
             d12.pd1 = d11;
 
-            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
-            test.begin_returnTest3(d3, d12, cb);
+            final Wrapper<B> w = new Wrapper<>();
+            Callback cb = new Callback();
+            test.returnTest3Async(d3, d12).whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    w.v = result;
+                    cb.called();
+                });
             cb.check();
-            B r = cb.r;
 
+            B r = w.v;
             test(r != null);
             test(r.ice_id().equals("::Test::B"));
             test(r.sb.equals("D3.sb"));
@@ -2375,7 +1387,7 @@ public class AllTests
         out.print("sequence slicing (AMI)... ");
         out.flush();
         {
-            SS3 ss;
+            final Wrapper<SS3> w = new Wrapper<>();
             {
                 B ss1b = new B();
                 ss1b.sb = "B.sb";
@@ -2423,11 +1435,16 @@ public class AllTests
                 ss2.s[1] = ss2d1;
                 ss2.s[2] = ss2d3;
 
-                Callback_TestIntf_sequenceTestI cb = new Callback_TestIntf_sequenceTestI();
-                test.begin_sequenceTest(ss1, ss2, cb);
+                Callback cb = new Callback();
+                test.sequenceTestAsync(ss1, ss2).whenComplete((result, ex) ->
+                    {
+                        test(ex == null);
+                        w.v = result;
+                        cb.called();
+                    });
                 cb.check();
-                ss = cb.r;
             }
+            SS3 ss = w.v;
             test(ss.c1 != null);
             B ss1b = ss.c1.s[0];
             B ss1d1 = ss.c1.s[1];
@@ -2462,9 +1479,7 @@ public class AllTests
         {
             try
             {
-                java.util.IdentityHashMap<Integer, B> bin = new java.util.IdentityHashMap<Integer, B>();
-                BDictHolder boutH = new BDictHolder();
-                java.util.Map<Integer, B> r;
+                java.util.IdentityHashMap<Integer, B> bin = new java.util.IdentityHashMap<>();
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
@@ -2476,12 +1491,12 @@ public class AllTests
                     bin.put(i, d1);
                 }
 
-                r = test.dictionaryTest(bin, boutH);
+                TestIntf.DictionaryTestResult r = test.dictionaryTest(bin);
 
-                test(boutH.value.size() == 10);
+                test(r.bout.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = boutH.value.get(i * 10);
+                    B b = r.bout.get(i * 10);
                     test(b != null);
                     String s = "D1." + new Integer(i).toString();
                     test(b.sb.equals(s));
@@ -2491,14 +1506,14 @@ public class AllTests
                     test(b.pb.pb == b.pb);
                 }
 
-                test(r.size() == 10);
+                test(r.returnValue.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = r.get(i * 20);
+                    B b = r.returnValue.get(i * 20);
                     test(b != null);
                     String s = "D1." + new Integer(i * 20).toString();
                     test(b.sb.equals(s));
-                    test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
+                    test(b.pb == (i == 0 ? null : r.returnValue.get((i - 1) * 20)));
                     D1 d1 = (D1)b;
                     test(d1 != null);
                     test(d1.sd1.equals(s));
@@ -2515,9 +1530,7 @@ public class AllTests
         out.print("dictionary slicing (AMI)... ");
         out.flush();
         {
-            java.util.Map<Integer, B> bin = new java.util.HashMap<Integer, B>();
-            java.util.Map<Integer, B> bout;
-            java.util.Map<Integer, B> r;
+            java.util.Map<Integer, B> bin = new java.util.HashMap<>();
             int i;
             for(i = 0; i < 10; ++i)
             {
@@ -2529,12 +1542,20 @@ public class AllTests
                 bin.put(i, d1);
             }
 
-            Callback_TestIntf_dictionaryTestI cb = new Callback_TestIntf_dictionaryTestI();
-            test.begin_dictionaryTest(bin, cb);
+            final Wrapper<java.util.Map<Integer, B>> wbout = new Wrapper<>();
+            final Wrapper<java.util.Map<Integer, B>> wr = new Wrapper<>();
+            Callback cb = new Callback();
+            test.dictionaryTestAsync(bin).whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    wbout.v = result.bout;
+                    wr.v = result.returnValue;
+                    cb.called();
+                });
             cb.check();
-            bout = cb.bout;
-            r = cb.r;
 
+            java.util.Map<Integer, B> bout = wbout.v;
+            java.util.Map<Integer, B> r = wr.v;
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)
             {
@@ -2590,8 +1611,25 @@ public class AllTests
         out.print("base exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_throwBaseAsBaseI cb = new Callback_TestIntf_throwBaseAsBaseI();
-            test.begin_throwBaseAsBase(cb);
+            Callback cb = new Callback();
+            test.throwBaseAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null);
+                    try
+                    {
+                        BaseException e = (BaseException)ex;
+                        test(e.ice_id().equals("::Test::BaseException"));
+                        test(e.sbe.equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.equals("sb"));
+                        test(e.pb.pb == e.pb);
+                    }
+                    catch(Exception e)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2628,8 +1666,31 @@ public class AllTests
         out.print("derived exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_throwDerivedAsBaseI cb = new Callback_TestIntf_throwDerivedAsBaseI();
-            test.begin_throwDerivedAsBase(cb);
+            Callback cb = new Callback();
+            test.throwDerivedAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null);
+                    try
+                    {
+                        DerivedException e = (DerivedException)ex;
+                        test(e.ice_id().equals("::Test::DerivedException"));
+                        test(e.sbe.equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.equals("sb1"));
+                        test(e.pb.pb == e.pb);
+                        test(e.sde.equals("sde1"));
+                        test(e.pd1 != null);
+                        test(e.pd1.sb.equals("sb2"));
+                        test(e.pd1.pb == e.pd1);
+                        test(e.pd1.sd1.equals("sd2"));
+                        test(e.pd1.pd1 == e.pd1);
+                    }
+                    catch(Exception e)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2666,8 +1727,31 @@ public class AllTests
         out.print("derived exception thrown as derived exception (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_throwDerivedAsDerivedI cb = new Callback_TestIntf_throwDerivedAsDerivedI();
-            test.begin_throwDerivedAsDerived(cb);
+            Callback cb = new Callback();
+            test.throwDerivedAsDerivedAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null);
+                    try
+                    {
+                        DerivedException e = (DerivedException)ex;
+                        test(e.ice_id().equals("::Test::DerivedException"));
+                        test(e.sbe.equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.equals("sb1"));
+                        test(e.pb.pb == e.pb);
+                        test(e.sde.equals("sde1"));
+                        test(e.pd1 != null);
+                        test(e.pd1.sb.equals("sb2"));
+                        test(e.pd1.pb == e.pd1);
+                        test(e.pd1.sd1.equals("sd2"));
+                        test(e.pd1.pd1 == e.pd1);
+                    }
+                    catch(Exception e)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2698,8 +1782,25 @@ public class AllTests
         out.print("unknown derived exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_throwUnknownDerivedAsBaseI cb = new Callback_TestIntf_throwUnknownDerivedAsBaseI();
-            test.begin_throwUnknownDerivedAsBase(cb);
+            Callback cb = new Callback();
+            test.throwUnknownDerivedAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null);
+                    try
+                    {
+                        BaseException e = (BaseException)ex;
+                        test(e.ice_id().equals("::Test::BaseException"));
+                        test(e.sbe.equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.equals("sb d2"));
+                        test(e.pb.pb == e.pb);
+                    }
+                    catch(Exception e)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2709,9 +1810,8 @@ public class AllTests
         {
             try
             {
-                ForwardHolder f = new ForwardHolder();
-                test.useForward(f);
-                test(f.value != null);
+                Forward f = test.useForward();
+                test(f != null);
             }
             catch(Exception ex)
             {
@@ -2723,8 +1823,13 @@ public class AllTests
         out.print("forward-declared class (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_useForwardI cb = new Callback_TestIntf_useForwardI();
-            test.begin_useForward(cb);
+            Callback cb = new Callback();
+            test.useForwardAsync().whenComplete((result, ex) ->
+                {
+                    test(ex == null);
+                    test(result != null);
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -2758,7 +1863,7 @@ public class AllTests
             test(p2.ps.equals("preserved"));
             test(p2.pb == p2);
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2775,7 +1880,7 @@ public class AllTests
             test(!(r instanceof PCUnknown));
             test(r.pi == 3);
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2790,7 +1895,7 @@ public class AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = test.exchangePBase(pcd);
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
                 test(!(r instanceof PCDerived));
                 test(r.pi == 3);
@@ -2802,7 +1907,7 @@ public class AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2817,7 +1922,7 @@ public class AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = test.exchangePBase(pcd);
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
                 test(!(r instanceof CompactPCDerived));
                 test(r.pi == 3);
@@ -2829,7 +1934,7 @@ public class AllTests
                 test(p2.pbs[0] == p2);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2858,7 +1963,7 @@ public class AllTests
             pcd.pcd3 = pcd.pbs[10];
 
             PBase r = test.exchangePBase(pcd);
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
                 test(!(r instanceof PCDerived3));
                 test(r instanceof Preserved);
@@ -2880,7 +1985,7 @@ public class AllTests
                 test(p3.pcd3 == p3.pbs[10]);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2893,12 +1998,12 @@ public class AllTests
             //
             Preserved p = test.PBSUnknownAsPreserved();
             test.checkPBSUnknown(p);
-            if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+                test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
         out.println("ok");
@@ -2915,11 +2020,25 @@ public class AllTests
             pd.ps = "preserved";
             pd.pb = pd;
 
-            Callback_TestIntf_exchangePBaseI1 cb = new Callback_TestIntf_exchangePBaseI1();
-            test.begin_exchangePBase(pd, cb);
+            Callback cb = new Callback();
+            test.exchangePBaseAsync(pd).whenComplete((result, ex) ->
+                {
+                    if(ex != null)
+                    {
+                        test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    }
+                    else
+                    {
+                        PDerived p2 = (PDerived)result;
+                        test(p2.pi == 3);
+                        test(p2.ps.equals("preserved"));
+                        test(p2.pb == p2);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2932,11 +2051,23 @@ public class AllTests
             pu.pi = 3;
             pu.pu = "preserved";
 
-            Callback_TestIntf_exchangePBaseI2 cb = new Callback_TestIntf_exchangePBaseI2();
-            test.begin_exchangePBase(pu, cb);
+            Callback cb = new Callback();
+            test.exchangePBaseAsync(pu).whenComplete((result, ex) ->
+                {
+                    if(ex != null)
+                    {
+                        test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                    }
+                    else
+                    {
+                        test(!(result instanceof PCUnknown));
+                        test(result.pi == 3);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2950,20 +2081,45 @@ public class AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                Callback_TestIntf_exchangePBaseI3 cb = new Callback_TestIntf_exchangePBaseI3();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            test(!(result instanceof PCDerived));
+                            test(result.pi == 3);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
             else
             {
-                Callback_TestIntf_exchangePBaseI4 cb = new Callback_TestIntf_exchangePBaseI4();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            PCDerived p2 = (PCDerived)result;
+                            test(p2.pi == 3);
+                            test(p2.pbs[0] == p2);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -2977,20 +2133,45 @@ public class AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                Callback_TestIntf_exchangePBaseICompact1 cb = new Callback_TestIntf_exchangePBaseICompact1();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            test(!(result instanceof CompactPCDerived));
+                            test(result.pi == 3);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
             else
             {
-                Callback_TestIntf_exchangePBaseICompact2 cb = new Callback_TestIntf_exchangePBaseICompact2();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            CompactPCDerived p2 = (CompactPCDerived)result;
+                            test(p2.pi == 3);
+                            test(p2.pbs[0] == p2);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -3018,20 +2199,55 @@ public class AllTests
             pcd.pcd2 = pcd.pi;
             pcd.pcd3 = pcd.pbs[10];
 
-            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                Callback_TestIntf_exchangePBaseI5 cb = new Callback_TestIntf_exchangePBaseI5();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            test(!(result instanceof PCDerived3));
+                            test(result instanceof Preserved);
+                            test(result.pi == 3);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
             else
             {
-                Callback_TestIntf_exchangePBaseI6 cb = new Callback_TestIntf_exchangePBaseI6();
-                test.begin_exchangePBase(pcd, cb);
+                Callback cb = new Callback();
+                test.exchangePBaseAsync(pcd).whenComplete((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.OperationNotExistException);
+                        }
+                        else
+                        {
+                            PCDerived3 p3 = (PCDerived3)result;
+                            test(p3.pi == 3);
+                            for(int j = 0; j < 300; ++j)
+                            {
+                                PCDerived2 p2 = (PCDerived2)p3.pbs[j];
+                                test(p2.pi == j);
+                                test(p2.pbs.length == 1);
+                                test(p2.pbs[0] == null);
+                                test(p2.pcd2 == j);
+                            }
+                            test(p3.pcd2 == p3.pi);
+                            test(p3.pcd3 == p3.pbs[10]);
+                        }
+                        cb.called();
+                    });
                 cb.check();
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -3044,12 +2260,12 @@ public class AllTests
             //
             Preserved p = test.PBSUnknownAsPreserved();
             test.checkPBSUnknown(p);
-            if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            if(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+                test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 
@@ -3140,7 +2356,7 @@ public class AllTests
                 test(false);
             }
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
 

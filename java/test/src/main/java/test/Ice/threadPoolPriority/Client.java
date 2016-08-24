@@ -10,12 +10,10 @@
 package test.Ice.threadPoolPriority;
 
 import test.Ice.threadPoolPriority.Test.PriorityPrx;
-import test.Ice.threadPoolPriority.Test.PriorityPrxHelper;
 
 public class Client extends test.Util.Application
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -27,8 +25,8 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
-        Ice.ObjectPrx object = communicator().stringToProxy("test:default -p 12010 -t 10000");
-        PriorityPrx priority = PriorityPrxHelper.checkedCast(object);
+        com.zeroc.Ice.ObjectPrx object = communicator().stringToProxy("test:default -p 12010 -t 10000");
+        PriorityPrx priority = PriorityPrx.checkedCast(object);
         out.print("testing thread priority... ");
         out.flush();
         int prio = priority.getPriority();

@@ -14,6 +14,11 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid
@@ -381,4 +386,3 @@ exception FileNotAvailableException
 
 
 };
-

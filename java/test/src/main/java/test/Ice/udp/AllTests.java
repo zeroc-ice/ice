@@ -15,8 +15,7 @@ import java.io.PrintWriter;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -24,24 +23,21 @@ public class AllTests
         }
     }
 
-    public static class PingReplyI extends _PingReplyDisp
+    public static class PingReplyI implements PingReply
     {
         @Override
-        public synchronized void
-        reply(Ice.Current current)
+        public synchronized void reply(com.zeroc.Ice.Current current)
         {
             ++_replies;
             notify();
         }
 
-        public synchronized void
-        reset()
+        public synchronized void reset()
         {
              _replies = 0;
         }
 
-        public synchronized boolean
-        waitReply(int expectedReplies, long timeout)
+        public synchronized boolean waitReply(int expectedReplies, long timeout)
         {
             long end = System.currentTimeMillis() + timeout;
             while(_replies < expectedReplies)
@@ -68,24 +64,22 @@ public class AllTests
         private int _replies;
     }
 
-    public static void
-    allTests(test.Util.Application app)
+    public static void allTests(test.Util.Application app)
     {
-        Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
 
-        PingReplyPrx reply =
-            (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
         out.print("testing udp... ");
         out.flush();
-        Ice.ObjectPrx base = communicator.stringToProxy("test -d:udp -p 12010");
-        TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("test -d:udp -p 12010");
+        TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
 
         int nRetry = 5;
         boolean ret = false;
@@ -104,7 +98,7 @@ public class AllTests
             // If the 3 datagrams were not received within the 2 seconds, we try again to
             // receive 3 new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
-            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret == true);
 
@@ -126,7 +120,7 @@ public class AllTests
                     replyI.waitReply(1, 10000);
                 }
             }
-            catch(Ice.DatagramLimitException ex)
+            catch(com.zeroc.Ice.DatagramLimitException ex)
             {
                 test(seq.length > 16384);
             }
@@ -139,7 +133,7 @@ public class AllTests
                 obj.sendByteSeq(seq, reply);
                 test(!replyI.waitReply(1, 500));
             }
-            catch(Ice.LocalException ex)
+            catch(com.zeroc.Ice.LocalException ex)
             {
                 System.err.println(ex);
                 test(false);
@@ -169,7 +163,7 @@ public class AllTests
                 endpoint = "udp -h 239.255.1.1 -p 12020";
             }
             base = communicator.stringToProxy("test -d:" + endpoint);
-            TestIntfPrx objMcast = TestIntfPrxHelper.uncheckedCast(base);
+            TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
 
             nRetry = 5;
             while(nRetry-- > 0)
@@ -182,7 +176,7 @@ public class AllTests
                     break; // Success
                 }
                 replyI = new PingReplyI();
-                reply = (PingReplyPrx) PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
             if(!ret)
             {
@@ -210,7 +204,7 @@ public class AllTests
                     break; // Success
                 }
                 replyI = new PingReplyI();
-                reply = (PingReplyPrx) PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
             }
             test(ret);
             out.println("ok");
@@ -234,7 +228,7 @@ public class AllTests
 //                 break; // Success
 //             }
 //             replyI = new PingReplyI();
-//             reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+//             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
 //         }
 
 //         if(!ret)

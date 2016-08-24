@@ -10,26 +10,23 @@
 package test.Ice.inheritance;
 
 import test.Ice.inheritance.Test.MA.CAPrx;
-import test.Ice.inheritance.Test.MB.CB;
+import test.Ice.inheritance.Test.MB._CBDisp;
 import test.Ice.inheritance.Test.MB.CBPrx;
 
-public final class CBI extends CB
+public final class CBI implements _CBDisp
 {
-    public
-    CBI()
+    public CBI()
     {
     }
 
     @Override
-    public CAPrx
-    caop(CAPrx p, Ice.Current current)
+    public CAPrx caop(CAPrx p, com.zeroc.Ice.Current current)
     {
         return p;
     }
 
     @Override
-    public CBPrx
-    cbop(CBPrx p, Ice.Current current)
+    public CBPrx cbop(CBPrx p, com.zeroc.Ice.Current current)
     {
         return p;
     }

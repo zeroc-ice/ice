@@ -18,15 +18,13 @@ import com.zeroc.ice.Test.*;
 public class ServiceBean implements Service
 {
     @PostConstruct
-    public void 
-    create()
+    public void create()
     {
-        Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10001");
-        database = DatabasePrxHelper.uncheckedCast(db);
+        com.zeroc.Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10001");
+        database = DatabasePrx.uncheckedCast(db);
     }
 
-    public final Account 
-    getAccount(String id)
+    public final Account getAccount(String id)
     {
         try
         {
@@ -40,8 +38,7 @@ public class ServiceBean implements Service
         }
     }
 
-    public final void
-    addAccount(Account s)
+    public final void addAccount(Account s)
     {
         database.addAccount(s);
     }

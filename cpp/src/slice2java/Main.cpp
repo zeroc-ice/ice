@@ -15,6 +15,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <Gen.h>
+#include <GenCompat.h>
 #include <iterator>
 
 using namespace std;
@@ -81,6 +82,7 @@ usage(const char* n)
         "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
         "--meta META             Define global metadata directive META.\n"
+        "--compat                Use the backward-compatible language mapping.\n"
         ;
 }
 
@@ -108,7 +110,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-
+    opts.addOpt("", "compat");
 
     bool validate = false;
     for(int i = 0; i < argc; ++i)
@@ -193,6 +195,8 @@ compile(int argc, char* argv[])
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
+    bool compat = opts.isSet("compat");
+
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -206,6 +210,16 @@ compile(int argc, char* argv[])
     if(impl && implTie)
     {
         getErrorStream() << argv[0] << ": error: cannot specify both --impl and --impl-tie" << endl;
+        if(!validate)
+        {
+            usage(argv[0]);
+        }
+        return EXIT_FAILURE;
+    }
+
+    if(!compat && (tie || implTie))
+    {
+        getErrorStream() << argv[0] << ": error: TIE classes are only supported with the Java-Compat mapping" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -241,6 +255,13 @@ compile(int argc, char* argv[])
         out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
+    vector<string> cppOpts;
+    cppOpts.push_back("-D__SLICE2JAVA__");
+    if(compat)
+    {
+        cppOpts.push_back("-D__SLICE2JAVA_COMPAT__");
+    }
+
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
@@ -255,7 +276,7 @@ compile(int argc, char* argv[])
         if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JAVA__");
+            FILE* cppHandle = icecpp->preprocess(false, cppOpts);
 
             if(cppHandle == 0)
             {
@@ -273,8 +294,8 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Java : Preprocessor::SliceXML, includePaths,
-                                                  "-D__SLICE2JAVA__"))
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Java : Preprocessor::SliceXML,
+                                                  includePaths, cppOpts))
             {
                 out.cleanup();
                 return EXIT_FAILURE;
@@ -297,7 +318,7 @@ compile(int argc, char* argv[])
             FileTracker::instance()->setSource(*i);
 
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JAVA__");
+            FILE* cppHandle = icecpp->preprocess(true, cppOpts);
 
             if(cppHandle == 0)
             {
@@ -348,31 +369,55 @@ compile(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
-                        gen.generate(p);
-                        if(tie)
+                        if(compat)
                         {
-                            gen.generateTie(p);
+                            GenCompat gen(argv[0], icecpp->getBaseName(), includePaths, output);
+                            gen.generate(p);
+                            if(tie)
+                            {
+                                gen.generateTie(p);
+                            }
+                            if(impl)
+                            {
+                                gen.generateImpl(p);
+                            }
+                            if(implTie)
+                            {
+                                gen.generateImplTie(p);
+                            }
+                            if(!checksumClass.empty())
+                            {
+                                //
+                                // Calculate checksums for the Slice definitions in the unit.
+                                //
+                                ChecksumMap m = createChecksums(p);
+                                copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                            }
+                            if(listGenerated)
+                            {
+                                FileTracker::instance()->setOutput(os.str(), false);
+                            }
                         }
-                        if(impl)
+                        else
                         {
-                            gen.generateImpl(p);
-                        }
-                        if(implTie)
-                        {
-                            gen.generateImplTie(p);
-                        }
-                        if(!checksumClass.empty())
-                        {
-                            //
-                            // Calculate checksums for the Slice definitions in the unit.
-                            //
-                            ChecksumMap m = createChecksums(p);
-                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-                        }
-                        if(listGenerated)
-                        {
-                            FileTracker::instance()->setOutput(os.str(), false);
+                            Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
+                            gen.generate(p);
+                            if(impl)
+                            {
+                                gen.generateImpl(p);
+                            }
+                            if(!checksumClass.empty())
+                            {
+                                //
+                                // Calculate checksums for the Slice definitions in the unit.
+                                //
+                                ChecksumMap m = createChecksums(p);
+                                copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                            }
+                            if(listGenerated)
+                            {
+                                FileTracker::instance()->setOutput(os.str(), false);
+                            }
                         }
                     }
                     catch(const Slice::FileException& ex)
@@ -423,8 +468,9 @@ compile(int argc, char* argv[])
         }
         catch(const Slice::FileException& ex)
         {
-            // If a file could not be created, then
-            // cleanup any created files.
+            //
+            // If a file could not be created, then cleanup any created files.
+            //
             FileTracker::instance()->cleanup();
             getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
             return EXIT_FAILURE;

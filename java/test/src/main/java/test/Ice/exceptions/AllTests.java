@@ -9,35 +9,18 @@
 package test.Ice.exceptions;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletionException;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
 import test.Ice.exceptions.Test.C;
 import test.Ice.exceptions.Test.D;
 import test.Ice.exceptions.Test.ThrowerPrx;
-import test.Ice.exceptions.Test.ThrowerPrxHelper;
 import test.Ice.exceptions.Test.WrongOperationPrx;
-import test.Ice.exceptions.Test.WrongOperationPrxHelper;
-import test.Ice.exceptions.Test.Callback_Thrower_throwAasA;
-import test.Ice.exceptions.Test.Callback_Thrower_throwAorDasAorD;
-import test.Ice.exceptions.Test.Callback_Thrower_throwAssertException;
-import test.Ice.exceptions.Test.Callback_Thrower_throwBasA;
-import test.Ice.exceptions.Test.Callback_Thrower_throwBasB;
-import test.Ice.exceptions.Test.Callback_Thrower_throwCasA;
-import test.Ice.exceptions.Test.Callback_Thrower_throwCasB;
-import test.Ice.exceptions.Test.Callback_Thrower_throwCasC;
-import test.Ice.exceptions.Test.Callback_Thrower_throwLocalException;
-import test.Ice.exceptions.Test.Callback_Thrower_throwLocalExceptionIdempotent;
-import test.Ice.exceptions.Test.Callback_Thrower_throwNonIceException;
-import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredA;
-import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredB;
-import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredC;
-import test.Ice.exceptions.Test.Callback_WrongOperation_noSuchOperation;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -45,692 +28,16 @@ public class AllTests
         }
     }
 
-    private static class Callback
-    {
-        Callback()
-        {
-            _called = false;
-        }
-
-        public synchronized void check()
-        {
-            while(!_called)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-
-            _called = false;
-        }
-
-        public synchronized void called()
-        {
-            assert(!_called);
-            _called = true;
-            notify();
-        }
-
-        private boolean _called;
-    }
-
-    private static class Callback_Thrower_throwAasAI extends Callback_Thrower_throwAasA
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(A ex)
-            {
-                test(ex.aMem == 1);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwAasAObjectNotExistI extends Callback_Thrower_throwAasA
-    {
-        Callback_Thrower_throwAasAObjectNotExistI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.ObjectNotExistException ex)
-            {
-                Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
-                test(ex.id.equals(id));
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private Ice.Communicator _communicator;
-    }
-
-    private static class Callback_Thrower_throwAasAFacetNotExistI extends Callback_Thrower_throwAasA
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.FacetNotExistException ex)
-            {
-                test(ex.facet.equals("no such facet"));
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwAorDasAorDI extends Callback_Thrower_throwAorDasAorD
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(A ex)
-            {
-                test(ex.aMem == 1);
-            }
-            catch(D ex)
-            {
-                test(ex.dMem == -1);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwBasAI extends Callback_Thrower_throwBasA
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(B ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwCasAI extends Callback_Thrower_throwCasA
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwBasBI extends Callback_Thrower_throwBasB
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(B ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwCasBI extends Callback_Thrower_throwCasB
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwCasCI extends Callback_Thrower_throwCasC
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            exc.printStackTrace();
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwUndeclaredAI extends Callback_Thrower_throwUndeclaredA
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwUndeclaredBI extends Callback_Thrower_throwUndeclaredB
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwUndeclaredCI extends Callback_Thrower_throwUndeclaredC
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwLocalExceptionI extends Callback_Thrower_throwLocalException
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownLocalException ex)
-            {
-            }
-            catch(Ice.OperationNotExistException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwNonIceExceptionI extends Callback_Thrower_throwNonIceException
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Thrower_throwAssertExceptionI extends Callback_Thrower_throwAssertException
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.ConnectionLostException ex)
-            {
-            }
-            catch(Ice.UnknownException ex)
-            {
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_WrongOperation_noSuchOperationI extends Callback_WrongOperation_noSuchOperation
-    {
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.OperationNotExistException ex)
-            {
-                test(ex.operation.equals("noSuchOperation"));
-            }
-            catch(Throwable ex)
-            {
-                ex.printStackTrace();
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    public static ThrowerPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    public static ThrowerPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
     {
         {
             out.print("testing object adapter registration exceptions... ");
-            Ice.ObjectAdapter first;
+            com.zeroc.Ice.ObjectAdapter first;
             try
             {
                 first = communicator.createObjectAdapter("TestAdapter0");
             }
-            catch(Ice.InitializationException ex)
+            catch(com.zeroc.Ice.InitializationException ex)
             {
                 // Expected
             }
@@ -742,7 +49,7 @@ public class AllTests
                 communicator.createObjectAdapter("TestAdapter0");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
                 // Expected
             }
@@ -752,7 +59,7 @@ public class AllTests
                 communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
                 // Expected
             }
@@ -763,43 +70,43 @@ public class AllTests
         {
             out.print("testing servant registration exceptions... ");
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
-            Ice.Object obj = new EmptyI();
-            adapter.add(obj, Ice.Util.stringToIdentity("x"));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
+            com.zeroc.Ice.Object obj = new EmptyI();
+            adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("x"));
             try
             {
-                adapter.add(obj, Ice.Util.stringToIdentity("x"));
+                adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
 
             try
             {
-                adapter.add(obj, Ice.Util.stringToIdentity(""));
+                adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity(""));
                 test(false);
             }
-            catch(Ice.IllegalIdentityException ex)
+            catch(com.zeroc.Ice.IllegalIdentityException ex)
             {
                 test(ex.id.name.equals(""));
             }
             try
             {
-                adapter.add(null, Ice.Util.stringToIdentity("x"));
+                adapter.add(null, com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(Ice.IllegalServantException ex)
+            catch(com.zeroc.Ice.IllegalServantException ex)
             {
             }
 
-            adapter.remove(Ice.Util.stringToIdentity("x"));
+            adapter.remove(com.zeroc.Ice.Util.stringToIdentity("x"));
             try
             {
-                adapter.remove(Ice.Util.stringToIdentity("x"));
+                adapter.remove(com.zeroc.Ice.Util.stringToIdentity("x"));
                 test(false);
             }
-            catch(Ice.NotRegisteredException ex)
+            catch(com.zeroc.Ice.NotRegisteredException ex)
             {
             }
             adapter.deactivate();
@@ -809,15 +116,15 @@ public class AllTests
         {
             out.print("testing servant locator registration exceptions... ");
             communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
-            Ice.ServantLocator loc = new ServantLocatorI();
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
+            com.zeroc.Ice.ServantLocator loc = new ServantLocatorI();
             adapter.addServantLocator(loc, "x");
             try
             {
                 adapter.addServantLocator(loc, "x");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
 
@@ -827,14 +134,14 @@ public class AllTests
 
         {
             out.print("testing value factory registration exception... ");
-            Ice.ValueFactory of = new ValueFactoryI();
+            com.zeroc.Ice.ValueFactory of = new ValueFactoryI();
             communicator.getValueFactoryManager().add(of, "::x");
             try
             {
                 communicator.getValueFactoryManager().add(of, "::x");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
             out.println("ok");
@@ -843,13 +150,13 @@ public class AllTests
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "thrower:default -p 12010";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(base);
+        ThrowerPrx thrower = ThrowerPrx.checkedCast(base);
         test(thrower != null);
         test(thrower.equals(base));
         out.println("ok");
@@ -1038,7 +345,7 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
-            catch(Ice.UnknownUserException ex)
+            catch(com.zeroc.Ice.UnknownUserException ex)
             {
             }
             catch(Throwable ex)
@@ -1052,7 +359,7 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
-            catch(Ice.UnknownUserException ex)
+            catch(com.zeroc.Ice.UnknownUserException ex)
             {
             }
             catch(Throwable ex)
@@ -1066,7 +373,7 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
-            catch(Ice.UnknownUserException ex)
+            catch(com.zeroc.Ice.UnknownUserException ex)
             {
             }
             catch(Throwable ex)
@@ -1088,10 +395,10 @@ public class AllTests
                 thrower.throwAssertException();
                 test(false);
             }
-            catch(Ice.ConnectionLostException ex)
+            catch(com.zeroc.Ice.ConnectionLostException ex)
             {
             }
-            catch(Ice.UnknownException ex)
+            catch(com.zeroc.Ice.UnknownException ex)
             {
             }
             catch(Throwable ex)
@@ -1112,7 +419,7 @@ public class AllTests
                 thrower.throwMemoryLimitException(null);
                 test(false);
             }
-            catch(Ice.MemoryLimitException ex)
+            catch(com.zeroc.Ice.MemoryLimitException ex)
             {
             }
             catch(Throwable ex)
@@ -1126,10 +433,10 @@ public class AllTests
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                 test(false);
             }
-            catch(Ice.ConnectionLostException ex)
+            catch(com.zeroc.Ice.ConnectionLostException ex)
             {
             }
-            catch(Ice.SocketException ex)
+            catch(com.zeroc.Ice.SocketException ex)
             {
                 // This can be raised if the connection is closed during the client's call to write().
             }
@@ -1139,23 +446,21 @@ public class AllTests
                 test(false);
             }
 
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12011"));
+            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:default -p 12011"));
             try
             {
                 thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
             }
-            catch(Ice.MemoryLimitException ex)
+            catch(com.zeroc.Ice.MemoryLimitException ex)
             {
             }
-            ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12012"));
+            ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:default -p 12012"));
             try
             {
                 thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                 test(false);
             }
-            catch(Ice.ConnectionLostException ex)
+            catch(com.zeroc.Ice.ConnectionLostException ex)
             {
             }
 
@@ -1166,14 +471,14 @@ public class AllTests
         out.flush();
 
         {
-            Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("does not exist");
             try
             {
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+                ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
                 thrower2.ice_ping();
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
                 test(ex.id.equals(id));
             }
@@ -1191,13 +496,13 @@ public class AllTests
 
         try
         {
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower, "no such facet");
             try
             {
                 thrower2.ice_ping();
                 test(false);
             }
-            catch(Ice.FacetNotExistException ex)
+            catch(com.zeroc.Ice.FacetNotExistException ex)
             {
                 test(ex.facet.equals("no such facet"));
             }
@@ -1215,11 +520,11 @@ public class AllTests
 
         try
         {
-            WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
+            WrongOperationPrx thrower2 = WrongOperationPrx.uncheckedCast(thrower);
             thrower2.noSuchOperation();
             test(false);
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
             test(ex.operation.equals("noSuchOperation"));
         }
@@ -1239,7 +544,7 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch(Ice.UnknownLocalException ex)
+        catch(com.zeroc.Ice.UnknownLocalException ex)
         {
         }
         catch(Throwable ex)
@@ -1253,10 +558,10 @@ public class AllTests
             thrower.throwLocalExceptionIdempotent();
             test(false);
         }
-        catch(Ice.UnknownLocalException ex)
+        catch(com.zeroc.Ice.UnknownLocalException ex)
         {
         }
-        catch(Ice.OperationNotExistException ex)
+        catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
         catch(Throwable ex)
@@ -1275,7 +580,7 @@ public class AllTests
             thrower.throwNonIceException();
             test(false);
         }
-        catch(Ice.UnknownException ex)
+        catch(com.zeroc.Ice.UnknownException ex)
         {
         }
         catch(Throwable ex)
@@ -1293,7 +598,7 @@ public class AllTests
         {
             thrower.throwAfterResponse();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
@@ -1311,7 +616,7 @@ public class AllTests
         catch(A ex)
         {
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
@@ -1326,82 +631,142 @@ public class AllTests
         out.print("catching exact types with AMI mapping... ");
         out.flush();
 
+        try
         {
-            Callback_Thrower_throwAasAI cb = new Callback_Thrower_throwAasAI();
-            thrower.begin_throwAasA(1, cb);
-            cb.check();
+            thrower.throwAasAAsync(1).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof A);
+            test(((A)ex.getCause()).aMem == 1);
         }
 
+        try
         {
-            Callback_Thrower_throwAorDasAorDI cb = new Callback_Thrower_throwAorDasAorDI();
-            thrower.begin_throwAorDasAorD(1, cb);
-            cb.check();
+            thrower.throwAorDasAorDAsync(1).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof A);
+            test(((A)ex.getCause()).aMem == 1);
         }
 
+        try
         {
-            Callback_Thrower_throwAorDasAorDI cb = new Callback_Thrower_throwAorDasAorDI();
-            thrower.begin_throwAorDasAorD(-1, cb);
-            cb.check();
+            thrower.throwAorDasAorDAsync(-1).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof D);
+            test(((D)ex.getCause()).dMem == -1);
         }
 
+        try
         {
-            Callback_Thrower_throwBasBI cb = new Callback_Thrower_throwBasBI();
-            thrower.begin_throwBasB(1, 2, cb);
-            cb.check();
+            thrower.throwBasBAsync(1, 2).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof B);
+            test(((B)ex.getCause()).aMem == 1);
+            test(((B)ex.getCause()).bMem == 2);
         }
 
+        try
         {
-            Callback_Thrower_throwCasCI cb = new Callback_Thrower_throwCasCI();
-            thrower.begin_throwCasC(1, 2, 3, cb);
-            cb.check();
+            thrower.throwCasCAsync(1, 2, 3).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof C);
+            test(((C)ex.getCause()).aMem == 1);
+            test(((C)ex.getCause()).bMem == 2);
+            test(((C)ex.getCause()).cMem == 3);
         }
 
         out.println("ok");
 
-        out.print("catching derived types with mapping... ");
+        out.print("catching derived types with AMI mapping... ");
         out.flush();
 
+        try
         {
-            Callback_Thrower_throwBasAI cb = new Callback_Thrower_throwBasAI();
-            thrower.begin_throwBasA(1, 2, cb);
-            cb.check();
+            thrower.throwBasAAsync(1, 2).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof B);
+            test(((B)ex.getCause()).aMem == 1);
+            test(((B)ex.getCause()).bMem == 2);
         }
 
+        try
         {
-            Callback_Thrower_throwCasAI cb = new Callback_Thrower_throwCasAI();
-            thrower.begin_throwCasA(1, 2, 3, cb);
-            cb.check();
+            thrower.throwCasAAsync(1, 2, 3).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof C);
+            test(((C)ex.getCause()).aMem == 1);
+            test(((C)ex.getCause()).bMem == 2);
+            test(((C)ex.getCause()).cMem == 3);
         }
 
+        try
         {
-            Callback_Thrower_throwCasBI cb = new Callback_Thrower_throwCasBI();
-            thrower.begin_throwCasB(1, 2, 3, cb);
-            cb.check();
+            thrower.throwCasBAsync(1, 2, 3).join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof C);
+            test(((C)ex.getCause()).aMem == 1);
+            test(((C)ex.getCause()).bMem == 2);
+            test(((C)ex.getCause()).cMem == 3);
         }
 
         out.println("ok");
 
         if(thrower.supportsUndeclaredExceptions())
         {
-            out.print("catching unknown user exception with mapping... ");
+            out.print("catching unknown user exception with AMI mapping... ");
             out.flush();
 
+            try
             {
-                Callback_Thrower_throwUndeclaredAI cb = new Callback_Thrower_throwUndeclaredAI();
-                thrower.begin_throwUndeclaredA(1, cb);
-                cb.check();
+                thrower.throwUndeclaredAAsync(1).join();
+                test(false);
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
 
+            try
             {
-                Callback_Thrower_throwUndeclaredBI cb = new Callback_Thrower_throwUndeclaredBI();
-                thrower.begin_throwUndeclaredB(1, 2, cb);
-                cb.check();
+                thrower.throwUndeclaredBAsync(1, 2).join();
+                test(false);
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
 
+            try
             {
-                Callback_Thrower_throwUndeclaredCI cb = new Callback_Thrower_throwUndeclaredCI();
-                thrower.begin_throwUndeclaredC(1, 2, 3, cb);
-                cb.check();
+                thrower.throwUndeclaredCAsync(1, 2, 3).join();
+                test(false);
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.UnknownUserException);
             }
 
             out.println("ok");
@@ -1409,90 +774,117 @@ public class AllTests
 
         if(thrower.supportsAssertException())
         {
-            out.print("catching assert in the server with mapping... ");
+            out.print("catching assert in the server with AMI mapping... ");
             out.flush();
 
-            Callback_Thrower_throwAssertExceptionI cb = new Callback_Thrower_throwAssertExceptionI();
-            thrower.begin_throwAssertException(cb);
-            cb.check();
+            try
+            {
+                thrower.throwAssertExceptionAsync().join();
+                test(false);
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException ||
+                     ex.getCause() instanceof com.zeroc.Ice.UnknownException);
+            }
 
             out.println("ok");
         }
 
-        out.print("catching object not exist exception with mapping... ");
+        out.print("catching object not exist exception with AMI mapping... ");
         out.flush();
 
         {
-            Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-            Callback_Thrower_throwAasAObjectNotExistI cb = new Callback_Thrower_throwAasAObjectNotExistI(communicator);
-            thrower2.begin_throwAasA(1, cb);
-            cb.check();
-        }
-
-        out.println("ok");
-
-        out.print("catching facet not exist exception with mapping... ");
-        out.flush();
-
-        {
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-            Callback_Thrower_throwAasAFacetNotExistI cb = new Callback_Thrower_throwAasAFacetNotExistI();
-            thrower2.begin_throwAasA(1, cb);
-            cb.check();
-        }
-
-        out.println("ok");
-
-        out.print("catching operation not exist exception with mapping... ");
-        out.flush();
-
-        {
-            Callback_WrongOperation_noSuchOperationI cb = new Callback_WrongOperation_noSuchOperationI();
-            WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
-            thrower2.begin_noSuchOperation(cb);
-            cb.check();
-        }
-
-        out.println("ok");
-
-        out.print("catching unknown local exception with mapping... ");
-        out.flush();
-
-        {
-            Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
-            thrower.begin_throwLocalException(cb);
-            cb.check();
-        }
-
-        {
-            final Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
-            thrower.begin_throwLocalExceptionIdempotent(new Callback_Thrower_throwLocalExceptionIdempotent()
+            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("does not exist");
+            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
+            try
             {
-                @Override
-                public void response()
-                {
-                    cb.response();
-                }
-
-                @Override
-                public void exception(Ice.LocalException exc)
-                {
-                    cb.exception(exc);
-                }
-                });
-            cb.check();
+                thrower2.throwAasAAsync(1).join();
+                test(false);
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.ObjectNotExistException);
+                test(((com.zeroc.Ice.ObjectNotExistException)ex.getCause()).id.name.equals("does not exist"));
+            }
         }
 
         out.println("ok");
 
-        out.print("catching unknown non-Ice exception with mapping... ");
+        out.print("catching facet not exist exception with AMI mapping... ");
         out.flush();
 
         {
-            Callback_Thrower_throwNonIceExceptionI cb = new Callback_Thrower_throwNonIceExceptionI();
-            thrower.begin_throwNonIceException(cb);
-            cb.check();
+            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower, "no such facet");
+            try
+            {
+                thrower2.throwAasAAsync(1).join();
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.FacetNotExistException);
+                test(((com.zeroc.Ice.FacetNotExistException)ex.getCause()).facet.equals("no such facet"));
+            }
+        }
+
+        out.println("ok");
+
+        out.print("catching operation not exist exception with AMI mapping... ");
+        out.flush();
+
+        {
+            WrongOperationPrx thrower2 = WrongOperationPrx.uncheckedCast(thrower);
+            try
+            {
+                thrower2.noSuchOperationAsync().join();
+            }
+            catch(CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+                test(((com.zeroc.Ice.OperationNotExistException)ex.getCause()).operation.equals("noSuchOperation"));
+            }
+        }
+
+        out.println("ok");
+
+        out.print("catching unknown local exception with AMI mapping... ");
+        out.flush();
+
+        try
+        {
+            thrower.throwLocalExceptionAsync().join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                 ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+        }
+
+        try
+        {
+            thrower.throwLocalExceptionIdempotentAsync().join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof com.zeroc.Ice.UnknownLocalException ||
+                 ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+        }
+
+        out.println("ok");
+
+        out.print("catching unknown non-Ice exception with AMI mapping... ");
+        out.flush();
+
+        try
+        {
+            thrower.throwNonIceExceptionAsync().join();
+            test(false);
+        }
+        catch(CompletionException ex)
+        {
+            test(ex.getCause() instanceof com.zeroc.Ice.UnknownException);
         }
 
         out.println("ok");

@@ -11,10 +11,9 @@ package test.Ice.slicing.exceptions;
 
 import test.Ice.slicing.exceptions.server.Test.*;
 
-public final class TestI extends _TestIntfDisp
+public final class TestI implements TestIntf
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,15 +22,13 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public void
-    baseAsBase(Ice.Current current)
+    public void baseAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         Base b = new Base();
@@ -40,8 +37,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownDerivedAsBase(Ice.Current current)
+    public void unknownDerivedAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         UnknownDerived d = new UnknownDerived();
@@ -51,8 +47,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownDerivedAsBase(Ice.Current current)
+    public void knownDerivedAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         KnownDerived d = new KnownDerived();
@@ -62,8 +57,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownDerivedAsKnownDerived(Ice.Current current)
+    public void knownDerivedAsKnownDerived(com.zeroc.Ice.Current current)
         throws KnownDerived
     {
         KnownDerived d = new KnownDerived();
@@ -73,8 +67,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownIntermediateAsBase(Ice.Current current)
+    public void unknownIntermediateAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         UnknownIntermediate ui = new UnknownIntermediate();
@@ -84,8 +77,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownIntermediateAsBase(Ice.Current current)
+    public void knownIntermediateAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         KnownIntermediate ki = new KnownIntermediate();
@@ -95,8 +87,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownMostDerivedAsBase(Ice.Current current)
+    public void knownMostDerivedAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         KnownMostDerived kmd = new KnownMostDerived();
@@ -107,8 +98,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownIntermediateAsKnownIntermediate(Ice.Current current)
+    public void knownIntermediateAsKnownIntermediate(com.zeroc.Ice.Current current)
         throws KnownIntermediate
     {
         KnownIntermediate ki = new KnownIntermediate();
@@ -118,8 +108,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownMostDerivedAsKnownIntermediate(Ice.Current current)
+    public void knownMostDerivedAsKnownIntermediate(com.zeroc.Ice.Current current)
         throws KnownIntermediate
     {
         KnownMostDerived kmd = new KnownMostDerived();
@@ -130,8 +119,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownMostDerivedAsKnownMostDerived(Ice.Current current)
+    public void knownMostDerivedAsKnownMostDerived(com.zeroc.Ice.Current current)
         throws KnownMostDerived
     {
         KnownMostDerived kmd = new KnownMostDerived();
@@ -143,7 +131,7 @@ public final class TestI extends _TestIntfDisp
 
     @Override
     public void
-    unknownMostDerived1AsBase(Ice.Current current)
+    unknownMostDerived1AsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
@@ -154,8 +142,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownMostDerived1AsKnownIntermediate(Ice.Current current)
+    public void unknownMostDerived1AsKnownIntermediate(com.zeroc.Ice.Current current)
         throws KnownIntermediate
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
@@ -166,8 +153,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownMostDerived2AsBase(Ice.Current current)
+    public void unknownMostDerived2AsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
@@ -178,8 +164,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownMostDerived2AsBaseCompact(Ice.Current current)
+    public void unknownMostDerived2AsBaseCompact(com.zeroc.Ice.Current current)
         throws Base
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
@@ -190,8 +175,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownPreservedAsBase(Ice.Current current)
+    public void knownPreservedAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         KnownPreservedDerived ex = new KnownPreservedDerived();
@@ -202,8 +186,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    knownPreservedAsKnownPreserved(Ice.Current current)
+    public void knownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
         KnownPreservedDerived ex = new KnownPreservedDerived();
@@ -214,8 +197,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
         throws Base
     {
         r.knownPreservedAsBase();
@@ -223,8 +205,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
         r.knownPreservedAsKnownPreserved();
@@ -232,8 +213,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownPreservedAsBase(Ice.Current current)
+    public void unknownPreservedAsBase(com.zeroc.Ice.Current current)
         throws Base
     {
         SPreserved2 ex = new SPreserved2();
@@ -246,8 +226,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    unknownPreservedAsKnownPreserved(Ice.Current current)
+    public void unknownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
         SPreserved2 ex = new SPreserved2();
@@ -260,8 +239,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
         throws Base
     {
         r.unknownPreservedAsBase();
@@ -269,8 +247,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
         r.unknownPreservedAsKnownPreserved();

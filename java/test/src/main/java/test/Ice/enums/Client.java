@@ -16,19 +16,18 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         TestIntfPrx test = AllTests.allTests(communicator, getWriter());
         test.shutdown();
         return 0;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.enums");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.enums");
+        return r;
     }
 
     public static void main(String[] args)

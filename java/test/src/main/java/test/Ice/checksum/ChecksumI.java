@@ -11,23 +11,20 @@ package test.Ice.checksum;
 
 import test.Ice.checksum.server.Test.*;
 
-public final class ChecksumI extends _ChecksumDisp
+public final class ChecksumI implements Checksum
 {
-    public
-    ChecksumI()
+    public ChecksumI()
     {
     }
 
     @Override
-    public java.util.Map<String, String>
-    getSliceChecksums(Ice.Current current)
+    public java.util.Map<String, String> getSliceChecksums(com.zeroc.Ice.Current current)
     {
         return SliceChecksums.checksums;
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

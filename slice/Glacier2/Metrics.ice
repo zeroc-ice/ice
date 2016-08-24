@@ -13,6 +13,11 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Metrics.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICEMX"]
 module IceMX

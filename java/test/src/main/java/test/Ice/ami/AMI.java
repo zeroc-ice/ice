@@ -10,58 +10,35 @@
 package test.Ice.ami;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+
+import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.Util;
 
 import test.Ice.ami.Test.TestIntfPrx;
-import test.Ice.ami.Test.TestIntfPrxHelper;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfException;
-import test.Ice.ami.Test.Callback_TestIntf_op;
-import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
-import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
-import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
 import test.Util.Application;
 
 public class AMI
 {
-    private static class Counter
-    {
-        private int _count = 0;
-
-        synchronized void decrement()
-        {
-            --_count;
-            if(_count == 0)
-            {
-                notifyAll();
-            }
-        }
-
-        synchronized void increment()
-        {
-            ++_count;
-        }
-
-        synchronized void waitComplete() throws InterruptedException
-        {
-            while(_count > 0)
-            {
-                wait();
-            }
-        }
-    }
-
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
+            new Throwable().printStackTrace();
+            //
+            // Exceptions raised by callbacks are swallowed by CompletableFuture.
+            //
             throw new RuntimeException();
         }
     }
 
-    private static class CallbackBase
+    private static class Callback
     {
-        CallbackBase()
+        Callback()
         {
             _called = false;
         }
@@ -92,368 +69,20 @@ public class AMI
         private boolean _called;
     }
 
-    static class AsyncCallback extends CallbackBase
-    {
-        public AsyncCallback()
-        {
-        }
-
-        public void
-        isA(Ice.AsyncResult result)
-        {
-            test(result.getProxy().end_ice_isA(result));
-            called();
-        }
-
-        public void
-        ping(Ice.AsyncResult result)
-        {
-            result.getProxy().end_ice_ping(result);
-            called();
-        }
-
-        public void
-        id(Ice.AsyncResult result)
-        {
-            test(result.getProxy().end_ice_id(result).equals("::Test::TestIntf"));
-            called();
-        }
-
-        public void
-        ids(Ice.AsyncResult result)
-        {
-            test(result.getProxy().end_ice_ids(result).length == 2);
-            called();
-        }
-
-        public void
-        connection(Ice.AsyncResult result)
-        {
-            test(result.getProxy().end_ice_getConnection(result) != null);
-            called();
-        }
-
-        public void
-        op(Ice.AsyncResult result)
-        {
-            TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
-            called();
-        }
-
-        public void
-        opWithResult(Ice.AsyncResult result)
-        {
-            test(TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithResult(result) == 15);
-            called();
-        }
-
-        public void
-        opWithUE(Ice.AsyncResult result)
-        {
-            try
-            {
-                TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithUE(result);
-                test(false);
-            }
-            catch(TestIntfException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        isAEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                result.getProxy().end_ice_isA(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        pingEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                result.getProxy().end_ice_ping(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        idEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                result.getProxy().end_ice_id(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        idsEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                result.getProxy().end_ice_ids(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        connectionEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                result.getProxy().end_ice_getConnection(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-
-        public void
-        opEx(Ice.AsyncResult result)
-        {
-            try
-            {
-                TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                called();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-        }
-    }
-
-    static class ResponseCallback extends CallbackBase
-    {
-        ResponseCallback()
-        {
-        }
-
-        public void
-        isA(boolean r)
-        {
-            test(r);
-            called();
-        }
-
-        public void
-        ping()
-        {
-            called();
-        }
-
-        public void
-        id(String id)
-        {
-            test(id.equals("::Test::TestIntf"));
-            called();
-        }
-
-        public void
-        ids(String[] ids)
-        {
-            test(ids.length == 2);
-            called();
-        }
-
-        public void
-        connection(Ice.Connection conn)
-        {
-            test(conn != null);
-            called();
-        }
-
-        public void
-        op()
-        {
-            called();
-        }
-
-        public void
-        opWithResult(int r)
-        {
-            test(r == 15);
-            called();
-        }
-
-        public void
-        opWithUE(Ice.UserException e)
-        {
-            try
-            {
-                throw e;
-            }
-            catch(TestIntfException ex)
-            {
-                called();
-            }
-            catch(Ice.UserException ex)
-            {
-                test(false);
-            }
-        }
-    }
-
-    static class ExceptionCallback extends CallbackBase
-    {
-        public ExceptionCallback()
-        {
-        }
-
-        public void
-        isA(boolean r)
-        {
-            test(false);
-        }
-
-        public void
-        ping()
-        {
-            test(false);
-        }
-
-        public void
-        id(String id)
-        {
-            test(false);
-        }
-
-        public void
-        ids(String[] ids)
-        {
-            test(false);
-        }
-
-        public void
-        connection(Ice.Connection conn)
-        {
-            test(false);
-        }
-
-        public void
-        op()
-        {
-            test(false);
-        }
-
-        public void
-        ex(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            called();
-        }
-
-        public void
-        noEx(Ice.LocalException ex)
-        {
-            test(false);
-        }
-    }
-
-    static class SentCallback extends CallbackBase
+    static class SentCallback extends Callback
     {
         SentCallback()
         {
             _thread = Thread.currentThread().getId();
         }
 
-        public void
-        isA(boolean r)
+        public void sent(boolean ss)
         {
-        }
-
-        public void
-        ping()
-        {
-        }
-
-        public void
-        id(String s)
-        {
-        }
-
-        public void
-        ids(String[] s)
-        {
-        }
-
-        public void
-        opAsync(Ice.AsyncResult r)
-        {
-        }
-
-        public void
-        op()
-        {
-        }
-
-        public void
-        ex(Ice.LocalException ex)
-        {
-        }
-
-        public void
-        sent(Ice.AsyncResult r)
-        {
-            test(r.sentSynchronously() && _thread == Thread.currentThread().getId() ||
-                 !r.sentSynchronously() && _thread != Thread.currentThread().getId());
-            called();
-        }
-
-        public void
-        sent(boolean ss)
-        {
+            //
+            // The documented semantics for the sent callback states that the callback will be
+            // invoked by the calling thread if the request was sent synchronously, otherwise
+            // it will be invoked by a thread pool thread.
+            //
             test(ss && _thread == Thread.currentThread().getId() ||
                  !ss && _thread != Thread.currentThread().getId());
             called();
@@ -462,952 +91,112 @@ public class AMI
         long _thread;
     }
 
-    static class FlushCallback extends CallbackBase
+    static class SentAsyncCallback extends Callback
     {
-        FlushCallback()
+        SentAsyncCallback(long thread)
         {
-            _thread = Thread.currentThread().getId();
+            _thread = thread;
         }
 
-        public void
-        completedAsync(Ice.AsyncResult r)
+        public void sent(boolean ss)
         {
-            test(false);
-        }
-
-        public void
-        exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        sentAsync(Ice.AsyncResult r)
-        {
-            test((r.sentSynchronously() && _thread == Thread.currentThread().getId()) ||
-                 (!r.sentSynchronously() && _thread != Thread.currentThread().getId()));
-            called();
-        }
-
-        public void
-        sent(boolean sentSynchronously)
-        {
-            test((sentSynchronously && _thread == Thread.currentThread().getId()) ||
-                 (!sentSynchronously && _thread != Thread.currentThread().getId()));
+            //
+            // For whenSentAsync(), the callback is always invoked from an Executor thread.
+            //
+            test(_thread == Thread.currentThread().getId());
             called();
         }
 
         long _thread;
     }
 
-    static class FlushExCallback extends CallbackBase
+    public static void run(Application app, com.zeroc.Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
+                           TestIntfControllerPrx testController)
     {
-        FlushExCallback()
-        {
-        }
-
-        public void
-        completedAsync(Ice.AsyncResult r)
-        {
-            try
-            {
-                if(r.getConnection() != null)
-                {
-                    r.getConnection().end_flushBatchRequests(r);
-                }
-                else
-                {
-                    r.getProxy().end_ice_flushBatchRequests(r);
-                }
-                test(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-                called();
-            }
-        }
-
-        public void
-        exception(Ice.LocalException ex)
-        {
-            called();
-        }
-
-        public void
-        sentAsync(Ice.AsyncResult r)
-        {
-            test(false);
-        }
-
-        public void
-        sent(boolean sentSynchronously)
-        {
-            test(false);
-        }
-    }
-
-    enum ThrowType { LocalException, OtherException };
-
-    static class Thrower extends CallbackBase
-    {
-        public Thrower(ThrowType t)
-        {
-            _t = t;
-        }
-
-        public void
-        opAsync(Ice.AsyncResult r)
-        {
-            called();
-            throwEx();
-        }
-
-        public void
-        op()
-        {
-            called();
-            throwEx();
-        }
-
-        public void
-        noOp()
-        {
-        }
-
-        public void
-        ex(Ice.LocalException ex)
-        {
-            called();
-            throwEx();
-        }
-
-        public void
-        sent(boolean ss)
-        {
-            called();
-            throwEx();
-        }
-
-        private void
-        throwEx()
-        {
-            switch(_t)
-            {
-            case LocalException:
-            {
-                throw new Ice.ObjectNotExistException();
-            }
-            case OtherException:
-            {
-                throw new RuntimeException();
-            }
-            default:
-            {
-                assert(false);
-                break;
-            }
-            }
-        }
-
-        ThrowType _t;
-    }
-
-    public static void
-    run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
-        TestIntfControllerPrx testController)
-    {
-
         PrintWriter out = app.getWriter();
 
         out.print("testing begin/end invocation... ");
         out.flush();
         {
-            Ice.AsyncResult result;
-            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+            java.util.Map<String, String> ctx = new java.util.HashMap<>();
 
-            result = p.begin_ice_isA("::Test::TestIntf");
-            test(p.end_ice_isA(result));
-            result = p.begin_ice_isA("::Test::TestIntf", ctx);
-            test(p.end_ice_isA(result));
+            test(p.ice_isAAsync("::Test::TestIntf").join());
+            test(p.ice_isAAsync("::Test::TestIntf", ctx).join());
 
-            result = p.begin_ice_ping();
-            p.end_ice_ping(result);
-            result = p.begin_ice_ping(ctx);
-            p.end_ice_ping(result);
+            p.ice_pingAsync().join();
+            p.ice_pingAsync(ctx).join();
 
-            result = p.begin_ice_id();
-            test(p.end_ice_id(result).equals("::Test::TestIntf"));
-            result = p.begin_ice_id(ctx);
-            test(p.end_ice_id(result).equals("::Test::TestIntf"));
+            test(p.ice_idAsync().join().equals("::Test::TestIntf"));
+            test(p.ice_idAsync(ctx).join().equals("::Test::TestIntf"));
 
-            result = p.begin_ice_ids();
-            test(p.end_ice_ids(result).length == 2);
-            result = p.begin_ice_ids(ctx);
-            test(p.end_ice_ids(result).length == 2);
+            test(p.ice_idsAsync().join().length == 2);
+            test(p.ice_idsAsync(ctx).join().length == 2);
 
             if(!collocated)
             {
-                result = p.begin_ice_getConnection();
-                test(p.end_ice_getConnection(result) != null);
+                test(p.ice_getConnectionAsync().join() != null);
             }
 
-            result = p.begin_op();
-            p.end_op(result);
-            result = p.begin_op(ctx);
-            p.end_op(result);
+            p.opAsync().join();
+            p.opAsync(ctx).join();
 
-            result = p.begin_opWithResult();
-            test(p.end_opWithResult(result) == 15);
-            result = p.begin_opWithResult(ctx);
-            test(p.end_opWithResult(result) == 15);
+            test(p.opWithResultAsync().join() == 15);
+            test(p.opWithResultAsync(ctx).join() == 15);
 
-            result = p.begin_opWithUE();
-            try
-            {
-                p.end_opWithUE(result);
-                test(false);
-            }
-            catch(TestIntfException ex)
-            {
-            }
-            result = p.begin_opWithUE(ctx);
-            try
-            {
-                p.end_opWithUE(result);
-                test(false);
-            }
-            catch(TestIntfException ex)
-            {
-            }
+            p.opWithUEAsync().whenComplete((result, ex) -> { test(ex != null && ex instanceof TestIntfException); });
+            p.opWithUEAsync(ctx).whenComplete((result, ex) -> { test(ex != null && ex instanceof TestIntfException); });
 
             if(p.supportsFunctionalTests())
             {
-                result = p.begin_opBool(true);
-                test(p.end_opBool(result));
+                test(p.opBoolAsync(true).join());
 
-                result = p.begin_opByte((byte)0xff);
-                test(p.end_opByte(result) == (byte)0xff);
+                test(p.opByteAsync((byte)0xff).join() == (byte)0xff);
 
-                result = p.begin_opShort(Short.MIN_VALUE);
-                test(p.end_opShort(result) == Short.MIN_VALUE);
+                test(p.opShortAsync(Short.MIN_VALUE).join() == Short.MIN_VALUE);
 
-                result = p.begin_opInt(Integer.MIN_VALUE);
-                test(p.end_opInt(result) == Integer.MIN_VALUE);
+                test(p.opIntAsync(Integer.MIN_VALUE).join() == Integer.MIN_VALUE);
 
-                result = p.begin_opLong(Long.MIN_VALUE);
-                test(p.end_opLong(result) == Long.MIN_VALUE);
+                test(p.opLongAsync(Long.MIN_VALUE).join() == Long.MIN_VALUE);
 
-                result = p.begin_opFloat(3.14f);
-                test(p.end_opFloat(result) == 3.14f);
+                test(p.opFloatAsync(3.14f).join() == 3.14f);
 
-                result = p.begin_opDouble(1.1E10);
-                test(p.end_opDouble(result) == 1.1E10);
+                test(p.opDoubleAsync(1.1E10).join() == 1.1E10);
             }
-        }
-        out.println("ok");
-
-        out.print("testing async callback... ");
-        out.flush();
-        {
-            final AsyncCallback cb = new AsyncCallback();
-            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-
-            p.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.isA(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.isA(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_ping(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.ping(r);
-                    }
-                });
-            cb.check();
-            p.begin_ice_ping(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.ping(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_id(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.id(r);
-                    }
-                });
-            cb.check();
-            p.begin_ice_id(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.id(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_ids(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.ids(r);
-                    }
-                });
-            cb.check();
-            p.begin_ice_ids(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.ids(r);
-                    }
-                });
-            cb.check();
-
-            if(!collocated)
-            {
-                p.begin_ice_getConnection(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.connection(r);
-                    }
-                });
-                cb.check();
-            }
-
-            p.begin_op(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.op(r);
-                    }
-                });
-            cb.check();
-            p.begin_op(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.op(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_opWithResult(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.opWithResult(r);
-                    }
-                });
-            cb.check();
-            p.begin_opWithResult(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.opWithResult(r);
-                    }
-                });
-            cb.check();
-
-            p.begin_opWithUE(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.opWithUE(r);
-                    }
-                });
-            cb.check();
-            p.begin_opWithUE(ctx, new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.opWithUE(r);
-                    }
-                });
-            cb.check();
-        }
-        out.println("ok");
-
-        out.print("testing response callback... ");
-        out.flush();
-        {
-            final ResponseCallback cb = new ResponseCallback();
-            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-
-            p.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
-                {
-                    @Override
-                    public void
-                    response(boolean r)
-                    {
-                        cb.isA(r);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback_Object_ice_isA()
-                {
-                    @Override
-                    public void
-                    response(boolean r)
-                    {
-                        cb.isA(r);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.ping();
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_ice_ping(ctx, new Ice.Callback_Object_ice_ping()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.ping();
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_id(new Ice.Callback_Object_ice_id()
-                {
-                    @Override
-                    public void
-                    response(String id)
-                    {
-                        cb.id(id);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_ice_id(ctx, new Ice.Callback_Object_ice_id()
-                {
-                    @Override
-                    public void
-                    response(String id)
-                    {
-                        cb.id(id);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
-                {
-                    @Override
-                    public void
-                    response(String[] ids)
-                    {
-                        cb.ids(ids);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_ice_ids(ctx, new Ice.Callback_Object_ice_ids()
-                {
-                    @Override
-                    public void
-                    response(String[] ids)
-                    {
-                        cb.ids(ids);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            if(!collocated)
-            {
-                p.begin_ice_getConnection(new Ice.Callback_Object_ice_getConnection()
-                    {
-                        @Override
-                        public void
-                        response(Ice.Connection conn)
-                        {
-                            cb.connection(conn);
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            test(false);
-                        }
-                    });
-                cb.check();
-            }
-
-            p.begin_op(new Callback_TestIntf_op()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.op();
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_op(ctx, new Callback_TestIntf_op()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        cb.op();
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            p.begin_opWithResult(new Callback_TestIntf_opWithResult()
-                {
-                    @Override
-                    public void
-                    response(int r)
-                    {
-                        cb.opWithResult(r);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_opWithResult(ctx, new Callback_TestIntf_opWithResult()
-                {
-                    @Override
-                    public void
-                    response(int r)
-                    {
-                        cb.opWithResult(r);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-
-            p.begin_opWithUE(new Callback_TestIntf_opWithUE()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.UserException ex)
-                    {
-                        cb.opWithUE(ex);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
-            p.begin_opWithUE(ctx, new Callback_TestIntf_opWithUE()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.UserException ex)
-                    {
-                        cb.opWithUE(ex);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(false);
-                    }
-                });
-            cb.check();
         }
         out.println("ok");
 
         out.print("testing local exceptions... ");
         out.flush();
         {
-            TestIntfPrx indirect = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            Ice.AsyncResult r;
+            TestIntfPrx indirect = p.ice_adapterId("dummy");
 
-            r = indirect.begin_op();
-            try
-            {
-                indirect.end_op(r);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-            }
-
-
-            try
-            {
-                r = ((TestIntfPrx)p.ice_oneway()).begin_opWithResult();
-                test(false);
-            }
-            catch(java.lang.IllegalArgumentException ex)
-            {
-            }
+            indirect.opAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof com.zeroc.Ice.NoEndpointException);
+                });
 
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
             if(p.ice_getConnection() != null)
             {
-                Ice.InitializationData initData = app.createInitializationData();
+                com.zeroc.Ice.InitializationData initData = app.createInitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                Ice.Communicator ic = app.initialize(initData);
-                Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-                TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
+                com.zeroc.Ice.Communicator ic = app.initialize(initData);
+                com.zeroc.Ice.ObjectPrx o = ic.stringToProxy(p.toString());
+                TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
                 ic.destroy();
 
                 try
                 {
-                    p2.begin_op();
+                    p2.opAsync();
                     test(false);
                 }
-                catch(Ice.CommunicatorDestroyedException ex)
+                catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
                 {
                     // Expected.
                 }
             }
-        }
-        out.println("ok");
-
-        out.print("testing local exceptions with async callback... ");
-        out.flush();
-        {
-            TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            final AsyncCallback cb = new AsyncCallback();
-
-            i.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.isAEx(r);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_ping(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.pingEx(r);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_id(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.idEx(r);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_ids(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.idsEx(r);
-                    }
-                });
-            cb.check();
-
-            if(!collocated)
-            {
-                i.begin_ice_getConnection(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.connectionEx(r);
-                    }
-                });
-                cb.check();
-            }
-
-            i.begin_op(new Ice.Callback()
-                {
-                    @Override
-                    public void
-                    completed(Ice.AsyncResult r)
-                    {
-                        cb.opEx(r);
-                    }
-                });
-            cb.check();
-        }
-        out.println("ok");
-
-        out.print("testing local exceptions with response callback... ");
-        out.flush();
-        {
-            TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            final ExceptionCallback cb = new ExceptionCallback();
-
-            i.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
-                {
-                    @Override
-                    public void
-                    response(boolean r)
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_ping(new Ice.Callback_Object_ice_ping()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_id(new Ice.Callback_Object_ice_id()
-                {
-                    @Override
-                    public void
-                    response(String id)
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            i.begin_ice_ids(new Ice.Callback_Object_ice_ids()
-                {
-                    @Override
-                    public void
-                    response(String[] ids)
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            if(!collocated)
-            {
-                i.begin_ice_getConnection(new Ice.Callback_Object_ice_getConnection()
-                    {
-                        @Override
-                        public void
-                        response(Ice.Connection conn)
-                        {
-                            test(false);
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            cb.ex(ex);
-                        }
-                    });
-                cb.check();
-            }
-
-            i.begin_op(new Callback_TestIntf_op()
-                {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
         }
         out.println("ok");
 
@@ -1416,489 +205,158 @@ public class AMI
         {
             final SentCallback cb = new SentCallback();
 
-            p.begin_ice_isA("", new Ice.Callback_Object_ice_isA()
             {
-                @Override
-                public void
-                response(boolean r)
-                {
-                    cb.isA(r);
-                }
-
-                @Override
-                public void
-                exception(Ice.LocalException ex)
-                {
-                    cb.ex(ex);
-                }
-
-                @Override
-                public void
-                sent(boolean ss)
-                {
-                    cb.sent(ss);
-                }
-            });
-            cb.check();
-
-            p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
-            {
-                @Override
-                public void
-                response()
-                {
-                    cb.ping();
-                }
-
-                @Override
-                public void
-                exception(Ice.LocalException ex)
-                {
-                    cb.ex(ex);
-                }
-
-                @Override
-                public void
-                sent(boolean ss)
-                {
-                    cb.sent(ss);
-                }
-            });
-            cb.check();
-
-            p.begin_ice_id(new Ice.Callback_Object_ice_id()
-            {
-                @Override
-                public void
-                response(String id)
-                {
-                    cb.id(id);
-                }
-
-                @Override
-                public void
-                exception(Ice.LocalException ex)
-                {
-                    cb.ex(ex);
-                }
-
-                @Override
-                public void
-                sent(boolean ss)
-                {
-                    cb.sent(ss);
-                }
-            });
-            cb.check();
-
-            p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
-            {
-                @Override
-                public void
-                response(String[] ids)
-                {
-                    cb.ids(ids);
-                }
-
-                @Override
-                public void
-                exception(Ice.LocalException ex)
-                {
-                    cb.ex(ex);
-                }
-
-                @Override
-                public void
-                sent(boolean ss)
-                {
-                    cb.sent(ss);
-                }
-            });
-            cb.check();
-
-            p.begin_op(new Callback_TestIntf_op()
-            {
-                @Override
-                public void
-                response()
-                {
-                    cb.op();
-                }
-
-                @Override
-                public void
-                exception(Ice.LocalException ex)
-                {
-                    cb.ex(ex);
-                }
-
-                @Override
-                public void
-                sent(boolean ss)
-                {
-                    cb.sent(ss);
-                }
-            });
-            cb.check();
-
-            p.begin_op(new Ice.Callback()
-            {
-                @Override
-                public void
-                completed(Ice.AsyncResult result)
-                {
-                    cb.opAsync(result);
-                }
-
-                @Override
-                public void
-                sent(Ice.AsyncResult result)
-                {
-                    cb.sent(result);
-                }
-            });
-            cb.check();
-
-            java.util.List<SentCallback> cbs = new java.util.ArrayList<SentCallback>();
-            byte[] seq = new byte[10024];
-            Ice.AsyncResult r;
-            testController.holdAdapter();
-
-            final Counter counter = new Counter();
-            try
-            {
-                do
-                {
-                    final SentCallback cb2 = new SentCallback();
-                    r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
+                CompletableFuture<Boolean> r = p.ice_isAAsync("");
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
-                        @Override
-                        public void
-                        response()
-                        {
-                            counter.decrement();
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            counter.decrement();
-                            cb2.ex(ex);
-                        }
-
-                        @Override
-                        public void
-                        sent(boolean ss)
-                        {
-                            cb2.sent(ss);
-                        }
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
                     });
-                    counter.increment();
-                    cbs.add(cb2);
-                }
-                while(r.sentSynchronously());
+                cb.check();
             }
-            finally
+
             {
-                testController.resumeAdapter();
+                CompletableFuture<Void> r = p.ice_pingAsync();
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    });
+                cb.check();
             }
-            for(SentCallback cb3 : cbs)
+
             {
-                cb3.check();
+                CompletableFuture<String> r = p.ice_idAsync();
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    });
+                cb.check();
             }
-            try
+
             {
-                counter.waitComplete();
-            }
-            catch(InterruptedException e)
-            {
+                CompletableFuture<String[]> r = p.ice_idsAsync();
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    });
+                cb.check();
             }
         }
-        out.println("ok");
 
-        out.print("testing illegal arguments... ");
+        out.print("testing sent async callback... ");
         out.flush();
         {
-            Ice.AsyncResult result;
+            //
+            // Create an executor to use for dispatching completed futures.
+            //
+            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
 
-            result = p.begin_op();
-            p.end_op(result);
+            //
+            // Determine the id of the executor's thread.
+            //
+            long executorThread = 0;
             try
             {
-                p.end_op(result);
+                executorThread = executor.submit(() -> { return Thread.currentThread().getId(); }).get();
+            }
+            catch(Exception ex)
+            {
                 test(false);
             }
-            catch(IllegalArgumentException ex)
+
+            final SentAsyncCallback cb = new SentAsyncCallback(executorThread);
+
             {
-            }
-
-            result = p.begin_op();
-            try
-            {
-                p.end_opWithResult(result);
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
-
-            try
-            {
-                p.end_op(null);
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
-
-            // try
-//             {
-//                 p.begin_op((Ice.Callback)null);
-//                 test(false);
-//             }
-//             catch(IllegalArgumentException ex)
-//             {
-//             }
-
-//             try
-//             {
-//                 p.begin_op((Callback_TestIntf_op)null);
-//                 test(false);
-//             }
-//             catch(IllegalArgumentException ex)
-//             {
-//             }
-        }
-        out.println("ok");
-
-        out.print("testing unexpected exceptions from callback... ");
-        out.flush();
-        {
-            TestIntfPrx q = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            ThrowType throwEx[] = { ThrowType.LocalException, ThrowType.OtherException };
-
-            for(int i = 0; i < 2; ++i)
-            {
-                final Thrower cb = new Thrower(throwEx[i]);
-
-                p.begin_op(new Ice.Callback()
+                CompletableFuture<Boolean> r = p.ice_isAAsync("");
+                Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
                     {
-                        @Override
-                        public void
-                        completed(Ice.AsyncResult result)
-                        {
-                            cb.opAsync(result);
-                        }
-                    });
-                cb.check();
-
-                p.begin_op(new Callback_TestIntf_op()
-                    {
-                        @Override
-                        public void
-                        response()
-                        {
-                            cb.op();
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                        }
-                    });
-                cb.check();
-
-                q.begin_op(new Callback_TestIntf_op()
-                    {
-                        @Override
-                        public void
-                        response()
-                        {
-                            cb.op();
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            cb.ex(ex);
-                        }
-                    });
-                cb.check();
-
-                p.begin_op(new Callback_TestIntf_op()
-                    {
-                        @Override
-                        public void
-                        response()
-                        {
-                        }
-
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                        }
-
-                        @Override
-                        public void
-                        sent(boolean ss)
-                        {
-                            cb.sent(ss);
-                        }
-                    });
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    }, executor);
                 cb.check();
             }
+
+            {
+                CompletableFuture<Void> r = p.ice_pingAsync();
+                Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    }, executor);
+                cb.check();
+            }
+
+            {
+                CompletableFuture<String> r = p.ice_idAsync();
+                Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    }, executor);
+                cb.check();
+            }
+
+            {
+                CompletableFuture<String[]> r = p.ice_idsAsync();
+                Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
+                    }, executor);
+                cb.check();
+            }
+
+            executor.shutdown();
         }
         out.println("ok");
 
         out.print("testing batch requests with proxy... ");
         out.flush();
         {
-            test(p.ice_batchOneway().begin_ice_flushBatchRequests().sentSynchronously());
-
             {
-                //
-                // AsyncResult.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.Callback()
-                    {
-                        @Override
-                        public void completed(Ice.AsyncResult result)
-                        {
-                            cb.completedAsync(result);
-                        }
-
-                        @Override
-                        public void sent(Ice.AsyncResult result)
-                        {
-                            cb.sentAsync(result);
-                        }
-                    });
-                cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
-                test(p.waitForBatch(2));
-
-                final FlushCallback cb2 = new FlushCallback();
-                Ice.AsyncResult r2 = b1.begin_ice_flushBatchRequests(
-                    new Ice.Callback()
-                    {
-                        @Override
-                        public void completed(Ice.AsyncResult result)
-                        {
-                            cb2.completedAsync(result);
-                        }
-
-                        @Override
-                        public void sent(Ice.AsyncResult result)
-                        {
-                            cb2.sentAsync(result);
-                        }
-                    });
-                cb2.check();
-                test(r2.isSent());
-                test(r2.isCompleted());
-            }
-
-            if(p.ice_getConnection() != null)
-            {
-                //
-                // AsyncResult exception.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.Callback()
-                    {
-                        @Override
-                        public void completed(Ice.AsyncResult result)
-                        {
-                            cb.completedAsync(result);
-                        }
-
-                        @Override
-                        public void sent(Ice.AsyncResult result)
-                        {
-                            cb.sentAsync(result);
-                        }
-                    });
-                cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
-                test(p.waitForBatch(1));
+                CompletableFuture<Void> r = p.ice_batchOneway().ice_flushBatchRequestsAsync();
+                test(Util.getInvocationFuture(r).sentSynchronously());
+                test(Util.getInvocationFuture(r).isSent());
+                test(Util.getInvocationFuture(r).isDone());
             }
 
             {
-                //
-                // Type-safe.
-                //
+                final SentCallback cb = new SentCallback();
                 test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b1 = p.ice_batchOneway();
                 b1.opBatch();
                 b1.opBatch();
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.Callback_Object_ice_flushBatchRequests()
+                CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
-                        @Override
-                        public void exception(Ice.LocalException ex)
-                        {
-                            cb.exception(ex);
-                        }
-
-                        @Override
-                        public void sent(boolean sentSynchronously)
-                        {
-                            cb.sent(sentSynchronously);
-                        }
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
                     });
                 cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
+                test(Util.getInvocationFuture(r).isSent());
+                test(r.isDone());
                 test(p.waitForBatch(2));
             }
 
             if(p.ice_getConnection() != null)
             {
-                //
-                // Type-safe exception.
-                //
+                final SentCallback cb = new SentCallback();
                 test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.ice_getConnection();
+                TestIntfPrx b1 = p.ice_batchOneway();
                 b1.opBatch();
                 b1.ice_getConnection().close(false);
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.Callback_Object_ice_flushBatchRequests()
+                CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
+                Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
-                        @Override
-                        public void exception(Ice.LocalException ex)
-                        {
-                            cb.exception(ex);
-                        }
-
-                        @Override
-                        public void sent(boolean sentSynchronously)
-                        {
-                            cb.sent(sentSynchronously);
-                        }
+                        test(ex == null);
+                        cb.sent(sentSynchronously);
                     });
                 cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
+                test(Util.getInvocationFuture(r).isSent());
+                test(r.isDone());
                 test(p.waitForBatch(1));
             }
         }
@@ -1910,126 +368,43 @@ public class AMI
             out.flush();
             {
                 {
-                    //
-                    // AsyncResult.
-                    //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
+                        ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        new Ice.Callback()
+                    CompletableFuture<Void> r = b1.ice_getConnection().flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                            {
-                                cb.completedAsync(result);
-                            }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                            {
-                                cb.sentAsync(result);
-                            }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent());
+                    test(r.isDone());
                     test(p.waitForBatch(2));
                 }
 
                 {
                     //
-                    // AsyncResult exception.
+                    // Exception.
                     //
+                    final Callback cb = new Callback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
+                        ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
-                    final FlushExCallback cb = new FlushExCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        new Ice.Callback()
+                    CompletableFuture<Void> r = b1.ice_getConnection().flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
+                            test(ex != null);
+                            cb.called();
                         });
                     cb.check();
-                    test(!r.isSent());
-                    test(r.isCompleted());
-                    test(p.opBatchCount() == 0);
-                }
-
-                {
-                    //
-                    // Type-safe.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
-                    b1.opBatch();
-                    b1.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        new Ice.Callback_Connection_flushBatchRequests()
-                        {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
-                    test(p.waitForBatch(2));
-                }
-
-                {
-                    //
-                    // Type-safe exception.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
-                    b1.opBatch();
-                    b1.ice_getConnection().close(false);
-                    final FlushExCallback cb = new FlushExCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                        new Ice.Callback_Connection_flushBatchRequests()
-                        {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
-                        });
-                    cb.check();
-                    test(!r.isSent());
-                    test(r.isCompleted());
+                    test(!Util.getInvocationFuture(r).isSent());
+                    test(r.isDone());
                     test(p.opBatchCount() == 0);
                 }
             }
@@ -2040,237 +415,45 @@ public class AMI
             {
                 {
                     //
-                    // AsyncResult - 1 connection.
+                    // 1 connection.
                     //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
+                        ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback()
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent());
+                    test(r.isDone());
                     test(p.waitForBatch(2));
                 }
 
                 {
                     //
-                    // AsyncResult exception - 1 connection.
+                    // Exception - 1 connection.
                     //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
-                                                                         p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
+                        ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback()
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
-                    test(p.opBatchCount() == 0);
-                }
-
-                {
-                    //
-                    // AsyncResult - 2 connections.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    b2.ice_getConnection(); // Ensure connection is established.
-                    b1.opBatch();
-                    b1.opBatch();
-                    b2.opBatch();
-                    b2.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback()
-                        {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
-                    test(p.waitForBatch(4));
-                }
-
-                {
-                    //
-                    // AsyncResult exception - 2 connections - 1 failure.
-                    //
-                    // All connections should be flushed even if there are failures on some connections.
-                    // Exceptions should not be reported.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    b2.ice_getConnection(); // Ensure connection is established.
-                    b1.opBatch();
-                    b2.opBatch();
-                    b1.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback()
-                        {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
-                    test(p.waitForBatch(1));
-                }
-
-                {
-                    //
-                    // AsyncResult exception - 2 connections - 2 failures.
-                    //
-                    // The sent callback should be invoked even if all connections fail.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    b2.ice_getConnection(); // Ensure connection is established.
-                    b1.opBatch();
-                    b2.opBatch();
-                    b1.ice_getConnection().close(false);
-                    b2.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback()
-                        {
-                            @Override
-                            public void completed(Ice.AsyncResult result)
-                                {
-                                    cb.completedAsync(result);
-                                }
-
-                            @Override
-                            public void sent(Ice.AsyncResult result)
-                                {
-                                    cb.sentAsync(result);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
-                    test(p.opBatchCount() == 0);
-                }
-
-                {
-                    //
-                    // Type-safe - 1 connection.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    b1.opBatch();
-                    b1.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback_Communicator_flushBatchRequests()
-                        {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
-                    test(p.waitForBatch(2));
-                }
-
-                {
-                    //
-                    // Type-safe exception - 1 connection.
-                    //
-                    test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    b1.opBatch();
-                    b1.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback_Communicator_flushBatchRequests()
-                        {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
-                        });
-                    cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    test(r.isDone());
                     test(p.opBatchCount() == 0);
                 }
 
@@ -2278,35 +461,26 @@ public class AMI
                     //
                     // 2 connections.
                     //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
+                    TestIntfPrx b2 = TestIntfPrx.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b1.opBatch();
                     b2.opBatch();
                     b2.opBatch();
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback_Communicator_flushBatchRequests()
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent());
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    test(r.isDone());
                     test(p.waitForBatch(4));
                 }
 
@@ -2317,34 +491,25 @@ public class AMI
                     // All connections should be flushed even if there are failures on some connections.
                     // Exceptions should not be reported.
                     //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
+                    TestIntfPrx b2 = TestIntfPrx.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
                     b1.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback_Communicator_flushBatchRequests()
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    test(r.isDone());
                     test(p.waitForBatch(1));
                 }
 
@@ -2354,72 +519,71 @@ public class AMI
                     //
                     // The sent callback should be invoked even if all connections fail.
                     //
+                    final SentCallback cb = new SentCallback();
                     test(p.opBatchCount() == 0);
-                    TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
-                    TestIntfPrx b2 = TestIntfPrxHelper.uncheckedCast(
-                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
+                    TestIntfPrx b1 = TestIntfPrx.uncheckedCast(
+                        p.ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
+                    TestIntfPrx b2 = TestIntfPrx.uncheckedCast(
+                        p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity())).ice_batchOneway();
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
                     b1.ice_getConnection().close(false);
                     b2.ice_getConnection().close(false);
-                    final FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                        new Ice.Callback_Communicator_flushBatchRequests()
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
-                            @Override
-                            public void exception(Ice.LocalException ex)
-                                {
-                                    cb.exception(ex);
-                                }
-
-                            @Override
-                            public void sent(boolean sentSynchronously)
-                                {
-                                    cb.sent(sentSynchronously);
-                                }
+                            test(ex == null);
+                            cb.sent(sentSynchronously);
                         });
                     cb.check();
-                    test(r.isSent()); // Exceptions are ignored!
-                    test(r.isCompleted());
+                    test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    test(r.isDone());
                     test(p.opBatchCount() == 0);
                 }
             }
             out.println("ok");
         }
 
-        out.print("testing AsyncResult operations... ");
+        out.print("testing future operations... ");
         out.flush();
         {
             {
-                TestIntfPrx indirect = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-                Ice.AsyncResult r = indirect.begin_op();
+                TestIntfPrx indirect = p.ice_adapterId("dummy");
+                CompletableFuture<Void> r = indirect.opAsync();
+                Util.getInvocationFuture(r).waitForCompleted();
                 try
                 {
-                    r.waitForCompleted();
-                    r.throwLocalException();
+                    r.join();
                     test(false);
                 }
-                catch(Ice.NoEndpointException ex)
+                catch(CompletionException ex)
                 {
+                    test(ex.getCause() instanceof com.zeroc.Ice.NoEndpointException);
                 }
 
                 testController.holdAdapter();
-                Ice.AsyncResult r1;
-                Ice.AsyncResult r2;
+                InvocationFuture<Void> r1;
+                InvocationFuture<Void> r2;
                 try
                 {
-                    r1 = p.begin_op();
+                    r1 = Util.getInvocationFuture(p.opAsync());
                     byte[] seq = new byte[10024];
-                    while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+                    while(true)
+                    {
+                        r2 = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                        if(!r2.sentSynchronously())
+                        {
+                            break;
+                        }
+                    }
 
                     if(p.ice_getConnection() != null)
                     {
-                        test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                             !r1.sentSynchronously() && !r1.isCompleted());
+                        test(r1.sentSynchronously() && r1.isSent() && !r1.isDone() ||
+                             !r1.sentSynchronously() && !r1.isDone());
 
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
+                        test(!r2.sentSynchronously() && !r2.isDone());
                     }
                 }
                 finally
@@ -2434,113 +598,115 @@ public class AMI
                 test(r2.isSent());
 
                 r1.waitForCompleted();
-                test(r1.isCompleted());
+                test(r1.isDone());
 
                 r2.waitForCompleted();
-                test(r2.isCompleted());
+                test(r2.isDone());
 
                 test(r1.getOperation().equals("op"));
                 test(r2.getOperation().equals("opWithPayload"));
             }
 
             {
-                Ice.AsyncResult r;
+                {
+                    //
+                    // Twoway
+                    //
+                    InvocationFuture<Void> r = Util.getInvocationFuture(p.ice_pingAsync());
+                    test(r.getOperation().equals("ice_ping"));
+                    test(r.getConnection() == null); // Expected
+                    test(r.getCommunicator() == communicator);
+                    test(r.getProxy() == p);
+                    r.join();
+                }
 
-                //
-                // Twoway
-                //
-                r = p.begin_ice_ping();
-                test(r.getOperation().equals("ice_ping"));
-                test(r.getConnection() == null); // Expected
-                test(r.getCommunicator() == communicator);
-                test(r.getProxy() == p);
-                p.end_ice_ping(r);
+                {
+                    //
+                    // Oneway
+                    //
+                    TestIntfPrx p2 = p.ice_oneway();
+                    InvocationFuture<Void> r = Util.getInvocationFuture(p2.ice_pingAsync());
+                    test(r.getOperation().equals("ice_ping"));
+                    test(r.getConnection() == null); // Expected
+                    test(r.getCommunicator() == communicator);
+                    test(r.getProxy() == p2);
+                }
 
-                TestIntfPrx p2;
-
-                //
-                // Oneway
-                //
-                p2 = (TestIntfPrx)p.ice_oneway();
-                r = p2.begin_ice_ping();
-                test(r.getOperation().equals("ice_ping"));
-                test(r.getConnection() == null); // Expected
-                test(r.getCommunicator() == communicator);
-                test(r.getProxy() == p2);
-
-                //
-                // Batch request via proxy
-                //
-                p2 = (TestIntfPrx)p.ice_batchOneway();
-                p2.ice_ping();
-                r = p2.begin_ice_flushBatchRequests();
-                test(r.getConnection() == null); // Expected
-                test(r.getCommunicator() == communicator);
-                test(r.getProxy() == p2);
-                p2.end_ice_flushBatchRequests(r);
+                {
+                    //
+                    // Batch request via proxy
+                    //
+                    TestIntfPrx p2 = p.ice_batchOneway();
+                    p2.ice_ping();
+                    InvocationFuture<Void> r = Util.getInvocationFuture(p2.ice_flushBatchRequestsAsync());
+                    test(r.getConnection() == null); // Expected
+                    test(r.getCommunicator() == communicator);
+                    test(r.getProxy() == p2);
+                    r.join();
+                }
 
                 if(p.ice_getConnection() != null)
                 {
                     //
                     // Batch request via connection
                     //
-                    Ice.Connection con = p.ice_getConnection();
-                    p2 = (TestIntfPrx)p.ice_batchOneway();
+                    com.zeroc.Ice.Connection con = p.ice_getConnection();
+                    TestIntfPrx p2 = p.ice_batchOneway();
                     p2.ice_ping();
-                    r = con.begin_flushBatchRequests();
+                    InvocationFuture<Void> r = Util.getInvocationFuture(con.flushBatchRequestsAsync());
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
-                    con.end_flushBatchRequests(r);
+                    r.join();
 
                     //
                     // Batch request via communicator
                     //
-                    p2 = (TestIntfPrx)p.ice_batchOneway();
+                    p2 = p.ice_batchOneway();
                     p2.ice_ping();
-                    r = communicator.begin_flushBatchRequests();
+                    r = Util.getInvocationFuture(communicator.flushBatchRequestsAsync());
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
-                    communicator.end_flushBatchRequests(r);
+                    r.join();
                 }
             }
 
             if(p.ice_getConnection() != null)
             {
-                Ice.AsyncResult r1 = null;
-                Ice.AsyncResult r2 = null;
+                InvocationFuture<Void> r1 = null;
+                InvocationFuture<String> r2 = null;
 
                 testController.holdAdapter();
                 try
                 {
-                    Ice.AsyncResult r = null;
+                    InvocationFuture<Void> r = null;
                     byte[] seq = new byte[10024];
                     for(int i = 0; i < 200; ++i) // 2MB
                     {
-                        r = p.begin_opWithPayload(seq);
+                        r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
                     }
 
                     test(!r.isSent());
 
-                    r1 = p.begin_ice_ping();
-                    r2 = p.begin_ice_id();
-                    r1.cancel();
-                    r2.cancel();
+                    r1 = Util.getInvocationFuture(p.ice_pingAsync());
+                    r2 = Util.getInvocationFuture(p.ice_idAsync());
+                    r1.cancel(false);
+                    r2.cancel(false);
                     try
                     {
-                        p.end_ice_ping(r1);
+                        r1.join();
                         test(false);
                     }
-                    catch(Ice.InvocationCanceledException ex)
+                    catch(CancellationException ex)
                     {
                     }
                     try
                     {
-                        p.end_ice_id(r2);
+                        r2.join();
                         test(false);
                     }
-                    catch(Ice.InvocationCanceledException ex)
+                    catch(CancellationException ex)
                     {
                     }
                 }
@@ -2549,32 +715,34 @@ public class AMI
                     testController.resumeAdapter();
                 }
                 p.ice_ping();
-                test(!r1.isSent() && r1.isCompleted());
-                test(!r2.isSent() && r2.isCompleted());
+                //test(!r1.isSent() && r1.isDone());
+                test(!r1.isSent());
+                test(r1.isDone());
+                test(!r2.isSent() && r2.isDone());
 
                 testController.holdAdapter();
                 try
                 {
-                    r1 = p.begin_op();
-                    r2 = p.begin_ice_id();
+                    r1 = Util.getInvocationFuture(p.opAsync());
+                    r2 = Util.getInvocationFuture(p.ice_idAsync());
                     r1.waitForSent();
                     r2.waitForSent();
-                    r1.cancel();
-                    r2.cancel();
+                    r1.cancel(false);
+                    r2.cancel(false);
                     try
                     {
-                        p.end_op(r1);
+                        r1.join();
                         test(false);
                     }
-                    catch(Ice.InvocationCanceledException ex)
+                    catch(CancellationException ex)
                     {
                     }
                     try
                     {
-                        p.end_ice_id(r2);
+                        r2.join();
                         test(false);
                     }
-                    catch(Ice.InvocationCanceledException ex)
+                    catch(CancellationException ex)
                     {
                     }
                 }
@@ -2604,16 +772,16 @@ public class AMI
                 {
                     done = true;
                     p.ice_ping();
-                    java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<Ice.AsyncResult>();
+                    java.util.List<InvocationFuture<Void>> results = new java.util.ArrayList<>();
                     for(int i = 0; i < maxQueue; ++i)
                     {
-                        results.add(p.begin_opWithPayload(seq));
+                        results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
-                    if(!p.begin_close(false).isSent())
+                    if(!Util.getInvocationFuture(p.closeAsync(false)).isSent())
                     {
                         for(int i = 0; i < maxQueue; i++)
                         {
-                            Ice.AsyncResult r = p.begin_opWithPayload(seq);
+                            InvocationFuture<Void> r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
                             results.add(r);
                             if(r.isSent())
                             {
@@ -2628,17 +796,9 @@ public class AMI
                         maxQueue *= 2;
                         done = false;
                     }
-                    for(Ice.AsyncResult q : results)
+                    for(InvocationFuture<Void> q : results)
                     {
-                        q.waitForCompleted();
-                        try
-                        {
-                            q.throwLocalException();
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            test(false);
-                        }
+                        q.join();
                     }
                 }
             }

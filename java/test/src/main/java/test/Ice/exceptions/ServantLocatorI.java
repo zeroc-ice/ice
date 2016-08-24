@@ -9,17 +9,18 @@
 
 package test.Ice.exceptions;
 
+import com.zeroc.Ice.ServantLocator;
 
-public final class ServantLocatorI implements Ice.ServantLocator
+public final class ServantLocatorI implements ServantLocator
 {
     @Override
-    public Ice.Object locate(Ice.Current curr, Ice.LocalObjectHolder cookie)
+    public ServantLocator.LocateResult locate(com.zeroc.Ice.Current curr)
     {
-        return null;
+        return new ServantLocator.LocateResult();
     }
 
     @Override
-    public void finished(Ice.Current curr, Ice.Object servant, java.lang.Object cookie)
+    public void finished(com.zeroc.Ice.Current curr, com.zeroc.Ice.Object servant, java.lang.Object cookie)
     {
     }
 

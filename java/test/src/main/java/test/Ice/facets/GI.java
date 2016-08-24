@@ -9,29 +9,26 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._GDisp;
+import test.Ice.facets.Test.G;
 
-public final class GI extends _GDisp
+public final class GI implements G
 {
-    public
-    GI(Ice.Communicator communicator)
+    public GI(com.zeroc.Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
 
     @Override
-    public String
-    callG(Ice.Current current)
+    public String callG(com.zeroc.Ice.Current current)
     {
         return "G";
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _communicator.shutdown();
     }
 
-    private Ice.Communicator _communicator;
+    private com.zeroc.Ice.Communicator _communicator;
 }

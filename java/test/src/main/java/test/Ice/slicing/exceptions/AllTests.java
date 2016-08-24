@@ -13,8 +13,7 @@ import test.Ice.slicing.exceptions.client.Test.*;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -29,8 +28,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -45,9 +43,8 @@ public class AllTests
 
             _called = false;
         }
-        
-        public synchronized void
-        called()
+
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -57,615 +54,10 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class Callback_TestIntf_baseAsBaseI extends Callback_TestIntf_baseAsBase
+    private static class RelayI implements Relay
     {
         @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Base b)
-            {
-                test(b.b.equals("Base.b"));
-                test(b.ice_id().equals("::Test::Base"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_unknownDerivedAsBaseI extends Callback_TestIntf_unknownDerivedAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Base b)
-            {
-                test(b.b.equals("UnknownDerived.b"));
-                test(b.ice_id().equals("::Test::Base"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownDerivedAsBaseI extends Callback_TestIntf_knownDerivedAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownDerived k)
-            {
-                test(k.b.equals("KnownDerived.b"));
-                test(k.kd.equals("KnownDerived.kd"));
-                test(k.ice_id().equals("::Test::KnownDerived"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownDerivedAsKnownDerivedI
-        extends Callback_TestIntf_knownDerivedAsKnownDerived
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownDerived k)
-            {
-                test(k.b.equals("KnownDerived.b"));
-                test(k.kd.equals("KnownDerived.kd"));
-                test(k.ice_id().equals("::Test::KnownDerived"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_unknownIntermediateAsBaseI 
-        extends Callback_TestIntf_unknownIntermediateAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Base b)
-            {
-                test(b.b.equals("UnknownIntermediate.b"));
-                test(b.ice_id().equals("::Test::Base"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownIntermediateAsBaseI extends Callback_TestIntf_knownIntermediateAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownIntermediate ki)
-            {
-                test(ki.b.equals("KnownIntermediate.b"));
-                test(ki.ki.equals("KnownIntermediate.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownMostDerivedAsBaseI extends Callback_TestIntf_knownMostDerivedAsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownMostDerived kmd)
-            {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownIntermediateAsKnownIntermediateI
-        extends Callback_TestIntf_knownIntermediateAsKnownIntermediate
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownIntermediate ki)
-            {
-                test(ki.b.equals("KnownIntermediate.b"));
-                test(ki.ki.equals("KnownIntermediate.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownMostDerivedAsKnownIntermediateI
-        extends Callback_TestIntf_knownMostDerivedAsKnownIntermediate
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownMostDerived kmd)
-            {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI
-        extends Callback_TestIntf_knownMostDerivedAsKnownMostDerived
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownMostDerived kmd)
-            {
-                test(kmd.b.equals("KnownMostDerived.b"));
-                test(kmd.ki.equals("KnownMostDerived.ki"));
-                test(kmd.kmd.equals("KnownMostDerived.kmd"));
-                test(kmd.ice_id().equals("::Test::KnownMostDerived"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_unknownMostDerived1AsBaseI 
-        extends Callback_TestIntf_unknownMostDerived1AsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownIntermediate ki)
-            {
-                test(ki.b.equals("UnknownMostDerived1.b"));
-                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI
-        extends Callback_TestIntf_unknownMostDerived1AsKnownIntermediate
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(KnownIntermediate ki)
-            {
-                test(ki.b.equals("UnknownMostDerived1.b"));
-                test(ki.ki.equals("UnknownMostDerived1.ki"));
-                test(ki.ice_id().equals("::Test::KnownIntermediate"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_TestIntf_unknownMostDerived2AsBaseI 
-        extends Callback_TestIntf_unknownMostDerived2AsBase
-    {
-        @Override
-        public void
-        response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        @Override
-        public void
-        exception(Ice.UserException exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Base b)
-            {
-                test(b.b.equals("UnknownMostDerived2.b"));
-                test(b.ice_id().equals("::Test::Base"));
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class RelayI extends _RelayDisp
-    {
-        @Override
-        public void knownPreservedAsBase(Ice.Current current)
+        public void knownPreservedAsBase(com.zeroc.Ice.Current current)
             throws Base
         {
             KnownPreservedDerived ex = new KnownPreservedDerived();
@@ -676,7 +68,7 @@ public class AllTests
         }
 
         @Override
-        public void knownPreservedAsKnownPreserved(Ice.Current current)
+        public void knownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
             throws KnownPreserved
         {
             KnownPreservedDerived ex = new KnownPreservedDerived();
@@ -687,7 +79,7 @@ public class AllTests
         }
 
         @Override
-        public void unknownPreservedAsBase(Ice.Current current)
+        public void unknownPreservedAsBase(com.zeroc.Ice.Current current)
             throws Base
         {
             Preserved2 ex = new Preserved2();
@@ -700,7 +92,7 @@ public class AllTests
         }
 
         @Override
-        public void unknownPreservedAsKnownPreserved(Ice.Current current)
+        public void unknownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
             throws KnownPreserved
         {
             Preserved2 ex = new Preserved2();
@@ -713,19 +105,19 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx
-    allTests(Ice.Communicator communicator, boolean collocated, java.io.PrintWriter out)
+    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated,
+                                       java.io.PrintWriter out)
     {
-                out.print("testing stringToProxy... ");
+        out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:default -p 12010 -t 10000";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        TestIntfPrx test = TestIntfPrxHelper.checkedCast(base);
+        TestIntfPrx test = TestIntfPrx.checkedCast(base);
         test(test != null);
         test(test.equals(base));
         out.println("ok");
@@ -753,8 +145,15 @@ public class AllTests
         out.print("base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_baseAsBaseI cb = new Callback_TestIntf_baseAsBaseI();
-            test.begin_baseAsBase(cb);
+            Callback cb = new Callback();
+            test.baseAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof Base);
+                    Base b = (Base)ex;
+                    test(b.b.equals("Base.b"));
+                    test(b.ice_id().equals("::Test::Base"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -782,8 +181,15 @@ public class AllTests
         out.print("slicing of unknown derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_unknownDerivedAsBaseI cb = new Callback_TestIntf_unknownDerivedAsBaseI();
-            test.begin_unknownDerivedAsBase(cb);
+            Callback cb = new Callback();
+            test.unknownDerivedAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof Base);
+                    Base b = (Base)ex;
+                    test(b.b.equals("UnknownDerived.b"));
+                    test(b.ice_id().equals("::Test::Base"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -812,8 +218,16 @@ public class AllTests
         out.print("non-slicing of known derived as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownDerivedAsBaseI cb = new Callback_TestIntf_knownDerivedAsBaseI();
-            test.begin_knownDerivedAsBase(cb);
+            Callback cb = new Callback();
+            test.knownDerivedAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownDerived);
+                    KnownDerived k = (KnownDerived)ex;
+                    test(k.b.equals("KnownDerived.b"));
+                    test(k.kd.equals("KnownDerived.kd"));
+                    test(k.ice_id().equals("::Test::KnownDerived"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -842,8 +256,16 @@ public class AllTests
         out.print("non-slicing of known derived as derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownDerivedAsKnownDerivedI cb = new Callback_TestIntf_knownDerivedAsKnownDerivedI();
-            test.begin_knownDerivedAsKnownDerived(cb);
+            Callback cb = new Callback();
+            test.knownDerivedAsKnownDerivedAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownDerived);
+                    KnownDerived k = (KnownDerived)ex;
+                    test(k.b.equals("KnownDerived.b"));
+                    test(k.kd.equals("KnownDerived.kd"));
+                    test(k.ice_id().equals("::Test::KnownDerived"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -871,8 +293,15 @@ public class AllTests
         out.print("slicing of unknown intermediate as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_unknownIntermediateAsBaseI cb = new Callback_TestIntf_unknownIntermediateAsBaseI();
-            test.begin_unknownIntermediateAsBase(cb);
+            Callback cb = new Callback();
+            test.unknownIntermediateAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof Base);
+                    Base b = (Base)ex;
+                    test(b.b.equals("UnknownIntermediate.b"));
+                    test(b.ice_id().equals("::Test::Base"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -901,8 +330,16 @@ public class AllTests
         out.print("slicing of known intermediate as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownIntermediateAsBaseI cb = new Callback_TestIntf_knownIntermediateAsBaseI();
-            test.begin_knownIntermediateAsBase(cb);
+            Callback cb = new Callback();
+            test.knownIntermediateAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownIntermediate);
+                    KnownIntermediate ki = (KnownIntermediate)ex;
+                    test(ki.b.equals("KnownIntermediate.b"));
+                    test(ki.ki.equals("KnownIntermediate.ki"));
+                    test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -932,8 +369,17 @@ public class AllTests
         out.print("slicing of known most derived as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownMostDerivedAsBaseI cb = new Callback_TestIntf_knownMostDerivedAsBaseI();
-            test.begin_knownMostDerivedAsBase(cb);
+            Callback cb = new Callback();
+            test.knownMostDerivedAsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownMostDerived);
+                    KnownMostDerived kmd = (KnownMostDerived)ex;
+                    test(kmd.b.equals("KnownMostDerived.b"));
+                    test(kmd.ki.equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.equals("KnownMostDerived.kmd"));
+                    test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -962,9 +408,16 @@ public class AllTests
         out.print("non-slicing of known intermediate as intermediate (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownIntermediateAsKnownIntermediateI cb = 
-                new Callback_TestIntf_knownIntermediateAsKnownIntermediateI();
-            test.begin_knownIntermediateAsKnownIntermediate(cb);
+            Callback cb = new Callback();
+            test.knownIntermediateAsKnownIntermediateAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownIntermediate);
+                    KnownIntermediate ki = (KnownIntermediate)ex;
+                    test(ki.b.equals("KnownIntermediate.b"));
+                    test(ki.ki.equals("KnownIntermediate.ki"));
+                    test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -994,9 +447,17 @@ public class AllTests
         out.print("non-slicing of known most derived as intermediate (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownMostDerivedAsKnownIntermediateI cb = 
-                new Callback_TestIntf_knownMostDerivedAsKnownIntermediateI();
-            test.begin_knownMostDerivedAsKnownIntermediate(cb);
+            Callback cb = new Callback();
+            test.knownMostDerivedAsKnownIntermediateAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownMostDerived);
+                    KnownMostDerived kmd = (KnownMostDerived)ex;
+                    test(kmd.b.equals("KnownMostDerived.b"));
+                    test(kmd.ki.equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.equals("KnownMostDerived.kmd"));
+                    test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1026,9 +487,17 @@ public class AllTests
         out.print("non-slicing of known most derived as most derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI cb = 
-                new Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI();
-            test.begin_knownMostDerivedAsKnownMostDerived(cb);
+            Callback cb = new Callback();
+            test.knownMostDerivedAsKnownMostDerivedAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownMostDerived);
+                    KnownMostDerived kmd = (KnownMostDerived)ex;
+                    test(kmd.b.equals("KnownMostDerived.b"));
+                    test(kmd.ki.equals("KnownMostDerived.ki"));
+                    test(kmd.kmd.equals("KnownMostDerived.kmd"));
+                    test(kmd.ice_id().equals("::Test::KnownMostDerived"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1057,8 +526,16 @@ public class AllTests
         out.print("slicing of unknown most derived, known intermediate as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_unknownMostDerived1AsBaseI cb = new Callback_TestIntf_unknownMostDerived1AsBaseI();
-            test.begin_unknownMostDerived1AsBase(cb);
+            Callback cb = new Callback();
+            test.unknownMostDerived1AsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownIntermediate);
+                    KnownIntermediate ki = (KnownIntermediate)ex;
+                    test(ki.b.equals("UnknownMostDerived1.b"));
+                    test(ki.ki.equals("UnknownMostDerived1.ki"));
+                    test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1087,9 +564,16 @@ public class AllTests
         out.print("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI cb =
-                new Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI();
-            test.begin_unknownMostDerived1AsKnownIntermediate(cb);
+            Callback cb = new Callback();
+            test.unknownMostDerived1AsKnownIntermediateAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof KnownIntermediate);
+                    KnownIntermediate ki = (KnownIntermediate)ex;
+                    test(ki.b.equals("UnknownMostDerived1.b"));
+                    test(ki.ki.equals("UnknownMostDerived1.ki"));
+                    test(ki.ice_id().equals("::Test::KnownIntermediate"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1117,8 +601,15 @@ public class AllTests
         out.print("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_unknownMostDerived2AsBaseI cb = new Callback_TestIntf_unknownMostDerived2AsBaseI();
-            test.begin_unknownMostDerived2AsBase(cb);
+            Callback cb = new Callback();
+            test.unknownMostDerived2AsBaseAsync().whenComplete((result, ex) ->
+                {
+                    test(ex != null && ex instanceof Base);
+                    Base b = (Base)ex;
+                    test(b.b.equals("UnknownMostDerived2.b"));
+                    test(b.ice_id().equals("::Test::Base"));
+                    cb.called();
+                });
             cb.check();
         }
         out.println("ok");
@@ -1136,17 +627,17 @@ public class AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to Base.
                 //
-                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
             }
-            catch(Ice.UnknownUserException ex)
+            catch(com.zeroc.Ice.UnknownUserException ex)
             {
                 //
                 // An UnknownUserException is raised for the compact format because the
                 // most-derived type is unknown and the exception cannot be sliced.
                 //
-                test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(!test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1159,8 +650,8 @@ public class AllTests
         out.print("preserved exceptions... ");
         out.flush();
         {
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
-            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+            RelayPrx relay = RelayPrx.uncheckedCast(adapter.addWithUUID(new RelayI()));
             adapter.activate();
 
             try
@@ -1174,7 +665,7 @@ public class AllTests
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1193,7 +684,7 @@ public class AllTests
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1222,12 +713,12 @@ public class AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
-                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
                 test(ex.b.equals("base"));
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)
@@ -1256,12 +747,12 @@ public class AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
-                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
                 test(ex.b.equals("base"));
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
-            catch(Ice.OperationNotExistException ex)
+            catch(com.zeroc.Ice.OperationNotExistException ex)
             {
             }
             catch(Exception ex)

@@ -13,6 +13,11 @@
 [["cpp:include:IcePatch2/Config.h"]]
 
 #include <IcePatch2/FileInfo.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 /**
  *

@@ -9,15 +9,17 @@
 
 package test.Ice.operations;
 
-import Ice.Current;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
+import com.zeroc.Ice.Current;
+
 import test.Ice.operations.AMD.Test.*;
 
-import java.util.*;
-
-public final class AMDMyDerivedClassI extends MyDerivedClass
+public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -27,19 +29,18 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     static class Thread_opVoid extends Thread
     {
-        public Thread_opVoid(AMD_MyClass_opVoid cb)
+        public Thread_opVoid(CompletableFuture<Void> f)
         {
-            _cb = cb;
+            _future = f;
         }
 
         @Override
-        public void
-        run()
+        public void run()
         {
-            _cb.ice_response();
+            _future.complete((Void)null);
         }
 
-        private AMD_MyClass_opVoid _cb;
+        private CompletableFuture<Void> _future;
     }
 
     //
@@ -47,41 +48,35 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     //
 
     @Override
-    public boolean
-    ice_isA(String id, Ice.Current current)
+    public boolean ice_isA(String id, Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_isA(id, current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_isA(id, current);
     }
 
     @Override
-    public void
-    ice_ping(Ice.Current current)
+    public void ice_ping(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        super.ice_ping(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        _MyDerivedClassDisp.super.ice_ping(current);
     }
 
     @Override
-    public String[]
-    ice_ids(Ice.Current current)
+    public String[] ice_ids(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_ids(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_ids(current);
     }
 
     @Override
-    public String
-    ice_id(Ice.Current current)
+    public String ice_id(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        return super.ice_id(current);
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return _MyDerivedClassDisp.super.ice_id(current);
     }
 
     @Override
-    synchronized public void
-    shutdown_async(AMD_MyClass_shutdown cb,
-                   Ice.Current current)
+    synchronized public CompletionStage<Void> shutdownAsync(Current current)
     {
         while(_opVoidThread != null)
         {
@@ -96,15 +91,13 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         }
 
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    synchronized public void
-    opVoid_async(AMD_MyClass_opVoid cb,
-                 Ice.Current current)
+    synchronized public CompletionStage<Void> opVoidAsync(Current current)
     {
-        test(current.mode == Ice.OperationMode.Normal);
+        test(current.mode == com.zeroc.Ice.OperationMode.Normal);
 
         while(_opVoidThread != null)
         {
@@ -118,570 +111,537 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
             }
         }
 
-        _opVoidThread = new Thread_opVoid(cb);
+        CompletableFuture<Void> f = new CompletableFuture<>();
+        _opVoidThread = new Thread_opVoid(f);
         _opVoidThread.start();
+        return f;
     }
 
     @Override
-    public void
-    opBool_async(AMD_MyClass_opBool cb,
-                 boolean p1, boolean p2,
-                 Ice.Current current)
+    public CompletionStage<MyClass.OpBoolResult> opBoolAsync(boolean p1, boolean p2, Current current)
     {
-        cb.ice_response(p2, p1);
+        return CompletableFuture.completedFuture(new MyClass.OpBoolResult(p2, p1));
     }
 
     @Override
-    public void
-    opBoolS_async(AMD_MyClass_opBoolS cb,
-                  boolean[] p1, boolean[] p2,
-                  Ice.Current current)
+    public CompletionStage<MyClass.OpBoolSResult> opBoolSAsync(boolean[] p1, boolean[] p2, Current current)
     {
-        boolean[] p3 = new boolean[p1.length + p2.length];
-        System.arraycopy(p1, 0, p3, 0, p1.length);
-        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+        MyClass.OpBoolSResult r = new MyClass.OpBoolSResult();
+        r.p3 = new boolean[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        boolean[] r = new boolean[p1.length];
+        r.returnValue = new boolean[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opBoolSS_async(AMD_MyClass_opBoolSS cb,
-                   boolean[][] p1, boolean[][] p2,
-                   Ice.Current current)
+    public CompletionStage<MyClass.OpBoolSSResult> opBoolSSAsync(boolean[][] p1, boolean[][] p2, Current current)
     {
-        boolean[][] p3 = new boolean[p1.length + p2.length][];
-        System.arraycopy(p1, 0, p3, 0, p1.length);
-        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+        MyClass.OpBoolSSResult r = new MyClass.OpBoolSSResult();
+        r.p3 = new boolean[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        boolean[][] r = new boolean[p1.length][];
+        r.returnValue = new boolean[p1.length][];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opByte_async(AMD_MyClass_opByte cb,
-                 byte p1, byte p2,
-                 Ice.Current current)
+    public CompletionStage<MyClass.OpByteResult> opByteAsync(byte p1, byte p2, Current current)
     {
-        cb.ice_response(p1, (byte) (p1 ^ p2));
+        return CompletableFuture.completedFuture(new MyClass.OpByteResult(p1, (byte) (p1 ^ p2)));
     }
 
     @Override
-    public void
-    opByteBoolD_async(AMD_MyClass_opByteBoolD cb,
-                      java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
-                      Ice.Current current)
+    public CompletionStage<MyClass.OpByteBoolDResult> opByteBoolDAsync(java.util.Map<Byte, Boolean> p1,
+                                                                       java.util.Map<Byte, Boolean> p2,
+                                                                       Current current)
     {
-        java.util.Map<Byte, Boolean> p3 = p1;
-        java.util.Map<Byte, Boolean> r = new java.util.HashMap<Byte, Boolean>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpByteBoolDResult r = new MyClass.OpByteBoolDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opByteS_async(AMD_MyClass_opByteS cb,
-                  byte[] p1, byte[] p2,
-                  Ice.Current current)
+    public CompletionStage<MyClass.OpByteSResult> opByteSAsync(byte[] p1, byte[] p2, Current current)
     {
-        byte[] p3 = new byte[p1.length];
+        MyClass.OpByteSResult r = new MyClass.OpByteSResult();
+        r.p3 = new byte[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            p3[i] = p1[p1.length - (i + 1)];
+            r.p3[i] = p1[p1.length - (i + 1)];
         }
 
-        byte[] r = new byte[p1.length + p2.length];
-        System.arraycopy(p1, 0, r, 0, p1.length);
-        System.arraycopy(p2, 0, r, p1.length, p2.length);
-        cb.ice_response(r, p3);
+        r.returnValue = new byte[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.returnValue, 0, p1.length);
+        System.arraycopy(p2, 0, r.returnValue, p1.length, p2.length);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opByteSS_async(AMD_MyClass_opByteSS cb,
-                   byte[][] p1, byte[][] p2,
-                   Ice.Current current)
+    public CompletionStage<MyClass.OpByteSSResult> opByteSSAsync(byte[][] p1, byte[][] p2, Current current)
     {
-        byte[][] p3 = new byte[p1.length][];
+        MyClass.OpByteSSResult r = new MyClass.OpByteSSResult();
+        r.p3 = new byte[p1.length][];
         for(int i = 0; i < p1.length; i++)
         {
-            p3[i] = p1[p1.length - (i + 1)];
+            r.p3[i] = p1[p1.length - (i + 1)];
         }
 
-        byte[][] r = new byte[p1.length + p2.length][];
-        System.arraycopy(p1, 0, r, 0, p1.length);
-        System.arraycopy(p2, 0, r, p1.length, p2.length);
-        cb.ice_response(r, p3);
+        r.returnValue = new byte[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.returnValue, 0, p1.length);
+        System.arraycopy(p2, 0, r.returnValue, p1.length, p2.length);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opFloatDouble_async(AMD_MyClass_opFloatDouble cb,
-                        float p1, double p2,
-                        Ice.Current current)
+    public CompletionStage<MyClass.OpFloatDoubleResult> opFloatDoubleAsync(float p1, double p2, Current current)
     {
-        cb.ice_response(p2, p1, p2);
+        return CompletableFuture.completedFuture(new MyClass.OpFloatDoubleResult(p2, p1, p2));
     }
 
     @Override
-    public void
-    opFloatDoubleS_async(AMD_MyClass_opFloatDoubleS cb,
-                         float[] p1, double[] p2,
-                         Ice.Current current)
+    public CompletionStage<MyClass.OpFloatDoubleSResult> opFloatDoubleSAsync(float[] p1, double[] p2, Current current)
     {
-        float[] p3 = p1;
-        double[] p4 = new double[p2.length];
+        MyClass.OpFloatDoubleSResult r = new MyClass.OpFloatDoubleSResult();
+        r.p3 = p1;
+        r.p4 = new double[p2.length];
         for(int i = 0; i < p2.length; i++)
         {
-            p4[i] = p2[p2.length - (i + 1)];
+            r.p4[i] = p2[p2.length - (i + 1)];
         }
-        double[] r = new double[p2.length + p1.length];
-        System.arraycopy(p2, 0, r, 0, p2.length);
+        r.returnValue = new double[p2.length + p1.length];
+        System.arraycopy(p2, 0, r.returnValue, 0, p2.length);
         for(int i = 0; i < p1.length; i++)
         {
-            r[p2.length + i] = p1[i];
+            r.returnValue[p2.length + i] = p1[i];
         }
-        cb.ice_response(r, p3, p4);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opFloatDoubleSS_async(AMD_MyClass_opFloatDoubleSS cb,
-                          float[][] p1, double[][] p2,
-                          Ice.Current current)
+    public CompletionStage<MyClass.OpFloatDoubleSSResult> opFloatDoubleSSAsync(float[][] p1, double[][] p2,
+                                                                               Current current)
     {
-        float[][] p3 = p1;
-        double[][] p4 = new double[p2.length][];
+        MyClass.OpFloatDoubleSSResult r = new MyClass.OpFloatDoubleSSResult();
+        r.p3 = p1;
+        r.p4 = new double[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            p4[i] = p2[p2.length - (i + 1)];
+            r.p4[i] = p2[p2.length - (i + 1)];
         }
-        double[][] r = new double[p2.length * 2][];
-        System.arraycopy(p2, 0, r, 0, p2.length);
-        System.arraycopy(p2, 0, r, p2.length, p2.length);
-        cb.ice_response(r, p3, p4);
+        r.returnValue = new double[p2.length * 2][];
+        System.arraycopy(p2, 0, r.returnValue, 0, p2.length);
+        System.arraycopy(p2, 0, r.returnValue, p2.length, p2.length);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opLongFloatD_async(AMD_MyClass_opLongFloatD cb,
-                       java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
-                       Ice.Current current)
+    public CompletionStage<MyClass.OpLongFloatDResult> opLongFloatDAsync(java.util.Map<Long, Float> p1,
+                                                                         java.util.Map<Long, Float> p2,
+                                                                         Current current)
     {
-        java.util.Map<Long, Float> p3 = p1;
-        java.util.Map<Long, Float> r = new java.util.HashMap<Long, Float>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpLongFloatDResult r = new MyClass.OpLongFloatDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opMyClass_async(AMD_MyClass_opMyClass cb,
-                    MyClassPrx p1,
-                    Ice.Current current)
+    public CompletionStage<MyClass.OpMyClassResult> opMyClassAsync(MyClassPrx p1, Current current)
     {
-        MyClassPrx p2 = p1;
-        MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(
-                current.adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
-        cb.ice_response(MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
+        MyClass.OpMyClassResult r = new MyClass.OpMyClassResult();
+        r.p2 = p1;
+        r.p3 = MyClassPrx.uncheckedCast(
+                current.adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("noSuchIdentity")));
+        r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opMyEnum_async(AMD_MyClass_opMyEnum cb,
-                   MyEnum p1,
-                   Ice.Current current)
+    public CompletionStage<MyClass.OpMyEnumResult> opMyEnumAsync(MyEnum p1, Current current)
     {
-        cb.ice_response(MyEnum.enum3, p1);
+        return CompletableFuture.completedFuture(new MyClass.OpMyEnumResult(MyEnum.enum3, p1));
     }
 
     @Override
-    public void
-    opShortIntD_async(AMD_MyClass_opShortIntD cb,
-                      java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
-                      Ice.Current current)
+    public CompletionStage<MyClass.OpShortIntDResult> opShortIntDAsync(java.util.Map<Short, Integer> p1,
+                                                                       java.util.Map<Short, Integer> p2,
+                                                                       Current current)
     {
-        java.util.Map<Short, Integer> p3 = p1;
-        java.util.Map<Short, Integer> r = new java.util.HashMap<Short, Integer>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpShortIntDResult r = new MyClass.OpShortIntDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opShortIntLong_async(AMD_MyClass_opShortIntLong cb,
-                         short p1, int p2, long p3,
-                         Ice.Current current)
+    public CompletionStage<MyClass.OpShortIntLongResult> opShortIntLongAsync(short p1, int p2, long p3,
+                                                                             Current current)
     {
-        cb.ice_response(p3, p1, p2, p3);
+        return CompletableFuture.completedFuture(new MyClass.OpShortIntLongResult(p3, p1, p2, p3));
     }
 
     @Override
-    public void
-    opShortIntLongS_async(AMD_MyClass_opShortIntLongS cb,
-                          short[] p1, int[] p2, long[] p3,
-                          Ice.Current current)
+    public CompletionStage<MyClass.OpShortIntLongSResult> opShortIntLongSAsync(short[] p1, int[] p2, long[] p3,
+                                                                               Current current)
     {
-        short[] p4 = p1;
-        int[] p5 = new int[p2.length];
+        MyClass.OpShortIntLongSResult r = new MyClass.OpShortIntLongSResult();
+        r.p4 = p1;
+        r.p5 = new int[p2.length];
         for(int i = 0; i < p2.length; i++)
         {
-            p5[i] = p2[p2.length - (i + 1)];
+            r.p5[i] = p2[p2.length - (i + 1)];
         }
-        long[] p6 = new long[p3.length * 2];
-        System.arraycopy(p3, 0, p6, 0, p3.length);
-        System.arraycopy(p3, 0, p6, p3.length, p3.length);
-        cb.ice_response(p3, p4, p5, p6);
+        r.p6 = new long[p3.length * 2];
+        System.arraycopy(p3, 0, r.p6, 0, p3.length);
+        System.arraycopy(p3, 0, r.p6, p3.length, p3.length);
+        r.returnValue = p3;
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opShortIntLongSS_async(AMD_MyClass_opShortIntLongSS cb,
-                           short[][] p1, int[][] p2, long[][] p3,
-                           Ice.Current current)
+    public CompletionStage<MyClass.OpShortIntLongSSResult> opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3,
+                                                                                 Current current)
     {
-        short[][] p4 = p1;
-        int[][] p5 = new int[p2.length][];
+        MyClass.OpShortIntLongSSResult r = new MyClass.OpShortIntLongSSResult();
+        r.p4 = p1;
+        r.p5 = new int[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            p5[i] = p2[p2.length - (i + 1)];
+            r.p5[i] = p2[p2.length - (i + 1)];
         }
-        long[][] p6 = new long[p3.length * 2][];
-        System.arraycopy(p3, 0, p6, 0, p3.length);
-        System.arraycopy(p3, 0, p6, p3.length, p3.length);
-        cb.ice_response(p3, p4, p5, p6);
+        r.p6 = new long[p3.length * 2][];
+        System.arraycopy(p3, 0, r.p6, 0, p3.length);
+        System.arraycopy(p3, 0, r.p6, p3.length, p3.length);
+        r.returnValue = p3;
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opString_async(AMD_MyClass_opString cb,
-                   String p1, String p2,
-                   Ice.Current current)
+    public CompletionStage<MyClass.OpStringResult> opStringAsync(String p1, String p2, Current current)
     {
-        cb.ice_response(p1 + " " + p2, p2 + " " + p1);
+        MyClass.OpStringResult r = new MyClass.OpStringResult();
+        r.p3 = p2 + " " + p1;
+        r.returnValue = p1 + " " + p2;
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opStringMyEnumD_async(AMD_MyClass_opStringMyEnumD cb,
-                          java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2,
-                          Ice.Current current)
+    public CompletionStage<MyClass.OpStringMyEnumDResult> opStringMyEnumDAsync(java.util.Map<String, MyEnum> p1,
+                                                                               java.util.Map<String, MyEnum> p2,
+                                                                               Current current)
     {
-        java.util.Map<String, MyEnum> p3 = p1;
-        java.util.Map<String, MyEnum> r = new java.util.HashMap<String, MyEnum>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpStringMyEnumDResult r = new MyClass.OpStringMyEnumDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opMyEnumStringD_async(AMD_MyClass_opMyEnumStringD cb,
-                          java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2,
-                          Ice.Current current)
+    public CompletionStage<MyClass.OpMyEnumStringDResult> opMyEnumStringDAsync(java.util.Map<MyEnum, String> p1,
+                                                                               java.util.Map<MyEnum, String> p2,
+                                                                               Current current)
     {
-        java.util.Map<MyEnum, String> p3 = p1;
-        java.util.Map<MyEnum, String> r = new java.util.HashMap<MyEnum, String>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpMyEnumStringDResult r = new MyClass.OpMyEnumStringDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opMyStructMyEnumD_async(AMD_MyClass_opMyStructMyEnumD cb,
-                            java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2,
-                            Ice.Current current)
+    public CompletionStage<MyClass.OpMyStructMyEnumDResult> opMyStructMyEnumDAsync(java.util.Map<MyStruct, MyEnum> p1,
+                                                                                   java.util.Map<MyStruct, MyEnum> p2,
+                                                                                   Current current)
     {
-        java.util.Map<MyStruct, MyEnum> p3 = p1;
-        java.util.Map<MyStruct, MyEnum> r = new java.util.HashMap<MyStruct, MyEnum>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpMyStructMyEnumDResult r = new MyClass.OpMyStructMyEnumDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opByteBoolDS_async(AMD_MyClass_opByteBoolDS cb,
-                                   List<Map<Byte, Boolean>> p1,
-                                   List<Map<Byte, Boolean>> p2,
-                                   Ice.Current current)
+    public CompletionStage<MyClass.OpByteBoolDSResult> opByteBoolDSAsync(List<Map<Byte, Boolean>> p1,
+                                                                         List<Map<Byte, Boolean>> p2,
+                                                                         Current current)
     {
+        MyClass.OpByteBoolDSResult r = new MyClass.OpByteBoolDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        ArrayList<Map<Byte, Boolean>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        List<Map<Byte, Boolean>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
-
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opShortIntDS_async(AMD_MyClass_opShortIntDS cb,
-                                   List<Map<Short, Integer>> p1,
-                                   List<Map<Short, Integer>> p2,
-                                   Ice.Current current)
+    public CompletionStage<MyClass.OpShortIntDSResult> opShortIntDSAsync(List<Map<Short, Integer>> p1,
+                                                                         List<Map<Short, Integer>> p2,
+                                                                         Current current)
     {
-        List<Map<Short, Integer>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpShortIntDSResult r = new MyClass.OpShortIntDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<Short, Integer>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opLongFloatDS_async(AMD_MyClass_opLongFloatDS cb,
-                                    List<Map<Long, Float>> p1,
-                                    List<Map<Long, Float>> p2,
-                                    Ice.Current current)
+    public CompletionStage<MyClass.OpLongFloatDSResult> opLongFloatDSAsync(List<Map<Long, Float>> p1,
+                                                                           List<Map<Long, Float>> p2,
+                                                                           Current current)
     {
-        List<Map<Long, Float>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpLongFloatDSResult r = new MyClass.OpLongFloatDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<Long, Float>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opStringStringDS_async(AMD_MyClass_opStringStringDS cb,
-                                       List<Map<String, String>> p1,
-                                       List<Map<String, String>> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpStringStringDSResult> opStringStringDSAsync(List<Map<String, String>> p1,
+                                                                                 List<Map<String, String>> p2,
+                                                                                 Current current)
     {
-        List<Map<String, String>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpStringStringDSResult r = new MyClass.OpStringStringDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<String, String>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opStringMyEnumDS_async(AMD_MyClass_opStringMyEnumDS cb,
-                                       List<Map<String, MyEnum>> p1,
-                                       List<Map<String, MyEnum>> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpStringMyEnumDSResult> opStringMyEnumDSAsync(List<Map<String, MyEnum>> p1,
+                                                                                 List<Map<String, MyEnum>> p2,
+                                                                                 Current current)
     {
-        List<Map<String, MyEnum>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpStringMyEnumDSResult r = new MyClass.OpStringMyEnumDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<String, MyEnum>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opMyEnumStringDS_async(AMD_MyClass_opMyEnumStringDS cb,
-                                       List<Map<MyEnum, String>> p1,
-                                       List<Map<MyEnum, String>> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpMyEnumStringDSResult> opMyEnumStringDSAsync(List<Map<MyEnum, String>> p1,
+                                                                                 List<Map<MyEnum, String>> p2,
+                                                                                 Current current)
     {
-        List<Map<MyEnum, String>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpMyEnumStringDSResult r = new MyClass.OpMyEnumStringDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<MyEnum, String>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opMyStructMyEnumDS_async(AMD_MyClass_opMyStructMyEnumDS cb,
-                                         List<Map<MyStruct, MyEnum>> p1,
-                                         List<Map<MyStruct, MyEnum>> p2,
-                                         Ice.Current current)
+    public CompletionStage<MyClass.OpMyStructMyEnumDSResult> opMyStructMyEnumDSAsync(List<Map<MyStruct, MyEnum>> p1,
+                                                                                     List<Map<MyStruct, MyEnum>> p2,
+                                                                                     Current current)
     {
-        List<Map<MyStruct, MyEnum>> p3= new ArrayList<>();
-        p3.addAll(p2);
-        p3.addAll(p1);
+        MyClass.OpMyStructMyEnumDSResult r = new MyClass.OpMyStructMyEnumDSResult();
+        r.p3 = new ArrayList<>();
+        r.p3.addAll(p2);
+        r.p3.addAll(p1);
 
-        List<Map<MyStruct, MyEnum>> r = new ArrayList<>(p1);
-        Collections.reverse(r);
+        r.returnValue = new ArrayList<>(p1);
+        Collections.reverse(r.returnValue);
 
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opByteByteSD_async(AMD_MyClass_opByteByteSD cb,
-                                   Map<Byte, byte[]> p1,
-                                   Map<Byte, byte[]> p2,
-                                   Ice.Current current)
+    public CompletionStage<MyClass.OpByteByteSDResult> opByteByteSDAsync(Map<Byte, byte[]> p1, Map<Byte, byte[]> p2,
+                                                                         Current current)
     {
-        Map<Byte, byte[]> p3 = p2;
-        Map<Byte, byte[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpByteByteSDResult r = new MyClass.OpByteByteSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opBoolBoolSD_async(AMD_MyClass_opBoolBoolSD cb,
-                                   Map<Boolean, boolean[]> p1,
-                                   Map<Boolean, boolean[]> p2,
-                                   Ice.Current current)
+    public CompletionStage<MyClass.OpBoolBoolSDResult> opBoolBoolSDAsync(Map<Boolean, boolean[]> p1,
+                                                                         Map<Boolean, boolean[]> p2,
+                                                                         Current current)
     {
-        Map<Boolean, boolean[]> p3 = p2;
-        Map<Boolean, boolean[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpBoolBoolSDResult r = new MyClass.OpBoolBoolSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opShortShortSD_async(AMD_MyClass_opShortShortSD cb,
-                                     Map<Short, short[]> p1,
-                                     Map<Short, short[]> p2,
-                                     Ice.Current current)
+    public CompletionStage<MyClass.OpShortShortSDResult> opShortShortSDAsync(Map<Short, short[]> p1,
+                                                                             Map<Short, short[]> p2,
+                                                                             Current current)
     {
-        Map<Short, short[]> p3 = p2;
-        Map<Short, short[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpShortShortSDResult r = new MyClass.OpShortShortSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opIntIntSD_async(AMD_MyClass_opIntIntSD cb,
-                                 Map<Integer, int[]> p1,
-                                 Map<Integer, int[]> p2,
-                                 Ice.Current current)
+    public CompletionStage<MyClass.OpIntIntSDResult> opIntIntSDAsync(Map<Integer, int[]> p1, Map<Integer, int[]> p2,
+                                                                     Current current)
     {
-        Map<Integer, int[]> p3 = p2;
-        Map<Integer, int[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpIntIntSDResult r = new MyClass.OpIntIntSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opLongLongSD_async(AMD_MyClass_opLongLongSD cb,
-                                   Map<Long, long[]> p1,
-                                   Map<Long, long[]> p2,
-                                   Ice.Current current)
+    public CompletionStage<MyClass.OpLongLongSDResult> opLongLongSDAsync(Map<Long, long[]> p1, Map<Long, long[]> p2,
+                                                                         Current current)
     {
-        Map<Long, long[]> p3 = p2;
-        Map<Long, long[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpLongLongSDResult r = new MyClass.OpLongLongSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opStringFloatSD_async(AMD_MyClass_opStringFloatSD cb,
-                                      Map<String, float[]> p1,
-                                      Map<String, float[]> p2,
-                                      Ice.Current current)
+    public CompletionStage<MyClass.OpStringFloatSDResult> opStringFloatSDAsync(Map<String, float[]> p1,
+                                                                               Map<String, float[]> p2,
+                                                                               Current current)
     {
-        Map<String, float[]> p3 = p2;
-        Map<String, float[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpStringFloatSDResult r = new MyClass.OpStringFloatSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opStringDoubleSD_async(AMD_MyClass_opStringDoubleSD cb,
-                                       Map<String, double[]> p1,
-                                       Map<String, double[]> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpStringDoubleSDResult> opStringDoubleSDAsync(Map<String, double[]> p1,
+                                                                                 Map<String, double[]> p2,
+                                                                                 Current current)
     {
-        Map<String, double[]> p3 = p2;
-        Map<String, double[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpStringDoubleSDResult r = new MyClass.OpStringDoubleSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opStringStringSD_async(AMD_MyClass_opStringStringSD cb,
-                                       Map<String, String[]> p1,
-                                       Map<String, String[]> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpStringStringSDResult> opStringStringSDAsync(Map<String, String[]> p1,
+                                                                                 Map<String, String[]> p2,
+                                                                                 Current current)
     {
-        Map<String, String[]> p3 = p2;
-        Map<String, String[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpStringStringSDResult r = new MyClass.OpStringStringSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void opMyEnumMyEnumSD_async(AMD_MyClass_opMyEnumMyEnumSD cb,
-                                       Map<MyEnum, MyEnum[]> p1,
-                                       Map<MyEnum, MyEnum[]> p2,
-                                       Ice.Current current)
+    public CompletionStage<MyClass.OpMyEnumMyEnumSDResult> opMyEnumMyEnumSDAsync(Map<MyEnum, MyEnum[]> p1,
+                                                                                 Map<MyEnum, MyEnum[]> p2,
+                                                                                 Current current)
     {
-        Map<MyEnum, MyEnum[]> p3 = p2;
-        Map<MyEnum, MyEnum[]> r = new HashMap<>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpMyEnumMyEnumSDResult r = new MyClass.OpMyEnumMyEnumSDResult();
+        r.p3 = p2;
+        r.returnValue = new HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opIntS_async(AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
+    public CompletionStage<int[]> opIntSAsync(int[] s, Current current)
     {
         int[] r = new int[s.length];
         for(int i = 0; i < r.length; ++i)
         {
             r[i] = -s[i];
         }
-        cb.ice_response(r);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public synchronized void
-    opByteSOneway_async(AMD_MyClass_opByteSOneway cb, byte[] s, Ice.Current current)
+    public synchronized CompletionStage<Void> opByteSOnewayAsync(byte[] s, Current current)
     {
         ++_opByteSOnewayCallCount;
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public synchronized void
-    opByteSOnewayCallCount_async(AMD_MyClass_opByteSOnewayCallCount cb, Ice.Current current)
+    public synchronized CompletionStage<Integer> opByteSOnewayCallCountAsync(Current current)
     {
         int count = _opByteSOnewayCallCount;
         _opByteSOnewayCallCount = 0;
-        cb.ice_response(count);
+        return CompletableFuture.completedFuture(count);
     }
 
     @Override
-    public void
-    opContext_async(AMD_MyClass_opContext cb, Ice.Current current)
+    public CompletionStage<Map<String, String>> opContextAsync(Current current)
     {
-        cb.ice_response(current.ctx);
+        return CompletableFuture.completedFuture(current.ctx);
     }
 
     @Override
-    public void
-    opDoubleMarshaling_async(AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2, Ice.Current current)
+    public CompletionStage<Void> opDoubleMarshalingAsync(double p1, double[] p2, Current current)
     {
         double d = 1278312346.0 / 13.0;
         test(p1 == d);
@@ -689,195 +649,183 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         {
             test(p2[i] == d);
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    opStringS_async(AMD_MyClass_opStringS cb,
-                    String[] p1, String[] p2,
-                    Ice.Current current)
+    public CompletionStage<MyClass.OpStringSResult> opStringSAsync(String[] p1, String[] p2, Current current)
     {
-        String[] p3 = new String[p1.length + p2.length];
-        System.arraycopy(p1, 0, p3, 0, p1.length);
-        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+        MyClass.OpStringSResult r = new MyClass.OpStringSResult();
+        r.p3 = new String[p1.length + p2.length];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[] r = new String[p1.length];
+        r.returnValue = new String[p1.length];
         for(int i = 0; i < p1.length; i++)
         {
-            r[i] = p1[p1.length - (i + 1)];
+            r.returnValue[i] = p1[p1.length - (i + 1)];
         }
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opStringSS_async(AMD_MyClass_opStringSS cb,
-                     String[][] p1, String[][] p2,
-                     Ice.Current current)
+    public CompletionStage<MyClass.OpStringSSResult> opStringSSAsync(String[][] p1, String[][] p2, Current current)
     {
-        String[][] p3 = new String[p1.length + p2.length][];
-        System.arraycopy(p1, 0, p3, 0, p1.length);
-        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+        MyClass.OpStringSSResult r = new MyClass.OpStringSSResult();
+        r.p3 = new String[p1.length + p2.length][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[][] r = new String[p2.length][];
+        r.returnValue = new String[p2.length][];
         for(int i = 0; i < p2.length; i++)
         {
-            r[i] = p2[p2.length - (i + 1)];
+            r.returnValue[i] = p2[p2.length - (i + 1)];
         }
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opStringSSS_async(AMD_MyClass_opStringSSS cb,
-                      String[][][] p1, String[][][] p2,
-                      Ice.Current current)
+    public CompletionStage<MyClass.OpStringSSSResult> opStringSSSAsync(String[][][] p1, String[][][] p2,
+                                                                       Current current)
     {
-        String[][][] p3 = new String[p1.length + p2.length][][];
-        System.arraycopy(p1, 0, p3, 0, p1.length);
-        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+        MyClass.OpStringSSSResult r = new MyClass.OpStringSSSResult();
+        r.p3 = new String[p1.length + p2.length][][];
+        System.arraycopy(p1, 0, r.p3, 0, p1.length);
+        System.arraycopy(p2, 0, r.p3, p1.length, p2.length);
 
-        String[][][] r = new String[p2.length][][];
+        r.returnValue = new String[p2.length][][];
         for(int i = 0; i < p2.length; i++)
         {
-            r[i] = p2[p2.length - (i + 1)];
+            r.returnValue[i] = p2[p2.length - (i + 1)];
         }
-        cb.ice_response(r, p3);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opStringStringD_async(AMD_MyClass_opStringStringD cb,
-                          java.util.Map<String, String> p1, java.util.Map<String, String> p2,
-                          Ice.Current current)
+    public CompletionStage<MyClass.OpStringStringDResult> opStringStringDAsync(java.util.Map<String, String> p1,
+                                                                               java.util.Map<String, String> p2,
+                                                                               Current current)
     {
-        java.util.Map<String, String> p3 = p1;
-        java.util.Map<String, String> r = new java.util.HashMap<String, String>();
-        r.putAll(p1);
-        r.putAll(p2);
-        cb.ice_response(r, p3);
+        MyClass.OpStringStringDResult r = new MyClass.OpStringStringDResult();
+        r.p3 = p1;
+        r.returnValue = new java.util.HashMap<>();
+        r.returnValue.putAll(p1);
+        r.returnValue.putAll(p2);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opStruct_async(AMD_MyClass_opStruct cb,
-                   Structure p1, Structure p2,
-                   Ice.Current current)
+    public CompletionStage<MyClass.OpStructResult> opStructAsync(Structure p1, Structure p2, Current current)
     {
-        Structure p3 = p1;
-        p3.s.s = "a new string";
-        cb.ice_response(p2, p3);
+        MyClass.OpStructResult r = new MyClass.OpStructResult();
+        r.p3 = p1;
+        r.p3.s.s = "a new string";
+        r.returnValue = p2;
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    opIdempotent_async(AMD_MyClass_opIdempotent cb,
-                       Ice.Current current)
+    public CompletionStage<Void> opIdempotentAsync(Current current)
     {
-        test(current.mode == Ice.OperationMode.Idempotent);
-        cb.ice_response();
+        test(current.mode == com.zeroc.Ice.OperationMode.Idempotent);
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    opNonmutating_async(AMD_MyClass_opNonmutating cb,
-                        Ice.Current current)
+    public CompletionStage<Void> opNonmutatingAsync(Current current)
     {
-        test(current.mode == Ice.OperationMode.Nonmutating);
-        cb.ice_response();
+        test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    opDerived_async(AMD_MyDerivedClass_opDerived cb,
-                    Ice.Current current)
+    public CompletionStage<Void> opDerivedAsync(Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void opByte1_async(AMD_MyClass_opByte1 cb, byte value, Ice.Current current)
+    public CompletionStage<Byte> opByte1Async(byte value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opShort1_async(AMD_MyClass_opShort1 cb, short value, Ice.Current current)
+    public CompletionStage<Short> opShort1Async(short value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opInt1_async(AMD_MyClass_opInt1 cb, int value, Ice.Current current)
+    public CompletionStage<Integer> opInt1Async(int value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opLong1_async(AMD_MyClass_opLong1 cb, long value, Ice.Current current)
+    public CompletionStage<Long> opLong1Async(long value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opFloat1_async(AMD_MyClass_opFloat1 cb, float value, Ice.Current current)
+    public CompletionStage<Float> opFloat1Async(float value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opDouble1_async(AMD_MyClass_opDouble1 cb, double value, Ice.Current current)
+    public CompletionStage<Double> opDouble1Async(double value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opString1_async(AMD_MyClass_opString1 cb, String value, Ice.Current current)
+    public CompletionStage<String> opString1Async(String value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opStringS1_async(AMD_MyClass_opStringS1 cb, String[] value, Ice.Current current)
+    public CompletionStage<String[]> opStringS1Async(String[] value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opByteBoolD1_async(AMD_MyClass_opByteBoolD1 cb, Map<Byte, Boolean> value, Ice.Current current)
+    public CompletionStage<Map<Byte, Boolean>> opByteBoolD1Async(Map<Byte, Boolean> value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opStringS2_async(AMD_MyClass_opStringS2 cb, String[] value, Ice.Current current)
+    public CompletionStage<String[]> opStringS2Async(String[] value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opByteBoolD2_async(AMD_MyClass_opByteBoolD2 cb, Map<Byte, Boolean> value, Ice.Current current)
+    public CompletionStage<Map<Byte, Boolean>> opByteBoolD2Async(Map<Byte, Boolean> value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opMyClass1_async(AMD_MyDerivedClass_opMyClass1 cb, MyClass1 value, Ice.Current current)
+    public CompletionStage<MyClass1> opMyClass1Async(MyClass1 value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opMyStruct1_async(AMD_MyDerivedClass_opMyStruct1 cb, MyStruct1 value, Ice.Current current)
+    public CompletionStage<MyStruct1> opMyStruct1Async(MyStruct1 value, Current current)
     {
-        cb.ice_response(value);
+        return CompletableFuture.completedFuture(value);
     }
 
     @Override
-    public void opStringLiterals_async(AMD_MyClass_opStringLiterals cb, Ice.Current current)
+    public CompletionStage<String[]> opStringLiteralsAsync(Current current)
     {
-        cb.ice_response(new String[]
+        return CompletableFuture.completedFuture(new String[]
             {
                 s0.value,
                 s1.value,
@@ -917,81 +865,45 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     }
 
     @Override
-    public void opWStringLiterals_async(AMD_MyClass_opWStringLiterals cb, Ice.Current current)
+    public CompletionStage<String[]> opWStringLiteralsAsync(Current current)
     {
-        cb.ice_response(new String[]
-            {
-                s0.value,
-                s1.value,
-                s2.value,
-                s3.value,
-                s4.value,
-                s5.value,
-                s6.value,
-                s7.value,
-                s8.value,
-                s9.value,
-                s10.value,
-
-                sw0.value,
-                sw1.value,
-                sw2.value,
-                sw3.value,
-                sw4.value,
-                sw5.value,
-                sw6.value,
-                sw7.value,
-                sw8.value,
-                sw9.value,
-                sw10.value,
-
-                ss0.value,
-                ss1.value,
-                ss2.value,
-                ss3.value,
-                ss4.value,
-                ss5.value,
-
-                su0.value,
-                su1.value,
-                su2.value
-            });
+        return opStringLiteralsAsync(current);
     }
 
     @Override
-    public void opMStruct1_async(AMD_MyClass_opMStruct1 cb, Ice.Current current)
+    public CompletionStage<MyClass.OpMStruct1MarshaledResult> opMStruct1Async(Current current)
     {
-        cb.ice_response(new Structure());
+        return CompletableFuture.completedFuture(new MyClass.OpMStruct1MarshaledResult(new Structure(), current));
     }
 
     @Override
-    public void opMStruct2_async(AMD_MyClass_opMStruct2 cb, Structure p1, Ice.Current current)
+    public CompletionStage<MyClass.OpMStruct2MarshaledResult> opMStruct2Async(Structure p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new MyClass.OpMStruct2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void opMSeq1_async(AMD_MyClass_opMSeq1 cb, Ice.Current current)
+    public CompletionStage<MyClass.OpMSeq1MarshaledResult> opMSeq1Async(Current current)
     {
-        cb.ice_response(new String[0]);
+        return CompletableFuture.completedFuture(new MyClass.OpMSeq1MarshaledResult(new String[0], current));
     }
 
     @Override
-    public void opMSeq2_async(AMD_MyClass_opMSeq2 cb, String[] p1, Ice.Current current)
+    public CompletionStage<MyClass.OpMSeq2MarshaledResult> opMSeq2Async(String[] p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new MyClass.OpMSeq2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void opMDict1_async(AMD_MyClass_opMDict1 cb, Ice.Current current)
+    public CompletionStage<MyClass.OpMDict1MarshaledResult> opMDict1Async(Current current)
     {
-        cb.ice_response(new java.util.HashMap<String, String>());
+        return CompletableFuture.completedFuture(new MyClass.OpMDict1MarshaledResult(new HashMap<>(), current));
     }
 
     @Override
-    public void opMDict2_async(AMD_MyClass_opMDict2 cb, java.util.Map<String, String> p1, Ice.Current current)
+    public CompletionStage<MyClass.OpMDict2MarshaledResult> opMDict2Async(Map<String, String> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new MyClass.OpMDict2MarshaledResult(p1, p1, current));
     }
 
     private Thread _opVoidThread;

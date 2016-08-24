@@ -9,10 +9,9 @@
 
 package test.Ice.metrics;
 
-class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
+class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.CommunicatorObserver
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -21,15 +20,14 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
     @Override
-    public void 
-    setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
+    public void setObserverUpdater(com.zeroc.Ice.Instrumentation.ObserverUpdater u)
     {
         updater = u;
     }
  
     @Override
-    synchronized public Ice.Instrumentation.Observer 
-    getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
+    synchronized public com.zeroc.Ice.Instrumentation.Observer getConnectionEstablishmentObserver(
+        com.zeroc.Ice.Endpoint e, String s)
     {
         if(connectionEstablishmentObserver == null)
         {
@@ -38,11 +36,9 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         }
         return connectionEstablishmentObserver;
     }
-
  
     @Override
-    synchronized public Ice.Instrumentation.Observer 
-    getEndpointLookupObserver(Ice.Endpoint e)
+    synchronized public com.zeroc.Ice.Instrumentation.Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint e)
     {
         if(endpointLookupObserver == null)
         {
@@ -53,11 +49,11 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
     
     @Override
-    synchronized public Ice.Instrumentation.ConnectionObserver 
-    getConnectionObserver(Ice.ConnectionInfo c,
-                          Ice.Endpoint e,
-                          Ice.Instrumentation.ConnectionState s, 
-                          Ice.Instrumentation.ConnectionObserver old)
+    synchronized public com.zeroc.Ice.Instrumentation.ConnectionObserver getConnectionObserver(
+        com.zeroc.Ice.ConnectionInfo c,
+        com.zeroc.Ice.Endpoint e,
+        com.zeroc.Ice.Instrumentation.ConnectionState s, 
+        com.zeroc.Ice.Instrumentation.ConnectionObserver old)
     {
         test(old == null || old instanceof ConnectionObserverI);
         if(connectionObserver == null)
@@ -69,9 +65,11 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
     @Override
-    synchronized public Ice.Instrumentation.ThreadObserver 
-    getThreadObserver(String p, String id, Ice.Instrumentation.ThreadState s,
-                      Ice.Instrumentation.ThreadObserver old)
+    synchronized public com.zeroc.Ice.Instrumentation.ThreadObserver getThreadObserver(
+        String p,
+        String id,
+        com.zeroc.Ice.Instrumentation.ThreadState s,
+        com.zeroc.Ice.Instrumentation.ThreadObserver old)
     {
         test(old == null || old instanceof ThreadObserverI);
         if(threadObserver == null)
@@ -83,8 +81,10 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
    }
 
     @Override
-    synchronized public Ice.Instrumentation.InvocationObserver
-    getInvocationObserver(Ice.ObjectPrx p, String op, java.util.Map<String, String> ctx)
+    synchronized public com.zeroc.Ice.Instrumentation.InvocationObserver getInvocationObserver(
+        com.zeroc.Ice.ObjectPrx p,
+        String op,
+        java.util.Map<String, String> ctx)
     {
         if(invocationObserver == null)
         {
@@ -95,8 +95,9 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
     @Override
-    synchronized public Ice.Instrumentation.DispatchObserver
-    getDispatchObserver(Ice.Current current, int s)
+    synchronized public com.zeroc.Ice.Instrumentation.DispatchObserver getDispatchObserver(
+        com.zeroc.Ice.Current current,
+        int s)
     {
         if(dispatchObserver == null)
         {
@@ -106,8 +107,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return dispatchObserver;
     }
 
-    synchronized void
-    reset()
+    synchronized void reset()
     {
         if(connectionEstablishmentObserver != null)
         {
@@ -135,7 +135,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         }
     }
     
-    Ice.Instrumentation.ObserverUpdater updater;
+    com.zeroc.Ice.Instrumentation.ObserverUpdater updater;
 
     ObserverI connectionEstablishmentObserver;
     ObserverI endpointLookupObserver;
@@ -143,5 +143,4 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     ThreadObserverI threadObserver;
     InvocationObserverI invocationObserver;
     DispatchObserverI dispatchObserver;
-};
-
+}

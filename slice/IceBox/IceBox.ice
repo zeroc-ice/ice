@@ -16,6 +16,11 @@
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/SliceChecksumDict.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 /**
  *
@@ -191,4 +196,3 @@ interface ServiceManager
 };
 
 };
-

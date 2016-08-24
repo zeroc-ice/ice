@@ -1,0 +1,52 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+ext.testDir = "${projectDir}/src/main/java/test"
+apply from: "slice.gradle"
+
+sourceSets {
+    main {
+        java {
+            exclude 'plugins'
+            exclude 'controller'
+            exclude 'ejb'
+        }
+    }
+}
+
+dependencies {
+    compile localDependency('ice-compat')
+    compile localDependency('icediscovery-compat')
+    compile localDependency('icelocatordiscovery-compat')
+    compile localDependency('icebox-compat')
+    compile localDependency('glacier2-compat')
+    compile localDependency('icestorm-compat')
+    compile localDependency('icegrid-compat')
+    compile project(':testPlugins')
+    compile project(':testController')
+    if(!gradle.startParameter.isOffline()) {
+        runtime "org.apache.tools:bzip2:1.0"
+    }
+}
+
+jar {
+    archiveName = "test.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+    manifest {
+        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+    }
+}
+
+clean {
+    delete("$rootProject.projectDir/lib/test.jar")
+    ['src/main/java/test/IceGrid/simple/db'].each {
+        delete fileTree(dir: it)
+    }
+    delete("src/main/java/test/Slice/generation/classes")
+}

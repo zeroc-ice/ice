@@ -9,10 +9,12 @@
 
 package test.IceUtil.inputUtil;
 
+import com.zeroc.IceUtilInternal.Options;
+import com.zeroc.IceUtilInternal.StringUtil;
+
 public class Client
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -20,8 +22,7 @@ public class Client
         }
     }
 
-    public static void
-    main(String[] argvs)
+    public static void main(String[] argvs)
     {
         System.out.print("testing string to command line arguments... ");
         System.out.flush();
@@ -29,59 +30,59 @@ public class Client
 
         try
         {
-            test(IceUtilInternal.Options.split("").length == 0);
-            
-            args = IceUtilInternal.Options.split("\"\"");
+            test(Options.split("").length == 0);
+
+            args = Options.split("\"\"");
             test(args.length == 1 && args[0].equals(""));
-            args = IceUtilInternal.Options.split("''");
+            args = Options.split("''");
             test(args.length == 1 && args[0].equals(""));
-            args = IceUtilInternal.Options.split("$''");
+            args = Options.split("$''");
             test(args.length == 1 && args[0].equals(""));
 
-            args = IceUtilInternal.Options.split("-a -b -c");
+            args = Options.split("-a -b -c");
             test(args.length == 3 && args[0].equals("-a") && args[1].equals("-b") && args[2].equals("-c"));
-            args = IceUtilInternal.Options.split("\"-a\" '-b' $'-c'");
+            args = Options.split("\"-a\" '-b' $'-c'");
             test(args.length == 3 && args[0].equals("-a") && args[1].equals("-b") && args[2].equals("-c"));
-            args = IceUtilInternal.Options.split("  '-b' \"-a\" $'-c' ");
+            args = Options.split("  '-b' \"-a\" $'-c' ");
             test(args.length == 3 && args[0].equals("-b") && args[1].equals("-a") && args[2].equals("-c"));
-            args = IceUtilInternal.Options.split(" $'-c' '-b' \"-a\"  ");
+            args = Options.split(" $'-c' '-b' \"-a\"  ");
             test(args.length == 3 && args[0].equals("-c") && args[1].equals("-b") && args[2].equals("-a"));
 
             // Testing single quote
-            args = IceUtilInternal.Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
+            args = Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
             test(args.length == 1 && args[0].equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
-            args = IceUtilInternal.Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
+            args = Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtilInternal.Options.split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
+            args = Options.split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing double quote
-            args = IceUtilInternal.Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
+            args = Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-                 args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
+                 args = Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
                  test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
+            args = Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing ANSI quote
-            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
+            args = Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtilInternal.Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
+            args = Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
             test(args.length == 1 && args[0].equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
-            args = IceUtilInternal.Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
+            args = Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
             test(args.length == 1 && args[0].equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
-            args = IceUtilInternal.Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+            args = Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtilInternal.Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+            args = Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
             test(args.length == 1 && args[0].equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtilInternal.Options.split("-Dir=$'\\cM\\c_'"); // Control characters
+            args = Options.split("-Dir=$'\\cM\\c_'"); // Control characters
             test(args.length == 1 && args[0].equals("-Dir=\015\037"));
-            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
+            args = Options.split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
             test(args.length == 1 && args[0].equals("-Dir=C:\\ff\015i"));
-            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
+            args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.length == 1 && args[0].equals("-Dir=C:\\\015ffi"));
         }
-        catch(IceUtilInternal.Options.BadQuote ex)
+        catch(Options.BadQuote ex)
         {
             test(false);
         }
@@ -97,10 +98,10 @@ public class Client
         {
             try
             {
-                IceUtilInternal.Options.split(badQuoteCommands[i]);
+                Options.split(badQuoteCommands[i]);
                 test(false);
             }
-            catch(IceUtilInternal.Options.BadQuote ex)
+            catch(Options.BadQuote ex)
             {
             }
         }
@@ -112,57 +113,57 @@ public class Client
         {
             String[] arr;
 
-            arr = IceUtilInternal.StringUtil.splitString("", "");
+            arr = StringUtil.splitString("", "");
             test(arr.length == 0);
-            arr = IceUtilInternal.StringUtil.splitString("", ":");
+            arr = StringUtil.splitString("", ":");
             test(arr.length == 0);
-            arr = IceUtilInternal.StringUtil.splitString("a", "");
+            arr = StringUtil.splitString("a", "");
             test(arr.length == 1 && arr[0].equals("a"));
-            arr = IceUtilInternal.StringUtil.splitString("a", ":");
+            arr = StringUtil.splitString("a", ":");
             test(arr.length == 1 && arr[0].equals("a"));
-            arr = IceUtilInternal.StringUtil.splitString("ab", "");
+            arr = StringUtil.splitString("ab", "");
             test(arr.length == 1 && arr[0].equals("ab"));
-            arr = IceUtilInternal.StringUtil.splitString("ab:", ":");
+            arr = StringUtil.splitString("ab:", ":");
             test(arr.length == 1 && arr[0].equals("ab"));
-            arr = IceUtilInternal.StringUtil.splitString(":ab", ":");
+            arr = StringUtil.splitString(":ab", ":");
             test(arr.length == 1 && arr[0].equals("ab"));
-            arr = IceUtilInternal.StringUtil.splitString("a:b", ":");
+            arr = StringUtil.splitString("a:b", ":");
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
-            arr = IceUtilInternal.StringUtil.splitString(":a:b:", ":");
+            arr = StringUtil.splitString(":a:b:", ":");
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
-                 
-            arr = IceUtilInternal.StringUtil.splitString("\"a\"", ":");
+
+            arr = StringUtil.splitString("\"a\"", ":");
             test(arr.length == 1 && arr[0].equals("a"));
-            arr = IceUtilInternal.StringUtil.splitString("\"a\":b", ":");
+            arr = StringUtil.splitString("\"a\":b", ":");
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
-            arr = IceUtilInternal.StringUtil.splitString("\"a\":\"b\"", ":");
+            arr = StringUtil.splitString("\"a\":\"b\"", ":");
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
-            arr = IceUtilInternal.StringUtil.splitString("\"a:b\"", ":");
+            arr = StringUtil.splitString("\"a:b\"", ":");
             test(arr.length == 1 && arr[0].equals("a:b"));
-            arr = IceUtilInternal.StringUtil.splitString("a=\"a:b\"", ":");
+            arr = StringUtil.splitString("a=\"a:b\"", ":");
             test(arr.length == 1 && arr[0].equals("a=a:b"));
 
-            arr = IceUtilInternal.StringUtil.splitString("'a'", ":");
+            arr = StringUtil.splitString("'a'", ":");
             test(arr.length == 1 && arr[0].equals("a"));
-            arr = IceUtilInternal.StringUtil.splitString("'\"a'", ":");
+            arr = StringUtil.splitString("'\"a'", ":");
             test(arr.length == 1 && arr[0].equals("\"a"));
-            arr = IceUtilInternal.StringUtil.splitString("\"'a\"", ":");
+            arr = StringUtil.splitString("\"'a\"", ":");
             test(arr.length == 1 && arr[0].equals("'a"));
-            
-            arr = IceUtilInternal.StringUtil.splitString("a\\'b", ":");
+
+            arr = StringUtil.splitString("a\\'b", ":");
             test(arr.length == 1 && arr[0].equals("a'b"));
-            arr = IceUtilInternal.StringUtil.splitString("'a:b\\'c'", ":");
+            arr = StringUtil.splitString("'a:b\\'c'", ":");
             test(arr.length == 1 && arr[0].equals("a:b'c"));
-            arr = IceUtilInternal.StringUtil.splitString("a\\\"b", ":");
+            arr = StringUtil.splitString("a\\\"b", ":");
             test(arr.length == 1 && arr[0].equals("a\"b"));
-            arr = IceUtilInternal.StringUtil.splitString("\"a:b\\\"c\"", ":");
+            arr = StringUtil.splitString("\"a:b\\\"c\"", ":");
             test(arr.length == 1 && arr[0].equals("a:b\"c"));
-            arr = IceUtilInternal.StringUtil.splitString("'a:b\"c'", ":");
+            arr = StringUtil.splitString("'a:b\"c'", ":");
             test(arr.length == 1 && arr[0].equals("a:b\"c"));
-            arr = IceUtilInternal.StringUtil.splitString("\"a:b'c\"", ":");
+            arr = StringUtil.splitString("\"a:b'c\"", ":");
             test(arr.length == 1 && arr[0].equals("a:b'c"));
 
-            test(IceUtilInternal.StringUtil.splitString("a\"b", ":") == null);
+            test(StringUtil.splitString("a\"b", ":") == null);
         }
         System.out.println("ok");
     }

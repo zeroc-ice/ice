@@ -8,18 +8,22 @@
 // **********************************************************************
 
 package test.Ice.invoke;
+
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
+
+import com.zeroc.Ice.InputStream;
+import com.zeroc.Ice.OperationMode;
+import com.zeroc.Ice.OutputStream;
 
 import test.Ice.invoke.Test.MyClassPrx;
-import test.Ice.invoke.Test.MyClassPrxHelper;
 import test.Ice.invoke.Test.MyException;
 
 public class AllTests
 {
     final static String testString = "This is a test string";
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -27,244 +31,37 @@ public class AllTests
         }
     }
 
-    private static class Callback
-    {
-        Callback()
-        {
-            _called = false;
-        }
-
-        public synchronized void check()
-        {
-            while(!_called)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-
-            _called = false;
-        }
-
-        public synchronized void called()
-        {
-            assert(!_called);
-            _called = true;
-            notify();
-        }
-
-        private boolean _called;
-    }
-
-    private static class opStringI extends Ice.Callback
-    {
-        public opStringI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        @Override
-        public void completed(Ice.AsyncResult result)
-        {
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(result.getProxy().end_ice_invoke(outEncaps, result))
-            {
-                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps.value);
-                inS.startEncapsulation();
-                String s = inS.readString();
-                test(s.equals(testString));
-                s = inS.readString();
-                test(s.equals(testString));
-                inS.endEncapsulation();
-                callback.called();
-            }
-            else
-            {
-                test(false);
-            }
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Ice.Communicator _communicator;
-        private Callback callback = new Callback();
-    }
-
-    private static class opExceptionI extends Ice.Callback
-    {
-        public opExceptionI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        @Override
-        public void completed(Ice.AsyncResult result)
-        {
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(result.getProxy().end_ice_invoke(outEncaps, result))
-            {
-                test(false);
-            }
-            else
-            {
-                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps.value);
-                inS.startEncapsulation();
-                try
-                {
-                    inS.throwException();
-                }
-                catch(MyException ex)
-                {
-                    inS.endEncapsulation();
-                    callback.called();
-                }
-                catch(java.lang.Exception ex)
-                {
-                    test(false);
-                }
-            }
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Ice.Communicator _communicator;
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Object_opStringI extends Ice.Callback_Object_ice_invoke
-    {
-        public Callback_Object_opStringI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        @Override
-        public void response(boolean ok, byte[] outEncaps)
-        {
-            if(ok)
-            {
-                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
-                inS.startEncapsulation();
-                String s = inS.readString();
-                test(s.equals(testString));
-                s = inS.readString();
-                test(s.equals(testString));
-                inS.endEncapsulation();
-                callback.called();
-            }
-            else
-            {
-                test(false);
-            }
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Ice.Communicator _communicator;
-        private Callback callback = new Callback();
-    }
-
-    private static class Callback_Object_opExceptionI extends Ice.Callback_Object_ice_invoke
-    {
-        public Callback_Object_opExceptionI(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        @Override
-        public void response(boolean ok, byte[] outEncaps)
-        {
-            if(ok)
-            {
-                test(false);
-            }
-            else
-            {
-                Ice.InputStream inS = new Ice.InputStream(_communicator, outEncaps);
-                inS.startEncapsulation();
-                try
-                {
-                    inS.throwException();
-                }
-                catch(MyException ex)
-                {
-                    inS.endEncapsulation();
-                    callback.called();
-                }
-                catch(java.lang.Exception ex)
-                {
-                    test(false);
-                }
-            }
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Ice.Communicator _communicator;
-        private Callback callback = new Callback();
-    }
-
-    public static MyClassPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    public static MyClassPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
     {
         String ref = "test:default -p 12010";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
-        MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
-        MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
-        MyClassPrx batchOneway = MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        MyClassPrx cl = MyClassPrx.checkedCast(base);
+        MyClassPrx oneway = cl.ice_oneway();
+        MyClassPrx batchOneway = cl.ice_batchOneway();
 
         out.print("testing ice_invoke... ");
         out.flush();
 
         {
-            if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null))
-            {
-                test(false);
-            }
+            com.zeroc.Ice.Object.Ice_invokeResult r;
 
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
-            test(batchOneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null));
+            r = oneway.ice_invoke("opOneway", OperationMode.Normal, null);
+            test(r.returnValue);
+            test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null).returnValue);
+            test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null).returnValue);
+            test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null).returnValue);
+            test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null).returnValue);
             batchOneway.ice_flushBatchRequests();
 
-            Ice.OutputStream outS = new Ice.OutputStream(communicator);
+            OutputStream outS = new OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
             byte[] inEncaps = outS.finished();
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, outEncaps))
+            r = cl.ice_invoke("opString", OperationMode.Normal, inEncaps);
+            if(r.returnValue)
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps.value);
+                InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
@@ -279,14 +76,14 @@ public class AllTests
         }
 
         {
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, outEncaps))
+            com.zeroc.Ice.Object.Ice_invokeResult r = cl.ice_invoke("opException", OperationMode.Normal, null);
+            if(r.returnValue)
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps.value);
+                InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 try
                 {
@@ -309,24 +106,22 @@ public class AllTests
         out.flush();
 
         {
-            Ice.AsyncResult result = oneway.begin_ice_invoke("opOneway", Ice.OperationMode.Normal, null);
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(!oneway.end_ice_invoke(outEncaps, result))
-            {
-                test(false);
-            }
+            CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+                oneway.ice_invokeAsync("opOneway", OperationMode.Normal, null);
+            com.zeroc.Ice.Object.Ice_invokeResult r = f.join();
+            test(r.returnValue);
 
-            Ice.OutputStream outS = new Ice.OutputStream(communicator);
+            OutputStream outS = new OutputStream(communicator);
             outS.startEncapsulation();
             outS.writeString(testString);
             outS.endEncapsulation();
             byte[] inEncaps = outS.finished();
 
-            // begin_ice_invoke with no callback
-            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps);
-            if(cl.end_ice_invoke(outEncaps, result))
+            f = cl.ice_invokeAsync("opString", OperationMode.Normal, inEncaps);
+            r = f.join();
+            if(r.returnValue)
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps.value);
+                InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
@@ -338,29 +133,19 @@ public class AllTests
             {
                 test(false);
             }
-
-            // begin_ice_invoke with Callback
-            opStringI cb1 = new opStringI(communicator);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb1);
-            cb1.check();
-
-            // begin_ice_invoke with Callback_Object_ice_invoke
-            Callback_Object_opStringI cb2 = new Callback_Object_opStringI(communicator);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb2);
-            cb2.check();
         }
 
         {
-            // begin_ice_invoke with no callback
-            Ice.AsyncResult result = cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null);
-            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(cl.end_ice_invoke(outEncaps, result))
+            CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+                cl.ice_invokeAsync("opException", OperationMode.Normal, null);
+            com.zeroc.Ice.Object.Ice_invokeResult r = f.join();
+            if(r.returnValue)
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = new Ice.InputStream(communicator, outEncaps.value);
+                InputStream inS = new InputStream(communicator, r.outParams);
                 inS.startEncapsulation();
                 try
                 {
@@ -375,16 +160,6 @@ public class AllTests
                 }
                 inS.endEncapsulation();
             }
-
-            // begin_ice_invoke with Callback
-            opExceptionI cb1 = new opExceptionI(communicator);
-            cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null, cb1);
-            cb1.check();
-
-            // begin_ice_invoke with Callback_Object_ice_invoke
-            Callback_Object_opExceptionI cb2 = new Callback_Object_opExceptionI(communicator);
-            cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null, cb2);
-            cb2.check();
         }
 
         out.println("ok");

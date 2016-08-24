@@ -7,16 +7,27 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+//sourceCompatibility = iceSourceCompatibility
+//targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 project.ext.displayName = "Glacier2"
 project.ext.description = "Firewall traversal for Ice"
 
+sourceSets {
+    main {
+        java {
+            // ice.jar already includes a marker for the IceMX package.
+            exclude '**/com/zeroc/IceMX/_Marker.java'
+        }
+    }
+}
+
 slice {
     java {
         set1 {
-            args = "--ice --tie --checksum Glacier2.SliceChecksums"
+            args = "--ice --checksum com.zeroc.Glacier2.SliceChecksums"
             files = fileTree(dir: "${sliceDir}/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
         }
     }

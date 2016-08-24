@@ -9,36 +9,32 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._HDisp;
+import test.Ice.facets.Test.H;
 
-public final class HI extends _HDisp
+public final class HI implements H
 {
-    public
-    HI(Ice.Communicator communicator)
+    public HI(com.zeroc.Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
 
     @Override
-    public String
-    callG(Ice.Current current)
+    public String callG(com.zeroc.Ice.Current current)
     {
         return "G";
     }
 
     @Override
-    public String
-    callH(Ice.Current current)
+    public String callH(com.zeroc.Ice.Current current)
     {
         return "H";
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _communicator.shutdown();
     }
 
-    private Ice.Communicator _communicator;
+    private com.zeroc.Ice.Communicator _communicator;
 }

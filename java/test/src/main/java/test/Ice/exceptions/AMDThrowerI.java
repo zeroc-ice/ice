@@ -9,231 +9,218 @@
 
 package test.Ice.exceptions;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.exceptions.AMD.Test.A;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_shutdown;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_supportsAssertException;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_supportsUndeclaredExceptions;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAasA;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAorDasAorD;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAssertException;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwMemoryLimitException;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasA;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasB;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasA;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasB;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasC;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwLocalException;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwLocalExceptionIdempotent;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwNonIceException;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredA;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredB;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredC;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAfterResponse;
-import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAfterException;
 import test.Ice.exceptions.AMD.Test.B;
 import test.Ice.exceptions.AMD.Test.C;
 import test.Ice.exceptions.AMD.Test.D;
-import test.Ice.exceptions.AMD.Test._ThrowerDisp;
+import test.Ice.exceptions.AMD.Test.Thrower;
 
-public final class AMDThrowerI extends _ThrowerDisp
+public final class AMDThrowerI implements Thrower
 {
-    public
-    AMDThrowerI()
+    public AMDThrowerI()
     {
     }
 
     @Override
-    public void
-    shutdown_async(AMD_Thrower_shutdown cb, Ice.Current current)
+    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    supportsUndeclaredExceptions_async(AMD_Thrower_supportsUndeclaredExceptions cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsUndeclaredExceptionsAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response(true);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
-    public void
-    supportsAssertException_async(AMD_Thrower_supportsAssertException cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsAssertExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response(true);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
-    public void
-    throwAasA_async(AMD_Thrower_throwAasA cb, int a, Ice.Current current)
+    public CompletionStage<Void> throwAasAAsync(int a, com.zeroc.Ice.Current current)
         throws A
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         A ex = new A();
         ex.aMem = a;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwAorDasAorD_async(AMD_Thrower_throwAorDasAorD cb, int a, Ice.Current current)
+    public CompletionStage<Void> throwAorDasAorDAsync(int a, com.zeroc.Ice.Current current)
         throws A,
                D
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         if(a > 0)
         {
             A ex = new A();
             ex.aMem = a;
-            cb.ice_exception(ex);
+            r.completeExceptionally(ex);
         }
         else
         {
             D ex = new D();
             ex.dMem = a;
-            cb.ice_exception(ex);
+            r.completeExceptionally(ex);
         }
+        return r;
     }
 
     @Override
-    public void
-    throwBasA_async(AMD_Thrower_throwBasA cb, int a, int b, Ice.Current current)
+    public CompletionStage<Void> throwBasAAsync(int a, int b, com.zeroc.Ice.Current current)
         throws A
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-        //cb.ice_exception(ex);
+        //r.completeExceptionally(ex);
     }
 
     @Override
-    public void
-    throwBasB_async(AMD_Thrower_throwBasB cb, int a, int b, Ice.Current current)
+    public CompletionStage<Void> throwBasBAsync(int a, int b, com.zeroc.Ice.Current current)
         throws B
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-        //cb.ice_exception(ex);
+        //r.completeExceptionally(ex);
     }
 
     @Override
-    public void
-    throwCasA_async(AMD_Thrower_throwCasA cb, int a, int b, int c, Ice.Current current)
+    public CompletionStage<Void> throwCasAAsync(int a, int b, int c, com.zeroc.Ice.Current current)
         throws A
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwCasB_async(AMD_Thrower_throwCasB cb, int a, int b, int c, Ice.Current current)
+    public CompletionStage<Void> throwCasBAsync(int a, int b, int c, com.zeroc.Ice.Current current)
         throws B
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwCasC_async(AMD_Thrower_throwCasC cb, int a, int b, int c, Ice.Current current)
+    public CompletionStage<Void> throwCasCAsync(int a, int b, int c, com.zeroc.Ice.Current current)
         throws C
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwUndeclaredA_async(AMD_Thrower_throwUndeclaredA cb, int a, Ice.Current current)
+    public CompletionStage<Void> throwUndeclaredAAsync(int a, com.zeroc.Ice.Current current)
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         A ex = new A();
         ex.aMem = a;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwUndeclaredB_async(AMD_Thrower_throwUndeclaredB cb, int a, int b, Ice.Current current)
+    public CompletionStage<Void> throwUndeclaredBAsync(int a, int b, com.zeroc.Ice.Current current)
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         B ex = new B();
         ex.aMem = a;
         ex.bMem = b;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwUndeclaredC_async(AMD_Thrower_throwUndeclaredC cb, int a, int b, int c, Ice.Current current)
+    public CompletionStage<Void> throwUndeclaredCAsync(int a, int b, int c, com.zeroc.Ice.Current current)
     {
+        CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        cb.ice_exception(ex);
+        r.completeExceptionally(ex);
+        return r;
     }
 
     @Override
-    public void
-    throwLocalException_async(AMD_Thrower_throwLocalException cb, Ice.Current current)
+    public CompletionStage<Void> throwLocalExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new Ice.TimeoutException());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new com.zeroc.Ice.TimeoutException());
+        return r;
     }
 
     @Override
-    public void
-    throwNonIceException_async(AMD_Thrower_throwNonIceException cb, Ice.Current current)
+    public CompletionStage<Void> throwNonIceExceptionAsync(com.zeroc.Ice.Current current)
     {
         throw new RuntimeException();
     }
 
     @Override
-    public void
-    throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
+    public CompletionStage<Void> throwAssertExceptionAsync(com.zeroc.Ice.Current current)
     {
         throw new java.lang.AssertionError();
     }
 
     @Override
-    public void
-    throwMemoryLimitException_async(AMD_Thrower_throwMemoryLimitException cb, byte[] seq, Ice.Current current)
+    public CompletionStage<byte[]> throwMemoryLimitExceptionAsync(byte[] seq, com.zeroc.Ice.Current current)
     {
-        cb.ice_response(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+        //
+        // 20KB is over the configured 10KB message size max.
+        //
+        return CompletableFuture.completedFuture(new byte[1024 * 20]);
     }
 
     @Override
-    public void
-    throwLocalExceptionIdempotent_async(AMD_Thrower_throwLocalExceptionIdempotent cb, Ice.Current current)
+    public CompletionStage<Void> throwLocalExceptionIdempotentAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new Ice.TimeoutException());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new com.zeroc.Ice.TimeoutException());
+        return r;
     }
 
     @Override
-    public void
-    throwAfterResponse_async(AMD_Thrower_throwAfterResponse cb, Ice.Current current)
+    public CompletionStage<Void> throwAfterResponseAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        // The Java 8 mapping doesn't support completing a request and continuing to use the dispatch thread.
 
         throw new RuntimeException();
     }
 
     @Override
-    public void
-    throwAfterException_async(AMD_Thrower_throwAfterException cb, Ice.Current current)
+    public CompletionStage<Void> throwAfterExceptionAsync(com.zeroc.Ice.Current current)
         throws A
     {
-        cb.ice_exception(new A());
+        // The Java 8 mapping doesn't support completing a request and continuing to use the dispatch thread.
 
         throw new RuntimeException();
     }

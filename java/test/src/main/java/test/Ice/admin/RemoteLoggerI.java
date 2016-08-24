@@ -9,11 +9,10 @@
 
 package test.Ice.admin;
 
-class RemoteLoggerI extends Ice._RemoteLoggerDisp
+class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
 {
-
     @Override
-    public synchronized void init(String prefix, Ice.LogMessage[] logMessages, Ice.Current current)
+    public synchronized void init(String prefix, com.zeroc.Ice.LogMessage[] logMessages, com.zeroc.Ice.Current current)
     {
         test(prefix.equals(_expectedPrefix));
         test(java.util.Arrays.equals(logMessages, _expectedInitMessages));
@@ -22,25 +21,25 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
     }
 
     @Override
-    public synchronized void log(Ice.LogMessage logMessage, Ice.Current current)
+    public synchronized void log(com.zeroc.Ice.LogMessage logMessage, com.zeroc.Ice.Current current)
     {
-        Ice.LogMessage front = _expectedLogMessages.pollFirst();
+        com.zeroc.Ice.LogMessage front = _expectedLogMessages.pollFirst();
         test(front.type == logMessage.type && front.message.equals(logMessage.message) &&
              front.traceCategory.equals(logMessage.traceCategory));
-        
+
         _receivedCalls++;
         notifyAll();
     }
 
-    synchronized void checkNextInit(String prefix, Ice.LogMessage[] logMessages)
+    synchronized void checkNextInit(String prefix, com.zeroc.Ice.LogMessage[] logMessages)
     {
         _expectedPrefix = prefix;
         _expectedInitMessages = logMessages;
     }
-   
-    synchronized void checkNextLog(Ice.LogMessageType messageType, String message, String category)
+
+    synchronized void checkNextLog(com.zeroc.Ice.LogMessageType messageType, String message, String category)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(messageType, 0, category, message);
+        com.zeroc.Ice.LogMessage logMessage = new com.zeroc.Ice.LogMessage(messageType, 0, category, message);
         _expectedLogMessages.addLast(logMessage);
     }
 
@@ -61,8 +60,7 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
         }
     }
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -72,6 +70,7 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
 
     private int _receivedCalls;
     private String _expectedPrefix;
-    private Ice.LogMessage[] _expectedInitMessages;
-    private java.util.Deque<Ice.LogMessage> _expectedLogMessages = new java.util.ArrayDeque<Ice.LogMessage>();
+    private com.zeroc.Ice.LogMessage[] _expectedInitMessages;
+    private java.util.Deque<com.zeroc.Ice.LogMessage> _expectedLogMessages =
+        new java.util.ArrayDeque<com.zeroc.Ice.LogMessage>();
 }

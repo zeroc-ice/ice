@@ -16,9 +16,14 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Properties.ice>
 #include <Ice/SliceChecksumDict.ice>
+#include <Ice/JavaCompat.ice>
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid
@@ -1940,4 +1945,3 @@ interface AdminSession extends Glacier2::Session
 };
 
 };
-

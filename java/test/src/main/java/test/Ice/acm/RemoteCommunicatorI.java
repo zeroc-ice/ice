@@ -10,16 +10,15 @@
 package test.Ice.acm;
 
 import test.Ice.acm.Test.RemoteObjectAdapterPrx;
-import test.Ice.acm.Test.RemoteObjectAdapterPrxHelper;
-import test.Ice.acm.Test._RemoteCommunicatorDisp;
+import test.Ice.acm.Test.RemoteCommunicator;
 
-public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
+public class RemoteCommunicatorI implements RemoteCommunicator
 {
-    public RemoteObjectAdapterPrx
-    createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
+    public RemoteObjectAdapterPrx createObjectAdapter(int timeout, int close, int heartbeat,
+                                                      com.zeroc.Ice.Current current)
     {
-        Ice.Communicator com = current.adapter.getCommunicator();
-        Ice.Properties properties = com.getProperties();
+        com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
+        com.zeroc.Ice.Properties properties = com.getProperties();
         String protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         String host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
@@ -37,14 +36,13 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
             properties.setProperty(name + ".ACM.Heartbeat", Integer.toString(heartbeat));
         }
         properties.setProperty(name + ".ThreadPool.Size", "2");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-        return RemoteObjectAdapterPrxHelper.uncheckedCast(
-            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+        com.zeroc.Ice.ObjectAdapter adapter =
+            com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
+        return RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
-};
+}

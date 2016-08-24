@@ -8,11 +8,12 @@
 // **********************************************************************
 
 package test.Ice.acm;
-import test.Ice.acm.Test._TestIntfDisp;
 
-public class TestI extends _TestIntfDisp
+import test.Ice.acm.Test.TestIntf;
+
+public class TestI implements TestIntf
 {
-    public void sleep(int delay, Ice.Current current)
+    public void sleep(int delay, com.zeroc.Ice.Current current)
     {
         synchronized(this)
         {
@@ -26,7 +27,7 @@ public class TestI extends _TestIntfDisp
         }
     }
 
-    public void sleepAndHold(int delay, Ice.Current current)
+    public void sleepAndHold(int delay, com.zeroc.Ice.Current current)
     {
         synchronized(this)
         {
@@ -41,7 +42,7 @@ public class TestI extends _TestIntfDisp
         }
     }
 
-    public void interruptSleep(Ice.Current current)
+    public void interruptSleep(com.zeroc.Ice.Current current)
     {
         synchronized(this)
         {
@@ -49,27 +50,35 @@ public class TestI extends _TestIntfDisp
         }
     }
 
-    public void waitForHeartbeat(int count, Ice.Current current)
+    static class Counter
     {
-        final Ice.Holder<Integer> c = new Ice.Holder<Integer>(count);
-        Ice.HeartbeatCallback callback = new Ice.HeartbeatCallback()
+        Counter(int v)
         {
-            synchronized public void heartbeat(Ice.Connection connection)
+            value = v;
+        }
+
+        int value;
+    }
+
+    public void waitForHeartbeat(int count, com.zeroc.Ice.Current current)
+    {
+        final Counter c = new Counter(count);
+        current.con.setHeartbeatCallback(con ->
             {
-                --c.value;
-                notifyAll();
-            }
+                synchronized(c)
+                {
+                    --c.value;
+                    c.notifyAll();
+                }
+            });
 
-        };
-        current.con.setHeartbeatCallback(callback);
-
-        synchronized(callback)
+        synchronized(c)
         {
             while(c.value > 0)
             {
                 try
                 {
-                    callback.wait();
+                    c.wait();
                 }
                 catch(InterruptedException ex)
                 {
@@ -77,4 +86,4 @@ public class TestI extends _TestIntfDisp
             }
         }
     }
-};
+}

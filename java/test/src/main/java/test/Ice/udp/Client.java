@@ -29,21 +29,20 @@ public class Client extends test.Util.Application
         }
         for(int i = 0; i < num; ++i)
         {
-            TestIntfPrxHelper.uncheckedCast(communicator().stringToProxy("control:tcp -p " + (12010 + i))).shutdown();
+            TestIntfPrx.uncheckedCast(communicator().stringToProxy("control:tcp -p " + (12010 + i))).shutdown();
         }
         return 0;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+        r.initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+        return r;
     }
 
     public static void main(String[] args)

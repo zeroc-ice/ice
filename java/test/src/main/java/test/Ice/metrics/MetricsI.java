@@ -8,73 +8,64 @@
 // **********************************************************************
 
 package test.Ice.metrics;
+
 import test.Ice.metrics.Test.*;
 
-public final class MetricsI extends _MetricsDisp
+public final class MetricsI implements Metrics
 {
-    public
-    MetricsI()
+    public MetricsI()
     {
     }
 
     @Override
-    public void
-    op(Ice.Current current)
+    public void op(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void
-    fail(Ice.Current current)
+    public void fail(com.zeroc.Ice.Current current)
     {
         current.con.close(true);
     }
 
     @Override
-    public void
-    opWithUserException(Ice.Current current)
+    public void opWithUserException(com.zeroc.Ice.Current current)
         throws UserEx
     {
         throw new UserEx();
     }
 
     @Override
-    public void
-    opWithRequestFailedException(Ice.Current current)
+    public void opWithRequestFailedException(com.zeroc.Ice.Current current)
     {
-        throw new Ice.ObjectNotExistException();
+        throw new com.zeroc.Ice.ObjectNotExistException();
     }
 
     @Override
-    public void
-    opWithLocalException(Ice.Current current)
+    public void opWithLocalException(com.zeroc.Ice.Current current)
     {
-        throw new Ice.SyscallException();
+        throw new com.zeroc.Ice.SyscallException();
     }
 
     @Override
-    public void
-    opWithUnknownException(Ice.Current current)
+    public void opWithUnknownException(com.zeroc.Ice.Current current)
     {
         throw new IllegalArgumentException();
     }
 
     @Override
-    public void
-    opByteS(byte[] bs, Ice.Current current)
+    public void opByteS(byte[] bs, com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public Ice.ObjectPrx
-    getAdmin(Ice.Current current)
+    public com.zeroc.Ice.ObjectPrx getAdmin(com.zeroc.Ice.Current current)
     {
         return current.adapter.getCommunicator().getAdmin();
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

@@ -598,7 +598,9 @@ public:
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
     ParamDeclList parameters() const;
     ParamDeclList inParameters() const;
+    void inParameters(ParamDeclList&, ParamDeclList&) const;
     ParamDeclList outParameters() const;
+    void outParameters(ParamDeclList&, ParamDeclList&) const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
@@ -606,6 +608,7 @@ public:
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
     bool returnsData() const;
+    bool returnsMultipleValues() const;
     bool sendsOptionals() const;
     int attributes() const;
     FormatType format() const;
@@ -1076,6 +1079,7 @@ private:
 
     Unit(bool, bool, bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
+    bool checkUndefinedTypes();
 
     bool _ignRedefs;
     bool _all;

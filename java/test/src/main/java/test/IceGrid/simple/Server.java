@@ -12,22 +12,20 @@ package test.IceGrid.simple;
 public class Server extends test.Util.Application
 {
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-        argsH.value = communicator().getProperties().parseCommandLineOptions("TestAdapter", argsH.value);
+        communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.Object object = new TestI();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.Object object = new TestI();
         String id = communicator().getProperties().getPropertyWithDefault("Identity", "test");
-        adapter.add(object, Ice.Util.stringToIdentity(id));
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity(id));
         //shutdownOnInterrupt();
         try
         {
             adapter.activate();
         }
-        catch(Ice.ObjectAdapterDeactivatedException ex)
+        catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
         {
         }
         communicator().waitForShutdown();
@@ -36,22 +34,20 @@ public class Server extends test.Util.Application
     }
     
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        GetInitDataResult r = super.getInitData(args);
         //
-        // Its possible to have batch oneway requests dispatched
+        // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
-        // scheduling so we supress this warning.
+        // scheduling so we suppress this warning.
         //
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        return initData;
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
+        return r;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Server c = new Server();
         int status = c.main("test.IceGrid.simple.Server", args);

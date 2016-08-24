@@ -14,8 +14,13 @@
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Current.ice>
+#include <Ice/JavaCompat.ice>
 
 #include <IceGrid/Admin.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid

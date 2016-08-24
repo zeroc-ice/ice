@@ -13,8 +13,7 @@ import test.Ice.adapterDeactivation.Test.Cookie;
 
 public final class CookieI extends Cookie
 {
-    public String
-    message()
+    public String message()
     {
         return "blahblah";
     }

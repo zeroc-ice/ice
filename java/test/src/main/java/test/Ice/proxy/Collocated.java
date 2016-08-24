@@ -14,10 +14,10 @@ public class Collocated extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
         AllTests.allTests(communicator, getWriter());
@@ -26,13 +26,12 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return r;
     }
 
     public static void main(String[] args)

@@ -27,4 +27,3 @@ jar {
 clean {
     delete("$rootProject.projectDir/lib/IceTestPlugins.jar")
 }
-

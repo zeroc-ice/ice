@@ -26,7 +26,7 @@ public class Client
         }
     }
 
-    private static void allTests(Ice.Communicator communicator)
+    private static void allTests(com.zeroc.Ice.Communicator communicator)
     {
         System.out.print("testing equals() for Slice structures... ");
         System.out.flush();
@@ -37,13 +37,13 @@ public class Client
         C def_cls = new C(5);
         S1 def_s = new S1("name");
         String[] def_ss = new String[]{ "one", "two", "three" };
-        ArrayList<Integer> def_il = new ArrayList<Integer>();
+        ArrayList<Integer> def_il = new ArrayList<>();
         def_il.add(1);
         def_il.add(2);
         def_il.add(3);
-        Map<String, String> def_sd = new HashMap<String, String>();
+        Map<String, String> def_sd = new HashMap<>();
         def_sd.put("abc", "def");
-        Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
+        com.zeroc.Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
         S2 def_s2 = new S2(true, (byte)98, (short)99, 100, 101, (float)1.0, 2.0, "string", def_ss, def_il, def_sd,
                            def_s, def_cls, def_prx);
 
@@ -151,11 +151,11 @@ public class Client
             S2 v1, v2;
 
             v1 = def_s2.clone();
-            v1.il = new ArrayList<Integer>(def_s2.il);
+            v1.il = new ArrayList<>(def_s2.il);
             test(v1.equals(def_s2));
 
             v1 = def_s2.clone();
-            v1.il = new ArrayList<Integer>();
+            v1.il = new ArrayList<>();
             test(!v1.equals(def_s2));
 
             v1 = def_s2.clone();
@@ -176,11 +176,11 @@ public class Client
             S2 v1, v2;
 
             v1 = def_s2.clone();
-            v1.sd = new HashMap<String, String>(def_s2.sd);
+            v1.sd = new HashMap<>(def_s2.sd);
             test(v1.equals(def_s2));
 
             v1 = def_s2.clone();
-            v1.sd = new HashMap<String, String>();
+            v1.sd = new HashMap<>();
             test(!v1.equals(def_s2));
 
             v1 = def_s2.clone();
@@ -272,7 +272,7 @@ public class Client
         System.out.println("ok");
     }
 
-    private static int run(String[] args, Ice.Communicator communicator)
+    private static int run(String[] args, com.zeroc.Ice.Communicator communicator)
     {
         allTests(communicator);
 
@@ -282,13 +282,13 @@ public class Client
     public static void main(String[] args)
     {
         int status = 0;
-        Ice.Communicator communicator = null;
+        com.zeroc.Ice.Communicator communicator = null;
 
         try
         {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
+            com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args);
+            communicator = ir.communicator;
+            status = run(ir.args, communicator);
         }
         catch(Exception ex)
         {
@@ -302,7 +302,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch(Ice.LocalException ex)
+            catch(com.zeroc.Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

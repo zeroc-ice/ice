@@ -27,7 +27,7 @@ public class Client extends test.Util.Application
             myClass.opVoid();
             throw new RuntimeException();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             out.println("ok");
         }
@@ -36,15 +36,14 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-        initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+        r.initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        r.initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        return r;
     }
 
     public static void main(String[] args)

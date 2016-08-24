@@ -16,13 +16,14 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ObjectFactory.ice>
 #include <Ice/ValueFactory.ice>
-#include <Ice/RouterF.ice>
-#include <Ice/LocatorF.ice>
+#include <Ice/Router.ice>
+#include <Ice/Locator.ice>
 #include <Ice/PluginF.ice>
 #include <Ice/ImplicitContextF.ice>
 #include <Ice/Current.ice>
 #include <Ice/Properties.ice>
 #include <Ice/FacetMap.ice>
+#include <Ice/JavaCompat.ice>
 
 /**
  *
@@ -33,6 +34,10 @@
  * additional functionality that supports high scalability.
  *
  **/
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 ["objc:prefix:ICE"]
 module Ice
 {

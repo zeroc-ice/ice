@@ -14,8 +14,7 @@ import test.Ice.servantLocator.Test.Cookie;
 public final class CookieI extends Cookie
 {
     @Override
-    public String
-    message()
+    public String message()
     {
         return "blahblah";
     }

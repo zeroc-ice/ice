@@ -12,12 +12,17 @@
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
 #include <Ice/Endpoint.ice>
+#include <Ice/JavaCompat.ice>
 
 /**
  *
  * IceSSL provides a secure transport for Ice.
  *
  **/
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 ["objc:prefix:ICESSL"]
 module IceSSL
 {
@@ -32,4 +37,3 @@ local class EndpointInfo extends Ice::EndpointInfo
 };
 
 };
-

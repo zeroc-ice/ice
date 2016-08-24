@@ -11,10 +11,9 @@ package com.zeroc.ejb;
 
 import com.zeroc.ice.Test.*;
 
-public class DatabaseI extends _DatabaseDisp
+public class DatabaseI implements Database
 {
-    public final Account 
-    getAccount(String id, Ice.Current current)
+    public final Account getAccount(String id, com.zeroc.Ice.Current current)
         throws AccountNotExistException
     {
         Account account = accounts.get(id);
@@ -25,11 +24,10 @@ public class DatabaseI extends _DatabaseDisp
         return account;
     }
 
-    public final void
-    addAccount(Account s, Ice.Current current)
+    public final void addAccount(Account s, com.zeroc.Ice.Current current)
     {
         accounts.put(s.id, s);
     }
 
-    private java.util.Map<String, Account> accounts = new java.util.HashMap<String, Account>();
+    private java.util.Map<String, Account> accounts = new java.util.HashMap<>();
 }

@@ -68,16 +68,12 @@ class D
 {
     int i;
     string s;
-
-    bool checkValues();
 };
 
 class F
 {
     ["protected"] E e1;
     E e2;
-
-    bool checkValues();
 };
 
 interface I

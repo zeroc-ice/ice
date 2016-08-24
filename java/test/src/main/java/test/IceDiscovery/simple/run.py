@@ -26,7 +26,7 @@ client = "test.IceDiscovery.simple.Client"
 
 num = 3
 
-args = " --Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory"
+args = " --Ice.Plugin.IceDiscovery=IceDiscovery:com.zeroc.IceDiscovery.PluginFactory"
 args += " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
 if not TestUtil.ipv6:

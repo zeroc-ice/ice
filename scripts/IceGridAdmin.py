@@ -229,7 +229,7 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
         return
 
     client = TestUtil.getDefaultClientFile()
-    if TestUtil.getDefaultMapping() != "java":
+    if TestUtil.getDefaultMapping() != "java" and TestUtil.getDefaultMapping() != "java-compat":
         client = os.path.join(testdir, client)
 
     clientOptions = ' ' + getDefaultLocatorProperty() + ' ' + additionalOptions
@@ -283,7 +283,7 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
     testdir = os.getcwd()
     server = TestUtil.getDefaultServerFile()
     client = TestUtil.getDefaultClientFile()
-    if TestUtil.getDefaultMapping() != "java":
+    if TestUtil.getDefaultMapping() != "java" and TestUtil.getDefaultMapping() != "java-compat":
         server = os.path.join(testdir, server)
         client = os.path.join(testdir, client)
 

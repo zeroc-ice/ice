@@ -8,12 +8,14 @@
 // **********************************************************************
 
 package test.Ice.serialize;
-import test.Ice.serialize.Test.*;
+
 import java.io.*;
 
-public final class InitialI extends _InitialDisp
+import test.Ice.serialize.Test.*;
+
+public final class InitialI implements Initial
 {
-    InitialI(Ice.ObjectAdapter adapter, Ice.Identity ident)
+    InitialI(com.zeroc.Ice.ObjectAdapter adapter, com.zeroc.Ice.Identity ident)
     {
         _s = new Struct1();
         _s.bo = true;
@@ -25,7 +27,7 @@ public final class InitialI extends _InitialDisp
         _s.d = 6.0;
         _s.str = "7";
         _s.e = MyEnum.enum2;
-        _s.p = InitialPrxHelper.uncheckedCast(adapter.createProxy(ident));
+        _s.p = InitialPrx.uncheckedCast(adapter.createProxy(ident));
 
         _d = new Derived();
         _d.b = _d;
@@ -35,20 +37,19 @@ public final class InitialI extends _InitialDisp
         _d.seq2 = new int[] { 5, 6, 7, 8, 9 };
         _d.seq3 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
         _d.seq4 = new Base[] { _d };
-        _d.d1 = new java.util.HashMap<Byte, Boolean>();
+        _d.d1 = new java.util.HashMap<>();
         _d.d1.put((byte)1, true);
-        _d.d2 = new java.util.HashMap<Short, Integer>();
+        _d.d2 = new java.util.HashMap<>();
         _d.d2.put((short)2, 3);
-        _d.d3 = new java.util.HashMap<String, MyEnum>();
+        _d.d3 = new java.util.HashMap<>();
         _d.d3.put("enum3", MyEnum.enum3);
-        _d.d4 = new java.util.HashMap<String, Base>();
+        _d.d4 = new java.util.HashMap<>();
         _d.d4.put("b", _d);
         _d.p = _s.p;
     }
 
     @Override
-    public byte[]
-    getStruct1(Ice.Current current)
+    public byte[] getStruct1(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -59,15 +60,14 @@ public final class InitialI extends _InitialDisp
         }
         catch(IOException ex)
         {
-            Ice.UnknownException e = new Ice.UnknownException();
+            com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
             throw e;
         }
     }
 
     @Override
-    public byte[]
-    getBase(Ice.Current current)
+    public byte[] getBase(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -78,15 +78,14 @@ public final class InitialI extends _InitialDisp
         }
         catch(IOException ex)
         {
-            Ice.UnknownException e = new Ice.UnknownException();
+            com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
             throw e;
         }
     }
 
     @Override
-    public byte[]
-    getEx(Ice.Current current)
+    public byte[] getEx(com.zeroc.Ice.Current current)
     {
         try
         {
@@ -101,15 +100,14 @@ public final class InitialI extends _InitialDisp
         }
         catch(IOException ex)
         {
-            Ice.UnknownException e = new Ice.UnknownException();
+            com.zeroc.Ice.UnknownException e = new com.zeroc.Ice.UnknownException();
             e.initCause(ex);
             throw e;
         }
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
+        com.zeroc.Ice.Properties properties = communicator().getProperties();
 
         int num = 0;
         try
@@ -29,8 +29,8 @@ public class Server extends test.Util.Application
         properties.setProperty("ControlAdapter.AdapterId", "control" + num);
         properties.setProperty("ControlAdapter.ThreadPool.Size", "1");
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
-        adapter.add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
+        adapter.add(new ControllerI(), com.zeroc.Ice.Util.stringToIdentity("controller" + num));
         adapter.activate();
 
         return WAIT;

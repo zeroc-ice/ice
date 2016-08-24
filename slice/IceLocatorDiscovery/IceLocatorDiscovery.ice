@@ -11,6 +11,11 @@
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Locator.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 /**
  * IceLocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via

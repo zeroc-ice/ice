@@ -9,10 +9,9 @@
 
 package test.Ice.metrics;
 
-class ObserverI implements Ice.Instrumentation.Observer
+class ObserverI implements com.zeroc.Ice.Instrumentation.Observer
 {
-    synchronized public void 
-    reset()
+    synchronized public void reset()
     {
         total = 0;
         current = 0;
@@ -20,39 +19,35 @@ class ObserverI implements Ice.Instrumentation.Observer
     }
 
     @Override
-    synchronized public void 
-    attach()
+    synchronized public void attach()
     {
         ++total;
         ++current;
     }
+
     @Override
-    synchronized public void 
-    detach()
+    synchronized public void detach()
     {
         --current;
     }
+
     @Override
-    synchronized public void 
-    failed(String s)
+    synchronized public void failed(String s)
     {
         ++failedCount;
     }
     
-    synchronized int 
-    getTotal()
+    synchronized int getTotal()
     {
         return total;
     }
 
-    synchronized int 
-    getCurrent()
+    synchronized int getCurrent()
     {
         return current;
     }
 
-    synchronized int 
-    getFailedCount()
+    synchronized int getFailedCount()
     {
         return failedCount;
     }
@@ -60,4 +55,4 @@ class ObserverI implements Ice.Instrumentation.Observer
     int total;
     int current;
     int failedCount;
-};
+}

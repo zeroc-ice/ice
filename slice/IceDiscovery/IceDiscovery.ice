@@ -11,6 +11,11 @@
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Identity.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 module IceDiscovery
 {

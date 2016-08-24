@@ -8,13 +8,13 @@
 // **********************************************************************
 
 package test.Ice.serialize;
+
 import test.Ice.serialize.Test.*;
 
 public class Client extends test.Util.Application
 {
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
         InitialPrx initial = AllTests.allTests(communicator(), false, out);
@@ -23,12 +23,11 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.serialize");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.serialize");
+        return r;
     }
 
     public static void main(String[] args)

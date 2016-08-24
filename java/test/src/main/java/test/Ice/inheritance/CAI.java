@@ -9,19 +9,17 @@
 
 package test.Ice.inheritance;
 
-import test.Ice.inheritance.Test.MA.CA;
+import test.Ice.inheritance.Test.MA._CADisp;
 import test.Ice.inheritance.Test.MA.CAPrx;
 
-public final class CAI extends CA
+public final class CAI implements _CADisp
 {
-    public
-    CAI()
+    public CAI()
     {
     }
 
     @Override
-    public CAPrx
-    caop(CAPrx p, Ice.Current current)
+    public CAPrx caop(CAPrx p, com.zeroc.Ice.Current current)
     {
         return p;
     }

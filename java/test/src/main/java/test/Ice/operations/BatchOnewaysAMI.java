@@ -11,10 +11,10 @@ package test.Ice.operations;
 
 import java.io.PrintWriter;
 
-import Ice.LocalException;
-import test.Ice.operations.Test.Callback_MyClass_opByteSOneway;
+import com.zeroc.Ice.Util;
+import com.zeroc.Ice.LocalException;
+
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
 
 class BatchOnewaysAMI
 {
@@ -63,28 +63,21 @@ class BatchOnewaysAMI
     {
         final byte[] bs1 = new byte[10 * 1024];
 
-        MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests()); // Empty flush
+        MyClassPrx batch = p.ice_batchOneway();
+        batch.ice_flushBatchRequestsAsync().join(); // Empty flush
 
-        test(batch.begin_ice_flushBatchRequests().isCompleted()); // Empty flush
-        test(batch.begin_ice_flushBatchRequests().isSent()); // Empty flush
-        test(batch.begin_ice_flushBatchRequests().sentSynchronously()); // Empty flush
+        {
+            test(batch.ice_flushBatchRequestsAsync().isDone()); // Empty flush
+            test(Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync()).isSent()); // Empty flush
+            test(Util.getInvocationFuture(batch.ice_flushBatchRequestsAsync()).sentSynchronously()); // Empty flush
+        }
 
         for(int i = 0; i < 30; ++i)
         {
-            batch.begin_opByteSOneway(bs1, new Callback_MyClass_opByteSOneway()
-            {
-                @Override
-                public void exception(LocalException ex)
+            batch.opByteSOnewayAsync(bs1).whenComplete((result, ex) ->
                 {
-                    test(false);
-                }
-
-                @Override
-                public void response()
-                {
-                }
-            });
+                    test(ex == null);
+                });
         }
 
         int count = 0;
@@ -102,35 +95,35 @@ class BatchOnewaysAMI
 
         if(batch.ice_getConnection() != null)
         {
-            MyClassPrx batch2 = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+            MyClassPrx batch2 = p.ice_batchOneway();
 
-            batch.begin_ice_ping();
-            batch2.begin_ice_ping();
-            batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
+            batch.ice_pingAsync();
+            batch2.ice_pingAsync();
+            batch.ice_flushBatchRequestsAsync().join();
             batch.ice_getConnection().close(false);
-            batch.begin_ice_ping();
-            batch2.begin_ice_ping();
+            batch.ice_pingAsync();
+            batch2.ice_pingAsync();
 
             batch.ice_getConnection();
             batch2.ice_getConnection();
 
-            batch.begin_ice_ping();
+            batch.ice_pingAsync();
             batch.ice_getConnection().close(false);
-            batch.begin_ice_ping().throwLocalException();
-            batch2.begin_ice_ping().throwLocalException();
+            test(!batch.ice_pingAsync().isCompletedExceptionally());
+            test(!batch2.ice_pingAsync().isCompletedExceptionally());
         }
 
-        Ice.Identity identity = new Ice.Identity();
+        com.zeroc.Ice.Identity identity = new com.zeroc.Ice.Identity();
         identity.name = "invalid";
-        Ice.ObjectPrx batch3 = batch.ice_identity(identity);
-        batch3.begin_ice_ping();
-        batch3.end_ice_flushBatchRequests(batch3.begin_ice_flushBatchRequests());
+        com.zeroc.Ice.ObjectPrx batch3 = batch.ice_identity(identity);
+        batch3.ice_pingAsync();
+        batch3.ice_flushBatchRequestsAsync().join();
 
         // Make sure that a bogus batch request doesn't cause troubles to other
         // ones.
-        batch3.begin_ice_ping();
-        batch.begin_ice_ping();
-        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-        batch.begin_ice_ping();
+        batch3.ice_pingAsync();
+        batch.ice_pingAsync();
+        batch.ice_flushBatchRequestsAsync().join();
+        batch.ice_pingAsync();
     }
 }

@@ -14,8 +14,7 @@ import test.Ice.seqMapping.Test.*;
 public class Client extends test.Util.Application
 {
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
 
@@ -30,12 +29,11 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
+        return r;
     }
 
     public static void main(String[] args)

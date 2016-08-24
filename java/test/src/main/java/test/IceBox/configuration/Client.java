@@ -14,25 +14,24 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         AllTests.allTests(communicator, getWriter());
 
         //
         // Shutdown the IceBox server.
         //
-        Ice.ProcessPrxHelper.uncheckedCast(communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))
-                .shutdown();
+        com.zeroc.Ice.ProcessPrx.uncheckedCast(
+            communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
         return 0;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
+        r.initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        return r;
     }
 
     public static void main(String[] args)

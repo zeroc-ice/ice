@@ -14,8 +14,7 @@ import test.Ice.servantLocator.AMD.Test.Cookie;
 public final class AMDCookieI extends Cookie
 {
     @Override
-    public String
-    message()
+    public String message()
     {
         return "blahblah";
     }

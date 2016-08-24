@@ -8,27 +8,28 @@
 // **********************************************************************
 
 package test.Ice.metrics;
-import test.Ice.metrics.Test._ControllerDisp;
 
-public final class ControllerI extends _ControllerDisp
+import test.Ice.metrics.Test.Controller;
+
+public final class ControllerI implements Controller
 {
-    public ControllerI(Ice.ObjectAdapter adapter)
+    public ControllerI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
 
     @Override
-    public void hold(Ice.Current current)
+    public void hold(com.zeroc.Ice.Current current)
     {
         _adapter.hold();
         _adapter.waitForHold();
     }
 
     @Override
-    public void resume(Ice.Current current)
+    public void resume(com.zeroc.Ice.Current current)
     {
         _adapter.activate();
     }
 
-    final private Ice.ObjectAdapter _adapter;
-};
+    final private com.zeroc.Ice.ObjectAdapter _adapter;
+}

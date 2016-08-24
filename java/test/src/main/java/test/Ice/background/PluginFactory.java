@@ -9,25 +9,24 @@
 
 package test.Ice.background;
 
-public class PluginFactory implements Ice.PluginFactory
+public class PluginFactory implements com.zeroc.Ice.PluginFactory
 {
-    static public class PluginI implements Ice.Plugin
+    static public class PluginI implements com.zeroc.Ice.Plugin
     {
-        public
-        PluginI(Ice.Communicator communicator)
+        public PluginI(com.zeroc.Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
-        
+
         @Override
-        public void
-        initialize()
+        public void initialize()
         {
             assert _configuration != null;
-            IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
+            com.zeroc.IceInternal.ProtocolPluginFacade facade =
+                com.zeroc.IceInternal.Util.getProtocolPluginFacade(_communicator);
             for(short s = 0; s < 100; ++s)
             {
-                IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);
+                com.zeroc.IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);
                 if(factory != null)
                 {
                     facade.addEndpointFactory(new EndpointFactory(_configuration, factory));
@@ -36,24 +35,21 @@ public class PluginFactory implements Ice.PluginFactory
         }
 
         @Override
-        public void
-        destroy()
+        public void destroy()
         {
         }
-        
-        public void
-        setConfiguration(Configuration configuration)
+
+        public void setConfiguration(Configuration configuration)
         {
             _configuration = configuration;
         }
 
-        private final Ice.Communicator _communicator;
+        private final com.zeroc.Ice.Communicator _communicator;
         private Configuration _configuration;
     }
 
     @Override
-    public Ice.Plugin
-    create(Ice.Communicator communicator, String name, String[] args)
+    public com.zeroc.Ice.Plugin create(com.zeroc.Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginI(communicator);
     }

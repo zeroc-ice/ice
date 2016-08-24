@@ -10,24 +10,21 @@
 package test.Ice.location;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
-import test.Ice.location.Test.Callback_Hello_sayHello;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Util;
+
 import test.Ice.location.Test.HelloPrx;
-import test.Ice.location.Test.HelloPrxHelper;
 import test.Ice.location.Test.ServerManagerPrx;
-import test.Ice.location.Test.ServerManagerPrxHelper;
 import test.Ice.location.Test.TestIntfPrx;
-import test.Ice.location.Test.TestIntfPrxHelper;
 import test.Ice.location.Test.TestLocatorPrx;
-import test.Ice.location.Test.TestLocatorPrxHelper;
 import test.Ice.location.Test.TestLocatorRegistryPrx;
-import test.Ice.location.Test.TestLocatorRegistryPrxHelper;
 import test.Util.Application;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -37,58 +34,60 @@ public class AllTests
 
     public static void
     allTests(Application app)
-        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
+        throws com.zeroc.Ice.AdapterAlreadyActiveException, com.zeroc.Ice.AdapterNotFoundException, InterruptedException
     {
-        Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
+        ServerManagerPrx manager = ServerManagerPrx.checkedCast(
             communicator.stringToProxy("ServerManager :default -p 12010"));
         test(manager != null);
 
-        TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+        TestLocatorPrx locator = TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);
 
-        TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+        TestLocatorRegistryPrx registry = TestLocatorRegistryPrx.checkedCast(locator.getRegistry());
         test(registry != null);
 
         out.print("testing stringToProxy... ");
         out.flush();
-        Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
-        Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
-        Ice.ObjectPrx base3 = communicator.stringToProxy("test");
-        Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
-        Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
-        Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+        ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
+        ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
+        ObjectPrx base3 = communicator.stringToProxy("test");
+        ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+        ObjectPrx base5 = communicator.stringToProxy("test2");
+        ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
         out.println("ok");
 
         out.print("testing ice_locator and ice_getLocator... ");
-        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-        Ice.LocatorPrx anotherLocator =
-            Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+        test(Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+        com.zeroc.Ice.LocatorPrx anotherLocator =
+            com.zeroc.Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         base = base.ice_locator(anotherLocator);
-        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
+        test(Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
         communicator.setDefaultLocator(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getLocator() == null);
         base = base.ice_locator(anotherLocator);
-        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
+        test(Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+        test(Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a
         // test/Ice/router test?)
         //
         test(base.ice_getRouter() == null);
-        Ice.RouterPrx anotherRouter = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+        com.zeroc.Ice.RouterPrx anotherRouter =
+            com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
         base = base.ice_router(anotherRouter);
-        test(Ice.Util.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) == 0);
-        Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+        test(Util.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) == 0);
+        com.zeroc.Ice.RouterPrx router =
+            com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
         communicator.setDefaultRouter(router);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.Util.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
+        test(Util.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
         communicator.setDefaultRouter(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getRouter() == null);
@@ -101,17 +100,17 @@ public class AllTests
 
         out.print("testing checked cast... ");
         out.flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
+        TestIntfPrx obj = TestIntfPrx.checkedCast(base);
         test(obj != null);
-        TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
+        TestIntfPrx obj2 = TestIntfPrx.checkedCast(base2);
         test(obj2 != null);
-        TestIntfPrx obj3 = TestIntfPrxHelper.checkedCast(base3);
+        TestIntfPrx obj3 = TestIntfPrx.checkedCast(base3);
         test(obj3 != null);
-        ServerManagerPrx obj4 = ServerManagerPrxHelper.checkedCast(base4);
+        ServerManagerPrx obj4 = ServerManagerPrx.checkedCast(base4);
         test(obj4 != null);
-        TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
+        TestIntfPrx obj5 = TestIntfPrx.checkedCast(base5);
         test(obj5 != null);
-        TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
+        TestIntfPrx obj6 = TestIntfPrx.checkedCast(base6);
         test(obj6 != null);
         out.println("ok");
 
@@ -123,7 +122,7 @@ public class AllTests
         {
             obj2.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -138,7 +137,7 @@ public class AllTests
         {
             obj6.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -153,7 +152,7 @@ public class AllTests
         {
             obj3.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -162,7 +161,7 @@ public class AllTests
         {
             obj2.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -173,7 +172,7 @@ public class AllTests
         {
             obj2.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -182,7 +181,7 @@ public class AllTests
         {
             obj3.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -194,7 +193,7 @@ public class AllTests
         {
             obj2.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -205,7 +204,7 @@ public class AllTests
         {
             obj3.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -216,7 +215,7 @@ public class AllTests
         {
             obj2.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -228,7 +227,7 @@ public class AllTests
         {
             obj5.ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -243,7 +242,7 @@ public class AllTests
             base.ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch(com.zeroc.Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject.equals("object"));
             test(ex.id.equals("unknown/unknown"));
@@ -258,7 +257,7 @@ public class AllTests
             base.ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch(com.zeroc.Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject.equals("object adapter"));
             test(ex.id.equals("TestAdapterUnknown"));
@@ -304,7 +303,7 @@ public class AllTests
 
         out.print("testing proxy from server... ");
         out.flush();
-        obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("test@TestAdapter"));
+        obj = TestIntfPrx.checkedCast(communicator.stringToProxy("test@TestAdapter"));
         HelloPrx hello = obj.getHello();
         test(hello.ice_getAdapterId().equals("TestAdapter"));
         hello = obj.getReplicatedHello();
@@ -321,36 +320,28 @@ public class AllTests
 
         out.print("testing locator request queuing... ");
         out.flush();
-        hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
+        hello = obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
         count = locator.getRequestCount();
         hello.ice_ping();
         test(++count == locator.getRequestCount());
-        java.util.List<Ice.AsyncResult> results = new java.util.LinkedList<Ice.AsyncResult>();
+        java.util.List<CompletableFuture<Void>> results = new java.util.LinkedList<>();
         for(int i = 0; i < 1000; i++)
         {
-            class AMICallback extends Callback_Hello_sayHello
-            {
-                @Override
-                public void
-                exception(Ice.LocalException ex)
+            CompletableFuture<Void> f = hello.sayHelloAsync();
+            f.whenComplete((result, ex) ->
                 {
-                    ex.printStackTrace();
-                    test(false);
-                }
-
-                @Override
-                public void
-                response()
-                {
-                }
-            };
-            Ice.AsyncResult result = hello.begin_sayHello(new AMICallback());
-            results.add(result);
+                    if(ex != null)
+                    {
+                        ex.printStackTrace();
+                        test(false);
+                    }
+                });
+            results.add(f);
         }
         while(!results.isEmpty())
         {
-            Ice.AsyncResult result = results.remove(0);
-            result.waitForCompleted();
+            CompletableFuture<Void> r = results.remove(0);
+            r.join();
         }
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
         if(locator.getRequestCount() > count + 800)
@@ -358,37 +349,27 @@ public class AllTests
             out.print("queuing = " + (locator.getRequestCount() - count));
         }
         count = locator.getRequestCount();
-        hello = (HelloPrx)hello.ice_adapterId("unknown");
+        hello = hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
         {
-            class AMICallback extends Callback_Hello_sayHello
-            {
-                @Override
-                public void
-                exception(Ice.LocalException ex)
+            CompletableFuture<Void> f = hello.sayHelloAsync();
+            f.whenComplete((result, ex) ->
                 {
-                    if(ex instanceof Ice.CommunicatorDestroyedException)
-                    {
-                        ex.printStackTrace();
-                        assert false;
-                    }
-                    test(ex instanceof Ice.NotRegisteredException);
-                }
-
-                @Override
-                public void
-                response()
-                {
-                    test(false);
-                }
-            };
-            Ice.AsyncResult result = hello.begin_sayHello(new AMICallback());
-            results.add(result);
+                    test(ex != null && ex instanceof com.zeroc.Ice.NotRegisteredException);
+                });
+            results.add(f);
         }
         while(!results.isEmpty())
         {
-            Ice.AsyncResult result = results.remove(0);
-            result.waitForCompleted();
+            CompletableFuture<Void> r = results.remove(0);
+            try
+            {
+                r.join();
+            }
+            catch(java.util.concurrent.CompletionException ex)
+            {
+                test(ex.getCause() instanceof com.zeroc.Ice.NotRegisteredException);
+            }
         }
         // Take into account the retries.
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
@@ -405,7 +386,7 @@ public class AllTests
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch(com.zeroc.Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject == "object adapter");
             test(ex.id.equals("TestAdapter3"));
@@ -417,7 +398,7 @@ public class AllTests
             registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:tcp"));
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -428,7 +409,7 @@ public class AllTests
             communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -436,7 +417,7 @@ public class AllTests
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
@@ -444,7 +425,7 @@ public class AllTests
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -460,7 +441,7 @@ public class AllTests
             communicator.stringToProxy("test3").ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch(com.zeroc.Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject == "object adapter");
             test(ex.id.equals("TestUnknown"));
@@ -473,7 +454,7 @@ public class AllTests
             communicator.stringToProxy("test3").ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
@@ -481,7 +462,7 @@ public class AllTests
         {
             communicator.stringToProxy("test3").ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             ex.printStackTrace();
             test(false);
@@ -492,7 +473,7 @@ public class AllTests
         {
             communicator.stringToProxy("test3").ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         ex.printStackTrace();
             test(false);
@@ -503,7 +484,7 @@ public class AllTests
             communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -511,7 +492,7 @@ public class AllTests
             communicator.stringToProxy("test@TestAdapter4").ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -519,7 +500,7 @@ public class AllTests
             communicator.stringToProxy("test3").ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -527,7 +508,7 @@ public class AllTests
         {
             communicator.stringToProxy("test3").ice_ping();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             test(false);
         }
@@ -538,7 +519,7 @@ public class AllTests
             communicator.stringToProxy("test4").ice_ping();
             test(false);
         }
-        catch(Ice.NoEndpointException ex)
+        catch(com.zeroc.Ice.NoEndpointException ex)
         {
         }
         out.println("ok");
@@ -546,10 +527,10 @@ public class AllTests
         out.print("testing locator cache background updates... ");
         out.flush();
         {
-            Ice.InitializationData initData = app.createInitializationData();
+            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            Ice.Communicator ic = app.initialize(initData);
+            com.zeroc.Ice.Communicator ic = app.initialize(initData);
 
             registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
             registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -579,7 +560,7 @@ public class AllTests
                     Thread.sleep(10);
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(com.zeroc.Ice.LocalException ex)
             {
                 // Expected to fail once they endpoints have been updated in the background.
             }
@@ -591,7 +572,7 @@ public class AllTests
                     Thread.sleep(10);
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(com.zeroc.Ice.LocalException ex)
             {
                 // Expected to fail once they endpoints have been updated in the background.
             }
@@ -609,7 +590,7 @@ public class AllTests
 
         out.print("testing object migration...");
         out.flush();
-        hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        hello = HelloPrx.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
         hello.ice_getConnection().close(false);
         hello.sayHello();
@@ -621,11 +602,11 @@ public class AllTests
 
         out.print("testing locator encoding resolution... ");
         out.flush();
-        hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        hello = HelloPrx.checkedCast(communicator.stringToProxy("hello"));
         count = locator.getRequestCount();
-        communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
+        communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Util.Encoding_1_1).ice_ping();
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Util.Encoding_1_0).ice_ping();
         test(++count == locator.getRequestCount());
         communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
         test(++count == locator.getRequestCount());
@@ -643,7 +624,7 @@ public class AllTests
             obj2.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -651,7 +632,7 @@ public class AllTests
             obj3.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         try
@@ -659,7 +640,7 @@ public class AllTests
             obj5.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
         }
         out.println("ok");
@@ -669,20 +650,20 @@ public class AllTests
         // Set up test for calling a collocated object through an
         // indirect, adapterless reference.
         //
-        Ice.Properties properties = communicator.getProperties();
+        com.zeroc.Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.PrintAdapterReady", "0");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
         adapter.setLocator(locator);
 
-        Ice.Identity id = new Ice.Identity();
+        com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
         id.name = java.util.UUID.randomUUID().toString();
         registry.addObject(adapter.add(new HelloI(), id));
         adapter.activate();
 
         // Note the quotes are necessary here due to ":" in the
         // java generated UUID.
-        HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-            communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
+        HelloPrx helloPrx = HelloPrx.checkedCast(
+            communicator.stringToProxy("\"" + com.zeroc.Ice.Util.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
         adapter.deactivate();

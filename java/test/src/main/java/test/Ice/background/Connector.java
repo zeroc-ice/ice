@@ -6,35 +6,32 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package test.Ice.background;
 
-final class Connector implements IceInternal.Connector
+final class Connector implements com.zeroc.IceInternal.Connector
 {
     @Override
-    public IceInternal.Transceiver
-    connect()
+    public com.zeroc.IceInternal.Transceiver connect()
     {
         _configuration.checkConnectException();
         return new Transceiver(_configuration, _connector.connect());
     }
 
     @Override
-    public short
-    type()
+    public short type()
     {
         return (short)(EndpointI.TYPE_BASE + _connector.type());
     }
 
     @Override
-    public String
-    toString()
+    public String toString()
     {
         return _connector.toString();
     }
 
     @Override
-    public int
-    hashCode()
+    public int hashCode()
     {
         return _connector.hashCode();
     }
@@ -42,15 +39,14 @@ final class Connector implements IceInternal.Connector
     //
     // Only for use by Endpoint
     //
-    Connector(Configuration configuration, IceInternal.Connector connector)
+    Connector(Configuration configuration, com.zeroc.IceInternal.Connector connector)
     {
         _configuration = configuration;
         _connector = connector;
     }
 
     @Override
-    public boolean
-    equals(java.lang.Object obj)
+    public boolean equals(java.lang.Object obj)
     {
         Connector p = null;
 
@@ -71,6 +67,6 @@ final class Connector implements IceInternal.Connector
         return _connector.equals(p._connector);
     } 
 
-    final private IceInternal.Connector _connector;
+    final private com.zeroc.IceInternal.Connector _connector;
     final private Configuration _configuration;
 }

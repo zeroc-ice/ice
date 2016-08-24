@@ -10,9 +10,14 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/JavaCompat.ice>
 
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 [["cpp:include:list"]]
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICE"]
 module Ice
@@ -230,4 +235,3 @@ interface LoggerAdmin
 };
 
 };
-

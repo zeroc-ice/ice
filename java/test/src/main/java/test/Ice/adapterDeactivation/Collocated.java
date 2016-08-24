@@ -11,11 +11,10 @@ package test.Ice.adapterDeactivation;
 
 public class Collocated extends test.Util.Application
 {
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ServantLocator locator = new ServantLocatorI();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ServantLocator locator = new ServantLocatorI();
         adapter.addServantLocator(locator, "");
 
         AllTests.allTests(this, getWriter());
@@ -24,23 +23,21 @@ public class Collocated extends test.Util.Application
         return 0;
     }
 
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        GetInitDataResult r = super.getInitData(args);
 
         //
         // 2 threads are necessary to dispatch the collocated transient() call with AMI
         //
-        initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
+        r.initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
 
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        return initData;
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        return r;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Collocated app = new Collocated();
         int result = app.main("Collocated", args);

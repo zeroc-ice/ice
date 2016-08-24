@@ -9,43 +9,47 @@
 
 package test.Ice.optional;
 
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
+import com.zeroc.Ice.Current;
+
 import test.Ice.optional.Test.*;
 
-public final class InitialI extends Initial
+public final class InitialI implements _InitialDisp
 {
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
     @Override
-    public Ice.Object
-    pingPong(Ice.Object obj, Ice.Current current)
+    public com.zeroc.Ice.Value pingPong(com.zeroc.Ice.Value obj, Current current)
     {
         return obj;
     }
 
     @Override
-    public void
-    opOptionalException(Ice.IntOptional a, Ice.Optional<String> b, Ice.Optional<OneOptional> o, Ice.Current current)
+    public void opOptionalException(OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
         throws OptionalException
     {
         OptionalException ex = new OptionalException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
         }
@@ -53,20 +57,19 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public void
-    opDerivedException(Ice.IntOptional a, Ice.Optional<String> b, Ice.Optional<OneOptional> o, Ice.Current current)
+    public void opDerivedException(OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
         throws OptionalException
     {
         DerivedException ex = new DerivedException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
             ex.setSs(b.get());
@@ -75,7 +78,7 @@ public final class InitialI extends Initial
         {
             ex.clearSs(); // The member "ss" has a default value.
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
             ex.setO2(o.get());
@@ -84,25 +87,24 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public void
-    opRequiredException(Ice.IntOptional a, Ice.Optional<String> b, Ice.Optional<OneOptional> o, Ice.Current current)
+    public void opRequiredException(OptionalInt a, Optional<String> b, Optional<OneOptional> o, Current current)
         throws OptionalException
     {
         RequiredException ex = new RequiredException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
             ex.ss = b.get();
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
             ex.o2 = o.get();
@@ -111,630 +113,479 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public Ice.ByteOptional
-    opByte(Ice.ByteOptional p1, Ice.ByteOptional p3, Ice.Current current)
+    public Initial.OpByteResult opByte(Optional<Byte> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpByteResult(p1, p1);
     }
 
     @Override
-    public byte
-    opByteReq(Ice.ByteOptional p1, Ice.ByteHolder p3, Ice.Current current)
+    public Initial.OpByteReqResult opByteReq(Optional<Byte> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpByteReqResult(p1, p1);
     }
 
     @Override
-    public Ice.BooleanOptional
-    opBool(Ice.BooleanOptional p1, Ice.BooleanOptional p3, Ice.Current current)
+    public Initial.OpBoolResult opBool(Optional<Boolean> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpBoolResult(p1, p1);
     }
 
     @Override
-    public boolean
-    opBoolReq(Ice.BooleanOptional p1, Ice.BooleanHolder p3, Ice.Current current)
+    public Initial.OpBoolReqResult opBoolReq(Optional<Boolean> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpBoolReqResult(p1, p1);
     }
 
     @Override
-    public Ice.ShortOptional
-    opShort(Ice.ShortOptional p1, Ice.ShortOptional p3, Ice.Current current)
+    public Initial.OpShortResult opShort(Optional<Short> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpShortResult(p1, p1);
     }
 
     @Override
-    public short
-    opShortReq(Ice.ShortOptional p1, Ice.ShortHolder p3, Ice.Current current)
+    public Initial.OpShortReqResult opShortReq(Optional<Short> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpShortReqResult(p1, p1);
     }
 
     @Override
-    public Ice.IntOptional
-    opInt(Ice.IntOptional p1, Ice.IntOptional p3, Ice.Current current)
+    public Initial.OpIntResult opInt(OptionalInt p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpIntResult(p1, p1);
     }
 
     @Override
-    public int
-    opIntReq(Ice.IntOptional p1, Ice.IntHolder p3, Ice.Current current)
+    public Initial.OpIntReqResult opIntReq(OptionalInt p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpIntReqResult(p1, p1);
     }
 
     @Override
-    public Ice.LongOptional
-    opLong(Ice.LongOptional p1, Ice.LongOptional p3, Ice.Current current)
+    public Initial.OpLongResult opLong(OptionalLong p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpLongResult(p1, p1);
     }
 
     @Override
-    public long
-    opLongReq(Ice.LongOptional p1, Ice.LongHolder p3, Ice.Current current)
+    public Initial.OpLongReqResult opLongReq(OptionalLong p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpLongReqResult(p1, p1);
     }
 
     @Override
-    public Ice.FloatOptional
-    opFloat(Ice.FloatOptional p1, Ice.FloatOptional p3, Ice.Current current)
+    public Initial.OpFloatResult opFloat(Optional<Float> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpFloatResult(p1, p1);
     }
 
     @Override
-    public float
-    opFloatReq(Ice.FloatOptional p1, Ice.FloatHolder p3, Ice.Current current)
+    public Initial.OpFloatReqResult opFloatReq(Optional<Float> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpFloatReqResult(p1, p1);
     }
 
     @Override
-    public Ice.DoubleOptional
-    opDouble(Ice.DoubleOptional p1, Ice.DoubleOptional p3, Ice.Current current)
+    public Initial.OpDoubleResult opDouble(OptionalDouble p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpDoubleResult(p1, p1);
     }
 
     @Override
-    public double
-    opDoubleReq(Ice.DoubleOptional p1, Ice.DoubleHolder p3, Ice.Current current)
+    public Initial.OpDoubleReqResult opDoubleReq(OptionalDouble p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpDoubleReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<String>
-    opString(Ice.Optional<String> p1, Ice.Optional<String> p3, Ice.Current current)
+    public Initial.OpStringResult opString(Optional<String> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpStringResult(p1, p1);
     }
 
     @Override
-    public String
-    opStringReq(Ice.Optional<String> p1, Ice.StringHolder p3, Ice.Current current)
+    public Initial.OpStringReqResult opStringReq(Optional<String> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpStringReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<MyEnum>
-    opMyEnum(Ice.Optional<MyEnum> p1, Ice.Optional<MyEnum> p3, Ice.Current current)
+    public Initial.OpMyEnumResult opMyEnum(Optional<MyEnum> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpMyEnumResult(p1, p1);
     }
 
     @Override
-    public MyEnum
-    opMyEnumReq(Ice.Optional<MyEnum> p1, MyEnumHolder p3, Ice.Current current)
+    public Initial.OpMyEnumReqResult opMyEnumReq(Optional<MyEnum> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpMyEnumReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<SmallStruct>
-    opSmallStruct(Ice.Optional<SmallStruct> p1, Ice.Optional<SmallStruct> p3, Ice.Current current)
+    public Initial.OpSmallStructResult opSmallStruct(Optional<SmallStruct> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpSmallStructResult(p1, p1);
     }
 
     @Override
-    public SmallStruct
-    opSmallStructReq(Ice.Optional<SmallStruct> p1, SmallStructHolder p3, Ice.Current current)
+    public Initial.OpSmallStructReqResult opSmallStructReq(Optional<SmallStruct> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpSmallStructReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<FixedStruct>
-    opFixedStruct(Ice.Optional<FixedStruct> p1, Ice.Optional<FixedStruct> p3, Ice.Current current)
+    public Initial.OpFixedStructResult opFixedStruct(Optional<FixedStruct> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpFixedStructResult(p1, p1);
     }
 
     @Override
-    public FixedStruct
-    opFixedStructReq(Ice.Optional<FixedStruct> p1, FixedStructHolder p3, Ice.Current current)
+    public Initial.OpFixedStructReqResult opFixedStructReq(Optional<FixedStruct> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpFixedStructReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<VarStruct>
-    opVarStruct(Ice.Optional<VarStruct> p1, Ice.Optional<VarStruct> p3, Ice.Current current)
+    public Initial.OpVarStructResult opVarStruct(Optional<VarStruct> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpVarStructResult(p1, p1);
     }
 
     @Override
-    public VarStruct
-    opVarStructReq(Ice.Optional<VarStruct> p1, VarStructHolder p3, Ice.Current current)
+    public Initial.OpVarStructReqResult opVarStructReq(Optional<VarStruct> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpVarStructReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<OneOptional>
-    opOneOptional(Ice.Optional<OneOptional> p1, Ice.Optional<OneOptional> p3, Ice.Current current)
+    public Initial.OpOneOptionalResult opOneOptional(Optional<OneOptional> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpOneOptionalResult(p1, p1);
     }
 
     @Override
-    public OneOptional
-    opOneOptionalReq(Ice.Optional<OneOptional> p1, OneOptionalHolder p3, Ice.Current current)
+    public Initial.OpOneOptionalReqResult opOneOptionalReq(Optional<OneOptional> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpOneOptionalReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<OneOptionalPrx>
-    opOneOptionalProxy(Ice.Optional<OneOptionalPrx> p1, Ice.Optional<OneOptionalPrx> p3, Ice.Current current)
+    public Initial.OpOneOptionalProxyResult opOneOptionalProxy(Optional<com.zeroc.Ice.ObjectPrx> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpOneOptionalProxyResult(p1, p1);
     }
 
     @Override
-    public OneOptionalPrx
-    opOneOptionalProxyReq(Ice.Optional<OneOptionalPrx> p1, OneOptionalPrxHolder p3, Ice.Current current)
+    public Initial.OpOneOptionalProxyReqResult opOneOptionalProxyReq(Optional<com.zeroc.Ice.ObjectPrx> p1,
+                                                                     Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpOneOptionalProxyReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<byte[]>
-    opByteSeq(Ice.Optional<byte[]> p1, Ice.Optional<byte[]> p3, Ice.Current current)
+    public Initial.OpByteSeqResult opByteSeq(Optional<byte[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpByteSeqResult(p1, p1);
     }
 
     @Override
-    public byte[]
-    opByteSeqReq(Ice.Optional<byte[]> p1, ByteSeqHolder p3, Ice.Current current)
+    public Initial.OpByteSeqReqResult opByteSeqReq(Optional<byte[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpByteSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<boolean[]>
-    opBoolSeq(Ice.Optional<boolean[]> p1, Ice.Optional<boolean[]> p3, Ice.Current current)
+    public Initial.OpBoolSeqResult opBoolSeq(Optional<boolean[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpBoolSeqResult(p1, p1);
     }
 
     @Override
-    public boolean[]
-    opBoolSeqReq(Ice.Optional<boolean[]> p1, BoolSeqHolder p3, Ice.Current current)
+    public Initial.OpBoolSeqReqResult opBoolSeqReq(Optional<boolean[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpBoolSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<short[]>
-    opShortSeq(Ice.Optional<short[]> p1, Ice.Optional<short[]> p3, Ice.Current current)
+    public Initial.OpShortSeqResult opShortSeq(Optional<short[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpShortSeqResult(p1, p1);
     }
 
     @Override
-    public short[]
-    opShortSeqReq(Ice.Optional<short[]> p1, ShortSeqHolder p3, Ice.Current current)
+    public Initial.OpShortSeqReqResult opShortSeqReq(Optional<short[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpShortSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<int[]>
-    opIntSeq(Ice.Optional<int[]> p1, Ice.Optional<int[]> p3, Ice.Current current)
+    public Initial.OpIntSeqResult opIntSeq(Optional<int[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpIntSeqResult(p1, p1);
     }
 
     @Override
-    public int[]
-    opIntSeqReq(Ice.Optional<int[]> p1, IntSeqHolder p3, Ice.Current current)
+    public Initial.OpIntSeqReqResult opIntSeqReq(Optional<int[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpIntSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<long[]>
-    opLongSeq(Ice.Optional<long[]> p1, Ice.Optional<long[]> p3, Ice.Current current)
+    public Initial.OpLongSeqResult opLongSeq(Optional<long[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpLongSeqResult(p1, p1);
     }
 
     @Override
-    public long[]
-    opLongSeqReq(Ice.Optional<long[]> p1, LongSeqHolder p3, Ice.Current current)
+    public Initial.OpLongSeqReqResult opLongSeqReq(Optional<long[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpLongSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<float[]>
-    opFloatSeq(Ice.Optional<float[]> p1, Ice.Optional<float[]> p3, Ice.Current current)
+    public Initial.OpFloatSeqResult opFloatSeq(Optional<float[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpFloatSeqResult(p1, p1);
     }
 
     @Override
-    public float[]
-    opFloatSeqReq(Ice.Optional<float[]> p1, FloatSeqHolder p3, Ice.Current current)
+    public Initial.OpFloatSeqReqResult opFloatSeqReq(Optional<float[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpFloatSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<double[]>
-    opDoubleSeq(Ice.Optional<double[]> p1, Ice.Optional<double[]> p3, Ice.Current current)
+    public Initial.OpDoubleSeqResult opDoubleSeq(Optional<double[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpDoubleSeqResult(p1, p1);
     }
 
     @Override
-    public double[]
-    opDoubleSeqReq(Ice.Optional<double[]> p1, DoubleSeqHolder p3, Ice.Current current)
+    public Initial.OpDoubleSeqReqResult opDoubleSeqReq(Optional<double[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpDoubleSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<String[]>
-    opStringSeq(Ice.Optional<String[]> p1, Ice.Optional<String[]> p3, Ice.Current current)
+    public Initial.OpStringSeqResult opStringSeq(Optional<String[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpStringSeqResult(p1, p1);
     }
 
     @Override
-    public String[]
-    opStringSeqReq(Ice.Optional<String[]> p1, StringSeqHolder p3, Ice.Current current)
+    public Initial.OpStringSeqReqResult opStringSeqReq(Optional<String[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpStringSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<SmallStruct[]>
-    opSmallStructSeq(Ice.Optional<SmallStruct[]> p1, Ice.Optional<SmallStruct[]> p3, Ice.Current current)
+    public Initial.OpSmallStructSeqResult opSmallStructSeq(Optional<SmallStruct[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpSmallStructSeqResult(p1, p1);
     }
 
     @Override
-    public SmallStruct[]
-    opSmallStructSeqReq(Ice.Optional<SmallStruct[]> p1, SmallStructSeqHolder p3, Ice.Current current)
+    public Initial.OpSmallStructSeqReqResult opSmallStructSeqReq(Optional<SmallStruct[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpSmallStructSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<java.util.List<SmallStruct>>
-    opSmallStructList(Ice.Optional<java.util.List<SmallStruct>> p1,
-                      Ice.Optional<java.util.List<SmallStruct>> p3, Ice.Current current)
+    public Initial.OpSmallStructListResult opSmallStructList(Optional<java.util.List<SmallStruct>> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpSmallStructListResult(p1, p1);
     }
 
     @Override
-    public java.util.List<SmallStruct>
-    opSmallStructListReq(Ice.Optional<java.util.List<SmallStruct>> p1, SmallStructListHolder p3, Ice.Current current)
+    public Initial.OpSmallStructListReqResult opSmallStructListReq(Optional<java.util.List<SmallStruct>> p1,
+                                                                   Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpSmallStructListReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<FixedStruct[]>
-    opFixedStructSeq(Ice.Optional<FixedStruct[]> p1, Ice.Optional<FixedStruct[]> p3, Ice.Current current)
+    public Initial.OpFixedStructSeqResult opFixedStructSeq(Optional<FixedStruct[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpFixedStructSeqResult(p1, p1);
     }
 
     @Override
-    public FixedStruct[]
-    opFixedStructSeqReq(Ice.Optional<FixedStruct[]> p1, FixedStructSeqHolder p3, Ice.Current current)
+    public Initial.OpFixedStructSeqReqResult opFixedStructSeqReq(Optional<FixedStruct[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpFixedStructSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<java.util.List<FixedStruct>>
-    opFixedStructList(Ice.Optional<java.util.List<FixedStruct>> p1,
-                      Ice.Optional<java.util.List<FixedStruct>> p3, Ice.Current current)
+    public Initial.OpFixedStructListResult opFixedStructList(Optional<java.util.List<FixedStruct>> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpFixedStructListResult(p1, p1);
     }
 
     @Override
-    public java.util.List<FixedStruct>
-    opFixedStructListReq(Ice.Optional<java.util.List<FixedStruct>> p1, FixedStructListHolder p3, Ice.Current current)
+    public Initial.OpFixedStructListReqResult opFixedStructListReq(Optional<java.util.List<FixedStruct>> p1,
+                                                                   Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpFixedStructListReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<VarStruct[]>
-    opVarStructSeq(Ice.Optional<VarStruct[]> p1, Ice.Optional<VarStruct[]> p3, Ice.Current current)
+    public Initial.OpVarStructSeqResult opVarStructSeq(Optional<VarStruct[]> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpVarStructSeqResult(p1, p1);
     }
 
     @Override
-    public VarStruct[]
-    opVarStructSeqReq(Ice.Optional<VarStruct[]> p1, VarStructSeqHolder p3, Ice.Current current)
+    public Initial.OpVarStructSeqReqResult opVarStructSeqReq(Optional<VarStruct[]> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpVarStructSeqReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<SerializableClass>
-    opSerializable(Ice.Optional<SerializableClass> p1, Ice.Optional<SerializableClass> p3, Ice.Current current)
+    public Initial.OpSerializableResult opSerializable(Optional<SerializableClass> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpSerializableResult(p1, p1);
     }
 
     @Override
-    public SerializableClass
-    opSerializableReq(Ice.Optional<SerializableClass> p1, Ice.Holder<SerializableClass> p3, Ice.Current current)
+    public Initial.OpSerializableReqResult opSerializableReq(Optional<SerializableClass> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpSerializableReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<java.util.Map<Integer, Integer>>
-    opIntIntDict(Ice.Optional<java.util.Map<Integer, Integer>> p1, Ice.Optional<java.util.Map<Integer, Integer>> p3,
-                 Ice.Current current)
+    public Initial.OpIntIntDictResult opIntIntDict(Optional<java.util.Map<Integer, Integer>> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpIntIntDictResult(p1, p1);
     }
 
     @Override
-    public java.util.Map<Integer, Integer>
-    opIntIntDictReq(Ice.Optional<java.util.Map<Integer, Integer>> p1, IntIntDictHolder p3, Ice.Current current)
+    public Initial.OpIntIntDictReqResult opIntIntDictReq(Optional<java.util.Map<Integer, Integer>> p1, Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpIntIntDictReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<java.util.Map<String, Integer>>
-    opStringIntDict(Ice.Optional<java.util.Map<String, Integer>> p1, Ice.Optional<java.util.Map<String, Integer>> p3,
-                    Ice.Current current)
+    public Initial.OpStringIntDictResult opStringIntDict(Optional<java.util.Map<String, Integer>> p1, Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpStringIntDictResult(p1, p1);
     }
 
     @Override
-    public java.util.Map<String, Integer>
-    opStringIntDictReq(Ice.Optional<java.util.Map<String, Integer>> p1, StringIntDictHolder p3, Ice.Current current)
+    public Initial.OpStringIntDictReqResult opStringIntDictReq(Optional<java.util.Map<String, Integer>> p1,
+                                                               Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpStringIntDictReqResult(p1, p1);
     }
 
     @Override
-    public Ice.Optional<java.util.Map<Integer, OneOptional>>
-    opIntOneOptionalDict(Ice.Optional<java.util.Map<Integer, OneOptional>> p1,
-                         Ice.Optional<java.util.Map<Integer, OneOptional>> p3, Ice.Current current)
+    public Initial.OpIntOneOptionalDictResult opIntOneOptionalDict(Optional<java.util.Map<Integer, OneOptional>> p1,
+                                                                   Current current)
     {
-        p3.set(p1);
-        return p1;
+        return new Initial.OpIntOneOptionalDictResult(p1, p1);
     }
 
     @Override
-    public java.util.Map<Integer, OneOptional>
-    opIntOneOptionalDictReq(Ice.Optional<java.util.Map<Integer, OneOptional>> p1, IntOneOptionalDictHolder p3,
-                            Ice.Current current)
+    public Initial.OpIntOneOptionalDictReqResult opIntOneOptionalDictReq(
+        Optional<java.util.Map<Integer, OneOptional>> p1,
+        Current current)
     {
-        p3.value = p1.get();
-        return p1.get();
+        return new Initial.OpIntOneOptionalDictReqResult(p1, p1);
     }
 
     @Override
-    public void
-    opClassAndUnknownOptional(A p, Ice.Current current)
+    public void opClassAndUnknownOptional(A p, Current current)
     {
     }
 
     @Override
-    public void
-    sendOptionalClass(boolean req, Ice.Optional<OneOptional> o, Ice.Current current)
+    public void sendOptionalClass(boolean req, Optional<OneOptional> o, Current current)
     {
     }
 
     @Override
-    public void
-    returnOptionalClass(boolean req, Ice.Optional<OneOptional> o, Ice.Current current)
+    public Optional<OneOptional> returnOptionalClass(boolean req, Current current)
     {
-        o.set(new OneOptional(53));
+        return Optional.of(new OneOptional(53));
     }
 
     @Override
-    public G
-    opG(G g, Ice.Current current)
+    public G opG(G g, Current current)
     {
         return g;
     }
 
     @Override
-    public void
-    opVoid(Ice.Current current)
+    public void opVoid(Current current)
     {
     }
 
     @Override
-    public Ice.Optional<SmallStruct> opMStruct1(Ice.Current current)
+    public Initial.OpMStruct1MarshaledResult opMStruct1(Current current)
     {
-        return new Ice.Optional<SmallStruct>(new SmallStruct());
+        return new Initial.OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current);
     }
 
     @Override
-    public Ice.Optional<SmallStruct>
-    opMStruct2(Ice.Optional<SmallStruct> p1, Ice.Optional<SmallStruct> p2, Ice.Current current)
+    public Initial.OpMStruct2MarshaledResult opMStruct2(Optional<SmallStruct> p1, Current current)
     {
-        if(p1.isSet())
-        {
-            p2.set(p1.get());
-        }
-        return p1;
+        return new Initial.OpMStruct2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Ice.Optional<String[]> opMSeq1(Ice.Current current)
+    public Initial.OpMSeq1MarshaledResult opMSeq1(Current current)
     {
-        return new Ice.Optional<String[]>(new String[0]);
+        return new Initial.OpMSeq1MarshaledResult(Optional.of(new String[0]), current);
     }
 
     @Override
-    public Ice.Optional<String[]> opMSeq2(Ice.Optional<String[]> p1, Ice.Optional<String[]> p2, Ice.Current current)
+    public Initial.OpMSeq2MarshaledResult opMSeq2(Optional<String[]> p1, Current current)
     {
-        if(p1.isSet())
-        {
-            p2.set(p1.get());
-        }
-        return p1;
+        return new Initial.OpMSeq2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Ice.Optional<java.util.Map<String, Integer>> opMDict1(Ice.Current current)
+    public Initial.OpMDict1MarshaledResult opMDict1(Current current)
     {
-        return new Ice.Optional<java.util.Map<String, Integer>>(new java.util.HashMap<String, Integer>());
+        return new Initial.OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current);
     }
 
     @Override
-    public Ice.Optional<java.util.Map<String, Integer>>
-    opMDict2(Ice.Optional<java.util.Map<String, Integer>> p1, Ice.Optional<java.util.Map<String, Integer>> p2,
-             Ice.Current current)
+    public Initial.OpMDict2MarshaledResult opMDict2(Optional<java.util.Map<String, Integer>> p1, Current current)
     {
-        if(p1.isSet())
-        {
-            p2.set(p1.get());
-        }
-        return p1;
+        return new Initial.OpMDict2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Ice.Optional<G> opMG1(Ice.Current current)
+    public Initial.OpMG1MarshaledResult opMG1(Current current)
     {
-        return new Ice.Optional<G>(new G());
+        return new Initial.OpMG1MarshaledResult(Optional.of(new G()), current);
     }
 
     @Override
-    public Ice.Optional<G> opMG2(Ice.Optional<G> p1, Ice.Optional<G> p2, Ice.Current current)
+    public Initial.OpMG2MarshaledResult opMG2(Optional<G> p1, Current current)
     {
-        if(p1.isSet())
-        {
-            p2.set(p1.get());
-        }
-        return p1;
+        return new Initial.OpMG2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public boolean
-    supportsRequiredParams(Ice.Current current)
+    public boolean supportsRequiredParams(Current current)
     {
         return true;
     }
 
     @Override
-    public boolean
-    supportsJavaSerializable(Ice.Current current)
+    public boolean supportsJavaSerializable(Current current)
     {
         return true;
     }
 
     @Override
-    public boolean
-    supportsCsharpSerializable(Ice.Current current)
+    public boolean supportsCsharpSerializable(Current current)
     {
         return false;
     }
 
     @Override
-    public boolean
-    supportsCppStringView(Ice.Current current)
+    public boolean supportsCppStringView(Current current)
     {
         return false;
     }

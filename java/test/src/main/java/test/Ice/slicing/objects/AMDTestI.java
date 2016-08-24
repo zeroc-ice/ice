@@ -9,12 +9,14 @@
 
 package test.Ice.slicing.objects;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.slicing.objects.serverAMD.Test.*;
 
-public final class AMDTestI extends _TestIntfDisp
+public final class AMDTestI implements TestIntf
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,85 +25,76 @@ public final class AMDTestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
+    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    SBaseAsObject_async(AMD_TestIntf_SBaseAsObject cb, Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.Value> SBaseAsObjectAsync(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
-        cb.ice_response(sb);
+        return CompletableFuture.completedFuture(sb);
     }
 
     @Override
-    public void
-    SBaseAsSBase_async(AMD_TestIntf_SBaseAsSBase cb, Ice.Current current)
+    public CompletionStage<SBase> SBaseAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
-        cb.ice_response(sb);
+        return CompletableFuture.completedFuture(sb);
     }
 
     @Override
-    public void
-    SBSKnownDerivedAsSBase_async(AMD_TestIntf_SBSKnownDerivedAsSBase cb, Ice.Current current)
+    public CompletionStage<SBase> SBSKnownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
         sbskd.sbskd = "SBSKnownDerived.sbskd";
-        cb.ice_response(sbskd);
+        return CompletableFuture.completedFuture(sbskd);
     }
 
     @Override
-    public void
-    SBSKnownDerivedAsSBSKnownDerived_async(AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived cb, Ice.Current current)
+    public CompletionStage<SBSKnownDerived> SBSKnownDerivedAsSBSKnownDerivedAsync(com.zeroc.Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
         sbskd.sbskd = "SBSKnownDerived.sbskd";
-        cb.ice_response(sbskd);
+        return CompletableFuture.completedFuture(sbskd);
     }
 
     @Override
-    public void
-    SBSUnknownDerivedAsSBase_async(AMD_TestIntf_SBSUnknownDerivedAsSBase cb, Ice.Current current)
+    public CompletionStage<SBase> SBSUnknownDerivedAsSBaseAsync(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
-        cb.ice_response(sbsud);
+        return CompletableFuture.completedFuture(sbsud);
     }
 
     @Override
-    public void
-    SBSUnknownDerivedAsSBaseCompact_async(AMD_TestIntf_SBSUnknownDerivedAsSBaseCompact cb, Ice.Current current)
+    public CompletionStage<SBase> SBSUnknownDerivedAsSBaseCompactAsync(com.zeroc.Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
-        cb.ice_response(sbsud);
+        return CompletableFuture.completedFuture(sbsud);
     }
 
     @Override
-    public void
-    SUnknownAsObject_async(AMD_TestIntf_SUnknownAsObject cb, Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.Value> SUnknownAsObjectAsync(com.zeroc.Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
-        cb.ice_response(su);
+        return CompletableFuture.completedFuture(su);
     }
 
     @Override
-    public void
-    checkSUnknown_async(AMD_TestIntf_checkSUnknown cb, Ice.Object obj, Ice.Current current)
+    public CompletionStage<Void> checkSUnknownAsync(com.zeroc.Ice.Value obj, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(obj instanceof SUnknown));
         }
@@ -110,22 +103,20 @@ public final class AMDTestI extends _TestIntfDisp
             SUnknown su = (SUnknown)obj;
             test(su.su.equals("SUnknown.su"));
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    oneElementCycle_async(AMD_TestIntf_oneElementCycle cb, Ice.Current current)
+    public CompletionStage<B> oneElementCycleAsync(com.zeroc.Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
         b.pb = b;
-        cb.ice_response(b);
+        return CompletableFuture.completedFuture(b);
     }
 
     @Override
-    public void
-    twoElementCycle_async(AMD_TestIntf_twoElementCycle cb, Ice.Current current)
+    public CompletionStage<B> twoElementCycleAsync(com.zeroc.Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -133,12 +124,11 @@ public final class AMDTestI extends _TestIntfDisp
         b2.sb = "B2.sb";
         b2.pb = b1;
         b1.pb = b2;
-        cb.ice_response(b1);
+        return CompletableFuture.completedFuture(b1);
     }
 
     @Override
-    public void
-    D1AsB_async(AMD_TestIntf_D1AsB cb, Ice.Current current)
+    public CompletionStage<B> D1AsBAsync(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -150,12 +140,11 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d1);
+        return CompletableFuture.completedFuture(d1);
     }
 
     @Override
-    public void
-    D1AsD1_async(AMD_TestIntf_D1AsD1 cb, Ice.Current current)
+    public CompletionStage<D1> D1AsD1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -167,12 +156,11 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d1);
+        return CompletableFuture.completedFuture(d1);
     }
 
     @Override
-    public void
-    D2AsB_async(AMD_TestIntf_D2AsB cb, Ice.Current current)
+    public CompletionStage<B> D2AsBAsync(com.zeroc.Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -184,12 +172,11 @@ public final class AMDTestI extends _TestIntfDisp
         d1.pd1 = d2;
         d2.pb = d1;
         d2.pd2 = d1;
-        cb.ice_response(d2);
+        return CompletableFuture.completedFuture(d2);
     }
 
     @Override
-    public void
-    paramTest1_async(AMD_TestIntf_paramTest1 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ParamTest1Result> paramTest1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -201,12 +188,11 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d1, d2);
+        return CompletableFuture.completedFuture(new TestIntf.ParamTest1Result(d1, d2));
     }
 
     @Override
-    public void
-    paramTest2_async(AMD_TestIntf_paramTest2 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ParamTest2Result> paramTest2Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -218,12 +204,11 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d2, d1);
+        return CompletableFuture.completedFuture(new TestIntf.ParamTest2Result(d2, d1));
     }
 
     @Override
-    public void
-    paramTest3_async(AMD_TestIntf_paramTest3 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ParamTest3Result> paramTest3Async(com.zeroc.Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -248,12 +233,11 @@ public final class AMDTestI extends _TestIntfDisp
         d3.sd1 = "D1.sd2 (p2 2)";
         d3.pd1 = null;
         d4.pd2 = d3;
-        cb.ice_response(d3, d2, d4);
+        return CompletableFuture.completedFuture(new TestIntf.ParamTest3Result(d3, d2, d4));
     }
 
     @Override
-    public void
-    paramTest4_async(AMD_TestIntf_paramTest4 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ParamTest4Result> paramTest4Async(com.zeroc.Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -262,12 +246,11 @@ public final class AMDTestI extends _TestIntfDisp
         d4.p1.sb = "B.sb (1)";
         d4.p2 = new B();
         d4.p2.sb = "B.sb (2)";
-        cb.ice_response(d4.p2, d4);
+        return CompletableFuture.completedFuture(new TestIntf.ParamTest4Result(d4.p2, d4));
     }
 
     @Override
-    public void
-    returnTest1_async(AMD_TestIntf_returnTest1 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ReturnTest1Result> returnTest1Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -279,12 +262,11 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d2, d2, d1);
+        return CompletableFuture.completedFuture(new TestIntf.ReturnTest1Result(d2, d2, d1));
     }
 
     @Override
-    public void
-    returnTest2_async(AMD_TestIntf_returnTest2 cb, Ice.Current current)
+    public CompletionStage<TestIntf.ReturnTest2Result> returnTest2Async(com.zeroc.Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -296,31 +278,30 @@ public final class AMDTestI extends _TestIntfDisp
         d2.pd2 = d1;
         d1.pb = d2;
         d1.pd1 = d2;
-        cb.ice_response(d1, d1, d2);
+        return CompletableFuture.completedFuture(new TestIntf.ReturnTest2Result(d1, d1, d2));
     }
 
     @Override
-    public void
-    returnTest3_async(AMD_TestIntf_returnTest3 cb, B p1, B p2, Ice.Current current)
+    public CompletionStage<B> returnTest3Async(B p1, B p2, com.zeroc.Ice.Current current)
     {
-        cb.ice_response(p1);
+        return CompletableFuture.completedFuture(p1);
     }
 
     @Override
-    public void
-    sequenceTest_async(AMD_TestIntf_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
+    public CompletionStage<SS3> sequenceTestAsync(SS1 p1, SS2 p2, com.zeroc.Ice.Current current)
     {
         SS3 ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
-        cb.ice_response(ss);
+        return CompletableFuture.completedFuture(ss);
     }
 
     @Override
-    public void
-    dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map<Integer, B> bin, Ice.Current current)
+    public CompletionStage<TestIntf.DictionaryTestResult> dictionaryTestAsync(java.util.Map<Integer, B> bin,
+                                                                              com.zeroc.Ice.Current current)
     {
-        java.util.Map<Integer, B> bout = new java.util.HashMap<Integer, B>();
+        TestIntf.DictionaryTestResult r = new TestIntf.DictionaryTestResult();
+        r.bout = new java.util.HashMap<>();
         int i;
         for(i = 0; i < 10; ++i)
         {
@@ -330,39 +311,37 @@ public final class AMDTestI extends _TestIntfDisp
             d2.pb = b.pb;
             d2.sd2 = "D2";
             d2.pd2 = d2;
-            bout.put(i * 10, d2);
+            r.bout.put(i * 10, d2);
         }
-        java.util.Map<Integer, B> r = new java.util.HashMap<Integer, B>();
+        r.returnValue = new java.util.HashMap<>();
         for(i = 0; i < 10; ++i)
         {
             String s = "D1." + new Integer(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
-            d1.pb = (i == 0 ? null : r.get((i - 1) * 20));
+            d1.pb = (i == 0 ? null : r.returnValue.get((i - 1) * 20));
             d1.sd1 = s;
             d1.pd1 = d1;
-            r.put(i * 20, d1);
+            r.returnValue.put(i * 20, d1);
         }
-        cb.ice_response(r, bout);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    exchangePBase_async(AMD_TestIntf_exchangePBase cb, PBase pb, Ice.Current current)
+    public CompletionStage<PBase> exchangePBaseAsync(PBase pb, com.zeroc.Ice.Current current)
     {
-        cb.ice_response(pb);
+        return CompletableFuture.completedFuture(pb);
     }
 
     @Override
-    public void
-    PBSUnknownAsPreserved_async(AMD_TestIntf_PBSUnknownAsPreserved cb, Ice.Current current)
+    public CompletionStage<Preserved> PBSUnknownAsPreservedAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if(!current.encoding.equals(Ice.Util.Encoding_1_0))
+        if(!current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -370,14 +349,13 @@ public final class AMDTestI extends _TestIntfDisp
             //
             r.cl = new MyClass(15);
         }
-        cb.ice_response(r);
+        return CompletableFuture.completedFuture(r);
     }
 
     @Override
-    public void
-    checkPBSUnknown_async(AMD_TestIntf_checkPBSUnknown cb, Preserved p, Ice.Current current)
+    public CompletionStage<Void> checkPBSUnknownAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -392,12 +370,11 @@ public final class AMDTestI extends _TestIntfDisp
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb, Ice.Current current)
+    public CompletionStage<Preserved> PBSUnknownAsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
@@ -407,15 +384,17 @@ public final class AMDTestI extends _TestIntfDisp
         r.graph.next = new PNode();
         r.graph.next.next = new PNode();
         r.graph.next.next.next = r.graph;
-        cb.ice_response(r);
-        r.graph.next.next.next = null; // Break the cycle.
+        return CompletableFuture.completedFuture(r);
+        //
+        // Can't do this with the Java 8 mapping:
+        //
+        //r.graph.next.next.next = null; // Break the cycle.
     }
 
     @Override
-    public void
-    checkPBSUnknownWithGraph_async(AMD_TestIntf_checkPBSUnknownWithGraph cb, Preserved p, Ice.Current current)
+    public CompletionStage<Void> checkPBSUnknownWithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown));
             test(p.pi == 5);
@@ -432,26 +411,27 @@ public final class AMDTestI extends _TestIntfDisp
             test(pu.graph.next.next.next == pu.graph);
             pu.graph.next.next.next = null;          // Break the cycle.
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb, Ice.Current current)
+    public CompletionStage<Preserved> PBSUnknown2AsPreservedWithGraphAsync(com.zeroc.Ice.Current current)
     {
         PSUnknown2 r = new PSUnknown2();
         r.pi = 5;
         r.ps = "preserved";
         r.pb = r;
-        cb.ice_response(r);
-        r.pb = null; // Break the cycle.
+        return CompletableFuture.completedFuture(r);
+        //
+        // Can't do this with the Java 8 mapping:
+        //
+        //r.pb = null; // Break the cycle.
     }
 
     @Override
-    public void
-    checkPBSUnknown2WithGraph_async(AMD_TestIntf_checkPBSUnknown2WithGraph cb, Preserved p, Ice.Current current)
+    public CompletionStage<Void> checkPBSUnknown2WithGraphAsync(Preserved p, com.zeroc.Ice.Current current)
     {
-        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        if(current.encoding.equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
             test(!(p instanceof PSUnknown2));
             test(p.pi == 5);
@@ -465,19 +445,17 @@ public final class AMDTestI extends _TestIntfDisp
             test(pu.pb == pu);
             pu.pb = null; // Break the cycle.
         }
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    exchangePNode_async(AMD_TestIntf_exchangePNode cb, PNode pn, Ice.Current current)
+    public CompletionStage<PNode> exchangePNodeAsync(PNode pn, com.zeroc.Ice.Current current)
     {
-        cb.ice_response(pn);
+        return CompletableFuture.completedFuture(pn);
     }
 
     @Override
-    public void
-    throwBaseAsBase_async(AMD_TestIntf_throwBaseAsBase cb, Ice.Current current)
+    public CompletionStage<Void> throwBaseAsBaseAsync(com.zeroc.Ice.Current current)
         throws BaseException
     {
         BaseException be = new BaseException();
@@ -485,12 +463,13 @@ public final class AMDTestI extends _TestIntfDisp
         be.pb = new B();
         be.pb.sb = "sb";
         be.pb.pb = be.pb;
-        cb.ice_exception(be);
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(be);
+        return r;
     }
 
     @Override
-    public void
-    throwDerivedAsBase_async(AMD_TestIntf_throwDerivedAsBase cb, Ice.Current current)
+    public CompletionStage<Void> throwDerivedAsBaseAsync(com.zeroc.Ice.Current current)
         throws BaseException
     {
         DerivedException de = new DerivedException();
@@ -504,12 +483,13 @@ public final class AMDTestI extends _TestIntfDisp
         de.pd1.pb = de.pd1;
         de.pd1.sd1 = "sd2";
         de.pd1.pd1 = de.pd1;
-        cb.ice_exception(de);
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(de);
+        return r;
     }
 
     @Override
-    public void
-    throwDerivedAsDerived_async(AMD_TestIntf_throwDerivedAsDerived cb, Ice.Current current)
+    public CompletionStage<Void> throwDerivedAsDerivedAsync(com.zeroc.Ice.Current current)
         throws DerivedException
     {
         DerivedException de = new DerivedException();
@@ -523,12 +503,13 @@ public final class AMDTestI extends _TestIntfDisp
         de.pd1.pb = de.pd1;
         de.pd1.sd1 = "sd2";
         de.pd1.pd1 = de.pd1;
-        cb.ice_exception(de);
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(de);
+        return r;
     }
 
     @Override
-    public void
-    throwUnknownDerivedAsBase_async(AMD_TestIntf_throwUnknownDerivedAsBase cb, Ice.Current current)
+    public CompletionStage<Void> throwUnknownDerivedAsBaseAsync(com.zeroc.Ice.Current current)
         throws BaseException
     {
         D2 d2 = new D2();
@@ -542,30 +523,35 @@ public final class AMDTestI extends _TestIntfDisp
         ude.pb = d2;
         ude.sude = "sude";
         ude.pd2 = d2;
-        cb.ice_exception(ude);
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(ude);
+        return r;
     }
 
     @Override
-    public void
-    throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
+    public CompletionStage<Void> throwPreservedExceptionAsync(com.zeroc.Ice.Current current)
     {
         PSUnknownException ue = new PSUnknownException();
         ue.p = new PSUnknown2();
         ue.p.pi = 5;
         ue.p.ps = "preserved";
         ue.p.pb = ue.p;
-        cb.ice_exception(ue);
-        ue.p.pb = null; // Break the cycle.
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(ue);
+        return r;
+        //
+        // Can't do this with the Java 8 mapping:
+        //
+        //ue.p.pb = null; // Break the cycle.
     }
 
     @Override
-    public void
-    useForward_async(AMD_TestIntf_useForward cb, Ice.Current current)
+    public CompletionStage<Forward> useForwardAsync(com.zeroc.Ice.Current current)
     {
         Forward f = new Forward();
         f = new Forward();
         f.h = new Hidden();
         f.h.f = f;
-        cb.ice_response(f);
+        return CompletableFuture.completedFuture(f);
     }
 }

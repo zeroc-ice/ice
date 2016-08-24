@@ -9,12 +9,11 @@
 
 package test.Ice.dispatcher;
 
-import test.Ice.dispatcher.Test._TestIntfDisp;
+import test.Ice.dispatcher.Test.TestIntf;
 
-public class TestI extends _TestIntfDisp
+public class TestI implements TestIntf
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -28,15 +27,14 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    op(Ice.Current current)
+    public void op(com.zeroc.Ice.Current current)
     {
         test(_dispatcher.isDispatcherThread());
     }
 
     @Override
     public void
-    sleep(int to, Ice.Current current)
+    sleep(int to, com.zeroc.Ice.Current current)
     {
         try
         {
@@ -49,15 +47,13 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    opWithPayload(byte[] seq, Ice.Current current)
+    public void opWithPayload(byte[] seq, com.zeroc.Ice.Current current)
     {
         test(_dispatcher.isDispatcherThread());
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

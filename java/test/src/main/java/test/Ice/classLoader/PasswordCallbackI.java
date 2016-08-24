@@ -9,7 +9,7 @@
 
 package test.Ice.classLoader;
 
-public class PasswordCallbackI implements IceSSL.PasswordCallback
+public class PasswordCallbackI implements com.zeroc.IceSSL.PasswordCallback
 {
     @Override
     public char[] getPassword(String alias)

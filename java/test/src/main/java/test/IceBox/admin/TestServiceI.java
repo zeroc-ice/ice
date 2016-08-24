@@ -9,9 +9,9 @@
 
 package test.IceBox.admin;
 
-public class TestServiceI implements IceBox.Service
+public class TestServiceI implements com.zeroc.IceBox.Service
 {
-    public TestServiceI(Ice.Communicator serviceManagerCommunicator)
+    public TestServiceI(com.zeroc.Ice.Communicator serviceManagerCommunicator)
     {
         TestFacetI facet = new TestFacetI();
 
@@ -24,23 +24,22 @@ public class TestServiceI implements IceBox.Service
         // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
         // Set the callback on the admin facet.
         //
-        Ice.Object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
+        com.zeroc.Ice.Object propFacet =
+            serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
         if(propFacet != null)
         {
-            Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
+            com.zeroc.Ice.NativePropertiesAdmin admin = (com.zeroc.Ice.NativePropertiesAdmin)propFacet;
             admin.addUpdateCallback(facet);
         }
     }
 
     @Override
-    public void
-    start(String name, Ice.Communicator communicator, String[] args)
+    public void start(String name, com.zeroc.Ice.Communicator communicator, String[] args)
     {
     }
 
     @Override
-    public void
-    stop()
+    public void stop()
     {
     }
 }

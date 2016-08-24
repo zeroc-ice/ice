@@ -14,14 +14,14 @@ public class AMDServer extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-        Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-        Ice.Object object = new ThrowerI();
-        adapter.add(object, Ice.Util.stringToIdentity("thrower"));
-        adapter2.add(object, Ice.Util.stringToIdentity("thrower"));
-        adapter3.add(object, Ice.Util.stringToIdentity("thrower"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+        com.zeroc.Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+        com.zeroc.Ice.Object object = new ThrowerI();
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
+        adapter2.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
+        adapter3.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
         adapter.activate();
         adapter2.activate();
         adapter3.activate();
@@ -29,27 +29,27 @@ public class AMDServer extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData();
+        GetInitDataResult r = super.getInitData(args);
+
         //
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
         //
-        initData.logger = new DummyLogger();
+        r.initData.logger = new DummyLogger();
 
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions.AMD");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
-        initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
-        initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
-        initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions.AMD");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        r.initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
+        r.initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
+        r.initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
+        r.initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

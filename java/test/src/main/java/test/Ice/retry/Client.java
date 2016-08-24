@@ -18,18 +18,18 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
 
         //
         // Configure a second communicator for the invocation timeout
         // + retry test, we need to configure a large retry interval
         // to avoid time-sensitive failures.
         //
-        Ice.InitializationData initData2 = createInitializationData();
+        com.zeroc.Ice.InitializationData initData2 = createInitializationData();
         initData2.properties = communicator.getProperties()._clone();
         initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
         initData2.observer = instrumentation.getObserver();
-        Ice.Communicator communicator2 = initialize(initData2);
+        com.zeroc.Ice.Communicator communicator2 = initialize(initData2);
 
         try
         {
@@ -45,22 +45,21 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.observer = instrumentation.getObserver();
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.observer = instrumentation.getObserver();
 
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
-        initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+        r.initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
 
         //
         // We don't want connection warnings because of the timeout
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

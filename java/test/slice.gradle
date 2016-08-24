@@ -35,6 +35,7 @@ task testSliceTask {
                                                      'Ice/location/*.ice',
                                                      'Ice/metrics/*.ice',
                                                      'Ice/networkProxy/*.ice',
+                                                     'Ice/operations/*.ice',
                                                      'Ice/proxy/*.ice',
                                                      'Ice/retry/*.ice',
                                                      'Ice/seqMapping/*.ice',
@@ -63,22 +64,18 @@ task testSliceTask {
                                                      'Slice/structure/*.ice'])
             }
             set2 {
-                args = "--tie"
-                files = fileTree(dir: testDir, includes:['Ice/operations/*.ice'])
-            }
-            set4 {
                 args = "--checksum test.Ice.checksum.Test.SliceChecksums"
                 files = fileTree(dir: testDir, includes:['Ice/checksum/Test.ice',
                                                      'Ice/checksum/Types.ice'])
             }
-            set5 {
-                include = ["${testDir}/Ice/packagemd"]
-                files = fileTree(dir: testDir, includes:['Ice/packagemd/*.ice'])
-            }
-            set6 {
+            set3 {
                 args = "--checksum test.Ice.checksum.server.Test.SliceChecksums"
                 files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
                                                      'Ice/checksum/TypesServer.ice'])
+            }
+            set4 {
+                include = ["${testDir}/Ice/packagemd"]
+                files = fileTree(dir: testDir, includes:['Ice/packagemd/*.ice'])
             }
         }
     }

@@ -11,16 +11,15 @@ package com.zeroc.ice;
 
 public class IceAdapter 
 {
-    synchronized static public void
-    add(Ice.Object servant, Ice.Identity id)
+    synchronized static public void add(com.zeroc.Ice.Object servant, com.zeroc.Ice.Identity id)
     {
         if(_objectAdapter == null)
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Default.Package", "com.zeroc.ice");
             initData.properties.setProperty("Ice.UseApplicationClassLoader", "1");
-            Ice.Communicator communicator = Ice.Util.initialize(initData);
+            com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
             _objectAdapter = communicator.createObjectAdapterWithEndpoints("EJB", "tcp -h localhost -p 10000");
             _objectAdapter.activate();
         }
@@ -28,8 +27,7 @@ public class IceAdapter
         _objectAdapter.add(servant, id);
     }
 
-    synchronized static public void
-    remove(Ice.Identity id)
+    synchronized static public void remove(com.zeroc.Ice.Identity id)
     {
         assert _servantCount > 0;
         _objectAdapter.remove(id);
@@ -40,13 +38,12 @@ public class IceAdapter
         }
     }
 
-    synchronized static public Ice.ObjectPrx
-    stringToProxy(String str)
+    synchronized static public com.zeroc.Ice.ObjectPrx stringToProxy(String str)
     {
         assert _objectAdapter != null;
         return _objectAdapter.getCommunicator().stringToProxy(str);
     }
 
-    static private Ice.ObjectAdapter _objectAdapter = null;
+    static private com.zeroc.Ice.ObjectAdapter _objectAdapter = null;
     static private int _servantCount;
-};
+}

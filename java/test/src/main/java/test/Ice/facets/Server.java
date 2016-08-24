@@ -14,15 +14,15 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object d = new DI();
-        adapter.add(d, Ice.Util.stringToIdentity("d"));
-        adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
-        Ice.Object f = new FI();
-        adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
-        Ice.Object h = new HI(communicator);
-        adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.Object d = new DI();
+        adapter.add(d, com.zeroc.Ice.Util.stringToIdentity("d"));
+        adapter.addFacet(d, com.zeroc.Ice.Util.stringToIdentity("d"), "facetABCD");
+        com.zeroc.Ice.Object f = new FI();
+        adapter.addFacet(f, com.zeroc.Ice.Util.stringToIdentity("d"), "facetEF");
+        com.zeroc.Ice.Object h = new HI(communicator);
+        adapter.addFacet(h, com.zeroc.Ice.Util.stringToIdentity("d"), "facetGH");
 
         adapter.activate();
 
@@ -30,13 +30,12 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.facets");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.facets");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        return r;
     }
 
     public static void main(String[] args)

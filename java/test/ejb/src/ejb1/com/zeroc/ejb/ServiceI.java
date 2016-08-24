@@ -11,14 +11,13 @@ package com.zeroc.ejb;
 
 import javax.ejb.*;
 
-import com.zeroc.ice.Test._ServiceDisp;
 import com.zeroc.ice.Test.Account;
 import com.zeroc.ice.Test.AccountNotExistException;
 
 //
 // This Ice servant delegates the calls to the Service EJB
 //
-public class ServiceI extends _ServiceDisp
+public class ServiceI implements com.zeroc.ice.Test.Service
 {
     final private Service service;
 
@@ -27,14 +26,12 @@ public class ServiceI extends _ServiceDisp
         this.service = service;
     }
 
-    public final Account 
-    getAccount(String id, Ice.Current current)
+    public final Account getAccount(String id, com.zeroc.Ice.Current current)
     {
         return service.getAccount(id);
     }
 
-    public final void
-    addAccount(Account s, Ice.Current current)
+    public final void addAccount(Account s, com.zeroc.Ice.Current current)
     {
         service.addAccount(s);
     }

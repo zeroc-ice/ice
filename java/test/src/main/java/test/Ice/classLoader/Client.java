@@ -19,12 +19,12 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        _initData = createInitializationData();
-        _initData.properties = Ice.Util.createProperties(argsH);
+        GetInitDataResult r = super.getInitData(args);
+        _initData = r.initData;
         _initData.properties.setProperty("Ice.Package.Test", "test.Ice.classLoader");
-        return _initData;
+        return r;
     }
 
     public static void main(String[] args)
@@ -35,5 +35,5 @@ public class Client extends test.Util.Application
         System.exit(result);
     }
 
-    private Ice.InitializationData _initData;
+    private com.zeroc.Ice.InitializationData _initData;
 }

@@ -9,13 +9,13 @@
 
 package test.Ice.networkProxy;
 
-import test.Ice.networkProxy.Test._TestIntfDisp;
+import test.Ice.networkProxy.Test.TestIntf;
 
 public class Server extends test.Util.Application
 {
-    static public class TestI extends _TestIntfDisp
+    static public class TestI implements TestIntf
     {
-        public void shutdown(Ice.Current current)
+        public void shutdown(com.zeroc.Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
@@ -24,21 +24,20 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         adapter.activate();
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.networkProxy");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.networkProxy");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        return r;
     }
 
     public static void main(String[] args)

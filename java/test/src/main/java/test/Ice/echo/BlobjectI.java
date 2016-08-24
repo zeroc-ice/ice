@@ -9,41 +9,15 @@
 
 package test.Ice.echo;
 
-public class BlobjectI extends Ice.BlobjectAsync
+import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.Ice.Current;
+
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
+public class BlobjectI implements com.zeroc.Ice.BlobjectAsync
 {
-    class Callback extends Ice.Callback_Object_ice_invoke
-    {
-        public Callback(Ice.AMD_Object_ice_invoke cb, boolean twoway)
-        {
-            _cb = cb;
-            _twoway = twoway;
-        }
-
-        @Override
-        public void response(boolean ok, byte[] encaps)
-        {
-            _cb.ice_response(ok, encaps);
-        }
-        
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            _cb.ice_exception(ex);
-        }
-        
-        @Override
-        public void sent(boolean sync)
-        {
-            if(!_twoway)
-            {
-                _cb.ice_response(true, new byte[0]);
-            }
-        }
-
-        final Ice.AMD_Object_ice_invoke _cb;
-        final boolean _twoway;
-    };
-
     public void startBatch()
     {
         assert(_batchProxy == null);
@@ -58,11 +32,10 @@ public class BlobjectI extends Ice.BlobjectAsync
     }
 
     @Override
-    public void
-    ice_invoke_async(Ice.AMD_Object_ice_invoke amdCb, byte[] inEncaps, Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
     {
         boolean twoway = current.requestId > 0;
-        Ice.ObjectPrx obj = current.con.createProxy(current.id);
+        ObjectPrx obj = current.con.createProxy(current.id);
         if(!twoway)
         {
             if(_startBatch)
@@ -80,16 +53,32 @@ public class BlobjectI extends Ice.BlobjectAsync
                 obj = obj.ice_facet(current.facet);
             }
 
+            final com.zeroc.Ice.Object.Ice_invokeResult success =
+                new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]);
+
             if(_batchProxy != null)
             {
-                Ice.ByteSeqHolder out = new Ice.ByteSeqHolder();
-                obj.ice_invoke(current.operation, current.mode, inEncaps, out, current.ctx);
-                amdCb.ice_response(true, new byte[0]);
+                obj.ice_invoke(current.operation, current.mode, inEncaps, current.ctx);
+                return CompletableFuture.completedFuture(success);
             }
             else
             {
-                Callback cb = new Callback(amdCb, false);
-                obj.ice_oneway().begin_ice_invoke(current.operation, current.mode, inEncaps, current.ctx, cb);
+                final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> future =
+                    new CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>();
+                CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> r =
+                    obj.ice_oneway().ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx);
+                com.zeroc.Ice.Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            future.completeExceptionally(ex);
+                        }
+                        else
+                        {
+                            future.complete(success);
+                        }
+                    });
+                return future;
             }
         }
         else
@@ -99,11 +88,23 @@ public class BlobjectI extends Ice.BlobjectAsync
                 obj = obj.ice_facet(current.facet);
             }
 
-            Callback cb = new Callback(amdCb, true);
-            obj.begin_ice_invoke(current.operation, current.mode, inEncaps, current.ctx, cb);
+            final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> future =
+                new CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult>();
+            obj.ice_invokeAsync(current.operation, current.mode, inEncaps, current.ctx).whenComplete((result, ex) ->
+                {
+                    if(ex != null)
+                    {
+                        future.completeExceptionally(ex);
+                    }
+                    else
+                    {
+                        future.complete(result);
+                    }
+                });
+            return future;
         }
     }
 
-    private Ice.ObjectPrx _batchProxy;
+    private ObjectPrx _batchProxy;
     private boolean _startBatch;
 }

@@ -11,6 +11,12 @@
 
 [["cpp:header-ext:h", "objc:header-dir:objc"]]
 
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 /**
  *
  * IceBT provides a Bluetooth transport for Ice.

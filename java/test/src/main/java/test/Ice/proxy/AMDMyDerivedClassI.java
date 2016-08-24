@@ -8,49 +8,43 @@
 // **********************************************************************
 
 package test.Ice.proxy;
-import test.Ice.proxy.AMD.Test.AMD_MyClass_getContext;
-import test.Ice.proxy.AMD.Test.AMD_MyClass_shutdown;
-import test.Ice.proxy.AMD.Test.AMD_MyDerivedClass_echo;
-import test.Ice.proxy.AMD.Test.MyDerivedClass;
 
-public final class AMDMyDerivedClassI extends MyDerivedClass
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
+import test.Ice.proxy.AMD.Test._MyDerivedClassDisp;
+
+public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
 {
-    public
-    AMDMyDerivedClassI()
+    public AMDMyDerivedClassI()
     {
     }
 
     @Override
-    public void
-    echo_async(AMD_MyDerivedClass_echo cb,
-                   Ice.ObjectPrx obj,
-                   Ice.Current c)
+    public CompletionStage<com.zeroc.Ice.ObjectPrx> echoAsync(com.zeroc.Ice.ObjectPrx obj,
+                                                              com.zeroc.Ice.Current current)
     {
-        cb.ice_response(obj);
+        return CompletableFuture.completedFuture(obj);
     }
 
     @Override
-    public void
-    shutdown_async(AMD_MyClass_shutdown cb,
-                   Ice.Current c)
+    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current c)
     {
         c.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    getContext_async(AMD_MyClass_getContext cb, Ice.Current current)
+    public CompletionStage<java.util.Map<String, String>> getContextAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response(_ctx);
+        return CompletableFuture.completedFuture(_ctx);
     }
 
     @Override
-    public boolean
-    ice_isA(String s, Ice.Current current)
+    public boolean ice_isA(String s, com.zeroc.Ice.Current current)
     {
         _ctx = current.ctx;
-        return super.ice_isA(s, current);
+        return _MyDerivedClassDisp.super.ice_isA(s, current);
     }
 
     private java.util.Map<String, String> _ctx;

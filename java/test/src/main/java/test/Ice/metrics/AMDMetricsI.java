@@ -8,76 +8,78 @@
 // **********************************************************************
 
 package test.Ice.metrics;
+
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.metrics.AMD.Test.*;
 
-public final class AMDMetricsI extends _MetricsDisp
+public final class AMDMetricsI implements Metrics
 {
-    public
-    AMDMetricsI()
+    public AMDMetricsI()
     {
     }
 
     @Override
-    public void
-    op_async(AMD_Metrics_op cb, Ice.Current current)
+    public CompletionStage<Void> opAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    fail_async(AMD_Metrics_fail cb, Ice.Current current)
+    public CompletionStage<Void> failAsync(com.zeroc.Ice.Current current)
     {
         current.con.close(true);
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    opWithUserException_async(AMD_Metrics_opWithUserException cb, Ice.Current current)
+    public CompletionStage<Void> opWithUserExceptionAsync(com.zeroc.Ice.Current current)
         throws UserEx
     {
-        cb.ice_exception(new UserEx());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new UserEx());
+        return r;
     }
 
     @Override
-    public void
-    opWithRequestFailedException_async(AMD_Metrics_opWithRequestFailedException cb, Ice.Current current)
+    public CompletionStage<Void> opWithRequestFailedExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new Ice.ObjectNotExistException());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new com.zeroc.Ice.ObjectNotExistException());
+        return r;
     }
 
     @Override
-    public void
-    opWithLocalException_async(AMD_Metrics_opWithLocalException cb, Ice.Current current)
+    public CompletionStage<Void> opWithLocalExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new Ice.SyscallException());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new com.zeroc.Ice.SyscallException());
+        return r;
     }
 
     @Override
-    public void
-    opWithUnknownException_async(AMD_Metrics_opWithUnknownException cb, Ice.Current current)
+    public CompletionStage<Void> opWithUnknownExceptionAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_exception(new IllegalArgumentException());
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        r.completeExceptionally(new IllegalArgumentException());
+        return r;
     }
 
     @Override
-    public void
-    opByteS_async(AMD_Metrics_opByteS cb, byte[] bs, Ice.Current current)
+    public CompletionStage<Void> opByteSAsync(byte[] bs, com.zeroc.Ice.Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public Ice.ObjectPrx
-    getAdmin(Ice.Current current)
+    public com.zeroc.Ice.ObjectPrx getAdmin(com.zeroc.Ice.Current current)
     {
         return current.adapter.getCommunicator().getAdmin();
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

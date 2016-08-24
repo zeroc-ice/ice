@@ -35,6 +35,7 @@ cgenerated
 sgenerated
 /java/depcache
 /java/lib
+/java-compat/lib
 /android/lib
 /cpp/bin
 /cpp/lib

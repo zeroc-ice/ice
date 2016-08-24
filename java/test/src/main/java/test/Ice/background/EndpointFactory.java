@@ -6,63 +6,59 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package test.Ice.background;
 
-final class EndpointFactory implements IceInternal.EndpointFactory
+final class EndpointFactory implements com.zeroc.IceInternal.EndpointFactory
 {
-    EndpointFactory(Configuration configuration, IceInternal.EndpointFactory factory)
+    EndpointFactory(Configuration configuration, com.zeroc.IceInternal.EndpointFactory factory)
     {
         _configuration = configuration;
         _factory = factory;
     }
 
     @Override
-    public short
-    type()
+    public short type()
     {
         return (short)(EndpointI.TYPE_BASE + _factory.type());
     }
 
     @Override
-    public String
-    protocol()
+    public String protocol()
     {
         return "test-" + _factory.protocol();
     }
 
     @Override
-    public IceInternal.EndpointI
-    create(java.util.ArrayList<String> args, boolean server)
+    public com.zeroc.IceInternal.EndpointI create(java.util.ArrayList<String> args, boolean server)
     {
         return new EndpointI(_configuration, _factory.create(args, server));
     }
 
     @Override
-    public IceInternal.EndpointI
-    read(Ice.InputStream s)
+    public com.zeroc.IceInternal.EndpointI read(com.zeroc.Ice.InputStream s)
     {
         short type = s.readShort();
         assert(type == _factory.type());
 
         s.startEncapsulation();
-        IceInternal.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
+        com.zeroc.IceInternal.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
         s.endEncapsulation();
         return endpoint;
     }
 
     @Override
-    public void
-    destroy()
+    public void destroy()
     {
     }
 
     @Override
-    public IceInternal.EndpointFactory
-    clone(IceInternal.ProtocolInstance instance, IceInternal.EndpointFactory del)
+    public com.zeroc.IceInternal.EndpointFactory clone(com.zeroc.IceInternal.ProtocolInstance instance,
+                                                       com.zeroc.IceInternal.EndpointFactory del)
     {
         return this;
     }
 
     private Configuration _configuration;
-    private IceInternal.EndpointFactory _factory;
+    private com.zeroc.IceInternal.EndpointFactory _factory;
 }

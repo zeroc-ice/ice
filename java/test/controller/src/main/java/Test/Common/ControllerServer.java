@@ -9,19 +9,15 @@
 
 package Test.Common;
 
-import Test.Common._ControllerDisp;
-import Test.Common._ServerDisp;
-import Test.Common.ServerPrx;
-
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.util.regex.Pattern;
 
-public class ControllerServer extends Ice.Application
+public class ControllerServer extends com.zeroc.Ice.Application
 {
-    class ServerI extends _ServerDisp
+    class ServerI implements Server
     {
         public ServerI(Process process, String name)
         {
@@ -54,8 +50,6 @@ public class ControllerServer extends Ice.Application
 
                             if(line.matches(Pattern.quote("starting server...") + ".*ok.*") ||
                                line.matches(Pattern.quote("starting serveramd...") + ".*ok.*") ||
-                               line.matches(Pattern.quote("starting servertie...") + ".*ok.*") ||
-                               line.matches(Pattern.quote("starting serveramdtie...") + ".*ok.*") ||
                                line.matches("starting test.*" + Pattern.quote("Server...") + ".*ok.*"))
                             {
                                 synchronized(ServerI.this)
@@ -66,8 +60,6 @@ public class ControllerServer extends Ice.Application
                             }
                             else if(line.matches(Pattern.quote("starting server...") + ".*") ||
                                     line.matches(Pattern.quote("starting serveramd...") + ".*") ||
-                                    line.matches(Pattern.quote("starting servertie...") + ".*") ||
-                                    line.matches(Pattern.quote("starting serveramdtie...") + ".*") ||
                                     line.matches("starting test.*" + Pattern.quote("Server...")  + ".*"))
                             {
                                 String s = reader.readLine();
@@ -101,7 +93,7 @@ public class ControllerServer extends Ice.Application
             new Reader(_process.getInputStream()).start();
         }
 
-        public synchronized void terminate(Ice.Current current)
+        public synchronized void terminate(com.zeroc.Ice.Current current)
         {
             try
             {
@@ -133,7 +125,7 @@ public class ControllerServer extends Ice.Application
             }
         }
 
-        public void waitTestSuccess(Ice.Current current)
+        public void waitTestSuccess(com.zeroc.Ice.Current current)
         {
             Process p = null;
             synchronized(this)
@@ -157,7 +149,7 @@ public class ControllerServer extends Ice.Application
             }
         }
 
-        public synchronized void waitForServer(Ice.Current current)
+        public synchronized void waitForServer(com.zeroc.Ice.Current current)
             throws ServerFailedException
         {
             while(!_terminated)
@@ -189,7 +181,7 @@ public class ControllerServer extends Ice.Application
         private boolean _terminated;
     }
 
-    public class ControllerI extends _ControllerDisp
+    public class ControllerI implements Controller
     {
         public ControllerI(String[] args)
         {
@@ -198,7 +190,7 @@ public class ControllerServer extends Ice.Application
 
         @Override
         public ServerPrx runServer(String lang, final String name, String protocol, String host,
-                                   boolean winrt, String configName, String[] options, Ice.Current current)
+                                   boolean winrt, String configName, String[] options, com.zeroc.Ice.Current current)
         {
             if(_server != null)
             {
@@ -206,14 +198,14 @@ public class ControllerServer extends Ice.Application
                 {
                     _server.terminate();
                 }
-                catch(Ice.LocalException ex)
+                catch(com.zeroc.Ice.LocalException ex)
                 {
                 }
             }
 
             String script = lang + (lang.equals("java") ? "/test/src/main/java/" : "/") + "test/" + name + "/run.py";
 
-            java.util.List<String> args = new java.util.ArrayList<String>();
+            java.util.List<String> args = new java.util.ArrayList<>();
             args.add("python");
             args.add(script);
             args.add("--server");
@@ -256,7 +248,7 @@ public class ControllerServer extends Ice.Application
                     .directory(_toplevel)
                     .redirectErrorStream(true)
                     .start();
-                _server = ServerPrxHelper.uncheckedCast(current.adapter.addWithUUID(new ServerI(process, name)));
+                _server = ServerPrx.uncheckedCast(current.adapter.addWithUUID(new ServerI(process, name)));
             }
             catch(java.io.IOException ex)
             {
@@ -270,11 +262,10 @@ public class ControllerServer extends Ice.Application
     }
 
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControllerAdapter");
-        adapter.add(new ControllerI(args), Ice.Util.stringToIdentity("controller"));
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControllerAdapter");
+        adapter.add(new ControllerI(args), com.zeroc.Ice.Util.stringToIdentity("controller"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;
@@ -285,8 +276,7 @@ public class ControllerServer extends Ice.Application
         _toplevel = toplevel;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         try
         {
@@ -295,8 +285,9 @@ public class ControllerServer extends Ice.Application
                 "../../../../../");
 
             ControllerServer app = new ControllerServer(toplevel);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(args);
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
+            initData.properties = cpr.properties;
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             initData.properties.setProperty("IceSSL.DefaultDir", new File(toplevel, "certs").getCanonicalPath());
             initData.properties.setProperty("IceSSL.Keystore", "server.jks");
@@ -306,7 +297,7 @@ public class ControllerServer extends Ice.Application
             initData.properties.setProperty("ControllerAdapter.Endpoints",
                                             "tcp -p 15000:ssl -p 15001: ws -p 15002:wss -p 15003");
 
-            int status = app.main("ControllerServer", args, initData);
+            int status = app.main("ControllerServer", cpr.args, initData);
             System.exit(status);
         }
         catch(java.net.URISyntaxException ex)

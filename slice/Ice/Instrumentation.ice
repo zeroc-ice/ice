@@ -14,6 +14,11 @@
 #include <Ice/EndpointF.ice>
 #include <Ice/ConnectionF.ice>
 #include <Ice/Current.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICE"]
 module Ice
@@ -500,4 +505,3 @@ local interface CommunicatorObserver
 };
     
 };
-

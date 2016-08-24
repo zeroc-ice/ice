@@ -16,21 +16,20 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         ThrowerPrx thrower = AllTests.allTests(communicator, getWriter());
         thrower.shutdown();
         return 0;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        return r;
     }
 
     public static void main(String[] args)

@@ -11,11 +11,10 @@ package test.Ice.adapterDeactivation;
 
 public class Server extends test.Util.Application
 {
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ServantLocator locator = new ServantLocatorI();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ServantLocator locator = new ServantLocatorI();
 
         adapter.addServantLocator(locator, "");
         adapter.activate();
@@ -24,17 +23,15 @@ public class Server extends test.Util.Application
         return 0;
     }
 
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        return r;
     }
     
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Server app = new Server();
         int result = app.main("Server", args);

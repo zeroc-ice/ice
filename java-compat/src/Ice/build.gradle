@@ -1,0 +1,26 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+sourceCompatibility = iceSourceCompatibility
+targetCompatibility = iceTargetCompatibility
+
+project.ext.displayName = "Ice Compat"
+project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +
+                          " with minimal effort using familiar object-oriented idioms"
+
+slice {
+    java {
+        set1 {
+            args = "--ice"
+            files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice', 'IceSSL/*.ice'], excludes:['Ice/*F.ice'])
+        }
+    }
+}
+
+apply from: "$rootProject.projectDir/../java/gradle/library.gradle"

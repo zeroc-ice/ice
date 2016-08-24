@@ -1,0 +1,29 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+sourceCompatibility = iceSourceCompatibility
+targetCompatibility = iceTargetCompatibility
+
+project.ext.displayName = "Glacier2 Compat"
+project.ext.description = "Firewall traversal for Ice"
+
+slice {
+    java {
+        set1 {
+            args = "--ice --tie --checksum Glacier2.SliceChecksums"
+            files = fileTree(dir: "${sliceDir}/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
+        }
+    }
+}
+
+dependencies {
+    compile project(':ice-compat')
+}
+
+apply from: "$rootProject.projectDir/../java/gradle/library.gradle"

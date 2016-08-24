@@ -9,67 +9,74 @@
 
 package test.Ice.optional;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
+import com.zeroc.Ice.Current;
+
 import test.Ice.optional.AMD.Test.*;
 
-public final class AMDInitialI extends Initial
+public final class AMDInitialI implements _InitialDisp
 {
     @Override
-    public void
-    shutdown_async(AMD_Initial_shutdown cb, Ice.Current current)
+    public CompletionStage<Void> shutdownAsync(Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    pingPong_async(AMD_Initial_pingPong cb, Ice.Object obj, Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.Value> pingPongAsync(com.zeroc.Ice.Value v, Current current)
     {
-        cb.ice_response(obj);
+        return CompletableFuture.completedFuture(v);
     }
 
     @Override
-    public void
-    opOptionalException_async(AMD_Initial_opOptionalException cb, Ice.IntOptional a, Ice.Optional<String> b,
-                              Ice.Optional<OneOptional> o, Ice.Current current)
+    public CompletionStage<Void> opOptionalExceptionAsync(OptionalInt a, Optional<String> b, Optional<OneOptional> o,
+                                                          Current current)
         throws OptionalException
     {
         OptionalException ex = new OptionalException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
         }
-        cb.ice_exception(ex);
+        CompletableFuture<Void> f = new CompletableFuture<>();
+        f.completeExceptionally(ex);
+        return f;
     }
 
     @Override
-    public void
-    opDerivedException_async(AMD_Initial_opDerivedException cb, Ice.IntOptional a, Ice.Optional<String> b,
-                             Ice.Optional<OneOptional> o, Ice.Current current)
+    public CompletionStage<Void> opDerivedExceptionAsync(OptionalInt a, Optional<String> b, Optional<OneOptional> o,
+                                                         Current current)
         throws OptionalException
     {
         DerivedException ex = new DerivedException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
             ex.setSs(b.get());
@@ -78,597 +85,555 @@ public final class AMDInitialI extends Initial
         {
             ex.clearSs(); // The member "ss" has a default value.
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
             ex.setO2(o.get());
         }
-        cb.ice_exception(ex);
+        CompletableFuture<Void> f = new CompletableFuture<>();
+        f.completeExceptionally(ex);
+        return f;
     }
 
     @Override
-    public void
-    opRequiredException_async(AMD_Initial_opRequiredException cb, Ice.IntOptional a, Ice.Optional<String> b,
-                              Ice.Optional<OneOptional> o, Ice.Current current)
+    public CompletionStage<Void> opRequiredExceptionAsync(OptionalInt a, Optional<String> b, Optional<OneOptional> o,
+                                                          Current current)
         throws OptionalException
     {
         RequiredException ex = new RequiredException();
-        if(a.isSet())
+        if(a.isPresent())
         {
-            ex.setA(a.get());
+            ex.setA(a.getAsInt());
         }
         else
         {
             ex.clearA(); // The member "a" has a default value.
         }
-        if(b.isSet())
+        if(b.isPresent())
         {
             ex.setB(b.get());
             ex.ss = b.get();
         }
-        if(o.isSet())
+        if(o.isPresent())
         {
             ex.setO(o.get());
             ex.o2 = o.get();
         }
-        cb.ice_exception(ex);
+        CompletableFuture<Void> f = new CompletableFuture<>();
+        f.completeExceptionally(ex);
+        return f;
     }
 
     @Override
-    public void
-    opByte_async(AMD_Initial_opByte cb, Ice.ByteOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpByteResult> opByteAsync(Optional<Byte> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpByteResult(p1, p1));
     }
 
     @Override
-    public void
-    opByteReq_async(AMD_Initial_opByteReq cb, Ice.ByteOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpByteReqResult> opByteReqAsync(Optional<Byte> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpByteReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opBool_async(AMD_Initial_opBool cb, Ice.BooleanOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpBoolResult> opBoolAsync(Optional<Boolean> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpBoolResult(p1, p1));
     }
 
     @Override
-    public void
-    opBoolReq_async(AMD_Initial_opBoolReq cb, Ice.BooleanOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpBoolReqResult> opBoolReqAsync(Optional<Boolean> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpBoolReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opShort_async(AMD_Initial_opShort cb, Ice.ShortOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpShortResult> opShortAsync(Optional<Short> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpShortResult(p1, p1));
     }
 
     @Override
-    public void
-    opShortReq_async(AMD_Initial_opShortReq cb, Ice.ShortOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpShortReqResult> opShortReqAsync(Optional<Short> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpShortReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opInt_async(AMD_Initial_opInt cb, Ice.IntOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntResult> opIntAsync(OptionalInt p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpIntResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntReq_async(AMD_Initial_opIntReq cb, Ice.IntOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntReqResult> opIntReqAsync(OptionalInt p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpIntReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opLong_async(AMD_Initial_opLong cb, Ice.LongOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpLongResult> opLongAsync(OptionalLong p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpLongResult(p1, p1));
     }
 
     @Override
-    public void
-    opLongReq_async(AMD_Initial_opLongReq cb, Ice.LongOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpLongReqResult> opLongReqAsync(OptionalLong p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpLongReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFloat_async(AMD_Initial_opFloat cb, Ice.FloatOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpFloatResult> opFloatAsync(Optional<Float> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpFloatResult(p1, p1));
     }
 
     @Override
-    public void
-    opFloatReq_async(AMD_Initial_opFloatReq cb, Ice.FloatOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpFloatReqResult> opFloatReqAsync(Optional<Float> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpFloatReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opDouble_async(AMD_Initial_opDouble cb, Ice.DoubleOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpDoubleResult> opDoubleAsync(OptionalDouble p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpDoubleResult(p1, p1));
     }
 
     @Override
-    public void
-    opDoubleReq_async(AMD_Initial_opDoubleReq cb, Ice.DoubleOptional p1, Ice.Current current)
+    public CompletionStage<Initial.OpDoubleReqResult> opDoubleReqAsync(OptionalDouble p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpDoubleReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opString_async(AMD_Initial_opString cb, Ice.Optional<String> p1, Ice.Current current)
+    public CompletionStage<Initial.OpStringResult> opStringAsync(Optional<String> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpStringResult(p1, p1));
     }
 
     @Override
-    public void
-    opStringReq_async(AMD_Initial_opStringReq cb, Ice.Optional<String> p1, Ice.Current current)
+    public CompletionStage<Initial.OpStringReqResult> opStringReqAsync(Optional<String> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpStringReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opMyEnum_async(AMD_Initial_opMyEnum cb, Ice.Optional<MyEnum> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMyEnumResult> opMyEnumAsync(Optional<MyEnum> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpMyEnumResult(p1, p1));
     }
 
     @Override
-    public void
-    opMyEnumReq_async(AMD_Initial_opMyEnumReq cb, Ice.Optional<MyEnum> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMyEnumReqResult> opMyEnumReqAsync(Optional<MyEnum> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpMyEnumReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStruct_async(AMD_Initial_opSmallStruct cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructResult> opSmallStructAsync(Optional<SmallStruct> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStructReq_async(AMD_Initial_opSmallStructReq cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructReqResult> opSmallStructReqAsync(Optional<SmallStruct> p1,
+                                                                                 Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStruct_async(AMD_Initial_opFixedStruct cb, Ice.Optional<FixedStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructResult> opFixedStructAsync(Optional<FixedStruct> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStructReq_async(AMD_Initial_opFixedStructReq cb, Ice.Optional<FixedStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructReqResult> opFixedStructReqAsync(Optional<FixedStruct> p1,
+                                                                                 Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opVarStruct_async(AMD_Initial_opVarStruct cb, Ice.Optional<VarStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpVarStructResult> opVarStructAsync(Optional<VarStruct> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpVarStructResult(p1, p1));
     }
 
     @Override
-    public void
-    opVarStructReq_async(AMD_Initial_opVarStructReq cb, Ice.Optional<VarStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpVarStructReqResult> opVarStructReqAsync(Optional<VarStruct> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpVarStructReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opOneOptional_async(AMD_Initial_opOneOptional cb, Ice.Optional<OneOptional> p1, Ice.Current current)
+    public CompletionStage<Initial.OpOneOptionalResult> opOneOptionalAsync(Optional<OneOptional> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpOneOptionalResult(p1, p1));
     }
 
     @Override
-    public void
-    opOneOptionalReq_async(AMD_Initial_opOneOptionalReq cb, Ice.Optional<OneOptional> p1, Ice.Current current)
+    public CompletionStage<Initial.OpOneOptionalReqResult> opOneOptionalReqAsync(Optional<OneOptional> p1,
+                                                                                 Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpOneOptionalReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opOneOptionalProxy_async(AMD_Initial_opOneOptionalProxy cb, Ice.Optional<OneOptionalPrx> p1, Ice.Current current)
+    public CompletionStage<Initial.OpOneOptionalProxyResult> opOneOptionalProxyAsync(
+        Optional<com.zeroc.Ice.ObjectPrx> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpOneOptionalProxyResult(p1, p1));
     }
 
     @Override
-    public void
-    opOneOptionalProxyReq_async(AMD_Initial_opOneOptionalProxyReq cb, Ice.Optional<OneOptionalPrx> p1,
-                                Ice.Current current)
+    public CompletionStage<Initial.OpOneOptionalProxyReqResult> opOneOptionalProxyReqAsync(
+        Optional<com.zeroc.Ice.ObjectPrx> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpOneOptionalProxyReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opByteSeq_async(AMD_Initial_opByteSeq cb, Ice.Optional<byte[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpByteSeqResult> opByteSeqAsync(Optional<byte[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpByteSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opByteSeqReq_async(AMD_Initial_opByteSeqReq cb, Ice.Optional<byte[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpByteSeqReqResult> opByteSeqReqAsync(Optional<byte[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpByteSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opBoolSeq_async(AMD_Initial_opBoolSeq cb, Ice.Optional<boolean[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpBoolSeqResult> opBoolSeqAsync(Optional<boolean[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpBoolSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opBoolSeqReq_async(AMD_Initial_opBoolSeqReq cb, Ice.Optional<boolean[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpBoolSeqReqResult> opBoolSeqReqAsync(Optional<boolean[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpBoolSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opShortSeq_async(AMD_Initial_opShortSeq cb, Ice.Optional<short[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpShortSeqResult> opShortSeqAsync(Optional<short[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpShortSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opShortSeqReq_async(AMD_Initial_opShortSeqReq cb, Ice.Optional<short[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpShortSeqReqResult> opShortSeqReqAsync(Optional<short[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpShortSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntSeq_async(AMD_Initial_opIntSeq cb, Ice.Optional<int[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntSeqResult> opIntSeqAsync(Optional<int[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpIntSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntSeqReq_async(AMD_Initial_opIntSeqReq cb, Ice.Optional<int[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntSeqReqResult> opIntSeqReqAsync(Optional<int[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpIntSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opLongSeq_async(AMD_Initial_opLongSeq cb, Ice.Optional<long[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpLongSeqResult> opLongSeqAsync(Optional<long[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpLongSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opLongSeqReq_async(AMD_Initial_opLongSeqReq cb, Ice.Optional<long[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpLongSeqReqResult> opLongSeqReqAsync(Optional<long[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpLongSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFloatSeq_async(AMD_Initial_opFloatSeq cb, Ice.Optional<float[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFloatSeqResult> opFloatSeqAsync(Optional<float[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpFloatSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFloatSeqReq_async(AMD_Initial_opFloatSeqReq cb, Ice.Optional<float[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFloatSeqReqResult> opFloatSeqReqAsync(Optional<float[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpFloatSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opDoubleSeq_async(AMD_Initial_opDoubleSeq cb, Ice.Optional<double[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpDoubleSeqResult> opDoubleSeqAsync(Optional<double[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpDoubleSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opDoubleSeqReq_async(AMD_Initial_opDoubleSeqReq cb, Ice.Optional<double[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpDoubleSeqReqResult> opDoubleSeqReqAsync(Optional<double[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpDoubleSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opStringSeq_async(AMD_Initial_opStringSeq cb, Ice.Optional<String[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpStringSeqResult> opStringSeqAsync(Optional<String[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpStringSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opStringSeqReq_async(AMD_Initial_opStringSeqReq cb, Ice.Optional<String[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpStringSeqReqResult> opStringSeqReqAsync(Optional<String[]> p1, Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpStringSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStructSeq_async(AMD_Initial_opSmallStructSeq cb, Ice.Optional<SmallStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructSeqResult> opSmallStructSeqAsync(Optional<SmallStruct[]> p1,
+                                                                                 Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStructSeqReq_async(AMD_Initial_opSmallStructSeqReq cb, Ice.Optional<SmallStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructSeqReqResult> opSmallStructSeqReqAsync(Optional<SmallStruct[]> p1,
+                                                                                       Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStructList_async(AMD_Initial_opSmallStructList cb, Ice.Optional<java.util.List<SmallStruct>> p1,
-                            Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructListResult> opSmallStructListAsync(
+        Optional<java.util.List<SmallStruct>> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructListResult(p1, p1));
     }
 
     @Override
-    public void
-    opSmallStructListReq_async(AMD_Initial_opSmallStructListReq cb, Ice.Optional<java.util.List<SmallStruct>> p1,
-                               Ice.Current current)
+    public CompletionStage<Initial.OpSmallStructListReqResult> opSmallStructListReqAsync(
+        Optional<java.util.List<SmallStruct>> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpSmallStructListReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStructSeq_async(AMD_Initial_opFixedStructSeq cb, Ice.Optional<FixedStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructSeqResult> opFixedStructSeqAsync(
+        Optional<FixedStruct[]> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStructSeqReq_async(AMD_Initial_opFixedStructSeqReq cb, Ice.Optional<FixedStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructSeqReqResult> opFixedStructSeqReqAsync(
+        Optional<FixedStruct[]> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStructList_async(AMD_Initial_opFixedStructList cb, Ice.Optional<java.util.List<FixedStruct>> p1,
-                            Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructListResult> opFixedStructListAsync(
+        Optional<java.util.List<FixedStruct>> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructListResult(p1, p1));
     }
 
     @Override
-    public void
-    opFixedStructListReq_async(AMD_Initial_opFixedStructListReq cb, Ice.Optional<java.util.List<FixedStruct>> p1,
-                               Ice.Current current)
+    public CompletionStage<Initial.OpFixedStructListReqResult> opFixedStructListReqAsync(
+        Optional<java.util.List<FixedStruct>> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpFixedStructListReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opVarStructSeq_async(AMD_Initial_opVarStructSeq cb, Ice.Optional<VarStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpVarStructSeqResult> opVarStructSeqAsync(Optional<VarStruct[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpVarStructSeqResult(p1, p1));
     }
 
     @Override
-    public void
-    opVarStructSeqReq_async(AMD_Initial_opVarStructSeqReq cb, Ice.Optional<VarStruct[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpVarStructSeqReqResult> opVarStructSeqReqAsync(Optional<VarStruct[]> p1,
+                                                                                   Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpVarStructSeqReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opSerializable_async(AMD_Initial_opSerializable cb, Ice.Optional<SerializableClass> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSerializableResult> opSerializableAsync(Optional<SerializableClass> p1,
+                                                                             Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpSerializableResult(p1, p1));
     }
 
     @Override
-    public void
-    opSerializableReq_async(AMD_Initial_opSerializableReq cb, Ice.Optional<SerializableClass> p1, Ice.Current current)
+    public CompletionStage<Initial.OpSerializableReqResult> opSerializableReqAsync(Optional<SerializableClass> p1,
+                                                                                   Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpSerializableReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntIntDict_async(AMD_Initial_opIntIntDict cb, Ice.Optional<java.util.Map<Integer, Integer>> p1,
-                       Ice.Current current)
+    public CompletionStage<Initial.OpIntIntDictResult> opIntIntDictAsync(Optional<java.util.Map<Integer, Integer>> p1,
+                                                                         Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpIntIntDictResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntIntDictReq_async(AMD_Initial_opIntIntDictReq cb, Ice.Optional<java.util.Map<Integer, Integer>> p1,
-                          Ice.Current current)
+    public CompletionStage<Initial.OpIntIntDictReqResult> opIntIntDictReqAsync(
+        Optional<java.util.Map<Integer, Integer>> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpIntIntDictReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opStringIntDict_async(AMD_Initial_opStringIntDict cb, Ice.Optional<java.util.Map<String, Integer>> p1,
-                          Ice.Current current)
+    public CompletionStage<Initial.OpStringIntDictResult> opStringIntDictAsync(
+        Optional<java.util.Map<String, Integer>> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpStringIntDictResult(p1, p1));
     }
 
     @Override
-    public void
-    opStringIntDictReq_async(AMD_Initial_opStringIntDictReq cb, Ice.Optional<java.util.Map<String, Integer>> p1,
-                             Ice.Current current)
+    public CompletionStage<Initial.OpStringIntDictReqResult> opStringIntDictReqAsync(
+        Optional<java.util.Map<String, Integer>> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpStringIntDictReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntOneOptionalDict_async(AMD_Initial_opIntOneOptionalDict cb,
-        Ice.Optional<java.util.Map<Integer, OneOptional>> p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntOneOptionalDictResult> opIntOneOptionalDictAsync(
+        Optional<java.util.Map<Integer, OneOptional>> p1,
+        Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpIntOneOptionalDictResult(p1, p1));
     }
 
     @Override
-    public void
-    opIntOneOptionalDictReq_async(AMD_Initial_opIntOneOptionalDictReq cb,
-        Ice.Optional<java.util.Map<Integer, OneOptional>> p1, Ice.Current current)
+    public CompletionStage<Initial.OpIntOneOptionalDictReqResult> opIntOneOptionalDictReqAsync(
+        Optional<java.util.Map<Integer, OneOptional>> p1,
+        Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        return CompletableFuture.completedFuture(new Initial.OpIntOneOptionalDictReqResult(p1, p1));
     }
 
     @Override
-    public void
-    opClassAndUnknownOptional_async(AMD_Initial_opClassAndUnknownOptional cb, A p, Ice.Current current)
+    public CompletionStage<Void> opClassAndUnknownOptionalAsync(A p, Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void
-    sendOptionalClass_async(AMD_Initial_sendOptionalClass cb, boolean req, Ice.Optional<OneOptional> o,
-                            Ice.Current current)
+    public CompletionStage<Void> sendOptionalClassAsync(boolean req, Optional<OneOptional> o, Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void
-    returnOptionalClass_async(AMD_Initial_returnOptionalClass cb, boolean req, Ice.Current current)
+    public CompletionStage<Optional<OneOptional>> returnOptionalClassAsync(boolean req, Current current)
     {
-        cb.ice_response(new Ice.Optional<OneOptional>(new OneOptional(53)));
+        return CompletableFuture.completedFuture(Optional.of(new OneOptional(53)));
     }
 
     @Override
-    public void
-    opG_async(AMD_Initial_opG cb, G g, Ice.Current current)
+    public CompletionStage<G> opGAsync(G g, Current current)
     {
-        cb.ice_response(g);
+        return CompletableFuture.completedFuture(g);
     }
 
     @Override
-    public void
-    opVoid_async(AMD_Initial_opVoid cb, Ice.Current current)
+    public CompletionStage<Void> opVoidAsync(Current current)
     {
-        cb.ice_response();
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void opMStruct1_async(AMD_Initial_opMStruct1 cb, Ice.Current current)
+    public CompletionStage<Initial.OpMStruct1MarshaledResult> opMStruct1Async(Current current)
     {
-        cb.ice_response(new Ice.Optional<SmallStruct>(new SmallStruct()));
+        return CompletableFuture.completedFuture(
+            new Initial.OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current));
     }
 
     @Override
-    public void opMStruct2_async(AMD_Initial_opMStruct2 cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMStruct2MarshaledResult> opMStruct2Async(Optional<SmallStruct> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpMStruct2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void opMSeq1_async(AMD_Initial_opMSeq1 cb, Ice.Current current)
+    public CompletionStage<Initial.OpMSeq1MarshaledResult> opMSeq1Async(Current current)
     {
-        cb.ice_response(new Ice.Optional<String[]>(new String[0]));
+        return CompletableFuture.completedFuture(
+            new Initial.OpMSeq1MarshaledResult(Optional.of(new String[0]), current));
     }
 
     @Override
-    public void opMSeq2_async(AMD_Initial_opMSeq2 cb, Ice.Optional<String[]> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMSeq2MarshaledResult> opMSeq2Async(Optional<String[]> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpMSeq2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void opMDict1_async(AMD_Initial_opMDict1 cb, Ice.Current current)
+    public CompletionStage<Initial.OpMDict1MarshaledResult> opMDict1Async(Current current)
     {
-        cb.ice_response(new Ice.Optional<java.util.Map<String, Integer>>(new java.util.HashMap<String, Integer>()));
+        return CompletableFuture.completedFuture(
+            new Initial.OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current));
     }
 
     @Override
-    public void
-    opMDict2_async(AMD_Initial_opMDict2 cb, Ice.Optional<java.util.Map<String, Integer>> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMDict2MarshaledResult> opMDict2Async(Optional<java.util.Map<String, Integer>> p1,
+                                                                          Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpMDict2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void opMG1_async(AMD_Initial_opMG1 cb, Ice.Current current)
+    public CompletionStage<Initial.OpMG1MarshaledResult> opMG1Async(Current current)
     {
-        cb.ice_response(new Ice.Optional<G>(new G()));
+        return CompletableFuture.completedFuture(new Initial.OpMG1MarshaledResult(Optional.of(new G()), current));
     }
 
     @Override
-    public void opMG2_async(AMD_Initial_opMG2 cb, Ice.Optional<G> p1, Ice.Current current)
+    public CompletionStage<Initial.OpMG2MarshaledResult> opMG2Async(Optional<G> p1, Current current)
     {
-        cb.ice_response(p1, p1);
+        return CompletableFuture.completedFuture(new Initial.OpMG2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public void
-    supportsRequiredParams_async(AMD_Initial_supportsRequiredParams cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsRequiredParamsAsync(Current current)
     {
-        cb.ice_response(true);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
-    public void
-    supportsJavaSerializable_async(AMD_Initial_supportsJavaSerializable cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsJavaSerializableAsync(Current current)
     {
-        cb.ice_response(true);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
-    public void
-    supportsCsharpSerializable_async(AMD_Initial_supportsCsharpSerializable cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsCsharpSerializableAsync(Current current)
     {
-        cb.ice_response(false);
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override
-    public void
-    supportsCppStringView_async(AMD_Initial_supportsCppStringView cb, Ice.Current current)
+    public CompletionStage<Boolean> supportsCppStringViewAsync(Current current)
     {
-        cb.ice_response(false);
+        return CompletableFuture.completedFuture(false);
     }
 }

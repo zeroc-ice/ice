@@ -22,14 +22,13 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
-        initData.properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
+        r.initData.properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
+        return r;
     }
 
     public static void main(String[] args)

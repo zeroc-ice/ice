@@ -9,17 +9,20 @@
 
 package test.Ice.interceptor;
 
+import java.util.concurrent.CompletionStage;
+
+import com.zeroc.Ice.OutputStream;
+
 import test.Ice.interceptor.Test.RetryException;
 
-class InterceptorI extends Ice.DispatchInterceptor
+class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 {
-    InterceptorI(Ice.Object servant)
+    InterceptorI(com.zeroc.Ice.Object servant)
     {
         _servant = servant;
     }
 
-    protected static void
-    test(boolean b)
+    protected static void test(boolean b)
     {
         if(!b)
         {
@@ -27,15 +30,14 @@ class InterceptorI extends Ice.DispatchInterceptor
         }
     }
 
-    
     @Override
-    public Ice.DispatchStatus
-    dispatch(Ice.Request request)
+    public CompletionStage<OutputStream> dispatch(com.zeroc.Ice.Request request)
+        throws com.zeroc.Ice.UserException
     {
-        Ice.Current current = request.getCurrent();
+        com.zeroc.Ice.Current current = request.getCurrent();
         _lastOperation = current.operation;
 
-        if(_lastOperation.equals("addWithRetry"))
+        if(_lastOperation.equals("addWithRetry") || _lastOperation.equals("amdAddWithRetry"))
         {
             for(int i = 0; i < 10; ++i)
             {
@@ -51,34 +53,32 @@ class InterceptorI extends Ice.DispatchInterceptor
                     //
                 }
             }
-            
+
             current.ctx.put("retry", "no");
         }
-      
-        _lastStatus = _servant.ice_dispatch(request);
-        return _lastStatus;
+
+        CompletionStage<OutputStream> f = _servant.ice_dispatch(request);
+        _lastStatus = f != null;
+        return f;
     }
 
-    Ice.DispatchStatus
-    getLastStatus()
+    boolean getLastStatus()
     {
         return _lastStatus;
     }
 
-    String
-    getLastOperation()
+    String getLastOperation()
     {
         return _lastOperation;
     }
 
-    void
-    clear()
+    void clear()
     {
         _lastOperation = null;
-        _lastStatus = null;
+        _lastStatus = false;
     }
 
-    protected final Ice.Object _servant;
+    protected final com.zeroc.Ice.Object _servant;
     protected String _lastOperation;
-    protected Ice.DispatchStatus _lastStatus;
+    protected boolean _lastStatus;
 }

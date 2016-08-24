@@ -16,6 +16,11 @@
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <Ice/Locator.ice>
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid
@@ -268,4 +273,3 @@ interface Locator extends Ice::Locator
 };
 
 };
-

@@ -24,6 +24,9 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+namespace
+{
+
 string
 u16CodePoint(unsigned short value)
 {
@@ -47,55 +50,51 @@ writeU8Buffer(const vector<unsigned char>& u8buffer, ::IceUtilInternal::Output& 
     }
 }
 
-static string
+string
 sliceModeToIceMode(Operation::Mode opMode)
 {
-    string mode;
+    string mode = "com.zeroc.Ice.OperationMode.";
     switch(opMode)
     {
-        case Operation::Normal:
-        {
-            mode = "Ice.OperationMode.Normal";
-            break;
-        }
-        case Operation::Nonmutating:
-        {
-            mode = "Ice.OperationMode.Nonmutating";
-            break;
-        }
-        case Operation::Idempotent:
-        {
-            mode = "Ice.OperationMode.Idempotent";
-            break;
-        }
-        default:
-        {
-            assert(false);
-            break;
-        }
+    case Operation::Normal:
+        mode = "null"; // shorthand for most common case
+        break;
+    case Operation::Nonmutating:
+        mode += "Nonmutating";
+        break;
+    case Operation::Idempotent:
+        mode += "Idempotent";
+        break;
+    default:
+        assert(false);
+        break;
     }
     return mode;
 }
 
-static string
+string
 opFormatTypeToString(const OperationPtr& op)
 {
+    string format = "com.zeroc.Ice.FormatType.";
     switch(op->format())
     {
     case DefaultFormat:
-        return "Ice.FormatType.DefaultFormat";
+        format = "null"; // shorthand for most common case
+        break;
     case CompactFormat:
-        return "Ice.FormatType.CompactFormat";
+        format += "CompactFormat";
+        break;
     case SlicedFormat:
-        return "Ice.FormatType.SlicedFormat";
+        format += "SlicedFormat";
+        break;
     default:
         assert(false);
+        break;
     }
-
-    return "???";
+    return format;
 }
 
-static string
+string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
     string deprecateMetadata, deprecateReason;
@@ -111,6 +110,7 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
     return deprecateReason;
 }
 
+#if TBD
 string
 initValue(const TypePtr& p)
 {
@@ -180,6 +180,16 @@ writeParamList(Output& out, vector<string> params, bool end = true, bool newLine
         out.restoreIndent();
     }
 }
+#endif
+
+bool isValue(const TypePtr& type)
+{
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    return (b && b->usesClasses()) || cl;
+}
+
+}
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
     JavaGenerator(dir)
@@ -190,378 +200,450 @@ Slice::JavaVisitor::~JavaVisitor()
 {
 }
 
-ParamDeclList
-Slice::JavaVisitor::getOutParams(const OperationPtr& op)
+string
+Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package, bool object, bool dispatch)
 {
-    ParamDeclList outParams;
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+    if(dispatch && op->hasMarshaledResult())
     {
-        if((*i)->isOutParam())
-        {
-            outParams.push_back(*i);
-        }
+        ContainedPtr c = ContainedPtr::dynamicCast(op->container());
+        assert(c);
+        string abs = getAbsolute(c, package);
+        string name = op->name();
+        name[0] = toupper(static_cast<unsigned char>(name[0]));
+        return abs + "." + name + "MarshaledResult";
     }
-    return outParams;
-}
-
-vector<string>
-Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, bool local, bool optionalMapping)
-{
-    vector<string> params;
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    else if(op->returnsMultipleValues())
     {
-        StringList metaData = (*q)->getMetaData();
-        bool optional = (*q)->optional();
-        if(optional && (local || (*q)->isOutParam()))
-        {
-            optional = optionalMapping;
-        }
-        string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
-                                         metaData, true, optional);
-        params.push_back(typeString + ' ' + fixKwd((*q)->name()));
+        ContainedPtr c = ContainedPtr::dynamicCast(op->container());
+        assert(c);
+        string abs = getAbsolute(c, package);
+        string name = op->name();
+        name[0] = toupper(static_cast<unsigned char>(name[0]));
+        return abs + "." + name + "Result";
     }
-
-    return params;
-}
-
-vector<string>
-Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool final, bool optionalMapping)
-{
-    vector<string> params;
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    else
     {
-        bool optional;
-        if((*q)->optional())
+        TypePtr type = op->returnType();
+        bool optional = op->returnIsOptional();
+        if(!type)
         {
-            optional = (*q)->isOutParam() ? true : optionalMapping;
+            const ParamDeclList outParams = op->outParameters();
+            if(!outParams.empty())
+            {
+                assert(outParams.size() == 1);
+                type = outParams.front()->type();
+                optional = outParams.front()->optional();
+            }
+        }
+        if(type)
+        {
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+            assert(cl);
+            if(optional)
+            {
+                return typeToString(type, TypeModeReturn, package, op->getMetaData(), true, true, cl->isLocal());
+            }
+            else if(object)
+            {
+                return typeToObjectString(type, TypeModeReturn, package, op->getMetaData(), true, cl->isLocal());
+            }
+            else
+            {
+                return typeToString(type, TypeModeReturn, package, op->getMetaData(), true, false, cl->isLocal());
+            }
         }
         else
         {
-            optional = false;
+            return object ? "Void" : "void";
         }
-
-        StringList metaData = (*q)->getMetaData();
-        string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
-                                         metaData, true, optional);
-        if(final)
-        {
-            typeString = "final " + typeString;
-        }
-        params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
-
-    return params;
 }
 
-vector<string>
-Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package, ParamDir paramType, bool /*proxy*/,
-                                   bool optionalMapping)
+void
+Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package)
 {
-    vector<string> params;
+    string opName = op->name();
+    opName[0] = toupper(static_cast<unsigned char>(opName[0]));
 
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    out << sp << nl << "public static class " << opName << "Result";
+    out << sb;
+
+    //
+    // Make sure none of the out parameters are named "returnValue".
+    //
+    string retval = "returnValue";
+    const ParamDeclList outParams = op->outParameters();
+    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
     {
-        if((*q)->isOutParam() == (paramType == OutParam))
+        if((*p)->name() == "returnValue")
         {
-            bool optional = optionalMapping && (*q)->optional();
-            string typeString = typeToString((*q)->type(), paramType == InParam ? TypeModeIn : TypeModeOut, package,
-                                             (*q)->getMetaData(), true, optional);
-            params.push_back(typeString + ' ' + fixKwd((*q)->name()));
+            retval = "_returnValue";
+            break;
         }
     }
 
-    return params;
-}
+    const TypePtr ret = op->returnType();
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+    assert(cl);
 
-vector<string>
-Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package, bool amd, bool optionalMapping)
-{
-    vector<string> params = getInOutParams(op, package, InParam, !amd, optionalMapping);
+    //
+    // Default constructor.
+    //
+    out << nl << "public " << opName << "Result()";
+    out << sb;
+    out << eb;
 
-    string name = op->name();
-    ContainerPtr container = op->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string classNameAsync = getAbsolute(cl, package, amd ? "AMD_" : "AMI_", '_' + name);
-    params.insert(params.begin(), classNameAsync + " __cb");
-
-    return params;
-}
-
-vector<string>
-Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package, bool /*amd*/, bool optionalMapping)
-{
-    vector<string> params;
-
-    TypePtr ret = op->returnType();
+    //
+    // One-shot constructor.
+    //
+    out << sp << nl << "public " << opName << "Result" << spar;
     if(ret)
     {
-        string retS = typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
-                                   optionalMapping && op->returnIsOptional());
-        params.push_back(retS + " __ret");
+        out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
+            + " " + retval);
+    }
+    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+    {
+        out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true, (*p)->optional(),
+                             cl->isLocal()) + " " + fixKwd((*p)->name()));
+    }
+    out << epar;
+    out << sb;
+    if(ret)
+    {
+        out << nl << "this." << retval << " = " << retval << ';';
+    }
+    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+    {
+        const string name = fixKwd((*p)->name());
+        out << nl << "this." << name << " = " << name << ';';
+    }
+    out << eb;
+
+    //
+    // Members.
+    //
+    out << sp;
+    if(ret)
+    {
+        out << nl << "public " << typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
+                                               op->returnIsOptional(), cl->isLocal())
+            << ' ' << retval << ';';
     }
 
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
     {
-        if((*q)->isOutParam())
+        out << nl << "public " << typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true,
+                                               (*p)->optional(), cl->isLocal())
+            << ' ' << fixKwd((*p)->name()) << ';';
+    }
+
+    if(!cl->isLocal())
+    {
+        ParamDeclList required, optional;
+        op->outParameters(required, optional);
+
+        out << sp << nl << "public void write(com.zeroc.Ice.OutputStream __os)";
+        out << sb;
+
+        int iter = 0;
+        for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
         {
-            string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true,
-                                             optionalMapping && (*q)->optional());
-            params.push_back(typeString + ' ' + fixKwd((*q)->name()));
+            const string paramName = fixKwd((*pli)->name());
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true, iter,
+                                      (*pli)->getMetaData());
         }
-    }
 
-    return params;
-}
-
-namespace
-{
-
-const char* builtinAsyncCallbackTable[] =
-{
-    "TwowayCallbackByte",
-    "TwowayCallbackBool",
-    "TwowayCallbackShort",
-    "TwowayCallbackInt",
-    "TwowayCallbackLong",
-    "TwowayCallbackFloat",
-    "TwowayCallbackDouble"
-};
-
-}
-
-string
-Slice::JavaVisitor::getAsyncCallbackInterface(const OperationPtr& op, const string& package)
-{
-    TypePtr ret = op->returnType();
-    ParamDeclList outParams = getOutParams(op);
-    bool throws = !op->throws().empty();
-    const string suffix = throws ? "UE" : "";
-
-    if(!ret && outParams.empty())
-    {
-        return throws ? "Ice.TwowayCallbackVoidUE" : "Ice.OnewayCallback";
-    }
-    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-    {
-        TypePtr t = ret ? ret : outParams.front()->type();
-        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
-        if(builtin && !optional)
+        if(ret && !op->returnIsOptional())
         {
-            const string prefix = "Ice.";
-            switch(builtin->kind())
+            writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, true, iter, op->getMetaData());
+        }
+
+        //
+        // Handle optional parameters.
+        //
+        bool checkReturnType = op->returnIsOptional();
+
+        for(ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
+        {
+            if(checkReturnType && op->returnTag() < (*pli)->tag())
             {
-                case Builtin::KindByte:
-                case Builtin::KindBool:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                {
-                    return prefix + builtinAsyncCallbackTable[builtin->kind()] + suffix;
-                }
-                default:
-                {
-                    break;
-                }
+                writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true,
+                                          iter, op->getMetaData());
+                checkReturnType = false;
             }
+
+            const string paramName = fixKwd((*pli)->name());
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName,
+                                      true, iter, (*pli)->getMetaData());
         }
 
-        return "Ice.TwowayCallbackArg1" + suffix + "<" +
-            typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
+        if(checkReturnType)
+        {
+            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter,
+                                      op->getMetaData());
+        }
+
+        out << eb;
+
+        out << sp << nl << "public void read(com.zeroc.Ice.InputStream __is)";
+        out << sb;
+
+        iter = 0;
+        for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
+        {
+            const string paramName = fixKwd((*pli)->name());
+            const string patchParams = getPatcher((*pli)->type(), package, paramName, false);
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, false, iter,
+                                      (*pli)->getMetaData(), patchParams);
+        }
+
+        if(ret && !op->returnIsOptional())
+        {
+            const string patchParams = getPatcher(ret, package, retval, false);
+            writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, false, iter, op->getMetaData(),
+                                      patchParams);
+        }
+
+        //
+        // Handle optional parameters.
+        //
+        checkReturnType = op->returnIsOptional();
+
+        for(ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
+        {
+            if(checkReturnType && op->returnTag() < (*pli)->tag())
+            {
+                const string patchParams = getPatcher(ret, package, retval, true);
+                writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false,
+                                          iter, op->getMetaData(), patchParams);
+                checkReturnType = false;
+            }
+
+            const string paramName = fixKwd((*pli)->name());
+            const string patchParams = getPatcher((*pli)->type(), package, paramName, true);
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName,
+                                      false, iter, (*pli)->getMetaData(), patchParams);
+        }
+
+        if(checkReturnType)
+        {
+            const string patchParams = getPatcher(ret, package, retval, true);
+            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, false,
+                                      iter, op->getMetaData(), patchParams);
+        }
+
+        out << eb;
+    }
+
+    out << eb;
+}
+
+void
+Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op, const string& package)
+{
+    string opName = op->name();
+    opName[0] = toupper(static_cast<unsigned char>(opName[0]));
+
+    out << sp << nl << "public static class " << opName << "MarshaledResult implements com.zeroc.Ice.MarshaledResult";
+    out << sb;
+
+    const TypePtr ret = op->returnType();
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+    assert(cl);
+    const ParamDeclList outParams = op->outParameters();
+    const string retval = "__ret";
+
+    out << sp << nl << "public " << opName << "MarshaledResult" << spar;
+    if(ret)
+    {
+        out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
+            + " " + retval);
+    }
+    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+    {
+        out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true, (*p)->optional(),
+                             cl->isLocal()) + " " + fixKwd((*p)->name()));
+    }
+    out << "com.zeroc.Ice.Current __current" << epar;
+    out << sb;
+    out << nl << "__os = com.zeroc.IceInternal.Incoming.createResponseOutputStream(__current);";
+    out << nl << "__os.startEncapsulation(__current.encoding, " << opFormatTypeToString(op) << ");";
+
+    ParamDeclList required, optional;
+    op->outParameters(required, optional);
+    int iter = 0;
+    for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
+    {
+        const string paramName = fixKwd((*pli)->name());
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true, iter,
+                                  (*pli)->getMetaData());
+    }
+
+    if(ret && !op->returnIsOptional())
+    {
+        writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, retval, true, iter, op->getMetaData());
+    }
+
+    //
+    // Handle optional parameters.
+    //
+    bool checkReturnType = op->returnIsOptional();
+
+    for(ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
+    {
+        if(checkReturnType && op->returnTag() < (*pli)->tag())
+        {
+            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true,
+                                      iter, op->getMetaData());
+            checkReturnType = false;
+        }
+
+        const string paramName = fixKwd((*pli)->name());
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName,
+                                  true, iter, (*pli)->getMetaData());
+    }
+
+    if(checkReturnType)
+    {
+        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, true, op->returnTag(), retval, true, iter,
+                                  op->getMetaData());
+    }
+
+    if(op->returnsClasses(false))
+    {
+        out << nl << "__os.writePendingValues();";
+    }
+
+    out << nl << "__os.endEncapsulation();";
+
+    out << eb;
+
+    out << sp;
+    out << nl << "@Override"
+        << nl << "public com.zeroc.Ice.OutputStream getOutputStream()"
+        << sb
+        << nl << "return __os;"
+        << eb;
+
+    out << sp;
+    out << nl << "private com.zeroc.Ice.OutputStream __os;";
+    out << eb;
+}
+
+void
+Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const string& package, const string& name)
+{
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    assert((b && b->usesClasses()) || cl);
+
+    string clsName;
+    if(b || cl->isInterface())
+    {
+        clsName = "com.zeroc.Ice.Value";
     }
     else
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        return "_Callback_" + cl->name() + "_" + op->name();
+        clsName = getAbsolute(cl, package);
     }
+
+    out << nl << "com.zeroc.IceInternal.Patcher<" << clsName << "> " << name << " = new com.zeroc.IceInternal.Patcher<"
+        << clsName << ">(" << clsName << ".class, " << clsName << ".ice_staticId);";
 }
 
 string
-Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool functional)
+Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const string& dest, bool optionalMapping)
 {
-    assert(op->returnsData());
-    TypePtr ret = op->returnType();
-    ParamDeclList outParams = getOutParams(op);
-
-    bool throws = !op->throws().empty();
-    const string suffix = throws ? "UE" : "";
-    if(!ret && outParams.empty())
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ostringstream ostr;
+    if((b && b->usesClasses()) || cl)
     {
-        assert(throws);
-        return functional ?
-            "IceInternal.Functional_TwowayCallbackVoidUE" :
-            "IceInternal.TwowayCallback implements Ice.TwowayCallbackVoidUE";
-    }
-    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-    {
-        TypePtr t = ret ? ret : outParams.front()->type();
-        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
-        if(builtin && !optional)
+        string clsName;
+        if(b || cl->isInterface())
         {
-            switch(builtin->kind())
-            {
-                case Builtin::KindByte:
-                case Builtin::KindBool:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                {
-                    ostringstream os;
-                    os << (functional ? "IceInternal.Functional_" : "IceInternal.TwowayCallback implements Ice.")
-                       << builtinAsyncCallbackTable[builtin->kind()] + suffix;
-                    return os.str();
-                }
-                default:
-                {
-                    break;
-                }
-            }
-        }
-
-        ostringstream os;
-        if(functional)
-        {
-            os << "IceInternal.Functional_TwowayCallbackArg1";
+            clsName = "com.zeroc.Ice.Value";
         }
         else
         {
-            os << "IceInternal.TwowayCallback implements Ice.TwowayCallbackArg1";
+            clsName = getAbsolute(cl, package);
         }
-        os << suffix << "<" << typeToString(t, TypeModeIn, getPackage(op), op->getMetaData(), true, optional) + ">";
-        return os.str();
-    }
-    else
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        ostringstream os;
-        if(functional)
+
+        ostr << "new com.zeroc.IceInternal.Patcher<" << clsName << ">(" << clsName << ".class, "
+             << clsName << ".ice_staticId, " << "__v -> ";
+        if(optionalMapping)
         {
-            os << "IceInternal.Functional_TwowayCallback" << suffix << " implements ";
+            ostr << dest << " = java.util.Optional.ofNullable(__v)";
         }
         else
         {
-            os << "IceInternal.TwowayCallback implements ";
+            ostr << dest << " = __v";
         }
-        os << "_Callback_" << cl->name() << "_" << op->name();
-        return os.str();
+        ostr << ')';
+    }
+    return ostr.str();
+}
+
+string
+Slice::JavaVisitor::getFutureType(const OperationPtr& op, const string& package)
+{
+    if(op->returnType() || op->outParameters().size() > 0)
+    {
+        return "java.util.concurrent.CompletableFuture<" + getResultType(op, package, true, false) + ">";
+    }
+    else
+    {
+        return "java.util.concurrent.CompletableFuture<Void>";
     }
 }
 
 string
-Slice::JavaVisitor::getLambdaResponseCB(const OperationPtr& op, const string& package)
+Slice::JavaVisitor::getFutureImplType(const OperationPtr& op, const string& package)
 {
-    TypePtr ret = op->returnType();
-    ParamDeclList outParams = getOutParams(op);
-    if(!ret && outParams.empty())
+    if(op->returnType() || op->outParameters().size() > 0)
     {
-        return "IceInternal.Functional_VoidCallback";
-    }
-    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-    {
-        TypePtr t = ret ? ret : outParams.front()->type();
-        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
-        if(builtin && !optional)
-        {
-            static const char* builtinTable[] =
-            {
-                "IceInternal.Functional_ByteCallback",
-                "IceInternal.Functional_BoolCallback",
-                "IceInternal.Functional_ShortCallback",
-                "IceInternal.Functional_IntCallback",
-                "IceInternal.Functional_LongCallback",
-                "IceInternal.Functional_FloatCallback",
-                "IceInternal.Functional_DoubleCallback"
-            };
-            switch(builtin->kind())
-            {
-                case Builtin::KindByte:
-                case Builtin::KindBool:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                {
-                    return builtinTable[builtin->kind()];
-                }
-                default:
-                {
-                    break;
-                }
-            }
-        }
-
-        return "IceInternal.Functional_GenericCallback1<" +
-            typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
+        return "com.zeroc.IceInternal.OutgoingAsync<" + getResultType(op, package, true, false) + ">";
     }
     else
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        return "FunctionalCallback_" + cl->name() + "_" + op->name() + "_Response";
+        return "com.zeroc.IceInternal.OutgoingAsync<Void>";
     }
 }
 
 vector<string>
-Slice::JavaVisitor::getParamsAsyncLambda(const OperationPtr& op, const string& package, bool context, bool sentCB,
-                                         bool optionalMapping, bool inParams)
+Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 {
     vector<string> params;
 
-    if(inParams)
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+    assert(cl);
+
+    const ParamDeclList paramList = op->inParameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        params = getInOutParams(op, package, InParam, false, optionalMapping);
-    }
-
-    if(context)
-    {
-        params.push_back("java.util.Map<String, String> __ctx");
-    }
-
-    params.push_back(getLambdaResponseCB(op, package) + " __responseCb");
-
-    if(!op->throws().empty())
-    {
-        params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> __userExceptionCb");
-    }
-
-    params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb");
-
-    if(sentCB)
-    {
-        params.push_back("IceInternal.Functional_BoolCallback __sentCb");
+        const string type = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true,
+                                         (*q)->optional(), cl->isLocal());
+        params.push_back(type + ' ' + fixKwd((*q)->name()));
     }
 
     return params;
 }
 
 vector<string>
-Slice::JavaVisitor::getArgsAsyncLambda(const OperationPtr& op, const string& package, bool context, bool sentCB)
+Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool optionalMapping)
 {
-    vector<string> args = getInOutArgs(op, InParam);
-    args.push_back(context ? "__ctx" : "null");
-    args.push_back(context ? "true" : "false");
-    args.push_back("false"); // __synchronous
-    args.push_back("__responseCb");
-    if(!op->throws().empty())
+    vector<string> params;
+
+    ParamDeclList inParams = op->inParameters();
+    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
-        args.push_back("__userExceptionCb");
+        const string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true,
+                                               optionalMapping && (*q)->optional());
+        params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
-    args.push_back("__exceptionCb");
-    args.push_back(sentCB ? "__sentCb" : "null");
-    return args;
+
+    return params;
 }
 
 vector<string>
@@ -579,175 +661,190 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op)
 }
 
 vector<string>
-Slice::JavaVisitor::getInOutArgs(const OperationPtr& op, ParamDir paramType)
+Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool patcher)
 {
     vector<string> args;
 
-    ParamDeclList paramList = op->parameters();
+    ParamDeclList paramList = op->inParameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        if((*q)->isOutParam() == (paramType == OutParam))
+        string s = fixKwd((*q)->name());
+        if(patcher && isValue((*q)->type()))
         {
-            args.push_back(fixKwd((*q)->name()));
+            s += ".value";
         }
-    }
-
-    return args;
-}
-
-vector<string>
-Slice::JavaVisitor::getArgsAsync(const OperationPtr& op)
-{
-    vector<string> args = getInOutArgs(op, InParam);
-    args.insert(args.begin(), "__cb");
-    return args;
-}
-
-vector<string>
-Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
-{
-    vector<string> args;
-
-    TypePtr ret = op->returnType();
-    if(ret)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-        {
-            args.push_back("__ret.value");
-        }
-        else
-        {
-            args.push_back("__ret");
-        }
-    }
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        if((*q)->isOutParam())
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
-            {
-                args.push_back(fixKwd((*q)->name()) + ".value");
-            }
-            else
-            {
-                args.push_back(fixKwd((*q)->name()));
-            }
-        }
+        args.push_back(s);
     }
 
     return args;
 }
 
 void
-Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& package, const ParamDeclList& params,
-                                                const OperationPtr& op, int& iter, bool marshal, bool optionalMapping,
-                                                bool dispatch)
+Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op,
+                                            bool optionalMapping)
 {
-    ParamDeclList optionals;
-    for(ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    int iter = 0;
+    ParamDeclList required, optional;
+    op->inParameters(required, optional);
+    for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
     {
-        if((*pli)->optional())
-        {
-            optionals.push_back(*pli);
-        }
-        else
-        {
-            string paramName = fixKwd((*pli)->name());
-            bool holder = marshal == dispatch;
-            string patchParams;
-            if(!marshal)
-            {
-                patchParams = paramName;
-            }
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, marshal,
-                                      iter, holder, (*pli)->getMetaData(), patchParams);
-        }
+        string paramName = fixKwd((*pli)->name());
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true,
+                                  iter, (*pli)->getMetaData());
     }
-
-    TypePtr ret;
-    bool returnsObject = false;
-
-    if(op && op->returnType())
-    {
-        ret = op->returnType();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(ret);
-        returnsObject = (builtin && builtin->kind() == Builtin::KindObject) || cl;
-        const bool optional = optionalMapping && op->returnIsOptional();
-
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, optional);
-        bool holder = false;
-
-        if(!marshal)
-        {
-            if(optional)
-            {
-                out << nl << retS << " __ret = new " << retS << "();";
-            }
-            else if(returnsObject)
-            {
-                out << nl << retS << "Holder __ret = new " << retS << "Holder();";
-                holder = true;
-            }
-            else if(StructPtr::dynamicCast(ret))
-            {
-                out << nl << retS << " __ret = null;";
-            }
-            else
-            {
-                out << nl << retS << " __ret;";
-            }
-        }
-
-        if(!op->returnIsOptional())
-        {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, "__ret", marshal, iter, holder,
-                                      op->getMetaData());
-        }
-    }
-
-    //
-    // Sort optional parameters by tag.
-    //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-    optionals.sort(SortFn::compare);
 
     //
     // Handle optional parameters.
     //
-    bool checkReturnType = op && op->returnIsOptional();
-
-    for(ParamDeclList::const_iterator pli = optionals.begin(); pli != optionals.end(); ++pli)
+    for(ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
     {
-        if(checkReturnType && op->returnTag() < (*pli)->tag())
-        {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, optionalMapping, op->returnTag(),
-                                      "__ret", marshal, iter, false, op->getMetaData());
-            checkReturnType = false;
-        }
-
-        const bool holder = dispatch && (*pli)->isOutParam() && !optionalMapping;
-
-        writeMarshalUnmarshalCode(out, package, (*pli)->type(),
-                                  (*pli)->isOutParam() ? OptionalOutParam : OptionalInParam, optionalMapping,
-                                  (*pli)->tag(), fixKwd((*pli)->name()), marshal, iter, holder, (*pli)->getMetaData());
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalInParam, optionalMapping,
+                                  (*pli)->tag(), fixKwd((*pli)->name()), true, iter, (*pli)->getMetaData());
     }
 
-    if(checkReturnType)
+    if(op->sendsClasses(false))
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, optionalMapping, op->returnTag(), "__ret",
-                                  marshal, iter, false, op->getMetaData());
+        out << nl << "__os.writePendingValues();";
+    }
+}
+
+void
+Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& package, const OperationPtr& op)
+{
+    const ParamDeclList outParams = op->outParameters();
+    const TypePtr ret = op->returnType();
+    const string name = "__ret";
+
+    if(op->returnsMultipleValues())
+    {
+        string resultType = getResultType(op, package, false, false);
+        out << nl << resultType << ' ' << name << " = new " << resultType << "();";
+        out << nl << name << ".read(__is);";
+        if(op->returnsClasses(false))
+        {
+            out << nl << "__is.readPendingValues();";
+        }
+        out << nl << "return " << name << ';';
+    }
+    else
+    {
+        string resultType = getResultType(op, package, false, false);
+
+        bool optional;
+        TypePtr type;
+        int tag;
+        StringList metaData;
+        if(ret)
+        {
+            type = ret;
+            optional = op->returnIsOptional();
+            tag = op->returnTag();
+            metaData = op->getMetaData();
+        }
+        else
+        {
+            assert(outParams.size() == 1);
+            optional = outParams.front()->optional();
+            type = outParams.front()->type();
+            tag = outParams.front()->tag();
+            metaData = outParams.front()->getMetaData();
+        }
+
+        const bool val = isValue(type);
+
+        int iter = 0;
+
+        if(optional)
+        {
+            if(val)
+            {
+                allocatePatcher(out, type, package, name);
+            }
+            else
+            {
+                out << nl << resultType << ' ' << name << ';';
+            }
+            writeMarshalUnmarshalCode(out, package, type, ret ? OptionalReturnParam : OptionalOutParam, true,
+                                      tag, name, false, iter, metaData, name);
+        }
+        else
+        {
+            if(val)
+            {
+                allocatePatcher(out, type, package, name);
+            }
+            else if(StructPtr::dynamicCast(type))
+            {
+                out << nl << resultType << ' ' << name << " = null;";
+            }
+            else
+            {
+                out << nl << resultType << ' ' << name << ';';
+            }
+            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, name, false, iter, metaData, name);
+        }
+
+        if(op->returnsClasses(false))
+        {
+            out << nl << "__is.readPendingValues();";
+        }
+
+        if(optional && val)
+        {
+            out << nl << "return java.util.Optional.ofNullable(" << name << ".value);";
+        }
+        else if(val)
+        {
+            out << nl << "return " << name << ".value;";
+        }
+        else
+        {
+            out << nl << "return " << name << ';';
+        }
+    }
+}
+
+void
+Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& package, const OperationPtr& op,
+                                               const string& param)
+{
+    if(op->returnsMultipleValues())
+    {
+        out << nl << param << ".write(__os);";
+    }
+    else
+    {
+        const ParamDeclList params = op->outParameters();
+        bool optional;
+        OptionalMode mode;
+        TypePtr type;
+        int tag;
+        StringList metaData;
+        if(op->returnType())
+        {
+            type = op->returnType();
+            optional = op->returnIsOptional();
+            mode = optional ? OptionalReturnParam : OptionalNone;
+            tag = op->returnTag();
+            metaData = op->getMetaData();
+        }
+        else
+        {
+            assert(params.size() == 1);
+            optional = params.front()->optional();
+            mode = optional ? OptionalOutParam : OptionalNone;
+            type = params.front()->type();
+            tag = params.front()->tag();
+            metaData = params.front()->getMetaData();
+        }
+
+        int iter = 0;
+        writeMarshalUnmarshalCode(out, package, type, mode, true, tag, param, true, iter, metaData);
+    }
+
+    if(op->returnsClasses(false))
+    {
+        out << nl << "__os.writePendingValues();";
     }
 }
 
@@ -781,7 +878,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
     if(!member->optional())
     {
         writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()),
-                                  true, iter, false, member->getMetaData());
+                                  true, iter, member->getMetaData());
     }
     else
     {
@@ -789,214 +886,80 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
             << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), true,
-                                  iter, false, member->getMetaData());
+                                  iter, member->getMetaData());
         out << eb;
     }
 }
 
 void
-Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member,
-                                             int& iter, bool needPatcher, int& patchIter)
+Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
-    string patchParams;
-    if(needPatcher)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
-        {
-            ostringstream ostr;
-            ostr << "new Patcher(" << patchIter++ << ')';
-            patchParams = ostr.str();
-        }
-    }
+    // TBD: Handle passing interface-by-value
 
-    if(!member->optional())
-    {
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()), false,
-                                  iter, false, member->getMetaData(), patchParams);
-    }
-    else
+    const string patchParams = getPatcher(member->type(), package, fixKwd(member->name()), false);
+
+    if(member->optional())
     {
         out << nl << "if(__has_" << member->name() << " = __is.readOptional(" << member->tag() << ", "
             << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false,
-                                  iter, false, member->getMetaData(), patchParams);
+                                  iter, member->getMetaData(), patchParams);
         out << eb;
-    }
-}
-
-void
-Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataMemberList& classMembers,
-                                 const DataMemberList& optionalMembers)
-{
-    out << sp << nl << "private class Patcher implements Ice.ReadValueCallback";
-    out << sb;
-    if(classMembers.size() > 1)
-    {
-        out << sp << nl << "Patcher(int member)";
-        out << sb;
-        out << nl << "__member = member;";
-        out << eb;
-    }
-
-    out << sp << nl << "public void" << nl << "valueReady(Ice.Object v)";
-    out << sb;
-    if(classMembers.size() > 1)
-    {
-        out << nl << "switch(__member)";
-        out << sb;
-    }
-    int memberCount = 0;
-    for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
-    {
-        if((*d)->optional())
-        {
-            continue;
-        }
-
-        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
-        if(b)
-        {
-            assert(b->kind() == Builtin::KindObject);
-        }
-
-        if(classMembers.size() > 1)
-        {
-            out.dec();
-            out << nl << "case " << memberCount << ":";
-            out.inc();
-            if(b)
-            {
-                out << nl << "__typeId = Ice.ObjectImpl.ice_staticId();";
-            }
-            else
-            {
-                out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
-            }
-        }
-
-        string memberName = fixKwd((*d)->name());
-        if(b)
-        {
-            out << nl << memberName << " = v;";
-        }
-        else
-        {
-            string memberType = typeToString((*d)->type(), TypeModeMember, package);
-            out << nl << "if(v == null || v instanceof " << memberType << ")";
-            out << sb;
-            out << nl << memberName << " = (" << memberType << ")v;";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-            out << eb;
-        }
-
-        if(classMembers.size() > 1)
-        {
-            out << nl << "break;";
-        }
-
-        memberCount++;
-    }
-
-    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
-    {
-        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
-        if(b && b->kind() != Builtin::KindObject)
-        {
-            continue;
-        }
-
-        TypePtr paramType = (*d)->type();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-        {
-
-            if(classMembers.size() > 1)
-            {
-                out.dec();
-                out << nl << "case " << memberCount << ":";
-                out.inc();
-                if(b)
-                {
-                    out << nl << "__typeId = Ice.ObjectImpl.ice_staticId();";
-                }
-                else
-                {
-                    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
-                }
-            }
-
-            string capName = (*d)->name();
-            capName[0] = toupper(static_cast<unsigned char>(capName[0]));
-
-            if(b)
-            {
-                out << nl << "set" << capName << "(v);";
-            }
-            else
-            {
-                string memberType = typeToString((*d)->type(), TypeModeMember, package);
-                out << nl << "if(v == null || v instanceof " << memberType << ")";
-                out << sb;
-                out << nl << "set" << capName << "((" << memberType << ")v);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-                out << eb;
-            }
-
-            if(classMembers.size() > 1)
-            {
-                out << nl << "break;";
-            }
-
-            memberCount++;
-        }
-    }
-
-    if(classMembers.size() > 1)
-    {
-        out << eb;
-    }
-    out << eb;
-
-    out << sp << nl << "public String" << nl << "type()";
-    out << sb;
-    if(classMembers.size() > 1)
-    {
-        out << nl << "return __typeId;";
     }
     else
     {
-        out << nl << "return \"" << (*classMembers.begin())->type()->typeId() << "\";";
+        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()), false,
+                                  iter, member->getMetaData(), patchParams);
     }
-    out << eb;
-
-    if(classMembers.size() > 1)
-    {
-        out << sp << nl << "private int __member;";
-        out << nl << "private String __typeId;";
-    }
-
-    out << eb;
 }
 
 void
-Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& p)
+Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 {
-    string name = fixKwd(p->name());
-    string package = getPackage(p);
-    string scoped = p->scoped();
-    ClassList bases = p->bases();
+    const string name = fixKwd(p->name());
+    const string package = getPackage(p);
+    const string scoped = p->scoped();
+    const ClassList bases = p->bases();
     ClassDefPtr base;
     if(!bases.empty() && !bases.front()->isInterface())
     {
         base = bases.front();
+    }
+    const OperationList ops = p->operations();
+
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = *r;
+
+        vector<string> params = getParams(op, package);
+
+        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        out << sp;
+
+        const string deprecateReason = getDeprecateReason(op, p, "operation");
+        const string currentParam = "@param __current The Current object for the invocation.";
+        if(amd)
+        {
+            writeDocCommentAsync(out, op, InParam, currentParam);
+            out << nl << "java.util.concurrent.CompletionStage<" << getResultType(op, package, true, true) << "> "
+                << op->name() << "Async" << spar << params << "com.zeroc.Ice.Current __current" << epar;
+            writeThrowsClause(package, throws);
+            out << ';';
+        }
+        else
+        {
+            writeDocComment(out, op, deprecateReason, currentParam);
+            out << nl << getResultType(op, package, false, true) << ' ' << fixKwd(op->name()) << spar << params
+                << "com.zeroc.Ice.Current __current" << epar;
+            writeThrowsClause(package, throws);
+            out << ';';
+        }
     }
 
     ClassList allBases = p->allBases();
@@ -1008,12 +971,10 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     other.sort();
     ids.merge(other);
     ids.unique();
-    StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ::IceUtilInternal::distance(firstIter, scopedIter);
 
-    out << sp << nl << "public static final String[] __ids =";
+    out << sp << nl << "static final String[] __ids =";
     out << sb;
 
     for(StringList::const_iterator q = ids.begin(); q != ids.end();)
@@ -1026,169 +987,34 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     }
     out << eb << ';';
 
-    out << sp << nl << "public boolean ice_isA(String s)";
-    out << sb;
-    out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
-    out << eb;
-
-    out << sp << nl << "public boolean ice_isA(String s, Ice.Current __current)";
-    out << sb;
-    out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
-    out << eb;
-
-    out << sp << nl << "public String[] ice_ids()";
+    out << sp << nl << "@Override" << nl << "default String[] ice_ids(com.zeroc.Ice.Current __current)";
     out << sb;
     out << nl << "return __ids;";
     out << eb;
 
-    out << sp << nl << "public String[] ice_ids(Ice.Current __current)";
+    out << sp << nl << "@Override" << nl << "default String ice_id(com.zeroc.Ice.Current __current)";
     out << sb;
-    out << nl << "return __ids;";
+    out << nl << "return ice_staticId();";
     out << eb;
 
-    out << sp << nl << "public String ice_id()";
+    out << sp << nl;
+    out << "static String ice_staticId()";
     out << sb;
-    out << nl << "return __ids[" << scopedPos << "];";
-    out << eb;
-
-    out << sp << nl << "public String ice_id(Ice.Current __current)";
-    out << sb;
-    out << nl << "return __ids[" << scopedPos << "];";
-    out << eb;
-
-    out << sp << nl << "public static String ice_staticId()";
-    out << sb;
-    out << nl << "return __ids[" << scopedPos << "];";
-    out << eb;
-
-    OperationList ops = p->allOperations();
-
-    //
-    // Write the "no Current" implementation of each operation.
-    //
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    if(p->isInterface())
     {
-        OperationPtr op = *r;
-        string opName = op->name();
-
-        ContainerPtr container = op->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        assert(cl);
-
-        string deprecateReason = getDeprecateReason(op, cl, "operation");
-
-        const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
-        const bool optionalMapping = useOptionalMapping(op);
-
-        vector<string> params;
-        vector<string> args;
-        TypePtr ret;
-
-        if(amd)
-        {
-            opName += "_async";
-            params = getParamsAsync(op, package, true, true);
-            args = getArgsAsync(op);
-        }
-        else
-        {
-            opName = fixKwd(opName);
-            ret = op->returnType();
-            params = getParams(op, package, false, optionalMapping);
-            args = getArgs(op);
-        }
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Only generate a "no current" version of the operation if it hasn't been done in a base
-        // class already, because the "no current" version is final.
-        //
-        bool generateOperation = cl == p; // Generate if the operation is defined in this class.
-        if(!generateOperation)
-        {
-            //
-            // The operation is not defined in this class.
-            //
-            if(!bases.empty())
-            {
-                //
-                // Check if the operation is already implemented by a base class.
-                //
-                bool implementedByBase = false;
-                if(!bases.front()->isInterface())
-                {
-                    OperationList baseOps = bases.front()->allOperations();
-                    OperationList::const_iterator i;
-                    for(i = baseOps.begin(); i != baseOps.end(); ++i)
-                    {
-                        if((*i)->name() == op->name())
-                        {
-                            implementedByBase = true;
-                            break;
-                        }
-                    }
-                    if(i == baseOps.end())
-                    {
-                        generateOperation = true;
-                    }
-                }
-                if(!generateOperation && !implementedByBase)
-                {
-                     //
-                     // No base class defines the operation. Check if one of the
-                     // interfaces defines it, in which case this class must provide it.
-                     //
-                     if(bases.front()->isInterface() || bases.size() > 1)
-                     {
-                         generateOperation = true;
-                     }
-                }
-            }
-        }
-        if(generateOperation)
-        {
-            out << sp;
-            if(amd)
-            {
-                writeDocCommentAsync(out, op, InParam);
-            }
-            else
-            {
-                writeDocComment(out, op, deprecateReason);
-            }
-            out << nl << "public final "
-                << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
-                                optionalMapping && op->returnIsOptional())
-                << ' ' << opName << spar << params << epar;
-            if(op->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws Ice.UserException";
-                out.dec();
-            }
-            else
-            {
-                writeThrowsClause(package, throws);
-            }
-            out << sb << nl;
-            if(ret)
-            {
-                out << "return ";
-            }
-            out << opName << spar << args << "null" << epar << ';';
-            out << eb;
-        }
+        out << nl << "return ice_staticId;";
     }
+    else
+    {
+        out << nl << "return " << fixKwd(p->name()) << ".ice_staticId;";
+    }
+    out << eb;
 
     //
-    // Dispatch operations. We only generate methods for operations
+    // Dispatch methods. We only generate methods for operations
     // defined in this ClassDef, because we reuse existing methods
     // for inherited operations.
     //
-    ops = p->operations();
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
@@ -1204,76 +1030,62 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         {
             out << nl << "/** @deprecated **/";
         }
-        out << nl << "public static Ice.DispatchStatus ___" << opName << '(' << name
-            << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
+        out << nl;
+        out << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutputStream> ___" << opName << '(';
+        if(p->isInterface())
+        {
+            out << name;
+        }
+        else
+        {
+            out << '_' << p->name() << "Disp";
+        }
+        out << " __obj, final com.zeroc.IceInternal.Incoming __inS, com.zeroc.Ice.Current __current)";
+        if(!op->throws().empty())
+        {
+            out.inc();
+            out << nl << "throws com.zeroc.Ice.UserException";
+            out.dec();
+        }
         out << sb;
 
         const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
-        const bool optionalMapping = useOptionalMapping(op);
 
-        if(!amd)
+        const TypePtr ret = op->returnType();
+
+        const ParamDeclList inParams = op->inParameters();
+        const ParamDeclList outParams = op->outParameters();
+
+        out << nl << "com.zeroc.Ice.Object.__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
+
+        if(!inParams.empty())
         {
-            TypePtr ret = op->returnType();
+            ParamDeclList values;
 
-            ParamDeclList inParams;
-            ParamDeclList outParams;
-            ParamDeclList paramList = op->parameters();
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+            //
+            // Declare 'in' parameters.
+            //
+            out << nl << "com.zeroc.Ice.InputStream __is = __inS.startReadParams();";
+            for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
-                if((*pli)->isOutParam())
+                const TypePtr paramType = (*pli)->type();
+                if(isValue(paramType))
                 {
-                    outParams.push_back(*pli);
+                    allocatePatcher(out, paramType, package, "__" + (*pli)->name());
+                    values.push_back(*pli);
                 }
                 else
                 {
-                    inParams.push_back(*pli);
-                }
-            }
-
-            ExceptionList throws = op->throws();
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            throws.sort(Slice::derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-            int iter;
-
-            out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
-
-            if(!inParams.empty())
-            {
-                //
-                // Unmarshal 'in' parameters.
-                //
-                out << nl << "Ice.InputStream __is = __inS.startReadParams();";
-                for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-                {
-                    TypePtr paramType = (*pli)->type();
-                    string paramName = fixKwd((*pli)->name());
-                    string typeS = typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(),
-                                                true, (*pli)->optional());
+                    const string paramName = fixKwd((*pli)->name());
+                    const string typeS = typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(), true,
+                                                      (*pli)->optional());
                     if((*pli)->optional())
                     {
-                        out << nl << typeS << ' ' << paramName << " = new " << typeS << "();";
+                        out << nl << typeS << ' ' << paramName << ';';
                     }
                     else
                     {
-                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-                        {
-                            out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-                        }
-                        else if(StructPtr::dynamicCast(paramType))
+                        if(StructPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << ' ' << paramName << " = null;";
                         }
@@ -1283,199 +1095,115 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                         }
                     }
                 }
-                iter = 0;
-                writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
-                if(op->sendsClasses(false))
+            }
+
+            //
+            // Unmarshal 'in' parameters.
+            //
+            ParamDeclList required, optional;
+            op->inParameters(required, optional);
+            int iter = 0;
+            for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
+            {
+                const string paramName = isValue((*pli)->type()) ? ("__" + (*pli)->name()) : fixKwd((*pli)->name());
+                writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, false,
+                                          iter, (*pli)->getMetaData(), paramName);
+            }
+            for(ParamDeclList::const_iterator pli = optional.begin(); pli != optional.end(); ++pli)
+            {
+                const string paramName = isValue((*pli)->type()) ? ("__" + (*pli)->name()) : fixKwd((*pli)->name());
+                writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalInParam, true, (*pli)->tag(),
+                                          paramName, false, iter, (*pli)->getMetaData(), paramName);
+            }
+            if(op->sendsClasses(false))
+            {
+                out << nl << "__is.readPendingValues();";
+            }
+            out << nl << "__inS.endReadParams();";
+
+            for(ParamDeclList::const_iterator pli = values.begin(); pli != values.end(); ++pli)
+            {
+                const TypePtr paramType = (*pli)->type();
+                const string paramName = fixKwd((*pli)->name());
+                const string typeS = typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(), true,
+                                                  (*pli)->optional());
+                if((*pli)->optional())
                 {
-                    out << nl << "__is.readPendingValues();";
+                    out << nl << typeS << ' ' << paramName << " = java.util.Optional.ofNullable(__" << (*pli)->name()
+                        << ".value);";
                 }
-                out << nl << "__inS.endReadParams();";
+                else
+                {
+                    out << nl << typeS << ' ' << paramName << " = __" << (*pli)->name() << ".value;";
+                }
+            }
+        }
+        else
+        {
+            out << nl << "__inS.readEmptyParams();";
+        }
+
+        if(op->format() != DefaultFormat)
+        {
+            out << nl << "__inS.setFormat(" << opFormatTypeToString(op) << ");";
+        }
+
+        if(amd)
+        {
+            if(op->hasMarshaledResult())
+            {
+                out << nl << "return __inS.setMarshaledResultFuture(__obj." << opName << "Async" << spar
+                    << getInArgs(op) << "__current" << epar << ");";
             }
             else
             {
-                out << nl << "__inS.readEmptyParams();";
+                out << nl << "return __inS.setResultFuture(__obj." << opName << "Async" << spar << getInArgs(op)
+                    << "__current" << epar;
+                if(ret || !outParams.empty())
+                {
+                    out << ", (__os, __ret) ->";
+                    out.inc();
+                    out << sb;
+                    writeMarshalServantResults(out, package, op, "__ret");
+                    out << eb;
+                    out.dec();
+                }
+                out << ");";
             }
-
-            //
-            // Declare 'out' parameters.
-            //
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData(), true,
-                                            optionalMapping && (*pli)->optional());
-                out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
-            }
-
+        }
+        else
+        {
             //
             // Call on the servant.
             //
-            if(!throws.empty())
-            {
-                out << nl << "try";
-                out << sb;
-            }
             out << nl;
-            if(ret)
+            if(ret || !outParams.empty())
             {
-                string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true,
-                                           optionalMapping && op->returnIsOptional());
-                out << retS << " __ret = ";
+                out << getResultType(op, package, false, true) << " __ret = ";
             }
-            out << "__obj." << fixKwd(opName) << '(';
-            for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-            {
-                TypePtr paramType = (*pli)->type();
-                out << fixKwd((*pli)->name());
-                if(!(*pli)->optional())
-                {
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-                    {
-                        out << ".value";
-                    }
-                }
-                out << ", ";
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                out << fixKwd((*pli)->name()) << ", ";
-            }
-            out << "__current);";
+            out << "__obj." << fixKwd(opName) << spar << getInArgs(op) << "__current" << epar << ';';
 
             //
             // Marshal 'out' parameters and return value.
             //
-            if(!outParams.empty() || ret)
+            if(op->hasMarshaledResult())
             {
-                out << nl << "Ice.OutputStream __os = __inS.__startWriteParams("
-                    << opFormatTypeToString(op) << ");";
-                writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
-                if(op->returnsClasses(false))
-                {
-                    out << nl << "__os.writePendingValues();";
-                }
-                out << nl << "__inS.__endWriteParams(true);";
+                out << nl << "return __inS.setMarshaledResult(__ret);";
+            }
+            else if(ret || !outParams.empty())
+            {
+                out << nl << "com.zeroc.Ice.OutputStream __os = __inS.startWriteParams();";
+                writeMarshalServantResults(out, package, op, "__ret");
+                out << nl << "__inS.endWriteParams(__os);";
+                out << nl << "return __inS.setResult(__os);";
             }
             else
             {
-                out << nl << "__inS.__writeEmptyParams();";
+                out << nl << "return __inS.setResult(__inS.writeEmptyParams());";
             }
-            out << nl << "return Ice.DispatchStatus.DispatchOK;";
-
-            //
-            // Handle user exceptions.
-            //
-            if(!throws.empty())
-            {
-                out << eb;
-                for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-                {
-                    string exS = getAbsolute(*t, package);
-                    out << nl << "catch(" << exS << " ex)";
-                    out << sb;
-                    out << nl << "__inS.__writeUserException(ex, " << opFormatTypeToString(op) << ");";
-                    out << nl << "return Ice.DispatchStatus.DispatchUserException;";
-                    out << eb;
-                }
-            }
-
-            out << eb;
         }
-        else
-        {
-            ParamDeclList inParams;
-            ParamDeclList paramList = op->parameters();
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if(!(*pli)->isOutParam())
-                {
-                    inParams.push_back(*pli);
-                }
-            }
 
-            int iter;
-
-            out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
-
-            if(!inParams.empty())
-            {
-                //
-                // Unmarshal 'in' parameters.
-                //
-                out << nl << "Ice.InputStream __is = __inS.startReadParams();";
-                iter = 0;
-                for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-                {
-                    TypePtr paramType = (*pli)->type();
-                    string paramName = fixKwd((*pli)->name());
-                    string typeS = typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(),
-                                                true, (*pli)->optional());
-                    if((*pli)->optional())
-                    {
-                        out << nl << typeS << ' ' << paramName << " = new " << typeS << "();";
-                    }
-                    else
-                    {
-                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-                        {
-                            out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-                        }
-                        else if(StructPtr::dynamicCast(paramType))
-                        {
-                            out << nl << typeS << ' ' << paramName << " = null;";
-                        }
-                        else
-                        {
-                            out << nl << typeS << ' ' << paramName << ';';
-                        }
-                    }
-                }
-                writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
-                if(op->sendsClasses(false))
-                {
-                    out << nl << "__is.readPendingValues();";
-                }
-                out << nl << "__inS.endReadParams();";
-            }
-            else
-            {
-                out << nl << "__inS.readEmptyParams();";
-            }
-
-            //
-            // Call on the servant.
-            //
-            string classNameAMD = "AMD_" + p->name();
-            out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
-                << "(__inS);";
-            out << nl << "try";
-            out << sb;
-            out << nl << "__obj." << (amd ? opName + "_async" : fixKwd(opName)) << (amd ? "(__cb, " : "(");
-            for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
-            {
-                TypePtr paramType = (*pli)->type();
-                out << fixKwd((*pli)->name());
-                if(!(*pli)->optional())
-                {
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-                    {
-                        out << ".value";
-                    }
-                }
-                out << ", ";
-            }
-            out << "__current);";
-            out << eb;
-            out << nl << "catch(java.lang.Exception ex)";
-            out << sb;
-            out << nl << "__cb.ice_exception(ex);";
-            out << eb;
-            out << nl << "return Ice.DispatchStatus.DispatchAsync;";
-
-            out << eb;
-        }
+        out << eb;
     }
 
     OperationList allOps = p->allOperations();
@@ -1490,7 +1218,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         allOpNames.sort();
         allOpNames.unique();
 
-        out << sp << nl << "private final static String[] __all =";
+        out << sp << nl << "final static String[] __ops =";
         out << sb;
         for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
         {
@@ -1519,12 +1247,18 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 break;
             }
         }
-        out << nl << "public Ice.DispatchStatus __dispatch(IceInternal.Incoming in, Ice.Current __current)";
+        out << nl << "@Override" << nl
+            << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutputStream> __dispatch("
+            << "com.zeroc.IceInternal.Incoming in, com.zeroc.Ice.Current __current)";
+        out.inc();
+        out << nl << "throws com.zeroc.Ice.UserException";
+        out.dec();
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
+        out << nl << "int pos = java.util.Arrays.binarySearch(__ops, __current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
-        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
+        out << nl << "throw new "
+            << "com.zeroc.Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
         out << sp << nl << "switch(pos)";
         out << sb;
@@ -1537,19 +1271,19 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << sb;
             if(opName == "ice_id")
             {
-                out << nl << "return ___ice_id(this, in, __current);";
+                out << nl << "return com.zeroc.Ice.Object.___ice_id(this, in, __current);";
             }
             else if(opName == "ice_ids")
             {
-                out << nl << "return ___ice_ids(this, in, __current);";
+                out << nl << "return com.zeroc.Ice.Object.___ice_ids(this, in, __current);";
             }
             else if(opName == "ice_isA")
             {
-                out << nl << "return ___ice_isA(this, in, __current);";
+                out << nl << "return com.zeroc.Ice.Object.___ice_isA(this, in, __current);";
             }
             else if(opName == "ice_ping")
             {
-                out << nl << "return ___ice_ping(this, in, __current);";
+                out << nl << "return com.zeroc.Ice.Object.___ice_ping(this, in, __current);";
             }
             else
             {
@@ -1572,11 +1306,11 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                             string base;
                             if(cl->isInterface())
                             {
-                                base = getAbsolute(cl, package, "_", "Disp");
+                                base = getAbsolute(cl, package);
                             }
                             else
                             {
-                                base = getAbsolute(cl, package);
+                                base = getAbsolute(cl, package, "_", "Disp");
                             }
                             out << nl << "return " << base << ".___" << opName << "(this, in, __current);";
                         }
@@ -1588,7 +1322,8 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb;
         out << sp << nl << "assert(false);";
-        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
+        out << nl << "throw new "
+            << "com.zeroc.Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
 
         //
@@ -1607,7 +1342,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
         if(!attributesMap.empty())
         {
-            out << sp << nl << "private final static int[] __operationAttributes =";
+            out << sp << nl << "final static int[] __operationAttributes =";
             out << sb;
             for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
             {
@@ -1627,9 +1362,9 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             }
             out << eb << ';';
 
-            out << sp << nl << "public int ice_operationAttributes(String operation)";
+            out << sp << nl << "@Override" << nl << "default int ice_operationAttributes(String operation)";
             out << sb;
-            out << nl << "int pos = java.util.Arrays.binarySearch(__all, operation);";
+            out << nl << "int pos = java.util.Arrays.binarySearch(__ops, operation);";
             out << nl << "if(pos < 0)";
             out << sb;
             out << nl << "return -1;";
@@ -1637,6 +1372,20 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << sp << nl << "return __operationAttributes[pos];";
             out << eb;
         }
+    }
+}
+
+void
+Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
+{
+    string name = fixKwd(p->name());
+    string package = getPackage(p);
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
     }
 
     int iter;
@@ -1647,14 +1396,18 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     if(preserved && !basePreserved)
     {
-        out << sp << nl << "public void __write(Ice.OutputStream __os)";
+        out << sp;
+        out << nl << "@Override";
+        out << nl << "public void __write(com.zeroc.Ice.OutputStream __os)";
         out << sb;
         out << nl << "__os.startValue(__slicedData);";
         out << nl << "__writeImpl(__os);";
         out << nl << "__os.endValue();";
         out << eb;
 
-        out << sp << nl << "public void __read(Ice.InputStream __is)";
+        out << sp;
+        out << nl << "@Override";
+        out << nl << "public void __read(com.zeroc.Ice.InputStream __is)";
         out << sb;
         out << nl << "__is.startValue();";
         out << nl << "__readImpl(__is);";
@@ -1662,9 +1415,11 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << eb;
     }
 
-    out << sp << nl << "protected void __writeImpl(Ice.OutputStream __os)";
+    out << sp;
+    out << nl << "@Override";
+    out << nl << "protected void __writeImpl(com.zeroc.Ice.OutputStream __os)";
     out << sb;
-    out << nl << "__os.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    out << nl << "__os.startSlice(ice_staticId, " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
@@ -1687,29 +1442,25 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList allClassMembers = p->allClassDataMembers();
 
-    if(classMembers.size() != 0)
-    {
-        writePatcher(out, package, classMembers, optionalMembers);
-    }
-
-    out << sp << nl << "protected void __readImpl(Ice.InputStream __is)";
+    out << sp;
+    out << nl << "@Override";
+    out << nl << "protected void __readImpl(com.zeroc.Ice.InputStream __is)";
     out << sb;
     out << nl << "__is.startSlice();";
 
-    int patchIter = 0;
-    const bool needCustomPatcher = classMembers.size() > 1;
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         if(!(*d)->optional())
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
+            writeUnmarshalDataMember(out, package, *d, iter);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
+        writeUnmarshalDataMember(out, package, *d, iter);
     }
+
     out << nl << "__is.endSlice();";
     if(base)
     {
@@ -1719,7 +1470,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     if(preserved && !basePreserved)
     {
-        out << sp << nl << "protected Ice.SlicedData __slicedData;";
+        out << sp << nl << "protected com.zeroc.Ice.SlicedData __slicedData;";
     }
 }
 
@@ -1857,13 +1608,15 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                             out << "\\\"";
                                         }
                                         //
-                                        // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
-                                        // and is represented using a Unicode surrogate pair.
+                                        // Unicode character in the range U+10000 to U+10FFFF is not permitted in a
+                                        // character literal and is represented using a Unicode surrogate pair.
                                         //
                                         else if(v > 0xFFFF)
                                         {
-                                            unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
-                                            unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
+                                            unsigned int high =
+                                                ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
+                                            unsigned int low =
+                                                ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
                                             out << u16CodePoint(high);
                                             out << u16CodePoint(low);
                                         }
@@ -2118,7 +1871,6 @@ Slice::JavaVisitor::writeDocCommentOp(Output& out, const OperationPtr& p)
         return;
     }
 
-
     out << sp << nl << "/**";
 
     //
@@ -2300,7 +2052,7 @@ Slice::JavaVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p, Param
 
     if(paramType == InParam)
     {
-        out << nl << " * @return The asynchronous result object.";
+        out << nl << " * @return A future for the completion of the request.";
         if(!deprecateReason.empty())
         {
             out << nl << " * @deprecated " << deprecateReason;
@@ -2424,9 +2176,6 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     JavaGenerator::validateMetaData(p);
 
-    OpsVisitor opsVisitor(_dir);
-    p->visit(&opsVisitor, false);
-
     PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
 
@@ -2436,9 +2185,6 @@ Slice::Gen::generate(const UnitPtr& p)
     CompactIdVisitor compactIdVisitor(_dir);
     p->visit(&compactIdVisitor, false);
 
-    HolderVisitor holderVisitor(_dir);
-    p->visit(&holderVisitor, false);
-
     HelperVisitor helperVisitor(_dir);
     p->visit(&helperVisitor, false);
 
@@ -2447,16 +2193,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     DispatcherVisitor dispatcherVisitor(_dir);
     p->visit(&dispatcherVisitor, false);
-
-    AsyncVisitor asyncVisitor(_dir);
-    p->visit(&asyncVisitor, false);
-}
-
-void
-Slice::Gen::generateTie(const UnitPtr& p)
-{
-    TieVisitor tieVisitor(_dir);
-    p->visit(&tieVisitor, false);
 }
 
 void
@@ -2464,13 +2200,6 @@ Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_dir);
     p->visit(&implVisitor, false);
-}
-
-void
-Slice::Gen::generateImplTie(const UnitPtr& p)
-{
-    ImplTieVisitor implTieVisitor(_dir);
-    p->visit(&implTieVisitor, false);
 }
 
 void
@@ -2508,7 +2237,7 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     out << sp << nl << "public static final java.util.Map<String, String> checksums;";
     out << sp << nl << "static";
     out << sb;
-    out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
+    out << nl << "java.util.Map<String, String> map = new java.util.HashMap<>();";
     for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
         out << nl << "map.put(\"" << p->first << "\", \"";
@@ -2526,360 +2255,6 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     out << eb;
     out << eb;
     out << nl;
-}
-
-Slice::Gen::OpsVisitor::OpsVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    //
-    // Don't generate an Operations interface for non-abstract classes
-    //
-    if(!p->isAbstract())
-    {
-        return false;
-    }
-
-    if(!p->isLocal())
-    {
-        writeOperations(p, false);
-    }
-    writeOperations(p, true);
-
-    return false;
-}
-
-void
-Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
-{
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string opIntfName = "Operations";
-    if(noCurrent || p->isLocal())
-    {
-        opIntfName += "NC";
-    }
-    string absolute = getAbsolute(p, "", "_", opIntfName);
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    //
-    // Generate the operations interface
-    //
-    out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
-    out << nl << "public interface " << '_' << name << opIntfName;
-    if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
-    {
-        out << " extends ";
-        out.useCurrentPosAsIndent();
-        bool first = true;
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
-        {
-            if((*q)->isAbstract())
-            {
-                if(!first)
-                {
-                    out << ',' << nl;
-                }
-                else
-                {
-                    first = false;
-                }
-                out << getAbsolute(*q, package, "_", opIntfName);
-            }
-            ++q;
-        }
-        out.restoreIndent();
-    }
-    out << sb;
-
-    OperationList ops = p->operations();
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        ContainerPtr container = op->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string opname = op->name();
-
-        TypePtr ret;
-        vector<string> params;
-
-        const bool amd = !p->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd"));
-        const bool optionalMapping = useOptionalMapping(op);
-
-        if(amd)
-        {
-            params = getParamsAsync(op, package, true, true);
-        }
-        else
-        {
-            params = getParams(op, package, false, optionalMapping);
-            ret = op->returnType();
-        }
-
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
-                                   optionalMapping && op->returnIsOptional());
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        out << sp;
-
-        string deprecateReason = getDeprecateReason(*r, p, "operation");
-        string extraCurrent;
-        if(!noCurrent && !p->isLocal())
-        {
-            extraCurrent = "@param __current The Current object for the invocation.";
-        }
-        if(amd)
-        {
-            writeDocCommentAsync(out, *r, InParam, extraCurrent);
-        }
-        else
-        {
-            writeDocComment(out, *r, deprecateReason, extraCurrent);
-        }
-        out << nl << retS << ' ' << (amd ? opname + "_async" : fixKwd(opname)) << spar << params;
-        if(!noCurrent && !p->isLocal())
-        {
-            out << "Ice.Current __current";
-        }
-        out << epar;
-        if(op->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
-        out << ';';
-    }
-
-    out << eb;
-
-    close();
-}
-
-Slice::Gen::TieVisitor::TieVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "Tie");
-    string opIntfName = "Operations";
-    if(p->isLocal())
-    {
-        opIntfName += "NC";
-    }
-
-    //
-    // Don't generate a TIE class for a non-abstract class
-    //
-    if(!p->isAbstract())
-    {
-        return false;
-    }
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    //
-    // Generate the TIE class
-    //
-    out << sp << nl << "public class " << '_' << name << "Tie";
-    if(p->isInterface())
-    {
-        if(p->isLocal())
-        {
-            out << " implements " << fixKwd(name) << ", Ice.TieBase";
-        }
-        else
-        {
-            out << " extends " << '_' << name << "Disp implements Ice.TieBase";
-        }
-    }
-    else
-    {
-        out << " extends " << fixKwd(name) << " implements Ice.TieBase";
-    }
-
-    out << sb;
-
-    out << sp << nl << "public _" << name << "Tie()";
-    out << sb;
-    out << eb;
-
-    out << sp << nl << "public _" << name << "Tie(" << '_' << name << opIntfName << " delegate)";
-    out << sb;
-    out << nl << "_ice_delegate = delegate;";
-    out << eb;
-
-    out << sp << nl << "public java.lang.Object ice_delegate()";
-    out << sb;
-    out << nl << "return _ice_delegate;";
-    out << eb;
-
-    out << sp << nl << "public void ice_delegate(java.lang.Object delegate)";
-    out << sb;
-    out << nl << "_ice_delegate = (_" << name << opIntfName << ")delegate;";
-    out << eb;
-
-    out << sp << nl << "public boolean equals(java.lang.Object rhs)";
-    out << sb;
-    out << nl << "if(this == rhs)";
-    out << sb;
-    out << nl << "return true;";
-    out << eb;
-    out << nl << "if(!(rhs instanceof " << '_' << name << "Tie))";
-    out << sb;
-    out << nl << "return false;";
-    out << eb;
-    out << sp << nl << "return _ice_delegate.equals(((" << '_' << name << "Tie)rhs)._ice_delegate);";
-    out << eb;
-
-    out << sp << nl << "public int hashCode()";
-    out << sb;
-    out << nl << "return _ice_delegate.hashCode();";
-    out << eb;
-
-    if(p->isLocal())
-    {
-        out << sp << nl << "public _" << name << "Tie clone()";
-        out.inc();
-        out << nl << "throws java.lang.CloneNotSupportedException";
-        out.dec();
-        out << sb;
-        out << nl << "return (_" << name << "Tie)super.clone();";
-        out << eb;
-    }
-
-    OperationList ops = p->allOperations();
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        ContainerPtr container = (*r)->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        const bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        const bool optionalMapping = useOptionalMapping(*r);
-
-        string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
-
-        TypePtr ret = (*r)->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData(), true,
-                                   optionalMapping && (*r)->returnIsOptional());
-
-        vector<string> params;
-        vector<string> args;
-        if(hasAMD)
-        {
-            params = getParamsAsync((*r), package, true, true);
-            args = getArgsAsync(*r);
-        }
-        else
-        {
-            params = getParams((*r), package, false, optionalMapping);
-            args = getArgs(*r);
-        }
-
-        string deprecateReason = getDeprecateReason(*r, cl, "operation");
-
-        out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "@Deprecated";
-            out << nl << "@SuppressWarnings(\"deprecation\")";
-        }
-        out << nl << "public " << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
-        if(!p->isLocal())
-        {
-            out << "Ice.Current __current";
-        }
-        out << epar;
-
-        if((*r)->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            ExceptionList throws = (*r)->throws();
-            throws.sort();
-            throws.unique();
-            writeThrowsClause(package, throws);
-        }
-        out << sb;
-        out << nl;
-        if(ret && !hasAMD)
-        {
-            out << "return ";
-        }
-        out << "_ice_delegate." << opName << spar << args;
-        if(!p->isLocal())
-        {
-            out << "__current";
-        }
-        out << epar << ';';
-        out << eb;
-    }
-
-    out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
-    out << sp << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
-    {
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if(pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            emitWarning("", "", os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if(serialVersionUID != "0")
-            {
-                if(!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                       << "'; generating default value";
-                    emitWarning("", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
-    out << eb;
-    close();
-
-    return false;
 }
 
 Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :
@@ -2944,9 +2319,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << " extends ";
             out.useCurrentPosAsIndent();
-            out << "Ice.Object";
-            out << "," << nl << '_' << name;
-            out << "Operations, _" << name << "OperationsNC";
+            out << "com.zeroc.Ice.Object";
         }
         else
         {
@@ -2972,7 +2345,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         out << nl << "public ";
-        if(p->allOperations().size() > 0) // Don't use isAbstract() - see bug 3739
+        if(p->isLocal() && !p->allOperations().empty())
         {
             out << "abstract ";
         }
@@ -2980,18 +2353,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.useCurrentPosAsIndent();
 
         StringList implements;
-        bool implementsOnNewLine = true;
 
         if(bases.empty() || bases.front()->isInterface())
         {
             if(p->isLocal())
             {
-                implementsOnNewLine = false;
-        implements.push_back("java.lang.Cloneable");
+                implements.push_back("java.lang.Cloneable");
             }
             else
             {
-                out << " extends Ice.ObjectImpl";
+                out << " extends com.zeroc.Ice.Value";
             }
         }
         else
@@ -3001,160 +2372,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             bases.pop_front();
         }
 
-        //
-        // Implement interfaces
-        //
-
-        if(p->isAbstract())
-        {
-            if(!p->isLocal())
-            {
-                implements.push_back("_" + name + "Operations");
-                implements.push_back("_" + name + "OperationsNC");
-            }
-        }
-        if(!bases.empty())
-        {
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
-            {
-                implements.push_back(getAbsolute(*q, package));
-                q++;
-            }
-        }
-
-        if(!implements.empty())
-        {
-            if(implementsOnNewLine)
-            {
-                out << nl;
-            }
-
-            out << " implements ";
-            out.useCurrentPosAsIndent();
-
-            for(StringList::const_iterator q = implements.begin(); q != implements.end();)
-            {
-                if(q != implements.begin())
-                {
-                    out << ',' << nl;
-                }
-                out << *q;
-                q++;
-            }
-
-            out.restoreIndent();
-        }
-
         out.restoreIndent();
     }
 
     out << sb;
-
-    //
-    // For local classes and interfaces, we don't use the OperationsNC interface.
-    // Instead, we generate the operation signatures directly into the class
-    // or interface.
-    //
-    if(p->isLocal())
-    {
-        OperationList ops = p->operations();
-        for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-        {
-            OperationPtr op = *r;
-            const ContainerPtr container = op->container();
-            const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-            const string opname = op->name();
-            const bool optionalMapping = useOptionalMapping(op);
-
-            const TypePtr ret = op->returnType();
-            vector<string> params = getParams(op, package, true, optionalMapping);
-
-            string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
-                                       optionalMapping && op->returnIsOptional());
-            ExceptionList throws = op->throws();
-            throws.sort();
-            throws.unique();
-            out << sp;
-
-            writeDocComment(out, *r, getDeprecateReason(*r, p, "operation"));
-            out << nl;
-            if(!p->isInterface())
-            {
-                out << "public abstract ";
-            }
-            out << retS << ' ' << fixKwd(opname) << spar << params << epar;
-            if(op->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws Ice.UserException";
-                out.dec();
-            }
-            else
-            {
-                writeThrowsClause(package, throws);
-            }
-            out << ';';
-
-            //
-            // Generate asynchronous API for local operations marked with "async-oneway" metadata.
-            //
-            if(p->hasMetaData("async-oneway") || op->hasMetaData("async-oneway"))
-            {
-                vector<string> inParams = getInOutParams(op, package, InParam, true, true);
-
-                out << sp;
-                writeDocCommentAMI(out, op, InParam);
-                out << nl;
-                if(!p->isInterface())
-                {
-                    out << "public abstract ";
-                }
-                out << "Ice.AsyncResult begin_" << opname << spar << inParams << epar << ';';
-
-                out << sp;
-                writeDocCommentAMI(out, op, InParam);
-                out << nl;
-                if(!p->isInterface())
-                {
-                    out << "public abstract ";
-                }
-                out << "Ice.AsyncResult begin_" << opname << spar << inParams << "Ice.Callback __cb" << epar << ';';
-
-                out << sp;
-                writeDocCommentAMI(out, op, InParam);
-                out << nl;
-                if(!p->isInterface())
-                {
-                    out << "public abstract ";
-                }
-                string cb = "Callback_" + name + "_" + opname + " __cb";
-                out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
-
-
-                out << sp;
-                writeDocCommentAMI(out, op, InParam);
-                out << nl;
-                if(!p->isInterface())
-                {
-                    out << "public abstract ";
-                }
-                out << nl << "Ice.AsyncResult begin_" << opname;
-                writeParamList(out, getParamsAsyncLambda(op, package, false, true));
-                out << ';';
-
-                vector<string> outParams = getInOutParams(op, package, OutParam, true, true);
-                out << sp;
-                writeDocCommentAMI(out, op, OutParam);
-                out << nl;
-                if(!p->isInterface())
-                {
-                    out << "public abstract ";
-                }
-
-                out << retS << " end_" << opname << spar << outParams << "Ice.AsyncResult __result" << epar << ';';
-            }
-        }
-    }
 
     if(!p->isInterface() && !allDataMembers.empty())
     {
@@ -3294,36 +2515,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    //
-    // Default factory for non-abstract classes.
-    //
-    if(!p->isInterface() && p->allOperations().size() == 0 && !p->isLocal())
-    {
-        out << sp;
-        out << nl << "private static class __F implements Ice.ValueFactory";
-        out << sb;
-        out << nl << "public Ice.Object create(String type)";
-        out << sb;
-        out << nl << "assert(type.equals(ice_staticId()));";
-        out << nl << "return new " << fixKwd(name) << "();";
-        out << eb;
-        out << eb;
-        out << nl << "private static Ice.ValueFactory _factory = new __F();";
-        out << sp;
-        out << nl << "public static Ice.ValueFactory" << nl << "ice_factory()";
-        out << sb;
-        out << nl << "return _factory;";
-        out << eb;
-    }
-
-    //
-    // Marshalling & dispatch support.
-    //
-    if(!p->isInterface() && !p->isLocal())
-    {
-        writeDispatchAndMarshalling(out, p);
-    }
-
     return true;
 }
 
@@ -3343,7 +2534,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        out << sp << nl << "public " << name << nl << "clone()";
+        out << sp << nl << "public " << name << " clone()";
         out << sb;
 
         if(p->isLocal() && !baseClass)
@@ -3367,48 +2558,158 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         out << eb;
     }
 
-    if(p->isInterface() && !p->isLocal())
+    if(!p->isLocal())
     {
-        out << sp << nl << "public static final String ice_staticId = \"" << p->scoped() << "\";";
+        out << sp << nl;
+        if(!p->isInterface())
+        {
+            out << "public ";
+        }
+        out << "static final String ice_staticId = \"" << p->scoped() << "\";";
+
+        if(!p->isInterface())
+        {
+            out << sp << nl << "public static String ice_staticId()";
+            out << sb;
+            out << nl << "return ice_staticId;";
+            out << eb;
+
+            out << sp << nl << "@Override";
+            out << nl << "public String ice_id()";
+            out << sb;
+            out << nl << "return ice_staticId;";
+            out << eb;
+        }
     }
 
-    out << sp << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    if(!p->isInterface())
     {
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if(pos == string::npos)
+        out << sp << nl << "public static final long serialVersionUID = ";
+        string serialVersionUID;
+        if(p->findMetaData("java:serialVersionUID", serialVersionUID))
         {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            emitWarning("", "", os.str());
-            out << computeSerialVersionUUID(p);
+            string::size_type pos = serialVersionUID.rfind(":") + 1;
+            if(pos == string::npos)
+            {
+                ostringstream os;
+                os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+                emitWarning("", "", os.str());
+                out << computeSerialVersionUUID(p);
+            }
+            else
+            {
+                Int64 v = 0;
+                serialVersionUID = serialVersionUID.substr(pos);
+                if(serialVersionUID != "0")
+                {
+                    if(!stringToInt64(serialVersionUID, v)) // conversion error
+                    {
+                        ostringstream os;
+                        os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                           << "'; generating default value";
+                        emitWarning("", "", os.str());
+                        out << computeSerialVersionUUID(p);
+                    }
+                }
+                out << v;
+            }
         }
         else
         {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if(serialVersionUID != "0")
-            {
-                if(!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                       << "'; generating default value";
-                    emitWarning("", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
+            out << computeSerialVersionUUID(p);
+        }
+        out << "L;";
+    }
+
+    if(!p->isLocal())
+    {
+        if(p->isInterface())
+        {
+            writeDispatch(out, p);
+        }
+        else
+        {
+            writeMarshaling(out, p);
         }
     }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+
     out << eb;
     close();
+}
+
+void
+Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
+{
+    //
+    // Generate the operation signature for a servant.
+    //
+
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    assert(cl);
+
+    const string package = getPackage(cl);
+
+    Output& out = output();
+
+    //
+    // Generate the "Result" type needed by operations that return multiple values.
+    //
+    if(p->returnsMultipleValues())
+    {
+        writeResultType(out, p, package);
+    }
+
+    if(p->hasMarshaledResult())
+    {
+        writeMarshaledResultType(out, p, package);
+    }
+
+    if(cl->isLocal())
+    {
+        const string opname = p->name();
+        vector<string> params = getParams(p, package);
+
+        const string retS = getResultType(p, package, false, false);
+
+        ExceptionList throws = p->throws();
+        throws.sort();
+        throws.unique();
+        out << sp;
+
+        writeDocComment(out, p, getDeprecateReason(p, cl, "operation"));
+        out << nl;
+        if(!cl->isInterface())
+        {
+            out << "public abstract ";
+        }
+        out << retS << ' ' << fixKwd(opname) << spar << params << epar;
+        if(p->hasMetaData("UserException"))
+        {
+            out.inc();
+            out << nl << "throws com.zeroc.Ice.UserException";
+            out.dec();
+        }
+        else
+        {
+            writeThrowsClause(package, throws);
+        }
+        out << ';';
+
+        //
+        // Generate asynchronous API for local operations marked with "async-oneway" metadata.
+        //
+        if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
+        {
+            out << sp;
+            writeDocCommentAMI(out, p, InParam);
+            out << nl;
+            if(!cl->isInterface())
+            {
+                out << "public abstract ";
+            }
+            out << getFutureType(p, package) << ' ' << opname << "Async" << spar << params << epar << ';';
+        }
+    }
 }
 
 bool
@@ -3436,11 +2737,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if(p->isLocal())
         {
-            out << "Ice.LocalException";
+            out << "com.zeroc.Ice.LocalException";
         }
         else
         {
-            out << "Ice.UserException";
+            out << "com.zeroc.Ice.UserException";
         }
     }
     else
@@ -3520,7 +2821,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     if(!(*d)->optional())
                     {
                         string memberName = fixKwd((*d)->name());
-                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(),
+                                                         true, false, p->isLocal());
                         paramDecl.push_back(memberType + " " + memberName);
                     }
                 }
@@ -3599,7 +2901,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
                 string memberName = fixKwd((*d)->name());
-                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true,
+                                                 false, p->isLocal());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;
@@ -3676,7 +2979,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    out << sp << nl << "public String" << nl << "ice_id()";
+    out << sp << nl << "public String ice_id()";
     out << sb;
     out << nl << "return \"" << scoped << "\";";
     out << eb;
@@ -3704,15 +3007,18 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __os)";
+            out << sp;
+            out << nl << "@Override";
+            out << nl << "public void __write(com.zeroc.Ice.OutputStream __os)";
             out << sb;
             out << nl << "__os.startException(__slicedData);";
             out << nl << "__writeImpl(__os);";
             out << nl << "__os.endException();";
             out << eb;
 
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __is)";
+            out << sp;
+            out << nl << "@Override";
+            out << nl << "public void __read(com.zeroc.Ice.InputStream __is)";
             out << sb;
             out << nl << "__is.startException();";
             out << nl << "__readImpl(__is);";
@@ -3720,7 +3026,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
         }
 
-        out << sp << nl << "protected void" << nl << "__writeImpl(Ice.OutputStream __os)";
+        out << sp;
+        out << nl << "@Override";
+        out << nl << "protected void __writeImpl(com.zeroc.Ice.OutputStream __os)";
         out << sb;
         out << nl << "__os.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
         iter = 0;
@@ -3745,26 +3053,22 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         DataMemberList classMembers = p->classDataMembers();
         DataMemberList allClassMembers = p->allClassDataMembers();
 
-        if(classMembers.size() != 0)
-        {
-            writePatcher(out, package, classMembers, optionalMembers);
-        }
-        out << sp << nl << "protected void" << nl << "__readImpl(Ice.InputStream __is)";
+        out << sp;
+        out << nl << "@Override";
+        out << nl << "protected void __readImpl(com.zeroc.Ice.InputStream __is)";
         out << sb;
         out << nl << "__is.startSlice();";
         iter = 0;
-        int patchIter = 0;
-        const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
             {
-                writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
+                writeUnmarshalDataMember(out, package, *d, iter);
             }
         }
         for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
+            writeUnmarshalDataMember(out, package, *d, iter);
         }
         out << nl << "__is.endSlice();";
         if(base)
@@ -3777,7 +3081,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             if(!base || (base && !base->usesClasses(false)))
             {
-                out << sp << nl << "public boolean" << nl << "__usesClasses()";
+                out << sp;
+                out << nl << "@Override";
+                out << nl << "public boolean __usesClasses()";
                 out << sb;
                 out << nl << "return true;";
                 out << eb;
@@ -3786,7 +3092,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            out << sp << nl << "protected Ice.SlicedData __slicedData;";
+            out << sp << nl << "protected com.zeroc.Ice.SlicedData __slicedData;";
         }
     }
 
@@ -3882,7 +3188,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             string memberName = fixKwd((*d)->name());
-            string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+            string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true, false,
+                                             p->isLocal());
             paramDecl.push_back(memberType + " " + memberName);
             paramNames.push_back(memberName);
         }
@@ -3896,7 +3203,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
     }
 
-    out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
+    out << sp << nl << "public boolean equals(java.lang.Object rhs)";
     out << sb;
     out << nl << "if(this == rhs)";
     out << sb;
@@ -4003,20 +3310,20 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "return false;";
     out << eb;
 
-    out << sp << nl << "public int" << nl << "hashCode()";
+    out << sp << nl << "public int hashCode()";
     out << sb;
     out << nl << "int __h = 5381;";
-    out << nl << "__h = IceInternal.HashUtil.hashAdd(__h, \"" << p->scoped() << "\");";
+    out << nl << "__h = com.zeroc.IceInternal.HashUtil.hashAdd(__h, \"" << p->scoped() << "\");";
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         string memberName = fixKwd((*d)->name());
-        out << nl << "__h = IceInternal.HashUtil.hashAdd(__h, " << memberName << ");";
+        out << nl << "__h = com.zeroc.IceInternal.HashUtil.hashAdd(__h, " << memberName << ");";
     }
     out << nl << "return __h;";
     out << eb;
 
-    out << sp << nl << "public " << name << nl << "clone()";
+    out << sp << nl << "public " << name << " clone()";
     out << sb;
     out << nl << name << " c = null;";
     out << nl << "try";
@@ -4032,7 +3339,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __os)";
+        out << sp << nl << "public void ice_write(com.zeroc.Ice.OutputStream __os)";
         out << sb;
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -4043,41 +3350,34 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         DataMemberList classMembers = p->classDataMembers();
 
-        if(classMembers.size() != 0)
-        {
-            writePatcher(out, package, classMembers, DataMemberList());
-        }
-
-        out << sp << nl << "public void" << nl << "__read(Ice.InputStream __is)";
+        out << sp << nl << "public void ice_read(com.zeroc.Ice.InputStream __is)";
         out << sb;
         iter = 0;
-        int patchIter = 0;
-        const bool needCustomPatcher = classMembers.size() > 1;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
-            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, patchIter);
+            writeUnmarshalDataMember(out, package, *d, iter);
         }
         out << eb;
 
-        out << sp << nl << "static public void" << nl << "write(Ice.OutputStream __os, " << name << " __v)";
+        out << sp << nl << "static public void write(com.zeroc.Ice.OutputStream __os, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
-        out << nl << "__nullMarshalValue.__write(__os);";
+        out << nl << "__nullMarshalValue.ice_write(__os);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "__v.__write(__os);";
+        out << nl << "__v.ice_write(__os);";
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << nl << "read(Ice.InputStream __is, " << name << " __v)";
+        out << sp << nl << "static public " << name << " read(com.zeroc.Ice.InputStream __is, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
         out << nl << " __v = new " << name << "();";
         out << eb;
-        out << nl << "__v.__read(__is);";
+        out << nl << "__v.ice_read(__is);";
         out << nl << "return __v;";
         out << eb;
 
@@ -4127,15 +3427,38 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ContainedPtr contained = ContainedPtr::dynamicCast(container);
-    StringList metaData = p->getMetaData();
-    TypePtr type = p->type();
-    string s = typeToString(type, TypeModeMember, getPackage(contained), metaData);
-    Output& out = output();
-    const bool optional = p->optional();
+    const ContainerPtr container = p->container();
+    const ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
+    const StructPtr st = StructPtr::dynamicCast(container);
+    const ExceptionPtr ex = ExceptionPtr::dynamicCast(container);
+    const ContainedPtr contained = ContainedPtr::dynamicCast(container);
+
+    const string name = fixKwd(p->name());
+    const StringList metaData = p->getMetaData();
     const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
+    const bool optional = p->optional();
+    const TypePtr type = p->type();
+    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    const bool classType = isValue(type);
+
+    bool local;
+    if(cls)
+    {
+        local = cls->isLocal();
+    }
+    else if(st)
+    {
+        local = st->isLocal();
+    }
+    else
+    {
+        assert(ex);
+        local = ex->isLocal();
+    }
+
+    const string s = typeToString(type, TypeModeMember, getPackage(contained), metaData, true, false, local);
+
+    Output& out = output();
 
     out << sp;
 
@@ -4146,8 +3469,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     // Access visibility for class data members can be controlled by metadata.
     // If none is specified, the default is public.
     //
-    if(contained->containedType() == Contained::ContainedTypeClass &&
-       (p->hasMetaData("protected") || contained->hasMetaData("protected")))
+    if(cls && (p->hasMetaData("protected") || contained->hasMetaData("protected")))
     {
         out << nl << "protected " << s << ' ' << name << ';';
     }
@@ -4178,7 +3500,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         OperationList ops;
         string file, line;
-        ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
         if(cls)
         {
             ops = cls->allOperations();
@@ -4203,14 +3524,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p, deprecateReason);
-        out << nl << "public " << s
-            << nl << "get" << capName << "()";
+        out << nl << "public " << s << " get" << capName << "()";
         out << sb;
         if(optional)
         {
             out << nl << "if(!__has_" << p->name() << ')';
             out << sb;
-            out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+            out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
             out << eb;
         }
         out << nl << "return " << name << ';';
@@ -4221,8 +3541,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p, deprecateReason);
-        out << nl << "public void"
-            << nl << "set" << capName << '(' << s << " _" << name << ')';
+        out << nl << "public void set" << capName << '(' << s << " _" << name << ')';
         out << sb;
         if(optional)
         {
@@ -4238,50 +3557,96 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             out << sp;
             writeDocComment(out, p, deprecateReason);
-            out << nl << "public boolean"
-                << nl << "has" << capName << "()";
+            out << nl << "public boolean has" << capName << "()";
             out << sb;
             out << nl << "return __has_" << p->name() << ';';
             out << eb;
 
             out << sp;
             writeDocComment(out, p, deprecateReason);
-            out << nl << "public void"
-                << nl << "clear" << capName << "()";
+            out << nl << "public void clear" << capName << "()";
             out << sb;
             out << nl << "__has_" << p->name() << " = false;";
             out << eb;
 
-            const string optType = typeToString(type, TypeModeMember, getPackage(contained), metaData, true, true);
+            const string optType =
+                typeToString(type, TypeModeMember, getPackage(contained), metaData, true, true, local);
 
             out << sp;
             writeDocComment(out, p, deprecateReason);
-            out << nl << "public void"
-                << nl << "optional" << capName << '(' << optType << " __v)";
+            out << nl << "public void optional" << capName << '(' << optType << " __v)";
             out << sb;
-            out << nl << "if(__v == null || !__v.isSet())";
+            out << nl << "if(__v == null || !__v.isPresent())";
             out << sb;
             out << nl << "__has_" << p->name() << " = false;";
             out << eb;
             out << nl << "else";
             out << sb;
             out << nl << "__has_" << p->name() << " = true;";
-            out << nl << name << " = __v.get();";
+            if(b && b->kind() == Builtin::KindInt)
+            {
+                out << nl << name << " = __v.getAsInt();";
+            }
+            else if(b && b->kind() == Builtin::KindLong)
+            {
+                out << nl << name << " = __v.getAsLong();";
+            }
+            else if(b && b->kind() == Builtin::KindDouble)
+            {
+                out << nl << name << " = __v.getAsDouble();";
+            }
+            else
+            {
+                out << nl << name << " = __v.get();";
+            }
             out << eb;
             out << eb;
 
             out << sp;
             writeDocComment(out, p, deprecateReason);
-            out << nl << "public " << optType
-                << nl << "optional" << capName << "()";
+            out << nl << "public " << optType << " optional" << capName << "()";
             out << sb;
             out << nl << "if(__has_" << p->name() << ')';
             out << sb;
-            out << nl << "return new " << optType << '(' << name << ");";
+            if(classType)
+            {
+                out << nl << "return java.util.Optional.ofNullable(" << name << ");";
+            }
+            else if(b && b->kind() == Builtin::KindInt)
+            {
+                out << nl << "return java.util.OptionalInt.of(" << name << ");";
+            }
+            else if(b && b->kind() == Builtin::KindLong)
+            {
+                out << nl << "return java.util.OptionalLong.of(" << name << ");";
+            }
+            else if(b && b->kind() == Builtin::KindDouble)
+            {
+                out << nl << "return java.util.OptionalDouble.of(" << name << ");";
+            }
+            else
+            {
+                out << nl << "return java.util.Optional.of(" << name << ");";
+            }
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << "return new " << optType << "();";
+            if(b && b->kind() == Builtin::KindInt)
+            {
+                out << nl << "return java.util.OptionalInt.empty();";
+            }
+            else if(b && b->kind() == Builtin::KindLong)
+            {
+                out << nl << "return java.util.OptionalLong.empty();";
+            }
+            else if(b && b->kind() == Builtin::KindDouble)
+            {
+                out << nl << "return java.util.OptionalDouble.empty();";
+            }
+            else
+            {
+                out << nl << "return java.util.Optional.empty();";
+            }
             out << eb;
             out << eb;
         }
@@ -4289,7 +3654,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         // Check for bool type.
         //
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
         if(b && b->kind() == Builtin::KindBool)
         {
             if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
@@ -4303,14 +3667,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 out << nl << " * @deprecated " << deprecateReason;
                 out << nl << " **/";
             }
-            out << nl << "public boolean";
-            out << nl << "is" << capName << "()";
+            out << nl << "public boolean is" << capName << "()";
             out << sb;
             if(optional)
             {
                 out << nl << "if(!__has_" << p->name() << ')';
                 out << sb;
-                out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                 out << eb;
             }
             out << nl << "return " << name << ';';
@@ -4332,7 +3695,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     return;
                 }
 
-                string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
+                string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained), StringList(), true,
+                                           false, local);
 
                 //
                 // Indexed getter.
@@ -4344,14 +3708,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     out << nl << " * @deprecated " << deprecateReason;
                     out << nl << " **/";
                 }
-                out << nl << "public " << elem;
-                out << nl << "get" << capName << "(int _index)";
+                out << nl << "public " << elem << " get" << capName << "(int _index)";
                 out << sb;
                 if(optional)
                 {
                     out << nl << "if(!__has_" << p->name() << ')';
                     out << sb;
-                    out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                    out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                     out << eb;
                 }
                 out << nl << "return " << name << "[_index];";
@@ -4367,14 +3730,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     out << nl << " * @deprecated " << deprecateReason;
                     out << nl << " **/";
                 }
-                out << nl << "public void";
-                out << nl << "set" << capName << "(int _index, " << elem << " _val)";
+                out << nl << "public void set" << capName << "(int _index, " << elem << " _val)";
                 out << sb;
                 if(optional)
                 {
                     out << nl << "if(!__has_" << p->name() << ')';
                     out << sb;
-                    out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                    out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                     out << eb;
                 }
                 out << nl << name << "[_index] = _val;";
@@ -4418,14 +3780,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     out << ';';
 
-    out << sp << nl << "public int"
-        << nl << "value()";
+    out << sp << nl << "public int value()";
     out << sb;
     out << nl << "return __value;";
     out << eb;
 
-    out << sp << nl << "public static " << name
-        << nl << "valueOf(int __v)";
+    out << sp << nl << "public static " << name << " valueOf(int __v)";
     out << sb;
     out << nl << "switch(__v)";
     out << sb;
@@ -4450,12 +3810,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __os)";
+        out << sp << nl << "public void" << nl << "ice_write(com.zeroc.Ice.OutputStream __os)";
         out << sb;
         out << nl << "__os.writeEnum(value(), " << p->maxValue() << ");";
         out << eb;
 
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __os, " << name << " __v)";
+        out << sp << nl << "public static void write(com.zeroc.Ice.OutputStream __os, " << name << " __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
@@ -4468,19 +3828,18 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "public static " << name << nl << "read(Ice.InputStream __is)";
+        out << sp << nl << "public static " << name << " read(com.zeroc.Ice.InputStream __is)";
         out << sb;
         out << nl << "int __v = __is.readEnum(" << p->maxValue() << ");";
         out << nl << "return __validate(__v);";
         out << eb;
 
-        out << sp << nl << "private static " << name
-            << nl << "__validate(int __v)";
+        out << sp << nl << "private static " << name << " __validate(int __v)";
         out << sb;
         out << nl << "final " << name << " __e = valueOf(__v);";
         out << nl << "if(__e == null)";
         out << sb;
-        out << nl << "throw new Ice.MarshalException(\"enumerator value \" + __v + \" is out of range\");";
+        out << nl << "throw new com.zeroc.Ice.MarshalException(\"enumerator value \" + __v + \" is out of range\");";
         out << eb;
         out << nl << "return __e;";
         out << eb;
@@ -4552,7 +3911,7 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(p->compactId() >= 0)
     {
         ostringstream os;
-        os << prefix << "IceCompactId.TypeId_" << p->compactId();
+        os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
         open(os.str(), p->file());
 
         Output& out = output();
@@ -4566,551 +3925,9 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::HolderVisitor::HolderVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    ClassDeclPtr decl = p->declaration();
-    writeHolder(decl);
-
-    if(!p->isLocal())
-    {
-        string name = p->name();
-        string absolute = getAbsolute(p, "", "", "PrxHolder");
-
-        open(absolute, p->file());
-        Output& out = output();
-
-        out << sp << nl << "public final class " << name << "PrxHolder";
-        out << sb;
-        out << sp << nl << "public" << nl << name << "PrxHolder()";
-        out << sb;
-        out << eb;
-        out << sp << nl << "public" << nl << name << "PrxHolder(" << name << "Prx value)";
-        out << sb;
-        out << nl << "this.value = value;";
-        out << eb;
-        out << sp << nl << "public " << name << "Prx value;";
-        out << eb;
-        close();
-    }
-
-    return false;
-}
-
-bool
-Slice::Gen::HolderVisitor::visitStructStart(const StructPtr& p)
-{
-    writeHolder(p);
-    return false;
-}
-
-void
-Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
-{
-    if(sequenceHasHolder(p))
-    {
-        writeHolder(p);
-    }
-}
-
-void
-Slice::Gen::HolderVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    writeHolder(p);
-}
-
-void
-Slice::Gen::HolderVisitor::visitEnum(const EnumPtr& p)
-{
-    writeHolder(p);
-}
-
-void
-Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
-{
-    ContainedPtr contained = ContainedPtr::dynamicCast(p);
-    assert(contained);
-    string name = contained->name();
-    string absolute = getAbsolute(contained, "", "", "Holder");
-
-
-    string file;
-    if(p->definitionContext())
-    {
-        file = p->definitionContext()->filename();
-    }
-
-    open(absolute, file);
-    Output& out = output();
-
-    string typeS = typeToString(p, TypeModeIn, getPackage(contained));
-    out << sp << nl << "public final class " << name << "Holder";
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
-    {
-        out << " extends Ice.ObjectHolderBase<" << typeS << ">";
-    }
-    else {
-        out << " extends Ice.Holder<" << typeS << ">";
-    }
-    out << sb;
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
-    {
-        out << sp << nl << "public" << nl << name << "Holder()";
-        out << sb;
-        out << eb;
-        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
-        out << sb;
-        out << nl << "this.value = value;";
-        out << eb;
-
-        out << sp << nl << "public void";
-        out << nl << "valueReady(Ice.Object v)";
-        out << sb;
-        out << nl << "if(v == null || v instanceof " << typeS << ")";
-        out << sb;
-        out << nl << "value = (" << typeS << ")v;";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-        out << eb;
-        out << eb;
-        out << sp << nl << "public String" << nl << "type()";
-        out << sb;
-        if(cl)
-        {
-            if(cl->isInterface())
-            {
-                out << nl << "return _" << cl->name() << "Disp.ice_staticId();";
-            }
-            else
-            {
-                out << nl << "return " << typeS << ".ice_staticId();";
-            }
-        }
-        else
-        {
-            out << nl << "return \"" << p->typeId() << "\";";
-        }
-        out << eb;
-    }
-    else
-    {
-        out << sp << nl << "public" << nl << name << "Holder()";
-        out << sb;
-        out << eb;
-        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
-        out << sb;
-        out << nl << "super(value);";
-        out << eb;
-    }
-    out << eb;
-    close();
-}
-
 Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) :
     JavaVisitor(dir)
 {
-}
-
-bool
-Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    //
-    // Proxy helper
-    //
-    string name = p->name();
-    string scoped = p->scoped();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p);
-
-    open(getAbsolute(p, "", "", "PrxHelper"), p->file());
-    Output& out = output();
-
-    //
-    // A proxy helper class serves two purposes: it implements the
-    // proxy interface, and provides static helper methods for use
-    // by applications (e.g., checkedCast, etc.)
-    //
-    out << sp;
-    writeDocComment(out, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"),
-                    "Provides type-specific helper functions.");
-    out << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
-        << "Prx";
-
-    out << sb;
-
-    string contextParam = "java.util.Map<String, String> __ctx";
-    string explicitContextParam = "boolean __explicitCtx";
-
-    OperationList ops = p->allOperations();
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        const ContainerPtr container = op->container();
-        const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-
-        out << sp;
-        out << nl << "private static final String __" << op->name() << "_name = \"" << op->name() << "\";";
-
-        //
-        // Use the optional mapping by default.
-        //
-        writeOperation(p, package, op, true);
-
-        //
-        // If the operation actually sends any optionals, we generated overloaded methods
-        // that use the required mapping.
-        //
-        if(op->sendsOptionals())
-        {
-            writeOperation(p, package, op, false);
-        }
-
-        //
-        // End method
-        //
-        vector<string> outParams = getInOutParams(op, package, OutParam, true, true);
-        int iter = 0;
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        const TypePtr ret = op->returnType();
-        const string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
-
-        out << sp;
-        out << nl << "public " << retS << " end_" << op->name() << spar << outParams << "Ice.AsyncResult __iresult"
-            << epar;
-        writeThrowsClause(package, throws);
-        out << sb;
-        if(op->returnsData())
-        {
-            out << nl << "IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__iresult, this, __"
-                << op->name() << "_name);";
-            out << nl << "try";
-            out << sb;
-
-            out << nl << "if(!__result.__wait())";
-            out << sb;
-            out << nl << "try";
-            out << sb;
-            out << nl << "__result.throwUserException();";
-            out << eb;
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            throws.sort(Slice::derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-            for(ExceptionList::const_iterator eli = throws.begin(); eli != throws.end(); ++eli)
-            {
-                out << nl << "catch(" << getAbsolute(*eli, package) << " __ex)";
-                out << sb;
-                out << nl << "throw __ex;";
-                out << eb;
-            }
-            out << nl << "catch(Ice.UserException __ex)";
-            out << sb;
-            out << nl << "throw new Ice.UnknownUserException(__ex.ice_id(), __ex);";
-            out << eb;
-            out << eb;
-
-            if(ret || !outParams.empty())
-            {
-                out << nl << "Ice.InputStream __is = __result.startReadParams();";
-                const ParamDeclList paramList = op->parameters();
-                ParamDeclList pl;
-                for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-                {
-                    if((*pli)->isOutParam())
-                    {
-                        pl.push_back(*pli);
-                    }
-                }
-                writeMarshalUnmarshalParams(out, package, pl, op, iter, false, true);
-                if(op->returnsClasses(false))
-                {
-                    out << nl << "__is.readPendingValues();";
-                }
-                out << nl << "__result.endReadParams();";
-            }
-            else
-            {
-                out << nl << "__result.readEmptyParams();";
-            }
-
-            if(ret)
-            {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-                if(!op->returnIsOptional() &&
-                   ((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret)))
-                {
-                    out << nl << "return __ret.value;";
-                }
-                else
-                {
-                    out << nl << "return __ret;";
-                }
-            }
-
-            out << eb;
-            out << nl << "finally";
-            out << sb;
-            out << nl << "if(__result != null)";
-            out << sb;
-            out << nl << "__result.cacheMessageBuffers();";
-            out << eb;
-            out << eb;
-        }
-        else
-        {
-            out << nl << "__end(__iresult, __" << op->name() << "_name);";
-        }
-        out << eb;
-
-        //
-        // The async callbacks implementation of __completed method delegate to the static
-        // __<op-name>_completed method implemented bellow.
-        //
-        if(op->returnsData())
-        {
-            const ParamDeclList paramList = op->parameters();
-            ParamDeclList outParams;
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if((*pli)->isOutParam())
-                {
-                    outParams.push_back(*pli);
-                }
-            }
-
-            out << sp << nl << "static public void __" << op->name() << "_completed("
-                << getAsyncCallbackInterface(op, package) << " __cb, Ice.AsyncResult __result)";
-            out << sb;
-            out << nl << getAbsolute(cl, "", "", "Prx") << " __proxy = ("
-                << getAbsolute(cl, "", "", "Prx") << ")__result.getProxy();";
-
-            TypePtr ret = op->returnType();
-            if(ret)
-            {
-                out << nl << typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
-                                            op->returnIsOptional())
-                    << " __ret = " << (op->returnIsOptional() ? "null" : initValue(ret)) << ';';
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                string ts = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData(), true,
-                                            (*pli)->optional());
-                out << nl << ts << ' ' << fixKwd((*pli)->name()) << " = new " << ts << "();";
-            }
-            out << nl << "try";
-            out << sb;
-            out << nl;
-            if(op->returnType())
-            {
-                out << "__ret = ";
-            }
-            out << "__proxy.end_" << op->name() << spar << getInOutArgs(op, OutParam) << "__result" << epar
-                << ';';
-
-            out << eb;
-            if(!throws.empty())
-            {
-                out << nl << "catch(Ice.UserException __ex)";
-                out << sb;
-                out << nl << "__cb.exception(__ex);";
-                out << nl << "return;";
-                out << eb;
-            }
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "__cb.exception(__ex);";
-            out << nl << "return;";
-            out << eb;
-            out << nl << "catch(Ice.SystemException __ex)";
-            out << sb;
-            out << nl << "__cb.exception(__ex);";
-            out << nl << "return;";
-            out << eb;
-
-            out << nl << "__cb.response" << spar;
-            if(op->returnType())
-            {
-                out << "__ret";
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                if((*pli)->optional())
-                {
-                    out << fixKwd((*pli)->name());
-                }
-                else
-                {
-                    out << fixKwd((*pli)->name()) + ".value";
-                }
-            }
-            out << epar << ';';
-
-            out << eb;
-        }
-    }
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Contacts the remote server to verify that the object implements this type.\n"
-                    "Raises a local exception if a communication error occurs.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj)";
-    out << sb;
-    out << nl << "return checkedCastImpl(__obj, ice_staticId(), " << name << "Prx.class, "
-        << name << "PrxHelper.class);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Contacts the remote server to verify that the object implements this type.\n"
-                    "Raises a local exception if a communication error occurs.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@param __ctx The Context map to send with the invocation.\n"
-                    "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, " << contextParam << ')';
-    out << sb;
-    out << nl << "return checkedCastImpl(__obj, __ctx, ice_staticId(), " << name
-        << "Prx.class, " << name << "PrxHelper.class);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
-                    "Raises a local exception if a communication error occurs.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@param __facet The name of the desired facet.\n"
-                    "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet)";
-    out << sb;
-    out << nl << "return checkedCastImpl(__obj, __facet, ice_staticId(), " << name
-        << "Prx.class, " << name << "PrxHelper.class);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
-                    "Raises a local exception if a communication error occurs.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@param __facet The name of the desired facet.\n"
-                    "@param __ctx The Context map to send with the invocation.\n"
-                    "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, String __facet, "
-        << contextParam << ')';
-    out << sb;
-    out << nl << "return checkedCastImpl(__obj, __facet, __ctx, ice_staticId(), " << name
-        << "Prx.class, " << name << "PrxHelper.class);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Downcasts the given proxy to this type without contacting the remote server.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@return A proxy for this type.");
-    out << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj)";
-    out << sb;
-    out << nl << "return uncheckedCastImpl(__obj, " << name << "Prx.class, " << name
-        << "PrxHelper.class);";
-    out << eb;
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Downcasts the given proxy to this type without contacting the remote server.\n"
-                    "@param __obj The untyped proxy.\n"
-                    "@param __facet The name of the desired facet.\n"
-                    "@return A proxy for this type.");
-    out << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx __obj, String __facet)";
-    out << sb;
-    out << nl << "return uncheckedCastImpl(__obj, __facet, " << name << "Prx.class, " << name
-        << "PrxHelper.class);";
-    out << eb;
-
-    ClassList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ::IceUtilInternal::distance(firstIter, scopedIter);
-
-    out << sp << nl << "public static final String[] __ids =";
-    out << sb;
-
-    for(StringList::const_iterator q = ids.begin(); q != ids.end();)
-    {
-        out << nl << '"' << *q << '"';
-        if(++q != ids.end())
-        {
-            out << ',';
-        }
-    }
-
-    out << eb << ';';
-
-    out << sp;
-    writeDocComment(out, "",
-                    "Provides the Slice type ID of this type.\n"
-                    "@return The Slice type ID.");
-    out << nl << "public static String ice_staticId()";
-    out << sb;
-    out << nl << "return __ids[" << scopedPos << "];";
-    out << eb;
-
-    out << sp << nl << "public static void write(Ice.OutputStream __os, " << name << "Prx v)";
-    out << sb;
-    out << nl << "__os.writeProxy(v);";
-    out << eb;
-
-    out << sp << nl << "public static " << name << "Prx read(Ice.InputStream __is)";
-    out << sb;
-    out << nl << "Ice.ObjectPrx proxy = __is.readProxy();";
-    out << nl << "if(proxy != null)";
-    out << sb;
-    out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
-    out << nl << "result.__copyFrom(proxy);";
-    out << nl << "return result;";
-    out << eb;
-    out << nl << "return null;";
-    out << eb;
-
-    //
-    // Avoid serialVersionUID warnings for Proxy Helper classes.
-    //
-    out << sp << nl << "public static final long serialVersionUID = 0L;";
-    out << eb;
-
-    close();
-
-    return false;
 }
 
 void
@@ -5167,7 +3984,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     bool suppressUnchecked = false;
 
     string instanceType, formalType;
-    bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType);
+    bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType, false);
 
     if(!customType)
     {
@@ -5203,7 +4020,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void" << nl << "write(Ice.OutputStream __os, " << typeS << " __v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream __os, " << typeS << " __v)";
     out << sb;
     iter = 0;
     writeSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
@@ -5214,7 +4031,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         out << nl << "@SuppressWarnings(\"unchecked\")";
     }
-    out << nl << "public static " << typeS << nl << "read(Ice.InputStream __is)";
+    out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream __is)";
     out << sb;
     out << nl << typeS << " __v;";
     iter = 0;
@@ -5255,14 +4072,13 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void" << nl << "write(Ice.OutputStream __os, " << formalType << " __v)";
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream __os, " << formalType << " __v)";
     out << sb;
     iter = 0;
     writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
     out << eb;
 
-    out << sp << nl << "public static " << formalType
-        << nl << "read(Ice.InputStream __is)";
+    out << sp << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream __is)";
     out << sb;
     out << nl << formalType << " __v;";
     iter = 0;
@@ -5272,376 +4088,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << eb;
     close();
-}
-
-void
-Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& package, const OperationPtr& op,
-                                          bool optionalMapping)
-{
-    const string name = p->name();
-    Output& out = output();
-
-    const string contextParam = "java.util.Map<String, String> __ctx";
-    const string explicitContextParam = "boolean __explicitCtx";
-
-    const ContainerPtr container = op->container();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    const string opName = fixKwd(op->name());
-    const TypePtr ret = op->returnType();
-    const string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
-
-    vector<string> params = getParamsProxy(op, package, false, optionalMapping);
-    vector<string> args = getArgs(op);
-
-    ParamDeclList inParams;
-    ParamDeclList outParams;
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-    {
-        if((*pli)->isOutParam())
-        {
-            outParams.push_back(*pli);
-        }
-        else
-        {
-            inParams.push_back(*pli);
-        }
-    }
-
-    ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
-
-    //
-    // Write two synchronous versions of the operation - with and without a
-    // context parameter.
-    //
-    out << sp << nl << "public " << retS << ' ' << opName << spar << params << epar;
-    writeThrowsClause(package, throws);
-    out << sb;
-    out << nl;
-    if(ret)
-    {
-        out << "return ";
-    }
-    out << opName << spar << args << "null" << "false" << epar << ';';
-    out << eb;
-
-    out << sp << nl << "public " << retS << ' ' << opName << spar << params << contextParam << epar;
-    writeThrowsClause(package, throws);
-    out << sb;
-    out << nl;
-    if(ret)
-    {
-        out << "return ";
-    }
-    out << opName << spar << args << "__ctx" << "true" << epar << ';';
-    out << eb;
-
-    out << sp;
-    out << nl << "private " << retS << ' ' << opName << spar << params << contextParam
-        << explicitContextParam << epar;
-    writeThrowsClause(package, throws);
-    out << sb;
-
-    // This code replaces the synchronous calls with chained AMI calls.
-    if(op->returnsData())
-    {
-        out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
-    }
-
-    if(ret)
-    {
-        out << nl << "return ";
-    }
-    else
-    {
-        out << nl;
-    }
-
-    out << "end_" << op->name() << "(";
-    vector<string> inOutArgs = getInOutArgs(op, OutParam);
-    if(!inOutArgs.empty()) {
-        for(vector<string>::const_iterator p = inOutArgs.begin(); p != inOutArgs.end(); ++p) {
-            out << *p << ", ";
-        }
-    }
-    vector<string> inArgs = getInOutArgs(op, InParam);
-    out << "begin_" << op->name() << "(";
-    if(!inArgs.empty())
-    {
-        for(vector<string>::const_iterator p = inArgs.begin(); p != inArgs.end(); ++p) {
-            out << *p << ", ";
-        }
-    }
-    out << "__ctx, __explicitCtx, true, null));";
-    out << eb;
-
-    {
-        //
-        // Write the asynchronous begin methods.
-        //
-        vector<string> inParams = getInOutParams(op, package, InParam, true, optionalMapping);
-        vector<string> inArgs = getInOutArgs(op, InParam);
-        const string callbackParam = "Ice.Callback __cb";
-        const ParamDeclList paramList = op->parameters();
-        int iter;
-
-        //
-        // Type-unsafe begin methods
-        //
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "null" << epar
-            << ';';
-        out << eb;
-
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "null" << epar
-            << ';';
-        out << eb;
-
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << callbackParam << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar
-            << ';';
-        out << eb;
-
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
-            << callbackParam << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar
-            << ';';
-        out << eb;
-
-        //
-        // Type-safe begin methods
-        //
-        string typeSafeCallbackParam;
-
-        //
-        // Get the name of the callback using the name of the class in which this
-        // operation was defined.
-        //
-        ContainerPtr container = op->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string opClassName = getAbsolute(cl, package, "Callback_", '_' + op->name());
-        typeSafeCallbackParam = opClassName + " __cb";
-
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << typeSafeCallbackParam
-            << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "null" << "false" << "false" << "__cb" << epar
-            << ';';
-        out << eb;
-
-        out << sp << nl << "public Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
-            << typeSafeCallbackParam << epar;
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "false" << "__cb" << epar
-            << ';';
-        out << eb;
-
-        //
-        // Async methods that accept Java 8 lambda callbacks.
-        //
-        out << sp;
-        out << nl << "public Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, getParamsAsyncLambda(op, package, false, false, optionalMapping));
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package) << epar << ';';
-        out << eb;
-
-        out << sp;
-        out << nl << "public Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, getParamsAsyncLambda(op, package, false, true, optionalMapping));
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, false, true) << epar
-            << ';';
-        out << eb;
-
-        out << sp;
-        out << nl << "public Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, getParamsAsyncLambda(op, package, true, false, optionalMapping));
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true) << epar << ';';
-        out << eb;
-
-        out << sp;
-        out << nl << "public Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, getParamsAsyncLambda(op, package, true, true, optionalMapping));
-        out << sb;
-        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true, true) << epar
-            << ';';
-        out << eb;
-
-        vector<string> params = inParams;
-        params.push_back(contextParam);
-        params.push_back("boolean __explicitCtx");
-        params.push_back("boolean __synchronous");
-        vector<string> asyncParams = getParamsAsyncLambda(op, package, false, true, optionalMapping, false);
-        copy(asyncParams.begin(), asyncParams.end(), back_inserter(params));
-
-        out << sp;
-        out << nl << "private Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, params);
-        out << sb;
-
-        ParamDeclList outParams = getOutParams(op);
-
-        if(!op->returnsData())
-        {
-            params = getInOutArgs(op, InParam);
-            params.push_back("__ctx");
-            params.push_back("__explicitCtx");
-            params.push_back("__synchronous");
-            params.push_back("new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb)");
-            out << nl << "return begin_" << op->name();
-            writeParamList(out, params);
-            out << ';';
-        }
-        else if((ret && !outParams.empty()) || (outParams.size() > 1))
-        {
-            params.clear();
-            params.push_back(getLambdaResponseCB(op, package) + " responseCb");
-            if(!throws.empty())
-            {
-                params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> userExceptionCb");
-            }
-            params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb");
-            params.push_back("IceInternal.Functional_BoolCallback sentCb");
-
-            out << sp;
-            out << nl << "class CB extends " << getAsyncCallbackBaseClass(op, true);
-            out << sb;
-            out << nl << "public CB";
-            writeParamList(out, params);
-            out << sb;
-            out << nl << "super(responseCb != null, ";
-            if(!throws.empty())
-            {
-                out << "userExceptionCb, ";
-            }
-            out << "exceptionCb, sentCb);";
-            out << nl << "__responseCb = responseCb;";
-            out << eb;
-
-            out << sp;
-            out << nl << "public void response" << spar << getParamsAsyncCB(op, package, false, true) << epar;
-            out << sb;
-            out << nl << "if(__responseCb != null)";
-            out << sb;
-            out << nl << "__responseCb.apply" << spar;
-            if(ret)
-            {
-                out << "__ret";
-            }
-            out << getInOutArgs(op, OutParam) << epar << ';';
-            out << eb;
-            out << eb;
-
-            out << sp;
-            out << nl << "public final void __completed(Ice.AsyncResult __result)";
-            out << sb;
-            out << nl << p->name() << "PrxHelper.__" << op->name() << "_completed(this, __result);";
-            out << eb;
-            out << sp;
-            out << nl << "private final " << getLambdaResponseCB(op, package) << " __responseCb;";
-            out << eb;
-
-            out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx"
-                << "__explicitCtx"
-                << "__synchronous"
-                << (throws.empty() ? "new CB(__responseCb, __exceptionCb, __sentCb)" :
-                                     "new CB(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)")
-                << epar << ';';
-        }
-        else
-        {
-            params = getInOutArgs(op, InParam);
-            params.push_back("__ctx");
-            params.push_back("__explicitCtx");
-            params.push_back("__synchronous");
-
-            const string baseClass = getAsyncCallbackBaseClass(op, true);
-            out << nl << "return begin_" << op->name();
-            writeParamList(out, params, false, false);
-            out << nl
-                << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" :
-                                     "new " + baseClass + "(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)");
-            out.inc();
-            out << sb;
-            out << nl << "public final void __completed(Ice.AsyncResult __result)";
-            out << sb;
-            out << nl << p->name() << "PrxHelper.__" << op->name() << "_completed(this, __result);";
-            out << eb;
-            out << eb;
-            out << ");";
-            out.dec();
-            out.restoreIndent();
-        }
-        out << eb;
-
-        //
-        // Implementation of begin method
-        //
-        params = inParams;
-        params.push_back(contextParam);
-        params.push_back("boolean __explicitCtx");
-        params.push_back("boolean __synchronous");
-        params.push_back("IceInternal.CallbackBase __cb");
-
-        out << sp;
-        out << nl << "private Ice.AsyncResult begin_" << op->name();
-        writeParamList(out, params);
-        out << sb;
-        if(op->returnsData())
-        {
-            out << nl << "__checkAsyncTwowayOnly(__" << op->name() << "_name);";
-        }
-        out << nl << "IceInternal.OutgoingAsync __result = getOutgoingAsync(__" << op->name()
-            << "_name, __cb);";
-        out << nl << "try";
-        out << sb;
-
-        out << nl << "__result.prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->sendMode())
-            << ", __ctx, __explicitCtx, __synchronous);";
-
-        iter = 0;
-        if(!inArgs.empty())
-        {
-            out << nl << "Ice.OutputStream __os = __result.startWriteParams("
-                << opFormatTypeToString(op) << ");";
-            ParamDeclList pl;
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if(!(*pli)->isOutParam())
-                {
-                    pl.push_back(*pli);
-                }
-            }
-            writeMarshalUnmarshalParams(out, package, pl, 0, iter, true, optionalMapping);
-            if(op->sendsClasses(false))
-            {
-                out << nl << "__os.writePendingValues();";
-            }
-            out << nl << "__result.endWriteParams();";
-        }
-        else
-        {
-            out << nl << "__result.writeEmptyParams();";
-        }
-
-        out << nl << "__result.invoke();";
-        out << eb;
-        out << nl << "catch(Ice.Exception __ex)";
-        out << sb;
-        out << nl << "__result.abort(__ex);";
-        out << eb;
-        out << nl << "return __result;";
-        out << eb;
-    }
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) :
@@ -5657,6 +4103,15 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
+    //
+    // Don't generate a proxy interface for a class with no operations.
+    //
+    const OperationList ops = p->allOperations();
+    if(!p->isInterface() && ops.empty())
+    {
+        return false;
+    }
+
     string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
@@ -5667,28 +4122,36 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     //
+    // For proxy purposes, we can ignore a base class if it has no operations.
+    //
+    if(!bases.empty() && !bases.front()->isInterface() && bases.front()->allOperations().empty())
+    {
+        bases.pop_front();
+    }
+
+    //
     // Generate a Java interface as the user-visible type
     //
     out << sp;
     writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     out << nl << "public interface " << name << "Prx extends ";
+    out.useCurrentPosAsIndent();
     if(bases.empty())
     {
-        out << "Ice.ObjectPrx";
+        out << "com.zeroc.Ice.ObjectPrx";
     }
     else
     {
-        out.useCurrentPosAsIndent();
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            out << getAbsolute(*q, package, "", "Prx");
-            if(++q != bases.end())
+            if(q != bases.begin())
             {
                 out << ',' << nl;
             }
+            out << getAbsolute(*q, package, "", "Prx");
         }
-        out.restoreIndent();
     }
+    out.restoreIndent();
 
     out << sb;
 
@@ -5696,269 +4159,642 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
+
+    const string contextParam = "java.util.Map<String, String> __ctx";
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx __obj)";
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__checkedCast(__obj, ice_staticId, " << p->name()
+        << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __ctx The Context map to send with the invocation.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx __obj, " << contextParam << ')';
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__checkedCast(__obj, __ctx, ice_staticId, " << p->name()
+        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx __obj, String __facet)";
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__checkedCast(__obj, __facet, ice_staticId, " << p->name()
+        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Contacts the remote server to verify that a facet of the object implements this type.\n"
+                    "Raises a local exception if a communication error occurs.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@param __ctx The Context map to send with the invocation.\n"
+                    "@return A proxy for this type, or null if the object does not support this type.");
+    out << nl << "static " << p->name() << "Prx checkedCast(com.zeroc.Ice.ObjectPrx __obj, String __facet, "
+        << contextParam << ')';
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__checkedCast(__obj, __facet, __ctx, ice_staticId, " << p->name()
+        << "Prx.class, _" << p->name() << "PrxI.class);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Downcasts the given proxy to this type without contacting the remote server.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@return A proxy for this type.");
+    out << nl << "static " << p->name() << "Prx uncheckedCast(com.zeroc.Ice.ObjectPrx __obj)";
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__uncheckedCast(__obj, " << p->name() << "Prx.class, _"
+        << p->name() << "PrxI.class);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Downcasts the given proxy to this type without contacting the remote server.\n"
+                    "@param __obj The untyped proxy.\n"
+                    "@param __facet The name of the desired facet.\n"
+                    "@return A proxy for this type.");
+    out << nl << "static " << p->name() << "Prx uncheckedCast(com.zeroc.Ice.ObjectPrx __obj, String __facet)";
+    out << sb;
+    out << nl << "return com.zeroc.Ice.ObjectPrx.__uncheckedCast(__obj, __facet, " << p->name() << "Prx.class, _"
+        << p->name() << "PrxI.class);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
+                    "@param newContext The context for the new proxy.\n"
+                    "@return A proxy with the specified per-proxy context.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_context(java.util.Map<String, String> newContext)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_context(newContext);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
+                    "@param newAdapterId The adapter ID for the new proxy.\n"
+                    "@return A proxy with the specified adapter ID.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_adapterId(String newAdapterId)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_adapterId(newAdapterId);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
+                    "@param newEndpoints The endpoints for the new proxy.\n"
+                    "@return A proxy with the specified endpoints.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_endpoints(newEndpoints);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
+                    "@param newTimeout The new locator cache timeout (in seconds).\n"
+                    "@return A proxy with the specified locator cache timeout.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_locatorCacheTimeout(int newTimeout)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_locatorCacheTimeout(newTimeout);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
+                    "@param newTimeout The new invocation timeout (in seconds).\n"
+                    "@return A proxy with the specified invocation timeout.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_invocationTimeout(int newTimeout)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_invocationTimeout(newTimeout);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for connection caching.\n"
+                    "@param newCache <code>true</code> if the new proxy should cache connections; <code>false</code> otherwise.\n"
+                    "@return A proxy with the specified caching policy.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_connectionCached(boolean newCache)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_connectionCached(newCache);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
+                    "@param newType The new endpoint selection policy.\n"
+                    "@return A proxy with the specified endpoint selection policy.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_endpointSelection(newType);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
+                    "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
+                    "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
+                    "insecure endpoints.\n"
+                    "@return A proxy with the specified selection policy.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_secure(boolean b)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_secure(b);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
+                    "@param e The encoding version to use to marshal request parameters.\n"
+                    "@return A proxy with the specified encoding version.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_encodingVersion(com.zeroc.Ice.EncodingVersion e)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_encodingVersion(e);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for its endpoint selection policy.\n"
+                    "@param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for invocations\n"
+                    "and only use insecure endpoints if an invocation cannot be made via secure endpoints. If <code>b</code> is\n"
+                    "<code>false</code>, the proxy prefers insecure endpoints to secure ones.\n"
+                    "@return A proxy with the specified selection policy.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_preferSecure(boolean b)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_preferSecure(b);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the router.\n"
+                    "@param router The router for the new proxy.\n"
+                    "@return A proxy with the specified router.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_router(com.zeroc.Ice.RouterPrx router)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_router(router);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for the locator.\n"
+                    "@param locator The locator for the new proxy.\n"
+                    "@return A proxy with the specified locator.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_locator(com.zeroc.Ice.LocatorPrx locator)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_locator(locator);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for collocation optimization.\n"
+                    "@param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.\n"
+                    "@return A proxy with the specified collocation optimization.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_collocationOptimized(boolean b)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_collocationOptimized(b);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
+                    "@return A proxy that uses twoway invocations.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_twoway()";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_twoway();";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
+                    "@return A proxy that uses oneway invocations.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_oneway()";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_oneway();";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
+                    "@return A proxy that uses batch oneway invocations.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_batchOneway()";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_batchOneway();";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
+                    "@return A proxy that uses datagram invocations.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_datagram()";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_datagram();";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
+                    "@return A proxy that uses batch datagram invocations.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_batchDatagram()";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_batchDatagram();";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for compression.\n"
+                    "@param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.\n"
+                    "@return A proxy with the specified compression setting.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_compress(boolean co)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_compress(co);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
+                    "@param t The connection timeout for the proxy in milliseconds.\n"
+                    "@return A proxy with the specified timeout.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_timeout(int t)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_timeout(t);";
+    out << eb;
+
+    out << sp;
+    writeDocComment(out, "",
+                    "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
+                    "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
+                    "@return A proxy with the specified connection ID.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_connectionId(String connectionId)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)__ice_connectionId(connectionId);";
+    out << eb;
+
+    out << sp;
+    out << nl << "final static String ice_staticId = \"" << p->scoped() << "\";";
+    out << sp;
+    out << nl << "static String ice_staticId()";
+    out << sb;
+    out << nl << "return ice_staticId;";
+    out << eb;
+
+    out << eb;
+    close();
+
+    string absolute = getAbsolute(p, "", "_", "PrxI");
+
+    open(absolute, p->file());
+
+    Output& outi = output();
+
+    outi << sp;
+    outi << nl << "public class _" << p->name() << "PrxI extends com.zeroc.Ice._ObjectPrxI implements " << p->name()
+         << "Prx";
+    outi << sb;
+    outi << eb;
     close();
 }
 
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string package = getPackage(cl);
+    const string name = fixKwd(p->name());
+    const ContainerPtr container = p->container();
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    const string package = getPackage(cl);
 
     Output& out = output();
 
-    TypePtr ret = p->returnType();
-    string retS = typeToString(ret, TypeModeReturn, package, p->getMetaData(), true, p->returnIsOptional());
-    vector<string> params = getParamsProxy(p, package, false, true);
+    const TypePtr ret = p->returnType();
+    const string retS = getResultType(p, package, false, false);
+    const bool returnsParams = ret || !p->outParameters().empty();
+    const vector<string> params = getParamsProxy(p, package, false);
+    const bool sendsOptionals = p->sendsOptionals();
+    vector<string> paramsOpt;
+    if(sendsOptionals)
+    {
+        paramsOpt = getParamsProxy(p, package, true);
+    }
+    const vector<string> args = getInArgs(p);
+
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
 
-    string deprecateReason = getDeprecateReason(p, cl, "operation");
-    string contextDoc = "@param __ctx The Context map to send with the invocation.";
-    string contextParam = "java.util.Map<String, String> __ctx";
-    string lambdaResponseDoc = "@param __responseCb The lambda response callback.";
-    string lambdaUserExDoc = "@param __userExceptionCb The lambda user exception callback.";
-    string lambdaExDoc = "@param __exceptionCb The lambda exception callback.";
-    string lambdaSentDoc = "@param __sentCb The lambda sent callback.";
+    //
+    // Arrange exceptions into most-derived to least-derived order. If we don't
+    // do this, a base exception handler can appear before a derived exception
+    // handler, causing compiler warnings and resulting in the base exception
+    // being marshaled instead of the derived exception.
+    //
+#if defined(__SUNPRO_CC)
+    throws.sort(Slice::derivedToBaseCompare);
+#else
+    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
-    const bool optional = p->sendsOptionals();
+    const string deprecateReason = getDeprecateReason(p, cl, "operation");
+    const string contextDoc = "@param __ctx The Context map to send with the invocation.";
+    const string contextParam = "java.util.Map<String, String> __ctx";
+    const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
     //
-    // Write two synchronous versions of the operation - with and without a context parameter.
+    // Synchronous methods with required parameters.
     //
     out << sp;
     writeDocComment(out, p, deprecateReason);
-
-    out << nl << "public " << retS << ' ' << name << spar << params << epar;
+    out << nl << "default " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
-    out << ';';
+    out << sb;
+    out << nl;
+    if(returnsParams)
+    {
+        out << "return ";
+    }
+    out << name << spar << args << noExplicitContextArg << epar << ';';
+    out << eb;
 
     out << sp;
     writeDocComment(out, p, deprecateReason, contextDoc);
-
-    out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
+    out << nl << "default " << retS << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
-    out << ';';
-
-    if(optional)
+    out << sb;
+    if(throws.empty())
     {
-        //
-        // Write overloaded versions of the methods using required params.
-        //
-        vector<string> reqParams = getParamsProxy(p, package, false, false);
+        out << nl;
+        if(returnsParams)
+        {
+            out << "return ";
+        }
+        out << "__" << p->name() << "Async" << spar << args << "__ctx" << "true" << epar << ".__wait();";
+    }
+    else
+    {
+        out << nl << "try";
+        out << sb;
+        out << nl;
+        if(returnsParams)
+        {
+            out << "return ";
+        }
+        out << "__" << p->name() << "Async" << spar << args << "__ctx" << "true" << epar << ".__waitUserEx();";
+        out << eb;
+        for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+        {
+            string exS = getAbsolute(*t, package);
+            out << nl << "catch(" << exS << " __ex)";
+            out << sb;
+            out << nl << "throw __ex;";
+            out << eb;
+        }
+        out << nl << "catch(com.zeroc.Ice.UserException __ex)";
+        out << sb;
+        out << nl << "throw new com.zeroc.Ice.UnknownUserException(__ex.ice_id(), __ex);";
+        out << eb;
+    }
+    out << eb;
 
+    //
+    // Synchronous methods using optional parameters (if any).
+    //
+    if(sendsOptionals)
+    {
         out << sp;
         writeDocComment(out, p, deprecateReason);
-        out << nl << "public " << retS << ' ' << name << spar << reqParams << epar;
+        out << nl << "default " << retS << ' ' << name << spar << paramsOpt << epar;
         writeThrowsClause(package, throws);
-        out << ';';
+        out << sb;
+        out << nl;
+        if(returnsParams)
+        {
+            out << "return ";
+        }
+        out << name << spar << args << noExplicitContextArg << epar << ';';
+        out << eb;
 
         out << sp;
         writeDocComment(out, p, deprecateReason, contextDoc);
-        out << nl << "public " << retS << ' ' << name << spar << reqParams << contextParam << epar;
+        out << nl << "default " << retS << ' ' << name << spar << paramsOpt << contextParam << epar;
         writeThrowsClause(package, throws);
-        out << ';';
-    }
-
-    {
-        //
-        // Write the asynchronous begin/end methods.
-        //
-        // Start with the type-unsafe begin methods.
-        //
-        vector<string> inParams = getInOutParams(p, package, InParam, true, true);
-        string callbackParam = "Ice.Callback __cb";
-        string callbackDoc = "@param __cb The asynchronous callback object.";
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << epar << ';';
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << epar << ';';
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << callbackParam << epar << ';';
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << callbackParam
-            << epar << ';';
-
-        //
-        // Type-safe begin methods.
-        //
-        string typeSafeCallbackParam;
-
-        //
-        // Get the name of the callback using the name of the class in which this
-        // operation was defined.
-        //
-        ContainerPtr container = p->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string opClassName = getAbsolute(cl, package, "Callback_", '_' + p->name());
-        typeSafeCallbackParam = opClassName + " __cb";
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << typeSafeCallbackParam
-            << epar << ';';
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
-            << typeSafeCallbackParam << epar << ';';
-
-        //
-        // Generate the Callback Response interface if the operation has more than one
-        // return parameter. Operations with just one return parameter use one of the
-        // builtin async callback interfaces.
-        //
+        out << sb;
+        if(throws.empty())
         {
-            ParamDeclList outParams = getOutParams(p);
-            if((ret && !outParams.empty()) || outParams.size() > 1)
+            out << nl;
+            if(returnsParams)
             {
-                vector<string> params = getParamsAsyncCB(p, package, false, true);
-                out << sp;
-                out << nl << "public interface " << getLambdaResponseCB(p, package);
+                out << "return ";
+            }
+            out << "__" << p->name() << "Async" << spar << args << "__ctx" << "true" << epar << ".__wait();";
+        }
+        else
+        {
+            out << nl << "try";
+            out << sb;
+            out << nl;
+            if(returnsParams)
+            {
+                out << "return ";
+            }
+            out << "__" << p->name() << "Async" << spar << args << "__ctx" << "true" << epar << ".__waitUserEx();";
+            out << eb;
+            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+            {
+                string exS = getAbsolute(*t, package);
+                out << nl << "catch(" << exS << " __ex)";
                 out << sb;
-                out << nl << "void apply" << spar << params << epar << ';';
+                out << nl << "throw __ex;";
                 out << eb;
             }
+            out << nl << "catch(com.zeroc.Ice.UserException __ex)";
+            out << sb;
+            out << nl << "throw new com.zeroc.Ice.UnknownUserException(__ex.ice_id(), __ex);";
+            out << eb;
         }
-
-        //
-        // Async methods that accept Java 8 lambda callbacks.
-        //
-        {
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, false, false, true));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc,
-                               lambdaSentDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, false, true, true));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
-                               lambdaExDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, true, false, true));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
-                               lambdaExDoc, lambdaSentDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, true, true, true));
-            out << ';';
-        }
-
-        vector<string> outParams = getInOutParams(p, package, OutParam, true, true);
-
-        out << sp;
-        writeDocCommentAMI(out, p, OutParam);
-        out << nl << "public " << retS << " end_" << p->name() << spar << outParams << "Ice.AsyncResult __result"
-            << epar;
-        writeThrowsClause(package, throws);
-        out << ';';
+        out << eb;
     }
 
-    if(optional)
-    {
-        //
-        // Write overloaded versions of the methods using required params.
-        //
-        vector<string> inParams = getInOutParams(p, package, InParam, true, false);
-        string callbackParam = "Ice.Callback __cb";
-        string callbackDoc = "@param __cb The asynchronous callback object.";
+    //
+    // Asynchronous methods with required parameters.
+    //
+    out << sp;
+    writeDocCommentAMI(out, p, InParam);
 
+    const string future = getFutureType(p, package);
+
+    out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << epar;
+    out << sb;
+    out << nl << "return __" << p->name() << "Async" << spar << args << noExplicitContextArg << "false" << epar << ';';
+    out << eb;
+
+    out << sp;
+    writeDocCommentAMI(out, p, InParam, contextDoc);
+
+    out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << contextParam << epar;
+    out << sb;
+    out << nl << "return __" << p->name() << "Async" << spar << args << "__ctx" << "false" << epar << ';';
+    out << eb;
+
+    const string futureImpl = getFutureImplType(p, package);
+
+    out << sp;
+    out << nl << "default " << futureImpl << " __" << p->name() << "Async" << spar << params << contextParam
+        << "boolean __sync" << epar;
+    out << sb;
+    out << nl << futureImpl << " __f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+        << sliceModeToIceMode(p->sendMode()) << ", __sync, "
+        << (throws.empty() ? "null" : "__" + p->name() + "_ex") << ");";
+
+    out << nl << "__f.invoke(";
+    out.useCurrentPosAsIndent();
+    out << (p->returnsData() ? "true" : "false") << ", __ctx, " << opFormatTypeToString(p)
+        << ", ";
+    if(!p->inParameters().empty())
+    {
+        out << "__os -> {";
+        out.inc();
+        writeMarshalProxyParams(out, package, p, false);
+        out.dec();
+        out << nl << '}';
+    }
+    else
+    {
+        out << "null";
+    }
+    out << ", ";
+    if(returnsParams)
+    {
+        out << "__is -> {";
+        out.inc();
+        writeUnmarshalProxyResults(out, package, p);
+        out.dec();
+        out << nl << "}";
+    }
+    else
+    {
+        out << "null";
+    }
+    out.restoreIndent();
+    out << ");";
+    out << nl << "return __f;";
+    out << eb;
+
+    if(!throws.empty())
+    {
+        out << sp << nl << "static final Class<?>[] __" << p->name() << "_ex =";
+        out << sb;
+        for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+        {
+            if(t != throws.begin())
+            {
+                out << ",";
+            }
+            out << nl << getAbsolute(*t, package) << ".class";
+        }
+        out << eb << ';';
+    }
+
+    if(sendsOptionals)
+    {
         out << sp;
         writeDocCommentAMI(out, p, InParam);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << epar << ';';
+
+        const string future = getFutureType(p, package);
+
+        out << nl << "default " << future << ' ' << p->name() << "Async" << spar << paramsOpt << epar;
+        out << sb;
+        out << nl << "return __" << p->name() << "Async" << spar << args << noExplicitContextArg << "false" << epar
+            << ';';
+        out << eb;
 
         out << sp;
         writeDocCommentAMI(out, p, InParam, contextDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << epar << ';';
+
+        out << nl << "default " << future << ' ' << p->name() << "Async" << spar << paramsOpt << contextParam << epar;
+        out << sb;
+        out << nl << "return __" << p->name() << "Async" << spar << args << "__ctx" << "false" << epar << ';';
+        out << eb;
 
         out << sp;
-        writeDocCommentAMI(out, p, InParam, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << callbackParam << epar << ';';
+        out << nl << "default " << futureImpl << " __" << p->name() << "Async" << spar << paramsOpt << contextParam
+            << "boolean __sync" << epar;
+        out << sb;
+        out << nl << futureImpl << " __f = new com.zeroc.IceInternal.OutgoingAsync<>(this, \"" << p->name() << "\", "
+            << sliceModeToIceMode(p->sendMode()) << ", __sync, "
+            << (throws.empty() ? "null" : "__" + p->name() + "_ex") << ");";
 
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << callbackParam
-            << epar << ';';
-
-        //
-        // Async methods that accept Java 8 lambda callbacks.
-        //
+        out << nl << "__f.invoke(";
+        out.useCurrentPosAsIndent();
+        out << (p->returnsData() ? "true" : "false") << ", __ctx, " << opFormatTypeToString(p) << ", ";
+        if(!p->inParameters().empty())
         {
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc, lambdaExDoc,
-                               lambdaSentDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, false, true));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
-                               lambdaExDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, true));
-            out << ';';
-
-            out << sp;
-            writeDocCommentAMI(out, p, InParam, contextDoc, lambdaResponseDoc, throws.empty() ? "" : lambdaUserExDoc,
-                               lambdaExDoc, lambdaSentDoc);
-            out << nl << "public Ice.AsyncResult begin_" << p->name();
-            writeParamList(out, getParamsAsyncLambda(p, package, true, true));
-            out << ';';
+            out << "__os -> {";
+            out.inc();
+            writeMarshalProxyParams(out, package, p, true);
+            out.dec();
+            out << nl << '}';
         }
-
-        //
-        // Type-safe begin methods.
-        //
-        string typeSafeCallbackParam;
-
-        //
-        // Get the name of the callback using the name of the class in which this
-        // operation was defined.
-        //
-        ContainerPtr container = p->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string opClassName = getAbsolute(cl, package, "Callback_", '_' + p->name());
-        typeSafeCallbackParam = opClassName + " __cb";
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << typeSafeCallbackParam
-            << epar << ';';
-
-        out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
-        out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
-            << typeSafeCallbackParam << epar << ';';
+        else
+        {
+            out << "null";
+        }
+        out << ", ";
+        if(returnsParams)
+        {
+            out << "__is -> {";
+            out.inc();
+            writeUnmarshalProxyResults(out, package, p);
+            out.dec();
+            out << nl << "}";
+        }
+        else
+        {
+            out << "null";
+        }
+        out.restoreIndent();
+        out << ");";
+        out << nl << "return __f;";
+        out << eb;
     }
 }
 
@@ -5970,14 +4806,14 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || !p->isInterface())
+    if(p->isLocal() || p->isInterface() || p->allOperations().empty())
     {
         return false;
     }
 
-    string name = p->name();
-    ClassList bases = p->bases();
-    string absolute = getAbsolute(p, "", "_", "Disp");
+    const string name = p->name();
+    const string absolute = getAbsolute(p, "", "_", "Disp");
+    const string package = getPackage(p);
 
     open(absolute, p->file());
 
@@ -5985,304 +4821,54 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
-    out << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
-    out << sb;
-
-    out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
-    out.inc();
-    out << nl << "throws java.lang.CloneNotSupportedException";
-    out.dec();
-    out << sb;
-    out << nl << "throw new java.lang.CloneNotSupportedException();";
-    out << eb;
-
-    writeDispatchAndMarshalling(out, p);
+    out << nl << "public interface _" << name << "Disp";
 
     //
-    // Avoid serialVersionUID warnings for dispatch classes.
+    // For dispatch purposes, we can ignore a base class if it has no operations.
     //
-    out << sp << nl << "public static final long serialVersionUID = 0L;";
+    ClassList bases = p->bases();
+    if(!bases.empty() && !bases.front()->isInterface() && bases.front()->allOperations().empty())
+    {
+        bases.pop_front();
+    }
+
+    if(bases.empty())
+    {
+        out << " extends com.zeroc.Ice.Object";
+    }
+    else
+    {
+        out << " extends ";
+        out.useCurrentPosAsIndent();
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        {
+            if(q != bases.begin())
+            {
+                out << ',' << nl;
+            }
+            if(!(*q)->isInterface())
+            {
+                out << getAbsolute(*q, package, "_", "Disp");
+            }
+            else
+            {
+                out << getAbsolute(*q, package);
+            }
+        }
+        out.restoreIndent();
+    }
+    out << sb;
+
+    writeDispatch(out, p);
+
     out << eb;
     close();
 
     return false;
 }
 
-Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-void
-Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& package, const string& name, const TypePtr& type,
-                                       const StringList& metaData, bool optional)
-{
-    string typeS = typeToString(type, TypeModeIn, package, metaData, true, optional);
-    out << nl << typeS << ' ' << name;
-
-    if(optional)
-    {
-        out << " = new " << typeS << "();";
-    }
-    else
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if(builtin)
-        {
-            switch(builtin->kind())
-            {
-                case Builtin::KindBool:
-                {
-                    out << " = false";
-                    break;
-                }
-                case Builtin::KindByte:
-                {
-                    out << " = (byte)0";
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    out << " = (short)0";
-                    break;
-                }
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                {
-                    out << " = 0";
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    out << " = (float)0.0";
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    out << " = 0.0";
-                    break;
-                }
-                case Builtin::KindString:
-                {
-                    out << " = \"\"";
-                    break;
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                case Builtin::KindValue:
-                {
-                    out << " = null";
-                    break;
-                }
-            }
-        }
-        else
-        {
-            EnumPtr en = EnumPtr::dynamicCast(type);
-            if(en)
-            {
-                EnumeratorList enumerators = en->getEnumerators();
-                out << " = " << getAbsolute(en, package) << '.' << fixKwd(enumerators.front()->name());
-            }
-            else
-            {
-                out << " = null";
-            }
-        }
-
-        out << ';';
-    }
-}
-
-void
-Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type, bool optional)
-{
-    if(optional)
-    {
-        out << nl << "return null;";
-    }
-    else
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if(builtin)
-        {
-            switch(builtin->kind())
-            {
-                case Builtin::KindBool:
-                {
-                    out << nl << "return false;";
-                    break;
-                }
-                case Builtin::KindByte:
-                {
-                    out << nl << "return (byte)0;";
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    out << nl << "return (short)0;";
-                    break;
-                }
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                {
-                    out << nl << "return 0;";
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    out << nl << "return (float)0.0;";
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    out << nl << "return 0.0;";
-                    break;
-                }
-                case Builtin::KindString:
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                case Builtin::KindValue:
-                {
-                    out << nl << "return null;";
-                    break;
-                }
-            }
-            return;
-        }
-
-        out << nl << "return null;";
-    }
-}
-
-void
-Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, const OperationPtr& op, bool local)
-{
-    string opName = op->name();
-
-    const TypePtr ret = op->returnType();
-    const bool optionalMapping = useOptionalMapping(op);
-    const StringList opMetaData = op->getMetaData();
-    const string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true,
-                                     optionalMapping && op->returnIsOptional());
-    vector<string> params = getParams(op, package, false, optionalMapping);
-
-    ContainerPtr container = op->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-
-    if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
-    {
-        vector<string> paramsAMD = getParamsAsync(op, package, true, true);
-
-        out << sp << nl << "public void " << opName << "_async" << spar << paramsAMD << "Ice.Current __current"
-            << epar;
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-#if defined(__SUNPRO_CC)
-        throws.sort(Slice::derivedToBaseCompare);
-#else
-        throws.sort(Slice::DerivedToBaseCompare());
-#endif
-        writeThrowsClause(package, throws);
-
-        out << sb;
-
-        string result = "__r";
-        ParamDeclList paramList = op->parameters();
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->name() == result)
-            {
-                result = "_" + result;
-                break;
-            }
-        }
-        if(ret)
-        {
-            writeDecl(out, package, result, ret, opMetaData, optionalMapping && op->returnIsOptional());
-        }
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->isOutParam())
-            {
-                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData(),
-                          optionalMapping && (*q)->optional());
-            }
-        }
-
-        out << nl << "__cb.ice_response(";
-        if(ret)
-        {
-            out << result;
-        }
-        bool firstOutParam = true;
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->isOutParam())
-            {
-                if(ret || !firstOutParam)
-                {
-                    out << ", ";
-                }
-                out << fixKwd((*q)->name());
-                firstOutParam = false;
-            }
-        }
-        out << ");";
-
-        out << eb;
-    }
-    else
-    {
-        out << sp << nl << "public " << retS << nl << fixKwd(opName) << spar << params;
-        if(!local)
-        {
-            out << "Ice.Current __current";
-        }
-        out << epar;
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        if(op->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
-
-        out << sb;
-
-        //
-        // Return value
-        //
-        if(ret)
-        {
-            writeReturn(out, ret, optionalMapping && op->returnIsOptional());
-        }
-
-        out << eb;
-    }
-}
-
 Slice::Gen::ImplVisitor::ImplVisitor(const string& dir) :
-    BaseImplVisitor(dir)
+    JavaVisitor(dir)
 {
 }
 
@@ -6306,22 +4892,22 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class " << name << 'I';
     if(p->isInterface())
     {
-        if(p->isLocal())
-        {
-            out << " implements " << fixKwd(name);
-        }
-        else
-        {
-            out << " extends _" << name << "Disp";
-        }
+        out << " implements " << fixKwd(name);
     }
     else
     {
-        out << " extends " << fixKwd(name);
+        if(p->isLocal())
+        {
+            out << " extends " << fixKwd(name);
+        }
+        else
+        {
+            out << " implements _" << name << "Disp";
+        }
     }
     out << sb;
 
-    out << nl << "public" << nl << name << "I()";
+    out << nl << "public " << name << "I()";
     out << sb;
     out << eb;
 
@@ -6337,323 +4923,243 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::ImplTieVisitor::ImplTieVisitor(const string& dir) :
-    BaseImplVisitor(dir)
+string
+Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& type, bool optional)
 {
+    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    if(optional)
+    {
+        if(b && b->kind() == Builtin::KindDouble)
+        {
+            return "java.util.OptionalDouble.empty()";
+        }
+        else if(b && b->kind() == Builtin::KindInt)
+        {
+            return "java.util.OptionalInt.empty()";
+        }
+        else if(b && b->kind() == Builtin::KindLong)
+        {
+            return "java.util.OptionalLong.empty()";
+        }
+        else
+        {
+            return "java.util.Optional.empty()";
+        }
+    }
+    else
+    {
+        if(b)
+        {
+            switch(b->kind())
+            {
+                case Builtin::KindBool:
+                {
+                    return "false";
+                    break;
+                }
+                case Builtin::KindByte:
+                {
+                    return "(byte)0";
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    return "(short)0";
+                    break;
+                }
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                {
+                    return "0";
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    return "(float)0.0";
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    return "0.0";
+                    break;
+                }
+                case Builtin::KindString:
+                {
+                    return "\"\"";
+                    break;
+                }
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                case Builtin::KindValue:
+                {
+                    return "null";
+                    break;
+                }
+            }
+        }
+        else
+        {
+            EnumPtr en = EnumPtr::dynamicCast(type);
+            if(en)
+            {
+                EnumeratorList enumerators = en->getEnumerators();
+                return getAbsolute(en, package) + '.' + fixKwd(enumerators.front()->name());
+            }
+        }
+    }
+
+    return "null";
 }
 
 bool
-Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const OperationPtr& op)
 {
-    if(!p->isAbstract())
+    const string retS = getResultType(op, package, false, true);
+
+    if(op->hasMarshaledResult())
     {
-        return false;
-    }
-
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "", "I");
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    //
-    // Use implementation inheritance in the following situations:
-    //
-    // * if a class extends another class
-    // * if a class implements a single interface
-    // * if an interface extends only one interface
-    //
-    bool inheritImpl = (!p->isInterface() && !bases.empty() && !bases.front()->isInterface()) || (bases.size() == 1);
-
-    out << sp << nl << "public class " << name << 'I';
-    if(inheritImpl)
-    {
-        out << " extends ";
-        if(bases.front()->isAbstract())
+        out << nl << retS << " __r = new " << retS << spar;
+        const ParamDeclList outParams = op->outParameters();
+        if(op->returnType())
         {
-            out << bases.front()->name() << 'I';
+            out << getDefaultValue(package, op->returnType(), op->returnIsOptional());
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            out << getDefaultValue(package, (*p)->type(), (*p)->optional());
+        }
+        out << "__current" << epar << ';';
+    }
+    else if(op->returnsMultipleValues())
+    {
+        out << nl << retS << " __r = new " << retS << "();";
+        string retval = "returnValue";
+        const ParamDeclList outParams = op->outParameters();
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            out << nl << "__r." << fixKwd((*p)->name()) << " = "
+                << getDefaultValue(package, (*p)->type(), (*p)->optional()) << ';';
+            if((*p)->name() == "returnValue")
+            {
+                retval = "_returnValue";
+            }
+        }
+        if(op->returnType())
+        {
+            out << nl << "__r." << retval << " = "
+                << getDefaultValue(package, op->returnType(), op->returnIsOptional()) << ';';
+        }
+    }
+    else
+    {
+        TypePtr type = op->returnType();
+        bool optional = op->returnIsOptional();
+        if(!type)
+        {
+            const ParamDeclList outParams = op->outParameters();
+            if(!outParams.empty())
+            {
+                assert(outParams.size() == 1);
+                type = outParams.front()->type();
+                optional = outParams.front()->optional();
+            }
+        }
+        if(type)
+        {
+            out << nl << retS << " __r = " << getDefaultValue(package, type, optional) << ';';
         }
         else
         {
-            out << fixKwd(bases.front()->name());
-        }
-    }
-    out << " implements " << '_' << name << "Operations";
-    if(p->isLocal())
-    {
-        out << "NC";
-    }
-    out << sb;
-
-    out << nl << "public" << nl << name << "I()";
-    out << sb;
-    out << eb;
-
-    OperationList ops = p->allOperations();
-    ops.sort();
-
-    OperationList baseOps;
-    if(inheritImpl)
-    {
-        baseOps = bases.front()->allOperations();
-        baseOps.sort();
-    }
-
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        if(inheritImpl && binary_search(baseOps.begin(), baseOps.end(), *r))
-        {
-            out << sp;
-            out << nl << "/*";
-            out << nl << " * Implemented by " << bases.front()->name() << 'I';
-            out << nl << " *";
-            writeOperation(out, package, *r, p->isLocal());
-            out << sp;
-            out << nl << "*/";
-        }
-        else
-        {
-            writeOperation(out, package, *r, p->isLocal());
+            return false;
         }
     }
 
-    out << eb;
-    close();
-
-    return false;
-}
-
-Slice::Gen::AsyncVisitor::AsyncVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
+    return true;
 }
 
 void
-Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, const OperationPtr& op, bool local)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    string opName = op->name();
 
-    if(cl->isLocal())
+    ExceptionList throws = op->throws();
+    throws.sort();
+    throws.unique();
+
+    const ContainerPtr container = op->container();
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    const vector<string> params = getParams(op, package);
+
+    if(local)
     {
-        return;
-    }
-
-    string name = p->name();
-    string classPkg = getPackage(cl);
-    StringList opMetaData = p->getMetaData();
-
-    //
-    // Generate new-style callback.
-    //
-    {
-        TypePtr ret = p->returnType();
-        ParamDeclList outParams;
-        ParamDeclList paramList = p->parameters();
-        for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-        {
-            if((*pli)->isOutParam())
-            {
-                outParams.push_back(*pli);
-            }
-        }
-
-        vector<string> params = getParamsAsyncCB(p, classPkg, false, true);
-        vector<string> args = getInOutArgs(p, OutParam);
-        ExceptionList throws = p->throws();
-
-        //
-        // If the operation has more than one return parameter we generate a Callback
-        // interface to use in the method signatures.
-        //
-        if(p->returnsData() && ((ret && !outParams.empty()) || outParams.size() > 1))
-        {
-            open(getAbsolute(cl, "", "_Callback_", "_" + name), p->file());
-
-            Output& out = output();
-
-            writeDocCommentOp(out, p);
-            out << sp << nl << "public interface " << ("_Callback_" + cl->name()) << '_' << name
-                << " extends " << (throws.empty() ? "Ice.TwowayCallback" : "Ice.TwowayCallbackUE");
-            out << sb;
-            out << nl << "public void response" << spar << params << epar << ';';
-            out << eb;
-
-            close();
-        }
-
-        string classNameAsync = "Callback_" + cl->name();
-        string absoluteAsync = getAbsolute(cl, "", "Callback_", "_" + name);
-
-        open(absoluteAsync, p->file());
-
-        Output& out = output();
-
-        writeDocCommentOp(out, p);
-        out << sp << nl << "public abstract class " << classNameAsync << '_' << name;
-
-        if(p->returnsData())
+        out << sp;
+        out << nl << "@Override";
+        out << nl << "public " << getResultType(op, package, false, false) << ' ' << fixKwd(opName) << spar << params
+            << epar;
+        if(op->hasMetaData("UserException"))
         {
             out.inc();
-            out << nl << "extends " << getAsyncCallbackBaseClass(p, false);
+            out << nl << "throws com.zeroc.Ice.UserException";
             out.dec();
-            out << sb;
+        }
+        else
+        {
+            writeThrowsClause(package, throws);
+        }
+        out << sb;
+        if(initResult(out, package, op))
+        {
+            out << nl << "return __r;";
+        }
+        out << eb;
 
-            out << sp << nl << "public final void __completed(Ice.AsyncResult __result)";
+        if(cl->hasMetaData("async-oneway") || op->hasMetaData("async-oneway"))
+        {
+            out << sp;
+            out << nl << "@Override";
+            out << nl << getFutureType(op, package) << ' ' << opName << "Async" << spar << params << epar;
             out << sb;
-            out << nl << cl->name() << "PrxHelper.__" << p->name() << "_completed(this, __result);";
+            out << nl << "return null;";
             out << eb;
+        }
+    }
+    else
+    {
+        const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
 
+        if(amd)
+        {
+            const string retS = getResultType(op, package, true, true);
+            out << sp;
+            out << nl << "@Override";
+            out << nl << "public java.util.concurrent.CompletionStage<" << retS << "> " << opName << "Async" << spar
+                << params << "com.zeroc.Ice.Current __current" << epar;
+            writeThrowsClause(package, throws);
+            out << sb;
+            if(initResult(out, package, op))
+            {
+                out << nl << "return java.util.concurrent.CompletableFuture.completedFuture(__r);";
+            }
+            else
+            {
+                out << nl << "return java.util.concurrent.CompletableFuture.completedFuture((Void)null);";
+            }
             out << eb;
         }
         else
         {
-            out << " extends Ice.OnewayCallback";
-            out << sb;
-            out << eb;
-        }
-
-        close();
-    }
-
-    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
-    {
-        string classNameAMD = "AMD_" + cl->name();
-        string absoluteAMD = getAbsolute(cl, "", "AMD_", "_" + name);
-
-        string classNameAMDI = "_AMD_" + cl->name();
-        string absoluteAMDI = getAbsolute(cl, "", "_AMD_", "_" + name);
-
-        const bool optionalMapping = useOptionalMapping(p);
-        vector<string> paramsAMD = getParamsAsyncCB(p, classPkg, true, optionalMapping);
-
-        {
-            open(absoluteAMD, p->file());
-
-            Output& out = output();
-
-            writeDocCommentOp(out, p);
-            out << sp << nl << "public interface " << classNameAMD << '_' << name;
-            out << " extends Ice.AMDCallback";
-            out << sb;
             out << sp;
-            writeDocCommentAsync(out, p, OutParam);
-            out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
-
-            out << eb;
-
-            close();
-        }
-
-        {
-            open(absoluteAMDI, p->file());
-
-            Output& out = output();
-
-            TypePtr ret = p->returnType();
-
-            ParamDeclList outParams;
-            ParamDeclList paramList = p->parameters();
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if((*pli)->isOutParam())
-                {
-                    outParams.push_back(*pli);
-                }
-            }
-
-            ExceptionList throws = p->throws();
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            throws.sort(Slice::derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-            int iter;
-
-            out << sp << nl << "final class " << classNameAMDI << '_' << name
-                << " extends IceInternal.IncomingAsync implements " << classNameAMD << '_' << name;
+            out << nl << "@Override";
+            out << nl << "public " << getResultType(op, package, false, true) << ' ' << fixKwd(opName) << spar << params
+                << "com.zeroc.Ice.Current __current" << epar;
+            writeThrowsClause(package, throws);
             out << sb;
-
-            out << sp << nl << "public " << classNameAMDI << '_' << name << "(IceInternal.Incoming in)";
-            out << sb;
-            out << nl << "super(in);";
-            out << eb;
-
-            out << sp << nl << "public void ice_response" << spar << paramsAMD << epar;
-            out << sb;
-            iter = 0;
-            out << nl << "if(__validateResponse(true))";
-            out << sb;
-            if(ret || !outParams.empty())
+            if(initResult(out, package, op))
             {
-                out << nl << "try";
-                out << sb;
-                out << nl << "Ice.OutputStream __os = this.__startWriteParams("
-                    << opFormatTypeToString(p) << ");";
-                writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
-                if(p->returnsClasses(false))
-                {
-                    out << nl << "__os.writePendingValues();";
-                }
-                out << nl << "this.__endWriteParams(true);";
-                out << eb;
-                out << nl << "catch(Ice.LocalException __ex)";
-                out << sb;
-                out << nl << "__exception(__ex);";
-                out << nl << "return;";
-                out << eb;
+                out << nl << "return __r;";
             }
-            else
-            {
-                out << nl << "__writeEmptyParams();";
-            }
-            out << nl << "__response();";
             out << eb;
-            out << eb;
-
-            if(!throws.empty())
-            {
-                out << sp << nl << "public void ice_exception(java.lang.Exception ex)";
-                out << sb;
-                out << nl << "try";
-                out << sb;
-                out << nl << "throw ex;";
-                out << eb;
-                for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-                {
-                    string exS = getAbsolute(*r, classPkg);
-                    out << nl << "catch(" << exS << " __ex)";
-                    out << sb;
-                    out << nl << "if(__validateResponse(false))";
-                    out << sb;
-                    out << nl << "__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
-                    out << nl << "__response();";
-                    out << eb;
-                    out << eb;
-                }
-                out << nl << "catch(java.lang.Exception __ex)";
-                out << sb;
-                out << nl << "super.ice_exception(__ex);";
-                out << eb;
-                out << eb;
-            }
-
-            out << eb;
-
-            close();
         }
     }
 }

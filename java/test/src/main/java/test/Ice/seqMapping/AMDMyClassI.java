@@ -9,36 +9,39 @@
 
 package test.Ice.seqMapping;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.seqMapping.AMD.Test.*;
 import test.Ice.seqMapping.Serialize.*;
 
-public final class AMDMyClassI extends MyClass
+public final class AMDMyClassI implements MyClass
 {
     @Override
-    public void
-    shutdown_async(AMD_MyClass_shutdown cb, Ice.Current current)
+    public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
-        cb.ice_response();
+        return CompletableFuture.completedFuture((Void)null);
     }
 
     @Override
-    public void
-    opSerialSmallJava_async(AMD_MyClass_opSerialSmallJava cb, Small i, Ice.Current current)
+    public CompletionStage<MyClass.OpSerialSmallJavaResult> opSerialSmallJavaAsync(Small i,
+                                                                                   com.zeroc.Ice.Current current)
     {
-        cb.ice_response(i, i);
+        return CompletableFuture.completedFuture(new MyClass.OpSerialSmallJavaResult(i, i));
     }
 
     @Override
-    public void
-    opSerialLargeJava_async(AMD_MyClass_opSerialLargeJava cb, Large i, Ice.Current current)
+    public CompletionStage<MyClass.OpSerialLargeJavaResult> opSerialLargeJavaAsync(Large i,
+                                                                                   com.zeroc.Ice.Current current)
     {
-        cb.ice_response(i, i);
+        return CompletableFuture.completedFuture(new MyClass.OpSerialLargeJavaResult(i, i));
     }
 
     @Override
-    public void opSerialStructJava_async(AMD_MyClass_opSerialStructJava cb, Struct i, Ice.Current current)
+    public CompletionStage<MyClass.OpSerialStructJavaResult> opSerialStructJavaAsync(Struct i,
+                                                                                     com.zeroc.Ice.Current current)
     {
-        cb.ice_response(i, i);
+        return CompletableFuture.completedFuture(new MyClass.OpSerialStructJavaResult(i, i));
     }
 }

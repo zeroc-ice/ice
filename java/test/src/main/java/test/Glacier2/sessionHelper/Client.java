@@ -12,7 +12,6 @@ package test.Glacier2.sessionHelper;
 import javax.swing.SwingUtilities;
 import java.io.PrintWriter;
 import test.Glacier2.sessionHelper.Test.CallbackPrx;
-import test.Glacier2.sessionHelper.Test.CallbackPrxHelper;
 
 public class Client extends test.Util.Application
 {
@@ -22,8 +21,7 @@ public class Client extends test.Util.Application
         me = this;
     }
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -32,22 +30,20 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        _initData = createInitializationData();
-        _initData.properties = Ice.Util.createProperties(argsH);
+        GetInitDataResult r = super.getInitData(args);
+        _initData = r.initData;
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
-        _initData.dispatcher = new Ice.Dispatcher()
+        _initData.dispatcher = new com.zeroc.Ice.Dispatcher()
             {
                 @Override
-                public void
-                dispatch(Runnable runnable, Ice.Connection connection)
+                public void dispatch(Runnable runnable, com.zeroc.Ice.Connection connection)
                 {
                     SwingUtilities.invokeLater(runnable);
                 }
             };
-
-        return _initData;
+        return r;
     }
 
     @Override
@@ -56,32 +52,29 @@ public class Client extends test.Util.Application
         String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         String host = communicator().getProperties().getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
-        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
+        _factory = new com.zeroc.Glacier2.SessionFactoryHelper(_initData, new com.zeroc.Glacier2.SessionCallback()
             {
                 @Override
-                public void
-                connected(Glacier2.SessionHelper session)
-                    throws Glacier2.SessionNotExistException
+                public void connected(com.zeroc.Glacier2.SessionHelper session)
+                    throws com.zeroc.Glacier2.SessionNotExistException
                 {
                      test(false);
                 }
 
                 @Override
-                public void
-                disconnected(Glacier2.SessionHelper session)
+                public void disconnected(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(false);
                 }
 
                 @Override
-                public void
-                connectFailed(Glacier2.SessionHelper session, Throwable exception)
+                public void connectFailed(com.zeroc.Glacier2.SessionHelper session, Throwable exception)
                 {
                     try
                     {
                         throw exception;
                     }
-                    catch(Glacier2.PermissionDeniedException ex)
+                    catch(com.zeroc.Glacier2.PermissionDeniedException ex)
                     {
                         out.println("ok");
                         synchronized(test.Glacier2.sessionHelper.Client.this)
@@ -91,13 +84,13 @@ public class Client extends test.Util.Application
                     }
                     catch(Throwable ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                 }
 
                 @Override
-                public void
-                createdCommunicator(Glacier2.SessionHelper session)
+                public void createdCommunicator(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(session.communicator() != null);
                 }
@@ -126,32 +119,29 @@ public class Client extends test.Util.Application
         }
 
         _initData.properties.setProperty("Ice.Default.Router", "");
-        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
+        _factory = new com.zeroc.Glacier2.SessionFactoryHelper(_initData, new com.zeroc.Glacier2.SessionCallback()
             {
                 @Override
-                public void
-                connected(Glacier2.SessionHelper session)
-                    throws Glacier2.SessionNotExistException
+                public void connected(com.zeroc.Glacier2.SessionHelper session)
+                    throws com.zeroc.Glacier2.SessionNotExistException
                 {
                     test(false);
                 }
 
                 @Override
-                public void
-                disconnected(Glacier2.SessionHelper session)
+                public void disconnected(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(false);
                 }
 
                 @Override
-                public void
-                connectFailed(Glacier2.SessionHelper session, Throwable exception)
+                public void connectFailed(com.zeroc.Glacier2.SessionHelper session, Throwable exception)
                 {
                     try
                     {
                         throw exception;
                     }
-                    catch(Ice.CommunicatorDestroyedException ex)
+                    catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
                     {
                         out.println("ok");
                         synchronized(test.Glacier2.sessionHelper.Client.this)
@@ -166,8 +156,7 @@ public class Client extends test.Util.Application
                 }
 
                 @Override
-                public void
-                createdCommunicator(Glacier2.SessionHelper session)
+                public void createdCommunicator(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(session.communicator() != null);
                 }
@@ -208,12 +197,11 @@ public class Client extends test.Util.Application
             }
         };
 
-        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
+        _factory = new com.zeroc.Glacier2.SessionFactoryHelper(_initData, new com.zeroc.Glacier2.SessionCallback()
             {
                 @Override
-                public void
-                connected(Glacier2.SessionHelper session)
-                    throws Glacier2.SessionNotExistException
+                public void connected(com.zeroc.Glacier2.SessionHelper session)
+                    throws com.zeroc.Glacier2.SessionNotExistException
                 {
                     out.println("ok");
                     synchronized(test.Glacier2.sessionHelper.Client.this)
@@ -223,8 +211,7 @@ public class Client extends test.Util.Application
                 }
 
                 @Override
-                public void
-                disconnected(Glacier2.SessionHelper session)
+                public void disconnected(com.zeroc.Glacier2.SessionHelper session)
                 {
                     out.println("ok");
                     synchronized(test.Glacier2.sessionHelper.Client.this)
@@ -234,15 +221,13 @@ public class Client extends test.Util.Application
                 }
 
                 @Override
-                public void
-                connectFailed(Glacier2.SessionHelper session, Throwable ex)
+                public void connectFailed(com.zeroc.Glacier2.SessionHelper session, Throwable ex)
                 {
                     test(false);
                 }
 
                 @Override
-                public void
-                createdCommunicator(Glacier2.SessionHelper session)
+                public void createdCommunicator(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(session.communicator() != null);
                 }
@@ -279,7 +264,7 @@ public class Client extends test.Util.Application
             {
                 test(!_session.categoryForClient().equals(""));
             }
-            catch(Glacier2.SessionNotExistException ex)
+            catch(com.zeroc.Glacier2.SessionNotExistException ex)
             {
                 test(false);
             }
@@ -289,14 +274,14 @@ public class Client extends test.Util.Application
 //             {
 //                 test(_session.session() != null);
 //             }
-//             catch(Glacier2.SessionNotExistException ex)
+//             catch(com.zeroc.Glacier2.SessionNotExistException ex)
 //             {
 //                 test(false);
 //             }
 
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:default -p 12010");
+            com.zeroc.Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:default -p 12010");
             out.println("ok");
 
             out.print("pinging server after session creation... ");
@@ -306,7 +291,7 @@ public class Client extends test.Util.Application
 
             out.print("testing checked cast for server object... ");
             out.flush();
-            CallbackPrx twoway = CallbackPrxHelper.checkedCast(base);
+            CallbackPrx twoway = CallbackPrx.checkedCast(base);
             test(twoway != null);
             out.println("ok");
 
@@ -343,7 +328,7 @@ public class Client extends test.Util.Application
                 test(!_session.categoryForClient().equals(""));
                 test(false);
             }
-            catch(Glacier2.SessionNotExistException ex)
+            catch(com.zeroc.Glacier2.SessionNotExistException ex)
             {
             }
             out.println("ok");
@@ -354,7 +339,7 @@ public class Client extends test.Util.Application
                 _session.session();
                 test(false);
             }
-            catch(Glacier2.SessionNotExistException ex)
+            catch(com.zeroc.Glacier2.SessionNotExistException ex)
             {
             }
             out.println("ok");
@@ -367,7 +352,7 @@ public class Client extends test.Util.Application
                 _session.communicator().stringToProxy("dummy");
                 test(false);
             }
-            catch(Ice.CommunicatorDestroyedException ex)
+            catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
             {
             }
             out.println("ok");
@@ -378,18 +363,18 @@ public class Client extends test.Util.Application
             communicator().setDefaultRouter(null);
             out.println("ok");
 
-            Ice.ObjectPrx processBase;
+            com.zeroc.Ice.ObjectPrx processBase;
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h \"" + host + "\" -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h \"" + host +
+                    "\" -p 12348");
                 out.println("ok");
             }
 
-
-            Ice.ProcessPrx process;
+            com.zeroc.Ice.ProcessPrx process;
             {
                 out.print("testing checked cast for admin object... ");
-                process = Ice.ProcessPrxHelper.checkedCast(processBase);
+                process = com.zeroc.Ice.ProcessPrx.checkedCast(processBase);
                 test(process != null);
                 out.println("ok");
             }
@@ -401,38 +386,35 @@ public class Client extends test.Util.Application
                 process.ice_ping();
                 test(false);
             }
-            catch(Ice.LocalException ex)
+            catch(com.zeroc.Ice.LocalException ex)
             {
                 out.println("ok");
             }
         }
 
-        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
+        _factory = new com.zeroc.Glacier2.SessionFactoryHelper(_initData, new com.zeroc.Glacier2.SessionCallback()
             {
                 @Override
-                public void
-                connected(Glacier2.SessionHelper session)
-                    throws Glacier2.SessionNotExistException
+                public void connected(com.zeroc.Glacier2.SessionHelper session)
+                    throws com.zeroc.Glacier2.SessionNotExistException
                 {
                      test(false);
                 }
 
                 @Override
-                public void
-                disconnected(Glacier2.SessionHelper session)
+                public void disconnected(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(false);
                 }
 
                 @Override
-                public void
-                connectFailed(Glacier2.SessionHelper session, Throwable exception)
+                public void connectFailed(com.zeroc.Glacier2.SessionHelper session, Throwable exception)
                 {
                     try
                     {
                         throw exception;
                     }
-                    catch(Ice.ConnectFailedException ex)
+                    catch(com.zeroc.Ice.ConnectFailedException ex)
                     {
                         out.println("ok");
                         synchronized(test.Glacier2.sessionHelper.Client.this)
@@ -447,8 +429,7 @@ public class Client extends test.Util.Application
                 }
 
                 @Override
-                public void
-                createdCommunicator(Glacier2.SessionHelper session)
+                public void createdCommunicator(com.zeroc.Glacier2.SessionHelper session)
                 {
                     test(session.communicator() != null);
                 }
@@ -503,7 +484,7 @@ public class Client extends test.Util.Application
                 _session.communicator().stringToProxy("dummy");
                 test(false);
             }
-            catch(Ice.CommunicatorDestroyedException ex)
+            catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
             {
             }
             out.println("ok");
@@ -517,14 +498,12 @@ public class Client extends test.Util.Application
         return 0;
     }
 
-    public static void
-    wakeUp()
+    public static void wakeUp()
     {
         me.notify();
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Client c = new Client();
         int status = c.main("Client", args);
@@ -533,9 +512,9 @@ public class Client extends test.Util.Application
         System.exit(status);
     }
 
-    private Glacier2.SessionHelper _session;
-    private Glacier2.SessionFactoryHelper _factory;
-    private Ice.InitializationData _initData;
+    private com.zeroc.Glacier2.SessionHelper _session;
+    private com.zeroc.Glacier2.SessionFactoryHelper _factory;
+    private com.zeroc.Ice.InitializationData _initData;
     static public Client me;
     final public PrintWriter out;
 }

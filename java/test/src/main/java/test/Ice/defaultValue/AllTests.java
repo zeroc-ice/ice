@@ -14,8 +14,7 @@ import test.Ice.defaultValue.Test.*;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,8 +22,7 @@ public class AllTests
         }
     }
 
-    public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app, PrintWriter out)
     {
         out.print("testing default values... ");
         out.flush();

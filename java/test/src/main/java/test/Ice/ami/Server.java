@@ -12,39 +12,36 @@ package test.Ice.ami;
 public class Server extends test.Util.Application
 {
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         adapter.activate();
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+        adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
         adapter2.activate();
 
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("ControllerAdapter.Endpoints", "default -p 12011");
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-        return initData;
+        r.initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        return r;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Server app = new Server();
         int result = app.main("Server", args);

@@ -9,15 +9,17 @@
 
 package test.Ice.operations;
 
-import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
-import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
-import test.Ice.operations.Test.Callback_MyClass_opVoid;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import com.zeroc.Ice.Util;
+import com.zeroc.Ice.InvocationFuture;
+
 import test.Ice.operations.Test.MyClassPrx;
 
 class OnewaysAMI
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -25,9 +27,9 @@ class OnewaysAMI
         }
     }
 
-    private static class CallbackBase
+    private static class Callback
     {
-        CallbackBase()
+        Callback()
         {
             _called = false;
         }
@@ -58,62 +60,26 @@ class OnewaysAMI
         private boolean _called;
     }
 
-    static class Callback extends CallbackBase
+    static void onewaysAMI(test.Util.Application app, MyClassPrx proxy)
     {
-        public Callback()
-        {
-        }
-
-        public void
-        sent(boolean sentSynchronously)
-        {
-            called();
-        }
-
-        void noException(Ice.LocalException ex)
-        {
-            test(false);
-        }
-    }
-
-    static void
-    onewaysAMI(test.Util.Application app, MyClassPrx proxy)
-    {
-        MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
+        MyClassPrx p = proxy.ice_oneway();
 
         {
             final Callback cb = new Callback();
-            Ice.Callback_Object_ice_ping callback = new Ice.Callback_Object_ice_ping()
+            CompletableFuture<Void> f = p.ice_pingAsync();
+            f.whenComplete((result, ex) -> test(ex == null));
+            Util.getInvocationFuture(f).whenSent((sentSynchronously, ex) ->
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    @Override
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
-            p.begin_ice_ping(callback);
+                    test(ex == null);
+                    cb.called();
+                });
             cb.check();
         }
 
         {
             try
             {
-                p.begin_ice_isA("::Test::MyClass");
+                p.ice_isAAsync("::Test::MyClass").join();
                 test(false);
             }
             catch(java.lang.IllegalArgumentException ex)
@@ -124,7 +90,7 @@ class OnewaysAMI
         {
             try
             {
-                p.begin_ice_id();
+                p.ice_idAsync();
                 test(false);
             }
             catch(java.lang.IllegalArgumentException ex)
@@ -135,7 +101,7 @@ class OnewaysAMI
         {
             try
             {
-                p.begin_ice_ids();
+                p.ice_idsAsync();
                 test(false);
             }
             catch(java.lang.IllegalArgumentException ex)
@@ -145,95 +111,44 @@ class OnewaysAMI
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opVoid callback = new Callback_MyClass_opVoid()
+            CompletableFuture<Void> f = p.opVoidAsync();
+            f.whenComplete((result, ex) -> test(ex == null));
+            Util.getInvocationFuture(f).whenSent((sentSynchronously, ex) ->
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    @Override
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
-            p.begin_opVoid(callback);
+                    test(ex == null);
+                    cb.called();
+                });
             cb.check();
         }
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opIdempotent callback = new Callback_MyClass_opIdempotent()
+            CompletableFuture<Void> f = p.opIdempotentAsync();
+            f.whenComplete((result, ex) -> test(ex == null));
+            Util.getInvocationFuture(f).whenSent((sentSynchronously, ex) ->
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    @Override
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
-            p.begin_opIdempotent(callback);
+                    test(ex == null);
+                    cb.called();
+                });
             cb.check();
         }
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opNonmutating callback = new Callback_MyClass_opNonmutating()
+            CompletableFuture<Void> f = p.opNonmutatingAsync();
+            f.whenComplete((result, ex) -> test(ex == null));
+            Util.getInvocationFuture(f).whenSent((sentSynchronously, ex) ->
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    @Override
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
-            p.begin_opNonmutating(callback);
+                    test(ex == null);
+                    cb.called();
+                });
             cb.check();
         }
 
         {
             try
             {
-                p.begin_opByte((byte)0xff, (byte)0x0f);
+                p.opByteAsync((byte)0xff, (byte)0x0f);
                 test(false);
             }
             catch(java.lang.IllegalArgumentException ex)

@@ -12,13 +12,12 @@ package test.Ice.exceptions;
 public class Collocated extends test.Util.Application
 {
     @Override
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new ThrowerI();
-        adapter.add(object, Ice.Util.stringToIdentity("thrower"));
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.Object object = new ThrowerI();
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
 
         AllTests.allTests(communicator, getWriter());
 
@@ -26,27 +25,25 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData();
+        GetInitDataResult r = super.getInitData(args);
         //
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
         //
-        initData.logger = new DummyLogger();
+        r.initData.logger = new DummyLogger();
 
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
 
-        return initData;
+        return r;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
         Collocated app = new Collocated();
         int result = app.main("Collocated", args);

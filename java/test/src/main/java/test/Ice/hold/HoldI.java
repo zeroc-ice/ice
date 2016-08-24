@@ -10,12 +10,11 @@
 
 package test.Ice.hold;
 
-import test.Ice.hold.Test._HoldDisp;
+import test.Ice.hold.Test.Hold;
 
-public final class HoldI extends _HoldDisp
+public final class HoldI implements Hold
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,7 +22,7 @@ public final class HoldI extends _HoldDisp
         }
     }
 
-    HoldI(java.util.Timer timer, Ice.ObjectAdapter adapter)
+    HoldI(java.util.Timer timer, com.zeroc.Ice.ObjectAdapter adapter)
     {
         _timer = timer;
         _adapter = adapter;
@@ -31,8 +30,7 @@ public final class HoldI extends _HoldDisp
     }
 
     @Override
-    public void
-    putOnHold(int milliSeconds, Ice.Current current)
+    public void putOnHold(int milliSeconds, com.zeroc.Ice.Current current)
     {
         if(milliSeconds < 0)
         {
@@ -54,7 +52,7 @@ public final class HoldI extends _HoldDisp
                     {
                         putOnHold(0, null);
                     }
-                    catch(Ice.ObjectAdapterDeactivatedException ex)
+                    catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
                     {
                     }
                 }
@@ -63,8 +61,7 @@ public final class HoldI extends _HoldDisp
     }
 
     @Override
-    public void
-    waitForHold(final Ice.Current current)
+    public void waitForHold(final com.zeroc.Ice.Current current)
     {
         _timer.schedule(new java.util.TimerTask()
         {
@@ -77,7 +74,7 @@ public final class HoldI extends _HoldDisp
 
                     current.adapter.activate();
                 }
-                catch(Ice.ObjectAdapterDeactivatedException ex)
+                catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
                 {
                     //
                     // This shouldn't occur. The test ensures all the
@@ -92,8 +89,7 @@ public final class HoldI extends _HoldDisp
 
 
     @Override
-    public int
-    set(int value, int delay, Ice.Current current)
+    public int set(int value, int delay, com.zeroc.Ice.Current current)
     {
         try
         {
@@ -112,22 +108,20 @@ public final class HoldI extends _HoldDisp
     }
 
     @Override
-    synchronized public void
-    setOneway(int value, int expected, Ice.Current current)
+    synchronized public void setOneway(int value, int expected, com.zeroc.Ice.Current current)
     {
         test(_last == expected);
         _last = value;
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _adapter.hold();
         _adapter.getCommunicator().shutdown();
     }
 
     final private java.util.Timer _timer;
-    final private Ice.ObjectAdapter _adapter;
+    final private com.zeroc.Ice.ObjectAdapter _adapter;
     int _last = 0;
 }

@@ -11,57 +11,57 @@ package test.Ice.admin;
 
 import test.Ice.admin.Test.*;
 
-public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.PropertiesAdminUpdateCallback
+public class RemoteCommunicatorI implements RemoteCommunicator, com.zeroc.Ice.PropertiesAdminUpdateCallback
 {
-    RemoteCommunicatorI(Ice.Communicator communicator)
+    RemoteCommunicatorI(com.zeroc.Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
 
     @Override
-    public Ice.ObjectPrx getAdmin(Ice.Current current)
+    public com.zeroc.Ice.ObjectPrx getAdmin(com.zeroc.Ice.Current current)
     {
         return _communicator.getAdmin();
     }
 
     @Override
-    public synchronized java.util.Map<String, String> getChanges(Ice.Current current)
+    public synchronized java.util.Map<String, String> getChanges(com.zeroc.Ice.Current current)
     {
         return _changes;
     }
 
     @Override
-    public void print(String message, Ice.Current current)
+    public void print(String message, com.zeroc.Ice.Current current)
     {
         _communicator.getLogger().print(message);
     }
 
     @Override
-    public void trace(String category, String message, Ice.Current current)
+    public void trace(String category, String message, com.zeroc.Ice.Current current)
     {
         _communicator.getLogger().trace(category, message);
     }
 
     @Override
-    public void warning(String message, Ice.Current current)
+    public void warning(String message, com.zeroc.Ice.Current current)
     {
         _communicator.getLogger().warning(message);
     }
 
     @Override
-    public void error(String message, Ice.Current current)
+    public void error(String message, com.zeroc.Ice.Current current)
     {
         _communicator.getLogger().error(message);
     }
 
     @Override
-    public void shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _communicator.shutdown();
     }
 
     @Override
-    public void waitForShutdown(Ice.Current current)
+    public void waitForShutdown(com.zeroc.Ice.Current current)
     {
         //
         // Note that we are executing in a thread of the *main* communicator,
@@ -71,7 +71,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     }
 
     @Override
-    public void destroy(Ice.Current current)
+    public void destroy(com.zeroc.Ice.Current current)
     {
         _communicator.destroy();
     }
@@ -82,6 +82,6 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
         _changes = changes;
     }
 
-    private Ice.Communicator _communicator;
+    private com.zeroc.Ice.Communicator _communicator;
     private java.util.Map<String, String> _changes;
 }

@@ -22,35 +22,34 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
 
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "20000");
 
         //
         // For this test, we want to disable retries.
         //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        r.initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

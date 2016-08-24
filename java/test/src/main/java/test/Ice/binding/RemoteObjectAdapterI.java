@@ -10,40 +10,36 @@
 package test.Ice.binding;
 
 import test.Ice.binding.Test.TestIntfPrx;
-import test.Ice.binding.Test.TestIntfPrxHelper;
-import test.Ice.binding.Test._RemoteObjectAdapterDisp;
+import test.Ice.binding.Test.RemoteObjectAdapter;
 
-public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
+public class RemoteObjectAdapterI implements RemoteObjectAdapter
 {
-    public
-    RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
+    public RemoteObjectAdapterI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
-                                                                Ice.Util.stringToIdentity("test")));
+        _testIntf = TestIntfPrx.uncheckedCast(_adapter.add(new TestI(), 
+                                                           com.zeroc.Ice.Util.stringToIdentity("test")));
         _adapter.activate();
     }
 
     @Override
-    public TestIntfPrx
-    getTestIntf(Ice.Current current)
+    public TestIntfPrx getTestIntf(com.zeroc.Ice.Current current)
     {
         return _testIntf;
     }
 
     @Override
-    public void
-    deactivate(Ice.Current current)
+    public void deactivate(com.zeroc.Ice.Current current)
     {
         try
         {
             _adapter.destroy();
         }
-        catch(Ice.ObjectAdapterDeactivatedException ex)
+        catch(com.zeroc.Ice.ObjectAdapterDeactivatedException ex)
         {
         }
     }
 
-    final Ice.ObjectAdapter _adapter;
+    final com.zeroc.Ice.ObjectAdapter _adapter;
     final TestIntfPrx _testIntf;
-};
+}

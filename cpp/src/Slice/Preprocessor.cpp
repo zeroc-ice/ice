@@ -140,7 +140,7 @@ namespace
 {
 
 vector<string>
-baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const string& fileName)
+baseArgs(vector<string> args, bool keepComments, const vector<string>& extraArgs, const string& fileName)
 {
     if(keepComments)
     {
@@ -161,10 +161,7 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
         args.push_back(os.str());
     }
 
-    if(!extraArgs.empty())
-    {
-        args.push_back(extraArgs);
-    }
+    copy(extraArgs.begin(), extraArgs.end(), back_inserter(args));
     args.push_back(fileName);
     return args;
 }
@@ -172,7 +169,15 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
 }
 
 FILE*
-Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
+Slice::Preprocessor::preprocess(bool keepComments, const string& extraArg)
+{
+    vector<string> args;
+    args.push_back(extraArg);
+    return preprocess(keepComments, args);
+}
+
+FILE*
+Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraArgs)
 {
     if(!checkInputFile())
     {
@@ -287,7 +292,17 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
 
 bool
 Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, const vector<string>& includePaths,
-                                               const string& extraArgs, const string& cppSourceExt,
+                                               const string& extraArg, const string& cppSourceExt,
+                                               const string& optValue)
+{
+    vector<string> extraArgs;
+    extraArgs.push_back(extraArg);
+    return printMakefileDependencies(out, lang, includePaths, extraArgs, cppSourceExt, optValue);
+}
+
+bool
+Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, const vector<string>& includePaths,
+                                               const vector<string>& extraArgs, const string& cppSourceExt,
                                                const string& optValue)
 {
     if(!checkInputFile())

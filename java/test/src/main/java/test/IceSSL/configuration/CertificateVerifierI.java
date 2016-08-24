@@ -9,17 +9,15 @@
 
 package test.IceSSL.configuration;
 
-public class CertificateVerifierI implements IceSSL.CertificateVerifier
+public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifier
 {
-    public
-    CertificateVerifierI()
+    public CertificateVerifierI()
     {
         reset();
     }
 
     @Override
-    public boolean
-    verify(IceSSL.NativeConnectionInfo info)
+    public boolean verify(com.zeroc.IceSSL.NativeConnectionInfo info)
     {
         if(info.nativeCerts != null)
         {
@@ -28,8 +26,8 @@ public class CertificateVerifierI implements IceSSL.CertificateVerifier
                 java.util.Collection<java.util.List<?> > subjectAltNames =
                     ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectAlternativeNames();
                 test(subjectAltNames != null);
-                java.util.List<String> ipAddresses = new java.util.ArrayList<String>();
-                java.util.List<String> dnsNames = new java.util.ArrayList<String>();
+                java.util.List<String> ipAddresses = new java.util.ArrayList<>();
+                java.util.List<String> dnsNames = new java.util.ArrayList<>();
                 for(java.util.List<?> l : subjectAltNames)
                 {
                     test(!l.isEmpty());
@@ -58,34 +56,29 @@ public class CertificateVerifierI implements IceSSL.CertificateVerifier
         return _returnValue;
     }
 
-    void
-    reset()
+    void reset()
     {
         _returnValue = true;
         _invoked = false;
         _hadCert = false;
     }
 
-    void
-    returnValue(boolean b)
+    void returnValue(boolean b)
     {
         _returnValue = b;
     }
 
-    boolean
-    invoked()
+    boolean invoked()
     {
         return _invoked;
     }
 
-    boolean
-    hadCert()
+    boolean hadCert()
     {
         return _hadCert;
     }
 
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {

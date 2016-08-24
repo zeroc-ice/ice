@@ -12,44 +12,39 @@ package test.Ice.classLoader;
 import test.Ice.classLoader.Test.AbstractClass;
 import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
-import test.Ice.classLoader.Test._InitialDisp;
+import test.Ice.classLoader.Test.Initial;
 
-public final class InitialI extends _InitialDisp
+public final class InitialI implements Initial
 {
-    public
-    InitialI(Ice.ObjectAdapter adapter)
+    public InitialI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
 
     @Override
-    public ConcreteClass
-    getConcreteClass(Ice.Current current)
+    public ConcreteClass getConcreteClass(com.zeroc.Ice.Current current)
     {
         return new ConcreteClass();
     }
 
     @Override
-    public AbstractClass
-    getAbstractClass(Ice.Current current)
+    public AbstractClass getAbstractClass(com.zeroc.Ice.Current current)
     {
         return new AbstractClassI();
     }
 
     @Override
-    public void
-    throwException(Ice.Current current)
+    public void throwException(com.zeroc.Ice.Current current)
         throws E
     {
         throw new E();
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private com.zeroc.Ice.ObjectAdapter _adapter;
 }

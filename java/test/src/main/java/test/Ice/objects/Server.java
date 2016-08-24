@@ -11,18 +11,18 @@ package test.Ice.objects;
 
 public class Server extends test.Util.Application
 {
-    private static class MyValueFactory implements Ice.ValueFactory
+    private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
     {
         @Override
-        public Ice.Object create(String type)
+        public com.zeroc.Ice.Value create(String type)
         {
             if(type.equals("::Test::I"))
             {
-                return new II();
+                return new HI();
             }
             else if(type.equals("::Test::J"))
             {
-                return new JI();
+                return new HI();
             }
             else if(type.equals("::Test::H"))
             {
@@ -37,30 +37,29 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ValueFactory factory = new MyValueFactory();
+        com.zeroc.Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
         communicator.getValueFactoryManager().add(factory, "::Test::I");
         communicator.getValueFactoryManager().add(factory, "::Test::J");
         communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new InitialI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("initial"));
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.Object object = new InitialI(adapter);
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("initial"));
         object = new UnexpectedObjectExceptionTestI();
-        adapter.add(object, Ice.Util.stringToIdentity("uoet"));
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));
         adapter.activate();
 
         return WAIT;
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        return initData;
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        return r;
     }
 
     public static void main(String[] args)

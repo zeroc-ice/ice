@@ -7,10 +7,12 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+//sourceCompatibility = iceSourceCompatibility
+//targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-project.ext.displayName = "IceGridGUI"
+project.ext.displayName = "IceGridGUI Compat"
 project.ext.description = ""
 
 def macosx = System.properties['os.name'] == "Mac OS X"
@@ -61,7 +63,7 @@ jar {
     archiveName = tmpJarName
     if (!hasJavaFx) {
         manifest {
-            attributes 'Main-Class': "IceGridGUI.Main"
+            attributes 'Main-Class': "com.zeroc.IceGridGUI.Main"
         }
     }
 }
@@ -107,13 +109,13 @@ if(icegridguiProguard.toBoolean()) {
         if (hasJavaFx) {
             ant.jar(update: true, destfile: "${libDir}/${jarName}") {
                 delegate.manifest {
-                    attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
+                    attribute(name: 'Main-Class', value: 'com.zeroc.IceGridGUI.MainProxy')
                     attribute(name: 'Built-By', value: 'Zeroc, Inc.')
                 }
             }
         }
     }
-    
+
     task copyJars(type: Copy, dependsOn: updateManifest) {
         from new File("${libDir}/${jarName}")
         into "${DESTDIR}${jarDir}"
@@ -127,11 +129,11 @@ if(icegridguiProguard.toBoolean()) {
         rename("${tmpJarName}", "${jarName}")
 
     }
-    
+
     task updateManifest(dependsOn: copyTmpJars) << {
         ant.jar(update: true, destfile: "${libDir}/${jarName}") {
             delegate.manifest {
-                attribute(name: "Main-Class", value: "IceGridGUI.Main")
+                attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
                 attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
             }
@@ -146,7 +148,7 @@ if(icegridguiProguard.toBoolean()) {
         into "${DESTDIR}${jarDir}"
         rename("${tmpJarName}", "${jarName}")
     }
-    
+
     //
     // We need to update the manifest of the installed IceGridGUI jar and fix the
     // Class-Path to point to the installed JAR files.
@@ -154,17 +156,17 @@ if(icegridguiProguard.toBoolean()) {
     task updateInstallManifest(dependsOn: copyJars) << {
         ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
             delegate.manifest {
-                attribute(name: "Main-Class", value: "IceGridGUI.Main")
+                attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
                 attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
             }
         }
     }
-    
+
     //
     // We need to sign the install JARs after updating the manifest.
     //
-    task signInstalJar(dependsOn: updateInstallManifest) << { 
+    task signInstalJar(dependsOn: updateInstallManifest) << {
         if(keystore != null && keystore.length() > 0) {
             ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
                         alias: "zeroc.com",

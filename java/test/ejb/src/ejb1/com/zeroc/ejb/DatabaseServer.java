@@ -11,10 +11,9 @@ package com.zeroc.ejb;
 
 import com.zeroc.ice.Test.*;
 
-public class DatabaseServer extends Ice.Application
+public class DatabaseServer extends com.zeroc.Ice.Application
 {
-    public int
-    run(String[] args)
+    public int run(String[] args)
     {
         if(args.length > 0)
         {
@@ -22,18 +21,18 @@ public class DatabaseServer extends Ice.Application
             return 1;
         }
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints("DB", "tcp -h localhost -p 10001");
-        adapter.add(new DatabaseI(), Ice.Util.stringToIdentity("db"));
+        com.zeroc.Ice.ObjectAdapter adapter =
+            communicator().createObjectAdapterWithEndpoints("DB", "tcp -h localhost -p 10001");
+        adapter.add(new DatabaseI(), com.zeroc.Ice.Util.stringToIdentity("db"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = com.zeroc.Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Default.Package", "com.zeroc.ice");
 
         DatabaseServer app = new DatabaseServer();

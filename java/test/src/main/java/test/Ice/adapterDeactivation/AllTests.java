@@ -10,12 +10,10 @@
 package test.Ice.adapterDeactivation;
 
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
-import test.Ice.adapterDeactivation.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if(!b)
         {
@@ -23,20 +21,19 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx
-    allTests(test.Util.Application app, java.io.PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app, java.io.PrintWriter out)
     {
-        Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test:default -p 12010";
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
 
         out.print("testing checked cast... ");
         out.flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
+        TestIntfPrx obj = TestIntfPrx.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
         out.println("ok");
@@ -44,14 +41,14 @@ public class AllTests
         {
             out.print("creating/destroying/recreating object adapter... ");
             out.flush();
-            Ice.ObjectAdapter adapter =
+            com.zeroc.Ice.ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             try
             {
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException ex)
+            catch(com.zeroc.Ice.AlreadyRegisteredException ex)
             {
             }
             adapter.destroy();
@@ -66,7 +63,7 @@ public class AllTests
         out.print("creating/activating/deactivating object adapter in one operation... ");
         out.flush();
         obj._transient();
-        obj.end_transient(obj.begin_transient());
+        obj.transientAsync().join();
         out.println("ok");
 
         {
@@ -74,10 +71,10 @@ public class AllTests
             out.flush();
             for(int i = 0; i < 10; ++i)
             {
-                Ice.InitializationData initData = app.createInitializationData();
+                com.zeroc.Ice.InitializationData initData = app.createInitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                Ice.Communicator comm = app.initialize(initData);
-                comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+                com.zeroc.Ice.Communicator comm = app.initialize(initData);
+                comm.stringToProxy("test:default -p 12010").ice_pingAsync();
                 comm.destroy();
             }
             out.println("ok");
@@ -95,7 +92,7 @@ public class AllTests
             obj.ice_ping();
             throw new RuntimeException();
         }
-        catch(Ice.LocalException ex)
+        catch(com.zeroc.Ice.LocalException ex)
         {
             out.println("ok");
         }

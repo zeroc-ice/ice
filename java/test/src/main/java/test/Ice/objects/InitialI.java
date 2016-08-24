@@ -9,29 +9,14 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test.B;
-import test.Ice.objects.Test.BHolder;
-import test.Ice.objects.Test.C;
-import test.Ice.objects.Test.CHolder;
-import test.Ice.objects.Test.D;
-import test.Ice.objects.Test.DHolder;
-import test.Ice.objects.Test.E;
-import test.Ice.objects.Test.F;
-import test.Ice.objects.Test.I;
-import test.Ice.objects.Test.A1;
-import test.Ice.objects.Test.D1;
-import test.Ice.objects.Test.EDerived;
-import test.Ice.objects.Test.Base;
-import test.Ice.objects.Test.BaseSeqHolder;
-import test.Ice.objects.Test.Initial;
-import test.Ice.objects.Test.AMD_Initial_getAMDMB;
-import test.Ice.objects.Test.Compact;
-import test.Ice.objects.Test.CompactExt;
+import test.Ice.objects.Test.*;
 
-public final class InitialI extends Initial
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
+public final class InitialI implements _InitialDisp
 {
-    public
-    InitialI(Ice.ObjectAdapter adapter)
+    public InitialI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
         _b1 = new BI();
@@ -57,22 +42,22 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public void
-    getAll(BHolder b1, BHolder b2, CHolder c, DHolder d, Ice.Current current)
+    public Initial.GetAllResult getAll(com.zeroc.Ice.Current current)
     {
+        Initial.GetAllResult r = new Initial.GetAllResult();
         _b1.preMarshalInvoked = false;
         _b2.preMarshalInvoked = false;
         _c.preMarshalInvoked = false;
         _d.preMarshalInvoked = false;
-        b1.value = _b1;
-        b2.value = _b2;
-        c.value = _c;
-        d.value = _d;
+        r.b1 = _b1;
+        r.b2 = _b2;
+        r.theC = _c;
+        r.theD = _d;
+        return r;
     }
 
     @Override
-    public B
-    getB1(Ice.Current current)
+    public B getB1(com.zeroc.Ice.Current current)
     {
         _b1.preMarshalInvoked = false;
         _b2.preMarshalInvoked = false;
@@ -81,8 +66,7 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public B
-    getB2(Ice.Current current)
+    public B getB2(com.zeroc.Ice.Current current)
     {
         _b1.preMarshalInvoked = false;
         _b2.preMarshalInvoked = false;
@@ -91,8 +75,7 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public C
-    getC(Ice.Current current)
+    public C getC(com.zeroc.Ice.Current current)
     {
         _b1.preMarshalInvoked = false;
         _b2.preMarshalInvoked = false;
@@ -101,8 +84,7 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public D
-    getD(Ice.Current current)
+    public D getD(com.zeroc.Ice.Current current)
     {
         _b1.preMarshalInvoked = false;
         _b2.preMarshalInvoked = false;
@@ -112,123 +94,109 @@ public final class InitialI extends Initial
     }
 
     @Override
-    public E
-    getE(Ice.Current current)
+    public E getE(com.zeroc.Ice.Current current)
     {
         return _e;
     }
 
     @Override
-    public F
-    getF(Ice.Current current)
+    public F getF(com.zeroc.Ice.Current current)
     {
         return _f;
     }
 
     @Override
-    public I
-    getI(Ice.Current current)
-    {
-        return new II();
-    }
-
-    @Override
-    public I
-    getJ(Ice.Current current)
-    {
-        return new JI();
-    }
-
-    @Override
-    public I
-    getH(Ice.Current current)
+    public com.zeroc.Ice.Value getI(com.zeroc.Ice.Current current)
     {
         return new HI();
     }
 
     @Override
-    public D1
-    getD1(D1 d1, Ice.Current current)
+    public com.zeroc.Ice.Value getJ(com.zeroc.Ice.Current current)
+    {
+        return new HI();
+    }
+
+    @Override
+    public com.zeroc.Ice.Value getH(com.zeroc.Ice.Current current)
+    {
+        return new HI();
+    }
+
+    @Override
+    public D1 getD1(D1 d1, com.zeroc.Ice.Current current)
     {
         return d1;
     }
 
     @Override
-    public B getMB(Ice.Current current)
+    public Initial.GetMBMarshaledResult getMB(com.zeroc.Ice.Current current)
     {
-        return _b1;
+        return new Initial.GetMBMarshaledResult(_b1, current);
     }
 
     @Override
-    public void getAMDMB_async(AMD_Initial_getAMDMB cb, Ice.Current current)
+    public CompletionStage<Initial.GetAMDMBMarshaledResult> getAMDMBAsync(com.zeroc.Ice.Current current)
     {
-        cb.ice_response(_b1);
+        return CompletableFuture.completedFuture(new Initial.GetAMDMBMarshaledResult(_b1, current));
     }
 
     @Override
-    public void
-    throwEDerived(Ice.Current current) throws EDerived
+    public void throwEDerived(com.zeroc.Ice.Current current) throws EDerived
     {
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
     }
 
     @Override
-    public void
-    setI(I theI, Ice.Current current)
+    public void setI(com.zeroc.Ice.Value theI, com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public Base[]
-    opBaseSeq(Base[] inS, BaseSeqHolder outS, Ice.Current current)
+    public Initial.OpBaseSeqResult opBaseSeq(Base[] inS, com.zeroc.Ice.Current current)
     {
-        outS.value = inS;
-        return inS;
+        return new Initial.OpBaseSeqResult(inS, inS);
     }
 
     @Override
-    public Compact
-    getCompact(Ice.Current current)
+    public Compact getCompact(com.zeroc.Ice.Current current)
     {
         return new CompactExt();
     }
 
     @Override
-    public test.Ice.objects.Test.Inner.A
-    getInnerA(Ice.Current current)
+    public test.Ice.objects.Test.Inner.A getInnerA(com.zeroc.Ice.Current current)
     {
         return new test.Ice.objects.Test.Inner.A(_b1);
     }
 
     @Override
-    public test.Ice.objects.Test.Inner.Sub.A
-    getInnerSubA(Ice.Current current)
+    public test.Ice.objects.Test.Inner.Sub.A getInnerSubA(com.zeroc.Ice.Current current)
     {
         return new test.Ice.objects.Test.Inner.Sub.A(new test.Ice.objects.Test.Inner.A(_b1));
     }
 
     @Override
-    public void throwInnerEx(Ice.Current current)
+    public void throwInnerEx(com.zeroc.Ice.Current current)
         throws test.Ice.objects.Test.Inner.Ex
     {
         throw new test.Ice.objects.Test.Inner.Ex("Inner::Ex");
     }
 
     @Override
-    public void throwInnerSubEx(Ice.Current current)
+    public void throwInnerSubEx(com.zeroc.Ice.Current current)
         throws test.Ice.objects.Test.Inner.Sub.Ex
     {
         throw new test.Ice.objects.Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
+    private com.zeroc.Ice.ObjectAdapter _adapter;
     private B _b1;
     private B _b2;
     private C _c;

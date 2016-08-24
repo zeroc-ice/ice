@@ -6,16 +6,16 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-package test.Ice.binding;
-import test.Ice.binding.Test.RemoteObjectAdapterPrx;
-import test.Ice.binding.Test.RemoteObjectAdapterPrxHelper;
-import test.Ice.binding.Test._RemoteCommunicatorDisp;
 
-public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
+package test.Ice.binding;
+
+import test.Ice.binding.Test.RemoteObjectAdapterPrx;
+import test.Ice.binding.Test.RemoteCommunicator;
+
+public class RemoteCommunicatorI implements RemoteCommunicator
 {
     @Override
-    public RemoteObjectAdapterPrx
-    createObjectAdapter(String name, String endpts, Ice.Current current)
+    public RemoteObjectAdapterPrx createObjectAdapter(String name, String endpts, com.zeroc.Ice.Current current)
     {
         String endpoints = endpts;
         if(endpoints.indexOf("-p") < 0)
@@ -27,23 +27,20 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
                 "\" -p " + _nextPort++;
         }
 
-        Ice.Communicator com = current.adapter.getCommunicator();
+        com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
         com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-        return RemoteObjectAdapterPrxHelper.uncheckedCast(
-            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+        com.zeroc.Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+        return RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 
     @Override
-    public void
-    deactivateObjectAdapter(RemoteObjectAdapterPrx adapter, Ice.Current current)
+    public void deactivateObjectAdapter(RemoteObjectAdapterPrx adapter, com.zeroc.Ice.Current current)
     {
         adapter.deactivate(); // Collocated call.
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

@@ -12,12 +12,10 @@ package test.IceBox.configuration;
 import java.io.PrintWriter;
 
 import test.IceBox.configuration.Test.TestIntfPrx;
-import test.IceBox.configuration.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
-    private static void
-    test(boolean b)
+    private static void test(boolean b)
     {
         if (!b)
         {
@@ -25,13 +23,12 @@ public class AllTests
         }
     }
 
-    public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    public static void allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
     {
-        TestIntfPrx service1 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12010"));
-        TestIntfPrx service2 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12011"));
-        TestIntfPrx service3 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12012"));
-        TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12013"));
+        TestIntfPrx service1 = TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:tcp -p 12010"));
+        TestIntfPrx service2 = TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:tcp -p 12011"));
+        TestIntfPrx service3 = TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:tcp -p 12012"));
+        TestIntfPrx service4 = TestIntfPrx.uncheckedCast(communicator.stringToProxy("test:tcp -p 12013"));
 
         if(service1.getProperty("IceBox.InheritProperties").equals(""))
         {

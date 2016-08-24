@@ -10,25 +10,23 @@
 package test.Glacier2.router;
 
 import test.Glacier2.router.Test.CallbackException;
-import test.Glacier2.router.Test._CallbackReceiverDisp;
+import test.Glacier2.router.Test.CallbackReceiver;
 
-final class CallbackReceiverI extends _CallbackReceiverDisp
+final class CallbackReceiverI implements CallbackReceiver
 {
     CallbackReceiverI()
     {
         _callback = false;
     }
 
-    public synchronized void
-    callback(Ice.Current current)
+    public synchronized void callback(com.zeroc.Ice.Current current)
     {
         assert(!_callback);
         _callback = true;
         notify();
     }
 
-    public void
-    callbackEx(Ice.Current current)
+    public void callbackEx(com.zeroc.Ice.Current current)
         throws CallbackException
     {
         callback(current);
@@ -38,8 +36,7 @@ final class CallbackReceiverI extends _CallbackReceiverDisp
         throw ex;
     }
 
-    synchronized void
-    callbackOK()
+    synchronized void callbackOK()
     {
         while(!_callback)
         {

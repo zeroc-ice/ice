@@ -290,7 +290,7 @@ def dumpenv(env, lang):
         vars.extend(["CLASSPATH", "MONO_PATH", "DEVPATH", "PYTHONPATH", "RUBYLIB"])
     elif lang == "cpp":
         pass
-    elif lang == "java":
+    elif lang == "java" or lang == "java-compat":
         vars.append("CLASSPATH")
     elif lang == "csharp":
         vars.extend(["MONO_PATH", "DEVPATH"])
@@ -547,7 +547,7 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--cross":
             global cross
-            crossLang = ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c"]
+            crossLang = ["cpp", "csharp", "java", "java-compat" "js", "php", "python", "ruby", "objective-c"]
             if a not in crossLang:
                 print("cross must be one of %s" % ', '.join(crossLang))
                 sys.exit(1)
@@ -636,7 +636,7 @@ def run(tests, root = False):
 
     if allCross:
         if len(cross) == 0:
-            cross = ["cpp", "java", "js", "php", "python", "ruby"]
+            cross = ["cpp", "java", "java-compat", "js", "php", "python", "ruby"]
             if isWin32():
                 cross.append("csharp")
 
@@ -650,7 +650,7 @@ def run(tests, root = False):
             if isDarwin():
                 cross.append("objective-c")
         if root:
-            allLang = ["cpp", "java", "js", "python"]
+            allLang = ["cpp", "java", "java-compat", "js", "python"]
             if isWin32():
                 allLang.append("csharp")
             if isDarwin():
@@ -859,6 +859,8 @@ def getIceBox():
             iceBox += "++11"
         iceBox = os.path.join(getCppBinDir(lang), iceBox)
     elif lang == "java":
+        iceBox = "com.zeroc.IceBox.Server"
+    elif lang == "java-compat":
         iceBox = "IceBox.Server"
     elif lang == "csharp":
         iceBox = os.path.join(getIceDir("csharp"), "bin", "iceboxnet")
@@ -867,6 +869,8 @@ def getIceBox():
 
 def getIceBoxAdmin():
     if getDefaultMapping() == "java":
+        return "com.zeroc.IceBox.Admin"
+    elif getDefaultMapping() == "java-compat":
         return "IceBox.Admin"
     else:
         return getIceExe("iceboxadmin")
@@ -938,6 +942,13 @@ sslConfigTree = {
             "colloc" : " --IceSSL.CertFile=client.p12"
             },
         "java" : {
+            "plugin" : " --Ice.Plugin.IceSSL=com.zeroc.IceSSL.PluginFactory " +
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password --IceSSL.VerifyPeer=%(verifyPeer)s",
+            "client" : " --IceSSL.Keystore=client.jks",
+            "server" : " --IceSSL.Keystore=server.jks",
+            "colloc" : " --IceSSL.Keystore=client.jks"
+            },
+        "java-compat" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory " +
             "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.Keystore=client.jks",
@@ -962,8 +973,9 @@ if isWin32():
     #
     # This cipher suites doesn't work well between Java and SChannel TLS1.2 implementations.
     #
-    sslConfigTree["java"]["client"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
-    sslConfigTree["java"]["server"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
+    for lang in ["java", "java-compat"]:
+        sslConfigTree[lang]["client"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
+        sslConfigTree[lang]["server"] += " --IceSSL.Ciphers=!TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
 
 sslConfigTree["python"] = sslConfigTree["cpp"]
 sslConfigTree["ruby"] = sslConfigTree["cpp"]
@@ -972,10 +984,11 @@ sslConfigTree["objective-c"] = sslConfigTree["cpp"]
 
 def getDefaultMapping():
     """Try to guess the language mapping from the current path"""
-    here = os.getcwd().split(os.sep)
-    here.reverse()
+    # here = os.getcwd().split(os.sep)
+    # here.reverse()
+    here = os.path.relpath(os.getcwd(), start=toplevel).split(os.sep)
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c", "icetouch", "tmp"]:
+        if here[i] in ["cpp", "csharp", "java", "java-compat", "js", "php", "python", "ruby", "objective-c", "tmp"]:
             return here[i]
     raise RuntimeError("cannot determine mapping")
 
@@ -1208,7 +1221,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName =
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
-    elif config.lang == "java":
+    elif config.lang == "java" or config.lang == "java-compat":
         output.write("%s -ea " % javaCmd)
         if isSolaris() and config.x64:
             output.write("-d64 ")
@@ -1262,6 +1275,7 @@ def directoryToPackage():
     after = []
     before = base
     lang = getDefaultMapping()
+    lang = 'java' if lang == 'java-compat' else lang
     while len(before) > 0:
         current = os.path.basename(before)
         before = os.path.dirname(before)
@@ -1280,7 +1294,7 @@ def getDefaultServerFile(baseDir = os.getcwd()):
         return "server"
     if lang == "python":
         return "Server.py"
-    if lang == "java":
+    if lang == "java" or lang == "java-compat":
         pkg = directoryToPackage()
         if len(pkg) > 0:
             pkg = pkg + "."
@@ -1300,7 +1314,7 @@ def getDefaultClientFile(lang = None, baseDir = ""):
         return "client"
     if lang == "python":
         return "Client.py"
-    if lang == "java":
+    if lang == "java" or lang == "java-compat":
         pkg = directoryToPackage()
         if len(pkg) > 0:
             pkg = pkg + "."
@@ -1321,7 +1335,7 @@ def getDefaultCollocatedFile():
         return "collocated"
     if lang == "python":
         return "Collocated.py"
-    if lang == "java":
+    if lang == "java" or lang == "java-compat":
         return directoryToPackage() + ".Collocated"
 
 import Expect
@@ -1453,7 +1467,7 @@ def getMirrorDir(base, mapping):
         before = os.path.dirname(before)
         if current == lang:
             # Deal with Java's different directory structure
-            if lang == "java":
+            if lang == "java" or lang == "java-compat":
                 while len(before) > 0:
                     current = os.path.basename(before)
                     before = os.path.dirname(before)
@@ -1465,7 +1479,7 @@ def getMirrorDir(base, mapping):
         raise RuntimeError("cannot find language dir")
     dir = os.path.join(before, mapping)
     # Deal with Java's different directory structure
-    if mapping == "java":
+    if mapping == "java" or mapping == "java-compat":
         dir = os.path.join(dir, "test", "src", "main", "java")
     return os.path.join(dir, *after)
 
@@ -1527,7 +1541,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
     serverDesc = os.path.basename(server)
     clientDesc = os.path.basename(client)
 
-    if lang != "java":
+    if lang != "java" and lang != "java-compat":
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
@@ -1574,7 +1588,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
                 print("** no matching test for %s" % clientLang)
                 return
 
-        if clientLang != "java":
+        if clientLang != "java" and clientLang != "java-compat":
             client = os.path.join(clientdir, client)
 
         if clientenv is None:
@@ -1592,6 +1606,7 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
             serverCfg = DriverConfig("server")
             if lang in ["ruby", "php", "js"]:
                 serverCfg.lang = "cpp"
+
             server = getCommandLine(server, serverCfg, additionalServerOptions, interpreterOptions)
             serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
             print("ok")
@@ -1634,7 +1649,7 @@ def collocatedTest(additionalOptions = ""):
     testdir = os.getcwd()
 
     collocated = getDefaultCollocatedFile()
-    if lang != "java":
+    if lang != "java" and lang != "java-compat":
         collocated = os.path.join(testdir, collocated)
 
     exe = collocated
@@ -1676,7 +1691,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
     serverDesc = server
     clientDesc = client
 
-    if lang != "java":
+    if lang != "java" and lang != "java-compat":
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
@@ -1715,7 +1730,7 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
                 print("** no matching test for %s" % clientLang)
                 return
 
-        if clientLang != "java":
+        if clientLang != "java" and clientLang != "java-compat":
             client = os.path.join(clientdir, client)
 
         if clientenv is None:
@@ -1775,7 +1790,6 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
         config = DriverConfig("client")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
-
     interpreterOptions = ""
     if config.lang == "php":
         interpreterOptions = phpProfileSetup(clientConfig, iceOptions, iceProfile)
@@ -1902,7 +1916,7 @@ def getTestEnv(lang, testdir):
     #
     iceJARs = ["ice", "glacier2", "freeze", "icebox", "icestorm", "icegrid", "icepatch2", "icediscovery",
                "icelocatordiscovery"]
-    jarSuffix = "-" + getIceJsonVersion() + ".jar"
+    jarSuffix = "-" + ("compat-") if lang == "java-compat" else "" + getIceJsonVersion() + ".jar"
 
     # First sanitize the environment.
     env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
@@ -1924,8 +1938,8 @@ def getTestEnv(lang, testdir):
     # Add test directory to env
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
-    elif lang == "java":
-        addClasspath(os.path.join(testToplevel, "java", "lib", "test.jar"), env)
+    elif lang == "java" or lang == "java-compat":
+        addClasspath(os.path.join(testToplevel, lang, "lib", "test.jar"), env)
     elif lang == "js":
         if es5 and testdir.find("/es5/") == -1:
             testdir = testdir.replace("test/Ice/", "test/Ice/es5/")
@@ -2144,7 +2158,7 @@ def processCmdLine():
         elif o == "--cross":
             global cross
             cross.append(a)
-            crossLang = ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c"]
+            crossLang = ["cpp", "csharp", "java", "java-comapt", "js", "php", "python", "ruby", "objective-c"]
             if not a in crossLang:
                 print("cross must be one of %s" % ', '.join(crossLang))
                 sys.exit(1)
@@ -2283,6 +2297,8 @@ def runTests(start, expanded, num = 0, script = False):
             # Deal with Java's different directory structure
             if i.find(os.path.join("java","test")) != -1:
                 dir = os.path.join(testToplevel, "java", "test", "src", "main", i)
+            elif i.find(os.path.join("java-compat","test")) != -1:
+                dir = os.path.join(testToplevel, "java-compat", "test", "src", "main", i.replace('-compat',''))
             else:
                 dir = os.path.join(testToplevel, i)
             dir = os.path.normpath(dir)

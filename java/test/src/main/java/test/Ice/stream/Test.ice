@@ -111,10 +111,6 @@ class MyClass
     StringMyClassD d;
 };
 
-interface MyInterface
-{
-};
-
 exception MyException
 {
     MyClass c;

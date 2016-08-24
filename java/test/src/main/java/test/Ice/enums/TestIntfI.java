@@ -11,75 +11,58 @@ package test.Ice.enums;
 
 import test.Ice.enums.Test.*;
 
-public final class TestIntfI extends _TestIntfDisp
+public final class TestIntfI implements TestIntf
 {
     @Override
-    public ByteEnum
-    opByte(ByteEnum b1, ByteEnumHolder b2, Ice.Current current)
+    public TestIntf.OpByteResult opByte(ByteEnum b1, com.zeroc.Ice.Current current)
     {
-        b2.value = b1;
-        return b1;
+        return new TestIntf.OpByteResult(b1, b1);
     }
 
     @Override
-    public ShortEnum
-    opShort(ShortEnum s1, ShortEnumHolder s2, Ice.Current current)
+    public TestIntf.OpShortResult opShort(ShortEnum s1, com.zeroc.Ice.Current current)
     {
-        s2.value = s1;
-        return s1;
+        return new TestIntf.OpShortResult(s1, s1);
     }
 
     @Override
-    public IntEnum
-    opInt(IntEnum i1, IntEnumHolder i2, Ice.Current current)
+    public TestIntf.OpIntResult opInt(IntEnum i1, com.zeroc.Ice.Current current)
     {
-        i2.value = i1;
-        return i1;
+        return new TestIntf.OpIntResult(i1, i1);
     }
 
     @Override
-    public SimpleEnum
-    opSimple(SimpleEnum s1, SimpleEnumHolder s2, Ice.Current current)
+    public TestIntf.OpSimpleResult opSimple(SimpleEnum s1, com.zeroc.Ice.Current current)
     {
-        s2.value = s1;
-        return s1;
+        return new TestIntf.OpSimpleResult(s1, s1);
     }
 
     @Override
-    public ByteEnum[]
-    opByteSeq(ByteEnum[] b1, ByteEnumSeqHolder b2, Ice.Current current)
+    public TestIntf.OpByteSeqResult opByteSeq(ByteEnum[] b1, com.zeroc.Ice.Current current)
     {
-        b2.value = b1;
-        return b1;
+        return new TestIntf.OpByteSeqResult(b1, b1);
     }
 
     @Override
-    public ShortEnum[]
-    opShortSeq(ShortEnum[] s1, ShortEnumSeqHolder s2, Ice.Current current)
+    public TestIntf.OpShortSeqResult opShortSeq(ShortEnum[] s1, com.zeroc.Ice.Current current)
     {
-        s2.value = s1;
-        return s1;
+        return new TestIntf.OpShortSeqResult(s1, s1);
     }
 
     @Override
-    public IntEnum[]
-    opIntSeq(IntEnum[] i1, IntEnumSeqHolder i2, Ice.Current current)
+    public TestIntf.OpIntSeqResult opIntSeq(IntEnum[] i1, com.zeroc.Ice.Current current)
     {
-        i2.value = i1;
-        return i1;
+        return new TestIntf.OpIntSeqResult(i1, i1);
     }
 
     @Override
-    public SimpleEnum[]
-    opSimpleSeq(SimpleEnum[] s1, SimpleEnumSeqHolder s2, Ice.Current current)
+    public TestIntf.OpSimpleSeqResult opSimpleSeq(SimpleEnum[] s1, com.zeroc.Ice.Current current)
     {
-        s2.value = s1;
-        return s1;
+        return new TestIntf.OpSimpleSeqResult(s1, s1);
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

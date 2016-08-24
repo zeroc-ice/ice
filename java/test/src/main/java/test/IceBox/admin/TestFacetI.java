@@ -11,14 +11,14 @@ package test.IceBox.admin;
 
 import test.IceBox.admin.Test.*;
 
-public class TestFacetI extends _TestFacetDisp implements Ice.PropertiesAdminUpdateCallback
+public class TestFacetI implements TestFacet, com.zeroc.Ice.PropertiesAdminUpdateCallback
 {
     public TestFacetI()
     {
     }
 
     @Override
-    public synchronized java.util.Map<String, String> getChanges(Ice.Current current)
+    public synchronized java.util.Map<String, String> getChanges(com.zeroc.Ice.Current current)
     {
        return _changes;
     }

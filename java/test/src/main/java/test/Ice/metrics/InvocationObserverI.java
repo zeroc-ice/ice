@@ -9,11 +9,10 @@
 
 package test.Ice.metrics;
 
-class InvocationObserverI extends ObserverI implements Ice.Instrumentation.InvocationObserver
+class InvocationObserverI extends ObserverI implements com.zeroc.Ice.Instrumentation.InvocationObserver
 {
     @Override
-    public synchronized void 
-    reset()
+    public synchronized void reset()
     {
         super.reset();
         retriedCount = 0;
@@ -29,22 +28,23 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
     }
 
     @Override
-    public synchronized void 
-    retried()
+    public synchronized void retried()
     {
         ++retriedCount;
     }
 
     @Override
-    public synchronized void 
-    userException()
+    public synchronized void userException()
     {
         ++userExceptionCount;
     }
 
     @Override
-    public synchronized Ice.Instrumentation.RemoteObserver 
-    getRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
+    public synchronized com.zeroc.Ice.Instrumentation.RemoteObserver getRemoteObserver(
+        com.zeroc.Ice.ConnectionInfo c,
+        com.zeroc.Ice.Endpoint e,
+        int a,
+        int b)
     {
         if(remoteObserver == null)
         {
@@ -54,10 +54,11 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         return remoteObserver;
     }
 
-
     @Override
-    public synchronized Ice.Instrumentation.CollocatedObserver 
-    getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
+    public synchronized com.zeroc.Ice.Instrumentation.CollocatedObserver getCollocatedObserver(
+        com.zeroc.Ice.ObjectAdapter adapter,
+        int a,
+        int b)
     {
         if(collocatedObserver == null)
         {
@@ -72,4 +73,4 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
 
     RemoteObserverI remoteObserver = null;
     CollocatedObserverI collocatedObserver = null;
-};
+}

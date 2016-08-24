@@ -9,18 +9,16 @@
 
 package test.Ice.facets;
 
-import test.Ice.facets.Test._ADisp;
+import test.Ice.facets.Test.A;
 
-public final class AI extends _ADisp
+public final class AI implements A
 {
-    public
-    AI()
+    public AI()
     {
     }
 
     @Override
-    public String
-    callA(Ice.Current current)
+    public String callA(com.zeroc.Ice.Current current)
     {
         return "A";
     }

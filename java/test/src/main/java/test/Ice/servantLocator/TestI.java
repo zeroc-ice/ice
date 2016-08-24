@@ -11,61 +11,53 @@ package test.Ice.servantLocator;
 
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfUserException;
-import test.Ice.servantLocator.Test._TestIntfDisp;
+import test.Ice.servantLocator.Test.TestIntf;
 
-public final class TestI extends _TestIntfDisp
+public final class TestI implements TestIntf
 {
     @Override
-    public void 
-    requestFailedException(Ice.Current current)
+    public void requestFailedException(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void 
-    unknownUserException(Ice.Current current)
+    public void unknownUserException(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void 
-    unknownLocalException(Ice.Current current)
+    public void unknownLocalException(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void 
-    unknownException(Ice.Current current)
+    public void unknownException(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void 
-    localException(Ice.Current current)
+    public void localException(com.zeroc.Ice.Current current)
     {
     }
 
-//     public void 
-//     userException(Ice.Current current)
+//     public void userException(com.zeroc.Ice.Current current)
 //     {
 //     }
 
     @Override
-    public void 
-    javaException(Ice.Current current)
+    public void javaException(com.zeroc.Ice.Current current)
     {
     }
 
     @Override
-    public void 
-    unknownExceptionWithServantException(Ice.Current current)
+    public void unknownExceptionWithServantException(com.zeroc.Ice.Current current)
     {
-        throw new Ice.ObjectNotExistException();
+        throw new com.zeroc.Ice.ObjectNotExistException();
     }
 
     @Override
-    public String
-    impossibleException(boolean _throw, Ice.Current current) throws TestImpossibleException
+    public String impossibleException(boolean _throw, com.zeroc.Ice.Current current)
+        throws TestImpossibleException
     {
         if(_throw)
         {
@@ -80,8 +72,8 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public String
-    intfUserException(boolean _throw, Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    public String intfUserException(boolean _throw, com.zeroc.Ice.Current current)
+        throws TestIntfUserException, TestImpossibleException
     {
         if(_throw)
         {
@@ -96,8 +88,8 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    asyncResponse(Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    public void asyncResponse(com.zeroc.Ice.Current current)
+        throws TestIntfUserException, TestImpossibleException
     {
         //
         // Only relevant for AMD.
@@ -105,8 +97,8 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    asyncException(Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    public void asyncException(com.zeroc.Ice.Current current)
+        throws TestIntfUserException, TestImpossibleException
     {
         //
         // Only relevant for AMD.
@@ -114,8 +106,7 @@ public final class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
-    shutdown(Ice.Current current)
+    public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

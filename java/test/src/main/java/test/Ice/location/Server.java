@@ -11,19 +11,19 @@ package test.Ice.location;
 
 public class Server extends test.Util.Application
 {
-    private Ice.InitializationData _initData;
+    private com.zeroc.Ice.InitializationData _initData;
 
     @Override
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        com.zeroc.Ice.Communicator communicator = communicator();
         
         //
         // Register the server manager. The server manager creates a new
         // 'server' (a server isn't a different process, it's just a new
         // communicator and object adapter).
         //
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
         //
         // We also register a sample server locator which implements the
@@ -31,15 +31,16 @@ public class Server extends test.Util.Application
         // 'servers' created with the server manager interface.
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
-        registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-        Ice.Object object = new ServerManagerI(registry, _initData, this);
-        adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
+        registry.addObject(adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("ServerManager")), null);
+        com.zeroc.Ice.Object object = new ServerManagerI(registry, _initData, this);
+        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("ServerManager"));
 
-        Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
-                Ice.Util.stringToIdentity("registry")));
+        com.zeroc.Ice.LocatorRegistryPrx registryPrx =
+            com.zeroc.Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry,
+                com.zeroc.Ice.Util.stringToIdentity("registry")));
 
         ServerLocator locator = new ServerLocator(registry, registryPrx);
-        adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+        adapter.add(locator, com.zeroc.Ice.Util.stringToIdentity("locator"));
 
         adapter.activate();
 
@@ -47,17 +48,16 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        initData.properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010:udp");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        r.initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        r.initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
+        r.initData.properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010:udp");
 
-        _initData = initData;
-        return initData;
+        _initData = r.initData;
+        return r;
     }
 
     public static void main(String[] args)

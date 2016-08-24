@@ -11,6 +11,12 @@
 
 [["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
 
+#include <Ice/JavaCompat.ice>
+
+#ifndef JAVA_COMPAT
+[["java:package:com.zeroc"]]
+#endif
+
 ["objc:prefix:GLACIER2"]
 module Glacier2
 {
@@ -19,4 +25,3 @@ interface PermissionsVerifier;
 interface SSLPermissionsVerifier;
 
 };
-

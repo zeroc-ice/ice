@@ -14,19 +14,19 @@ public class Collocated extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
         TestControllerI controller = new TestControllerI(adapter);
-        adapter.add(new TestI(controller), Ice.Util.stringToIdentity("test"));
+        adapter.add(new TestI(controller), com.zeroc.Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
-        adapter2.add(controller, Ice.Util.stringToIdentity("testController"));
+        adapter2.add(controller, com.zeroc.Ice.Util.stringToIdentity("testController"));
         //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
         try
         {
             AllTests.allTests(this);
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             e.printStackTrace();
             throw new RuntimeException();
@@ -36,27 +36,31 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
         // We need to enable the ThreadInterruptSafe property so that Ice is
         // interrupt safe for this test.
         //
-        initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
+        r.initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
-        
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        
-        return initData;
+        r.initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        //
+        // opIdempotent raises UnknownException, we disable dispatch
+        // warnings to prevent warnings.
+        //
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+
+        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
+        return r;
     }
 
     public static void main(String[] args)
@@ -67,5 +71,4 @@ public class Collocated extends test.Util.Application
         System.gc();
         System.exit(status);
     }
-
 }

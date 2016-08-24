@@ -9,29 +9,26 @@
 
 package test.Ice.dispatcher;
 
-import test.Ice.dispatcher.Test._TestIntfControllerDisp;
+import test.Ice.dispatcher.Test.TestIntfController;
 
-class TestControllerI extends _TestIntfControllerDisp
+class TestControllerI implements TestIntfController
 {
     @Override
-    public void
-    holdAdapter(Ice.Current current)
+    public void holdAdapter(com.zeroc.Ice.Current current)
     {
         _adapter.hold();
     }
     
     @Override
-    public void
-    resumeAdapter(Ice.Current current)
+    public void resumeAdapter(com.zeroc.Ice.Current current)
     {
         _adapter.activate();
     }
     
-    public
-    TestControllerI(Ice.ObjectAdapter adapter)
+    public TestControllerI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
 
-    final private Ice.ObjectAdapter _adapter;
+    final private com.zeroc.Ice.ObjectAdapter _adapter;
 }

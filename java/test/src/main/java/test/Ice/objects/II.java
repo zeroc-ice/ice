@@ -9,8 +9,8 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test._IDisp;
+import test.Ice.objects.Test.I;
 
-public final class II extends _IDisp
+public final class II implements I
 {
 }

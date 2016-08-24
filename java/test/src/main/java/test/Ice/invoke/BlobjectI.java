@@ -11,21 +11,22 @@ package test.Ice.invoke;
 
 import test.Ice.invoke.Test.MyException;
 
-public class BlobjectI extends Ice.Blobject
+public class BlobjectI implements com.zeroc.Ice.Blobject
 {
     @Override
-    public boolean
-    ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
+    public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inParams, com.zeroc.Ice.Current current)
     {
-        Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream in = new Ice.InputStream(communicator, inParams);
+        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
+        com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
         in.startEncapsulation();
-        Ice.OutputStream out = new Ice.OutputStream(communicator);
+        com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
         out.startEncapsulation();
+        com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
         if(current.operation.equals("opOneway"))
         {
-            outParams.value = new byte[0];
-            return true;
+            r.returnValue = true;
+            r.outParams = new byte[0];
+            return r;
         }
         else if(current.operation.equals("opString"))
         {
@@ -33,21 +34,25 @@ public class BlobjectI extends Ice.Blobject
             out.writeString(s);
             out.writeString(s);
             out.endEncapsulation();
-            outParams.value = out.finished();
-            return true;
+            r.returnValue = true;
+            r.outParams = out.finished();
+            return r;
         }
         else if(current.operation.equals("opException"))
         {
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();
-            outParams.value = out.finished();
-            return false;
+            r.returnValue = false;
+            r.outParams = out.finished();
+            return r;
         }
         else if(current.operation.equals("shutdown"))
         {
             communicator.shutdown();
-            return true;
+            r.returnValue = true;
+            r.outParams = new byte[0];
+            return r;
         }
         else if(current.operation.equals("ice_isA"))
         {
@@ -61,12 +66,13 @@ public class BlobjectI extends Ice.Blobject
                 out.writeBool(false);
             }
             out.endEncapsulation();
-            outParams.value = out.finished();
-            return true;
+            r.returnValue = true;
+            r.outParams = out.finished();
+            return r;
         }
         else
         {
-            Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
+            com.zeroc.Ice.OperationNotExistException ex = new com.zeroc.Ice.OperationNotExistException();
             ex.id = current.id;
             ex.facet = current.facet;
             ex.operation = current.operation;

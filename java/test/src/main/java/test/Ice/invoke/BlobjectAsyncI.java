@@ -9,22 +9,28 @@
 
 package test.Ice.invoke;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
+
 import test.Ice.invoke.Test.MyException;
 
-public class BlobjectAsyncI extends Ice.BlobjectAsync
+public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync
 {
     @Override
-    public void
-    ice_invoke_async(Ice.AMD_Object_ice_invoke cb, byte[] inParams, Ice.Current current)
+    public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(byte[] inParams,
+                                                                                  com.zeroc.Ice.Current current)
     {
-        Ice.Communicator communicator = current.adapter.getCommunicator();
-        Ice.InputStream in = new Ice.InputStream(communicator, inParams);
+        com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
+        com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
         in.startEncapsulation();
-        Ice.OutputStream out = new Ice.OutputStream(communicator);
+        com.zeroc.Ice.OutputStream out = new com.zeroc.Ice.OutputStream(communicator);
         out.startEncapsulation();
+        com.zeroc.Ice.Object.Ice_invokeResult r = new com.zeroc.Ice.Object.Ice_invokeResult();
         if(current.operation.equals("opOneway"))
         {
-            cb.ice_response(true, new byte[0]);
+            r.returnValue = true;
+            r.outParams = new byte[0];
+            return CompletableFuture.completedFuture(r);
         }
         else if(current.operation.equals("opString"))
         {
@@ -32,19 +38,25 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
             out.writeString(s);
             out.writeString(s);
             out.endEncapsulation();
-            cb.ice_response(true, out.finished());
+            r.returnValue = true;
+            r.outParams = out.finished();
+            return CompletableFuture.completedFuture(r);
         }
         else if(current.operation.equals("opException"))
         {
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();
-            cb.ice_response(false, out.finished());
+            r.returnValue = false;
+            r.outParams = out.finished();
+            return CompletableFuture.completedFuture(r);
         }
         else if(current.operation.equals("shutdown"))
         {
             communicator.shutdown();
-            cb.ice_response(true, null);
+            r.returnValue = true;
+            r.outParams = new byte[0];
+            return CompletableFuture.completedFuture(r);
         }
         else if(current.operation.equals("ice_isA"))
         {
@@ -58,11 +70,13 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
                 out.writeBool(false);
             }
             out.endEncapsulation();
-            cb.ice_response(true, out.finished());
+            r.returnValue = true;
+            r.outParams = out.finished();
+            return CompletableFuture.completedFuture(r);
         }
         else
         {
-            Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
+            com.zeroc.Ice.OperationNotExistException ex = new com.zeroc.Ice.OperationNotExistException();
             ex.id = current.id;
             ex.facet = current.facet;
             ex.operation = current.operation;

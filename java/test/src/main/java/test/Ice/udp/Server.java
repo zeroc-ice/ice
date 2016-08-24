@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
+        com.zeroc.Ice.Properties properties = communicator().getProperties();
 
         int port = 12010;
         try
@@ -25,22 +25,22 @@ public class Server extends test.Util.Application
         {
         }
         properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
-        adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
+        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
+        adapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("control"));
         adapter.activate();
 
         if(port == 12010)
         {
             properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
-            Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
-            adapter2.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+            com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
+            adapter2.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
             adapter2.activate();
         }
 
         if(!isAndroid())
         {
-            Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
-            mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+            com.zeroc.Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
+            mcastAdapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
             mcastAdapter.activate();
         }
 
@@ -48,19 +48,18 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected GetInitDataResult getInitData(String[] args)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+        GetInitDataResult r = super.getInitData(args);
+        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        r.initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+        r.initData.properties.setProperty("Ice.UDP.SndSize", "16384");
 
         if(!isAndroid())
         {
             String endpoint;
-            if(initData.properties.getProperty("Ice.IPv6").equals("1"))
+            if(r.initData.properties.getProperty("Ice.IPv6").equals("1"))
             {
                 if(System.getProperty("os.name").contains("OS X"))
                 {
@@ -75,9 +74,9 @@ public class Server extends test.Util.Application
             {
                 endpoint = "udp -h 239.255.1.1 -p 12020";
             }
-            initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
+            r.initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
-        return initData;
+        return r;
     }
 
     public static void main(String[] args)

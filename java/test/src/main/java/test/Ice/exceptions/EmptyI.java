@@ -9,9 +9,8 @@
 
 package test.Ice.exceptions;
 
-import test.Ice.exceptions.Test._EmptyDisp;
+import test.Ice.exceptions.Test.Empty;
 
-
-public final class EmptyI extends _EmptyDisp
+public final class EmptyI implements Empty
 {
 }
