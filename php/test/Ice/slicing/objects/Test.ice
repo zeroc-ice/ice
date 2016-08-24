@@ -160,5 +160,15 @@ interface TestIntf
     void shutdown();
 };
 
+class Hidden
+{
+    Forward f;
+};
+
+class Forward
+{
+    Hidden h;
+};
+
 };
 
