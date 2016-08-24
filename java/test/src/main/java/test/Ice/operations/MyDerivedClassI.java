@@ -794,39 +794,39 @@ public final class MyDerivedClassI implements _MyDerivedClassDisp
     }
 
     @Override
-    public MyClass.OpMStruct1MarshaledResult opMStruct1(Current current)
+    public OpMStruct1MarshaledResult opMStruct1(Current current)
     {
-        return new MyClass.OpMStruct1MarshaledResult(new Structure(), current);
+        return new OpMStruct1MarshaledResult(new Structure(), current);
     }
 
     @Override
-    public MyClass.OpMStruct2MarshaledResult opMStruct2(Structure p1, Current current)
+    public OpMStruct2MarshaledResult opMStruct2(Structure p1, Current current)
     {
-        return new MyClass.OpMStruct2MarshaledResult(p1, p1, current);
+        return new OpMStruct2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public MyClass.OpMSeq1MarshaledResult opMSeq1(Current current)
+    public OpMSeq1MarshaledResult opMSeq1(Current current)
     {
-        return new MyClass.OpMSeq1MarshaledResult(new String[0], current);
+        return new OpMSeq1MarshaledResult(new String[0], current);
     }
 
     @Override
-    public MyClass.OpMSeq2MarshaledResult opMSeq2(String[] p1, Current current)
+    public OpMSeq2MarshaledResult opMSeq2(String[] p1, Current current)
     {
-        return new MyClass.OpMSeq2MarshaledResult(p1, p1, current);
+        return new OpMSeq2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public MyClass.OpMDict1MarshaledResult opMDict1(Current current)
+    public OpMDict1MarshaledResult opMDict1(Current current)
     {
-        return new MyClass.OpMDict1MarshaledResult(new java.util.HashMap<>(), current);
+        return new OpMDict1MarshaledResult(new java.util.HashMap<>(), current);
     }
 
     @Override
-    public MyClass.OpMDict2MarshaledResult opMDict2(java.util.Map<String, String> p1, Current current)
+    public OpMDict2MarshaledResult opMDict2(java.util.Map<String, String> p1, Current current)
     {
-        return new MyClass.OpMDict2MarshaledResult(p1, p1, current);
+        return new OpMDict2MarshaledResult(p1, p1, current);
     }
 
     private int _opByteSOnewayCallCount = 0;

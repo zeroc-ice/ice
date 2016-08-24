@@ -871,39 +871,39 @@ public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
     }
 
     @Override
-    public CompletionStage<MyClass.OpMStruct1MarshaledResult> opMStruct1Async(Current current)
+    public CompletionStage<OpMStruct1MarshaledResult> opMStruct1Async(Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMStruct1MarshaledResult(new Structure(), current));
+        return CompletableFuture.completedFuture(new OpMStruct1MarshaledResult(new Structure(), current));
     }
 
     @Override
-    public CompletionStage<MyClass.OpMStruct2MarshaledResult> opMStruct2Async(Structure p1, Current current)
+    public CompletionStage<OpMStruct2MarshaledResult> opMStruct2Async(Structure p1, Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMStruct2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMStruct2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public CompletionStage<MyClass.OpMSeq1MarshaledResult> opMSeq1Async(Current current)
+    public CompletionStage<OpMSeq1MarshaledResult> opMSeq1Async(Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMSeq1MarshaledResult(new String[0], current));
+        return CompletableFuture.completedFuture(new OpMSeq1MarshaledResult(new String[0], current));
     }
 
     @Override
-    public CompletionStage<MyClass.OpMSeq2MarshaledResult> opMSeq2Async(String[] p1, Current current)
+    public CompletionStage<OpMSeq2MarshaledResult> opMSeq2Async(String[] p1, Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMSeq2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMSeq2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public CompletionStage<MyClass.OpMDict1MarshaledResult> opMDict1Async(Current current)
+    public CompletionStage<OpMDict1MarshaledResult> opMDict1Async(Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMDict1MarshaledResult(new HashMap<>(), current));
+        return CompletableFuture.completedFuture(new OpMDict1MarshaledResult(new HashMap<>(), current));
     }
 
     @Override
-    public CompletionStage<MyClass.OpMDict2MarshaledResult> opMDict2Async(Map<String, String> p1, Current current)
+    public CompletionStage<OpMDict2MarshaledResult> opMDict2Async(Map<String, String> p1, Current current)
     {
-        return CompletableFuture.completedFuture(new MyClass.OpMDict2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
     }
 
     private Thread _opVoidThread;

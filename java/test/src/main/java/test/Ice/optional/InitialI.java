@@ -519,51 +519,51 @@ public final class InitialI implements _InitialDisp
     }
 
     @Override
-    public Initial.OpMStruct1MarshaledResult opMStruct1(Current current)
+    public OpMStruct1MarshaledResult opMStruct1(Current current)
     {
-        return new Initial.OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current);
+        return new OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current);
     }
 
     @Override
-    public Initial.OpMStruct2MarshaledResult opMStruct2(Optional<SmallStruct> p1, Current current)
+    public OpMStruct2MarshaledResult opMStruct2(Optional<SmallStruct> p1, Current current)
     {
-        return new Initial.OpMStruct2MarshaledResult(p1, p1, current);
+        return new OpMStruct2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Initial.OpMSeq1MarshaledResult opMSeq1(Current current)
+    public OpMSeq1MarshaledResult opMSeq1(Current current)
     {
-        return new Initial.OpMSeq1MarshaledResult(Optional.of(new String[0]), current);
+        return new OpMSeq1MarshaledResult(Optional.of(new String[0]), current);
     }
 
     @Override
-    public Initial.OpMSeq2MarshaledResult opMSeq2(Optional<String[]> p1, Current current)
+    public OpMSeq2MarshaledResult opMSeq2(Optional<String[]> p1, Current current)
     {
-        return new Initial.OpMSeq2MarshaledResult(p1, p1, current);
+        return new OpMSeq2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Initial.OpMDict1MarshaledResult opMDict1(Current current)
+    public OpMDict1MarshaledResult opMDict1(Current current)
     {
-        return new Initial.OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current);
+        return new OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current);
     }
 
     @Override
-    public Initial.OpMDict2MarshaledResult opMDict2(Optional<java.util.Map<String, Integer>> p1, Current current)
+    public OpMDict2MarshaledResult opMDict2(Optional<java.util.Map<String, Integer>> p1, Current current)
     {
-        return new Initial.OpMDict2MarshaledResult(p1, p1, current);
+        return new OpMDict2MarshaledResult(p1, p1, current);
     }
 
     @Override
-    public Initial.OpMG1MarshaledResult opMG1(Current current)
+    public OpMG1MarshaledResult opMG1(Current current)
     {
-        return new Initial.OpMG1MarshaledResult(Optional.of(new G()), current);
+        return new OpMG1MarshaledResult(Optional.of(new G()), current);
     }
 
     @Override
-    public Initial.OpMG2MarshaledResult opMG2(Optional<G> p1, Current current)
+    public OpMG2MarshaledResult opMG2(Optional<G> p1, Current current)
     {
-        return new Initial.OpMG2MarshaledResult(p1, p1, current);
+        return new OpMG2MarshaledResult(p1, p1, current);
     }
 
     @Override

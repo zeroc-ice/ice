@@ -205,18 +205,26 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 {
     if(dispatch && op->hasMarshaledResult())
     {
-        ContainedPtr c = ContainedPtr::dynamicCast(op->container());
+        const ClassDefPtr c = ClassDefPtr::dynamicCast(op->container());
         assert(c);
-        string abs = getAbsolute(c, package);
+        string abs;
+        if(c->isInterface())
+        {
+            abs = getAbsolute(c, package);
+        }
+        else
+        {
+            abs = getAbsolute(c, package, "_", "Disp");
+        }
         string name = op->name();
         name[0] = toupper(static_cast<unsigned char>(name[0]));
         return abs + "." + name + "MarshaledResult";
     }
     else if(op->returnsMultipleValues())
     {
-        ContainedPtr c = ContainedPtr::dynamicCast(op->container());
+        const ContainedPtr c = ContainedPtr::dynamicCast(op->container());
         assert(c);
-        string abs = getAbsolute(c, package);
+        const string abs = getAbsolute(c, package);
         string name = op->name();
         name[0] = toupper(static_cast<unsigned char>(name[0]));
         return abs + "." + name + "Result";
@@ -932,6 +940,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         OperationPtr op = *r;
 
+        //
+        // The "MarshaledResult" type is generated in the servant interface.
+        //
+        if(!p->isInterface() && op->hasMarshaledResult())
+        {
+            writeMarshaledResultType(out, op, package);
+        }
+
         vector<string> params = getParams(op, package);
 
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
@@ -1019,10 +1035,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         OperationPtr op = *r;
         StringList opMetaData = op->getMetaData();
-        ContainerPtr container = op->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        assert(cl);
-        string deprecateReason = getDeprecateReason(op, cl, "operation");
+        string deprecateReason = getDeprecateReason(op, p, "operation");
 
         string opName = op->name();
         out << sp;
@@ -1049,7 +1062,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         out << sb;
 
-        const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
 
         const TypePtr ret = op->returnType();
 
@@ -2659,7 +2672,10 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         writeResultType(out, p, package);
     }
 
-    if(p->hasMarshaledResult())
+    //
+    // The "MarshaledResult" type is generated in the servant interface.
+    //
+    if(cl->isInterface() && p->hasMarshaledResult())
     {
         writeMarshaledResultType(out, p, package);
     }

@@ -562,55 +562,54 @@ public final class AMDInitialI implements _InitialDisp
     }
 
     @Override
-    public CompletionStage<Initial.OpMStruct1MarshaledResult> opMStruct1Async(Current current)
+    public CompletionStage<OpMStruct1MarshaledResult> opMStruct1Async(Current current)
     {
         return CompletableFuture.completedFuture(
-            new Initial.OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current));
+            new OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current));
     }
 
     @Override
-    public CompletionStage<Initial.OpMStruct2MarshaledResult> opMStruct2Async(Optional<SmallStruct> p1, Current current)
+    public CompletionStage<OpMStruct2MarshaledResult> opMStruct2Async(Optional<SmallStruct> p1, Current current)
     {
-        return CompletableFuture.completedFuture(new Initial.OpMStruct2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMStruct2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public CompletionStage<Initial.OpMSeq1MarshaledResult> opMSeq1Async(Current current)
+    public CompletionStage<OpMSeq1MarshaledResult> opMSeq1Async(Current current)
+    {
+        return CompletableFuture.completedFuture(new OpMSeq1MarshaledResult(Optional.of(new String[0]), current));
+    }
+
+    @Override
+    public CompletionStage<OpMSeq2MarshaledResult> opMSeq2Async(Optional<String[]> p1, Current current)
+    {
+        return CompletableFuture.completedFuture(new OpMSeq2MarshaledResult(p1, p1, current));
+    }
+
+    @Override
+    public CompletionStage<OpMDict1MarshaledResult> opMDict1Async(Current current)
     {
         return CompletableFuture.completedFuture(
-            new Initial.OpMSeq1MarshaledResult(Optional.of(new String[0]), current));
+            new OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current));
     }
 
     @Override
-    public CompletionStage<Initial.OpMSeq2MarshaledResult> opMSeq2Async(Optional<String[]> p1, Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpMSeq2MarshaledResult(p1, p1, current));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpMDict1MarshaledResult> opMDict1Async(Current current)
-    {
-        return CompletableFuture.completedFuture(
-            new Initial.OpMDict1MarshaledResult(Optional.of(new java.util.HashMap<>()), current));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpMDict2MarshaledResult> opMDict2Async(Optional<java.util.Map<String, Integer>> p1,
+    public CompletionStage<OpMDict2MarshaledResult> opMDict2Async(Optional<java.util.Map<String, Integer>> p1,
                                                                           Current current)
     {
-        return CompletableFuture.completedFuture(new Initial.OpMDict2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
     }
 
     @Override
-    public CompletionStage<Initial.OpMG1MarshaledResult> opMG1Async(Current current)
+    public CompletionStage<OpMG1MarshaledResult> opMG1Async(Current current)
     {
-        return CompletableFuture.completedFuture(new Initial.OpMG1MarshaledResult(Optional.of(new G()), current));
+        return CompletableFuture.completedFuture(new OpMG1MarshaledResult(Optional.of(new G()), current));
     }
 
     @Override
-    public CompletionStage<Initial.OpMG2MarshaledResult> opMG2Async(Optional<G> p1, Current current)
+    public CompletionStage<OpMG2MarshaledResult> opMG2Async(Optional<G> p1, Current current)
     {
-        return CompletableFuture.completedFuture(new Initial.OpMG2MarshaledResult(p1, p1, current));
+        return CompletableFuture.completedFuture(new OpMG2MarshaledResult(p1, p1, current));
     }
 
     @Override

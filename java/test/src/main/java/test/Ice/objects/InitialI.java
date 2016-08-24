@@ -130,15 +130,15 @@ public final class InitialI implements _InitialDisp
     }
 
     @Override
-    public Initial.GetMBMarshaledResult getMB(com.zeroc.Ice.Current current)
+    public GetMBMarshaledResult getMB(com.zeroc.Ice.Current current)
     {
-        return new Initial.GetMBMarshaledResult(_b1, current);
+        return new GetMBMarshaledResult(_b1, current);
     }
 
     @Override
-    public CompletionStage<Initial.GetAMDMBMarshaledResult> getAMDMBAsync(com.zeroc.Ice.Current current)
+    public CompletionStage<GetAMDMBMarshaledResult> getAMDMBAsync(com.zeroc.Ice.Current current)
     {
-        return CompletableFuture.completedFuture(new Initial.GetAMDMBMarshaledResult(_b1, current));
+        return CompletableFuture.completedFuture(new GetAMDMBMarshaledResult(_b1, current));
     }
 
     @Override
