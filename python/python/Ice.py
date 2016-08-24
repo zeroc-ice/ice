@@ -439,8 +439,8 @@ sliceChecksums = {}
 # Import generated Ice modules.
 #
 import Ice_BuiltinSequences_ice
-import Ice_Communicator_ice
 import Ice_Current_ice
+import Ice_Communicator_ice
 import Ice_ImplicitContext_ice
 import Ice_Endpoint_ice
 import Ice_EndpointTypes_ice

@@ -129,6 +129,16 @@ class CompactPCDerived(57) extends CompactPDerived
     PBaseSeq pbs;
 };
 
+class Hidden
+{
+    Forward f;
+};
+
+class Forward
+{
+    Hidden h;
+};
+
 ["format:sliced"] interface TestIntf
 {
     Object SBaseAsObject();
