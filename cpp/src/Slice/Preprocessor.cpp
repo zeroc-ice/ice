@@ -14,6 +14,7 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
 #include <algorithm>
+#include <iterator>
 #include <vector>
 #include <fstream>
 #include <sys/types.h>

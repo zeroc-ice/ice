@@ -83,24 +83,6 @@ class MyObjectI : Test.MyObjectDisp_
         return x + y;
     }
 
-    // public override Task<int>
-    // amdAddWithRetryAsync(int x, int y, Ice.Current current)
-    // {
-    //     //
-    //     // NOTE: we can't use "async" dispatch here because otherwise the exception wouldn't be catch
-    //     // synchronously by the dispatch interceptor. It would be wrapped into the task as if the
-    //     // exception was raised asynchronously.
-    //     //
-    //     if(current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
-    //     {
-    //         return Task.Delay(10).ContinueWith((t) => { return Task.FromResult<int>(x + y); }).Unwrap();
-    //     }
-    //     else
-    //     {
-    //         throw new Test.RetryException();
-    //     }
-    // }
-
     public override async Task<int>
     amdAddWithRetryAsync(int x, int y, Ice.Current current)
     {

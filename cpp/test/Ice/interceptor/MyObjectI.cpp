@@ -109,8 +109,14 @@ MyObjectI::amdAddWithRetryAsync(int x,
     thread t(
         [x, y, response]()
         {
-            this_thread::sleep_for(chrono::milliseconds(10));
-            response(x + y);
+            try
+            {
+                this_thread::sleep_for(chrono::milliseconds(10));
+                response(x + y);
+            }
+            catch(Ice::ResponseSentException&)
+            {
+            }
         });
     t.detach();
 

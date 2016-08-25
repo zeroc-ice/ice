@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #import <SlicingObjectsTestServer.h>
-#import <SlicingObjectsForwardServer.h>
 
 @interface TestSlicingObjectsServerI : TestSlicingObjectsServerTestIntf<TestSlicingObjectsServerTestIntf>
 {

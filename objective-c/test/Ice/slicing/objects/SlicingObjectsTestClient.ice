@@ -67,7 +67,7 @@ exception DerivedException extends BaseException
     D1 pd1;
 };
 
-class Forward;          /* Forward-declared class defined in another compilation unit */
+class Forward;
 
 class PBase
 {
@@ -129,16 +129,6 @@ class CompactPCDerived(57) extends CompactPDerived
     PBaseSeq pbs;
 };
 
-class Hidden
-{
-    Forward f;
-};
-
-class Forward
-{
-    Hidden h;
-};
-
 ["format:sliced"] interface TestIntf
 {
     Object SBaseAsObject();
@@ -193,6 +183,16 @@ class Forward
     void useForward(out Forward f);     // Use of forward-declared class to verify that code is generated correctly.
 
     void shutdown();
+};
+
+class Hidden
+{
+    Forward f;
+};
+
+class Forward
+{
+    Hidden h;
 };
 
 // Things private to the client.

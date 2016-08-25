@@ -1137,6 +1137,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         thrower->throwAfterException();
+        test(false);
     }
     catch(const A&)
     {
@@ -1170,7 +1171,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
-    
+
     {
         auto f = thrower->throwAorDasAorDAsync(1);
         try
@@ -1187,7 +1188,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
-    
+
     {
         auto f = thrower->throwAorDasAorDAsync(-1);
         try
@@ -1260,7 +1261,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
     }
-    
+
     //
     // repeat with callback API and no exception callback
     //
@@ -1278,7 +1279,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             });
         sent.get_future().get(); // Wait for sent
     }
-    
+
     {
         promise<bool> sent;
         thrower->throwAorDasAorDAsync(1,
@@ -1293,7 +1294,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             });
         sent.get_future().get(); // Wait for sent
     }
-    
+
     {
         promise<bool> sent;
         thrower->throwAorDasAorDAsync(-1,

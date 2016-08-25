@@ -2706,8 +2706,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             allOpNames.unique();
 
             H << sp;
-            H << nl
-              << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
+            H << nl << "virtual bool __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 
             string flatName = p->flattenedScope() + p->name() + "_all";
             C << sp << nl << "namespace";
@@ -2726,8 +2725,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb << ';';
             C << sp << nl << "}";
             C << sp;
-            C << nl << "::Ice::DispatchStatus" << nl << scoped.substr(2)
-              << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
+            C << nl << "bool";
+            C << nl << scoped.substr(2) << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
             C << sb;
 
             C << nl << "::std::pair< const ::std::string*, const ::std::string*> r = "
@@ -2749,11 +2748,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 C << nl << "return ___" << *q << "(in, current);";
                 C << eb;
             }
-            C << eb;
-            C << sp;
+            C << nl << "default:";
+            C << sb;
             C << nl << "assert(false);";
             C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, "
               << "current.facet, current.operation);";
+            C << eb;
+            C << eb;
             C << eb;
 
             //
@@ -3071,7 +3072,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     string paramsAMD = "(const " + classScopedAMD + '_' + name + "Ptr&, ";
     string paramsDeclAMD = "(const " + classScopedAMD + '_' + name + "Ptr& __cb, ";
-    string argsAMD = "(__cb, ";
+    string argsAMD = "(new IceAsync" + classScopedAMD + '_' + name + "(__inS), ";
 
     ParamDeclList inParams;
     ParamDeclList outParams;
@@ -3165,57 +3166,37 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     if(!cl->isLocal())
     {
-        H << nl << "::Ice::DispatchStatus ___" << name
-          << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
+        H << nl << "bool ___" << name << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
 
         C << sp;
-        C << nl << "::Ice::DispatchStatus" << nl << scope.substr(2) << "___" << name
-          << "(::IceInternal::Incoming& __inS" << ", const ::Ice::Current& __current)" << isConst;
+        C << nl << "bool" << nl << scope.substr(2) << "___" << name << "(::IceInternal::Incoming& __inS"
+          << ", const ::Ice::Current& __current)" << isConst;
         C << sb;
+        C << nl << "__checkMode(" << operationModeToString(p->mode()) << ", __current.mode);";
+
+        if(!inParams.empty())
+        {
+            C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
+            writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
+            writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
+            if(p->sendsClasses(false))
+            {
+                C << nl << "__is->readPendingValues();";
+            }
+            C << nl << "__inS.endReadParams();";
+        }
+        else
+        {
+            C << nl << "__inS.readEmptyParams();";
+        }
+        if(p->format() != DefaultFormat)
+        {
+            C << nl << "__inS.setFormat(" << opFormatTypeToString(p) << ");";
+        }
+
         if(!amd)
         {
-            ExceptionList throws = p->throws();
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-
-#if defined(__SUNPRO_CC)
-            throws.sort(derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-            C << nl << "__checkMode(" << operationModeToString(p->mode()) << ", __current.mode);";
-
-            if(!inParams.empty())
-            {
-                C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
-                writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
-                writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
-                if(p->sendsClasses(false))
-                {
-                    C << nl << "__is->readPendingValues();";
-                }
-                C << nl << "__inS.endReadParams();";
-            }
-            else
-            {
-                C << nl << "__inS.readEmptyParams();";
-            }
-
             writeAllocateCode(C, outParams, 0, true, _useWstring);
-            if(!throws.empty())
-            {
-                C << nl << "try";
-                C << sb;
-            }
-            C << nl;
             if(ret)
             {
                 C << retS << " __ret = ";
@@ -3223,69 +3204,24 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << fixKwd(name) << args << ';';
             if(ret || !outParams.empty())
             {
-                C << nl << "::Ice::OutputStream* __os = __inS.__startWriteParams("
-                  << opFormatTypeToString(p) << ");";
+                C << nl << "::Ice::OutputStream* __os = __inS.startWriteParams();";
                 writeMarshalCode(C, outParams, p, true);
                 if(p->returnsClasses(false))
                 {
                     C << nl << "__os->writePendingValues();";
                 }
-                C << nl << "__inS.__endWriteParams(true);";
+                C << nl << "__inS.endWriteParams();";
             }
             else
             {
-                C << nl << "__inS.__writeEmptyParams();";
+                C << nl << "__inS.writeEmptyParams();";
             }
-            C << nl << "return ::Ice::DispatchOK;";
-            if(!throws.empty())
-            {
-                C << eb;
-                ExceptionList::const_iterator r;
-                for(r = throws.begin(); r != throws.end(); ++r)
-                {
-                    C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
-                    C << sb;
-                    C << nl << "__inS.__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
-                    C << eb;
-                }
-                C << nl << "return ::Ice::DispatchUserException;";
-            }
+            C << nl << "return false;";
         }
         else
         {
-            C << nl << "__checkMode(" << operationModeToString(p->mode()) << ", __current.mode);";
-
-            if(!inParams.empty())
-            {
-                C << nl << "::Ice::InputStream* __is = __inS.startReadParams();";
-                writeAllocateCode(C, inParams, 0, true, _useWstring | TypeContextInParam);
-                writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
-                if(p->sendsClasses(false))
-                {
-                    C << nl << "__is->readPendingValues();";
-                }
-                C << nl << "__inS.endReadParams();";
-            }
-            else
-            {
-                C << nl << "__inS.readEmptyParams();";
-            }
-
-            C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
-              << "(__inS);";
-            C << nl << "try";
-            C << sb;
             C << nl << name << "_async" << argsAMD << ';';
-            C << eb;
-            C << nl << "catch(const ::std::exception& __ex)";
-            C << sb;
-            C << nl << "__cb->ice_exception(__ex);";
-            C << eb;
-            C << nl << "catch(...)";
-            C << sb;
-            C << nl << "__cb->ice_exception();";
-            C << eb;
-            C << nl << "return ::Ice::DispatchAsync;";
+            C << nl << "return true;";
         }
         C << eb;
     }
@@ -4480,22 +4416,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     string paramsDecl;
     string args;
 
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings and resulting in the base exception
-    // being marshaled instead of the derived exception.
-    //
-#if defined(__SUNPRO_CC)
-    throws.sort(derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
     TypePtr ret = p->returnType();
     string retS = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
 
@@ -4547,12 +4467,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
-    if(!throws.empty())
-    {
-        // COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual
-        H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
-        H << nl << "virtual void ice_exception(const ::std::exception&);";
-    }
     H << eb << ';';
 
     C << sp << nl << "IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
@@ -4563,65 +4477,25 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << eb;
 
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name << "::ice_response("
-      << paramsDecl << ')';
-    C << sb;
-    C << nl << "if(__validateResponse(true))";
+    C << sp << nl << "void";
+    C << nl << "IceAsync" << classScopedAMD << '_' << name << "::ice_response(" << paramsDecl << ')';
     C << sb;
     if(ret || !outParams.empty())
     {
-        C << nl << "try";
-        C << sb;
-        C << nl << "::Ice::OutputStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
+        C << nl << "::Ice::OutputStream* __os = startWriteParams();";
         writeMarshalCode(C, outParams, p, false, TypeContextInParam);
         if(p->returnsClasses(false))
         {
             C << nl << "__os->writePendingValues();";
         }
-        C << nl << "__endWriteParams(true);";
-        C << eb;
-        C << nl << "catch(const ::Ice::Exception& __ex)";
-        C << sb;
-        C << nl << "__exception(__ex);";
-        C << nl << "return;";
-        C << eb;
+        C << nl << "endWriteParams();";
     }
     else
     {
-        C << nl << "__writeEmptyParams();";
+        C << nl << "writeEmptyParams();";
     }
-    C << nl << "__response();";
+    C << nl << "completed();";
     C << eb;
-    C << eb;
-
-    if(!throws.empty())
-    {
-        C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-            << "::ice_exception(const ::std::exception& ex)";
-        C << sb;
-        for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-        {
-            C << nl;
-            if(r != throws.begin())
-            {
-                C << "else ";
-            }
-            C << "if(const " << fixKwd((*r)->scoped()) << "* __ex = dynamic_cast<const " << fixKwd((*r)->scoped())
-            << "*>(&ex))";
-            C << sb;
-            C << nl <<"if(__validateResponse(false))";
-            C << sb;
-            C << nl << "__writeUserException(*__ex, " << opFormatTypeToString(p) << ");";
-            C << nl << "__response();";
-            C << eb;
-            C << eb;
-        }
-        C << nl << "else";
-        C << sb;
-        C << nl << "::IceInternal::IncomingAsync::ice_exception(ex);";
-        C << eb;
-        C << eb;
-    }
 }
 
 Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
@@ -7060,11 +6934,11 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
         string flatName = p->flattenedScope() + p->name() + "_ops";
 
         H << sp;
-        H << nl << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&) override;";
+        H << nl << "virtual bool __dispatch(::IceInternal::Incoming&, const ::Ice::Current&) override;";
 
         C << sp;
-        C << nl << "::Ice::DispatchStatus" << nl << scoped.substr(2)
-          << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& c)";
+        C << nl << "bool";
+        C << nl << scoped.substr(2) << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& c)";
         C << sb;
 
         C << nl << "::std::pair< const ::std::string*, const ::std::string*> r = "
@@ -7084,10 +6958,12 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "return ___" << *q << "(in, c);";
             C << eb;
         }
-        C << eb;
-        C << sp;
+        C << nl << "default:";
+        C << sb;
         C << nl << "assert(false);";
         C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);";
+        C << eb;
+        C << eb;
         C << eb;
     }
 
@@ -7269,22 +7145,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
     bool amd = (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings and resulting in the base exception
-    // being marshaled instead of the derived exception.
-    //
-#if defined(__SUNPRO_CC)
-    throws.sort(derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
     string deprecateSymbol = getDeprecateSymbol(p, cl);
     H << sp;
     if(!amd)
@@ -7305,10 +7165,11 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         H.restoreIndent();
     }
 
-    H << nl << "::Ice::DispatchStatus ___" << name << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
+    H << nl << "bool ___" << name << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
 
     C << sp;
-    C << nl << "::Ice::DispatchStatus" << nl << scope.substr(2) << "___" << name << "(::IceInternal::Incoming& __inS"
+    C << nl << "bool";
+    C << nl << scope.substr(2) << "___" << name << "(::IceInternal::Incoming& __inS"
       << ", const ::Ice::Current& __current)" << isConst;
     C << sb;
     C << nl << "__checkMode(" << operationModeToString(p->mode(), true) << ", __current.mode);";
@@ -7328,15 +7189,14 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "__inS.readEmptyParams();";
     }
+    if(p->format() != DefaultFormat)
+    {
+        C << nl << "__inS.setFormat(" << opFormatTypeToString(p) << ");";
+    }
 
     if(!amd)
     {
         writeAllocateCode(C, outParams, 0, true, _useWstring | TypeContextCpp11);
-        if(!throws.empty())
-        {
-            C << nl << "try";
-            C << sb;
-        }
         C << nl;
         if(ret)
         {
@@ -7345,104 +7205,53 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << fixKwd(name) << args << ';';
         if(ret || !outParams.empty())
         {
-            C << nl << "auto __os = __inS.__startWriteParams(" << opFormatTypeToString(p) << ");";
+            C << nl << "auto __os = __inS.startWriteParams();";
             writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
             if(p->returnsClasses(false))
             {
                 C << nl << "__os->writePendingValues();";
             }
-            C << nl << "__inS.__endWriteParams(true);";
+            C << nl << "__inS.endWriteParams();";
         }
         else
         {
-            C << nl << "__inS.__writeEmptyParams();";
+            C << nl << "__inS.writeEmptyParams();";
         }
-        C << nl << "return ::Ice::DispatchOK;";
-        if(!throws.empty())
-        {
-            C << eb;
-            ExceptionList::const_iterator r;
-            for(r = throws.begin(); r != throws.end(); ++r)
-            {
-                C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
-                C << sb;
-                C << nl << "__inS.__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
-                C << eb;
-            }
-            C << nl << "return ::Ice::DispatchUserException;";
-        }
+        C << nl << "return false;";
     }
     else
     {
         C << nl << "auto inS = ::IceInternal::IncomingAsync::create(__inS);";
-        C << nl << "auto __exception = [inS](::std::exception_ptr e)";
-        C << sb;
-        C << nl << "try";
-        C << sb;
-        C << nl << "std::rethrow_exception(e);";
-        C << eb;
-
-        for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-        {
-            C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
-            C << sb;
-            C << nl <<"if(inS->__validateResponse(false))";
-            C << sb;
-            C << nl << "inS->__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
-            C << nl << "inS->__response();";
-            C << eb;
-            C << eb;
-        }
-
-        C << nl << "catch(const ::std::exception& __ex)";
-        C << sb;
-        C << nl << "inS->ice_exception(__ex);";
-        C << eb;
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "inS->ice_exception();";
-        C << eb;
-        C << eb << ";";
-
-        C << nl << "try";
-        C << sb;
 
         C << nl << name << "Async(";
         C.useCurrentPosAsIndent();
         if(!argsAMD.empty())
         {
-            C << argsAMD << ",";
-            C << nl;
+            C << argsAMD << ", ";
         }
-        C << "[inS](" << responseParamsDecl << ")";
-        C << sb;
-        C << nl << "if(inS->__validateResponse(true))";
-        C << sb;
         if(ret || !outParams.empty())
         {
-            C << nl << "auto __os = inS->__startWriteParams(" << opFormatTypeToString(p) << ");";
+            //C << "inS->response<" << responseParams << ">(), ";
+            C << nl << "[inS](" << responseParamsDecl << ")";
+            C << sb;
+            C << nl << "auto __os = inS->startWriteParams();";
             writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
             if(p->returnsClasses(false))
             {
                 C << nl << "__os->writePendingValues();";
             }
-            C << nl << "inS->__endWriteParams(true);";
+            C << nl << "inS->endWriteParams();";
+            C << nl << "inS->completed();";
+            C << eb;
+            C << ", ";
         }
         else
         {
-            C << nl << "inS->__writeEmptyParams();";
+            C << "inS->response(), ";
         }
-        C << nl << "inS->__response();";
-        C << eb;
-        C << eb << ",";
-        C << nl << "__exception, __current);";
+        C << "inS->exception(), __current);";
         C.restoreIndent();
-        C << eb;
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "__exception(std::current_exception());";
-        C << eb;
-        C << nl << "return ::Ice::DispatchAsync;";
+        C << nl << "return true;";
     }
     C << eb;
 }

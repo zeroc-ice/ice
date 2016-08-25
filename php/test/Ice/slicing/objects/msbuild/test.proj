@@ -4,7 +4,6 @@
   <Import Project="$(IceBuilderPhpProps)" />
   <ItemGroup>
       <IceBuilder Include="..\ClientPrivate.ice" />
-      <IceBuilder Include="..\Forward.ice" />
       <IceBuilder Include="..\Test.ice" />
   </ItemGroup>
   <PropertyGroup Label="IceBuilder">

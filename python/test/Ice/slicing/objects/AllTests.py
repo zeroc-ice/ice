@@ -10,7 +10,7 @@
 
 import Ice, gc, sys, threading
 
-Ice.loadSlice('-I. --all Forward.ice ClientPrivate.ice')
+Ice.loadSlice('-I. --all ClientPrivate.ice')
 import Test
 
 def test(b):

@@ -4015,8 +4015,21 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "os__.endEncapsulation();";
         _out << eb;
         _out << sp;
-        _out << nl << "public Ice.OutputStream getOutputStream()";
+        _out << nl << "public Ice.OutputStream getOutputStream(Ice.Current current)";
         _out << sb;
+        _out << nl << "if(os__ == null)";
+        _out << sb;
+        _out << nl << "return new " << name << spar;
+        if(ret)
+        {
+            _out << writeValue(ret);
+        }
+        for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+        {
+            _out << writeValue((*i)->type());
+        }
+        _out << "current" << epar << ".getOutputStream(current);";
+        _out << eb;
         _out << nl << "return os__;";
         _out << eb;
         _out << sp;

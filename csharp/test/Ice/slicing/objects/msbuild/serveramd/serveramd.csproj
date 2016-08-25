@@ -42,9 +42,6 @@
     <Compile Include="generated\TestAMD.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Forward.ice">
-      <Link>Forward.ice</Link>
-    </None>
     <None Include="..\..\ServerPrivateAMD.ice">
       <Link>ServerPrivateAMD.ice</Link>
     </None>

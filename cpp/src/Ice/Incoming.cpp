@@ -42,6 +42,7 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
                                         bool response, Byte compress, Int requestId) :
     _response(response),
     _compress(compress),
+    _format(Ice::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
     _responseHandler(responseHandler)
 {
@@ -55,92 +56,62 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
     _current.requestId = requestId;
 }
 
-IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
-    _current(in._current), // copy
-    _os(in._os.instance(), Ice::currentProtocolEncoding),
-    _interceptorAsyncCallbackQueue(in._interceptorAsyncCallbackQueue) // copy
-{
-    __adopt(in); // adopt everything else
-}
-
-void
-IceInternal::IncomingBase::__adopt(IncomingBase& other)
+IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
+    _current(other._current),
+    _servant(other._servant),
+    _locator(other._locator),
+    _cookie(other._cookie),
+    _response(other._response),
+    _compress(other._compress),
+    _format(other._format),
+    _os(other._os.instance(), Ice::currentProtocolEncoding),
+    _responseHandler(other._responseHandler),
+    _interceptorCBs(other._interceptorCBs)
 {
     _observer.adopt(other._observer);
-
-    _servant = other._servant;
-    other._servant = 0;
-
-    _locator = other._locator;
-    other._locator = 0;
-
-    _cookie = other._cookie;
-    other._cookie = 0;
-
-    _response = other._response;
-    other._response = false;
-
-    _compress = other._compress;
-    other._compress = 0;
-
-    _os.swap(other._os);
-
-    _responseHandler = other._responseHandler;
-    other._responseHandler = 0;
 }
 
 OutputStream*
-IncomingBase::__startWriteParams(FormatType format)
+IncomingBase::startWriteParams()
 {
     if(!_response)
     {
         throw MarshalException(__FILE__, __LINE__, "can't marshal out parameters for oneway dispatch");
     }
 
-    assert(_os.b.size() == headerSize + 4); // Reply status position.
     assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
-    _os.write(static_cast<Ice::Byte>(0));
-    _os.startEncapsulation(_current.encoding, format);
 
-    //
-    // We still return the stream even if no response is expected. The
-    // servant code might still write some out parameters if for
-    // example a method with out parameters somehow and erroneously
-    // invoked as oneway (or if the invocation is invoked on a
-    // blobject and the blobject erroneously writes a response).
-    //
+    _os.writeBlob(replyHdr, sizeof(replyHdr));
+    _os.write(_current.requestId);
+    _os.write(replyOK);
+    _os.startEncapsulation(_current.encoding, _format);
     return &_os;
 }
 
 void
-IncomingBase::__endWriteParams(bool ok)
+IncomingBase::endWriteParams()
 {
-    if(!ok)
-    {
-        _observer.userException();
-    }
-
     if(_response)
     {
-        *(_os.b.begin() + headerSize + 4) = ok ? replyOK : replyUserException; // Reply status position.
         _os.endEncapsulation();
     }
 }
 
 void
-IncomingBase::__writeEmptyParams()
+IncomingBase::writeEmptyParams()
 {
     if(_response)
     {
-        assert(_os.b.size() == headerSize + 4); // Reply status position.
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
+        _os.writeBlob(replyHdr, sizeof(replyHdr));
+        _os.write(_current.requestId);
         _os.write(replyOK);
         _os.writeEmptyEncapsulation(_current.encoding);
     }
 }
 
 void
-IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
+IncomingBase::writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 {
     if(!ok)
     {
@@ -149,8 +120,9 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 
     if(_response)
     {
-        assert(_os.b.size() == headerSize + 4); // Reply status position.
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
+        _os.writeBlob(replyHdr, sizeof(replyHdr));
+        _os.write(_current.requestId);
         _os.write(ok ? replyOK : replyUserException);
         if(sz == 0)
         {
@@ -164,15 +136,71 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 }
 
 void
-IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
+IceInternal::IncomingBase::response(bool amd)
 {
-    ::Ice::OutputStream* __os = __startWriteParams(format);
-    __os->write(ex);
-    __endWriteParams(false);
+    try
+    {
+        if(_locator && !servantLocatorFinished(amd))
+        {
+            return;
+        }
+
+        assert(_responseHandler);
+        if(_response)
+        {
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+        }
+        else
+        {
+            _responseHandler->sendNoResponse();
+        }
+    }
+    catch(const LocalException& ex)
+    {
+        _responseHandler->invokeException(_current.requestId, ex, 1, amd); // Fatal invocation exception
+    }
+
+    _observer.detach();
+    _responseHandler = 0;
 }
 
 void
-IceInternal::IncomingBase::__warning(const Exception& ex) const
+IceInternal::IncomingBase::exception(const std::exception& exc, bool amd)
+{
+    try
+    {
+        if(_locator && !servantLocatorFinished(amd))
+        {
+            return;
+        }
+        handleException(exc, amd);
+    }
+    catch(const LocalException& ex)
+    {
+        _responseHandler->invokeException(_current.requestId, ex, 1, amd);  // Fatal invocation exception
+    }
+}
+
+void
+IceInternal::IncomingBase::exception(const string& msg, bool amd)
+{
+    try
+    {
+        if(_locator && !servantLocatorFinished(amd))
+        {
+            return;
+        }
+        handleException(msg, amd);
+    }
+    catch(const LocalException& ex)
+    {
+        _responseHandler->invokeException(_current.requestId, ex, 1, amd);  // Fatal invocation exception
+    }
+}
+
+void
+IceInternal::IncomingBase::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
@@ -196,7 +224,7 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 }
 
 void
-IceInternal::IncomingBase::__warning(const string& msg) const
+IceInternal::IncomingBase::warning(const string& msg) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
@@ -220,7 +248,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 }
 
 bool
-IceInternal::IncomingBase::__servantLocatorFinished(bool amd)
+IceInternal::IncomingBase::servantLocatorFinished(bool amd)
 {
     assert(_locator && _servant);
     try
@@ -228,48 +256,26 @@ IceInternal::IncomingBase::__servantLocatorFinished(bool amd)
         _locator->finished(_current, _servant, _cookie);
         return true;
     }
-    catch(const UserException& ex)
-    {
-        assert(_responseHandler);
-
-        _observer.userException();
-
-        //
-        // The operation may have already marshaled a reply; we must overwrite that reply.
-        //
-        if(_response)
-        {
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUserException);
-            _os.startEncapsulation(_current.encoding, DefaultFormat);
-            _os.write(ex);
-            _os.endEncapsulation();
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
-        }
-        else
-        {
-            _responseHandler->sendNoResponse();
-        }
-
-        _observer.detach();
-        _responseHandler = 0;
-    }
     catch(const std::exception& ex)
     {
-        __handleException(ex, amd);
+        handleException(ex, amd);
     }
     catch(...)
     {
-        __handleException(amd);
+        handleException("unknown c++ exception", amd);
     }
     return false;
 }
 
 void
-IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd)
+IceInternal::IncomingBase::handleException(const std::exception& exc, bool amd)
 {
     assert(_responseHandler);
+
+    // Reset the stream, it's possible the marshalling of the response failed and left
+    // the stream in an unknown state.
+    _os.clear();
+    _os.b.clear();
 
     if(const SystemException* ex = dynamic_cast<const SystemException*>(&exc))
     {
@@ -301,7 +307,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
         {
-            __warning(*rfe);
+            warning(*rfe);
         }
 
         if(_observer)
@@ -311,7 +317,8 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_response)
         {
-            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.writeBlob(replyHdr, sizeof(replyHdr));
+            _os.write(_current.requestId);
             if(dynamic_cast<ObjectNotExistException*>(rfe))
             {
                 _os.write(replyObjectNotExist);
@@ -353,11 +360,34 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
             _responseHandler->sendNoResponse();
         }
     }
+    else if(const UserException* ex = dynamic_cast<const UserException*>(&exc))
+    {
+        _observer.userException();
+
+        //
+        // The operation may have already marshaled a reply; we must overwrite that reply.
+        //
+        if(_response)
+        {
+            _os.writeBlob(replyHdr, sizeof(replyHdr));
+            _os.write(_current.requestId);
+            _os.write(replyUserException);
+            _os.startEncapsulation(_current.encoding, _format);
+            _os.write(*ex);
+            _os.endEncapsulation();
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
+        }
+        else
+        {
+            _responseHandler->sendNoResponse();
+        }
+    }
     else if(const Exception* ex = dynamic_cast<const Exception*>(&exc))
     {
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
-            __warning(*ex);
+            warning(*ex);
         }
 
         if(_observer)
@@ -367,7 +397,8 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_response)
         {
-            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.writeBlob(replyHdr, sizeof(replyHdr));
+            _os.write(_current.requestId);
             if(const UnknownLocalException* ule = dynamic_cast<const UnknownLocalException*>(&exc))
             {
                 _os.write(replyUnknownLocalException);
@@ -429,7 +460,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
     {
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
-            __warning(string("std::exception: ") + exc.what());
+            warning(string("std::exception: ") + exc.what());
         }
 
         if(_observer)
@@ -439,7 +470,8 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 
         if(_response)
         {
-            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.writeBlob(replyHdr, sizeof(replyHdr));
+            _os.write(_current.requestId);
             _os.write(replyUnknownException);
             ostringstream str;
             str << "std::exception: " << exc.what();
@@ -459,14 +491,19 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc, bool amd
 }
 
 void
-IceInternal::IncomingBase::__handleException(bool amd)
+IceInternal::IncomingBase::handleException(const string& msg, bool amd)
 {
     if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
     {
-        __warning("unknown c++ exception");
+        warning(msg);
     }
 
     assert(_responseHandler);
+
+    // Reset the stream, it's possible the marshalling of the response failed and left
+    // the stream in an unknown state.
+    _os.clear();
+    _os.b.clear();
 
     if(_observer)
     {
@@ -475,9 +512,10 @@ IceInternal::IncomingBase::__handleException(bool amd)
 
     if(_response)
     {
-        _os.b.resize(headerSize + 4); // Reply status position.
+        _os.writeBlob(replyHdr, sizeof(replyHdr));
+        _os.write(_current.requestId);
         _os.write(replyUnknownException);
-        string reason = "unknown c++ exception";
+        string reason = msg;
         _os.write(reason, false);
         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
         _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
@@ -497,31 +535,26 @@ IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHan
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
     _inParamPos(0)
 {
-    //
-    // Prepare the response if necessary.
-    //
-    if(response)
-    {
-        _os.writeBlob(replyHdr, sizeof(replyHdr));
-
-        //
-        // Add the request ID.
-        //
-        _os.write(requestId);
-    }
 }
 
-
+#ifdef ICE_CPP11_MAPPING
+void
+IceInternal::Incoming::push(function<bool()> response, function<bool(exception_ptr)> exception)
+{
+    _interceptorCBs.push_front(make_pair(response, exception));
+}
+#else
 void
 IceInternal::Incoming::push(const Ice::DispatchInterceptorAsyncCallbackPtr& cb)
 {
-    _interceptorAsyncCallbackQueue.push_front(cb);
+    _interceptorCBs.push_front(cb);
 }
+#endif
 
 void
 IceInternal::Incoming::pop()
 {
-    _interceptorAsyncCallbackQueue.pop_front();
+    _interceptorCBs.pop_front();
 }
 
 void
@@ -536,44 +569,17 @@ IceInternal::Incoming::startOver()
     }
     else
     {
-        killAsync();
+        // Reset input stream's position and clear response
+        if(_inAsync)
+        {
+            _inAsync->kill(*this);
+            _inAsync = 0;
+        }
+        _os.clear();
+        _os.b.clear();
 
-        //
-        // Let's rewind _is and clean-up _os
-        //
         _is->i = _inParamPos;
-        _os.b.resize(headerSize + 4); // Reply status position.
     }
-}
-
-void
-IceInternal::Incoming::killAsync()
-{
-    //
-    // Always runs in the dispatch thread
-    //
-    if(_cb != 0)
-    {
-        //
-        // May raise ResponseSentException
-        //
-        _cb->__deactivate(*this);
-        _cb = 0;
-    }
-}
-
-void
-IceInternal::Incoming::setActive(IncomingAsyncPtr cb)
-{
-    assert(_cb == 0);
-    //
-    // acquires a ref-count
-    //
-#ifdef ICE_CPP11_MAPPING
-    _cb = move(cb);
-#else
-    _cb = cb;
-#endif
 }
 
 void
@@ -655,72 +661,26 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 {
                     _servant = _locator->locate(_current, _cookie);
                 }
-                catch(const UserException& ex)
-                {
-                    Ice::EncodingVersion encoding = _is->skipEncapsulation(); // Required for batch requests.
-
-                    _observer.userException();
-
-                    if(_response)
-                    {
-                        _os.write(replyUserException);
-                        _os.startEncapsulation(encoding, DefaultFormat);
-                        _os.write(ex);
-                        _os.endEncapsulation();
-                        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-                        _responseHandler->sendResponse(_current.requestId, &_os, _compress, false);
-                    }
-                    else
-                    {
-                        _responseHandler->sendNoResponse();
-                    }
-
-                    _observer.detach();
-                    _responseHandler = 0;
-                    return;
-                }
                 catch(const std::exception& ex)
                 {
-                    _is->skipEncapsulation(); // Required for batch requests.
-                    __handleException(ex, false);
+                    skipReadParams(); // Required for batch requests.
+                    handleException(ex, false);
                     return;
                 }
                 catch(...)
                 {
-                    _is->skipEncapsulation(); // Required for batch requests.
-                    __handleException(false);
+                    skipReadParams(); // Required for batch requests.
+                    handleException("unknown c++ exception", false);
                     return;
                 }
             }
         }
     }
 
-    try
+    if(!_servant)
     {
-        if(_servant)
+        try
         {
-            //
-            // DispatchAsync is a "pseudo dispatch status", used internally only
-            // to indicate async dispatch.
-            //
-            if(_servant->__dispatch(*this, _current) == DispatchAsync)
-            {
-                return;
-            }
-
-            if(_locator && !__servantLocatorFinished(false))
-            {
-                return;
-            }
-        }
-        else
-        {
-            //
-            // Skip the input parameters, this is required for reading
-            // the next batch request if dispatching batch requests.
-            //
-            _is->skipEncapsulation();
-
             if(servantManager && servantManager->hasServant(_current.id))
             {
                 throw FacetNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
@@ -730,44 +690,88 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 throw ObjectNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
             }
         }
+        catch(const Ice::LocalException& ex)
+        {
+            skipReadParams(); // Required for batch requests
+            handleException(ex, false);
+            return;
+        }
+    }
+
+    try
+    {
+        //
+        // Dispatch in the incoming call
+        //
+        _servant->__dispatch(*this, _current);
+
+        //
+        // If the request was not dispatched asynchronously, send the response.
+        //
+        if(!_inAsync)
+        {
+            response(false);
+        }
     }
     catch(const std::exception& ex)
     {
-        if(_servant && _locator && !__servantLocatorFinished(false))
+        if(_inAsync)
         {
-            return;
+            try
+            {
+#ifdef ICE_CPP11_MAPPING
+                _inAsync->completed(current_exception());
+#else
+                _inAsync->ice_exception(ex);
+#endif
+            }
+            catch(const Ice::ResponseSentException&)
+            {
+                const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
+                if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                {
+                    if(const IceUtil::Exception* exc = dynamic_cast<const IceUtil::Exception*>(&ex))
+                    {
+                        warning(*exc);
+                    }
+                    else
+                    {
+                        warning(string("std::exception: ") + ex.what());
+                    }
+                }
+            }
         }
-        __handleException(ex, false);
-        return;
+        else
+        {
+            exception(ex, false);
+        }
     }
     catch(...)
     {
-        if(_servant && _locator && !__servantLocatorFinished(false))
+        if(_inAsync)
         {
-            return;
+            try
+            {
+#ifdef ICE_CPP11_MAPPING
+                _inAsync->completed(current_exception());
+#else
+                _inAsync->ice_exception();
+#endif
+            }
+            catch(const Ice::ResponseSentException&)
+            {
+                const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
+                if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                {
+                    warning("unknown c++ exception");
+                }
+            }
         }
-        __handleException(false);
-        return;
+        else
+        {
+            exception("unknown c++ exception", false);
+        }
     }
-
-    //
-    // Don't put the code below into the try block above. Exceptions
-    // in the code below are considered fatal, and must propagate to
-    // the caller of this operation.
-    //
-
-    if(_response)
-    {
-        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _responseHandler->sendResponse(_current.requestId, &_os, _compress, false);
-    }
-    else
-    {
-        _responseHandler->sendNoResponse();
-    }
-
-    _observer.detach();
-    _responseHandler = 0;
 }
 
 const Current&

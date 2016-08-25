@@ -80,42 +80,6 @@ class MyObjectI implements MyObject
         return r;
     }
 
-    /*
-    //
-    // NOTE: we can't use "async" dispatch here because otherwise the exception wouldn't be caught
-    // synchronously by the dispatch interceptor. It would be wrapped into the future as if the
-    // exception was raised asynchronously.
-    //
-    @Override
-    public CompletionStage<Integer> amdAddWithRetryAsync(final int x, final int y, com.zeroc.Ice.Current current)
-    {
-        String val = current.ctx.get("retry");
-
-        if(val != null && val.equals("no"))
-        {
-            CompletableFuture<Integer> r = new CompletableFuture<>();
-            Thread thread = new Thread(() ->
-                {
-                    try
-                    {
-                        Thread.sleep(10);
-                    }
-                    catch(InterruptedException e)
-                    {
-                    }
-                    r.complete(x + y);
-                };
-            thread.setDaemon(true);
-            thread.start();
-            return r;
-        }
-        else
-        {
-            throw new RetryException();
-        }
-    }
-    */
-
     @Override
     public CompletionStage<Integer> amdAddWithRetryAsync(final int x, final int y, com.zeroc.Ice.Current current)
     {

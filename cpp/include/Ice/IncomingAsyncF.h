@@ -14,24 +14,20 @@
 
 #include <Ice/Handle.h>
 
+namespace IceInternal
+{
+
+class IncomingAsync;
 #ifdef ICE_CPP11_MAPPING
-namespace IceInternal
-{
-
-class IncomingAsync;
 using IncomingAsyncPtr = ::std::shared_ptr<IncomingAsync>;
-
-}
 #else
-namespace IceInternal
-{
-
-class IncomingAsync;
 ICE_API IceUtil::Shared* upCast(IncomingAsync*);
 typedef IceInternal::Handle<IncomingAsync> IncomingAsyncPtr;
+#endif
 
 }
 
+#ifndef ICE_CPP11_MAPPING
 namespace Ice
 {
 

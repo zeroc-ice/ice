@@ -15,24 +15,24 @@
 using namespace std;
 
 AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
-    InterceptorI(servant),
-    _defaultCb(new DispatchInterceptorAsyncCallbackI(*this)),
-    _actualStatus(Ice::DispatchAsync)
-   
+    InterceptorI(servant)
+#ifndef ICE_CPP11_MAPPING
+    , _defaultCb(new DispatchInterceptorAsyncCallbackI(*this))
+#endif
 {
 }
 
-    
-Ice::DispatchStatus 
+
+bool
 AMDInterceptorI::dispatch(Ice::Request& request)
 {
+#ifndef ICE_CPP11_MAPPING
     class CallbackI : public Ice::DispatchInterceptorAsyncCallback
     {
     public:
-        
-        virtual bool response(bool ok)
+
+        virtual bool response()
         {
-            test(ok);
             return false;
         }
 
@@ -51,48 +51,76 @@ AMDInterceptorI::dispatch(Ice::Request& request)
             return false;
         }
     };
-
+    Ice::DispatchInterceptorAsyncCallbackPtr cb = ICE_MAKE_SHARED(CallbackI);
+#endif
 
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
     _lastOperation = current.operation;
-    
-    Ice::DispatchInterceptorAsyncCallbackPtr cb = ICE_MAKE_SHARED(CallbackI);
 
     if(_lastOperation == "amdAddWithRetry")
     {
         for(int i = 0; i < 10; ++i)
         {
-            _lastStatus =  _servant->ice_dispatch(request, cb);
-            test(_lastStatus == Ice::DispatchAsync);
+            try
+            {
+#ifdef ICE_CPP11_MAPPING
+                _lastStatus =  _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
+                    try
+                    {
+                        rethrow_exception(ex);
+                    }
+                    catch(Test::RetryException&)
+                    {
+                    }
+                    catch(...)
+                    {
+                        test(false);
+                    }
+                    return false;
+                });
+#else
+                _lastStatus =  _servant->ice_dispatch(request, cb);
+#endif
+                test(_lastStatus);
+            }
+            catch(const Test::RetryException&)
+            {
+                //
+                // Expected, retry
+                //
+            }
         }
-        
+
         current.ctx["retry"] = "no";
     }
-      
+
+#ifdef ICE_CPP11_MAPPING
+    _lastStatus = _servant->ice_dispatch(request, []() { return true; }, [this](exception_ptr ex) {
+        try
+        {
+            rethrow_exception(ex);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            setException(ex);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+        return true;
+    });
+#else
     _lastStatus = _servant->ice_dispatch(request, _defaultCb);
+#endif
     return _lastStatus;
 }
 
-void 
-AMDInterceptorI::setActualStatus(Ice::DispatchStatus status)
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    _actualStatus = status;
-}
-
-void 
-AMDInterceptorI::setActualStatus(const IceUtil::Exception& e)
+void
+AMDInterceptorI::setException(const IceUtil::Exception& e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
     ICE_SET_EXCEPTION_FROM_CLONE(_exception, e.ice_clone());
-    _actualStatus = Ice::DispatchAsync;
-}
-
-Ice::DispatchStatus
-AMDInterceptorI::getActualStatus() const
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    return _actualStatus;
 }
 
 IceUtil::Exception*
@@ -102,42 +130,40 @@ AMDInterceptorI::getException() const
     return _exception.get();
 }
 
-void 
+void
 AMDInterceptorI::clear()
 {
     InterceptorI::clear();
     IceUtil::Mutex::Lock lock(_mutex);
-    _actualStatus = Ice::DispatchAsync;
     _exception.reset();
 }
 
-
+#ifndef ICE_CPP11_MAPPING
 DispatchInterceptorAsyncCallbackI::DispatchInterceptorAsyncCallbackI(AMDInterceptorI& interceptor) :
     _interceptor(interceptor)
 {
 }
 
-bool 
-DispatchInterceptorAsyncCallbackI::response(bool ok)
+bool
+DispatchInterceptorAsyncCallbackI::response()
 {
-    _interceptor.setActualStatus(ok ? Ice::DispatchOK : Ice::DispatchUserException);
     return true;
 }
 
 
-bool 
+bool
 DispatchInterceptorAsyncCallbackI::exception(const std::exception& ex)
 {
     //
     // Only Ice exceptions are raised by this test
     //
     const IceUtil::Exception& ue = dynamic_cast<const IceUtil::Exception&>(ex);
-     _interceptor.setActualStatus(ue);
+     _interceptor.setException(ue);
     return true;
 
 }
-        
-bool 
+
+bool
 DispatchInterceptorAsyncCallbackI::exception()
 {
     //
@@ -146,3 +172,4 @@ DispatchInterceptorAsyncCallbackI::exception()
     test(false);
     return true;
 }
+#endif

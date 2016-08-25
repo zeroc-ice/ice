@@ -18,39 +18,39 @@ class AMDInterceptorI : public InterceptorI
 public:
 
     AMDInterceptorI(const Ice::ObjectPtr&);
-    
-    virtual Ice::DispatchStatus dispatch(Ice::Request&);
-     
+
+    virtual bool dispatch(Ice::Request&);
+
     virtual void clear();
 
-    Ice::DispatchStatus getActualStatus() const;
     IceUtil::Exception* getException() const;
+    void setException(const IceUtil::Exception&);
 
-    void setActualStatus(Ice::DispatchStatus);
-    void setActualStatus(const IceUtil::Exception&);
-   
 private:
 
+#ifndef ICE_CPP11_MAPPING
     Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
-    Ice::DispatchStatus _actualStatus;
+#endif
     IceUtil::UniquePtr<IceUtil::Exception> _exception;
-  
+
     IceUtil::Mutex _mutex;
 };
 ICE_DEFINE_PTR(AMDInterceptorIPtr, AMDInterceptorI);
 
+#ifndef ICE_CPP11_MAPPING
 class DispatchInterceptorAsyncCallbackI : public Ice::DispatchInterceptorAsyncCallback
 {
 public:
 
     DispatchInterceptorAsyncCallbackI(AMDInterceptorI&);
 
-    virtual bool response(bool);
+    virtual bool response();
     virtual bool exception(const std::exception&);
     virtual bool exception();
 
 private:
     AMDInterceptorI& _interceptor;
 };
+#endif
 
 #endif

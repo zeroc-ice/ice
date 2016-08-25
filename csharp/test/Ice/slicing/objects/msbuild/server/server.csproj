@@ -42,9 +42,6 @@
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Forward.ice">
-      <Link>Forward.ice</Link>
-    </None>
     <None Include="..\..\server.exe.config">
       <Link>server.exe.config</Link>
     </None>

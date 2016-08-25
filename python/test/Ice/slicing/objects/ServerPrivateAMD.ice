@@ -64,14 +64,4 @@ exception PSUnknownException extends PreservedException
     PSUnknown2 p;
 };
 
-class Hidden
-{
-    Forward f;
-};
-
-class Forward
-{
-    Hidden h;
-};
-
 };

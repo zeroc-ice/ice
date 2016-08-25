@@ -40,28 +40,19 @@ namespace Ice
 
 ICE_API extern const Current noExplicitCurrent;
 
-enum DispatchStatus
-{
-    DispatchOK,
-    DispatchUserException,
-    DispatchAsync
-};
-
-
-class ICE_API DispatchInterceptorAsyncCallback
 #ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
+class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
 {
 public:
 
     virtual ~DispatchInterceptorAsyncCallback();
 
-    virtual bool response(bool) = 0;
+    virtual bool response() = 0;
     virtual bool exception(const std::exception&) = 0;
     virtual bool exception() = 0;
 };
 ICE_DEFINE_PTR(DispatchInterceptorAsyncCallbackPtr, DispatchInterceptorAsyncCallback);
+#endif
 
 class ICE_API Request
 {
@@ -79,23 +70,29 @@ public:
     virtual ~Object() = default;
 
     virtual bool ice_isA(std::string, const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
+    bool ___ice_isA(IceInternal::Incoming&, const Current&);
 
     virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
+    bool ___ice_ping(IceInternal::Incoming&, const Current&);
 
     virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
+    bool ___ice_ids(IceInternal::Incoming&, const Current&);
 
     virtual std::string ice_id(const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
+    bool ___ice_id(IceInternal::Incoming&, const Current&);
 
     static const std::string& ice_staticId();
 
     static std::string __all[];
 
-    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+#ifndef ICE_CPP11_MAPPING
+    virtual bool ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
+#else
+    virtual bool ice_dispatch(Ice::Request&,
+                              std::function<bool()> = nullptr,
+                              std::function<bool(std::exception_ptr)> = nullptr);
+#endif
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 
     struct Ice_invokeResult
     {
@@ -116,16 +113,16 @@ public:
     virtual bool operator<(const Object&) const;
 
     virtual bool ice_isA(const std::string&, const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
+    bool ___ice_isA(IceInternal::Incoming&, const Current&);
 
     virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
+    bool ___ice_ping(IceInternal::Incoming&, const Current&);
 
     virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
+    bool ___ice_ids(IceInternal::Incoming&, const Current&);
 
     virtual const std::string& ice_id(const Current& = Ice::noExplicitCurrent) const;
-    DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
+    bool ___ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;
 
@@ -144,8 +141,8 @@ public:
 
     static std::string __all[];
 
-    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 
 protected:
 
@@ -170,7 +167,7 @@ public:
     //
     virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
 
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectArray : public virtual Object
@@ -182,7 +179,7 @@ public:
     //
     virtual bool ice_invoke(const std::pair<const Byte*, const Byte*>&, std::vector<Byte>&, const Current&) = 0;
 
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectAsync : public virtual Object
@@ -197,7 +194,7 @@ public:
 #else
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
 #endif
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectArrayAsync : public virtual Object
@@ -213,7 +210,7 @@ public:
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;
 #endif
-    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 }

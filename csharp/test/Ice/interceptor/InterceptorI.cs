@@ -38,8 +38,15 @@ class InterceptorI : Ice.DispatchInterceptor
             {
                 try
                 {
-                    servant_.ice_dispatch(request);
-                    test(false);
+                    var t = servant_.ice_dispatch(request);
+                    if(t != null && t.IsFaulted)
+                    {
+                        throw t.Exception.InnerException;
+                    }
+                    else
+                    {
+                        test(false);
+                    }
                 }
                 catch(Test.RetryException)
                 {
@@ -51,6 +58,7 @@ class InterceptorI : Ice.DispatchInterceptor
 
             current.ctx["retry"] = "no";
         }
+
         var task = servant_.ice_dispatch(request);
         lastStatus_ = task != null;
         return task;

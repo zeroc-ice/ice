@@ -51,9 +51,6 @@
     <None Include="..\..\ClientPrivate.ice">
       <Link>ClientPrivate.ice</Link>
     </None>
-    <None Include="..\..\Forward.ice">
-      <Link>Forward.ice</Link>
-    </None>
     <None Include="..\..\Test.ice">
       <Link>Test.ice</Link>
     </None>

@@ -23,15 +23,16 @@ namespace IceInternal
 class ICE_API IncomingRequest : public Ice::Request
 {
 public:
-    IncomingRequest(Incoming& in) :
-        _in(in)
+
+    IncomingRequest(Incoming& in) : _in(in)
     {
     }
 
     virtual const Ice::Current& getCurrent();
-    
+
     Incoming& _in;
 };
+
 }
 
 #endif

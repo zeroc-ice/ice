@@ -12,7 +12,7 @@ namespace Ice
 
 public interface MarshaledResult
 {
-    Ice.OutputStream getOutputStream();
+    Ice.OutputStream getOutputStream(Ice.Current current);
 };
 
 }
@@ -196,12 +196,6 @@ namespace IceInternal
             {
                 try
                 {
-                    //
-                    // Skip the input parameters, this is required for reading
-                    // the next batch request if dispatching batch requests.
-                    //
-                    _is.skipEncapsulation();
-
                     if(servantManager != null && servantManager.hasServant(_current.id))
                     {
                         throw new Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
@@ -213,6 +207,7 @@ namespace IceInternal
                 }
                 catch(System.Exception ex)
                 {
+                    skipReadParams(); // Required for batch requests
                     handleException(ex, false);
                     return;
                 }
@@ -261,18 +256,25 @@ namespace IceInternal
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
-        public Task<Ice.OutputStream> setMarshaledResult(Ice.MarshaledResult result)
+        public Task<Ice.OutputStream> setMarshaledResult<T>(T result) where T : Ice.MarshaledResult
         {
-            _os = result.getOutputStream();
+            if(result == null)
+            {
+                _os = default(T).getOutputStream(_current);
+            }
+            else
+            {
+                _os = result.getOutputStream(_current);
+            }
             return null; // Response is cached in the Incoming to not have to create unecessary Task
         }
 
         public Task<Ice.OutputStream> setResultTask<R>(Task<R> task, Action<Ice.OutputStream, R> write)
         {
-            if(task == null || task.IsCompleted)
+            if(task == null)
             {
                 _os = startWriteParams();
-                write(_os, task != null ? task.GetAwaiter().GetResult() : default(R));
+                write(_os, default(R));
                 endWriteParams(_os);
                 return null; // Response is cached in the Incoming to not have to create unecessary Task
             }
@@ -291,12 +293,8 @@ namespace IceInternal
 
         public Task<Ice.OutputStream> setResultTask(Task task)
         {
-            if(task == null || task.IsCompleted)
+            if(task == null)
             {
-                if(task != null)
-                {
-                    task.GetAwaiter().GetResult();
-                }
                 _os = writeEmptyParams();
                 return null;
             }
@@ -312,16 +310,16 @@ namespace IceInternal
 
         public Task<Ice.OutputStream> setMarshaledResultTask<T>(Task<T> task) where T : Ice.MarshaledResult
         {
-            if(task == null || task.IsCompleted)
+            if(task == null)
             {
-                _os = task.GetAwaiter().GetResult().getOutputStream();
+                _os = default(T).getOutputStream(_current);
                 return null; // Response is cached in the Incoming to not have to create unecessary Task
             }
             else
             {
                 return task.ContinueWith((Task<T> t) =>
                 {
-                    return Task.FromResult<Ice.OutputStream>(t.GetAwaiter().GetResult().getOutputStream());
+                    return Task.FromResult<Ice.OutputStream>(t.GetAwaiter().GetResult().getOutputStream(_current));
                 }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
             }
         }
@@ -390,9 +388,10 @@ namespace IceInternal
             else
             {
                 //
-                // Let's rewind _is
+                // Let's rewind _is, reset _os
                 //
                 _is.pos(_inParamPos);
+                _os = null;
             }
         }
 

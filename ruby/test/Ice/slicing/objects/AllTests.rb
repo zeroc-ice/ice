@@ -8,7 +8,7 @@
 # **********************************************************************
 
 require 'Ice'
-Ice::loadSlice('-I. --all Forward.ice ClientPrivate.ice')
+Ice::loadSlice('-I. --all ClientPrivate.ice')
 
 def test(b)
     if !b

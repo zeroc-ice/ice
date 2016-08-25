@@ -197,12 +197,6 @@ final public class Incoming implements com.zeroc.Ice.Request
         {
             try
             {
-                //
-                // Skip the input parameters, this is required for reading
-                // the next batch request if dispatching batch requests.
-                //
-                _is.skipEncapsulation();
-
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
                     throw new com.zeroc.Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
@@ -214,6 +208,7 @@ final public class Incoming implements com.zeroc.Ice.Request
             }
             catch(Throwable ex)
             {
+                skipReadParams(); // Required for batch requests
                 handleException(ex, false);
                 return;
             }
@@ -400,9 +395,10 @@ final public class Incoming implements com.zeroc.Ice.Request
         else
         {
             //
-            // Let's rewind _is and clean-up _os
+            // Let's rewind _is and reset _os
             //
             _is.pos(_inParamPos);
+            _os = null;
         }
     }
 

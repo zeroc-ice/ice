@@ -31,5 +31,4 @@ public class TestFacetI : TestFacetDisp_, Ice.PropertiesAdminUpdateCallback
     }
 
     private Dictionary<string, string> _changes;
-    private bool _called;
 }

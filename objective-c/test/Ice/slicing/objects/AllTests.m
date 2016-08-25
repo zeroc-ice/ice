@@ -10,7 +10,6 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <SlicingObjectsTestClient.h>
-#import <SlicingObjectsForwardClient.h>
 
 #import <Foundation/Foundation.h>
 

@@ -31,27 +31,27 @@ class ICE_API IncomingBase : private IceUtil::noncopyable
 {
 public:
 
-    void __adopt(IncomingBase&);
+    Ice::OutputStream* startWriteParams();
+    void endWriteParams();
+    void writeEmptyParams();
+    void writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
 
-    Ice::OutputStream* __startWriteParams(Ice::FormatType);
-    void __endWriteParams(bool);
-    void __writeEmptyParams();
-    void __writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
-    void __writeUserException(const Ice::UserException&, Ice::FormatType);
+    void response(bool);
+    void exception(const std::exception&, bool);
+    void exception(const std::string&, bool);
 
 protected:
 
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte,
-                 Ice::Int);
-    IncomingBase(IncomingBase&); // Adopts the argument. It must not be used afterwards.
+    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+    IncomingBase(IncomingBase&);
 
-    void __warning(const Ice::Exception&) const;
-    void __warning(const std::string&) const;
+    void warning(const Ice::Exception&) const;
+    void warning(const std::string&) const;
 
-    bool __servantLocatorFinished(bool);
+    bool servantLocatorFinished(bool);
 
-    void __handleException(const std::exception&, bool);
-    void __handleException(bool);
+    void handleException(const std::exception&, bool);
+    void handleException(const std::string&, bool);
 
     Ice::Current _current;
     Ice::ObjectPtr _servant;
@@ -64,7 +64,7 @@ protected:
     DispatchObserver _observer;
     bool _response;
     Ice::Byte _compress;
-
+    Ice::FormatType _format;
     Ice::OutputStream _os;
 
     //
@@ -73,7 +73,13 @@ protected:
     //
     ResponseHandler* _responseHandler;
 
-    std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> _interceptorAsyncCallbackQueue;
+#ifdef ICE_CPP11_MAPPING
+    using DispatchInterceptorCallbacks = std::deque<std::pair<std::function<bool()>,
+                                                              std::function<bool(std::exception_ptr)>>>;
+#else
+    typedef std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> DispatchInterceptorCallbacks;
+#endif
+    DispatchInterceptorCallbacks _interceptorCBs;
 };
 
 class ICE_API Incoming : public IncomingBase
@@ -87,20 +93,33 @@ public:
         return _current;
     }
 
+#ifdef ICE_CPP11_MAPPING
+    void push(std::function<bool()>, std::function<bool(std::exception_ptr)>);
+#else
     void push(const Ice::DispatchInterceptorAsyncCallbackPtr&);
+#endif
     void pop();
-    void startOver();
-    void killAsync();
-    void setActive(IncomingAsyncPtr);
 
-    bool isRetriable()
+    void setAsync(const IncomingAsyncPtr& in)
     {
-        return _inParamPos != 0;
+        assert(!_inAsync);
+        _inAsync = in;
+    }
+
+    void startOver();
+
+    void setFormat(Ice::FormatType format)
+    {
+        _format = format;
     }
 
     void invoke(const ServantManagerPtr&, Ice::InputStream*);
 
     // Inlined for speed optimization.
+    void skipReadParams()
+    {
+        _current.encoding = _is->skipEncapsulation();
+    }
     Ice::InputStream* startReadParams()
     {
         //
@@ -125,10 +144,12 @@ public:
 
 private:
 
-    Ice::InputStream* _is;
+    friend class IncomingAsync;
 
-    IncomingAsyncPtr _cb;
+    Ice::InputStream* _is;
     Ice::Byte* _inParamPos;
+
+    IncomingAsyncPtr _inAsync;
 };
 
 }

@@ -67,7 +67,7 @@ exception DerivedException extends BaseException
     D1 pd1;
 };
 
-class Forward;          /* Forward-declared class defined in another compilation unit */
+class Forward;
 
 class PBase
 {
@@ -181,6 +181,15 @@ exception PSUnknownException extends PreservedException
     void shutdown();
 };
 
+class Hidden
+{
+    Forward f;
+};
+
+class Forward
+{
+    Hidden h;
+};
 
 // Things private to the server.
 
