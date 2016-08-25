@@ -83,8 +83,7 @@ make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$
 shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
 # If we are linking a program, add -rpath-link to locate secondary libraries that aren't linked with the executable.
-shared_ldflags	= $(if $(filter-out program,$($1_target)),\
-         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
+shared_ldflags	= $(if $(filter-out program,$($1_target)),,$$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
 CXXFLAGS        += -Wall -Werror -pthread
 LDFLAGS         += -pthread
