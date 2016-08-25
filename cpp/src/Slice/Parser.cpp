@@ -5368,7 +5368,7 @@ Slice::Operation::returnsData() const
 bool
 Slice::Operation::returnsMultipleValues() const
 {
-    int count = outParameters().size();
+    size_t count = outParameters().size();
 
     if(returnType())
     {
