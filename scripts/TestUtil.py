@@ -2299,7 +2299,7 @@ def runTests(start, expanded, num = 0, script = False):
                 dir = os.path.join(testToplevel, "java", "test", "src", "main", i)
             elif i.find(os.path.join("java-compat","test")) != -1:
                 dir = os.path.join(testToplevel, "java-compat", "test", "src", "main", i.replace('-compat',''))
-            elif i.find(os.path.join("js","test")) != -1:
+            elif  es5 and i.find(os.path.join("js","test")) != -1:
                 dir = os.path.join(testToplevel, i.replace("test/Ice/", "test/Ice/es5/")
                                                   .replace("test/Glacier2/", "test/Glacier2/es5/"))
             else:
