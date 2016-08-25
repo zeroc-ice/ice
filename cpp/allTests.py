@@ -66,6 +66,7 @@ tests = [
     ("Ice/background", ["core", "nomingw", "nosocks"]),
     ("Ice/servantLocator", ["core", "bt"]),
     ("Ice/interceptor", ["core"]),
+    ("Ice/library", ["once", "nostatic"]),
     ("Ice/stringConverter", ["core"]),
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),

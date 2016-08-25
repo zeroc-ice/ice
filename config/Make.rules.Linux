@@ -76,8 +76,16 @@ x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 
 endif
 
+rpath-link-ldflag 	= -Wl,-rpath-link,$1
+make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))
+
 # If building objects for a shared library, enable fPIC
 shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
+
+# If we are linking a program, add -rpath-link to locate secondary libraries that aren't linked with the executable.
+shared_ldflags	= $(if $(filter-out program,$($1_target)),\
+        -Wl$(comma)--no-undefined,\
+	$$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
 CXXFLAGS        += -Wall -Werror -pthread
 LDFLAGS         += -pthread

@@ -50,8 +50,9 @@ shared_excludes         = IceUtil Slice
 #
 # Build only few components with the static configuration (core and stubs)
 #
-static_components 	= $(coreandstub_components)
-static_projects		= test/%
+static_components       = $(coreandstub_components)
+static_projects         = test/%
+static_excludes         = test/Ice/library
 
 #
 # Components and projects which are built with C++11

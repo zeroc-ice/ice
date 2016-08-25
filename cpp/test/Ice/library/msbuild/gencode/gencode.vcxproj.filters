@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{429ccb0e-4b98-427a-b77d-adf9ae0b1ff4}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{a4d3f2a6-1ad2-4c10-af7b-7996fa201172}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7b11a0db-ee90-4370-8409-8fb9c70dcd71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{588f377a-ccd8-4bcf-b0b5-553fae10cf8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Cpp11-Debug">
+      <UniqueIdentifier>{092cb079-d312-4a87-92cc-1af853a509ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64">
+      <UniqueIdentifier>{08b13aba-df48-4ffa-ac43-7c6125af7f17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Cpp11-Debug">
+      <UniqueIdentifier>{64f3eba0-5d62-4212-a36d-151d76182345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{48304773-4b2e-49a5-b409-eb08eb34e153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Cpp11-Debug">
+      <UniqueIdentifier>{f5a3bcb4-07ac-47bc-b1f1-c2aa0d5b079d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{2a3c5ab8-7dff-400f-8572-bd2f10ca4bcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Cpp11-Debug">
+      <UniqueIdentifier>{44af8f72-3abb-426d-bdb0-5c68006c1d60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{90dda4ef-7c8b-469b-8e27-4c8100ec4a20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Debug">
+      <UniqueIdentifier>{baf88a65-fdbf-4a52-99f3-e7f815c849fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Debug">
+      <UniqueIdentifier>{0607a845-a6cd-45bc-ae85-6915fefa3aef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Debug">
+      <UniqueIdentifier>{58d937ee-2f18-4beb-b84e-7cb6723c2772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{690d6b17-c238-4849-aeb0-5cf3775af48d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Release">
+      <UniqueIdentifier>{235cb50b-b0ac-4367-bade-1fcab9936eb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Release">
+      <UniqueIdentifier>{1ad58578-706c-46d3-a533-896757cf262c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Release">
+      <UniqueIdentifier>{ba0a0e38-fc4d-447f-a517-002e47ed7019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Cpp11-Release">
+      <UniqueIdentifier>{2ef96c2c-d9ea-4e90-9170-ba02f6187107}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Cpp11-Release">
+      <UniqueIdentifier>{cf729630-d56d-49de-af02-eaac1a4c8437}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Cpp11-Release">
+      <UniqueIdentifier>{714c33cf-bc69-4ed1-85fe-bdd644d53692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Cpp11-Release">
+      <UniqueIdentifier>{ffaee417-1fd2-48f5-9c30-12cb395ae94b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <IceBuilder Include="..\..\Test.ice">
+      <Filter>Slice Files</Filter>
+    </IceBuilder>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Win32\Cpp11-Debug\Test.cpp" />
+    <ClCompile Include="Win32\Cpp11-Release\Test.cpp" />
+    <ClCompile Include="Win32\Debug\Test.cpp" />
+    <ClCompile Include="Win32\Release\Test.cpp" />
+    <ClCompile Include="x64\Cpp11-Debug\Test.cpp" />
+    <ClCompile Include="x64\Cpp11-Release\Test.cpp" />
+    <ClCompile Include="x64\Debug\Test.cpp" />
+    <ClCompile Include="x64\Release\Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Win32\Cpp11-Debug\Test.h" />
+    <ClInclude Include="Win32\Cpp11-Release\Test.h" />
+    <ClInclude Include="Win32\Debug\Test.h" />
+    <ClInclude Include="Win32\Release\Test.h" />
+    <ClInclude Include="x64\Cpp11-Debug\Test.h" />
+    <ClInclude Include="x64\Cpp11-Release\Test.h" />
+    <ClInclude Include="x64\Debug\Test.h" />
+    <ClInclude Include="x64\Release\Test.h" />
+  </ItemGroup>
+</Project>

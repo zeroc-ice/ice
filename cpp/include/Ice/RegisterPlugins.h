@@ -34,6 +34,10 @@ namespace Ice
 // inconsistent DLL linkage errors on Windows.
 //
 
+#ifndef ICE_API_EXPORTS
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceStringConverter(bool = true);
+#endif
+
 #ifndef ICE_SSL_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSL(bool = true);
 #endif

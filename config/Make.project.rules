@@ -434,7 +434,7 @@ $5_ldflags	:= $$(call var-compound,ldflags,$1,$2,$3,$4,make-flags)
 #
 $5_objdir	:= $$(call var-value,objdir,$1,$2,$3,$4,make-dirwsuffix)
 $5_objdir       := $$($5_objdir)$$(if $$(and $$($1_multicomp),\
-			$$(filter-out $$(call var-compound,cppflags,$1,,$3,$4,make-flags),$$($5_cppflags))),/$2)
+		$$(filter-out $$(call var-compound,cppflags,$1,,$3,$4,make-flags),$$($5_cppflags))),/$$($2_targetname))
 $1_objdirs	+= $$($5_objdir)
 
 $5_sources 	:= $$(patsubst $(lang_srcdir)/%,%,$$(call unique,$$(call var-compound,extra_sources,$1,$2,$3,$4) \
@@ -932,11 +932,13 @@ ifeq ($(embedded_runpath_prefix),)
 make-rpath-ldflag = $(if $(filter-out $1,$2),\
 			$(if $(filter /%,$1),\
 			    $(call rpath-ldflag,$1),\
-		            $(call rpath-ldflag,$(loader_path)/$(call relpathfromdir,$(patsubst $(lang_srcdir)/%,%,$2))/$1)))
+		            $(call rpath-ldflag,$(loader_path)/$(call relpathfromdir,$(patsubst $(lang_srcdir)/%,%,$2))/$1)),\
+			$(call rpath-ldflag,$(loader_path)))
 make-shared-dep-ldflags	= $(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir) -l$($1_targetname)
 else
 # Add rpath with $(embedded_runpath_prefix) if linking with library installed in different directory.
-make-rpath-ldflag = $(if $(filter-out $1,$2),$(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)))
+make-rpath-ldflag = $(if $(filter-out $1,$2),\
+			$(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)))
 make-shared-dep-ldflags	= $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) -L$($1_targetdir) -l$($1_targetname)
 endif
 else
