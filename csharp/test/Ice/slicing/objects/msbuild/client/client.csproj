@@ -41,7 +41,6 @@
       <Link>Client.cs</Link>
     </Compile>
     <Compile Include="generated\ClientPrivate.cs" />
-    <Compile Include="generated\Forward.cs" />
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>

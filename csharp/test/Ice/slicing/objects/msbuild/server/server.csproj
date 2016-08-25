@@ -37,7 +37,6 @@
     <Compile Include="..\..\TestI.cs">
       <Link>TestI.cs</Link>
     </Compile>
-    <Compile Include="generated\Forward.cs" />
     <Compile Include="generated\ServerPrivate.cs" />
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
