@@ -987,8 +987,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     other.sort();
     ids.merge(other);
     ids.unique();
+#ifndef NDEBUG
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
+#endif
 
     out << sp << nl << "static final String[] __ids =";
     out << sb;
