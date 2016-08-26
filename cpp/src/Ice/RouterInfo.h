@@ -43,15 +43,15 @@ public:
 private:
 
 #ifdef ICE_CPP11_MAPPING
-    using RouterTableMap = std::map<std::shared_ptr<Ice::RouterPrx>,
-                                    RouterInfoPtr,
-                                    Ice::TargetCompare<std::shared_ptr<::Ice::RouterPrx>, std::less>>;
+    using RouterInfoTable = std::map<std::shared_ptr<Ice::RouterPrx>,
+                                     RouterInfoPtr,
+                                     Ice::TargetCompare<std::shared_ptr<Ice::RouterPrx>, std::less>>;
 #else
-    typedef std::map<Ice::RouterPrxPtr, RouterInfoPtr> RouterTableMap;
+    typedef std::map<Ice::RouterPrx, RouterInfoPtr> RouterInfoTable;
 #endif
 
-    RouterTableMap _table;
-    RouterTableMap::iterator _tableHint;
+    RouterInfoTable _table;
+    RouterInfoTable::iterator _tableHint;
 };
 
 class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex

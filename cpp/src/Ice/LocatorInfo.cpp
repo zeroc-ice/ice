@@ -157,7 +157,7 @@ IceInternal::LocatorManager::get(const LocatorPrxPtr& loc)
         return 0;
     }
 
-    LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, loc->ice_locator(0)); // The locator can't be located.
+    LocatorPrxPtr locator = loc->ice_locator(0); // The locator can't be located.
 
     //
     // TODO: reap unused locator info objects?
@@ -165,11 +165,11 @@ IceInternal::LocatorManager::get(const LocatorPrxPtr& loc)
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<LocatorPrxPtr, LocatorInfoPtr>::iterator p = _table.end();
+    LocatorInfoTable::iterator p = _table.end();
 
     if(_tableHint != _table.end())
     {
-        if(_tableHint->first == locator)
+        if(targetEqualTo(_tableHint->first, locator))
         {
             p = _tableHint;
         }
@@ -564,21 +564,13 @@ IceInternal::LocatorInfo::destroy()
 bool
 IceInternal::LocatorInfo::operator==(const LocatorInfo& rhs) const
 {
-#ifdef ICE_CPP11_MAPPING
     return Ice::targetEqualTo(_locator, rhs._locator);
-#else
-    return _locator == rhs._locator;
-#endif
 }
 
 bool
 IceInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
 {
-#ifdef ICE_CPP11_MAPPING
     return Ice::targetLess(_locator, rhs._locator);
-#else
-    return _locator < rhs._locator;
-#endif
 }
 
 LocatorRegistryPrxPtr

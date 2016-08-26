@@ -47,15 +47,15 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
         return 0;
     }
 
-    RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, rtr->ice_router(0)); // The router cannot be routed.
+    RouterPrxPtr router = rtr->ice_router(0); // The router cannot be routed.
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<RouterPrxPtr, RouterInfoPtr>::iterator p = _table.end();
+    RouterInfoTable::iterator p = _table.end();
 
     if(_tableHint != _table.end())
     {
-        if(_tableHint->first == router)
+        if(targetEqualTo(_tableHint->first, router))
         {
             p = _tableHint;
         }
@@ -87,8 +87,8 @@ IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
         RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, rtr->ice_router(ICE_NULLPTR)); // The router cannot be routed.
         IceUtil::Mutex::Lock sync(*this);
 
-        map<RouterPrxPtr, RouterInfoPtr>::iterator p = _table.end();
-        if(_tableHint != _table.end() && _tableHint->first == router)
+        RouterInfoTable::iterator p = _table.end();
+        if(_tableHint != _table.end() && targetEqualTo(_tableHint->first, router))
         {
             p = _tableHint;
             _tableHint = _table.end();
@@ -129,21 +129,13 @@ IceInternal::RouterInfo::destroy()
 bool
 IceInternal::RouterInfo::operator==(const RouterInfo& rhs) const
 {
-#ifdef ICE_CPP11_MAPPING
     return Ice::targetEqualTo(_router, rhs._router);
-#else
-    return _router == rhs._router;
-#endif
 }
 
 bool
 IceInternal::RouterInfo::operator<(const RouterInfo& rhs) const
 {
-#ifdef ICE_CPP11_MAPPING
     return Ice::targetLess(_router, rhs._router);
-#else
-    return _router < rhs._router;
-#endif
 }
 
 vector<EndpointIPtr>
