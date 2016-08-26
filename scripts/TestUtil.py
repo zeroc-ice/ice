@@ -547,7 +547,7 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--cross":
             global cross
-            crossLang = ["cpp", "csharp", "java", "java-compat" "js", "php", "python", "ruby", "objective-c"]
+            crossLang = ["cpp", "csharp", "java", "java-compat", "js", "php", "python", "ruby", "objective-c"]
             if a not in crossLang:
                 print("cross must be one of %s" % ', '.join(crossLang))
                 sys.exit(1)
@@ -2158,7 +2158,7 @@ def processCmdLine():
         elif o == "--cross":
             global cross
             cross.append(a)
-            crossLang = ["cpp", "csharp", "java", "java-comapt", "js", "php", "python", "ruby", "objective-c"]
+            crossLang = ["cpp", "csharp", "java", "java-compat", "js", "php", "python", "ruby", "objective-c"]
             if not a in crossLang:
                 print("cross must be one of %s" % ', '.join(crossLang))
                 sys.exit(1)
