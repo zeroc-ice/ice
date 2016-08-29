@@ -22,6 +22,10 @@ ifeq ($(os),Darwin)
     php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
 
+ifeq ($(os),Linux)
+   allow-undefined-symbols    := yes
+endif
+
 #
 # On the default platform, always write/install the module in the lib directory.
 #
