@@ -261,6 +261,21 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
                 {
                     throwUserException();
                 }
+                catch(UserException ex)
+                {
+                    if(_userExceptions != null)
+                    {
+                        for(int i = 0; i < _userExceptions.length; ++i)
+                        {
+                            if(_userExceptions[i].isInstance(ex))
+                            {
+                                completeExceptionally(ex);
+                                return;
+                            }
+                        }
+                    }
+                    completeExceptionally(new com.zeroc.Ice.UnknownUserException(ex.ice_id(), ex));
+                }
                 catch(Throwable ex)
                 {
                     completeExceptionally(ex);
