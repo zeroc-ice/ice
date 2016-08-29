@@ -48,14 +48,14 @@ endif
 endif
 
 HDIR		= $(headerdir)/IceSSL
-SDIR  		= $(slicedir)/IceSSL
+SDIR		= $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS		:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) $(OPENSSL_LIBS) -lIce -lIceUtil $(SSL_OS_LIBS) $(CXXLIBS)
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(SSL_OS_LIBS) $(CXXLIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
