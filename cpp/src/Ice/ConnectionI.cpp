@@ -2588,14 +2588,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 OutputStream stream(_instance.get(), Ice::currentProtocolEncoding);
                 doCompress(*message->stream, stream);
 
-                if(message->outAsync)
-                {
-                    trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    traceSend(*message->stream, _logger, _traceLevels);
-                }
+                traceSend(*message->stream, _logger, _traceLevels);
 
                 message->adopt(&stream); // Adopt the compressed stream.
                 message->stream->i = message->stream->b.begin();
@@ -2622,14 +2615,8 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
 #endif
                 message->stream->i = message->stream->b.begin();
-                if(message->outAsync)
-                {
-                    trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    traceSend(*message->stream, _logger, _traceLevels);
-                }
+                traceSend(*message->stream, _logger, _traceLevels);
+
 #ifdef ICE_HAS_BZIP2
             }
 #endif
@@ -2714,14 +2701,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 
-        if(message.outAsync)
-        {
-            trace("sending asynchronous request", *message.stream, _logger, _traceLevels);
-        }
-        else
-        {
-            traceSend(*message.stream, _logger, _traceLevels);
-        }
+        traceSend(*message.stream, _logger, _traceLevels);
 
         //
         // Send the message without blocking.
@@ -2776,14 +2756,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 #endif
         message.stream->i = message.stream->b.begin();
 
-        if(message.outAsync)
-        {
-            trace("sending asynchronous request", *message.stream, _logger, _traceLevels);
-        }
-        else
-        {
-            traceSend(*message.stream, _logger, _traceLevels);
-        }
+        traceSend(*message.stream, _logger, _traceLevels);
 
         //
         // Send the message without blocking.

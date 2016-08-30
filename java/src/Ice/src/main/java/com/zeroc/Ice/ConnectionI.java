@@ -2125,15 +2125,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 message.stream = doCompress(stream, message.compress);
                 message.stream.prepareWrite();
                 message.prepared = true;
-
-                if(message.outAsync != null)
-                {
-                    TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    TraceUtil.traceSend(stream, _logger, _traceLevels);
-                }
+                TraceUtil.traceSend(stream, _logger, _traceLevels);
                 _writeStream.swap(message.stream);
 
                 //
@@ -2203,15 +2195,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         message.stream.prepareWrite();
         message.prepared = true;
         int op;
-
-        if(message.outAsync != null)
-        {
-            TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-        }
-        else
-        {
-            TraceUtil.traceSend(stream, _logger, _traceLevels);
-        }
+        TraceUtil.traceSend(stream, _logger, _traceLevels);
 
         //
         // Send the message without blocking.
