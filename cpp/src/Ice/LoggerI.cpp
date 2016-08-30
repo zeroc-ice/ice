@@ -56,10 +56,10 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
     _prefix(prefix),
     _convert(convert),
     _converter(getProcessStringConverter()),
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
-    _consoleConverter(createWindowsStringConverter(GetConsoleOutputCP())),
-#endif
     _sizeMax(sizeMax)
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+    ,_consoleConverter(createWindowsStringConverter(GetConsoleOutputCP())),
+#endif
 {
     if(!prefix.empty())
     {

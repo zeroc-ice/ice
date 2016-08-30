@@ -27,7 +27,8 @@ public final class DummyLogger implements com.zeroc.Ice.Logger
     public void warning(String message)
     {
         if(!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertExceptionAsync"))
+           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertExceptionAsync") &&
+           !message.contains("java.lang.AssertionError"))
         {
             _logger.warning(message);
         }
@@ -37,7 +38,8 @@ public final class DummyLogger implements com.zeroc.Ice.Logger
     public void error(String message)
     {
         if(!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertExceptionAsync"))
+           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertExceptionAsync") &&
+           !message.contains("java.lang.AssertionError"))
         {
             _logger.error(message);
         }

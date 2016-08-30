@@ -18,7 +18,7 @@ public class AMDServer extends test.Util.Application
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
         com.zeroc.Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-        com.zeroc.Ice.Object object = new ThrowerI();
+        com.zeroc.Ice.Object object = new AMDThrowerI();
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
         adapter2.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
         adapter3.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
