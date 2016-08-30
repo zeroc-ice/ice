@@ -90,15 +90,18 @@ void completed(const Ice::AsyncResultPtr& result)
             else
             {
                 Ice::InputStreamPtr s = Ice::createInputStream(proxy->ice_getCommunicator(), outParams);
-                try
+                is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+                @try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    [is startEncapsulation];
+                    [is throwException];
                 }
-                catch(const Ice::UserException& ex)
+                @catch(ICEUserException* ex)
                 {
-                    s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    [is endEncapsulation];
+                    [is release];
+                    is = nil;
+                    nsex = [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_name]];
                 }
             }
         }
@@ -550,15 +553,18 @@ BOOL _returnsData;
             else
             {
                 Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
-                try
+                is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+                @try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    [is startEncapsulation];
+                    [is throwException];
                 }
-                catch(const Ice::UserException& ex)
+                @catch(ICEUserException* ex)
                 {
-                    s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    [is endEncapsulation];
+                    [is release];
+                    is = nil;
+                    nsex = [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_name]];
                 }
             }
         }
@@ -863,15 +869,18 @@ BOOL _returnsData;
             else
             {
                 Ice::InputStreamPtr s = Ice::createInputStream(OBJECTPRX->ice_getCommunicator(), outParams);
-                try
+                is = [ICEInputStream localObjectWithCxxObjectNoAutoRelease:s.get()];
+                @try
                 {
-                    s->startEncapsulation();
-                    s->throwException();
+                    [is startEncapsulation];
+                    [is throwException];
                 }
-                catch(const Ice::UserException& ex)
+                @catch(ICEUserException* ex)
                 {
-                    s->endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_name());
+                    [is endEncapsulation];
+                    [is release];
+                    is = nil;
+                    nsex = [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_name]];
                 }
             }
         }
