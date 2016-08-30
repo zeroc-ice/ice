@@ -2217,6 +2217,51 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing optionals with marshaled results... ");
+        out.flush();
+        {
+            test(initial.opMStruct1().isPresent());
+            test(initial.opMDict1().isPresent());
+            test(initial.opMSeq1().isPresent());
+            test(initial.opMG1().isPresent());
+
+            {
+                Initial.OpMStruct2Result result = initial.opMStruct2(Optional.empty());
+                test(!result.returnValue.isPresent() && !result.returnValue.isPresent());
+
+                SmallStruct p1 = new SmallStruct();
+                result = initial.opMStruct2(Optional.of(p1));
+                test(result.returnValue.get().equals(p1) && result.p2.get().equals(p1));
+            }
+            {
+                Initial.OpMSeq2Result result = initial.opMSeq2(Optional.empty());
+                test(!result.p2.isPresent() && !result.returnValue.isPresent());
+
+                String[] p1 = { "hello" };
+                result = initial.opMSeq2(Optional.of(p1));
+                test(java.util.Arrays.equals(result.p2.get(), p1) &&
+                     java.util.Arrays.equals(result.returnValue.get(), p1));
+            }
+            {
+                Initial.OpMDict2Result result = initial.opMDict2(Optional.empty());
+                test(!result.p2.isPresent() && !result.returnValue.isPresent());
+
+                java.util.Map<String, Integer> p1 = new java.util.HashMap<>();
+                p1.put("test", 54);
+                result = initial.opMDict2(Optional.of(p1));
+                test(result.p2.get().equals(p1) && result.returnValue.get().equals(p1));
+            }
+            {
+                Initial.OpMG2Result result = initial.opMG2(Optional.empty());
+                test(!result.p2.isPresent() && !result.returnValue.isPresent());
+
+                G p1 = new G();
+                result = initial.opMG2(Optional.of(p1));
+                test(result.p2.get() == result.returnValue.get());
+            }
+        }
+        out.println("ok");
+
         return initial;
     }
 
