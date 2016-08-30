@@ -30,7 +30,7 @@
             super();
             this._opByteSOnewayCount = 0;
         }
-        
+
         ice_isA(id, current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
@@ -263,7 +263,7 @@
             var r = p1.reverse();
             cb.ice_response(r, p3);
         }
-    
+
         opByteByteSD_async(cb, p1, p2, current)
         {
             var r = new Map(p1);
@@ -493,6 +493,36 @@
                 TestAMD.sw0, TestAMD.sw1, TestAMD.sw2, TestAMD.sw3, TestAMD.sw4, TestAMD.sw5, TestAMD.sw6, TestAMD.sw7, TestAMD.sw8, TestAMD.sw9, TestAMD.sw10,
                 TestAMD.ss0, TestAMD.ss1, TestAMD.ss2, TestAMD.ss3, TestAMD.ss4, TestAMD.ss5,
                 TestAMD.su0, TestAMD.su1, TestAMD.su2]);
+        }
+
+        opMStruct1_async(cb, current)
+        {
+            cb.ice_response(new TestAMD.Structure());
+        }
+
+        opMStruct2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
+        opMSeq1_async(cb, current)
+        {
+            cb.ice_response([]);
+        }
+
+        opMSeq2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
+        opMDict1_async(cb, current)
+        {
+            cb.ice_response(new Map());
+        }
+
+        opMDict2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
         }
     }
 

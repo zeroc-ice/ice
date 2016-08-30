@@ -59,8 +59,8 @@
                      Test.s2 == Test.sw2 &&
                      Test.s2 == literals[2] &&
                      Test.s2 == literals[13]);
-                
-                test(Test.s3 == "A21" && 
+
+                test(Test.s3 == "A21" &&
                      Test.s3 == Test.sw3 &&
                      Test.s3 == literals[3] &&
                      Test.s3 == literals[14]);
@@ -89,7 +89,7 @@
                      Test.s8 == Test.sw8 &&
                      Test.s8 == literals[8] &&
                      Test.s8 == literals[19]);
-                
+
                 test(Test.s9 == "\uD83C\uDF4C" &&
                      Test.s9 == Test.sw9 &&
                      Test.s9 == literals[9] &&
@@ -99,14 +99,14 @@
                      Test.s10 == Test.sw10 &&
                      Test.s10 == literals[10] &&
                      Test.s10 == literals[21]);
-                            
+
                 test(Test.ss0 == "\'\"\?\\\u0007\b\f\n\r\t\v" &&
                      Test.ss0 == Test.ss1 &&
                      Test.ss0 == Test.ss2 &&
                      Test.ss0 == literals[22] &&
                      Test.ss0 == literals[23] &&
                      Test.ss0 == literals[24]);
-                
+
                 test(Test.ss3 == "\\\\U\\u\\" &&
                      Test.ss3 == literals[25]);
 
@@ -115,13 +115,13 @@
 
                 test(Test.ss5 == "\\u0041\\" &&
                      Test.ss5 == literals[27]);
-                    
+
                 test(Test.su0 == Test.su1 &&
                      Test.su0 == Test.su2 &&
                      Test.su0 == literals[28] &&
                      Test.su0 == literals[29] &&
                      Test.su0 == literals[30]);
-        
+
                 return prx.ice_ping();
             }
         ).then(() => prx.ice_isA(Test.MyClass.ice_staticId())
@@ -1504,7 +1504,7 @@
                                 {
                                     test(Ice.MapUtil.equals(c, combined));
 
-                                    return ic.destroy();  
+                                    return ic.destroy();
                                 });
                         }
                     });
@@ -1578,6 +1578,37 @@
                         test(c.myClass === null);
                         test(c.myClass1 == "Test.MyClass1.myClass1");
                     });
+            }
+        ).then(() => prx.opMStruct1()
+        ).then((result) =>
+            {
+                result.e = Test.MyEnum.enum3;
+                return prx.opMStruct2(result);
+            }
+        ).then((result) =>
+            {
+                let [r, p2] = result;
+                test(p2.e == Test.MyEnum.enum3 && r.e == Test.MyEnum.enum3);
+                return prx.opMSeq1();
+            }
+        ).then((result) =>
+            {
+                return prx.opMSeq2(["test"]);
+            }
+        ).then((result) =>
+            {
+                let [r, p2] = result;
+                test(p2[0] == "test" && r[0] == "test");
+                return prx.opMDict1();
+            }
+        ).then((result) =>
+            {
+                return prx.opMDict2(new Map([["test", "test"]]));
+            }
+        ).then((result) =>
+            {
+                let [r, p2] = result;
+                test(r.get("test") == "test" && p2.get("test") == "test");
             }
         ).then(p.resolve, p.reject);
         return p;

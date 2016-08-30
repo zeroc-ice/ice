@@ -972,8 +972,95 @@
                 test(ex.o2.a === 53);
 
                 out.writeLine("ok");
+                out.write("testing optionals with marshaled results... ");
+                return initial.opMStruct1();
+            }
+        ).then(
+            r =>
+            {
+                test(r !== undefined);
+                return initial.opMDict1();
+            }
+        ).then(
+            r =>
+            {
+                test(r !== undefined);
+                return initial.opMSeq1();
+            }
+        ).then(
+            r =>
+            {
+                test(r !== undefined);
+                return initial.opMG1();
+            }
+        ).then(
+            r =>
+            {
+                test(r !== undefined);
+                return initial.opMStruct2();
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r === undefined && p2 === undefined);
+                return initial.opMStruct2(new Test.SmallStruct());
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r.equals(p2));
+                return initial.opMSeq2();
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r === undefined && p2 === undefined);
+                return initial.opMSeq2(["hello"]);
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r[0] == "hello" && p2[0] == "hello");
+                return initial.opMDict2();
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r === undefined && p2 === undefined);
+                return initial.opMDict2(new Map([ ["test", 54] ]));
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r.get("test") == 54 && p2.get("test") == 54);
+                return initial.opMG2();
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r === undefined && p2 === undefined);
+                return initial.opMG2(new Test.G());
+            }
+        ).then(
+            result =>
+            {
+                let [r, p2] = result;
+                test(r === p2);
+            }
+        ).then(
+            r =>
+            {
+                out.writeLine("ok");
                 return initial.shutdown();
-            }).then(p.resolve, p.reject);
+            },
+            ex => console.log(ex)).then(p.resolve, p.reject);
 
         return p;
     };

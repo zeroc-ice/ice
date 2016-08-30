@@ -278,6 +278,46 @@
         {
         }
 
+        opMStruct1(current)
+        {
+            return new Test.SmallStruct();
+        }
+
+        opMStruct2(p1, current)
+        {
+            return [p1, p1];
+        }
+
+        opMSeq1(current)
+        {
+            return [];
+        }
+
+        opMSeq2(p1, current)
+        {
+            return [p1, p1];
+        }
+
+        opMDict1(current)
+        {
+            return new Map();
+        }
+
+        opMDict2(p1, current)
+        {
+            return [p1, p1];
+        }
+
+        opMG1(current)
+        {
+            return new Test.G();
+        }
+
+        opMG2(p1, current)
+        {
+            return [p1, p1];
+        }
+
         returnOptionalClass(req, current)
         {
             return new Test.OneOptional(53);

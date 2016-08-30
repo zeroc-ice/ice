@@ -249,17 +249,14 @@ class MyClass
 
     StringS opStringLiterals();
 
-    //
-    // TODO: Enable after ES6 mapping changes
-    //
-    // ["marshaled-result"] Structure opMStruct1();
-    // ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    ["marshaled-result"] Structure opMStruct1();
+    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
 
-    // ["marshaled-result"] StringS opMSeq1();
-    // ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    ["marshaled-result"] StringS opMSeq1();
+    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
 
-    // ["marshaled-result"] StringStringD opMDict1();
-    // ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    ["marshaled-result"] StringStringD opMDict1();
+    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 };
 
 struct MyStruct1

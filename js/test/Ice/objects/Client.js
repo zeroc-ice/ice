@@ -379,6 +379,20 @@
             {
                 test(compact !== null);
                 out.writeLine("ok");
+
+                out.write("testing marshaled results...");
+                return initial.getMB();
+            }
+        ).then(b1 =>
+            {
+                test(b1 !== null && b1.theB === b1);
+                return initial.getAMDMB();
+            }
+        ).then(b1 =>
+            {
+                test(b1 !== null && b1.theB === b1);
+                out.writeLine("ok");
+
                 out.write("testing UnexpectedObjectException... ");
                 ref = "uoet:default -p 12010";
                 base = communicator.stringToProxy(ref);

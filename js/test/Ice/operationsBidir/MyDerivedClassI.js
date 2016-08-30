@@ -487,6 +487,36 @@
                 Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
                 Test.su0, Test.su1, Test.su2];
         }
+
+        opMStruct1(current)
+        {
+            return new Test.Structure();
+        }
+
+        opMStruct2(p1, current)
+        {
+            return [p1, p1];
+        }
+
+        opMSeq1(current)
+        {
+            return [];
+        }
+
+        opMSeq2(p1, current)
+        {
+            return [p1, p1];
+        }
+
+        opMDict1(current)
+        {
+            return new Map();
+        }
+
+        opMDict2(p1, current)
+        {
+            return [p1, p1];
+        }
     }
 
     exports.MyDerivedClassI = MyDerivedClassI;

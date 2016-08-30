@@ -287,6 +287,46 @@
             cb.ice_response();
         }
 
+        opMStruct1_async(cb, current)
+        {
+            cb.ice_response(new TestAMD.SmallStruct());
+        }
+
+        opMStruct2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
+        opMSeq1_async(cb, current)
+        {
+            cb.ice_response([]);
+        }
+
+        opMSeq2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
+        opMDict1_async(cb, current)
+        {
+            cb.ice_response(new Map());
+        }
+
+        opMDict2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
+        opMG1_async(cb, current)
+        {
+            cb.ice_response(new TestAMD.G());
+        }
+
+        opMG2_async(cb, p1, current)
+        {
+            cb.ice_response(p1, p1);
+        }
+
         supportsRequiredParams_async(cb, current)
         {
             cb.ice_response(false);
