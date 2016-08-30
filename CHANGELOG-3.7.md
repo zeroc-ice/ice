@@ -17,6 +17,12 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
+- Dispatch interceptors and ice_dispatch can now handle user exceptions. User
+  exceptions raised by a servant dispatch are propagated to ice_dispatch and
+  can also be raised from the Ice::DispatchInterceptor::dispatch implementation.
+  As a result, the Ice::DispatchStatus enumeration has been removed. See the
+  Ice manual for details on the new dispatch interceptor API.
+
 - The ice_getConnection() method now correctly returns a connection if 
   connection caching is disabled (it previously returned a null connection).
 
