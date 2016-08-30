@@ -21,25 +21,25 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 print("Running test with compact (default) format.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Warn.Connections=0")
+TestUtil.clientServerTest()
 
 print("Running test with sliced format.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat --Ice.Warn.Connections=0", 
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat",
                           additionalServerOptions="--Ice.Default.SlicedFormat")
 
 print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0 --Ice.Warn.Connections=0", 
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                           additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
 
 print("Running test with compact (default) format and AMD server.")
-TestUtil.clientServerTest(server="serveramd", additionalClientOptions="--Ice.Warn.Connections=0")
+TestUtil.clientServerTest(server="serveramd")
 
 print("Running test with sliced format and AMD server.")
-TestUtil.clientServerTest(server="serveramd", 
-                          additionalClientOptions="--Ice.Default.SlicedFormat --Ice.Warn.Connections=0", 
+TestUtil.clientServerTest(server="serveramd",
+                          additionalClientOptions="--Ice.Default.SlicedFormat",
                           additionalServerOptions="--Ice.Default.SlicedFormat")
 
 print("Running test with 1.0 encoding and AMD server.")
-TestUtil.clientServerTest(server="serveramd", 
-                          additionalClientOptions="--Ice.Default.EncodingVersion=1.0 --Ice.Warn.Connections=0", 
+TestUtil.clientServerTest(server="serveramd",
+                          additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
                           additionalServerOptions="--Ice.Default.EncodingVersion=1.0")

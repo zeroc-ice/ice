@@ -102,7 +102,8 @@ public class AllTests : TestCommon.TestApp
         }
         catch(UnknownLocalException ex)
         {
-            test(ex.unknown.IndexOf("Ice::SocketException") >= 0);
+            test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
+                 ex.unknown.IndexOf("Ice.SocketException") >= 0);
         }
         catch(System.Exception)
         {
