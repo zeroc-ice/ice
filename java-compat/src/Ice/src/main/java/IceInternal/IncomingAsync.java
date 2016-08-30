@@ -12,40 +12,25 @@ package IceInternal;
 public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
 {
     public
-    IncomingAsync(Incoming in) // Adopts the argument. It must not be used afterwards.
+    IncomingAsync(Incoming in)
     {
         super(in);
-        _retriable = in.isRetriable();
-
-        if(_retriable)
-        {
-            in.setActive(this);
-            _active = true;
-        }
+        in.setAsync(this);
     }
 
     @Override
     public void
     ice_exception(java.lang.Exception ex)
     {
-        //
-        // Only call __exception if this incoming is not retriable or if
-        // all the interceptors return true and no response has been sent
-        // yet.
-        //
-
-        if(_retriable)
+        if(_interceptorCBs != null)
         {
             try
             {
-                if(_interceptorAsyncCallbackList != null)
+                for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorCBs)
                 {
-                    for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
+                    if(!cb.exception(ex))
                     {
-                        if(!cb.exception(ex))
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
             }
@@ -53,152 +38,56 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             {
                 return;
             }
-
-            synchronized(this)
-            {
-                if(!_active)
-                {
-                    return;
-                }
-                _active = false;
-            }
         }
 
-        if(_responseHandler != null)
-        {
-            __exception(ex);
-        }
-        else
-        {
-            //
-            // Response has already been sent.
-            //
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-            {
-                __warning(ex);
-            }
-        }
+        checkResponseSent();
+        exception(ex, true); // User thread
     }
 
-    final void
-    __deactivate(Incoming in)
+    final public void
+    kill(Incoming in)
     {
-        assert _retriable;
+        checkResponseSent();
 
-        synchronized(this)
-        {
-            if(!_active)
-            {
-                //
-                // Since _deactivate can only be called on an active object,
-                // this means the response has already been sent (see __validateXXX below)
-                //
-                throw new Ice.ResponseSentException();
-            }
-            _active = false;
-        }
-
-        in.adopt(this);
+        // Adopt observer
+        in._observer = _observer;
+        _observer = null;
     }
 
     final protected void
-    __response()
+    completed()
     {
-        try
-        {
-            if(_locator != null && !__servantLocatorFinished(true))
-            {
-                return;
-            }
-
-            assert(_responseHandler != null);
-
-            if(_response)
-            {
-                if(_observer != null)
-                {
-                    _observer.reply(_os.size() - Protocol.headerSize - 4);
-                }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress, true);
-            }
-            else
-            {
-                _responseHandler.sendNoResponse();
-            }
-
-            if(_observer != null)
-            {
-                _observer.detach();
-                _observer = null;
-            }
-            _responseHandler = null;
-        }
-        catch(Ice.LocalException ex)
-        {
-            _responseHandler.invokeException(_current.requestId, ex, 1, true);
-        }
-    }
-
-    final protected void
-    __exception(java.lang.Exception exc)
-    {
-        try
-        {
-            if(_locator != null && !__servantLocatorFinished(true))
-            {
-                return;
-            }
-
-            __handleException(exc, true);
-        }
-        catch(Ice.LocalException ex)
-        {
-            _responseHandler.invokeException(_current.requestId, ex, 1, true);
-        }
-    }
-
-    final protected boolean
-    __validateResponse(boolean ok)
-    {
-        //
-        // Only returns true if this incoming is not retriable or if all
-        // the interceptors return true and no response has been sent
-        // yet. Upon getting a true return value, the caller should send
-        // the response.
-        //
-
-        if(_retriable)
+        if(_interceptorCBs != null)
         {
             try
             {
-                if(_interceptorAsyncCallbackList != null)
+                for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorCBs)
                 {
-                    for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
+                    if(!cb.response())
                     {
-                        if(!cb.response(ok))
-                        {
-                            return false;
-                        }
+                        return;
                     }
                 }
             }
-            catch(java.lang.RuntimeException ex)
+            catch(java.lang.RuntimeException exc)
             {
-                return false;
-            }
-
-            synchronized(this)
-            {
-                if(!_active)
-                {
-                    return false;
-                }
-                _active = false;
+                return;
             }
         }
-        return true;
+
+        checkResponseSent();
+        response(true); // User thread
     }
 
-    private final boolean _retriable;
-    private boolean _active = false; // only meaningful when _retriable == true
+    synchronized private void
+    checkResponseSent()
+    {
+        if(_responseSent)
+        {
+            throw new Ice.ResponseSentException();
+        }
+        _responseSent = true;
+    }
+
+    private boolean _responseSent = false;
 }

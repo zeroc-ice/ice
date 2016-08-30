@@ -1209,8 +1209,12 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
         {
             out << nl << "/** @deprecated **/";
         }
-        out << nl << "public static Ice.DispatchStatus ___" << opName << '(' << name
+        out << nl << "public static boolean ___" << opName << '(' << name
             << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
+        out.inc();
+        out << nl << "throws Ice.UserException";
+        out.dec();
+
         out << sb;
 
         const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
@@ -1234,22 +1238,6 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                     inParams.push_back(*pli);
                 }
             }
-
-            ExceptionList throws = op->throws();
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            throws.sort(Slice::derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
             int iter;
 
@@ -1300,6 +1288,10 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             {
                 out << nl << "__inS.readEmptyParams();";
             }
+            if(op->format() != DefaultFormat)
+            {
+                out << nl << "__inS.setFormat(" << opFormatTypeToString(op) << ");";
+            }
 
             //
             // Declare 'out' parameters.
@@ -1314,11 +1306,6 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             //
             // Call on the servant.
             //
-            if(!throws.empty())
-            {
-                out << nl << "try";
-                out << sb;
-            }
             out << nl;
             if(ret)
             {
@@ -1352,37 +1339,19 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             //
             if(!outParams.empty() || ret)
             {
-                out << nl << "Ice.OutputStream __os = __inS.__startWriteParams("
-                    << opFormatTypeToString(op) << ");";
+                out << nl << "Ice.OutputStream __os = __inS.startWriteParams();";
                 writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
                 if(op->returnsClasses(false))
                 {
                     out << nl << "__os.writePendingValues();";
                 }
-                out << nl << "__inS.__endWriteParams(true);";
+                out << nl << "__inS.endWriteParams();";
             }
             else
             {
-                out << nl << "__inS.__writeEmptyParams();";
+                out << nl << "__inS.writeEmptyParams();";
             }
-            out << nl << "return Ice.DispatchStatus.DispatchOK;";
-
-            //
-            // Handle user exceptions.
-            //
-            if(!throws.empty())
-            {
-                out << eb;
-                for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-                {
-                    string exS = getAbsolute(*t, package);
-                    out << nl << "catch(" << exS << " ex)";
-                    out << sb;
-                    out << nl << "__inS.__writeUserException(ex, " << opFormatTypeToString(op) << ");";
-                    out << nl << "return Ice.DispatchStatus.DispatchUserException;";
-                    out << eb;
-                }
-            }
+            out << nl << "return false;";
 
             out << eb;
         }
@@ -1447,6 +1416,10 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             {
                 out << nl << "__inS.readEmptyParams();";
             }
+            if(op->format() != DefaultFormat)
+            {
+                out << nl << "__inS.setFormat(" << opFormatTypeToString(op) << ");";
+            }
 
             //
             // Call on the servant.
@@ -1454,8 +1427,6 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             string classNameAMD = "AMD_" + p->name();
             out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
                 << "(__inS);";
-            out << nl << "try";
-            out << sb;
             out << nl << "__obj." << (amd ? opName + "_async" : fixKwd(opName)) << (amd ? "(__cb, " : "(");
             for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
@@ -1472,12 +1443,7 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 out << ", ";
             }
             out << "__current);";
-            out << eb;
-            out << nl << "catch(java.lang.Exception ex)";
-            out << sb;
-            out << nl << "__cb.ice_exception(ex);";
-            out << eb;
-            out << nl << "return Ice.DispatchStatus.DispatchAsync;";
+            out << nl << "return true;";
 
             out << eb;
         }
@@ -1524,7 +1490,10 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 break;
             }
         }
-        out << nl << "public Ice.DispatchStatus __dispatch(IceInternal.Incoming in, Ice.Current __current)";
+        out << nl << "public boolean __dispatch(IceInternal.Incoming in, Ice.Current __current)";
+        out.inc();
+        out << nl << "throws Ice.UserException";
+        out.dec();
         out << sb;
         out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
         out << nl << "if(pos < 0)";
@@ -5616,8 +5585,7 @@ Slice::GenCompat::HelperVisitor::writeOperation(const ClassDefPtr& p, const stri
         iter = 0;
         if(!inArgs.empty())
         {
-            out << nl << "Ice.OutputStream __os = __result.startWriteParams("
-                << opFormatTypeToString(op) << ");";
+            out << nl << "Ice.OutputStream __os = __result.startWriteParams(" << opFormatTypeToString(op) << ");";
             ParamDeclList pl;
             for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
             {
@@ -6570,22 +6538,6 @@ Slice::GenCompat::AsyncVisitor::visitOperation(const OperationPtr& p)
                 }
             }
 
-            ExceptionList throws = p->throws();
-            throws.sort();
-            throws.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            throws.sort(Slice::derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
             int iter;
 
             out << sp << nl << "final class " << classNameAMDI << '_' << name
@@ -6600,61 +6552,22 @@ Slice::GenCompat::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << sp << nl << "public void ice_response" << spar << paramsAMD << epar;
             out << sb;
             iter = 0;
-            out << nl << "if(__validateResponse(true))";
-            out << sb;
             if(ret || !outParams.empty())
             {
-                out << nl << "try";
-                out << sb;
-                out << nl << "Ice.OutputStream __os = this.__startWriteParams("
-                    << opFormatTypeToString(p) << ");";
+                out << nl << "Ice.OutputStream __os = this.startWriteParams();";
                 writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
                 if(p->returnsClasses(false))
                 {
                     out << nl << "__os.writePendingValues();";
                 }
-                out << nl << "this.__endWriteParams(true);";
-                out << eb;
-                out << nl << "catch(Ice.LocalException __ex)";
-                out << sb;
-                out << nl << "__exception(__ex);";
-                out << nl << "return;";
-                out << eb;
+                out << nl << "this.endWriteParams();";
             }
             else
             {
-                out << nl << "__writeEmptyParams();";
+                out << nl << "this.writeEmptyParams();";
             }
-            out << nl << "__response();";
+            out << nl << "this.completed();";
             out << eb;
-            out << eb;
-
-            if(!throws.empty())
-            {
-                out << sp << nl << "public void ice_exception(java.lang.Exception ex)";
-                out << sb;
-                out << nl << "try";
-                out << sb;
-                out << nl << "throw ex;";
-                out << eb;
-                for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-                {
-                    string exS = getAbsolute(*r, classPkg);
-                    out << nl << "catch(" << exS << " __ex)";
-                    out << sb;
-                    out << nl << "if(__validateResponse(false))";
-                    out << sb;
-                    out << nl << "__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
-                    out << nl << "__response();";
-                    out << eb;
-                    out << eb;
-                }
-                out << nl << "catch(java.lang.Exception __ex)";
-                out << sb;
-                out << nl << "super.ice_exception(__ex);";
-                out << eb;
-                out << eb;
-            }
 
             out << eb;
 

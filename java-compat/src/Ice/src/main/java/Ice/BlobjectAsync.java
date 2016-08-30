@@ -32,7 +32,7 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
 
     @Override
-    public DispatchStatus
+    public boolean
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inEncaps = in.readParamEncaps();
@@ -45,6 +45,6 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
         {
             cb.ice_exception(ex);
         }
-        return DispatchStatus.DispatchAsync;
+        return true;
     }
 }

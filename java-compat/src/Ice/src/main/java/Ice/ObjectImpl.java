@@ -32,17 +32,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public ObjectImpl
     clone()
     {
-	ObjectImpl c = null;
+    	ObjectImpl c = null;
 
-	try
-	{
-	   c = (ObjectImpl)super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
-	return c;
+    	try
+    	{
+    	   c = (ObjectImpl)super.clone();
+    	}
+    	catch(CloneNotSupportedException ex)
+    	{
+    	    assert false;
+    	}
+    	return c;
     }
 
     public final static String[] __ids =
@@ -79,17 +79,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return s.equals(__ids[0]);
     }
 
-    public static DispatchStatus
+    public static boolean
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         InputStream __is = __inS.startReadParams();
         String __id = __is.readString();
         __inS.endReadParams();
         boolean __ret = __obj.ice_isA(__id, __current);
-        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.startWriteParams();
         __os.writeBool(__ret);
-        __inS.__endWriteParams(true);
-        return DispatchStatus.DispatchOK;
+        __inS.endWriteParams();
+        return false;
     }
 
     /**
@@ -114,13 +114,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         // Nothing to do.
     }
 
-    public static DispatchStatus
+    public static boolean
     ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __inS.readEmptyParams();
         __obj.ice_ping(__current);
-        __inS.__writeEmptyParams();
-        return DispatchStatus.DispatchOK;
+        __inS.writeEmptyParams();
+        return false;
     }
 
     /**
@@ -148,15 +148,15 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return __ids;
     }
 
-    public static DispatchStatus
+    public static boolean
     ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __inS.readEmptyParams();
         String[] __ret = __obj.ice_ids(__current);
-        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.startWriteParams();
         __os.writeStringSeq(__ret);
-        __inS.__endWriteParams(true);
-        return DispatchStatus.DispatchOK;
+        __inS.endWriteParams();
+        return false;
     }
 
     /**
@@ -184,15 +184,15 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return __ids[0];
     }
 
-    public static DispatchStatus
+    public static boolean
     ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __inS.readEmptyParams();
         String __ret = __obj.ice_id(__current);
-        OutputStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
+        OutputStream __os = __inS.startWriteParams();
         __os.writeString(__ret);
-        __inS.__endWriteParams(true);
-        return DispatchStatus.DispatchOK;
+        __inS.endWriteParams();
+        return false;
     }
 
     /**
@@ -273,32 +273,33 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @param request The details of the invocation.
      * @param cb The callback object for asynchchronous dispatch. For synchronous dispatch, the callback object must
      * be <code>null</code>.
-     * @return The dispatch status for the operation.
+     * @return True for asynchronous dispatch, false otherwise
      *
      * @see DispatchInterceptor
      * @see DispatchInterceptorAsyncCallback
-     * @see DispatchStatus
      **/
     @Override
-    public DispatchStatus
+    public boolean
     ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
+        throws Ice.UserException
     {
         IceInternal.Incoming in = (IceInternal.Incoming)request;
+        in.startOver(); // may raise ResponseSentException
         if(cb != null)
         {
             in.push(cb);
-        }
-        try
-        {
-            in.startOver(); // may raise ResponseSentException
-            return __dispatch(in, in.getCurrent());
-        }
-        finally
-        {
-            if(cb != null)
+            try
+            {
+                return __dispatch(in, in.getCurrent());
+            }
+            finally
             {
                 in.pop();
             }
+        }
+        else
+        {
+            return __dispatch(in, in.getCurrent());
         }
     }
 
@@ -307,21 +308,22 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * to a servant (or to another interceptor).
      *
      * @param request The details of the invocation.
-     * @return The dispatch status for the operation.
+     * @return True for asynchronous dispatch, false otherwise.
      *
      * @see DispatchInterceptor
-     * @see DispatchStatus
      **/
     @Override
-    public DispatchStatus
+    public boolean
     ice_dispatch(Request request)
+        throws Ice.UserException
     {
         return ice_dispatch(request, null);
     }
 
     @Override
-    public DispatchStatus
+    public boolean
     __dispatch(IceInternal.Incoming in, Current current)
+        throws Ice.UserException
     {
         int pos = java.util.Arrays.binarySearch(__all, current.operation);
         if(pos < 0)

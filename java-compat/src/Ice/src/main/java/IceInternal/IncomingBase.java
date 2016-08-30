@@ -19,123 +19,89 @@ class IncomingBase
         _responseHandler = handler;
         _response = response;
         _compress = compress;
-        if(_response)
-        {
-            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
-        }
+        _format = Ice.FormatType.DefaultFormat;
 
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _current.con = connection;
         _current.requestId = requestId;
-
-        _cookie = new Ice.LocalObjectHolder();
     }
 
     protected
-    IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
+    IncomingBase(IncomingBase other)
     {
         //
         // We don't change _current as it's exposed by Ice::Request
         //
-        _current = in._current;
+        _current = other._current;
+
+        _instance = other._instance;
+        _servant = other._servant;
+        _locator = other._locator;
+        _cookie = other._cookie;
+        _response = other._response;
+        _compress = other._compress;
+        _format = other._format;
+        _responseHandler = other._responseHandler;
+
+        // Adopt observer
+        _observer = other._observer;
+        other._observer = null;
 
         //
         // Deep copy
         //
-        if(in._interceptorAsyncCallbackList != null)
+        if(other._interceptorCBs != null)
         {
             //
             // Copy, not just reference
             //
-            _interceptorAsyncCallbackList =
-                new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>(in._interceptorAsyncCallbackList);
+            _interceptorCBs =
+                new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>(other._interceptorCBs);
         }
-
-        adopt(in);
-    }
-
-    protected void
-    adopt(IncomingBase other)
-    {
-        _instance = other._instance;
-        //other._instance = null; // Don't reset _instance.
-
-        _observer = other._observer;
-        other._observer = null;
-
-        _servant = other._servant;
-        other._servant = null;
-
-        _locator = other._locator;
-        other._locator = null;
-
-        _cookie = other._cookie;
-        other._cookie = null;
-
-        _response = other._response;
-        other._response = false;
-
-        _compress = other._compress;
-        other._compress = 0;
-
-        //
-        // Adopt the stream - it creates less garbage.
-        //
-        _os = other._os;
-        other._os = null;
-
-        _responseHandler = other._responseHandler;
-        other._responseHandler = null;
     }
 
     public Ice.OutputStream
-    __startWriteParams(Ice.FormatType format)
+    startWriteParams()
     {
         if(!_response)
         {
             throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-        assert(_current.encoding != null); // Encoding for reply is known.
-        _os.writeByte((byte)0);
-        _os.startEncapsulation(_current.encoding, format);
+        _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+        _os.writeBlob(Protocol.replyHdr);
+        _os.writeInt(_current.requestId);
+        _os.writeByte(ReplyStatus.replyOK);
+        _os.startEncapsulation(_current.encoding, _format);
         return _os;
     }
 
     public void
-    __endWriteParams(boolean ok)
-    {
-        if(!ok && _observer != null)
-        {
-            _observer.userException();
-        }
-
-        assert(_response);
-
-        int save = _os.pos();
-        _os.pos(Protocol.headerSize + 4); // Reply status position.
-        _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
-        _os.pos(save);
-        _os.endEncapsulation();
-    }
-
-    public void
-    __writeEmptyParams()
+    endWriteParams()
     {
         if(_response)
         {
-            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-            assert(_current.encoding != null); // Encoding for reply is known.
+            _os.endEncapsulation();
+        }
+    }
+
+    public void
+    writeEmptyParams()
+    {
+        if(_response)
+        {
+            _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+            _os.writeBlob(Protocol.replyHdr);
+            _os.writeInt(_current.requestId);
             _os.writeByte(ReplyStatus.replyOK);
             _os.writeEmptyEncapsulation(_current.encoding);
         }
     }
 
     public void
-    __writeParamEncaps(byte[] v, boolean ok)
+    writeParamEncaps(byte[] v, boolean ok)
     {
         if(!ok && _observer != null)
         {
@@ -144,8 +110,9 @@ class IncomingBase
 
         if(_response)
         {
-            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-            assert(_current.encoding != null); // Encoding for reply is known.
+            _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+            _os.writeBlob(Protocol.replyHdr);
+            _os.writeInt(_current.requestId);
             _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
             if(v == null || v.length == 0)
             {
@@ -158,14 +125,6 @@ class IncomingBase
         }
     }
 
-    public void
-    __writeUserException(Ice.UserException ex, Ice.FormatType format)
-    {
-        Ice.OutputStream __os = __startWriteParams(format);
-        __os.writeException(ex);
-        __endWriteParams(false);
-    }
-
     //
     // These functions allow this object to be reused, rather than reallocated.
     //
@@ -174,6 +133,9 @@ class IncomingBase
           boolean response, byte compress, int requestId)
     {
         _instance = instance;
+        _responseHandler = handler;
+        _response = response;
+        _compress = compress;
 
         //
         // Don't recycle the Current object, because servants may keep a reference to it.
@@ -184,30 +146,14 @@ class IncomingBase
         _current.con = connection;
         _current.requestId = requestId;
 
-        if(_cookie == null)
-        {
-            _cookie = new Ice.LocalObjectHolder();
-        }
-
-        _response = response;
-
-        _compress = compress;
-
-        if(_response && _os == null)
-        {
-            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
-        }
-
-        _responseHandler = handler;
-
-        _interceptorAsyncCallbackList = null;
+        _interceptorCBs = null;
     }
 
     public void
     reclaim()
     {
+        _current = null;
         _servant = null;
-
         _locator = null;
 
         if(_cookie != null)
@@ -215,18 +161,72 @@ class IncomingBase
             _cookie.value = null;
         }
 
-        _observer = null;
+        //_observer = null;
+        assert(_observer == null);
 
-        if(_os != null)
-        {
-            _os.reset();
-        }
+        _os = null;
 
-        _interceptorAsyncCallbackList = null;
+        _responseHandler = null;
+
+        _interceptorCBs = null;
     }
 
     final protected void
-    __warning(java.lang.Exception ex)
+    response(boolean amd)
+    {
+        try
+        {
+            if(_locator != null && !servantLocatorFinished(amd))
+            {
+                return;
+            }
+
+            assert(_responseHandler != null);
+            if(_response)
+            {
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
+                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
+            }
+            else
+            {
+                _responseHandler.sendNoResponse();
+            }
+        }
+        catch(Ice.LocalException ex)
+        {
+            _responseHandler.invokeException(_current.requestId, ex, 1, amd); // Fatal invocation exception
+        }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
+        _responseHandler = null;
+    }
+
+    final protected void
+    exception(java.lang.Throwable exc, boolean amd)
+    {
+        try
+        {
+            if(_locator != null && !servantLocatorFinished(amd))
+            {
+                return;
+            }
+            handleException(exc, amd);
+        }
+        catch(Ice.LocalException ex)
+        {
+            _responseHandler.invokeException(_current.requestId, ex, 1, amd); // Fatal invocation exception
+        }
+    }
+
+    final protected void
+    warning(java.lang.Throwable ex)
     {
         assert(_instance != null);
 
@@ -256,66 +256,34 @@ class IncomingBase
     }
 
     final protected boolean
-    __servantLocatorFinished(boolean amd)
+    servantLocatorFinished(boolean amd)
     {
         assert(_locator != null && _servant != null);
         try
         {
+            assert(_cookie != null);
             _locator.finished(_current, _servant, _cookie.value);
             return true;
         }
-        catch(Ice.UserException ex)
+        catch(java.lang.Throwable ex)
         {
-            assert(_responseHandler != null);
-
-            if(_observer != null)
-            {
-                _observer.userException();
-            }
-
-            //
-            // The operation may have already marshaled a reply; we must overwrite that reply.
-            //
-            if(_response)
-            {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
-                _os.writeByte(ReplyStatus.replyUserException);
-                _os.startEncapsulation(_current.encoding, Ice.FormatType.DefaultFormat);
-                _os.writeException(ex);
-                _os.endEncapsulation();
-                if(_observer != null)
-                {
-                    _observer.reply(_os.size() - Protocol.headerSize - 4);
-                }
-                _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
-            }
-            else
-            {
-                _responseHandler.sendNoResponse();
-            }
-
-            if(_observer != null)
-            {
-                _observer.detach();
-                _observer = null;
-            }
-            _responseHandler = null;
-        }
-        catch(java.lang.Exception ex)
-        {
-            __handleException(ex, amd);
-        }
-        catch(java.lang.Error ex)
-        {
-            __handleError(ex, amd); // Always throws.
+            handleException(ex, amd);
         }
         return false;
     }
 
     final protected void
-    __handleException(java.lang.Exception exc, boolean amd)
+    handleException(java.lang.Throwable exc, boolean amd)
     {
         assert(_responseHandler != null);
+
+        if(exc instanceof Ice.SystemException)
+        {
+            if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)exc, amd))
+            {
+                return;
+            }
+        }
 
         try
         {
@@ -340,7 +308,7 @@ class IncomingBase
 
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -350,7 +318,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 if(ex instanceof Ice.ObjectNotExistException)
                 {
                     _os.writeByte(ReplyStatus.replyObjectNotExist);
@@ -399,7 +369,7 @@ class IncomingBase
         {
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -409,7 +379,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -427,7 +399,7 @@ class IncomingBase
         {
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -437,7 +409,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -455,7 +429,7 @@ class IncomingBase
         {
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -465,7 +439,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
                 if(_observer != null)
@@ -481,17 +457,9 @@ class IncomingBase
         }
         catch(Ice.Exception ex)
         {
-            if(ex instanceof Ice.SystemException)
-            {
-                if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)ex, amd))
-                {
-                    return;
-                }
-            }
-
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -501,7 +469,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
@@ -523,27 +493,20 @@ class IncomingBase
         }
         catch(Ice.UserException ex)
         {
-            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-            {
-                __warning(ex);
-            }
-
             if(_observer != null)
             {
-                _observer.failed(ex.ice_id());
+                _observer.userException();
             }
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
-                _os.writeByte(ReplyStatus.replyUnknownUserException);
-                //_os.writeString(ex.toString());
-                java.io.StringWriter sw = new java.io.StringWriter();
-                sw.write(ex.ice_id() + "\n");
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                _os.writeString(sw.toString());
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
+                _os.writeByte(ReplyStatus.replyUserException);
+                _os.startEncapsulation(_current.encoding, _format);
+                _os.writeException(ex);
+                _os.endEncapsulation();
                 if(_observer != null)
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
@@ -555,11 +518,11 @@ class IncomingBase
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(java.lang.Exception ex)
+        catch(java.lang.Throwable ex)
         {
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                __warning(ex);
+                warning(ex);
             }
 
             if(_observer != null)
@@ -569,7 +532,9 @@ class IncomingBase
 
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4); // Reply status position.
+                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+                _os.writeBlob(Protocol.replyHdr);
+                _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
@@ -587,52 +552,11 @@ class IncomingBase
             {
                 _responseHandler.sendNoResponse();
             }
-        }
 
-        if(_observer != null)
-        {
-            _observer.detach();
-            _observer = null;
-        }
-        _responseHandler = null;
-    }
-
-    final protected void
-    __handleError(java.lang.Error exc, boolean amd)
-    {
-        assert(_responseHandler != null);
-
-        Ice.UnknownException uex = new Ice.UnknownException(exc);
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        exc.printStackTrace(pw);
-        pw.flush();
-        uex.unknown = sw.toString();
-
-        if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(uex);
-        }
-
-        if(_observer != null)
-        {
-            _observer.failed(uex.ice_id());
-        }
-
-        if(_response)
-        {
-            _os.resize(Protocol.headerSize + 4); // Reply status position.
-            _os.writeByte(ReplyStatus.replyUnknownException);
-            _os.writeString(uex.unknown);
-            if(_observer != null)
+            if(ex instanceof java.lang.Error)
             {
-                _observer.reply(_os.size() - Protocol.headerSize - 4);
+                throw new ServantError((java.lang.Error)ex);
             }
-            _responseHandler.sendResponse(_current.requestId, _os, _compress, amd);
-        }
-        else
-        {
-            _responseHandler.sendNoResponse();
         }
 
         if(_observer != null)
@@ -641,8 +565,6 @@ class IncomingBase
             _observer = null;
         }
         _responseHandler = null;
-
-        throw new ServantError(exc);
     }
 
     protected Instance _instance;
@@ -654,10 +576,11 @@ class IncomingBase
 
     protected boolean _response;
     protected byte _compress;
+    protected Ice.FormatType _format;
 
     protected Ice.OutputStream _os;
 
     protected ResponseHandler _responseHandler;
 
-    protected java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback> _interceptorAsyncCallbackList;
+    protected java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback> _interceptorCBs;
 }

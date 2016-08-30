@@ -45,7 +45,7 @@ public class AllTests
 
             _called = false;
         }
-        
+
         public synchronized void
         called()
         {
@@ -240,7 +240,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_TestIntf_unknownIntermediateAsBaseI 
+    private static class Callback_TestIntf_unknownIntermediateAsBaseI
         extends Callback_TestIntf_unknownIntermediateAsBase
     {
         @Override
@@ -522,7 +522,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_TestIntf_unknownMostDerived1AsBaseI 
+    private static class Callback_TestIntf_unknownMostDerived1AsBaseI
         extends Callback_TestIntf_unknownMostDerived1AsBase
     {
         @Override
@@ -616,7 +616,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_TestIntf_unknownMostDerived2AsBaseI 
+    private static class Callback_TestIntf_unknownMostDerived2AsBaseI
         extends Callback_TestIntf_unknownMostDerived2AsBase
     {
         @Override
@@ -962,7 +962,7 @@ public class AllTests
         out.print("non-slicing of known intermediate as intermediate (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownIntermediateAsKnownIntermediateI cb = 
+            Callback_TestIntf_knownIntermediateAsKnownIntermediateI cb =
                 new Callback_TestIntf_knownIntermediateAsKnownIntermediateI();
             test.begin_knownIntermediateAsKnownIntermediate(cb);
             cb.check();
@@ -994,7 +994,7 @@ public class AllTests
         out.print("non-slicing of known most derived as intermediate (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownMostDerivedAsKnownIntermediateI cb = 
+            Callback_TestIntf_knownMostDerivedAsKnownIntermediateI cb =
                 new Callback_TestIntf_knownMostDerivedAsKnownIntermediateI();
             test.begin_knownMostDerivedAsKnownIntermediate(cb);
             cb.check();
@@ -1026,7 +1026,7 @@ public class AllTests
         out.print("non-slicing of known most derived as most derived (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI cb = 
+            Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI cb =
                 new Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI();
             test.begin_knownMostDerivedAsKnownMostDerived(cb);
             cb.check();

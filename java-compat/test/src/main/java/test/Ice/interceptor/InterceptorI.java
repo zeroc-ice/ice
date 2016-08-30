@@ -27,10 +27,10 @@ class InterceptorI extends Ice.DispatchInterceptor
         }
     }
 
-    
     @Override
-    public Ice.DispatchStatus
+    public boolean
     dispatch(Ice.Request request)
+        throws Ice.UserException
     {
         Ice.Current current = request.getCurrent();
         _lastOperation = current.operation;
@@ -51,15 +51,15 @@ class InterceptorI extends Ice.DispatchInterceptor
                     //
                 }
             }
-            
+
             current.ctx.put("retry", "no");
         }
-      
+
         _lastStatus = _servant.ice_dispatch(request);
         return _lastStatus;
     }
 
-    Ice.DispatchStatus
+    boolean
     getLastStatus()
     {
         return _lastStatus;
@@ -75,10 +75,10 @@ class InterceptorI extends Ice.DispatchInterceptor
     clear()
     {
         _lastOperation = null;
-        _lastStatus = null;
+        _lastStatus = false;
     }
 
     protected final Ice.Object _servant;
     protected String _lastOperation;
-    protected Ice.DispatchStatus _lastStatus;
+    protected boolean _lastStatus;
 }

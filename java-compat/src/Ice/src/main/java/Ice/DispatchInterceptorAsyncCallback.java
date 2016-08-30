@@ -12,19 +12,16 @@ package Ice;
 public interface DispatchInterceptorAsyncCallback
 {
     /**
-     * Called when the operation succeeded or raised a user exception,
-     * as indicated by the <code>ok</code> parameter.
+     * Called when the operation succeeded.
      *
-     * @param ok True if the operation succeeded, or false if the
-     * operation raised a user exception.
      * @return True to allow the Ice run time to handle the result
      * as it normally would, or false if the interceptor has handled
      * the operation.
      **/
-    boolean response(boolean ok);
+    boolean response();
 
     /**
-     * Called when the operation failed with a run-time exception.
+     * Called when the operation failed with an exception.
      *
      * @param ex The exception raised by the operation.
      * @return True to allow the Ice run time to handle the result

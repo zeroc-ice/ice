@@ -33,25 +33,25 @@ public class Client extends test.Util.Application
         out.print("testing simple interceptor... ");
         out.flush();
         test(interceptor.getLastOperation() == null);
-        test(interceptor.getLastStatus() == null);
+        test(!interceptor.getLastStatus());
         prx.ice_ping();
         test(interceptor.getLastOperation().equals("ice_ping"));
-        test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchOK);
+        test(!interceptor.getLastStatus());
         String typeId = prx.ice_id();
         test(interceptor.getLastOperation().equals("ice_id"));
-        test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchOK);
+        test(!interceptor.getLastStatus());
         test(prx.ice_isA(typeId));
         test(interceptor.getLastOperation().equals("ice_isA"));
-        test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchOK);
+        test(!interceptor.getLastStatus());
         test(prx.add(33, 12) == 45);
         test(interceptor.getLastOperation().equals("add"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchOK));
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing retry... ");
         out.flush();
         test(prx.addWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("addWithRetry"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchOK));
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();
@@ -65,7 +65,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("badAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchUserException));
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing ONE... ");
         out.flush();
@@ -80,7 +80,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("notExistAdd"));
-        test(interceptor.getLastStatus() == null);
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing system exception... ");
         out.flush();
@@ -103,37 +103,35 @@ public class Client extends test.Util.Application
             test(false);
         }
         test(interceptor.getLastOperation().equals("badSystemAdd"));
-        test(interceptor.getLastStatus() == null);
+        test(!interceptor.getLastStatus());
         out.println("ok");
 
         out.print("testing simple AMD... ");
         out.flush();
         test(prx.amdAdd(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
+        test(interceptor.getLastStatus());
         out.println("ok");
 
         return 0;
     }
-    
+
     private int
     runAmd(MyObjectPrx prx, AMDInterceptorI interceptor, PrintWriter out)
     {
         out.print("testing simple interceptor... ");
         out.flush();
         test(interceptor.getLastOperation() == null);
-        test(interceptor.getLastStatus() == null);
+        test(!interceptor.getLastStatus());
         test(prx.amdAdd(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-        test(interceptor.getActualStatus().equals(Ice.DispatchStatus.DispatchOK));
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing retry... ");
         out.flush();
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAddWithRetry"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-        test(interceptor.getActualStatus().equals(Ice.DispatchStatus.DispatchOK));
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();
@@ -147,8 +145,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("amdBadAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-        test(interceptor.getActualStatus().equals(Ice.DispatchStatus.DispatchUserException));
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing ONE... ");
         out.flush();
@@ -163,8 +160,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("amdNotExistAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-        test(interceptor.getActualStatus() == null);
+        test(interceptor.getLastStatus());
         test(interceptor.getException() instanceof Ice.ObjectNotExistException);
         out.println("ok");
         out.print("testing system exception... ");
@@ -188,8 +184,7 @@ public class Client extends test.Util.Application
             test(false);
         }
         test(interceptor.getLastOperation().equals("amdBadSystemAdd"));
-        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-        test(interceptor.getActualStatus() == null);
+        test(interceptor.getLastStatus());
         test(interceptor.getException() instanceof MySystemException);
         out.println("ok");
         return 0;
@@ -200,7 +195,7 @@ public class Client extends test.Util.Application
     run(String[] args)
     {
         //
-        // Create OA and servants  
+        // Create OA and servants
         //
         communicator().getProperties().setProperty("MyOA.AdapterId", "myOA");
 
@@ -209,10 +204,10 @@ public class Client extends test.Util.Application
         Ice.Object servant = new MyObjectI();
         InterceptorI interceptor = new InterceptorI(servant);
         AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
-        
+
         MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
         MyObjectPrx prxForAMD = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
-        
+
         PrintWriter out = getWriter();
         out.println("Collocation optimization on");
         int rs = run(prx, interceptor);
@@ -238,7 +233,7 @@ public class Client extends test.Util.Application
         {
             return rs;
         }
-        
+
         out.println("Now with AMD");
         amdInterceptor.clear();
         prxForAMD = MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
@@ -267,4 +262,4 @@ public class Client extends test.Util.Application
 }
 
 
-    
+

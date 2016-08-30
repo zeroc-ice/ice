@@ -25,47 +25,26 @@ public abstract class DispatchInterceptor extends ObjectImpl
      * of <code>dispatch</code> must dispatch the request to the actual servant.
      *
      * @param request The details of the incoming request.
-     * @return For synchronous dispatch, the return value must be whatever is
-     * returned {@link #ice_dispatch}. For asynchronous dispatch, the return
-     * value must be <code>DispatchAsync</code>.
+     * @return The return value must be whatever is returned by {@link #ice_dispatch}.
      *
      * @see Request
-     * @see DispatchStatus
      **/
-    public abstract DispatchStatus
-    dispatch(Request request);
+    public abstract boolean
+    dispatch(Request request)
+        throws Ice.UserException;
 
     @Override
-    public DispatchStatus
+    public boolean
     __dispatch(IceInternal.Incoming in, Current current)
+        throws Ice.UserException
     {
         try
         {
-            DispatchStatus status = dispatch(in);
-            if(status != DispatchStatus.DispatchAsync)
-            {
-                //
-                // Make sure 'in' owns the connection etc.
-                //
-                in.killAsync();
-            }
-            return status;
+            return dispatch(in);
         }
-        catch(ResponseSentException e)
+        catch(ResponseSentException ex)
         {
-            return DispatchStatus.DispatchAsync;
-        }
-        catch(java.lang.RuntimeException e)
-        {
-            try
-            {
-                in.killAsync();
-                throw e;
-            }
-            catch(ResponseSentException rse)
-            {
-                return DispatchStatus.DispatchAsync;
-            }
+            return false;
         }
     }
 }

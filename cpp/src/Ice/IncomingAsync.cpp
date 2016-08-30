@@ -87,18 +87,19 @@ IceInternal::IncomingAsync::create(Incoming& in)
 void
 IceInternal::IncomingAsync::ice_exception(const ::std::exception& exc)
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
+    try
     {
-        try
+        for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
         {
             if(!(*p)->exception(exc))
             {
                 return;
             }
         }
-        catch(...)
-        {
-        }
+    }
+    catch(...)
+    {
+        return;
     }
 
     checkResponseSent();
@@ -108,18 +109,19 @@ IceInternal::IncomingAsync::ice_exception(const ::std::exception& exc)
 void
 IceInternal::IncomingAsync::ice_exception()
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
+    try
     {
-        try
+        for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
         {
             if(!(*p)->exception())
             {
                 return;
             }
         }
-        catch(...)
-        {
-        }
+    }
+    catch(...)
+    {
+        return;
     }
 
     checkResponseSent();

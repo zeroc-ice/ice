@@ -719,11 +719,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
         {
             try
             {
-#ifdef ICE_CPP11_MAPPING
-                _inAsync->completed(current_exception());
-#else
-                _inAsync->ice_exception(ex);
-#endif
+                _inAsync->kill(*this);
             }
             catch(const Ice::ResponseSentException&)
             {
@@ -739,12 +735,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                         warning(string("std::exception: ") + ex.what());
                     }
                 }
+                return;
             }
         }
-        else
-        {
-            exception(ex, false);
-        }
+        exception(ex, false);
     }
     catch(...)
     {
@@ -752,11 +746,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
         {
             try
             {
-#ifdef ICE_CPP11_MAPPING
-                _inAsync->completed(current_exception());
-#else
-                _inAsync->ice_exception();
-#endif
+                _inAsync->kill(*this);
             }
             catch(const Ice::ResponseSentException&)
             {
@@ -765,12 +755,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 {
                     warning("unknown c++ exception");
                 }
+                return;
             }
         }
-        else
-        {
-            exception("unknown c++ exception", false);
-        }
+        exception("unknown c++ exception", false);
     }
 }
 

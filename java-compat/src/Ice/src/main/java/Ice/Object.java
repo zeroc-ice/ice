@@ -133,13 +133,13 @@ public interface Object
      * @param request The details of the invocation.
      * @param cb The callback object for asynchronous dispatch. For synchronous dispatch, the callback object
      * must be <code>null</code>.
-     * @return The dispatch status for the operation.
+     * @return True for asynchronous dispatch, false otherwise.
      *
      * @see DispatchInterceptor
      * @see DispatchInterceptorAsyncCallback
-     * @see DispatchStatus
      **/
-    DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
+    boolean ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
+        throws Ice.UserException;
 
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
@@ -149,11 +149,13 @@ public interface Object
      * @return The dispatch status for the operation.
      *
      * @see DispatchInterceptor
-     * @see DispatchStatus
+     * @return True for asynchronous dispatch, false otherwise.
      **/
-    DispatchStatus ice_dispatch(Request request);
+    boolean ice_dispatch(Request request)
+        throws Ice.UserException;
 
-    DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
+    boolean __dispatch(IceInternal.Incoming in, Current current)
+        throws Ice.UserException;
 
     void __write(OutputStream __os);
     void __read(InputStream __is);

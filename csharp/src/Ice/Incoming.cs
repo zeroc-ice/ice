@@ -85,11 +85,7 @@ namespace IceInternal
             //_observer = null;
             Debug.Assert(_observer == null);
 
-            if(_os != null)
-            {
-                _os.reset();
-            }
-
+            _os = null;
             _is = null;
 
             //_responseHandler = null;
@@ -542,6 +538,14 @@ namespace IceInternal
         {
             Debug.Assert(_responseHandler != null);
 
+            if(exc is Ice.SystemException)
+            {
+                if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)exc, amd))
+                {
+                    return;
+                }
+            }
+
             try
             {
                 throw exc;
@@ -742,14 +746,6 @@ namespace IceInternal
             }
             catch(Ice.Exception ex)
             {
-                if(ex is Ice.SystemException)
-                {
-                    if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)ex, amd))
-                    {
-                        return;
-                    }
-                }
-
                 if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);

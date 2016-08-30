@@ -18,19 +18,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
              boolean response, byte compress, int requestId)
     {
         super(instance, responseHandler, connection, adapter, response, compress, requestId);
-
-        //
-        // Prepare the response if necessary.
-        //
-        if(response)
-        {
-            _os.writeBlob(IceInternal.Protocol.replyHdr);
-
-            //
-            // Add the request ID.
-            //
-            _os.writeInt(requestId);
-        }
     }
 
     @Override
@@ -40,41 +27,68 @@ final public class Incoming extends IncomingBase implements Ice.Request
         return _current;
     }
 
-    //
-    // These functions allow this object to be reused, rather than reallocated.
-    //
-    @Override
-    public void
-    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
-          boolean response, byte compress, int requestId)
-    {
-        _cb = null;
-        _inParamPos = -1;
-
-        super.reset(instance, handler, connection, adapter, response, compress, requestId);
-
-        //
-        // Prepare the response if necessary.
-        //
-        if(response)
-        {
-            _os.writeBlob(IceInternal.Protocol.replyHdr);
-
-            //
-            // Add the request ID.
-            //
-            _os.writeInt(requestId);
-        }
-    }
-
     @Override
     public void
     reclaim()
     {
-        _cb = null;
-        _inParamPos = -1;
-
         super.reclaim();
+        _inAsync = null;
+        _inParamPos = -1;
+    }
+
+    public final void
+    push(Ice.DispatchInterceptorAsyncCallback cb)
+    {
+        if(_interceptorCBs == null)
+        {
+            _interceptorCBs = new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>();
+        }
+
+        _interceptorCBs.addFirst(cb);
+    }
+
+    public final void
+    pop()
+    {
+        assert _interceptorCBs != null;
+        _interceptorCBs.removeFirst();
+    }
+
+    public final void
+    startOver()
+    {
+        if(_inParamPos == -1)
+        {
+            //
+            // That's the first startOver, so almost nothing to do
+            //
+            _inParamPos = _is.pos();
+        }
+        else
+        {
+            // Reset input stream's position and clear response
+            if(_inAsync != null)
+            {
+                _inAsync.kill(this);
+                _inAsync = null;
+            }
+            _os = null;
+
+            _is.pos(_inParamPos);
+        }
+    }
+
+    public void
+    setAsync(IncomingAsync inAsync)
+    {
+        assert(_inAsync == null);
+        _inAsync = inAsync;
+    }
+
+    public void
+    setFormat(Ice.FormatType format)
+    {
+        _format = format;
     }
 
     public void
@@ -152,101 +166,27 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 {
                     try
                     {
+                        if(_cookie == null)
+                        {
+                            _cookie = new Ice.LocalObjectHolder();
+                        }
+                        assert(_cookie.value == null);
                         _servant = _locator.locate(_current, _cookie);
                     }
-                    catch(Ice.UserException ex)
+                    catch(java.lang.Throwable ex)
                     {
-                        Ice.EncodingVersion encoding = _is.skipEncapsulation(); // Required for batch requests.
-
-                        if(_observer != null)
-                        {
-                            _observer.userException();
-                        }
-
-                        if(_response)
-                        {
-                            _os.writeByte(ReplyStatus.replyUserException);
-                            _os.startEncapsulation(encoding, Ice.FormatType.DefaultFormat);
-                            _os.writeException(ex);
-                            _os.endEncapsulation();
-                            if(_observer != null)
-                            {
-                                _observer.reply(_os.size() - Protocol.headerSize - 4);
-                            }
-                            _responseHandler.sendResponse(_current.requestId, _os, _compress, false);
-                        }
-                        else
-                        {
-                            _responseHandler.sendNoResponse();
-                        }
-
-                        if(_observer != null)
-                        {
-                            _observer.detach();
-                            _observer = null;
-                        }
-                        _responseHandler = null;
+                        skipReadParams(); // Required for batch requests.
+                        handleException(ex, false);
                         return;
-                    }
-                    catch(java.lang.Exception ex)
-                    {
-                        _is.skipEncapsulation(); // Required for batch requests.
-                        __handleException(ex, false);
-                        return;
-                    }
-                    catch(java.lang.Error ex)
-                    {
-                        _is.skipEncapsulation(); // Required for batch requests.
-                        __handleError(ex, false); // Always throws.
                     }
                 }
             }
         }
 
-        try
+        if(_servant == null)
         {
-            if(_servant != null)
+            try
             {
-                if(_instance.useApplicationClassLoader())
-                {
-                    Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
-                }
-
-                try
-                {
-                    //
-                    // DispatchAsync is a "pseudo dispatch status", used internally only
-                    // to indicate async dispatch.
-                    //
-                    if(_servant.__dispatch(this, _current) == Ice.DispatchStatus.DispatchAsync)
-                    {
-                        //
-                        // If this was an asynchronous dispatch, we're done here.
-                        //
-                        return;
-                    }
-                }
-                finally
-                {
-                    if(_instance.useApplicationClassLoader())
-                    {
-                        Thread.currentThread().setContextClassLoader(null);
-                    }
-                }
-
-                if(_locator != null && !__servantLocatorFinished(false))
-                {
-                    return;
-                }
-            }
-            else
-            {
-                //
-                // Skip the input parameters, this is required for reading
-                // the next batch request if dispatching batch requests.
-                //
-                _is.skipEncapsulation();
-
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
                     throw new Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
@@ -256,110 +196,57 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     throw new Ice.ObjectNotExistException(_current.id, _current.facet, _current.operation);
                 }
             }
-        }
-        catch(java.lang.Exception ex)
-        {
-            if(_servant != null && _locator != null && !__servantLocatorFinished(false))
+            catch(java.lang.Exception ex)
             {
+                skipReadParams(); // Required for batch requests.
+                handleException(ex, false);
                 return;
             }
-            __handleException(ex, false);
-            return;
         }
-        catch(java.lang.Error ex)
+
+        try
         {
-            if(_servant != null && _locator != null && !__servantLocatorFinished(false))
+            if(_instance.useApplicationClassLoader())
             {
-                return;
+                Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
             }
-            __handleError(ex, false); // Always throws.
-        }
 
-        //
-        // Don't put the code below into the try block above. Exceptions
-        // in the code below are considered fatal, and must propagate to
-        // the caller of this operation.
-        //
+            _servant.__dispatch(this, _current);
 
-        assert(_responseHandler != null);
-
-        if(_response)
-        {
-            if(_observer != null)
+            //
+            // If the request was not dispatched asynchronously, send the response.
+            //
+            if(_inAsync == null)
             {
-                _observer.reply(_os.size() - Protocol.headerSize - 4);
-            }
-            _responseHandler.sendResponse(_current.requestId, _os, _compress, false);
-        }
-        else
-        {
-            _responseHandler.sendNoResponse();
-        }
-
-        if(_observer != null)
-        {
-            _observer.detach();
-            _observer = null;
-        }
-        _responseHandler = null;
-    }
-
-    public final void
-    push(Ice.DispatchInterceptorAsyncCallback cb)
-    {
-        if(_interceptorAsyncCallbackList == null)
-        {
-            _interceptorAsyncCallbackList = new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>();
-        }
-
-        _interceptorAsyncCallbackList.addFirst(cb);
-    }
-
-    public final void
-    pop()
-    {
-        assert _interceptorAsyncCallbackList != null;
-        _interceptorAsyncCallbackList.removeFirst();
-    }
-
-    public final void
-    startOver()
-    {
-        if(_inParamPos == -1)
-        {
-            //
-            // That's the first startOver, so almost nothing to do
-            //
-            _inParamPos = _is.pos();
-        }
-        else
-        {
-            killAsync();
-
-            //
-            // Let's rewind _is and clean-up _os
-            //
-            _is.pos(_inParamPos);
-            if(_response)
-            {
-                _os.resize(Protocol.headerSize + 4);
+                response(false);
             }
         }
-    }
-
-    public final void
-    killAsync()
-    {
-        //
-        // Always runs in the dispatch thread
-        //
-        if(_cb != null)
+        catch(java.lang.Throwable ex)
         {
-            //
-            // May raise ResponseSentException
-            //
-            _cb.__deactivate(this);
-            _cb = null;
+            if(_inAsync != null)
+            {
+                try
+                {
+                    _inAsync.kill(this);
+                    _inAsync = null;
+                }
+                catch(Ice.ResponseSentException exc)
+                {
+                    if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                    {
+                        warning(ex);
+                    }
+                    return;
+                }
+            }
+            exception(ex, false);
+        }
+        finally
+        {
+            if(_instance.useApplicationClassLoader())
+            {
+                Thread.currentThread().setContextClassLoader(null);
+            }
         }
     }
 
@@ -386,6 +273,12 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _current.encoding = _is.skipEmptyEncapsulation();
     }
 
+    public final void
+    skipReadParams()
+    {
+        _current.encoding = _is.skipEncapsulation();
+    }
+
     public final byte[]
     readParamEncaps()
     {
@@ -393,23 +286,9 @@ final public class Incoming extends IncomingBase implements Ice.Request
         return _is.readEncapsulation(_current.encoding);
     }
 
-    final void
-    setActive(IncomingAsync cb)
-    {
-        assert _cb == null;
-        _cb = cb;
-    }
-
-    final boolean
-    isRetriable()
-    {
-        return _inParamPos != -1;
-    }
-
     public Incoming next; // For use by ConnectionI.
 
     private Ice.InputStream _is;
-
-    private IncomingAsync _cb;
+    private IncomingAsync _inAsync;
     private int _inParamPos = -1;
 }

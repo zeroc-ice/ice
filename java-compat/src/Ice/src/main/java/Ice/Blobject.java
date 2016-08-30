@@ -33,21 +33,14 @@ public abstract class Blobject extends Ice.ObjectImpl
     ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current);
 
     @Override
-    public DispatchStatus
+    public boolean
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inEncaps;
         ByteSeqHolder outEncaps = new ByteSeqHolder();
         inEncaps = in.readParamEncaps();
         boolean ok = ice_invoke(inEncaps, outEncaps, current);
-        in.__writeParamEncaps(outEncaps.value, ok);
-        if(ok)
-        {
-            return DispatchStatus.DispatchOK;
-        }
-        else
-        {
-            return DispatchStatus.DispatchUserException;
-        }
+        in.writeParamEncaps(outEncaps.value, ok);
+        return false;
     }
 }
