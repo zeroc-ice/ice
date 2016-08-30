@@ -491,8 +491,10 @@ public:
         called();
     }
 
-    void noEx(const Ice::Exception&)
+    void noEx(const Ice::Exception& ex)
     {
+        cout << ex << endl;
+        cout << ex.ice_stackTrace() << endl;
         test(false);
     }
 };
