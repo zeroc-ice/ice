@@ -29,22 +29,16 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
      * name of the operation.
      **/
     public abstract void
-    ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
+    ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current)
+        throws UserException;
 
     @Override
     public boolean
     __dispatch(IceInternal.Incoming in, Current current)
+        throws UserException
     {
         byte[] inEncaps = in.readParamEncaps();
-        AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(in);
-        try
-        {
-            ice_invoke_async(cb, inEncaps, current);
-        }
-        catch(java.lang.Exception ex)
-        {
-            cb.ice_exception(ex);
-        }
+        ice_invoke_async(new _AMD_Object_ice_invoke(in), inEncaps, current);
         return true;
     }
 }

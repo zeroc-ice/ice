@@ -201,7 +201,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         assert(cl);
 
         string opName = getName(op);
-        _M << sp << nl << "+(BOOL)" << op->name() << "___:(id<" << name << ">)target_ current:(ICECurrent *)current "
+        _M << sp << nl << "+(void)" << op->name() << "___:(id<" << name << ">)target_ current:(ICECurrent *)current "
            << "is:(id<ICEInputStream>)is_ os:(id<ICEOutputStream>)os_";
         _M << sb;
 
@@ -232,10 +232,6 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
                 outParams.push_back(*pli);
             }
         }
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        throws.sort(Slice::DerivedToBaseCompare());
 
         for(ParamDeclList::const_iterator inp = inParams.begin(); inp != inParams.end(); ++inp)
         {
@@ -254,11 +250,6 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             _M << nl << "[is_ readPendingValues];";
         }
         _M << nl << "[is_ endEncapsulation];";
-        if(!throws.empty())
-        {
-            _M << nl << "@try";
-            _M << sb;
-        }
         for(ParamDeclList::const_iterator outp = outParams.begin(); outp != outParams.end(); ++outp)
         {
             TypePtr type = (*outp)->type();
@@ -292,29 +283,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         {
             _M << nl << "[os_ writePendingValues];";
         }
-        if(!throws.empty())
-        {
-            _M << eb;
-            ExceptionList::const_iterator t;
-            for(t = throws.begin(); t != throws.end(); ++t)
-            {
-                string exS = fixName(*t);
-                _M << nl << "@catch(" << exS << " *ex)";
-                _M << sb;
-                _M << nl << "[os_ writeException:ex];";
-                _M << nl << "return NO;";
-                _M << eb;
-            }
-            _M << nl << "@finally";
-            _M << sb;
-            _M << nl << "[os_ endEncapsulation];";
-            _M << eb;
-        }
-        else
-        {
-            _M << nl << "[os_ endEncapsulation];";
-        }
-        _M << nl << "return YES;";
+        _M << nl << "[os_ endEncapsulation];";
         _M << eb;
     }
 
@@ -347,7 +316,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         }
         _M << eb << ';';
 
-        _M << sp << nl << "-(BOOL) dispatch__:(ICECurrent *)current is:(id<ICEInputStream>)is "
+        _M << sp << nl << "-(void) dispatch__:(ICECurrent *)current is:(id<ICEInputStream>)is "
            << "os:(id<ICEOutputStream>)os";
         _M << sb;
         _M << nl << "id target__ = [self target__];";
@@ -361,13 +330,14 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             _M.inc();
             if(q->second == "ICEObject")
             {
-                _M << nl << "return [ICEServant " << q->first << "___:(id<" << q->second << ">)self";
+                _M << nl << "[ICEServant " << q->first << "___:(id<" << q->second << ">)self";
             }
             else
             {
-                _M << nl << "return [" << q->second << " " << q->first << "___:(id<" << q->second << ">)target__";
+                _M << nl << "[" << q->second << " " << q->first << "___:(id<" << q->second << ">)target__";
             }
             _M << " current:current is:is os:os];";
+            _M << nl << "return;";
             _M.dec();
         }
         _M << nl << "default:";
@@ -1085,7 +1055,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         for(r = ops.begin(); r != ops.end(); ++r)
         {
             OperationPtr op = *r;
-            _H << nl << "+(BOOL)" << op->name() << "___:(id<" << name
+            _H << nl << "+(void)" << op->name() << "___:(id<" << name
                << ">)target current:(ICECurrent *)current "
                << "is:(id<ICEInputStream>)is_ os:(id<ICEOutputStream>)os_;";
         }

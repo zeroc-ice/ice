@@ -30,11 +30,13 @@ public abstract class Blobject extends Ice.ObjectImpl
      * Ice run-time exception, it must throw it directly.
      **/
     public abstract boolean
-    ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current);
+    ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current)
+        throws UserException;
 
     @Override
     public boolean
     __dispatch(IceInternal.Incoming in, Current current)
+        throws UserException
     {
         byte[] inEncaps;
         ByteSeqHolder outEncaps = new ByteSeqHolder();

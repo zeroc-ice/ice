@@ -35,7 +35,7 @@
     return self;
 }
 
--(BOOL) callDispatch:(ICEServant*)servant
+-(void) callDispatch:(ICEServant*)servant
 {
     if(needReset == NO)
     {
@@ -46,7 +46,7 @@
         [is rewind];
         [os reset:NO];
     }
-    return [servant dispatch__:current is:is os:os];
+    [servant dispatch__:current is:is os:os];
 }
 
 -(void) dealloc

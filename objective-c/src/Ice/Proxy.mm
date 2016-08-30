@@ -67,71 +67,37 @@ virtual ~BeginInvokeAsyncCallback()
 
 void response(bool ok, const std::pair<const Ice::Byte*, const Ice::Byte*>& outParams)
 {
-    id<ICEInputStream> is = nil;
-    NSException* nsex = nil;
-    try
-    {
-        if(_returnsData)
-        {
-            is = [[ICEInputStream alloc] initWithCxxCommunicator:_communicator.get() data:outParams];
-        }
-        else if(outParams.first != outParams.second)
-        {
-            if(ok)
-            {
-                if((outParams.second - outParams.first) != 6)
-                {
-                    throw Ice::EncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else
-            {
-                Ice::InputStream s(_communicator.get(), outParams);
-                try
-                {
-                    s.startEncapsulation();
-                    s.throwException();
-                }
-                catch(const Ice::UserException& ex)
-                {
-                    s.endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-                }
-            }
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        if(is != nil)
-        {
-            [is release];
-            is = nil;
-        }
-        nsex = toObjCException(ex);
-    }
-
+    id<ICEInputStream> is = [[ICEInputStream alloc] initWithCxxCommunicator:_communicator.get() data:outParams];
     NSException* exception = nil;
     @autoreleasepool
     {
         @try
         {
-            if(nsex != nil)
+            if(_returnsData)
             {
-                @try
-                {
-                    @throw nsex;
-                }
-                @catch(ICEException* ex)
-                {
-                    if(_exception)
-                    {
-                        _exception(ex);
-                    }
-                    return;
-                }
+                _completed(is, ok);
             }
-
-            _completed(is, ok);
+            else if(outParams.first != outParams.second)
+            {
+                if(ok)
+                {
+                    [is skipEmptyEncapsulation];
+                }
+                else
+                {
+                    @try
+                    {
+                        [is startEncapsulation];
+                        [is throwException];
+                    }
+                    @catch(ICEUserException *ex)
+                    {
+                        [is endEncapsulation];
+                        @throw [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_id]];
+                    }
+                }
+                _completed(nil, ok);
+            }
         }
         @catch(id e)
         {
@@ -560,49 +526,41 @@ BOOL _returnsData;
             ok = OBJECTPRX->ice_invoke(fromNSString(operation), (Ice::OperationMode)mode, inParams, outParams);
         }
 
-        if(unmarshal)
+        std::pair<const Ice::Byte*, const Ice::Byte*> p(&outParams[0], &outParams[0] + outParams.size());
+        ICEInputStream<ICEInputStream>* is;
+        is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:p];
+        @try
         {
-            if(outParams.empty())
-            {
-                throw Ice::EncapsulationException(__FILE__, __LINE__);
-            }
-            std::pair<const Ice::Byte*, const Ice::Byte*> p(&outParams[0], &outParams[0] + outParams.size());
-            ICEInputStream<ICEInputStream>* is;
-            is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:p];
-            @try
+            if(unmarshal)
             {
                 unmarshal(is, ok);
             }
-            @catch(id e)
+            else if(!outParams.empty())
             {
-                nsex = [e retain];
+                if(ok)
+                {
+                    [is skipEmptyEncapsulation];
+                }
+                else
+                {
+                    @try
+                    {
+                        [is startEncapsulation];
+                        [is throwException];
+                    }
+                    @catch(ICEUserException* ex)
+                    {
+                        [is endEncapsulation];
+                        @throw [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_id]];
+                    }
+                }
             }
-            [is release];
         }
-        else if(!outParams.empty())
+        @catch(id e)
         {
-            if(ok)
-            {
-                if(outParams.size() != 6)
-                {
-                    throw Ice::EncapsulationException(__FILE__, __LINE__);
-                }
-            }
-            else
-            {
-                Ice::InputStream s(OBJECTPRX->ice_getCommunicator(), outParams);
-                try
-                {
-                    s.startEncapsulation();
-                    s.throwException();
-                }
-                catch(const Ice::UserException& ex)
-                {
-                    s.endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-                }
-            }
+            nsex = [e retain];
         }
+        [is release];
     }
     catch(const std::exception& ex)
     {
@@ -866,67 +824,55 @@ BOOL _returnsData;
                             userInfo:nil];
     }
 
-    BOOL ok = YES; // Keep the compiler happy.
     NSException* nsex = nil;
-    ICEInputStream* is = nil;
     try
     {
         std::pair<const Ice::Byte*, const Ice::Byte*> outParams;
-        ok = OBJECTPRX->___end_ice_invoke(outParams, [result asyncResult__]);
+        BOOL ok = OBJECTPRX->___end_ice_invoke(outParams, [result asyncResult__]);
 
-        if(unmarshal)
+        ICEInputStream* is;
+        is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:outParams];
+        @try
         {
-            is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:outParams];
-        }
-        else if(outParams.first != outParams.second)
-        {
-            if(ok)
+            if(unmarshal)
             {
-                if((outParams.second - outParams.first) != 6)
+                unmarshal(is, ok);
+            }
+            else if(outParams.first != outParams.second)
+            {
+                if(ok)
                 {
-                    throw Ice::EncapsulationException(__FILE__, __LINE__);
+                    [is skipEmptyEncapsulation];
+                }
+                else
+                {
+                    @try
+                    {
+                        [is startEncapsulation];
+                        [is throwException];
+                    }
+                    @catch(ICEUserException* ex)
+                    {
+                        [is endEncapsulation];
+                        @throw [ICEUnknownUserException unknownUserException:__FILE__ line:__LINE__ unknown:[ex ice_id]];
+                    }
                 }
             }
-            else
-            {
-                Ice::InputStream s(OBJECTPRX->ice_getCommunicator(), outParams);
-                try
-                {
-                    s.startEncapsulation();
-                    s.throwException();
-                }
-                catch(const Ice::UserException& ex)
-                {
-                    s.endEncapsulation();
-                    throw Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-                }
-            }
         }
+        @catch(id e)
+        {
+            nsex = [e retain];
+        }
+        [is release];
     }
     catch(const std::exception& ex)
     {
-        if(is != nil)
-        {
-            [is release];
-            is = nil;
-        }
         nsex = toObjCException(ex);
     }
+
     if(nsex != nil)
     {
         @throw nsex;
-    }
-
-    if(is != nil)
-    {
-        @try
-        {
-            unmarshal(is, ok);
-        }
-        @finally
-        {
-            [is release];
-        }
     }
 }
 

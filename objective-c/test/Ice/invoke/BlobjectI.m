@@ -34,6 +34,10 @@
     }
     else if([current.operation isEqualToString:@"opException"])
     {
+        if([current.ctx objectForKey:@"raise"] != nil)
+        {
+            @throw [TestInvokeMyException myException];
+        }
         TestInvokeMyException* ex = [TestInvokeMyException myException];
         [outS writeException:ex];
         [outS endEncapsulation];

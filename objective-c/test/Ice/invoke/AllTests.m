@@ -166,10 +166,12 @@ invokeAllTests(id<ICECommunicator> communicator)
         }
     }
 
+    for(int i = 0; i < 2; ++i)
     {
         NSData* inEncaps = [NSData data];
         NSMutableData* outEncaps;
-        if([cl ice_invoke:@"opException" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps])
+        ICEContext* ctx = i == 0 ? nil : @{ @"raise": @"" };
+        if([cl ice_invoke:@"opException" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps context:ctx])
         {
             test(NO);
         }

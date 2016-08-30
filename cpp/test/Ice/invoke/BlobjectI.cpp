@@ -38,6 +38,10 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
     }
     else if(current.operation == "opException")
     {
+        if(current.ctx.find("raise") != current.ctx.end())
+        {
+            throw Test::MyException();
+        }
         Test::MyException ex;
         out.writeException(ex);
         out.endEncapsulation();
@@ -130,7 +134,7 @@ BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
 }
 #else
 void
-BlobjectAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inEncaps, 
+BlobjectAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inEncaps,
                                 const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);

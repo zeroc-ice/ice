@@ -35,6 +35,10 @@ public class BlobjectI : Ice.Blobject
         }
         else if(current.operation.Equals("opException"))
         {
+            if(current.ctx.ContainsKey("raise"))
+            {
+                throw new Test.MyException();
+            }
             Test.MyException ex = new Test.MyException();
             outS.writeException(ex);
             outS.endEncapsulation();

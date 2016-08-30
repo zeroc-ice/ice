@@ -16,6 +16,7 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
     @Override
     public void
     ice_invoke_async(Ice.AMD_Object_ice_invoke cb, byte[] inParams, Ice.Current current)
+        throws Ice.UserException
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream in = new Ice.InputStream(communicator, inParams);
@@ -36,6 +37,10 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
         }
         else if(current.operation.equals("opException"))
         {
+            if(current.ctx.containsKey("raise"))
+            {
+                throw new MyException();
+            }
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();

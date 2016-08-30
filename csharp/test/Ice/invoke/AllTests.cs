@@ -9,6 +9,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 
@@ -226,9 +227,17 @@ public class AllTests : TestCommon.TestApp
             }
         }
 
+        for(int i = 0; i < 2; ++i)
         {
             byte[] outEncaps;
-            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps))
+            Dictionary<string, string> ctx = null;
+            if(i == 1)
+            {
+                ctx = new Dictionary<string, string>();
+                ctx["raise"] = "";
+            }
+
+            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps, ctx))
             {
                 test(false);
             }
@@ -265,7 +274,7 @@ public class AllTests : TestCommon.TestApp
             {
                 test(false);
             }
-            
+
 
             Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();

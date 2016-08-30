@@ -15,11 +15,11 @@
 #import <Foundation/NSInvocation.h>
 
 @implementation ICEDispatchInterceptor
--(BOOL) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
+-(void) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICERequest* request = [ICERequest request:current is:is os:os];
     id<ICEDispatchInterceptor> dispatchInterceptor = (id<ICEDispatchInterceptor>)self;
-    return [dispatchInterceptor dispatch:request];
+    [dispatchInterceptor dispatch:request];
 }
 @end
 
@@ -36,7 +36,7 @@
     return [[[self alloc] init:s] autorelease];
 }
 
--(BOOL) dispatch:(id<ICERequest>)request
+-(void) dispatch:(id<ICERequest>)request
 {
     SEL selector = @selector(ice_dispatch:);
     NSMethodSignature* sig = [[servant class] instanceMethodSignatureForSelector:selector];
@@ -44,12 +44,7 @@
     [inv setTarget:servant];
     [inv setSelector:selector];
     [inv setArgument:&request atIndex:2];
-    
     [inv performSelectorOnMainThread:@selector(invokeWithTarget:) withObject:servant waitUntilDone:YES];
-
-    BOOL status;
-    [inv getReturnValue:&status];
-    return status;
 }
 
 -(void)dealloc

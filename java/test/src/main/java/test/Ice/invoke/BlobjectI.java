@@ -15,6 +15,7 @@ public class BlobjectI implements com.zeroc.Ice.Blobject
 {
     @Override
     public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inParams, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.UserException
     {
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
         com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
@@ -40,6 +41,10 @@ public class BlobjectI implements com.zeroc.Ice.Blobject
         }
         else if(current.operation.equals("opException"))
         {
+            if(current.ctx.containsKey("raise"))
+            {
+                throw new MyException();
+            }
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();

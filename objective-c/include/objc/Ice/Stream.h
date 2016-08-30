@@ -129,6 +129,7 @@ ICE_API @protocol ICEInputStream <NSObject>
 
 -(ICEEncodingVersion*) startEncapsulation;
 -(void) endEncapsulation;
+-(ICEEncodingVersion*) skipEmptyEncapsulation;
 -(ICEEncodingVersion*) skipEncapsulation;
 
 -(ICEEncodingVersion*) getEncoding;

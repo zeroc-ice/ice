@@ -19,6 +19,7 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync
     @Override
     public CompletionStage<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(byte[] inParams,
                                                                                   com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.UserException
     {
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
         com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, inParams);
@@ -44,6 +45,10 @@ public class BlobjectAsyncI implements com.zeroc.Ice.BlobjectAsync
         }
         else if(current.operation.equals("opException"))
         {
+            if(current.ctx.containsKey("raise"))
+            {
+                throw new MyException();
+            }
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();

@@ -75,8 +75,15 @@ public class AllTests
             }
         }
 
+        for(int i = 0; i < 2; ++i)
         {
-            com.zeroc.Ice.Object.Ice_invokeResult r = cl.ice_invoke("opException", OperationMode.Normal, null);
+            java.util.Map<String, String> context = null;
+            if(i == 1)
+            {
+                context = new java.util.HashMap<String, String>();
+                context.put("raise", "");
+            }
+            com.zeroc.Ice.Object.Ice_invokeResult r = cl.ice_invoke("opException", OperationMode.Normal, null, context);
             if(r.returnValue)
             {
                 test(false);

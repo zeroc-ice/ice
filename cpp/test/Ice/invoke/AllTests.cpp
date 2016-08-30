@@ -354,9 +354,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
     }
 
+    for(int i = 0; i < 2; ++i)
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        if(cl->ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
+        Ice::Context ctx;
+        if(i == 1)
+        {
+            ctx["raise"] = "";
+        }
+        if(cl->ice_invoke("opException", ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps, ctx))
         {
             test(false);
         }

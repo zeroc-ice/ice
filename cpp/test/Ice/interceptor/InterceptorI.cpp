@@ -19,7 +19,6 @@ InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
 {
 }
 
-
 bool
 InterceptorI::dispatch(Ice::Request& request)
 {

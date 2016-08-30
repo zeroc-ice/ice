@@ -10,7 +10,7 @@
 #import <objc/Ice/Object.h>
 
 ICE_API @protocol ICEDispatchInterceptor <ICEObject>
--(BOOL) dispatch:(id<ICERequest>)request;
+-(void) dispatch:(id<ICERequest>)request;
 @end
 
 ICE_API @interface ICEDispatchInterceptor : ICEServant

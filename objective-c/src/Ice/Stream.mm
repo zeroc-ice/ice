@@ -385,6 +385,7 @@ private:
     {
         return nil;
     }
+
     Ice::InputStream(com, data).swap(stream_);
     is_ = &stream_;
     is_->setClosure(self);
@@ -1308,6 +1309,24 @@ private:
     {
         @throw nsex;
     }
+}
+
+-(ICEEncodingVersion*) skipEmptyEncapsulation
+{
+    NSException* nsex = nil;
+    try
+    {
+        return [ICEEncodingVersion encodingVersionWithEncodingVersion:is_->skipEmptyEncapsulation()];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+    return nil; // Keep the compiler happy.
 }
 
 -(ICEEncodingVersion*) skipEncapsulation

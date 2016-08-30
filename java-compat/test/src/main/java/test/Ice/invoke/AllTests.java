@@ -278,9 +278,16 @@ public class AllTests
             }
         }
 
+        for(int i = 0; i < 2; ++i)
         {
             Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
-            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, outEncaps))
+            java.util.Map<String, String> context = null;
+            if(i == 1)
+            {
+                context = new java.util.HashMap<String, String>();
+                context.put("raise", "");
+            }
+            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, outEncaps, context))
             {
                 test(false);
             }

@@ -16,6 +16,7 @@ public class BlobjectI extends Ice.Blobject
     @Override
     public boolean
     ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
+        throws Ice.UserException
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream in = new Ice.InputStream(communicator, inParams);
@@ -38,6 +39,10 @@ public class BlobjectI extends Ice.Blobject
         }
         else if(current.operation.equals("opException"))
         {
+            if(current.ctx.containsKey("raise"))
+            {
+                throw new MyException();
+            }
             MyException ex = new MyException();
             out.writeException(ex);
             out.endEncapsulation();

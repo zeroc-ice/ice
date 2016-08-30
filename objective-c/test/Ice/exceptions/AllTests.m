@@ -318,6 +318,7 @@ exceptionsAllTests(id<ICECommunicator> communicator)
         }
         @catch(NSException *ex)
         {
+            NSLog(@"%@", ex);
             test(false);
         }
 
