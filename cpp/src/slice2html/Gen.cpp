@@ -943,7 +943,8 @@ Slice::GeneratorBase::getURL(const SyntaxTreeBasePtr& target, const SyntaxTreeBa
         "string",
         "Object",
         "Object*",
-        "LocalObject"
+        "LocalObject",
+        "Value"
     };
 
     SyntaxTreeBasePtr t = target;
