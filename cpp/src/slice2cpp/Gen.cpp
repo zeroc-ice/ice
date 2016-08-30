@@ -554,6 +554,62 @@ resultStructName(const string& name, const string& scope = "")
     return stName;
 }
 
+void
+emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstring)
+{
+    string name = p->name();
+
+    TypePtr ret = p->returnType();
+    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), useWstring | TypeContextCpp11);
+
+    ParamDeclList outParams;
+    ParamDeclList paramList = p->parameters();
+
+    for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+        if((*q)->isOutParam())
+        {
+            outParams.push_back(*q);
+        }
+    }
+
+    if((outParams.size() > 1) || (ret && outParams.size() > 0))
+    {
+        //
+        // Generate OpNameResult struct
+        //
+        list<string> dataMembers;
+        string returnValueS = "returnValue";
+
+        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            string typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                             useWstring | TypeContextCpp11);
+
+            dataMembers.push_back(typeString + " " + fixKwd((*q)->name()));
+
+            if((*q)->name() == "returnValue")
+            {
+                returnValueS = "_returnValue";
+            }
+        }
+
+        if(ret)
+        {
+            dataMembers.push_front(retS + " " + returnValueS);
+        }
+
+        H << sp;
+        H << nl << "struct " << resultStructName(name);
+        H << sb;
+        for(list<string>::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            H << nl << *q << ";";
+        }
+        H << eb << ";";
+    }
+}
+
 string
 condMove(bool moveIt, const string& str)
 {
@@ -5991,8 +6047,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        string suffix = cl->isInterface() ? "" : "Disp";
-        string resultScope = fixKwd(cl->scope() + cl->name() + suffix);
+        string resultScope = fixKwd(cl->scope() + cl->name());
         futureT = resultStructName(name, resultScope);
     }
 
@@ -6810,8 +6865,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         base = bases.front();
     }
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
 
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
@@ -7049,42 +7102,10 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         args += condMove(isMovable(type) && !isOutParam, paramName);
     }
 
-    if((outParams.size() > 1) || (ret && outParams.size() > 0))
+    if(cl->isInterface())
     {
-        //
-        // Generate OpNameResult struct
-        //
-        list<string> dataMembers;
-        string returnValueS = "returnValue";
-
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            string typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                             _useWstring | TypeContextCpp11);
-
-            dataMembers.push_back(typeString + " " + fixKwd((*q)->name()));
-
-            if((*q)->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
-        }
-
-        if(ret)
-        {
-            dataMembers.push_front(retS + " " + returnValueS);
-        }
-
-        H << sp;
-        H << nl << "struct " << resultStructName(name);
-        H << sb;
-        for(list<string>::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            H << nl << *q << ";";
-        }
-        H << eb << ";";
+        emitOpNameResult(H, p, _useWstring);
     }
-
 
     if(!paramList.empty())
     {
@@ -7497,10 +7518,10 @@ Slice::Gen::Cpp11ValueVisitor::visitStructStart(const StructPtr&)
 }
 
 void
-Slice::Gen::Cpp11ValueVisitor::visitOperation(const OperationPtr&)
+Slice::Gen::Cpp11ValueVisitor::visitOperation(const OperationPtr& p)
 {
+    emitOpNameResult(H, p, _useWstring);
 }
-
 
 bool
 Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derived, const ClassDefPtr& base)
