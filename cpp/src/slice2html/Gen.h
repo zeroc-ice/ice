@@ -50,22 +50,24 @@ protected:
     void start(const ::std::string&, const ::std::string& = ::std::string());
     void end();
 
-    void printComment(const ContainedPtr&, const ContainerPtr&, const ::std::string&, bool = false);
+    void printComment(const ContainedPtr&, const SyntaxTreeBasePtr&, const ::std::string&, bool = false);
     void printMetaData(const ContainedPtr&);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
 
     void printHeaderFooter(const ContainedPtr&);
     void printSearch();
-    void printLogo(const ContainedPtr&, const ContainerPtr&, bool);
+    void printLogo(const ContainedPtr&);
 
-    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false,
-                           size_t* = 0, bool = false);
-    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, size_t* = 0);
-    ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
+    bool checkFile(const SyntaxTreeBasePtr&);
+    ContainedPtr getPageElement(const SyntaxTreeBasePtr&);
+    ::std::string getPath(const SyntaxTreeBasePtr&, const SyntaxTreeBasePtr&);
+    ::std::string getURL(const SyntaxTreeBasePtr&, const SyntaxTreeBasePtr&, bool, bool);
+    ::std::string getURL(const ::std::string&, const SyntaxTreeBasePtr&, bool);
+
+    ::std::string getComment(const ContainedPtr&, const SyntaxTreeBasePtr&, bool, bool = false);
 
     static ::std::string getAnchor(const SyntaxTreeBasePtr&);
     static StringList getTarget(const SyntaxTreeBasePtr&);
-    static ::std::string getLinkPath(const SyntaxTreeBasePtr&, const ContainerPtr&, bool, bool = false);
 
     static ::std::string getImageDir();
     static ::std::string getLogoURL();
@@ -83,10 +85,11 @@ private:
 
     static ::std::string containedToId(const ContainedPtr&, bool);
     static StringList getTagged(const ::std::string&, ::std::string&);
-    static ::std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&, bool = false);
+    static ::std::string getScopedMinimized(const SyntaxTreeBasePtr&, const SyntaxTreeBasePtr&, bool);
     static StringList getContained(const SyntaxTreeBasePtr&);
     static StringList getContainer(const SyntaxTreeBasePtr&);
     static StringList toStringList(const ContainedPtr&);
+    static StringList toStringList(const ::std::string&);
     static void makeDir(const ::std::string&);
     static ::std::string readFile(const ::std::string&);
     static void readFile(const ::std::string&, ::std::string&, ::std::string&);
