@@ -31,7 +31,8 @@ public final class DummyLogger implements Ice.Logger
     warning(String message)
     {
         if(!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertException_async"))
+           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertException_async") &&
+           !message.contains("java.lang.AssertionError"))
         {
             _logger.warning(message);
         }
@@ -42,7 +43,8 @@ public final class DummyLogger implements Ice.Logger
     error(String message)
     {
         if(!message.contains("test.Ice.exceptions.ThrowerI.throwAssertException") &&
-           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertException_async"))
+           !message.contains("test.Ice.exceptions.AMDThrowerI.throwAssertException_async") &&
+           !message.contains("java.lang.AssertionError"))
         {
             _logger.error(message);
         }
