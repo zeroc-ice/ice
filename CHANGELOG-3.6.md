@@ -41,7 +41,7 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
-- Fixed a bug in the un-marshalling code where passing optional input
+- Fixed a bug in the unmarshalling code where passing optional input
   parameters to an operation with no required input parameters would
   cause an Ice::EncapsulationException to be thrown if the receiver
   didn't expect the optional input parameters. The same applies for
@@ -50,6 +50,8 @@ These are the changes since Ice 3.6.2.
 
 - Fixed a bug in icegridadmin and IceGridGUI which was preventing to get
   properties for IceBox services using the IceBox shared communicator.
+
+- General clean up in slice2html, including a fix for broken link paths.
 
 ## C++ Changes
 

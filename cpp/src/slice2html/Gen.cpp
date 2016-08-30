@@ -251,7 +251,7 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
     StringList::size_type num = 0;
     for(StringList::const_iterator i = components.begin(); i != components.end(); ++i)
     {
-        path += "/" + *i;
+        path += "/" + (IceUtilInternal::toLower(*i) == "index" ? "_index" : *i);
         ++num;
         if(num < components.size())
         {
@@ -299,14 +299,14 @@ Slice::GeneratorBase::end()
 }
 
 void
-Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& container,
+Slice::GeneratorBase::printComment(const ContainedPtr& p, const SyntaxTreeBasePtr& source,
                                    const string& deprecateReason, bool forIndex)
 {
 #ifndef NDEBUG
     int indent = _out.currIndent();
 #endif
 
-    string comment = getComment(p, container, false, forIndex);
+    string comment = getComment(p, source, false, forIndex);
     StringList par = getTagged("param", comment);
     StringList ret = getTagged("return", comment);
     StringList throws = getTagged("throws", comment);
@@ -395,7 +395,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
             }
             
             start("dt", "Symbol");
-            _out << toString(toSliceID(term, container->definitionContext()->filename()), container, false, forIndex);
+            _out << getURL(toSliceID(term, source->definitionContext()->filename()), source, false);
             end();
             start("dd");
             _out << nl << item;
@@ -419,7 +419,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
         for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, container, false, forIndex);
+            _out << getURL(*q, source, false, false);
             end();
         }
         end();
@@ -439,7 +439,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
             for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
             {
                 start("dt", "Symbol");
-                _out << toString(*q, container, false, forIndex);
+                _out << getURL(*q, source, false, false);
                 end();
             }
             end();
@@ -460,7 +460,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
             StringList sl;
             for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
             {
-                sl.push_back(toString(*q, container, false, forIndex));
+                sl.push_back(getURL(*q, source, false, false));
             }
             sl.sort();
             for(StringList::const_iterator r = sl.begin(); r != sl.end(); ++r)
@@ -492,14 +492,14 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
         //
         // We first accumulate the strings in a list instead of printing
         // each stringified entry in the usedBy list. This is necessary because
-        // the usedBy list can contain operations and parameters. But toString()
+        // the usedBy list can contain operations and parameters. But getURL()
         // on a parameter returns the string for the parameter's operation, so
         // we can end up printing the same operation name more than once.
         //
         StringList strings;
         for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
         {
-            strings.push_back(toString(*q, container, false, forIndex));
+            strings.push_back(getURL(*q, source, false, false));
         }
         strings.sort();
         strings.unique();
@@ -526,7 +526,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
         for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(toSliceID(*q, container->definitionContext()->filename()), container, false, forIndex);
+            _out << getURL(toSliceID(*q, source->definitionContext()->filename()), source, false);
             end();
         }
         end();
@@ -584,8 +584,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 void
 Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 {
-    ContainerPtr container = ContainerPtr::dynamicCast(c);
-    string scoped = c->scoped();
+    const string scoped = c->scoped();
     ContainedList::const_iterator prev = _symbols.end();
     ContainedList::const_iterator pos = _symbols.begin();
     while(pos != _symbols.end())
@@ -598,49 +597,14 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     }
     ContainedList::const_iterator next = pos == _symbols.end() ? _symbols.end() : ++pos;
 
-    bool isFirst = prev == _symbols.end();
-    bool isLast = next == _symbols.end();
-    bool hasParent = false;
-    if(EnumPtr::dynamicCast(c))
-    {
-        hasParent = true;
-    }
-    else if(ModulePtr::dynamicCast(c))
-    {
-         ModulePtr m = ModulePtr::dynamicCast(c);
-         if(ModulePtr::dynamicCast(m->container()))
-         {
-             hasParent = true;
-         }
-    }
-    else if(ContainedPtr::dynamicCast(c))
-    {
-        hasParent = true;
-    }
-
-    bool onEnumPage = EnumPtr::dynamicCast(c);
+    const bool isFirst = prev == _symbols.end();
+    const bool isLast = next == _symbols.end();
 
     string prevLink;
     string prevClass;
     if(!isFirst)
     {
-        prevLink = getLinkPath(*prev, container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
-        if(ModulePtr::dynamicCast(c))
-        {
-            //
-            // If we are writing the header/footer for a module page,
-            // and the target is up from the current scope,
-            // we need to step up an extra level because modules
-            // are documented one directory up, at the same level as
-            // the module directory.
-            //
-            StringList source = getContainer(c);
-            StringList target = getContainer(*prev);
-            if(target.size() < source.size())
-            {
-                prevLink = "../" + prevLink;
-            }
-        }
+        prevLink = getPath(*prev, c) + ".html";
         prevClass = "Button";
     }
     else
@@ -652,23 +616,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string nextClass;
     if(!isLast)
     {
-        nextLink = getLinkPath(*next, container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
-        if(ModulePtr::dynamicCast(c))
-        {
-            //
-            // If we are writing the header/footer for a module page,
-            // and the target is up from the current scope,
-            // we need to step up an extra level because modules
-            // are documented one directory up, at the same level as
-            // the module directory.
-            //
-            StringList source = getContainer(c);
-            StringList target = getContainer(*next);
-            if(target.size() < source.size())
-            {
-                nextLink = "../" + nextLink;
-            }
-        }
+        nextLink = getPath(*next, c) + ".html";
         nextClass = "Button";
     }
     else
@@ -678,9 +626,10 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     string upLink;
     string upClass;
-    if(hasParent)
+    bool topLevel = UnitPtr::dynamicCast(c->container());
+    if(!topLevel)
     {
-        upLink = getLinkPath(c->container(), container, false, onEnumPage) + ".html";
+        upLink = getPath(c->container(), c) + ".html";
         upClass = "Button";
     }
     else
@@ -688,14 +637,14 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
         upClass = "ButtonGrey";
     }
 
-    string homeLink = getLinkPath(0, container, false, onEnumPage);
+    string homeLink = getPath(0, c);
     if(!homeLink.empty())
     {
         homeLink += "/";
     }
     homeLink += "index.html";
 
-    string indexLink = getLinkPath(0, container, false, onEnumPage);
+    string indexLink = getPath(0, c);
     if(!indexLink.empty())
     {
         indexLink += "/";
@@ -706,14 +655,14 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     string prevImage = imageDir.empty() ? "Previous" : (isFirst ? "prevx.gif" : "prev.gif");
     string nextImage = imageDir.empty() ? "Next" : (isLast ? "nextx.gif" : "next.gif");
-    string upImage = imageDir.empty()? "Up" : (hasParent ? "up.gif" : "upx.gif");
+    string upImage = imageDir.empty()? "Up" : (!topLevel ? "up.gif" : "upx.gif");
 
     string homeImage = imageDir.empty() ? "Home" : "home.gif";
     string indexImage = imageDir.empty() ? "Index" : "index.gif";
 
     if(!imageDir.empty())
     {
-        string path = getLinkPath(0, container, false, onEnumPage);
+        string path = getPath(0, c);
         if(!path.empty())
         {
             path += "/";
@@ -754,15 +703,15 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
         end();
     }
 
-    if(!imageDir.empty() || hasParent)
+    if(!imageDir.empty() || !topLevel)
     {
         start("td");
-        if(hasParent)
+        if(!topLevel)
         {
             _out << "<a href=\"" << upLink << "\">";
         }
         _out << upImage;
-        if(hasParent)
+        if(!topLevel)
         {
             _out << "</a>";
         }
@@ -797,7 +746,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     end();
 
     start("td align=\"right\"");
-    printLogo(c, container, onEnumPage);
+    printLogo(c);
     end();
 
     end(); // tr
@@ -830,12 +779,12 @@ Slice::GeneratorBase::printSearch()
 }
 
 void
-Slice::GeneratorBase::printLogo(const ContainedPtr& /*c*/, const ContainerPtr& container, bool forEnum)
+Slice::GeneratorBase::printLogo(const ContainedPtr& c)
 {
     string imageDir = getImageDir();
     if(!imageDir.empty())
     {
-        string path = getLinkPath(0, container, false, forEnum);
+        string path = getURL(0, c, false, false);
         if(!path.empty())
         {
             path += "/";
@@ -859,9 +808,124 @@ Slice::GeneratorBase::printLogo(const ContainedPtr& /*c*/, const ContainerPtr& c
     }
 }
 
+bool
+Slice::GeneratorBase::checkFile(const SyntaxTreeBasePtr& p)
+{
+    //
+    // Determine whether the file in which the given element is defined is included in this documentation set.
+    //
+    return _files.find(p->definitionContext()->filename()) != _files.end();
+}
+
+ContainedPtr
+Slice::GeneratorBase::getPageElement(const SyntaxTreeBasePtr& p)
+{
+    ContainedPtr r = ContainedPtr::dynamicCast(p);
+    if(r)
+    {
+        //
+        // Determine the syntax tree entity that represents the page on which the definition is contained.
+        //
+        switch(r->containedType())
+        {
+        case Contained::ContainedTypeSequence:     // Described on the enclosing module's page.
+        case Contained::ContainedTypeDictionary:   // Described on the enclosing module's page.
+        case Contained::ContainedTypeOperation:    // Described on the class/interface page.
+        case Contained::ContainedTypeDataMember:   // Described on the class/struct/exception page.
+        case Contained::ContainedTypeConstant:     // Described on the enclosing module's page.
+            r = ContainedPtr::dynamicCast(r->container());
+            assert(r);
+            break;
+        case Contained::ContainedTypeParamDecl:    // Described on the class/interface page.
+        {
+            r = ContainedPtr::dynamicCast(r->container());
+            assert(r);
+            OperationPtr op = OperationPtr::dynamicCast(r);
+            assert(op);
+            r = ContainedPtr::dynamicCast(op->container());
+            assert(r);
+            break;
+        }
+        case Contained::ContainedTypeEnumerator:   // Described on the enum page.
+            r = EnumeratorPtr::dynamicCast(r)->type();
+            break;
+        case Contained::ContainedTypeEnum:
+        case Contained::ContainedTypeModule:
+        case Contained::ContainedTypeException:
+        case Contained::ContainedTypeStruct:
+            //
+            // These types have their own pages.
+            //
+            break;
+        case Contained::ContainedTypeClass:
+        {
+            ClassDeclPtr c = ClassDeclPtr::dynamicCast(p);
+            if(c)
+            {
+                assert(c->definition()); // May be nil if the class is declared but not defined.
+            }
+            break;
+        }
+        }
+    }
+
+    return r;
+}
+
 string
-Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool forIndex,
-                               size_t* summarySize, bool shortName)
+Slice::GeneratorBase::getPath(const SyntaxTreeBasePtr& target, const SyntaxTreeBasePtr& source)
+{
+    //
+    // We need a link to get from the page containing the source to the page containing the target.
+    //
+    ContainedPtr t = getPageElement(target);
+    ContainedPtr s = getPageElement(source);
+
+    string path;
+
+    //
+    // First compute a path from source to the top.
+    //
+    if(s)
+    {
+        //
+        // Start out one level up. Top-level modules still have a container (the Unit) but we
+        // don't want to include that level.
+        //
+        ContainedPtr c = ContainedPtr::dynamicCast(s->container());
+        while(c)
+        {
+            if(!path.empty())
+            {
+                path += "/";
+            }
+            path += "..";
+            c = ContainedPtr::dynamicCast(c->container());
+        }
+    }
+
+    //
+    // Now add a path to the target.
+    //
+    if(t)
+    {
+        StringList l = toStringList(t);
+        for(StringList::iterator p = l.begin(); p != l.end(); ++p)
+        {
+            if(!path.empty())
+            {
+                path += "/";
+            }
+            path += (IceUtilInternal::toLower(*p) == "index" ? "_index" : *p);
+        }
+    }
+
+    return path;
+}
+
+string
+Slice::GeneratorBase::getURL(const SyntaxTreeBasePtr& target, const SyntaxTreeBasePtr& source, bool asTarget,
+                             bool shortName)
 {
     string anchor;
     string linkpath;
@@ -882,134 +946,123 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
         "LocalObject"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    SyntaxTreeBasePtr t = target;
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
     if(builtin)
     {
         s = builtinTable[builtin->kind()];
         return s;
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(p);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(t);
     if(proxy)
     {
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(proxy))
         {
-            linkpath = getLinkPath(proxy->_class()->definition(), container, forIndex);
+            //
+            // We can only link to classes that are defined.
+            //
+            if(proxy->_class()->definition())
+            {
+                linkpath = getPath(proxy->_class(), source);
+            }
         }
-        s = getScopedMinimized(proxy->_class(), container, shortName);
+        s = getScopedMinimized(proxy->_class(), source, shortName);
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(t);
     if(cl)
     {
         //
-        // We must generate the id from the definition, not from the
-        // declaration, provided that a definition is available.
+        // We can only link to classes that are defined.
         //
-        ContainedPtr definition = cl->definition();
-        if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
+        if(cl->definition() && checkFile(cl))
         {
-            linkpath = getLinkPath(definition, container, forIndex);
+            linkpath = getPath(cl->definition(), source);
         }
-        s = getScopedMinimized(cl, container, shortName);
+        s = getScopedMinimized(cl, source, shortName);
     }
 
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(t);
     if(ex)
     {
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(ex))
         {
-            linkpath = getLinkPath(ex, container, forIndex);
+            linkpath = getPath(ex, source);
         }
-        s = getScopedMinimized(ex, container, shortName);
+        s = getScopedMinimized(ex, source, shortName);
     }
 
-    StructPtr st = StructPtr::dynamicCast(p);
+    StructPtr st = StructPtr::dynamicCast(t);
     if(st)
     {
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(st))
         {
-            linkpath = getLinkPath(st, container, forIndex);
+            linkpath = getPath(st, source);
         }
-        s = getScopedMinimized(st, container, shortName);
+        s = getScopedMinimized(st, source, shortName);
     }
 
-    EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
+    EnumeratorPtr en = EnumeratorPtr::dynamicCast(t);
     if(en)
     {
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(en))
         {
             anchor = getAnchor(en);
-            linkpath = getLinkPath(en, container, forIndex);
+            linkpath = getPath(en, source);
         }
-        s = getScopedMinimized(en, container, shortName);
+        s = getScopedMinimized(en, source, shortName);
     }
 
-    OperationPtr op = OperationPtr::dynamicCast(p);
+    OperationPtr op = OperationPtr::dynamicCast(t);
     if(op)
     {
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(op))
         {
             anchor = getAnchor(op);
-            linkpath = getLinkPath(op, container, forIndex);
+            linkpath = getPath(op, source);
         }
-        s = getScopedMinimized(op, container, shortName);
+        s = getScopedMinimized(op, source, shortName);
     }
 
-    ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
+    ParamDeclPtr pd = ParamDeclPtr::dynamicCast(t);
     if(pd)
     {
         op = OperationPtr::dynamicCast(pd->container());
         assert(op);
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(pd))
         {
             anchor = getAnchor(op);
-            linkpath = getLinkPath(op, container, forIndex);
+            linkpath = getPath(op, source);
         }
-        s = getScopedMinimized(op, container, shortName);
+        s = getScopedMinimized(op, source, shortName);
     }
 
-    if(s.empty())
+    if(!t)
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast(p);
+        linkpath = getPath(t, source);
+    }
+    else if(s.empty())
+    {
+        ContainedPtr contained = ContainedPtr::dynamicCast(t);
         assert(contained);
-        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        if(checkFile(t))
         {
-            if(!(EnumPtr::dynamicCast(p) || ModulePtr::dynamicCast(p) || ClassDeclPtr::dynamicCast(p)))
+            if(!(EnumPtr::dynamicCast(t) || ModulePtr::dynamicCast(t) || ClassDefPtr::dynamicCast(t)))
             {
                 anchor = getAnchor(contained);
             }
 
-            //
-            // Sequences and dictionaries are documented on the page for their
-            // enclosing module.
-            //
-            if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
-            {
-                linkpath = getLinkPath(contained->container(), container, forIndex);
-            }
-            else
-            {
-                linkpath = getLinkPath(contained, container, forIndex);
-            }
+            linkpath = getPath(t, source);
         }
-        s = getScopedMinimized(contained, container, shortName);
-    }
-
-    if(summarySize)
-    {
-        *summarySize = s.size();
+        s = getScopedMinimized(contained, source, shortName);
     }
 
     if(linkpath.empty() && anchor.empty())
     {
-        if(ProxyPtr::dynamicCast(p))
+        if(proxy)
         {
             s += '*';
-            if(summarySize)
-            {
-                ++(*summarySize);
-            }
         }
         return s;
     }
@@ -1036,7 +1089,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     ret += "\">";
     ret += s;
     ret += "</a>";
-    if(ProxyPtr::dynamicCast(p))
+    if(proxy)
     {
         ret += '*';
     }
@@ -1044,31 +1097,41 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 }
 
 string
-Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool forIndex,
-                               size_t* summarySize)
+Slice::GeneratorBase::getURL(const string& str, const SyntaxTreeBasePtr& source, bool asTarget)
 {
-
-    TypeList types = container->lookupType(str, false);
-    if(!types.empty())
+    ContainerPtr container = ContainerPtr::dynamicCast(source);
+    if(!container)
     {
-        return toString(types.front(), container, asTarget, forIndex, summarySize);
+        ContainedPtr contained = ContainedPtr::dynamicCast(source);
+        if(contained)
+        {
+            container = contained->container();
+        }
     }
 
-    ContainedList contList = container->lookupContained(str, false);
-    if(!contList.empty())
+    if(container)
     {
-        return toString(contList.front(), container, asTarget, forIndex, summarySize);
+        TypeList types = container->lookupType(str, false);
+        if(!types.empty())
+        {
+            return getURL(types.front(), source, asTarget, false);
+        }
+
+        ContainedList contList = container->lookupContained(str, false);
+        if(!contList.empty())
+        {
+            return getURL(contList.front(), source, asTarget, false);
+        }
     }
 
     //
-    // If we can't find the string, printing it in typewriter
-    // font is the best we can do.
+    // If we can't find the string, printing it in typewriter font is the best we can do.
     //
     return "<tt>" + str + "</tt>";
 }
 
 string
-Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerPtr& container,
+Slice::GeneratorBase::getComment(const ContainedPtr& contained, const SyntaxTreeBasePtr& source,
                                  bool summary, bool forIndex)
 {
     size_t summarySize = 0;
@@ -1098,7 +1161,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
                 literal += s[i];
             }
             size_t sz = 0;
-            comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
+            comment += getURL(literal, source, false);
             summarySize += sz;
 
             //
@@ -1129,7 +1192,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             }
             string literal = s.substr(pos + atLink.size(), endpos - pos - atLink.size());
             size_t sz = 0;
-            comment += toString(toSliceID(literal, contained->file()), container, false, forIndex, summary ? &sz : 0);
+            comment += getURL(toSliceID(literal, contained->file()), source, false);
             summarySize += sz;
             i = static_cast<unsigned int>(endpos);
         }
@@ -1169,97 +1232,6 @@ Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
         anchor += *i;
     }
     return anchor;
-}
-
-string
-Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool forIndex, bool forEnum)
-{
-    ContainerPtr c = container;
-
-    //
-    // If we are in a sub-index, we need to "step up" one level, because the links all
-    // point at a section in the same file.
-    //
-    if(forIndex && ContainedPtr::dynamicCast(container))
-    {
-        c = ContainedPtr::dynamicCast(c)->container();
-    }
-
-    //
-    // Find the first component where the two scopes differ.
-    //
-    bool commonEnclosingScope = false;
-    StringList target;
-    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(p);
-    if(enumerator)
-    {
-        target = toStringList(enumerator->type());
-    }
-    else
-    {
-        target = getContainer(p);
-    }
-    StringList from = getContainer(c);
-
-    while(!target.empty() && !from.empty() && target.front() == from.front())
-    {
-        target.pop_front();
-        from.pop_front();
-        commonEnclosingScope = true;
-    }
-
-    if(commonEnclosingScope && target.empty())
-    {
-        ModulePtr module = ModulePtr::dynamicCast(p);
-        if(module)
-        {
-            target.push_front(module->name());
-        }
-    }
-    else if(!from.empty())
-    {
-        from.pop_front();
-    }
-
-    //
-    // For each component in the source path, step up a level.
-    //
-    string path;
-    while(!from.empty())
-    {
-        if(!path.empty())
-        {
-            path += "/";
-        }
-        path += "..";
-        from.pop_front();
-    }
-
-    //
-    // Now append the scope to the target.
-    //
-    while(!target.empty())
-    {
-        if(!path.empty())
-        {
-            path += "/";
-        }
-        path += target.front() == "index" ? string("_index") : target.front();
-        target.pop_front();
-    }
-
-    if(forEnum)
-    {
-        if(!path.empty())
-        {
-            path = "../" + path;
-        }
-        else
-        {
-            path = "..";
-        }
-    }
-    return path;
 }
 
 string
@@ -1367,38 +1339,39 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
 }
 
 string
-Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container, bool shortName)
+Slice::GeneratorBase::getScopedMinimized(const SyntaxTreeBasePtr& target, const SyntaxTreeBasePtr& source,
+                                         bool shortName)
 {
+    ContainedPtr t = ContainedPtr::dynamicCast(target);
+    assert(t);
     if(shortName)
     {
-        return contained->name();
+        return t->name();
     }
 
-    string s = contained->scoped();
-    ContainerPtr p = container;
-    ContainedPtr q = ContainedPtr::dynamicCast(p);
+    string scoped = t->scoped();
+    ContainedPtr s = ContainedPtr::dynamicCast(source);
 
-    if(!q) // Container is the global module
+    if(!s) // Source is the global module
     {
-        return s.substr(2);
+        return scoped.substr(2);
     }
     
     do
     {
-        string s2 = q->scoped();
-        s2 += "::";
+        string scoped2 = s->scoped();
+        scoped2 += "::";
 
-        if(s.find(s2) == 0)
+        if(scoped.find(scoped2) == 0)
         {
-            return s.substr(s2.size());
+            return scoped.substr(scoped2.size());
         }
 
-        p = q->container();
-        q = ContainedPtr::dynamicCast(p);
+        s = ContainedPtr::dynamicCast(s->container());
     }
-    while(q);
+    while(s);
 
-    return s;
+    return scoped;
 }
 
 StringList
@@ -1524,7 +1497,6 @@ Slice::GeneratorBase::warnOldStyleIdent(const string& str, const string& fileNam
 string
 Slice::GeneratorBase::toSliceID(const string& str, const string& filename)
 {
-    
     const string s = IceUtilInternal::trim(str);
     string result;
     string::size_type pos;
@@ -1555,7 +1527,12 @@ Slice::GeneratorBase::toSliceID(const string& str, const string& filename)
 StringList
 Slice::GeneratorBase::toStringList(const ContainedPtr& c)
 {
-    string scoped = c->scoped();
+    return toStringList(c->scoped());
+}
+
+StringList
+Slice::GeneratorBase::toStringList(const string& scoped)
+{
     assert(scoped.size() > 2);
     assert(scoped[0] == ':');
     assert(scoped[1] == ':');
@@ -1769,7 +1746,7 @@ Slice::StartPageGenerator::~StartPageGenerator()
 void
 Slice::StartPageGenerator::generate(const ModulePtr& m)
 {
-    string name = toString(m, 0, false);
+    string name = getURL(m, 0, false, false);
     string comment = getComment(m, m, true, true);
     _modules.push_back(make_pair(name, comment));
 }
@@ -2041,7 +2018,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
         cl.sort();
         cl.unique();
 
-        _out << nl << toString(c, 0, false, true, 0, true);
+        _out << nl << getURL(c, 0, false, true);
         start("ul");
         for(ContainedList::const_iterator i = cl.begin(); i != cl.end(); ++i)
         {
@@ -2051,7 +2028,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     }
     else
     {
-        _out << nl << toString(c, 0, false, true, 0, true);
+        _out << nl << getURL(c, 0, false, true);
     }
     if(ModulePtr::dynamicCast(c) || ExceptionPtr::dynamicCast(c) || ClassDefPtr::dynamicCast(c) ||
        StructPtr::dynamicCast(c) || EnumPtr::dynamicCast(c))
@@ -2167,7 +2144,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(ModuleList::const_iterator q = modules.begin(); q != modules.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2196,7 +2173,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2217,7 +2194,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(ClassList::const_iterator q = interfaces.begin(); q != interfaces.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2240,7 +2217,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2263,7 +2240,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(StructList::const_iterator q = structs.begin(); q != structs.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2286,7 +2263,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2309,7 +2286,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2332,7 +2309,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2355,7 +2332,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, p, false, true);
+            _out << getURL(*q, p, false, false);
             end();
             start("dd");
             string metadata;
@@ -2383,7 +2360,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
                 _out << "local ";
             }
             TypePtr type = (*q)->type();
-            _out << "sequence&lt;" << toString(type, p, false, true) << "&gt; " << toString(*q, p);
+            _out << "sequence&lt;" << getURL(type, p, false, false) << "&gt; " << getURL(*q, p, true, false);
             end();
             end();
 
@@ -2421,8 +2398,8 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             }
             TypePtr keyType = (*q)->keyType();
             TypePtr valueType = (*q)->valueType();
-            _out << "dictionary&lt;" << toString(keyType, p, false, true) << ", "
-                 << toString(valueType, p, false, true) << "&gt; " << toString(*q, p);
+            _out << "dictionary&lt;" << getURL(keyType, p, false, false) << ", "
+                 << getURL(valueType, p, false, false) << "&gt; " << getURL(*q, p, true, false);
             end();
             end();
 
@@ -2453,16 +2430,8 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             start("dl");
             start("dt");
             start("span", "Synopsis");
-            _out << "const " << toString((*q)->type(), p, false, true) << " " << toString(*q, p) << " = ";
-            if(EnumPtr::dynamicCast((*q)->type()))
-            {
-                _out << toString((*q)->value(), p, false, true);
-            }
-            else
-            {
-                 _out << (*q)->literal();
-            }
-            _out << ";";
+            _out << "const " << getURL((*q)->type(), p, false, false) << " " << getURL(*q, p, true, false) << " = "
+                 << (*q)->literal() << ";";
             end();
             end();
 
@@ -2533,7 +2502,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         _out.inc();
         _out << nl << "extends ";
         _out.inc();
-        _out << nl << toString(base, e, false);
+        _out << nl << getURL(base, e, false, false);
         _out.dec();
         _out.dec();
     }
@@ -2552,7 +2521,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, e, false);
+            _out << getURL(*q, e, false, false);
             end();
             start("dd");
             string metadata;
@@ -2571,9 +2540,14 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("dt", "Symbol");
+            _out << "<a name=\"" << (*q)->name() << "\"/>";
             printMetaData(*q);
+            if((*q)->optional())
+            {
+                _out << "optional(" << (*q)->tag() << ") ";
+            }
             TypePtr type = (*q)->type();
-            _out << toString(type, e) << " " << toString(*q, e) << ";";
+            _out << getURL(type, e, false, false) << " " << (*q)->name() << ";";
             end();
 
             start("dd");
@@ -2650,7 +2624,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     ClassList bases = c->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-        _out << " extends " << toString(bases.front(), c, false);
+        _out << " extends " << getURL(bases.front(), c, false, false);
         bases.pop_front();
     }
 
@@ -2660,7 +2634,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
-            _out << toString(*q, c, false);
+            _out << getURL(*q, c, false, false);
             if(++q != bases.end())
             {
                 _out << ", ";
@@ -2682,7 +2656,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, c, false);
+            _out << getURL(*q, c, false, false);
             end();
             start("dd");
             string metadata;
@@ -2703,7 +2677,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, c, false);
+            _out << getURL(*q, c, false, false);
             end();
             start("dd");
             string metadata;
@@ -2721,9 +2695,14 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
         {
             start("h3", "Synopsis");
-            TypePtr returnType = (*q)->returnType();
-            _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
-                 << toString(*q, c) << "(";
+            _out << "<a name=\"" << (*q)->name() << "\"/>";
+            const TypePtr returnType = (*q)->returnType();
+            if((*q)->returnIsOptional())
+            {
+                _out << "optional(" << (*q)->returnTag() << ") ";
+            }
+            _out << (returnType ? getURL(returnType, c, false, false) : string("void")) << " "
+                 << (*q)->name() << "(";
             ParamDeclList params = (*q)->parameters();
             ParamDeclList::const_iterator r = params.begin();
             while(r != params.end())
@@ -2732,8 +2711,11 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
                 {
                     _out << "out ";
                 }
-                _out << toString((*r)->type(), ContainedPtr::dynamicCast(*q)->container(), false)
-                     << " " << (*r)->name();
+                if((*r)->optional())
+                {
+                    _out << "optional(" << (*r)->tag() << ") ";
+                }
+                _out << getURL((*r)->type(), *q, false, false) << " " << (*r)->name();
                 if(++r != params.end())
                 {
                     _out << ", ";
@@ -2747,7 +2729,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
                 ExceptionList::const_iterator t = throws.begin();
                 while(t != throws.end())
                 {
-                    _out << toString(*t, c, false);
+                    _out << getURL(*t, c, false, false);
                     if(++t != throws.end())
                     {
                         _out << ", ";
@@ -2778,9 +2760,14 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("h3", "Synopsis");
+            _out << "<a name=\"" << (*q)->name() << "\"/>";
             printMetaData(*q);
+            if((*q)->optional())
+            {
+                _out << "optional(" << (*q)->tag() << ") ";
+            }
             TypePtr type = (*q)->type();
-            _out << toString(type, c, false) << " " << toString(*q, c) << ";";
+            _out << getURL(type, c, false, false) << " " << (*q)->name() << ";";
             end();
 
             string reason;
@@ -2864,7 +2851,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << toString(*q, s, false);
+            _out << getURL(*q, s, false, false);
             end();
             start("dd");
             string metadata;
@@ -2883,9 +2870,10 @@ Slice::StructGenerator::generate(const StructPtr& s)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("dt", "Symbol");
+            _out << "<a name=\"" << (*q)->name() << "\"/>";
             printMetaData(*q);
             TypePtr type = (*q)->type();
-            _out << toString(type, s, false) << " " << toString(*q, s) << ";";
+            _out << getURL(type, s, false, false) << " " << (*q)->name() << ";";
             end();
 
             start("dd");
@@ -2959,7 +2947,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     _out << "enum " << e->name();
     end();
 
-    printComment(e, e->container(), deprecateReason, false);
+    printComment(e, e, deprecateReason);
 
     EnumeratorList enumerators = e->getEnumerators();
     if(!enumerators.empty())
@@ -2979,7 +2967,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
             //
             // Enumerators do not support metadata.
             //
-            printComment(*q, e->container(), reason, false);
+            printComment(*q, e, reason);
             end();
         }
         end();
