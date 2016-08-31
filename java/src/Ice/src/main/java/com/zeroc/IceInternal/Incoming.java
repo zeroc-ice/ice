@@ -813,19 +813,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             handleException(ex.getCause(), amd);
             return;
         }
-        catch(java.lang.Error ex)
-        {
-            com.zeroc.Ice.UnknownException uex = new com.zeroc.Ice.UnknownException(exc);
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            exc.printStackTrace(pw);
-            pw.flush();
-            uex.unknown = sw.toString();
-
-            handleException(uex, amd);
-
-            throw new ServantError(exc);
-        }
         catch(Throwable ex)
         {
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
@@ -860,6 +847,11 @@ final public class Incoming implements com.zeroc.Ice.Request
             else
             {
                 _responseHandler.sendNoResponse();
+            }
+
+            if(ex instanceof java.lang.Error)
+            {
+                throw new ServantError((java.lang.Error)ex);
             }
         }
 
