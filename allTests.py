@@ -15,7 +15,7 @@ import TestUtil
 
 testGroups = []
 
-languages = [ "cpp", "java", "python", "ruby", "php", "js" ]
+languages = [ "cpp", "java", "java-compat", "python", "ruby", "php", "js" ]
 if TestUtil.isWin32():
     languages.append("csharp")
 if TestUtil.isDarwin():
