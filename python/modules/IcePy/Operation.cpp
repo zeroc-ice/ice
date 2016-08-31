@@ -285,8 +285,6 @@ public:
 
 private:
 
-    bool validateException(PyObject*) const;
-
     OperationPtr _op;
     Ice::AMD_Object_ice_invokePtr _callback;
     Ice::CommunicatorPtr _communicator;
@@ -3561,29 +3559,23 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
             if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
             {
                 //
-                // Get the exception's type and verify that it is legal to be thrown from this operation.
+                // Get the exception's type.
                 //
                 PyObjectHandle iceType = PyObject_GetAttrString(ex.ex.get(), STRCAST("_ice_type"));
                 assert(iceType.get());
                 ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
                 assert(info);
-                if(!validateException(ex.ex.get()))
-                {
-                    ex.raise(); // Raises UnknownUserException.
-                }
-                else
-                {
-                    Ice::OutputStream os(_communicator);
-                    os.startEncapsulation(encoding, _op->format);
 
-                    ExceptionWriter writer(ex.ex, info);
-                    os.writeException(writer);
+                Ice::OutputStream os(_communicator);
+                os.startEncapsulation(encoding, _op->format);
 
-                    os.endEncapsulation();
+                ExceptionWriter writer(ex.ex, info);
+                os.writeException(writer);
 
-                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    _callback->ice_response(false, os.finished());
-                }
+                os.endEncapsulation();
+
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                _callback->ice_response(false, os.finished());
             }
             else
             {
@@ -3600,20 +3592,6 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         _callback->ice_exception(ex);
     }
-}
-
-bool
-IcePy::TypedUpcall::validateException(PyObject* ex) const
-{
-    for(ExceptionInfoList::const_iterator p = _op->exceptions.begin(); p != _op->exceptions.end(); ++p)
-    {
-        if(PyObject_IsInstance(ex, (*p)->pythonType.get()))
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 //

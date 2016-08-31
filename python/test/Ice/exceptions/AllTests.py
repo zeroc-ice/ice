@@ -589,6 +589,7 @@ def allTests(communicator):
 
     try:
         thrower.throwAfterException()
+        test(False)
     except Test.A:
         pass
     except:
