@@ -13,9 +13,9 @@ $(project)_libraries	:= IceBT
 
 IceBT_targetdir		:= $(libdir)
 IceBT_dependencies	:= IceXML Ice
-IceBT_cppflags  	:= -DICEBT_API_EXPORTS $(shell pkg-config --cflags dbus-1)
+IceBT_cppflags  	:= -DICE_BT_API_EXPORTS $(shell pkg-config --cflags dbus-1)
 IceBT_system_libs	= $(IceSSL_system_libs) $(shell pkg-config --libs dbus-1)
-IceBT_sliceflags	:= --include-dir IceBT --dll-export ICESSL_API
+IceBT_sliceflags	:= --include-dir IceBT --dll-export ICE_BT_API
 
 projects += $(project)
 
