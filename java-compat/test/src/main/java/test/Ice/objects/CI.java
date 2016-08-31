@@ -11,35 +11,17 @@ package test.Ice.objects;
 
 import test.Ice.objects.Test.C;
 
-
 public final class CI extends C
 {
-    public
-    CI()
-    {
-        _postUnmarshalInvoked = false;
-    }
-
     @Override
-    public boolean
-    postUnmarshalInvoked(Ice.Current current)
-    {
-        return _postUnmarshalInvoked;
-    }
-
-    @Override
-    public void
-    ice_preMarshal()
+    public void ice_preMarshal()
     {
         preMarshalInvoked = true;
     }
 
     @Override
-    public void
-    ice_postUnmarshal()
+    public void ice_postUnmarshal()
     {
-        _postUnmarshalInvoked = true;
+        postUnmarshalInvoked = true;
     }
-
-    private boolean _postUnmarshalInvoked;
 }

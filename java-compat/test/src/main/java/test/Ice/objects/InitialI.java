@@ -9,6 +9,7 @@
 
 package test.Ice.objects;
 
+import test.Ice.objects.Test.AMD_Initial_getAMDMB;
 import test.Ice.objects.Test.B;
 import test.Ice.objects.Test.BHolder;
 import test.Ice.objects.Test.C;
@@ -122,6 +123,20 @@ public final class InitialI extends Initial
     getF(Ice.Current current)
     {
         return _f;
+    }
+
+    @Override
+    public B
+    getMB(Ice.Current current)
+    {
+        return _b1;
+    }
+
+    @Override
+    public void
+    getAMDMB_async(AMD_Initial_getAMDMB cb, Ice.Current current)
+    {
+        cb.ice_response(_b1);
     }
 
     @Override

@@ -102,11 +102,11 @@ public class AllTests
         test(((B)b1.theA).theC instanceof C);
         test((((B)b1.theA).theC).theB == b1.theA);
         test(b1.preMarshalInvoked);
-        test(b1.postUnmarshalInvoked(null));
+        test(b1.postUnmarshalInvoked);
         test(b1.theA.preMarshalInvoked);
-        test(b1.theA.postUnmarshalInvoked(null));
+        test(b1.theA.postUnmarshalInvoked);
         test(((B)b1.theA).theC.preMarshalInvoked);
-        test(((B)b1.theA).theC.postUnmarshalInvoked(null));
+        test(((B)b1.theA).theC.postUnmarshalInvoked);
 
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
@@ -150,20 +150,20 @@ public class AllTests
         test(d.theB == b2);
         test(d.theC == null);
         test(d.preMarshalInvoked);
-        test(d.postUnmarshalInvoked(null));
+        test(d.postUnmarshalInvoked);
         test(d.theA.preMarshalInvoked);
-        test(d.theA.postUnmarshalInvoked(null));
+        test(d.theA.postUnmarshalInvoked);
         test(d.theB.preMarshalInvoked);
-        test(d.theB.postUnmarshalInvoked(null));
+        test(d.theB.postUnmarshalInvoked);
         test(d.theB.theC.preMarshalInvoked);
-        test(d.theB.theC.postUnmarshalInvoked(null));
+        test(d.theB.theC.postUnmarshalInvoked);
 
         out.println("ok");
 
         out.print("testing protected members... ");
         out.flush();
         E e = initial.getE();
-        test(e.checkValues());
+        test(((EI)e).checkValues());
         try
         {
             test((E.class.getDeclaredField("i").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
@@ -174,8 +174,8 @@ public class AllTests
             test(false);
         }
         F f = initial.getF();
-        test(f.checkValues());
-        test(f.e2.checkValues());
+        test(((FI)f).checkValues());
+        test(((EI)f.e2).checkValues());
         try
         {
             test((F.class.getDeclaredField("e1").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
