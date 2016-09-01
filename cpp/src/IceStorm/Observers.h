@@ -57,8 +57,8 @@ private:
     unsigned int _majority;
     struct ObserverInfo
     {
-        ObserverInfo(int i, const ReplicaObserverPrx& o) :
-            id(i), observer(o) {}
+        ObserverInfo(int i, const ReplicaObserverPrx& o, const Ice::AsyncResultPtr& r = 0) :
+            id(i), observer(o), result (r) {}
         int id;
         ReplicaObserverPrx observer;
         ::Ice::AsyncResultPtr result;

@@ -87,29 +87,51 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
 
     Lock sync(*this);
     _observers.clear();
+
+    vector<ObserverInfo> observers;
+
     for(set<GroupNodeInfo>::const_iterator p = slaves.begin(); p != slaves.end(); ++p)
     {
         try
         {
             assert(p->observer);
-            //ReplicaObserverPrx observer = ReplicaObserverPrx::uncheckedCast(p->observer);
 
-            // 60s timeout for reliability in the event that a replica
-            // becomes unresponsive.
+            // 60s timeout for reliability in the event that a replica becomes unresponsive.
             ReplicaObserverPrx observer = ReplicaObserverPrx::uncheckedCast(p->observer->ice_timeout(60 * 1000));
-            observer->init(llu, content);
-            _observers.push_back(ObserverInfo(p->id, observer));
+
+            Ice::AsyncResultPtr result = observer->begin_init(llu, content);
+            observers.push_back(ObserverInfo(p->id, observer, result));
         }
         catch(const Ice::Exception& ex)
         {
             if(_traceLevels->replication > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
-                out << "error calling init on " << p->id << " ex: " << ex;
+                out << "error calling init on " << p->id << ", exception: " << ex;
             }
             throw;
         }
     }
+
+    for(vector<ObserverInfo>::iterator p = observers.begin(); p != observers.end(); ++p)
+    {
+        try
+        {
+            p->observer->end_init(p->result);
+            p->result = 0;
+        }
+        catch(const Ice::Exception& ex)
+        {
+            if(_traceLevels->replication > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->replicationCat);
+                out << "init on " << p->id << " failed with exception " << ex;
+            }
+            throw;
+        }
+    }
+
+    _observers.swap(observers);
 }
 
 void
@@ -193,4 +215,3 @@ Observers::wait(const string& op)
         throw Ice::UnknownException(__FILE__, __LINE__);
     }
 }
-
