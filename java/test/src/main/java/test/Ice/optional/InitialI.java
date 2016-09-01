@@ -227,8 +227,7 @@ public final class InitialI implements _InitialDisp
     }
 
     @Override
-    public Initial.Op
-    ReqResult opSmallStructReq(Optional<SmallStruct> p1, Current current)
+    public Initial.OpSmallStructReqResult opSmallStructReq(Optional<SmallStruct> p1, Current current)
     {
         return new Initial.OpSmallStructReqResult(p1, p1);
     }

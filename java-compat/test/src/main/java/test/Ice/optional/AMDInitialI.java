@@ -651,7 +651,6 @@ public final class AMDInitialI extends Initial
         cb.ice_response(p1, p1);
     }
 
-
     @Override
     public void
     supportsRequiredParams_async(AMD_Initial_supportsRequiredParams cb, Ice.Current current)
