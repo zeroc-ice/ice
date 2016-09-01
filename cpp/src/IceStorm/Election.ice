@@ -52,7 +52,7 @@ interface ReplicaObserver
      * @throws ObserverInconsistencyException Raised if an
      * inconsisency was detected.
      *
-     **/ 
+     **/
     void init(LogUpdate llu, TopicContentSeq content)
         throws ObserverInconsistencyException;
 
@@ -67,7 +67,7 @@ interface ReplicaObserver
      * @throws ObserverInconsistencyException Raised if an
      * inconsisency was detected.
      *
-     **/ 
+     **/
     void createTopic(LogUpdate llu, string name)
         throws ObserverInconsistencyException;
 
@@ -82,7 +82,7 @@ interface ReplicaObserver
      * @throws ObserverInconsistencyException Raised if an
      * inconsisency was detected.
      *
-     **/ 
+     **/
     void destroyTopic(LogUpdate llu, string name)
         throws ObserverInconsistencyException;
 
@@ -99,7 +99,7 @@ interface ReplicaObserver
      * @throws ObserverInconsistencyException Raised if an
      * inconsisency was detected.
      *
-     **/ 
+     **/
     void addSubscriber(LogUpdate llu, string topic, IceStorm::SubscriberRecord record)
         throws ObserverInconsistencyException;
 
@@ -116,7 +116,7 @@ interface ReplicaObserver
      * @throws ObserverInconsistencyException Raised if an
      * inconsisency was detected.
      *
-     **/ 
+     **/
     void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
         throws ObserverInconsistencyException;
 };
@@ -293,6 +293,7 @@ interface Node
      *
      **/
     ["cpp:const"] idempotent NodeInfoSeq nodes();
+
     /**
      *
      * Get the query information for the given node.
@@ -304,4 +305,3 @@ interface Node
 };
 
 };
-
