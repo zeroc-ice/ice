@@ -49,9 +49,11 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     {
         checkResponseSent();
 
-        // Adopt observer
+        // Adopt observer and cookie
         in._observer = _observer;
         _observer = null;
+        in._cookie = _cookie;
+        _cookie = null;
     }
 
     final protected void

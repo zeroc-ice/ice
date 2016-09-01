@@ -39,15 +39,16 @@ class IncomingBase
         _instance = other._instance;
         _servant = other._servant;
         _locator = other._locator;
-        _cookie = other._cookie;
         _response = other._response;
         _compress = other._compress;
         _format = other._format;
         _responseHandler = other._responseHandler;
 
-        // Adopt observer
+        // Adopt observer and cookie
         _observer = other._observer;
         other._observer = null;
+        _cookie = other._cookie;
+        other._cookie = null;
 
         //
         // Deep copy
