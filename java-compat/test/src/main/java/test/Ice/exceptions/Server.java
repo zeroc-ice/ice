@@ -18,7 +18,7 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
         Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-        Ice.Object object = new AMDThrowerI();
+        Ice.Object object = new ThrowerI();
         adapter.add(object, Ice.Util.stringToIdentity("thrower"));
         adapter2.add(object, Ice.Util.stringToIdentity("thrower"));
         adapter3.add(object, Ice.Util.stringToIdentity("thrower"));
