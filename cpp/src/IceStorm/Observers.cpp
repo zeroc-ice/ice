@@ -96,8 +96,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
         {
             assert(p->observer);
 
-            // 60s timeout for reliability in the event that a replica becomes unresponsive.
-            ReplicaObserverPrx observer = ReplicaObserverPrx::uncheckedCast(p->observer->ice_timeout(60 * 1000));
+            ReplicaObserverPrx observer = ReplicaObserverPrx::uncheckedCast(p->observer);
 
             Ice::AsyncResultPtr result = observer->begin_init(llu, content);
             observers.push_back(ObserverInfo(p->id, observer, result));
