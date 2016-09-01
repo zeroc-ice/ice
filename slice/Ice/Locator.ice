@@ -87,7 +87,9 @@ interface Locator
 {
     /**
      *
-     * Find an object by identity and return its proxy.
+     * Find an object by identity and return a proxy that contains
+     * the adapter ID or endpoints which can be used to access the
+     * object.
      *
      * @param id The identity.
      *
@@ -102,8 +104,8 @@ interface Locator
 
     /**
      *
-     * Find an adapter by id and return its proxy (a dummy direct
-     * proxy created by the adapter).
+     * Find an adapter by id and return a proxy that contains
+     * its endpoints.
      *
      * @param id The adapter id.
      *

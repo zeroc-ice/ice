@@ -35,6 +35,9 @@ interface Router
      * Get the router's client proxy, i.e., the proxy to use for
      * forwarding requests from the client to the router.
      *
+     * If a null proxy is returned, the client will forward requests
+     * to the router's endpoints.
+     *
      * @return The router's client proxy.
      *
      **/
