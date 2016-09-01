@@ -24,6 +24,31 @@
 
 #include <deque>
 
+#ifdef ICE_CPP11_MAPPING
+
+namespace Ice
+{
+
+class ICE_API MarshaledResult
+{
+public:
+
+    MarshaledResult(const Current&);
+
+    std::shared_ptr<OutputStream> getOutputStream() const
+    {
+        return __os;
+    }
+
+protected:
+
+    std::shared_ptr<OutputStream> __os;
+};
+
+}
+
+#endif
+
 namespace IceInternal
 {
 
@@ -35,6 +60,10 @@ public:
     void endWriteParams();
     void writeEmptyParams();
     void writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
+
+#ifdef ICE_CPP11_MAPPING
+    void setMarshaledResult(const Ice::MarshaledResult&);
+#endif
 
     void response(bool);
     void exception(const std::exception&, bool);

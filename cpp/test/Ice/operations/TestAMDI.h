@@ -383,30 +383,30 @@ public:
                                         ::std::function<void(std::exception_ptr)>,
                                         const Ice::Current&);
 
-    virtual void opMStruct1Async(::std::function<void(const Test::Structure&)>,
+    virtual void opMStruct1Async(::std::function<void(const OpMStruct1MarshaledResult&)>,
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 
     virtual void opMStruct2Async(ICE_IN(Test::Structure),
-                                 ::std::function<void(const Test::Structure&, const Test::Structure&)>,
+                                 ::std::function<void(const OpMStruct2MarshaledResult&)>,
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 
-    virtual void opMSeq1Async(::std::function<void(const Test::StringS&)>,
+    virtual void opMSeq1Async(::std::function<void(const OpMSeq1MarshaledResult&)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 
     virtual void opMSeq2Async(ICE_IN(Test::StringS),
-                              ::std::function<void(const Test::StringS&, const Test::StringS&)>,
+                              ::std::function<void(const OpMSeq2MarshaledResult&)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 
-    virtual void opMDict1Async(::std::function<void(const Test::StringStringD&)>,
+    virtual void opMDict1Async(::std::function<void(const OpMDict1MarshaledResult&)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
     virtual void opMDict2Async(ICE_IN(Test::StringStringD),
-                               ::std::function<void(const Test::StringStringD&, const Test::StringStringD&)>,
+                               ::std::function<void(const OpMDict2MarshaledResult&)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 

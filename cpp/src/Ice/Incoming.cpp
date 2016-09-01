@@ -37,6 +37,16 @@ extern bool printStackTraces;
 
 }
 
+#ifdef ICE_CPP11_MAPPING
+Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
+    __os(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
+{
+    __os->writeBlob(replyHdr, sizeof(replyHdr));
+    __os->write(current.requestId);
+    __os->write(replyOK);
+}
+#endif
+
 IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
                                         bool response, Byte compress, Int requestId) :
@@ -134,6 +144,14 @@ IncomingBase::writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
         }
     }
 }
+
+#ifdef ICE_CPP11_MAPPING
+void
+IceInternal::IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
+{
+    result.getOutputStream()->swap(_os);
+}
+#endif
 
 void
 IceInternal::IncomingBase::response(bool amd)

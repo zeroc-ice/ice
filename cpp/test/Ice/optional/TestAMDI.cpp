@@ -379,6 +379,75 @@ InitialI::opVoidAsync(::std::function<void()> response,
     response();
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+InitialI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> response,
+                          function<void(exception_ptr)>,
+                          const Ice::Current& current)
+{
+    response(OpMStruct1MarshaledResult(Test::SmallStruct(), current));
+}
+
+void
+InitialI::opMStruct2Async(Ice::optional<SmallStruct> p1,
+                         function<void(const OpMStruct2MarshaledResult&)> response,
+                         function<void(exception_ptr)>,
+                         const Ice::Current& current)
+{
+    response(OpMStruct2MarshaledResult(p1, p1, current));
+}
+
+void
+InitialI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
+                       function<void(exception_ptr)>,
+                       const Ice::Current& current)
+{
+    response(OpMSeq1MarshaledResult(Test::StringSeq(), current));
+}
+
+void
+InitialI::opMSeq2Async(Ice::optional<Test::StringSeq> p1,
+                       function<void(const OpMSeq2MarshaledResult&)> response,
+                       function<void(exception_ptr)>,
+                       const Ice::Current& current)
+{
+    response(OpMSeq2MarshaledResult(p1, p1, current));
+}
+
+void
+InitialI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
+                        function<void(exception_ptr)>,
+                        const Ice::Current& current)
+{
+    response(OpMDict1MarshaledResult(StringIntDict(), current));
+}
+
+void
+InitialI::opMDict2Async(Ice::optional<StringIntDict> p1,
+                        function<void(const OpMDict2MarshaledResult&)> response,
+                        function<void(exception_ptr)>,
+                        const Ice::Current& current)
+{
+    response(OpMDict2MarshaledResult(p1, p1, current));
+}
+
+void
+InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
+                     function<void(exception_ptr)>,
+                     const Ice::Current& current)
+{
+    response(OpMG1MarshaledResult(ICE_MAKE_SHARED(G), current));
+}
+
+void
+InitialI::opMG2Async(Ice::optional<GPtr> p1,
+                     function<void(const OpMG2MarshaledResult&)> response,
+                     function<void(exception_ptr)>,
+                     const Ice::Current& current)
+{
+    response(OpMG2MarshaledResult(p1, p1, current));
+}
+#else
 void
 InitialI::opMStruct1Async(function<void(const Ice::optional<SmallStruct>&)> response,
                           function<void(exception_ptr)>,
@@ -446,6 +515,7 @@ InitialI::opMG2Async(Ice::optional<GPtr> p1,
 {
     response(p1, p1);
 }
+#endif
 
 void
 InitialI::supportsRequiredParamsAsync(::std::function<void(bool)> response,

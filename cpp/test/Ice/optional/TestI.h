@@ -218,6 +218,23 @@ public:
 
     virtual void opVoid(const Ice::Current&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual OpMStruct1MarshaledResult opMStruct1(const Ice::Current&);
+
+    virtual OpMStruct2MarshaledResult opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>), const Ice::Current&);
+
+    virtual OpMSeq1MarshaledResult opMSeq1(const Ice::Current&);
+
+    virtual OpMSeq2MarshaledResult opMSeq2(ICE_IN(IceUtil::Optional<Test::StringSeq>), const Ice::Current&);
+
+    virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
+
+    virtual OpMDict2MarshaledResult opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>), const Ice::Current&);
+
+    virtual OpMG1MarshaledResult opMG1(const Ice::Current&);
+
+    virtual OpMG2MarshaledResult opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>), const Ice::Current&);
+#else
     virtual IceUtil::Optional<Test::SmallStruct> opMStruct1(const Ice::Current&);
 
     virtual IceUtil::Optional<Test::SmallStruct> opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>),
@@ -241,6 +258,7 @@ public:
     virtual IceUtil::Optional<Test::GPtr> opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>),
                                                 IceUtil::Optional<Test::GPtr>&,
                                                 const Ice::Current&);
+#endif
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 

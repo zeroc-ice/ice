@@ -305,6 +305,19 @@ public:
 
     virtual Test::WStringS opWStringLiterals(const Ice::Current&);
 
+#ifdef ICE_CPP11_MAPPING
+    virtual OpMStruct1MarshaledResult opMStruct1(const Ice::Current&);
+
+    virtual OpMStruct2MarshaledResult opMStruct2(ICE_IN(Test::Structure), const Ice::Current&);
+
+    virtual OpMSeq1MarshaledResult opMSeq1(const Ice::Current&);
+
+    virtual OpMSeq2MarshaledResult opMSeq2(ICE_IN(Test::StringS), const Ice::Current&);
+
+    virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
+
+    virtual OpMDict2MarshaledResult opMDict2(ICE_IN(Test::StringStringD), const Ice::Current&);
+#else
     virtual Test::Structure opMStruct1(const Ice::Current&);
 
     virtual Test::Structure opMStruct2(ICE_IN(Test::Structure), Test::Structure&, const Ice::Current&);
@@ -316,6 +329,7 @@ public:
     virtual Test::StringStringD opMDict1(const Ice::Current&);
 
     virtual Test::StringStringD opMDict2(ICE_IN(Test::StringStringD), Test::StringStringD&, const Ice::Current&);
+#endif
 
 private:
 

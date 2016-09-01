@@ -427,6 +427,55 @@ InitialI::opVoid(const Ice::Current&)
 {
 }
 
+#ifdef ICE_CPP11_MAPPING
+InitialI::OpMStruct1MarshaledResult
+InitialI::opMStruct1(const Ice::Current& current)
+{
+    return OpMStruct1MarshaledResult(Test::SmallStruct(), current);
+}
+
+InitialI::OpMStruct2MarshaledResult
+InitialI::opMStruct2(ICE_IN(IceUtil::Optional<Test::SmallStruct>) p1, const Ice::Current& current)
+{
+    return OpMStruct2MarshaledResult(p1, p1, current);
+}
+
+InitialI::OpMSeq1MarshaledResult
+InitialI::opMSeq1(const Ice::Current& current)
+{
+    return OpMSeq1MarshaledResult(Test::StringSeq(), current);
+}
+
+InitialI::OpMSeq2MarshaledResult
+InitialI::opMSeq2(ICE_IN(IceUtil::Optional<Test::StringSeq>) p1, const Ice::Current& current)
+{
+    return OpMSeq2MarshaledResult(p1, p1, current);
+}
+
+InitialI::OpMDict1MarshaledResult
+InitialI::opMDict1(const Ice::Current& current)
+{
+    return OpMDict1MarshaledResult(Test::StringIntDict(), current);
+}
+
+InitialI::OpMDict2MarshaledResult
+InitialI::opMDict2(ICE_IN(IceUtil::Optional<Test::StringIntDict>) p1, const Ice::Current& current)
+{
+    return OpMDict2MarshaledResult(p1, p1, current);
+}
+
+InitialI::OpMG1MarshaledResult
+InitialI::opMG1(const Ice::Current& current)
+{
+    return OpMG1MarshaledResult(ICE_MAKE_SHARED(G), current);
+}
+
+InitialI::OpMG2MarshaledResult
+InitialI::opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>) p1, const Ice::Current& current)
+{
+    return OpMG2MarshaledResult(p1, p1, current);
+}
+#else
 IceUtil::Optional<Test::SmallStruct>
 InitialI::opMStruct1(const Ice::Current&)
 {
@@ -486,6 +535,7 @@ InitialI::opMG2(ICE_IN(IceUtil::Optional<Test::GPtr>) p1,
     p2 = p1;
     return p1;
 }
+#endif
 
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)

@@ -996,56 +996,56 @@ MyDerivedClassI::opWStringLiteralsAsync(function<void(const Test::WStringS&)> re
 }
 
 void
-MyDerivedClassI::opMStruct1Async(function<void(const Test::Structure&)> response,
+MyDerivedClassI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> response,
                                  function<void(std::exception_ptr)>,
-                                 const Ice::Current&)
+                                 const Ice::Current& current)
 {
     Test::Structure s;
     s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
-    response(s);
+    response(OpMStruct1MarshaledResult(s, current));
 }
 
 void
 MyDerivedClassI::opMStruct2Async(Test::Structure p1,
-                                 function<void(const Test::Structure&, const Test::Structure&)> response,
+                                 function<void(const OpMStruct2MarshaledResult&)> response,
                                  function<void(std::exception_ptr)>,
-                                 const Ice::Current&)
+                                 const Ice::Current& current)
 {
-    response(p1, p1);
+    response(OpMStruct2MarshaledResult(p1, p1, current));
 }
 
 void
-MyDerivedClassI::opMSeq1Async(function<void(const Test::StringS&)> response,
+MyDerivedClassI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
                               function<void(std::exception_ptr)>,
-                              const Ice::Current&)
+                              const Ice::Current& current)
 {
-    response(Test::StringS());
+    response(OpMSeq1MarshaledResult(Test::StringS(), current));
 }
 
 void
 MyDerivedClassI::opMSeq2Async(Test::StringS p1,
-                              function<void(const Test::StringS&, const Test::StringS&)> response,
+                              function<void(const OpMSeq2MarshaledResult&)> response,
                               function<void(std::exception_ptr)>,
-                              const Ice::Current&)
+                              const Ice::Current& current)
 {
-    response(p1, p1);
+    response(OpMSeq2MarshaledResult(p1, p1, current));
 }
 
 void
-MyDerivedClassI::opMDict1Async(function<void(const Test::StringStringD&)> response,
+MyDerivedClassI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
                                function<void(std::exception_ptr)>,
-                               const Ice::Current&)
+                               const Ice::Current& current)
 {
-    response(Test::StringStringD());
+    response(OpMDict1MarshaledResult(Test::StringStringD(), current));
 }
 
 void
 MyDerivedClassI::opMDict2Async(Test::StringStringD p1,
-                               function<void(const Test::StringStringD&, const Test::StringStringD&)> response,
+                               function<void(const OpMDict2MarshaledResult&)> response,
                                function<void(std::exception_ptr)>,
-                               const Ice::Current&)
+                               const Ice::Current& current)
 {
-    response(p1, p1);
+    response(OpMDict2MarshaledResult(p1, p1, current));
 }
 
 #else

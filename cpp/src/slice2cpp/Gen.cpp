@@ -544,9 +544,11 @@ throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws)
 }
 
 string
-resultStructName(const string& name, const string& scope = "")
+resultStructName(const string& name, const string& scope = "", bool marshaledResult = false)
 {
-    string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1) + "Result";
+    assert(!name.empty());
+    string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1);
+    stName += marshaledResult ? "MarshaledResult" : "Result";
     if(!scope.empty())
     {
         stName = scope + "::" + stName;
@@ -7043,17 +7045,12 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     string name = p->name();
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextCpp11);
 
-    string params = "(";
-    string paramsDecl = "(";
-    string args = "(";
+    vector<string> params;
+    vector<string> args;
 
-    string paramsAMD;
-    string argsAMD;
-
-    string responseParams;
-    string responseParamsDecl;
+    vector<string> responseParams;
+    vector<string> responseParamsDecl;
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -7063,135 +7060,129 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(cl->scope() + cl->name() + suffix + "::");
     string scoped = fixKwd(cl->scope() + cl->name() + suffix + "::" + p->name());
 
+    bool amd = (cl->hasMetaData("amd") || p->hasMetaData("amd"));
+
+    if(p->hasMarshaledResult())
+    {
+
+    }
+
+    if(ret)
+    {
+        string typeS = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextCpp11);
+        responseParams.push_back(typeS);
+        responseParamsDecl.push_back(typeS + " __ret");
+    }
+
+    string retS;
+    if(amd)
+    {
+        retS = "void";
+    }
+    else if(p->hasMarshaledResult())
+    {
+        retS = resultStructName(name, "", true);
+    }
+    else
+    {
+        retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextCpp11);
+    }
+
     ParamDeclList inParams;
     ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
-    vector<string> outDecls;
     for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        string paramName = fixKwd(string(paramPrefix) + (*q)->name());
         TypePtr type = (*q)->type();
+        string paramName = fixKwd(string(paramPrefix) + (*q)->name());
         bool isOutParam = (*q)->isOutParam();
         string typeString;
-        if(isOutParam)
+        int typeCtx = _useWstring | TypeContextCpp11;
+        if(!isOutParam)
         {
-            outParams.push_back(*q);
-            typeString = outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(),
-                                            _useWstring | TypeContextCpp11);
-            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                                 _useWstring | TypeContextCpp11));
+            inParams.push_back(*q);
+            params.push_back(typeToString(type, (*q)->optional(), (*q)->getMetaData(), typeCtx | TypeContextInParam));
+            args.push_back(condMove(isMovable(type) && !isOutParam, paramName));
         }
         else
         {
-            inParams.push_back(*q);
-            typeString = typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                      _useWstring | TypeContextInParam | TypeContextCpp11);
-        }
+            outParams.push_back(*q);
+            if(!p->hasMarshaledResult() && !amd)
+            {
+                params.push_back(outputTypeToString(type, (*q)->optional(), (*q)->getMetaData(), typeCtx));
+                args.push_back(condMove(isMovable(type) && !isOutParam, paramName));
+            }
 
-        if(q != paramList.begin())
-        {
-            params += ", ";
-            paramsDecl += ", ";
-            args += ", ";
+            string responseTypeS = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
+            responseParams.push_back(responseTypeS);
+            responseParamsDecl.push_back(responseTypeS + " " + paramName);
         }
-
-        params += typeString;
-        paramsDecl += typeString;
-        paramsDecl += ' ';
-        paramsDecl += paramName;
-        args += condMove(isMovable(type) && !isOutParam, paramName);
     }
+    if(amd)
+    {
+        if(p->hasMarshaledResult())
+        {
+            string resultName = resultStructName(name, "", true);
+            params.push_back("::std::function<void(const " + resultName + "&)>");
+            args.push_back("inS->response<" + resultName + ">()");
+        }
+        else
+        {
+            params.push_back("::std::function<void(" + joinString(responseParams, ",") + ")>");
+            args.push_back(ret || !outParams.empty() ? "__responseCB" : "inS->response()");
+        }
+        params.push_back("::std::function<void(::std::exception_ptr)>");
+        args.push_back("inS->exception()");
+    }
+    params.push_back("const ::Ice::Current& = ::Ice::noExplicitCurrent");
+    args.push_back("__current");
 
     if(cl->isInterface())
     {
         emitOpNameResult(H, p, _useWstring);
     }
 
-    if(!paramList.empty())
+    if(p->hasMarshaledResult())
     {
-        params += ", ";
-        paramsDecl += ", ";
-        args += ", ";
-    }
+        string resultName = resultStructName(name, "", true);
+        H << sp;
+        H << nl << "class " << resultName << " : public ::Ice::MarshaledResult";
+        H << sb;
+        H.dec();
+        H << nl << "public:";
+        H.inc();
+        H << nl << resultName << spar << responseParams << "const ::Ice::Current&" << epar << ";";
+        H << eb << ';';
 
-    params += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
-    paramsDecl += "const ::Ice::Current& __current)";
-    args += "__current)";
-
-    for(ParamDeclList::iterator q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        if(q != inParams.begin())
+        C << sp << nl << scope.substr(2) << resultName << "::" << resultName;
+        C << spar << responseParamsDecl << "const ::Ice::Current& __current" << epar << ":";
+        C.inc();
+        C << nl << "MarshaledResult(__current)";
+        C.dec();
+        C << sb;
+        C << nl << "__os->startEncapsulation(__current.encoding, " << opFormatTypeToString(p) << ");";
+        writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
+        if(p->returnsClasses(false))
         {
-            paramsAMD += ", ";
-            argsAMD += ", ";
+            C << nl << "__os->writePendingValues();";
         }
-        paramsAMD += typeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                  _useWstring | TypeContextInParam | TypeContextCpp11);
-        if(isMovable((*q)->type()))
-        {
-            argsAMD += "::std::move(" + fixKwd(string(paramPrefix) + (*q)->name()) + ")";
-        }
-        else
-        {
-            argsAMD += fixKwd(string(paramPrefix) + (*q)->name());
-        }
-    }
-
-    if(ret)
-    {
-        string typeString = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(),
-                                              _useWstring | TypeContextCpp11);
-        responseParams = typeString;
-        responseParamsDecl = typeString + " __ret";
-        if(!outParams.empty())
-        {
-            responseParams += ", ";
-            responseParamsDecl += ", ";
-        }
-    }
-
-    for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
-    {
-        if(q != outParams.begin())
-        {
-            responseParams += ", ";
-            responseParamsDecl += ", ";
-        }
-        string typeString = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                              _useWstring | TypeContextCpp11);
-        responseParams += typeString;
-        responseParamsDecl += typeString + " " + fixKwd(string(paramPrefix) + (*q)->name());
+        C << nl << "__os->endEncapsulation();";
+        C << eb;
     }
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
-    bool amd = (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
+    string opName = amd ? (name + "Async") : fixKwd(name);
     string deprecateSymbol = getDeprecateSymbol(p, cl);
-    H << sp;
-    if(!amd)
-    {
-        H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << " = 0;";
-    }
-    else
-    {
-        H << nl << deprecateSymbol << "virtual void " << name << "Async(";
-        H.useCurrentPosAsIndent();
-        H << paramsAMD;
-        if(!paramsAMD.empty())
-        {
-            H << "," << nl;
-        }
-        H << "::std::function<void(" << responseParams << ")>," << nl
-          << "::std::function<void(::std::exception_ptr)>, const Ice::Current&)" << isConst << " = 0;";
-        H.restoreIndent();
-    }
 
+    H << sp;
+    H << nl << deprecateSymbol << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "bool ___" << name << "(::IceInternal::Incoming&, const ::Ice::Current&)" << isConst << ';';
 
     C << sp;
     C << nl << "bool";
-    C << nl << scope.substr(2) << "___" << name << "(::IceInternal::Incoming& __inS"
-      << ", const ::Ice::Current& __current)" << isConst;
+    C << nl << scope.substr(2);
+    C << "___" << name << "(::IceInternal::Incoming& __inS" << ", const ::Ice::Current& __current)" << isConst;
     C << sb;
     C << nl << "__checkMode(" << operationModeToString(p->mode(), true) << ", __current.mode);";
 
@@ -7218,42 +7209,50 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     if(!amd)
     {
         writeAllocateCode(C, outParams, 0, true, _useWstring | TypeContextCpp11);
-        C << nl;
-        if(ret)
+        if(p->hasMarshaledResult())
         {
-            C << retS << " __ret = ";
+            C << nl << "__inS.setMarshaledResult(";
         }
-        C << fixKwd(name) << args << ';';
-        if(ret || !outParams.empty())
+        else if(ret)
         {
-            C << nl << "auto __os = __inS.startWriteParams();";
-            writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
-            if(p->returnsClasses(false))
-            {
-                C << nl << "__os->writePendingValues();";
-            }
-            C << nl << "__inS.endWriteParams();";
+            C << nl << retS << " __ret = ";
         }
         else
         {
-            C << nl << "__inS.writeEmptyParams();";
+            C << nl;
+        }
+
+        C << opName << spar << args << epar;
+        if(p->hasMarshaledResult())
+        {
+            C << ");";
+        }
+        else
+        {
+            C << ";";
+            if(ret || !outParams.empty())
+            {
+                C << nl << "auto __os = __inS.startWriteParams();";
+                writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
+                if(p->returnsClasses(false))
+                {
+                    C << nl << "__os->writePendingValues();";
+                }
+                C << nl << "__inS.endWriteParams();";
+            }
+            else
+            {
+                C << nl << "__inS.writeEmptyParams();";
+            }
         }
         C << nl << "return false;";
     }
     else
     {
         C << nl << "auto inS = ::IceInternal::IncomingAsync::create(__inS);";
-
-        C << nl << name << "Async(";
-        C.useCurrentPosAsIndent();
-        if(!argsAMD.empty())
+        if(!p->hasMarshaledResult() && (ret || !outParams.empty()))
         {
-            C << argsAMD << ", ";
-        }
-        if(ret || !outParams.empty())
-        {
-            //C << "inS->response<" << responseParams << ">(), ";
-            C << nl << "[inS](" << responseParamsDecl << ")";
+            C << nl << "auto __responseCB = [inS]" << spar << responseParamsDecl << epar;
             C << sb;
             C << nl << "auto __os = inS->startWriteParams();";
             writeMarshalCode(C, outParams, p, true, TypeContextCpp11);
@@ -7263,15 +7262,9 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             }
             C << nl << "inS->endWriteParams();";
             C << nl << "inS->completed();";
-            C << eb;
-            C << ", ";
+            C << eb << ';';
         }
-        else
-        {
-            C << "inS->response(), ";
-        }
-        C << "inS->exception(), __current);";
-        C.restoreIndent();
+        C << nl << opName << spar << args << epar << ';';
         C << nl << "return true;";
     }
     C << eb;

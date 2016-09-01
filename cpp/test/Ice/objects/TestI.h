@@ -97,12 +97,13 @@ public:
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
 
-    virtual Test::BPtr getMB(const Ice::Current&);
 #ifdef ICE_CPP11_MAPPING
-    virtual void getAMDMBAsync(std::function<void(const std::shared_ptr<Test::B>&)>,
+    virtual GetMBMarshaledResult getMB(const Ice::Current&);
+    virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 #else
+    virtual Test::BPtr getMB(const Ice::Current&);
     virtual void getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr&, const Ice::Current&);
 #endif
 

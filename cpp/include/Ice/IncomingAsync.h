@@ -63,6 +63,17 @@ public:
         };
     }
 
+    template<class T>
+    std::function<void(const T&)> response()
+    {
+        auto self = shared_from_this();
+        return [self](const T& marshaledResult)
+        {
+            self->setMarshaledResult(marshaledResult);
+            self->completed();
+        };
+    }
+
     std::function<void(std::exception_ptr)> exception()
     {
         auto self = shared_from_this();

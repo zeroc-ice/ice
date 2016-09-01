@@ -202,6 +202,43 @@ public:
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
+#ifdef ICE_CPP11_MAPPING
+    virtual void opMStruct1Async(::std::function<void(const OpMStruct1MarshaledResult&)>,
+                                 ::std::function<void(::std::exception_ptr)>,
+                                 const Ice::Current&) override;
+
+    virtual void opMStruct2Async(Ice::optional<Test::SmallStruct>,
+                                 ::std::function<void(const OpMStruct2MarshaledResult&)>,
+                                 ::std::function<void(::std::exception_ptr)>,
+                                 const Ice::Current&) override;
+
+    virtual void opMSeq1Async(::std::function<void(const OpMSeq1MarshaledResult&)>,
+                              ::std::function<void(::std::exception_ptr)>,
+                              const Ice::Current&) override;
+
+    virtual void opMSeq2Async(Ice::optional<Test::StringSeq>,
+                              ::std::function<void(const OpMSeq2MarshaledResult&)>,
+                              ::std::function<void(::std::exception_ptr)>,
+                              const Ice::Current&) override;
+
+    virtual void opMDict1Async(::std::function<void(const OpMDict1MarshaledResult&)>,
+                               ::std::function<void(::std::exception_ptr)>,
+                               const Ice::Current&) override;
+
+    virtual void opMDict2Async(Ice::optional<Test::StringIntDict>,
+                               ::std::function<void(const OpMDict2MarshaledResult&)>,
+                               ::std::function<void(::std::exception_ptr)>,
+                               const Ice::Current&) override;
+
+    virtual void opMG1Async(::std::function<void(const OpMG1MarshaledResult&)>,
+                            ::std::function<void(::std::exception_ptr)>,
+                            const Ice::Current&) override;
+
+    virtual void opMG2Async(Ice::optional<Test::GPtr>,
+                            ::std::function<void(const OpMG2MarshaledResult&)>,
+                            ::std::function<void(::std::exception_ptr)>,
+                            const Ice::Current&) override;
+#else
     virtual void opMStruct1Async(::std::function<void(const Ice::optional<Test::SmallStruct>&)>,
                                  ::std::function<void(::std::exception_ptr)>,
                                  const Ice::Current&) override;
@@ -241,6 +278,7 @@ public:
                                                  const Ice::optional<Test::GPtr>&)>,
                             ::std::function<void(::std::exception_ptr)>,
                             const Ice::Current&) override;
+#endif
 
     virtual void supportsRequiredParamsAsync(::std::function<void(bool)>,
                                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
