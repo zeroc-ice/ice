@@ -327,6 +327,21 @@ class Initial
 
     void opVoid();
 
+    ["java:optional"] optional(1) SmallStruct opMStruct1();
+    ["java:optional"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
+                                                         out optional(3)SmallStruct p2);
+
+    ["java:optional"] optional(1) StringSeq opMSeq1();
+    ["java:optional"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
+                                                    out optional(3) StringSeq p2);
+
+    ["java:optional"] optional(1) StringIntDict opMDict1();
+    ["java:optional"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
+                                                         out optional(3) StringIntDict p2);
+
+    ["java:optional"] optional(1) G opMG1();
+    ["java:optional"] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
+
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();

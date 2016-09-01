@@ -597,6 +597,63 @@ public final class AMDInitialI extends Initial
 
     @Override
     public void
+    opMStruct1_async(AMD_Initial_opMStruct1 cb, Ice.Current current)
+    {
+        cb.ice_response(new Ice.Optional<SmallStruct>(new SmallStruct()));
+    }
+
+    @Override
+    public void
+    opMStruct2_async(AMD_Initial_opMStruct2 cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
+    @Override
+    public void
+    opMSeq1_async(AMD_Initial_opMSeq1 cb, Ice.Current current)
+    {
+        cb.ice_response(new Ice.Optional<String[]>(new String[0]));
+    }
+
+    @Override
+    public void
+    opMSeq2_async(AMD_Initial_opMSeq2 cb, Ice.Optional<String[]> p1, Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
+    @Override
+    public void
+    opMDict1_async(AMD_Initial_opMDict1 cb, Ice.Current current)
+    {
+        cb.ice_response(new Ice.Optional<java.util.Map<String, Integer>>(new java.util.HashMap<String, Integer>()));
+    }
+
+    @Override
+    public void
+    opMDict2_async(AMD_Initial_opMDict2 cb, Ice.Optional<java.util.Map<String, Integer>> p1, Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
+    @Override
+    public void
+    opMG1_async(AMD_Initial_opMG1 cb, Ice.Current current)
+    {
+        cb.ice_response(new Ice.Optional<G>(new G()));
+    }
+
+    @Override
+    public void
+    opMG2_async(AMD_Initial_opMG2 cb, Ice.Optional<G> p1, Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+
+
+    @Override
+    public void
     supportsRequiredParams_async(AMD_Initial_supportsRequiredParams cb, Ice.Current current)
     {
         cb.ice_response(true);
