@@ -1273,9 +1273,14 @@ def directoryToPackage():
     """Determine the package name from the directory."""
     base = os.getcwd()
     after = []
-    before = base
     lang = getDefaultMapping()
-    lang = 'java' if lang == 'java-compat' else lang
+
+    if "java" in lang:
+        # Remove Java's extra directory structure from the path while we search it
+        base = base.replace(os.path.join("src", "main", "java", "test"), '')
+
+    before = base
+
     while len(before) > 0:
         current = os.path.basename(before)
         before = os.path.dirname(before)
@@ -1459,27 +1464,26 @@ def getMirrorDir(base, mapping):
     """Get the mirror directory for the current test in the given mapping."""
     lang = getDefaultMapping()
     after = []
+
     if lang == "js":
         base = base.replace("/es5", "")
+    elif "java" in lang:
+        # Remove Java's extra directory structure from the path while we search it
+        base = base.replace(os.path.join("src", "main", "java", "test"), '')
+
     before = base
     while len(before) > 0:
         current = os.path.basename(before)
         before = os.path.dirname(before)
         if current == lang:
-            # Deal with Java's different directory structure
-            if lang == "java" or lang == "java-compat":
-                while len(before) > 0:
-                    current = os.path.basename(before)
-                    before = os.path.dirname(before)
-                    if current == lang:
-                        break
             break
         after.insert(0, current)
     else:
         raise RuntimeError("cannot find language dir")
+
     dir = os.path.join(before, mapping)
     # Deal with Java's different directory structure
-    if mapping == "java" or mapping == "java-compat":
+    if "java" in mapping:
         dir = os.path.join(dir, "test", "src", "main", "java")
     return os.path.join(dir, *after)
 
@@ -1599,7 +1603,6 @@ def clientServerTest(cfgName = None, additionalServerOptions = "", additionalCli
 
         if appverifier:
           setAppVerifierSettings([clientExe, serverExe])
-
         if not controller:
             sys.stdout.write("starting " + serverDesc + "... ")
             sys.stdout.flush()
@@ -2030,7 +2033,13 @@ def getTestEnv(lang, testdir):
 
 def getTestName():
     lang = getDefaultMapping()
-    here = os.getcwd().split(os.sep)
+    base = os.getcwd()
+
+    if "java" in lang:
+        # Remove Java's extra directory structure from the path while we search it
+        base = base.replace(os.path.join("src", "main", "java", "test"), '')
+
+    here = base.split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
         if here[i] == lang:
