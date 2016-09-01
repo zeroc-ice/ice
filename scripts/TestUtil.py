@@ -595,8 +595,6 @@ def run(tests, root = False):
             cross = ["cpp", "java", "js", "php", "python", "ruby"]
             if isWin32():
                 cross.append("csharp")
-                # TODO/XXX: we're currently not building Ruby on Windows
-                cross.remove('ruby')
             if isDarwin():
                 cross.append("objective-c")
         if root:
@@ -611,8 +609,18 @@ def run(tests, root = False):
             # js test user server for other language so we can ignore this
             if lang == "js":
                 continue
+
+            # Run each crossLang through the remove filters. Does not support filter.
+            # We do this so that we can filter out cross language tests if necessary.
+            def langFiltered(lang):
+                for testFilter, removeFilter in filters:
+                    if removeFilter and testFilter.search(lang):
+                        return True
+                return False
+
             # This is all other languages than the current mapping.
-            crossLang = [ l for l in cross if lang != l ]
+            crossLang = [ l for l in cross if lang != l and langFiltered(l) == False]
+
             # This is all eligible cross tests for the current mapping.
             # Now expand out the tests. We run only tcp for most cross tests.
             for c in crossLang:
