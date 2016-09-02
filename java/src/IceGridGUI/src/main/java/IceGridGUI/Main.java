@@ -31,8 +31,6 @@ public class Main extends JFrame
         {
             if(System.getProperty("os.name").startsWith("Mac OS")) // OS X L&F
             {
-                System.setProperty("apple.laf.useScreenMenuBar", "true");
-                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid Admin");
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
             else if(System.getProperty("os.name").startsWith("Windows"))
