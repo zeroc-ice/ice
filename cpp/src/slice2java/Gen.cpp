@@ -1525,7 +1525,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             // Call on the servant.
             //
             string classNameAMD = "AMD_" + p->name();
-            out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
+            out << nl << '_' << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
                 << "(__inS);";
             out << nl << "try";
             out << sb;
@@ -1549,6 +1549,10 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << nl << "catch(java.lang.Exception ex)";
             out << sb;
             out << nl << "__cb.ice_exception(ex);";
+            out << eb;
+            out << nl << "catch(java.lang.Error ex)";
+            out << sb;
+            out << nl << "__cb.__error(ex);";
             out << eb;
             out << nl << "return Ice.DispatchStatus.DispatchAsync;";
 

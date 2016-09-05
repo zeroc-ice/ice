@@ -139,6 +139,29 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
         }
     }
 
+    final public void
+    __error(java.lang.Error exc)
+    {
+        if(_responseHandler == null)
+        {
+            throw exc;
+        }
+
+        try
+        {
+            if(_locator != null && !__servantLocatorFinished(true))
+            {
+                return;
+            }
+
+            __handleError(exc, true);
+        }
+        catch(Ice.LocalException ex)
+        {
+            _responseHandler.invokeException(_current.requestId, ex, 1, true);
+        }
+    }
+
     final protected void
     __exception(java.lang.Exception exc)
     {

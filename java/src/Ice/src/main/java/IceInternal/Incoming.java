@@ -268,6 +268,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
         catch(java.lang.Error ex)
         {
+            if(_responseHandler == null)
+            {
+                throw ex;
+            }
+
             if(_servant != null && _locator != null && !__servantLocatorFinished(false))
             {
                 return;
