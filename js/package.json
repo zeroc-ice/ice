@@ -52,6 +52,7 @@
     "gulp:test": "gulp test",
     "gulp:lint": "gulp lint",
     "gulp:test:run-with-browser": "gulp test:run-with-browser",
+    "gulp:test:run-with-browser-es5": "gulp test:run-with-browser-es5",
     "gulp:test:run-with-node": "gulp test:run-with-node"
   }
 }
