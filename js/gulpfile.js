@@ -179,7 +179,7 @@ tests.forEach(
                         }))
                     .pipe(gulp.dest(name));
             });
-        
+
         gulp.task(testBabelTask(name), [testTask(name)],
             function(){
                 return gulp.src([path.join(name, "*.js"), "!" + path.join(name, "run.js")])
@@ -200,12 +200,12 @@ tests.forEach(
                     .pipe(extreplace(".js"))
                     .pipe(paths(del));
             });
-        
+
         gulp.task(testBabelCleanTask(name), [testCleanTask(name)],
             function(){
                 var s = name.replace("test/Ice/", "test/Ice/es5/")
                             .replace("test/Glacier2/", "test/Glacier2/es5/");
-                
+
                 return gulp.src([path.join(s, "*.js"), "!" + path.join(s, "run.js")])
                     .pipe(paths(del));
             });
@@ -243,7 +243,7 @@ function libFiles(name){
         path.join(root, "lib", name + ".js.gz"),
         path.join(root, "lib", name + ".min.js"),
         path.join(root, "lib", name + ".min.js.gz"),
-        
+
         path.join(root, "lib", "es5", name + ".js"),
         path.join(root, "lib", "es5", name + ".js.gz"),
         path.join(root, "lib", "es5", name + ".min.js"),
@@ -256,7 +256,7 @@ function mapFiles(name){
         path.join(root, "lib", name + ".js.map.gz"),
         path.join(root, "lib", name + ".min.js.map"),
         path.join(root, "lib", name + ".min.js.map.gz"),
-        
+
         path.join(root, "lib", "es5", name + ".js.map"),
         path.join(root, "lib", "es5", name + ".js.map.gz"),
         path.join(root, "lib", "es5", name + ".min.js.map"),
@@ -334,7 +334,7 @@ libs.forEach(
                     .pipe(gzip())
                     .pipe(gulp.dest("lib"));
             });
-        
+
         gulp.task(babelTask(lib), [generateTask(lib)],
             function(){
                 return gulp.src(path.join("src", lib, "*.js"))
@@ -353,7 +353,7 @@ libs.forEach(
                     .pipe(gzip())
                     .pipe(gulp.dest("lib/es5"));
             });
-        
+
         gulp.task(babelMinLibTask(lib), [babelLibTask(lib)],
             function(){
                 return gulp.src(babelLibFile(lib))

@@ -60,11 +60,6 @@
             current.adapter.getCommunicator().shutdown();
         }
 
-        delay(cb, ms, current)
-        {
-            Ice.Timer.setTimeout(() => cb.ice_response(), ms);
-        }
-
         opVoid(current)
         {
             test(current.mode === Ice.OperationMode.Normal);

@@ -15,7 +15,7 @@ class P extends Promise
     constructor(cb)
     {
         let res, rej;
-        super((resolve, reject) => 
+        super((resolve, reject) =>
             {
                 res = resolve;
                 rej = reject;
@@ -29,7 +29,7 @@ class P extends Promise
         this.resolve = res;
         this.reject = rej;
     }
- 
+
     finally(cb)
     {
         return this.then(
@@ -43,7 +43,7 @@ class P extends Promise
             value => new P((resolve, reject) => Timer.setTimeout(() => resolve(value), ms)),
             reason => new P((resolve, reject) => Timer.setTiemout(() => reject(reason), ms)));
     }
-    
+
     static get [Symbol.species]()
     {
         return P;

@@ -175,7 +175,7 @@ class ConnectionI
         }
         return this._startPromise;
     }
-    
+
     activate()
     {
         if(this._state <= StateNotValidated)
@@ -482,12 +482,12 @@ class ConnectionI
             this._closeCallback = callback;
         }
     }
-    
+
     setHeartbeatCallback(callback)
     {
         this._heartbeatCallback = callback;
     }
-    
+
     setACM(timeout, close, heartbeat)
     {
         if(this._monitor === null || this._state >= StateClosed)
@@ -513,7 +513,7 @@ class ConnectionI
             this._acmLastActivity = Date.now();
         }
     }
-    
+
     getACM()
     {
         return this._monitor !== null ? this._monitor.getACM() :
@@ -900,7 +900,7 @@ class ConnectionI
         if(this._startPromise !== null)
         {
             this._startPromise.resolve();
-            
+
             this._startPromise = null;
             ++count;
         }
@@ -1141,7 +1141,7 @@ class ConnectionI
         }
         return info;
     }
-    
+
     setBufferSize(rcvSize, sndSize)
     {
         if(this._state >= StateClosed)
@@ -1150,7 +1150,7 @@ class ConnectionI
         }
         this._transceiver.setBufferSize(rcvSize, sndSize);
     }
-    
+
     exception(ex)
     {
         this.setState(StateClosed, ex);
@@ -1902,7 +1902,7 @@ class ConnectionI
                 // Prepare the invocation.
                 //
                 let inc = new IncomingAsync(this._instance, this,
-                                            adapter, 
+                                            adapter,
                                             !this._endpoint.datagram() && requestId !== 0, // response
                                             compress,
                                             requestId);
@@ -2129,7 +2129,7 @@ class OutgoingMessage
             this.outAsync.__completedEx(ex);
         }
     }
-    
+
     static createForStream(stream, compress, adopt)
     {
         const m = new OutgoingMessage();

@@ -39,11 +39,8 @@ class IncomingAsync
         this._instance = instance;
         this._response = response;
         this._compress = compress;
-        if(this._response)
-        {
-            this._os = new OutputStream(instance, Protocol.currentProtocolEncoding);
-        }
         this._connection = connection;
+        this._format = Ice.FormatType.DefaultFormat;
 
         this._current = new Current();
         this._current.id = new Identity();
@@ -55,68 +52,55 @@ class IncomingAsync
         this._locator = null;
         this._cookie = { value: null };
 
-        //
-        // Prepare the response if necessary.
-        //
-        if(response)
-        {
-            this._os.writeBlob(Protocol.replyHdr);
-
-            //
-            // Add the request ID.
-            //
-            this._os.writeInt(requestId);
-        }
-
+        this._os = null;
         this._is = null;
-
-        this._cb = null;
-        this._active = true;
     }
 
-    __startWriteParams(format)
+    startWriteParams()
     {
         if(!this._response)
         {
             throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        Debug.assert(this._os.size == Protocol.headerSize + 4); // Reply status position.
         Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
+        this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+        this._os.writeBlob(Protocol.replyHdr);
+        this._os.writeInt(this._current.requestId);
         this._os.writeByte(0);
-        this._os.startEncapsulation(this._current.encoding, format);
+        this._os.startEncapsulation(this._current.encoding, this._format);
         return this._os;
     }
 
-    __endWriteParams(ok)
+    endWriteParams()
     {
         if(this._response)
         {
-            const save = this._os.pos;
-            this._os.pos = Protocol.headerSize + 4; // Reply status position.
-            this._os.writeByte(ok ? Protocol.replyOK : Protocol.replyUserException);
-            this._os.pos = save;
             this._os.endEncapsulation();
         }
     }
 
-    __writeEmptyParams()
+    writeEmptyParams()
     {
         if(this._response)
         {
-            Debug.assert(this._os.size === Protocol.headerSize + 4); // Reply status position.
             Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
+            this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+            this._os.writeBlob(Protocol.replyHdr);
+            this._os.writeInt(this._current.requestId);
             this._os.writeByte(Protocol.replyOK);
             this._os.writeEmptyEncapsulation(this._current.encoding);
         }
     }
 
-    __writeParamEncaps(v, ok)
+    writeParamEncaps(v, ok)
     {
         if(this._response)
         {
-            Debug.assert(this._os.size === Protocol.headerSize + 4); // Reply status position.
             Debug.assert(this._current.encoding !== null); // Encoding for reply is known.
+            this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+            this._os.writeBlob(Protocol.replyHdr);
+            this._os.writeInt(this._current.requestId);
             this._os.writeByte(ok ? Protocol.replyOK : Protocol.replyUserException);
             if(v === null || v.length === 0)
             {
@@ -129,14 +113,12 @@ class IncomingAsync
         }
     }
 
-    __writeUserException(ex, format)
+    setFormat(format)
     {
-        const os = this.__startWriteParams(format);
-        os.writeUserException(ex);
-        this.__endWriteParams(false);
+        this._format = format;
     }
 
-    __warning(ex)
+    warning(ex)
     {
         Debug.assert(this._instance !== null);
 
@@ -163,7 +145,7 @@ class IncomingAsync
         this._instance.initializationData().logger.warning(s.join(""));
     }
 
-    __servantLocatorFinished()
+    servantLocatorFinished()
     {
         Debug.assert(this._locator !== null && this._servant !== null);
         try
@@ -173,38 +155,12 @@ class IncomingAsync
         }
         catch(ex)
         {
-            if(ex instanceof Ice.UserException)
-            {
-                Debug.assert(this._connection !== null);
-
-                //
-                // The operation may have already marshaled a reply; we must overwrite that reply.
-                //
-                if(this._response)
-                {
-                    this._os.resize(Protocol.headerSize + 4); // Reply status position.
-                    this._os.writeByte(Protocol.replyUserException);
-                    this._os.startEncapsulation();
-                    this._os.writeUserException(ex);
-                    this._os.endEncapsulation();
-                    this._connection.sendResponse(this._os, this._compress);
-                }
-                else
-                {
-                    this._connection.sendNoResponse();
-                }
-
-                this._connection = null;
-            }
-            else
-            {
-                this.__handleException(ex);
-            }
-            return false;
+            this.handleException(ex);
         }
+        return false;
     }
 
-    __handleException(ex)
+    handleException(ex)
     {
         Debug.assert(this._connection !== null);
 
@@ -228,12 +184,14 @@ class IncomingAsync
 
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 if(ex instanceof Ice.ObjectNotExistException)
                 {
                     this._os.writeByte(Protocol.replyObjectNotExist);
@@ -277,12 +235,14 @@ class IncomingAsync
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownLocalException);
                 this._os.writeString(ex.unknown);
                 this._connection.sendResponse(this._os, this._compress);
@@ -296,12 +256,14 @@ class IncomingAsync
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownUserException);
                 this._os.writeString(ex.unknown);
                 this._connection.sendResponse(this._os, this._compress);
@@ -315,12 +277,14 @@ class IncomingAsync
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
                 this._os.writeString(ex.unknown);
                 this._connection.sendResponse(this._os, this._compress);
@@ -334,12 +298,14 @@ class IncomingAsync
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownLocalException);
                 //this._os.writeString(ex.toString());
                 let s = [ ex.ice_name() ];
@@ -358,23 +324,15 @@ class IncomingAsync
         }
         else if(ex instanceof Ice.UserException)
         {
-            if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-            {
-                this.__warning(ex);
-            }
-
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
-                this._os.writeByte(Protocol.replyUnknownUserException);
-                //this._os.writeString(ex.toString());
-                let s = [ ex.ice_name() ];
-                if(ex.stack)
-                {
-                    s.push("\n");
-                    s.push(ex.stack);
-                }
-                this._os.writeString(s.join(""));
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
+                this._os.writeByte(Protocol.replyUserException);
+                this._os.startEncapsulation(this._current.encoding, this._format);
+                this._os.writeUserException(ex);
+                this._os.endEncapsulation();
                 this._connection.sendResponse(this._os, this._compress);
             }
             else
@@ -386,12 +344,14 @@ class IncomingAsync
         {
             if(props.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
-                this.__warning(ex);
+                this.warning(ex);
             }
 
             if(this._response)
             {
-                this._os.resize(Protocol.headerSize + 4); // Reply status position.
+                this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
+                this._os.writeBlob(Protocol.replyHdr);
+                this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
                 //this._os.writeString(ex.toString());
                 this._os.writeString(ex.stack ? ex.stack : "");
@@ -465,65 +425,18 @@ class IncomingAsync
                     }
                     catch(ex)
                     {
-                        if(ex instanceof Ice.UserException)
-                        {
-                            const encoding = this._is.skipEncapsulation(); // Required for batch requests.
-                            if(this._response)
-                            {
-                                this._os.writeByte(Protocol.replyUserException);
-                                this._os.startEncapsulation(encoding, FormatType.DefaultFormat);
-                                this._os.writeUserException(ex);
-                                this._os.endEncapsulation();
-                                this._connection.sendResponse(this._os, this._compress);
-                            }
-                            else
-                            {
-                                this._connection.sendNoResponse();
-                            }
-
-                            this._connection = null;
-                            return;
-                        }
-                        else
-                        {
-                            this._is.skipEncapsulation(); // Required for batch requests.
-                            this.__handleException(ex);
-                            return;
-                        }
+                        this.skipReadParams(); // Required for batch requests.
+                        this.handleException(ex);
+                        return;
                     }
                 }
             }
         }
 
-        try
+        if(this._servant == null)
         {
-            if(this._servant !== null)
+            try
             {
-                //
-                // DispatchAsync is a "pseudo dispatch status", used internally only
-                // to indicate async dispatch.
-                //
-                if(this._servant.__dispatch(this, this._current) === Ice.DispatchStatus.DispatchAsync)
-                {
-                    //
-                    // If this was an asynchronous dispatch, we're done here.
-                    //
-                    return;
-                }
-
-                if(this._locator !== null && !this.__servantLocatorFinished())
-                {
-                    return;
-                }
-            }
-            else
-            {
-                //
-                // Skip the input parameters, this is required for reading
-                // the next batch request if dispatching batch requests.
-                //
-                this._is.skipEncapsulation();
-
                 if(servantManager !== null && servantManager.hasServant(this._current.id))
                 {
                     throw new Ice.FacetNotExistException(this._current.id, this._current.facet,
@@ -534,36 +447,34 @@ class IncomingAsync
                     throw new Ice.ObjectNotExistException(this._current.id, this._current.facet,
                                                           this._current.operation);
                 }
+
             }
+            catch(ex)
+            {
+                this.skipReadParams(); // Required for batch requests.
+                this.handleException(ex);
+                return;
+            }
+        }
+
+        try
+        {
+            Debug.assert(this._servant !== null);
+
+            let promise = this._servant.__dispatch(this, this._current);
+            if(promise !== null)
+            {
+                promise.then(() => this.response(), (ex) => this.exception(ex));
+                return;
+            }
+
+            Debug.assert(!this._response || this._os !== null);
+            this.response();
         }
         catch(ex)
         {
-            if(this._servant !== null && this._locator !== null && !this.__servantLocatorFinished())
-            {
-                return;
-            }
-            this.__handleException(ex);
-            return;
+            this.exception(ex);
         }
-
-        //
-        // Don't put the code below into the try block above. Exceptions
-        // in the code below are considered fatal, and must propagate to
-        // the caller of this operation.
-        //
-
-        Debug.assert(this._connection !== null);
-
-        if(this._response)
-        {
-            this._connection.sendResponse(this._os, this._compress);
-        }
-        else
-        {
-            this._connection.sendNoResponse();
-        }
-
-        this._connection = null;
     }
 
     startReadParams()
@@ -592,11 +503,16 @@ class IncomingAsync
         return this._is.readEncapsulation(this._current.encoding);
     }
 
-    __response()
+    skipReadParams()
+    {
+        this._current.encoding = this._is.skipEncapsulation();
+    }
+
+    response()
     {
         try
         {
-            if(this._locator !== null && !this.__servantLocatorFinished())
+            if(this._locator !== null && !this.servantLocatorFinished())
             {
                 return;
             }
@@ -611,63 +527,28 @@ class IncomingAsync
             {
                 this._connection.sendNoResponse();
             }
-
-            this._connection = null;
         }
         catch(ex)
         {
+            console.log(ex);
             this._connection.invokeException(ex, 1);
         }
+        this._connection = null;
     }
 
-    __exception(exc)
+    exception(exc)
     {
         try
         {
-            if(this._locator !== null && !this.__servantLocatorFinished())
+            if(this._locator !== null && !this.servantLocatorFinished())
             {
                 return;
             }
-
-            this.__handleException(exc);
+            this.handleException(exc);
         }
         catch(ex)
         {
             this._connection.invokeException(ex, 1);
-        }
-    }
-
-    __validateResponse(ok)
-    {
-        if(!this._active)
-        {
-            return false;
-        }
-        this._active = false;
-        return true;
-    }
-
-    ice_exception(ex)
-    {
-        if(!this._active)
-        {
-            return;
-        }
-        this._active = false;
-
-        if(this._connection !== null)
-        {
-            this.__exception(ex);
-        }
-        else
-        {
-            //
-            // Response has already been sent.
-            //
-            if(this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-            {
-                this.__warning(ex);
-            }
         }
     }
 }

@@ -10,7 +10,7 @@
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
-    var TestAMD = require("TestAMD").TestAMD;
+    var Test = require("Test").Test;
 
     var test = function(b)
     {
@@ -20,22 +20,22 @@
         }
     };
 
-    class AMDInitialI extends TestAMD.Initial
+    class AMDInitialI extends Test.Initial
     {
-        shutdown_async(cb, current)
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-            cb.ice_response();
+            return Promise.resolve();
         }
 
-        pingPong_async(cb, obj, current)
+        pingPong(obj, current)
         {
-            cb.ice_response(obj);
+            return Promise.resolve(obj);
         }
 
-        opOptionalException_async(cb, a, b, o, current)
+        opOptionalException(a, b, o, current)
         {
-            var ex = new TestAMD.OptionalException();
+            var ex = new Test.OptionalException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -52,12 +52,12 @@
             {
                 ex.o = o;
             }
-            cb.ice_exception(ex);
+            return Promise.reject(ex);
         }
 
-        opDerivedException_async(cb, a, b, o, current)
+        opDerivedException(a, b, o, current)
         {
-            var ex = new TestAMD.DerivedException();
+            var ex = new Test.DerivedException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -80,12 +80,12 @@
                 ex.o = o;
                 ex.o2 = o;
             }
-            cb.ice_exception(ex);
+            return Promise.reject(ex);
         }
 
-        opRequiredException_async(cb, a, b, o, current)
+        opRequiredException(a, b, o, current)
         {
-            var ex = new TestAMD.RequiredException();
+            var ex = new Test.RequiredException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -104,242 +104,242 @@
                 ex.o = o;
                 ex.o2 = o;
             }
-            cb.ice_exception(ex);
+            return Promise.reject(ex);
         }
 
-        opByte_async(cb, p1, current)
+        opByte(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opBool_async(cb, p1, current)
+        opBool(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opShort_async(cb, p1, current)
+        opShort(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opInt_async(cb, p1, current)
+        opInt(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opLong_async(cb, p1, current)
+        opLong(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opFloat_async(cb, p1, current)
+        opFloat(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opDouble_async(cb, p1, current)
+        opDouble(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opString_async(cb, p1, current)
+        opString(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opMyEnum_async(cb, p1, current)
+        opMyEnum(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opSmallStruct_async(cb, p1, current)
+        opSmallStruct(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opFixedStruct_async(cb, p1, current)
+        opFixedStruct(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opVarStruct_async(cb, p1, current)
+        opVarStruct(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opOneOptional_async(cb, p1, current)
+        opOneOptional(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opOneOptionalProxy_async(cb, p1, current)
+        opOneOptionalProxy(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opByteSeq_async(cb, p1, current)
+        opByteSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opBoolSeq_async(cb, p1, current)
+        opBoolSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opShortSeq_async(cb, p1, current)
+        opShortSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opIntSeq_async(cb, p1, current)
+        opIntSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opLongSeq_async(cb, p1, current)
+        opLongSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opFloatSeq_async(cb, p1, current)
+        opFloatSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opDoubleSeq_async(cb, p1, current)
+        opDoubleSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opStringSeq_async(cb, p1, current)
+        opStringSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opSmallStructSeq_async(cb, p1, current)
+        opSmallStructSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opSmallStructList_async(cb, p1, current)
+        opSmallStructList(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opFixedStructSeq_async(cb, p1, current)
+        opFixedStructSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opFixedStructList_async(cb, p1, current)
+        opFixedStructList(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opVarStructSeq_async(cb, p1, current)
+        opVarStructSeq(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opSerializable_async(cb, p1, current)
+        opSerializable(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opIntIntDict_async(cb, p1, current)
+        opIntIntDict(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opStringIntDict_async(cb, p1, current)
+        opStringIntDict(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opIntOneOptionalDict_async(cb, p1, current)
+        opIntOneOptionalDict(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opClassAndUnknownOptional_async(cb, p, current)
+        opClassAndUnknownOptional(p, current)
         {
-            cb.ice_response();
+            return Promise.resolve();
         }
 
-        sendOptionalClass_async(cb, req, current)
+        sendOptionalClass(req, current)
         {
-            cb.ice_response();
+            return Promise.resolve();
         }
 
-        returnOptionalClass_async(cb, req, current)
+        returnOptionalClass(req, current)
         {
-            cb.ice_response(new TestAMD.OneOptional(53));
+            return Promise.resolve(new Test.OneOptional(53));
         }
 
-        opG_async(cb, g, current)
+        opG(g, current)
         {
-            cb.ice_response(g);
+            return Promise.resolve(g);
         }
 
-        opVoid_async(cb, current)
+        opVoid(current)
         {
-            cb.ice_response();
+            return Promise.resolve();
         }
 
-        opMStruct1_async(cb, current)
+        opMStruct1(current)
         {
-            cb.ice_response(new TestAMD.SmallStruct());
+            return Promise.resolve(new Test.SmallStruct());
         }
 
-        opMStruct2_async(cb, p1, current)
+        opMStruct2(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opMSeq1_async(cb, current)
+        opMSeq1(current)
         {
-            cb.ice_response([]);
+            return Promise.resolve([]);
         }
 
-        opMSeq2_async(cb, p1, current)
+        opMSeq2(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opMDict1_async(cb, current)
+        opMDict1(current)
         {
-            cb.ice_response(new Map());
+            return Promise.resolve(new Map());
         }
 
-        opMDict2_async(cb, p1, current)
+        opMDict2(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        opMG1_async(cb, current)
+        opMG1(current)
         {
-            cb.ice_response(new TestAMD.G());
+            return Promise.resolve(new Test.G());
         }
 
-        opMG2_async(cb, p1, current)
+        opMG2(p1, current)
         {
-            cb.ice_response(p1, p1);
+            return Promise.resolve([p1, p1]);
         }
 
-        supportsRequiredParams_async(cb, current)
+        supportsRequiredParams(current)
         {
-            cb.ice_response(false);
+            return Promise.resolve(false);
         }
 
-        supportsJavaSerializable_async(cb, current)
+        supportsJavaSerializable(current)
         {
-            cb.ice_response(false);
+            return Promise.resolve(false);
         }
 
-        supportsCsharpSerializable_async(cb, current)
+        supportsCsharpSerializable(current)
         {
-            cb.ice_response(false);
+            return Promise.resolve(false);
         }
     }
 

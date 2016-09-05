@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var TestAMD = require("TestAMD").TestAMD;
     var InitialI = require("InitialI").InitialI;
     var AMDInitialI = require("AMDInitialI").AMDInitialI;
     var Client = require("../optional/Client");
@@ -40,7 +39,7 @@
                 return base.ice_getConnection().then(conn =>
                     {
                         conn.setAdapter(adapter);
-                        return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test);
+                        return Client.__clientAllTests__(out, communicator, Test);
                     });
             });
     };

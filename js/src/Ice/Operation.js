@@ -64,49 +64,39 @@ function parseParam(p)
 //     otherwise an empty string
 //  1: mode (undefined == Normal or int)
 //  2: sendMode (undefined == Normal or int)
-//  3: amd (undefined or 1)
-//  4: format (undefined == Default or int)
-//  5: return type (undefined if void, or [type, tag])
-//  6: in params (undefined if none, or array of [type, tag])
-//  7: out params (undefined if none, or array of [type, tag])
-//  8: exceptions (undefined if none, or array of types)
-//  9: sends classes (true or undefined)
-// 10: returns classes (true or undefined)
+//  3: format (undefined == Default or int)
+//  4: return type (undefined if void, or [type, tag])
+//  5: in params (undefined if none, or array of [type, tag])
+//  6: out params (undefined if none, or array of [type, tag])
+//  7: exceptions (undefined if none, or array of types)
+//  8: sends classes (true or undefined)
+//  9: returns classes (true or undefined)
 //
 function parseOperation(name, arr)
 {
     const r = {};
 
     r.name = name;
+    r.servantMethod = arr[0] ? arr[0] : name;
     r.mode = arr[1] ? Ice.OperationMode.valueOf(arr[1]) : Ice.OperationMode.Normal;
     r.sendMode = arr[2] ? Ice.OperationMode.valueOf(arr[2]) : Ice.OperationMode.Normal;
-    r.amd = arr[3] ? true : false;
-    r.format = arr[4] ? Ice.FormatType.valueOf(arr[4]) : Ice.FormatType.DefaultFormat;
-
-    if(r.amd)
-    {
-        r.servantMethod = name + "_async";
-    }
-    else
-    {
-        r.servantMethod = arr[0] ? arr[0] : name;
-    }
+    r.format = arr[3] ? Ice.FormatType.valueOf(arr[3]) : Ice.FormatType.DefaultFormat;
 
     let ret;
-    if(arr[5])
+    if(arr[4])
     {
-        ret = parseParam(arr[5]);
+        ret = parseParam(arr[4]);
         ret.pos = 0;
     }
     r.returns = ret;
 
     const inParams = [];
     const inParamsOpt = [];
-    if(arr[6])
+    if(arr[5])
     {
-        for(let i = 0; i < arr[6].length; ++i)
+        for(let i = 0; i < arr[5].length; ++i)
         {
-            let p = parseParam(arr[6][i]);
+            let p = parseParam(arr[5][i]);
             p.pos = i;
             inParams.push(p);
             if(p.tag)
@@ -121,12 +111,12 @@ function parseOperation(name, arr)
 
     const outParams = [];
     const outParamsOpt = [];
-    if(arr[7])
+    if(arr[6])
     {
         const offs = ret ? 1 : 0;
-        for(let i = 0; i < arr[7].length; ++i)
+        for(let i = 0; i < arr[6].length; ++i)
         {
-            let p = parseParam(arr[7][i]);
+            let p = parseParam(arr[6][i]);
             p.pos = i + offs;
             outParams.push(p);
             if(p.tag)
@@ -144,17 +134,17 @@ function parseOperation(name, arr)
     r.outParamsOpt = outParamsOpt;
 
     const exceptions = [];
-    if(arr[8])
+    if(arr[7])
     {
-        for(let i = 0; i < arr[8].length; ++i)
+        for(let i = 0; i < arr[7].length; ++i)
         {
-            exceptions.push(arr[8][i]);
+            exceptions.push(arr[7][i]);
         }
     }
     r.exceptions = exceptions;
 
-    r.sendsClasses = arr[9] === true;
-    r.returnsClasses = arr[10] === true;
+    r.sendsClasses = arr[8] === true;
+    r.returnsClasses = arr[9] === true;
 
     return r;
 }
@@ -166,7 +156,7 @@ class OpTable
         this.raw = ops;
         this.parsed = {};
     }
-    
+
     find(name)
     {
         //
@@ -195,8 +185,14 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
         let p = allParamInfo[i];
         if(!p.tag)
         {
-            let v = p.type.read(is);
-            params[p.pos + offset] = v;
+            if(p.isObject)
+            {
+                is.readValue(o => params[p.pos + offset] = o, p.type);
+            }
+            else
+            {
+                params[p.pos + offset] = p.type.read(is);
+            }
         }
     }
 
@@ -205,8 +201,14 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
     //
     if(retvalInfo)
     {
-        let v = retvalInfo.type.read(is);
-        params[retvalInfo.pos + offset] = v;
+        if(retvalInfo.isObject)
+        {
+            is.readValue(o => params[retvalInfo.pos + offset] = o, retvalInfo.type);
+        }
+        else
+        {
+            params[retvalInfo.pos + offset] = retvalInfo.type.read(is);
+        }
     }
 
     //
@@ -215,8 +217,14 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
     for(let i = 0; i < optParamInfo.length; ++i)
     {
         let p = optParamInfo[i];
-        let v = p.type.readOptional(is, p.tag);
-        params[p.pos + offset] = v;
+        if(p.isObject)
+        {
+            is.readOptionalValue(p.tag, o => params[p.pos + offset] = o, p.type);
+        }
+        else
+        {
+            params[p.pos + offset] = p.type.readOptional(is, p.tag);
+        }
     }
 
     if(usesClasses)
@@ -262,105 +270,6 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
-class Upcall
-{
-    constructor(incomingAsync, op)
-    {
-        this.incomingAsync = incomingAsync;
-        this.op = op;
-    }
-
-    ice_response()
-    {
-        if(this.incomingAsync.__validateResponse(true))
-        {
-            try
-            {
-                this.__sendResponse(arguments);
-                this.incomingAsync.__response();
-            }
-            catch(ex)
-            {
-                this.incomingAsync.__exception(ex);
-            }
-        }
-    }
-
-    ice_exception(ex)
-    {
-        if(this.__checkException(ex))
-        {
-            if(this.incomingAsync.__validateResponse(false))
-            {
-                this.__sendException(ex);
-                this.incomingAsync.__response();
-            }
-        }
-        else
-        {
-            this.incomingAsync.ice_exception(ex);
-        }
-    }
-
-    __sendResponse(results)
-    {
-        if(this.op.returns === undefined && this.op.outParams.length === 0)
-        {
-            if(results && results.length > 0)
-            {
-                //
-                // No results expected.
-                //
-                throw new Error("ice_response called with invalid arguments");
-            }
-            else
-            {
-                this.incomingAsync.__writeEmptyParams();
-            }
-        }
-        else
-        {
-            const __os = this.incomingAsync.__startWriteParams(this.op.format);
-            let retvalInfo;
-            if(this.op.returns && !this.op.returns.tag)
-            {
-                retvalInfo = this.op.returns;
-            }
-            marshalParams(__os, results, retvalInfo, this.op.outParams, this.op.outParamsOpt,
-                          this.op.returnsClasses);
-            this.incomingAsync.__endWriteParams(true);
-        }
-    }
-
-    __checkException(ex)
-    {
-        //
-        // Make sure the given exception is an instance of one of the declared user exceptions
-        // for this operation.
-        //
-        for(let i = 0; i < this.op.exceptions.length; ++i)
-        {
-            if(ex instanceof this.op.exceptions[i])
-            {
-                //
-                // User exception is valid.
-                //
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    __sendException(ex)
-    {
-        //
-        // User exception is valid, now marshal it.
-        //
-        this.incomingAsync.__writeUserException(ex, this.op.format);
-    }
-}
-
 function __dispatchImpl(servant, op, incomingAsync, current)
 {
     //
@@ -373,104 +282,71 @@ function __dispatchImpl(servant, op, incomingAsync, current)
                                        " does not define operation `" + op.servantMethod + "'");
     }
 
-    const up = new Upcall(incomingAsync, op);
-    try
+    //
+    // Unmarshal the in params (if any).
+    //
+    const params = [];
+    if(op.inParams.length === 0)
     {
-        //
-        // Unmarshal the in params (if any).
-        //
-        const params = op.amd ? [null] : [];
-        if(op.inParams.length === 0)
+        incomingAsync.readEmptyParams();
+    }
+    else
+    {
+        const is = incomingAsync.startReadParams();
+        unmarshalParams(is, undefined, op.inParams, op.inParamsOpt, op.sendsClasses, params, 0);
+        incomingAsync.endReadParams();
+    }
+
+    params.push(current);
+
+    incomingAsync.setFormat(op.format);
+
+    let marshalFn = function(params)
+    {
+        let numExpectedResults = op.outParams.length + (op.returns ? 1 : 0)
+        if(numExpectedResults > 1 && !(params instanceof Array))
         {
-            incomingAsync.readEmptyParams();
+            throw new Ice.MarshalException("operation `" + op.servantMethod + "' should return an array");
+        }
+        else if(numExpectedResults === 1)
+        {
+            params = [params]; // Wrap a single out parameter in an array.
+        }
+
+        if(op.returns === undefined && op.outParams.length === 0)
+        {
+            if(params && params.length > 0)
+            {
+                throw new Ice.MarshalException("operation `" + op.servantMethod + "' shouldn't return any value");
+            }
+            else
+            {
+                incomingAsync.writeEmptyParams();
+            }
         }
         else
         {
-            const __is = incomingAsync.startReadParams();
-            const offset = op.amd ? 1 : 0;
-            unmarshalParams(__is, undefined, op.inParams, op.inParamsOpt, op.sendsClasses, params, offset);
-            incomingAsync.endReadParams();
-
-            //
-            // When unmarshaling objects, the ObjectHelper returns a wrapper object
-            // and eventually stores the unmarshaled object into its "value" member.
-            // Here we scan the parameter array and replace the wrappers with the
-            // actual object references.
-            //
-            if(op.inParams.length > 0 && (op.sendsClasses || op.inParamsOpt.length > 0))
+            let retvalInfo;
+            if(op.returns && !op.returns.tag)
             {
-                op.inParams.forEach(p =>
-                    {
-                        //
-                        // Optional parameters may be undefined.
-                        //
-                        if(p.isObject && params[p.pos + offset] !== undefined)
-                        {
-                            params[p.pos + offset] = params[p.pos + offset].value;
-                        }
-                    });
-            }
-        }
-
-        params.push(current);
-
-        if(op.amd)
-        {
-            params[0] = up; // The AMD callback object.
-            try
-            {
-                method.apply(servant, params);
-            }
-            catch(ex)
-            {
-                up.ice_exception(ex);
-            }
-            return Ice.DispatchStatus.DispatchAsync;
-        }
-        else
-        {
-            //
-            // Determine how many out parameters to expect.
-            //
-            let numExpectedResults = op.outParams.length;
-            if(op.returns)
-            {
-                ++numExpectedResults;
+                retvalInfo = op.returns;
             }
 
-            let results = method.apply(servant, params);
-
-            //
-            // Complain if we expect more than out parameter and the servant doesn't return an array.
-            //
-            if(numExpectedResults > 1 && !(results instanceof Array))
-            {
-                throw new Ice.MarshalException("operation `" + op.servantMethod +
-                                               "' should return an array of length " + numExpectedResults);
-            }
-            else if(numExpectedResults === 1)
-            {
-                //
-                // Wrap a single out parameter in an array.
-                //
-                results = [results];
-            }
-
-            up.__sendResponse(results);
-            return Ice.DispatchStatus.DispatchOK;
+            const os = incomingAsync.startWriteParams();
+            marshalParams(os, params, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses);
+            incomingAsync.endWriteParams();
         }
     }
-    catch(ex)
+
+    let results = method.apply(servant, params);
+    if(results instanceof Promise)
     {
-        if(up.__checkException(ex))
-        {
-            up.__sendException(ex);
-            return Ice.DispatchStatus.DispatchUserException;
-        }
-        else
-        {
-            throw ex;
-        }
+        return results.then(marshalFn);
+    }
+    else
+    {
+        marshalFn(results);
+        return null;
     }
 }
 
@@ -671,42 +547,13 @@ function addProxyOperation(proxyType, name, data)
                 let results = [];
 
                 let is = asyncResult.__startReadParams();
-
                 let retvalInfo;
                 if(op.returns && !op.returns.tag)
                 {
                     retvalInfo = op.returns;
                 }
                 unmarshalParams(is, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses, results, 0);
-
                 asyncResult.__endReadParams();
-
-                //
-                // When unmarshaling objects, the ObjectHelper returns a wrapper object
-                // and eventually stores the unmarshaled object into its "value" member.
-                // Here we scan the results array and replace the wrappers with the
-                // actual object references.
-                //
-                if(op.returnsClasses || op.outParamsOpt.length > 0)
-                {
-                    let offset = 0; // Skip asyncResult in results.
-                    if(op.returns && op.returns.isObject && results[op.returns.pos + offset] !== undefined)
-                    {
-                        results[op.returns.pos + offset] = results[op.returns.pos + offset].value;
-                    }
-                    for(let i = 0; i < op.outParams.length; ++i)
-                    {
-                        let p = op.outParams[i];
-                        //
-                        // Optional parameters may be undefined.
-                        //
-                        if(p.isObject && results[p.pos + offset] !== undefined)
-                        {
-                            results[p.pos + offset] = results[p.pos + offset].value;
-                        }
-                    }
-                }
-
                 return results.length == 1 ? results[0] : results;
             };
         }
@@ -770,10 +617,10 @@ Slice.defineOperations = function(classType, proxyType, ops)
 //
 Slice.defineOperations(Ice.Object, Ice.ObjectPrx,
 {
-    "ice_ping": [, 1, 1, , , , , , ],
-    "ice_isA": [, 1, 1, , , [1], [[7]], , ],
-    "ice_id": [, 1, 1, , , [7], , , ],
-    "ice_ids": [, 1, 1, , , ["Ice.StringSeqHelper"], , , ]
+    "ice_ping": [, 1, 1, , , , , ],
+    "ice_isA": [, 1, 1, , [1], [[7]], , ],
+    "ice_id": [, 1, 1, , [7], , , ],
+    "ice_ids": [, 1, 1, , ["Ice.StringSeqHelper"], , , ]
 });
 
 module.exports.Ice = Ice;

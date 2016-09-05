@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var TestAMD = require("TestAMD").TestAMD;
 
     var Promise = Ice.Promise;
 
@@ -41,7 +40,7 @@
                             function(conn)
                             {
                                 conn.setAdapter(adapter);
-                                return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test, true);
+                                return Client.__clientAllTests__(out, communicator, Test, true);
                             });
                     });
             });

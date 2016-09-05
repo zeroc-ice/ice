@@ -51,7 +51,7 @@ void
 writeU8Buffer(const vector<unsigned char>& u8buffer, ostringstream& out)
 {
     vector<unsigned short> u16buffer = toUTF16(u8buffer);
-    
+
     for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
     {
         out << u16CodePoint(*c);
@@ -1182,7 +1182,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             baseParamNames.push_back(fixId((*q)->name()));
         }
     }
-    
+
     ClassList allBases = p->allBases();
     StringList ids;
     transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
@@ -1197,13 +1197,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
     StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
-    
+
     if(!p->isLocal())
     {
         _out << sp;
         _out << nl << "let " << getLocalScope(scoped, "_") << "_ids__ = [";
         _out.inc();
-        
+
         for(StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
         {
             if(q != ids.begin())
@@ -1260,7 +1260,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
         }
-        
+
         _out << epar << sb;
         if(!p->isLocal() || hasBaseClass)
         {
@@ -1269,7 +1269,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeInitDataMembers(dataMembers, scope);
         _out << eb;
     }
-    
+
     _out << sp;
     _out << nl << "static get __parent()";
     _out << sb;
@@ -1282,7 +1282,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "return undefined;";
     }
     _out << eb;
-    
+
     if(!p->isLocal())
     {
         _out << sp;
@@ -1290,19 +1290,19 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "return " << getLocalScope(scoped, "_") << "_ids__;";
         _out << eb;
-        
+
         _out << sp;
         _out << nl << "static get __id()";
         _out << sb;
         _out << nl << "return " << getLocalScope(scoped, "_") << "_ids__[" << scopedPos << "];";
         _out << eb;
-        
+
         _out << sp;
         _out << nl << "__mostDerivedType()";
         _out << sb;
         _out << nl << "return " << localScope << "." << name << ";";
         _out << eb;
-        
+
 
         if(!bases.empty())
         {
@@ -1331,7 +1331,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "];";
             _out << eb;
         }
-        
+
         if(p->compactId() != -1)
         {
             _out << sp;
@@ -1340,7 +1340,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "return " << p->compactId() << ";";
             _out << eb;
         }
-        
+
         if(!dataMembers.empty())
         {
             _out << sp;
@@ -1367,13 +1367,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         _out << nl << localScope << '.' << prxName << " = class extends " << baseProxy;
         _out << sb;
-        
+
         _out << sp;
         _out << nl << "static ice_staticId()";
         _out << sb;
         _out << nl << "return " << localScope << "." << name << ".__id;";
         _out << eb;
-        
+
         _out << sp;
         _out << nl << "static get __implements()";
         _out << sb;
@@ -1403,7 +1403,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << eb << ";";
-        
+
         if(p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice"))
         {
             _out << sp;
@@ -1488,12 +1488,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if(op->sendMode() != Operation::Normal)
                 {
                     _out << sliceModeToIceMode(op->sendMode()); // Send mode.
-                }
-                _out << ", ";
-
-                if(p->hasMetaData("amd") || op->hasMetaData("amd"))
-                {
-                    _out << "1"; // AMD.
                 }
                 _out << ", ";
 
@@ -1709,7 +1703,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sb;
 
     _out << nl << "constructor" << spar;
-    
+
     for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
     {
         _out << fixId((*q)->name());
@@ -1742,7 +1736,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
     }
-    
+
     _out << "_cause = \"\"" << epar;
     _out << sb;
     _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
@@ -1760,7 +1754,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
-    
+
     _out << sp;
     _out << nl << "ice_name()";
     _out << sb;
@@ -1776,7 +1770,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sb;
         _out << nl << "return " << localScope << '.' << name << ";";
         _out << eb;
-        
+
         if(!dataMembers.empty())
         {
             _out << sp;
@@ -1801,9 +1795,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << eb;
         }
     }
-    
+
     _out << eb << ";";
-    
+
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1837,7 +1831,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sb;
 
     _out << nl << "constructor" << spar;
-    
+
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string value;
@@ -1865,7 +1859,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         }
         _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
     }
-    
+
     _out << epar;
     _out << sb;
     writeInitDataMembers(dataMembers, scope);
@@ -1878,20 +1872,20 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << sb;
         writeMarshalDataMembers(dataMembers, DataMemberList());
         _out << eb;
-        
+
         _out << sp;
         _out << nl << "__read(__is)";
         _out << sb;
         writeUnmarshalDataMembers(dataMembers, DataMemberList());
         _out << eb;
-        
+
         _out << sp;
         _out << nl << "static get minWireSize()";
         _out << sb;
         _out << nl << "return  " << p->minWireSize() << ";";
         _out << eb;
     }
-    
+
     _out << eb << ";";
 
     //

@@ -288,7 +288,7 @@ public class ControllerServer extends com.zeroc.Ice.Application
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
             initData.properties = cpr.properties;
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+            initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
             initData.properties.setProperty("IceSSL.DefaultDir", new File(toplevel, "certs").getCanonicalPath());
             initData.properties.setProperty("IceSSL.Keystore", "server.jks");
             initData.properties.setProperty("IceSSL.Password", "password");

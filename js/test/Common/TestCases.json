@@ -54,8 +54,7 @@
         },
     "Ice/exceptionsBidir":
         {
-            "files": ["Test.js", "TestAMD.js", "ThrowerI.js", "AMDThrowerI.js",
-                      "../exceptions/Client.js", "Client.js"]
+            "files": ["Test.js", "ThrowerI.js", "AMDThrowerI.js", "../exceptions/Client.js", "Client.js"]
         },
     "Ice/facets":
         {
@@ -87,7 +86,7 @@
         },
     "Ice/operationsBidir":
         {
-            "files": ["Test.js", "TestAMD.js", "../operations/Twoways.js", "../operations/Oneways.js",
+            "files": ["Test.js", "../operations/Twoways.js", "../operations/Oneways.js",
                       "../operations/BatchOneways.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js",
                       "../operations/Client.js", "Client.js"]
         },
@@ -102,7 +101,7 @@
                 },
                 {
                     "configName": "sliced",
-                    "desc": "sliced format", 
+                    "desc": "sliced format",
                     "args": ["--Ice.Default.SlicedFormat"]
                 },
                 {
@@ -130,7 +129,7 @@
         },
     "Ice/optionalBidir":
         {
-            "files": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "../optional/ClientPrivate.js", "Client.js"]
+            "files": ["Test.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "../optional/ClientPrivate.js", "Client.js"]
         },
     "Ice/properties":
         {
