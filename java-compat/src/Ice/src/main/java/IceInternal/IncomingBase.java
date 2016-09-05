@@ -554,18 +554,20 @@ class IncomingBase
                 _responseHandler.sendNoResponse();
             }
 
-            if(ex instanceof java.lang.Error)
+            if(!amd && ex instanceof java.lang.Error)
             {
                 throw new ServantError((java.lang.Error)ex);
             }
         }
-
-        if(_observer != null)
+        finally
         {
-            _observer.detach();
-            _observer = null;
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
+            _responseHandler = null;
         }
-        _responseHandler = null;
     }
 
     protected Instance _instance;

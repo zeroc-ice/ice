@@ -232,6 +232,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 }
                 catch(Ice.ResponseSentException exc)
                 {
+                    if(ex instanceof java.lang.Error)
+                    {
+                        throw new ServantError((java.lang.Error)ex);
+                    }
+
                     if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
                     {
                         warning(ex);

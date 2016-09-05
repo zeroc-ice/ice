@@ -854,13 +854,15 @@ final public class Incoming implements com.zeroc.Ice.Request
                 throw new ServantError((java.lang.Error)ex);
             }
         }
-
-        if(_observer != null)
+        finally
         {
-            _observer.detach();
-            _observer = null;
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
+            _responseHandler = null;
         }
-        _responseHandler = null;
     }
 
     private Instance _instance;
