@@ -408,7 +408,7 @@ class OutgoingConnectionFactory
             connectionCallbacks.push(cb);
         }
 
-        let callbacks = [];        
+        let callbacks = [];
         endpoints.forEach(endpt =>
             {
                 let cbs = this._pending.get(endpt);
@@ -640,16 +640,13 @@ class OutgoingConnectionFactory
                 if(cons !== null)
                 {
                     const arr = [];
-                    for(let connections of this._connectionsByEndpoint.values())
+                    this._connectionsByEndpoint.forEach(connection =>
                     {
-                        connections.forEach(connection =>
-                            {
-                                if(arr.indexOf(connection) === -1)
-                                {
-                                    arr.push(connection);
-                                }
-                            });
-                    }
+                        if(arr.indexOf(connection) === -1)
+                        {
+                            arr.push(connection);
+                        }
+                    });
                     Debug.assert(cons.length === arr.length);
                     this._connectionsByEndpoint.clear();
                 }
@@ -677,7 +674,7 @@ class ConnectionListMap extends HashMap
     {
         super(h || HashMap.compareEquals);
     }
-    
+
     set(key, value)
     {
         let list = this.get(key);

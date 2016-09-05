@@ -40,7 +40,6 @@
         "ConnectionRequestHandler.js",
         "ConnectRequestHandler.js",
         "DefaultsAndOverrides.js",
-        "DispatchStatus.js",
         "EndpointI.js",
         "EndpointFactoryManager.js",
         "EnumBase.js",

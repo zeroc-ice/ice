@@ -13,7 +13,6 @@ const __M = Ice.__M;
 __M.require(module,
     [
         "../Ice/Current",
-        "../Ice/DispatchStatus",
         "../Ice/Exception",
         "../Ice/FormatType",
         "../Ice/Object",
@@ -177,22 +176,40 @@ class OpTable
 
 function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses, params, offset)
 {
-    //
-    // First read all required params.
-    //
-    for(let i = 0; i < allParamInfo.length; ++i)
+    const readParam = (p, optional) =>
     {
-        let p = allParamInfo[i];
-        if(!p.tag)
+        if(optional)
         {
             if(p.isObject)
             {
-                is.readValue(o => params[p.pos + offset] = o, p.type);
+                is.readOptionalValue(p.tag, obj => params[p.pos + offset] = obj, p.type);
+            }
+            else
+            {
+                params[p.pos + offset] = p.type.readOptional(is, p.tag);
+            }
+        }
+        else
+        {
+            if(p.isObject)
+            {
+                is.readValue(obj => params[p.pos + offset] = obj, p.type);
             }
             else
             {
                 params[p.pos + offset] = p.type.read(is);
             }
+        }
+    };
+
+    //
+    // First read all required params.
+    //
+    for(let i = 0; i < allParamInfo.length; ++i)
+    {
+        if(!allParamInfo[i].tag)
+        {
+            readParam(allParamInfo[i], false);
         }
     }
 
@@ -201,14 +218,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
     //
     if(retvalInfo)
     {
-        if(retvalInfo.isObject)
-        {
-            is.readValue(o => params[retvalInfo.pos + offset] = o, retvalInfo.type);
-        }
-        else
-        {
-            params[retvalInfo.pos + offset] = retvalInfo.type.read(is);
-        }
+        readParam(retvalInfo, false);
     }
 
     //
@@ -216,15 +226,7 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
     //
     for(let i = 0; i < optParamInfo.length; ++i)
     {
-        let p = optParamInfo[i];
-        if(p.isObject)
-        {
-            is.readOptionalValue(p.tag, o => params[p.pos + offset] = o, p.type);
-        }
-        else
-        {
-            params[p.pos + offset] = p.type.readOptional(is, p.tag);
-        }
+        readParam(optParamInfo[i], true);
     }
 
     if(usesClasses)
@@ -303,7 +305,7 @@ function __dispatchImpl(servant, op, incomingAsync, current)
 
     let marshalFn = function(params)
     {
-        let numExpectedResults = op.outParams.length + (op.returns ? 1 : 0)
+        let numExpectedResults = op.outParams.length + (op.returns ? 1 : 0);
         if(numExpectedResults > 1 && !(params instanceof Array))
         {
             throw new Ice.MarshalException("operation `" + op.servantMethod + "' should return an array");
@@ -336,7 +338,7 @@ function __dispatchImpl(servant, op, incomingAsync, current)
             marshalParams(os, params, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses);
             incomingAsync.endWriteParams();
         }
-    }
+    };
 
     let results = method.apply(servant, params);
     if(results instanceof Promise)

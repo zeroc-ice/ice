@@ -15,7 +15,6 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice.__M.require(module,
     [
-        "../Ice/DispatchStatus",
         "../Ice/Exception",
         "../Ice/FormatType",
         "../Ice/StreamHelpers",
@@ -116,12 +115,12 @@ Ice.Object = class
 
     //
     // The default implementation of equals compare references.
-    // 
+    //
     equals(other)
     {
         return this === other;
     }
-    
+
     //
     // These methods are used for object parameters.
     //
@@ -206,7 +205,7 @@ const __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for Ice.Object
     }
 
-    os.startSlice(type.__id, 
+    os.startSlice(type.__id,
                   Object.prototype.hasOwnProperty.call(type, '__compactId') ? type.__compactId : -1 ,
                   type.__parent === Ice.Object);
     if(type.prototype.__writeMemberImpl)

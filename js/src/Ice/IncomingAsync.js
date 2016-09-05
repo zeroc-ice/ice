@@ -15,7 +15,6 @@ Ice.__M.require(module,
         "../Ice/Connection",
         "../Ice/Current",
         "../Ice/Debug",
-        "../Ice/DispatchStatus",
         "../Ice/Exception",
         "../Ice/Identity",
         "../Ice/LocalException",
@@ -433,7 +432,7 @@ class IncomingAsync
             }
         }
 
-        if(this._servant == null)
+        if(this._servant === null)
         {
             try
             {
