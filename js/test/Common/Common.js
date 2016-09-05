@@ -25,15 +25,11 @@ var run = function(m)
     var id = new Ice.InitializationData();
     id.properties = Ice.createProperties(process.argv);
     var test = m.require("./Client").__test__;
+    
     test({write: write, writeLine: writeLine}, id).catch(
-        function(values)
+        ex =>
         {
-            let [ex, r] = values;
             console.log(ex.toString());
-            if(r instanceof Ice.AsyncResult)
-            {
-                console.log("\nexception occurred in call to " + r.operation);
-            }
             if(ex.stack)
             {
                 console.log(ex.stack);
