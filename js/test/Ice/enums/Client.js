@@ -9,15 +9,15 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var Promise = Ice.Promise;
+    const Promise = Ice.Promise;
 
-    var allTests = function(out, communicator)
+    function allTests(out, communicator)
     {
-        var p = new Ice.Promise();
-        var test = function(b)
+        const p = new Ice.Promise();
+        function test(b)
         {
             if(!b)
             {
@@ -33,20 +33,18 @@
             }
         };
 
-        var base, proxy;
-        Promise.try(
-            function()
+        let base, proxy;
+        Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
-                var ref = "test:default -p 12010";
+                const ref = "test:default -p 12010";
                 base = communicator.stringToProxy(ref);
                 test(base !== null);
                 out.writeLine("ok");
                 out.write("testing checked cast... ");
                 return Test.TestIntfPrx.checkedCast(base);
             }
-        ).then(
-            function(obj)
+        ).then(obj =>
             {
                 proxy = obj;
                 test(proxy !== null);
@@ -137,72 +135,63 @@
 
                 out.writeLine("ok");
             }
-        ).then(
-            function()
+        ).then(() =>
             {
                 out.write("testing enum operations... ");
                 return proxy.opByte(Test.ByteEnum.benum1);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, b1] = r;
+                const [ret, b1] = r;
                 test(ret === b1);
                 test(ret === Test.ByteEnum.benum1);
                 return proxy.opByte(Test.ByteEnum.benum11);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, b11] = r;
+                const [ret, b11] = r;
                 test(ret === b11);
                 test(ret === Test.ByteEnum.benum11);
                 return proxy.opShort(Test.ShortEnum.senum1);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, s1] = r;
+                const [ret, s1] = r;
                 test(ret === s1);
                 test(ret === Test.ShortEnum.senum1);
                 return proxy.opShort(Test.ShortEnum.senum11);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, s11] = r;
+                const [ret, s11] = r;
                 test(ret === s11);
                 test(ret === Test.ShortEnum.senum11);
                 return proxy.opInt(Test.IntEnum.ienum1);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, i1] = r;
+                const [ret, i1] = r;
                 test(ret === i1);
                 test(ret === Test.IntEnum.ienum1);
                 return proxy.opInt(Test.IntEnum.ienum11);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, i11] = r;
+                const [ret, i11] = r;
                 test(ret === i11);
                 test(ret === Test.IntEnum.ienum11);
                 return proxy.opInt(Test.IntEnum.ienum12);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, i12] = r;
+                const [ret, i12] = r;
                 test(ret === i12);
                 test(ret === Test.IntEnum.ienum12);
                 return proxy.opSimple(Test.SimpleEnum.green);
             }
-        ).then(
-            function(r)
+        ).then(r =>
             {
-                var [ret, g] = r;
+                const [ret, g] = r;
                 test(ret === g);
                 test(ret === Test.SimpleEnum.green);
 
@@ -214,22 +203,10 @@
         return p;
     };
 
-    var run = function(out, id)
+    function run(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c);
-            }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }).catch(e =>
-            {
-               console.log(e); 
-            });
+        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports.__test__ = run;
     exports.__runServer__ = true;
