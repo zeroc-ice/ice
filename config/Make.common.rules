@@ -482,6 +482,10 @@ install-common::
 	then \
 	    echo "Creating $(DESTDIR)$(install_slicedir)..." ; \
 	    $(call mkdir, $(DESTDIR)$(install_slicedir), -p) ; \
+	    if test ! -z "$(usr_dir_install)" ; \
+	    then \
+		    ln -s Ice-$(VERSION)/slice $(DESTDIR)/$(prefix)/share/slice ; \
+	    fi ; \
 	    cd $(top_srcdir)/../slice ; \
 	    for subdir in * ; \
 	    do \
