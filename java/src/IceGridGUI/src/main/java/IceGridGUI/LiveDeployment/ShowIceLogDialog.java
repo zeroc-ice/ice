@@ -15,6 +15,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import java.util.prefs.Preferences;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -108,7 +110,7 @@ class ShowIceLogDialog extends JDialog
                                     try
                                     {
                                         os = new java.io.OutputStreamWriter(new java.io.FileOutputStream(file));
-                                        
+
                                         for(Object p : _tableModel.getDataVector())
                                         {
                                             @SuppressWarnings("unchecked")
@@ -117,7 +119,7 @@ class ShowIceLogDialog extends JDialog
                                                     renderLogMessageType((LogMessageType) row.elementAt(1)) + ",\"" +
                                                     row.elementAt(2).toString().replace("\"", "\"\"") + "\",\"" +
                                                     row.elementAt(3).toString().replace("\"", "\"\"") + "\"";
-                                                        
+
                                             txt += "\r\n";
                                             os.write(txt, 0, txt.length());
                                         }
@@ -178,15 +180,15 @@ class ShowIceLogDialog extends JDialog
                         for(int i : _table.getSelectedRows())
                         {
                             int j = _table.convertRowIndexToModel(i);
-                            
+
                             txt += renderDate((java.util.Date)_tableModel.getValueAt(j, 0)) + "\t" +
                                     renderLogMessageType((LogMessageType)_tableModel.getValueAt(j, 1)) + "\t" +
                                     _tableModel.getValueAt(j, 2).toString() + "\t" +
                                     renderMessage(_tableModel.getValueAt(j, 3).toString()) + "\n";
                         }
-                        
+
                         java.awt.datatransfer.StringSelection ss = new java.awt.datatransfer.StringSelection(txt);
-                        
+
                         java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
                     }
 
@@ -194,7 +196,7 @@ class ShowIceLogDialog extends JDialog
             copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
             copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
             _table.getActionMap().put("copy", copy);
-            
+
             editMenu.add(copy);
 
             editMenu.addSeparator();
@@ -260,26 +262,26 @@ class ShowIceLogDialog extends JDialog
             bg.add(_stopButton);
         }
     }
-    
-    private class RemoteLoggerI extends Ice._RemoteLoggerDisp 
+
+    private class RemoteLoggerI extends Ice._RemoteLoggerDisp
     {
         @Override
         public synchronized void init(String prefix, LogMessage[] logMessages, Current current)
-        {  
+        {
             // Ignore prefix
-            
+
             if(!_destroyed)
-            { 
+            {
                 _rowCount = logMessages.length + _queue.size() < _maxRows ? logMessages.length + _queue.size() : _maxRows;
                 final Object[][] data = new Object[_rowCount][];
-                
+
                 int i = _rowCount - 1;
-                
+
                 for(java.util.Iterator<LogMessage> p = _queue.descendingIterator(); p.hasNext() && i >= 0; i--)
                 {
                     data[i] = logMessageToRow(p.next());
                 }
-                
+
                 int j = logMessages.length - 1;
                 while(i >= 0 && j >= 0)
                 {
@@ -287,10 +289,10 @@ class ShowIceLogDialog extends JDialog
                     i--;
                     j--;
                 }
-                
+
                _queue.clear();
                _paused = false;
-               
+
                 SwingUtilities.invokeLater(
                         new Runnable()
                         {
@@ -299,11 +301,11 @@ class ShowIceLogDialog extends JDialog
                             {
                                 _tableModel.setDataVector(data, _columnNames);
                                 _table.scrollRectToVisible(_table.getCellRect(_table.getRowCount() - 1, 0, true));
-                                _pause.setEnabled(true); 
+                                _pause.setEnabled(true);
                             }
                         });
             }
-                           
+
         }
 
         @Override
@@ -327,40 +329,40 @@ class ShowIceLogDialog extends JDialog
                 showLogMessage(message);
             }
         }
-        
+
         private synchronized void setMaxRows(int maxRows)
         {
             _maxRows = maxRows;
-            
+
             final int rowsToRemove = _rowCount - _maxRows;
-            
+
             if(rowsToRemove > 0)
             {
                 _rowCount -= rowsToRemove;
-                
+
                 SwingUtilities.invokeLater(
                         new Runnable()
                         {
                             @Override
                             public void run()
                             {
-                            
+
                                 int i = rowsToRemove;
                                 while(i-- > 0)
                                 {
                                     _tableModel.removeRow(0);
                                 }
-                           } 
+                           }
                     });
             }
         }
-        
+
         private synchronized void pause()
         {
             assert(!_destroyed);
             _paused = true;
         }
-        
+
         private synchronized void play()
         {
             assert(!_destroyed);
@@ -371,22 +373,22 @@ class ShowIceLogDialog extends JDialog
             _queue.clear();
             _paused = false;
         }
-        
+
         private synchronized void stop()
         {
             _destroyed = true;
         }
-        
+
         private void showLogMessage(LogMessage msg)
         {
             final Object[] row = logMessageToRow(msg);
             _rowCount++;
-            final int rowsToRemove = _rowCount - _maxRows; 
+            final int rowsToRemove = _rowCount - _maxRows;
             if(rowsToRemove > 0)
             {
                 _rowCount -= rowsToRemove;
             }
-            
+
             SwingUtilities.invokeLater(
                     new Runnable()
                     {
@@ -403,18 +405,18 @@ class ShowIceLogDialog extends JDialog
                         }
                     });
         }
-        
+
         private boolean _paused = true;
         private boolean _destroyed = false;
         private final java.util.Deque<LogMessage> _queue = new java.util.ArrayDeque<LogMessage>();
         private int _rowCount = 0;
         private int _maxRows = _maxMessages;
     }
-    
-    static private class DateRenderer extends DefaultTableCellRenderer 
+
+    static private class DateRenderer extends DefaultTableCellRenderer
     {
         @Override
-        public void setValue(Object value) 
+        public void setValue(Object value)
         {
             if(value == null)
             {
@@ -426,11 +428,11 @@ class ShowIceLogDialog extends JDialog
             }
         }
     }
-    
-    static private class LogMessageTypeRenderer extends DefaultTableCellRenderer 
+
+    static private class LogMessageTypeRenderer extends DefaultTableCellRenderer
     {
         @Override
-        public void setValue(Object value) 
+        public void setValue(Object value)
         {
             if(value == null)
             {
@@ -442,11 +444,11 @@ class ShowIceLogDialog extends JDialog
             }
         }
     }
-    
-    static private class MessageRenderer extends DefaultTableCellRenderer 
+
+    static private class MessageRenderer extends DefaultTableCellRenderer
     {
         @Override
-        public void setValue(Object value) 
+        public void setValue(Object value)
         {
             if(value == null)
             {
@@ -458,7 +460,7 @@ class ShowIceLogDialog extends JDialog
             }
         }
     }
-    
+
     ShowIceLogDialog(TreeNode parent, String title, Ice.LoggerAdminPrx loggerAdmin, String defaultFileName, int maxMessages, int initialMessages)
     {
         super(parent.getRoot().getCoordinator().getMainFrame(), title + " - IceGrid Admin", false);
@@ -469,7 +471,8 @@ class ShowIceLogDialog extends JDialog
         _defaultFileName = defaultFileName;
         _maxMessages = maxMessages;
         _initialMessages = initialMessages;
-        
+        _preferences = Preferences.userNodeForPackage(getClass());
+
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
             {
@@ -506,24 +509,24 @@ class ShowIceLogDialog extends JDialog
                     stop();
                 }
             };
-            
-            
+
+
          _tableModel = new DefaultTableModel(_columnNames, 0)
          {
              @Override
              public boolean isCellEditable(int row, int column)
              {
                  return false;
-             }       
-         };  
-                 
+             }
+         };
+
          _table = new JTable(_tableModel)
          {
              @Override
              public java.awt.Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column)
              {
                  java.awt.Component c = super.prepareRenderer(renderer, row, column);
-                 
+
                  if (!isRowSelected(row))
                  {
                      int modelRow = convertRowIndexToModel(row);
@@ -536,7 +539,7 @@ class ShowIceLogDialog extends JDialog
                              {
                                  c.setBackground(Color.RED);
                                  break;
-                             }       
+                             }
                              case WarningMessage:
                              {
                                  c.setBackground(Color.ORANGE);
@@ -557,7 +560,7 @@ class ShowIceLogDialog extends JDialog
                 }
                 return c;
             }
-            
+
             @Override
             public String getToolTipText(java.awt.event.MouseEvent e)
             {
@@ -565,9 +568,9 @@ class ShowIceLogDialog extends JDialog
                 java.awt.Point p = e.getPoint();
                 int row = rowAtPoint(p);
                 int col = columnAtPoint(p);
-               
+
                 if(col == 3 && row >= 0) // Log message
-                { 
+                {
                     Object obj = getValueAt(row, col);
                     if(obj != null)
                     {
@@ -576,7 +579,7 @@ class ShowIceLogDialog extends JDialog
                 }
                 return tip;
             }
-             
+
         };
 
         _table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
@@ -603,7 +606,7 @@ class ShowIceLogDialog extends JDialog
         {
             _table.setRowHeight(minRowHeight);
         }
-            
+
         _table.setRowSelectionAllowed(true);
         _table.setOpaque(false);
         _table.setPreferredScrollableViewportSize(new Dimension(800, 400));
@@ -611,22 +614,18 @@ class ShowIceLogDialog extends JDialog
 
         setJMenuBar(new MenuBar());
         getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
-        
+
         JScrollPane scrollPane = new JScrollPane(_table,
                                                  ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                                                  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         getContentPane().add(scrollPane);
 
-        pack();
         setResizable(true);
-
-        setLocationRelativeTo(_parent.getRoot().getCoordinator().getMainFrame());
-        
-        _parent.getRoot().addShowIceLogDialog(_title, this);
-        
+        pack();
+        Utils.restoreWindowBounds(this, _preferences, "IceLogDialog", _parent.getRoot().getCoordinator().getMainFrame());
         setVisible(true);
-        
+
         play();
     }
 
@@ -642,7 +641,7 @@ class ShowIceLogDialog extends JDialog
     {
         if(_remoteLogger == null)
         {
-            _tableModel.setRowCount(0); 
+            _tableModel.setRowCount(0);
             if(_messageTypeFilter != null || _traceCategoryFilter != null)
             {
                 setTitle(_title + " (Filtered) - IceGrid Admin");
@@ -651,19 +650,19 @@ class ShowIceLogDialog extends JDialog
             {
                 setTitle(_title + " (No filter) - IceGrid Admin");
             }
-            
+
             _playItem.setSelected(true);
             _playButton.setSelected(true);
             _pause.setEnabled(false);  // Init will enable Pause
-            
+
             String id = _loggerAdmin.ice_getIdentity().name + "-" + java.util.UUID.randomUUID().toString();
             _remoteLogger = new RemoteLoggerI();
             _remoteLoggerPrx = RemoteLoggerPrxHelper.uncheckedCast(_parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
-        
+
             final String prefix = "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
             final String errorTitle = "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;
             _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);
-            
+
             Ice.Callback_LoggerAdmin_attachRemoteLogger cb = new Ice.Callback_LoggerAdmin_attachRemoteLogger()
             {
                 @Override
@@ -700,7 +699,7 @@ class ShowIceLogDialog extends JDialog
                     });
                 }
             };
-             
+
             try
             {
                 _loggerAdmin.begin_attachRemoteLogger(_remoteLoggerPrx,  _messageTypeFilter, _traceCategoryFilter, _initialMessages, cb);
@@ -714,10 +713,10 @@ class ShowIceLogDialog extends JDialog
         else
         {
             _remoteLogger.play();
-            _pause.setEnabled(true); 
+            _pause.setEnabled(true);
         }
     }
-    
+
     private void stop(boolean detach)
     {
         if(_remoteLogger != null)
@@ -726,7 +725,7 @@ class ShowIceLogDialog extends JDialog
            {
                final String prefix = "Detaching remote logger from " + _loggerAdmin.ice_getIdentity().name + "...";
                _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);
-               
+
                 Ice.Callback_LoggerAdmin_detachRemoteLogger cb = new Ice.Callback_LoggerAdmin_detachRemoteLogger()
                 {
                     @Override
@@ -748,7 +747,7 @@ class ShowIceLogDialog extends JDialog
                         _parent.getRoot().amiSuccess(prefix, ex.ice_name());
                     }
                 };
-            
+
                 try
                 {
                     _loggerAdmin.begin_detachRemoteLogger(_remoteLoggerPrx, cb);
@@ -800,25 +799,25 @@ class ShowIceLogDialog extends JDialog
         {
             _remoteLogger.setMaxRows(_maxMessages);
         }
-        
+
         _parent.getRoot().setLogPrefs(_maxMessages, _initialMessages);
     }
-    
+
     LogMessageType[] getMessageTypeFilter()
     {
         return _messageTypeFilter;
     }
-    
+
     String[] getTraceCategoryFilter()
     {
         return _traceCategoryFilter;
     }
-    
+
     void setFilters(LogMessageType[] messageTypeFilter, String[] traceCategoryFilter)
     {
         _messageTypeFilter = messageTypeFilter;
         _traceCategoryFilter = traceCategoryFilter;
-        
+
         if(_remoteLogger != null)
         {
             stop();
@@ -845,36 +844,39 @@ class ShowIceLogDialog extends JDialog
         {
             _parent.getRoot().removeShowIceLogDialog(_title);
         }
+
+        Utils.storeWindowBounds(this, _preferences.node("IceLogDialog"));
+
         dispose();
     }
-    
+
     private Object[] logMessageToRow(LogMessage msg)
     {
         Object[] row = new Object[4];
-        
+
         row[0] = new java.util.Date(msg.timestamp / 1000);
         row[1] = msg.type;
         row[2] = msg.traceCategory;
         row[3] = msg.message;
-        
+
         return row;
     }
 
-    
+
     private final TreeNode _parent;
     private final Ice.LoggerAdminPrx _loggerAdmin;
     private final String _title;
     private final String _defaultFileName;
-    
+
     private RemoteLoggerI _remoteLogger;
     private Ice.RemoteLoggerPrx _remoteLoggerPrx;
-   
+
     private int _maxMessages;
     private int _initialMessages;
-    
+
     private LogMessageType[] _messageTypeFilter;
     private String[] _traceCategoryFilter;
-   
+
     private Action _play;
     private Action _pause;
     private Action _stop;
@@ -890,12 +892,15 @@ class ShowIceLogDialog extends JDialog
     private final Object[] _columnNames = new Object[]{"Timestamp", "Type", "Trace Category", "Log Message"};
     private final DefaultTableModel _tableModel;
     private final JTable _table;
-    
+
+    private final Preferences _preferences;
+
+
     private static String renderDate(java.util.Date date)
     {
         return _dateFormat.format(date) + _timeFormat.format(date);
     }
-    
+
     private static String renderLogMessageType(LogMessageType type)
     {
         // Remove "Message" from end of string.
@@ -903,13 +908,12 @@ class ShowIceLogDialog extends JDialog
         assert(s.length() > 7);
         return s.substring(0, s.length() - 7);
     }
-    
+
     private static String renderMessage(String msg)
     {
         return msg.replace("\n", " ");
     }
-    
+
     private static final java.text.DateFormat _dateFormat = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
     private static final java.text.DateFormat _timeFormat = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
 }
-

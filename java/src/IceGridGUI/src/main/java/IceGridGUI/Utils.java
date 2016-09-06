@@ -11,7 +11,10 @@ package IceGridGUI;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -50,8 +53,8 @@ public class Utils
             try
             {
                 BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().
-                                            getDefaultConfiguration().createCompatibleImage(
-                                                                            icon.getIconWidth(), icon.getIconHeight());
+                    getDefaultConfiguration().createCompatibleImage(
+                        icon.getIconWidth(), icon.getIconHeight());
                 g = image.createGraphics();
                 icon.paintIcon(null, g, 0, 0);
                 return image;
@@ -66,7 +69,7 @@ public class Utils
         }
     }
 
-    public static void addEscapeListener(final JDialog dialog)
+    static public void addEscapeListener(final JDialog dialog)
     {
         dialog.getRootPane().registerKeyboardAction(
             new ActionListener()
@@ -129,6 +132,93 @@ public class Utils
             }
         }
         return result;
+    }
+
+    static public void
+    storeWindowBounds(java.awt.Window window, java.util.prefs.Preferences prefs)
+    {
+        Rectangle rect = window.getBounds();
+        prefs.putInt("x", rect.x);
+        prefs.putInt("y", rect.y);
+        prefs.putInt("width", rect.width);
+        prefs.putInt("height", rect.height);
+
+        if(window instanceof java.awt.Frame)
+        {
+            prefs.putBoolean("maximized", ((java.awt.Frame)window).getExtendedState() == java.awt.Frame.MAXIMIZED_BOTH);
+        }
+    }
+
+    static public java.util.prefs.Preferences
+    restoreWindowBounds(java.awt.Window window, java.util.prefs.Preferences parent, String node, java.awt.Component parentComponent)
+    {
+        java.util.prefs.Preferences prefs = null;
+
+        try
+        {
+            if(parent.nodeExists(node))
+            {
+                prefs = parent.node(node);
+            }
+        }
+        catch(java.util.prefs.BackingStoreException ex)
+        {
+        }
+
+        boolean locationVisible = false;
+
+        if(prefs != null)
+        {
+            int x = prefs.getInt("x", 0);
+            int y = prefs.getInt("y", 0);
+            int width = prefs.getInt("width", 0);
+            int height = prefs.getInt("height", 0);
+
+            Rectangle visibleBounds = new Rectangle();
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice screens[] = ge.getScreenDevices();
+            for(GraphicsDevice s : screens)
+            {
+                visibleBounds.add(s.getDefaultConfiguration().getBounds());
+            }
+            locationVisible = visibleBounds.contains(x, y);
+
+            if(locationVisible)
+            {
+                window.setBounds(new Rectangle(x, y, width, height));
+                if(prefs.getBoolean("maximized", false))
+                {
+                    ((java.awt.Frame)window).setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+                }
+            }
+            else
+            {
+                window.setSize(width, height);
+            }
+        }
+
+        if(!locationVisible)
+        {
+            if(parentComponent != null)
+            {
+                java.awt.Dimension parentSize = parentComponent.getSize();
+                java.awt.Dimension thisSize = window.getSize();
+                if(parentSize.width < thisSize.width || parentSize.height < thisSize.height)
+                {
+                    window.setLocationRelativeTo(null);
+                }
+                else
+                {
+                    window.setLocationRelativeTo(parentComponent);
+                }
+            }
+            else
+            {
+                window.setLocation(100, 100);
+            }
+        }
+
+        return prefs;
     }
 
     static public interface Stringifier
@@ -537,4 +627,3 @@ public class Utils
         }
     }
 }
-

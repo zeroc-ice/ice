@@ -155,7 +155,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     class TransferHandler extends javax.swing.TransferHandler
     {
         @Override
-        public boolean 
+        public boolean
         canImport(TransferHandler.TransferSupport support)
         {
             boolean supported = false;
@@ -180,7 +180,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             }
 
             Transferable t = support.getTransferable();
-            
+
             for(DataFlavor flavor : support.getDataFlavors())
             {
                 try
@@ -219,7 +219,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         addWindowListener(new WindowAdapter()
         {
             @Override
-            public void windowClosing(WindowEvent e) 
+            public void windowClosing(WindowEvent e)
             {
                 close();
             }
@@ -231,7 +231,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         Action preferences = new AbstractAction("Preferences")
             {
                 @Override
-                public void actionPerformed(ActionEvent event) 
+                public void actionPerformed(ActionEvent event)
                 {
                     //
                     // Set the title
@@ -248,13 +248,13 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     //
                     // SpinnerNumberModel to set a refresh period.
                     //
-                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), _minRefreshPeriod, 
+                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), _minRefreshPeriod,
                                                                               _maxRefreshPeriod, 1);
 
                     //
                     // SpinnerNumberModel to set the maximum number of samples to keep in X axis.
                     //
-                    final SpinnerNumberModel samples = new SpinnerNumberModel(_samples, _minSamples, 
+                    final SpinnerNumberModel samples = new SpinnerNumberModel(_samples, _minSamples,
                                                                               _maxSamples, 1);
 
                     JPanel refreshPanel;
@@ -276,7 +276,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     dateFormats.setSelectedItem(getDateFormat());
                     JPanel xAxisPanel;
                     {
-                        DefaultFormBuilder builder = 
+                        DefaultFormBuilder builder =
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
                         builder.append("Samples displayed:", new JSpinner(samples));
                         builder.append("", new JLabel("<html><p>The number of samples displayed on a graph;" +
@@ -295,7 +295,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     builder.nextLine();
                     builder.append(xAxisPanel);
 
-                    if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Metrics Graph Preferences", 
+                    if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Metrics Graph Preferences",
                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
                     {
                         return;
@@ -325,7 +325,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     }
                 }
             };
-        
+
         //
         // Adjust row height for larger fonts
         //
@@ -335,14 +335,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         {
             _legendTable.setRowHeight(minRowHeight);
         }
-        
+
         //
         // Graph preferences.
         //
         final Action delete = new AbstractAction("Delete")
             {
                 @Override
-                public void actionPerformed(ActionEvent event) 
+                public void actionPerformed(ActionEvent event)
                 {
                     int[] selectedRows = _legendTable.getSelectedRows();
                     for(int i = 0; i < selectedRows.length; ++i)
@@ -486,7 +486,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         _legendTable.setDefaultRenderer(Color.class, new ColorRenderer(true));
         _legendTable.setDefaultEditor(Color.class, new ColorEditor());
-        
+
         _legendTable.setAutoCreateRowSorter(true);
 
         final JFXPanel fxPanel = new JFXPanel();
@@ -502,7 +502,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         scrollPane.setMinimumSize(new Dimension(0, 50));
         scrollPane.setPreferredSize(new Dimension(800, 200));
         _splitPane.setBottomComponent(scrollPane);
-        
+
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("fill:pref:grow", "fill:pref:grow, pref"));
         builder.append(_splitPane);
         builder.nextLine();
@@ -566,7 +566,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         if(object instanceof MetricsViewTransferableData)
                                         {
                                             addSeries((MetricsViewTransferableData)object);
-                                            success = true;                                            
+                                            success = true;
                                         }
                                     }
                                     event.setDropCompleted(success);
@@ -580,16 +580,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         pack();
         if(!loadPreferences())
         {
-            Rectangle otherRect = _coordinator.getMainFrame().getBounds();
-            Rectangle thisRect = getBounds();
-            if(otherRect.width < thisRect.width || otherRect.height < thisRect.height)
-            {
-                setLocationRelativeTo(null);
-            }
-            else
-            {
-                setLocationRelativeTo(_coordinator.getMainFrame());
-            }
             _splitPane.setDividerLocation(400);
         }
         setVisible(true);
@@ -599,11 +589,11 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         if(showInfo())
         {
-            JCheckBox checkbox = new JCheckBox("Do not show this message again.");  
-            String message = "Drop metrics cells to add them to the graph.";  
+            JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+            String message = "Drop metrics cells to add them to the graph.";
 
-            JOptionPane.showConfirmDialog(this, new Object[]{message, checkbox}, "Information", 
-                                          JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);  
+            JOptionPane.showConfirmDialog(this, new Object[]{message, checkbox}, "Information",
+                                          JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if(checkbox.isSelected())
             {
                 _preferences.node("GraphView").putBoolean("showInfo", false);
@@ -627,10 +617,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         return _preferences.node("GraphView").getBoolean("showInfo", true);
     }
 
-    public void storePreferences()
+    private void storePreferences()
     {
         Preferences preferences = _preferences.node("GraphView");
-        Rectangle rect = getBounds();
+        Utils.storeWindowBounds(this, preferences);
 
         for(int i = _columnNames.length -1; i >= 0; --i)
         {
@@ -638,11 +628,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             preferences.putInt("colWidth" + Integer.toString(i), _legendTable.getColumnModel().getColumn(i).getWidth());
         }
 
-        preferences.putInt("x", rect.x);
-        preferences.putInt("y", rect.y);
-        preferences.putInt("width", rect.width);
-        preferences.putInt("height", rect.height);
-        preferences.putBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
         preferences.putInt("splitLocation", _splitPane.getDividerLocation());
 
         preferences.putInt("sampleInterval", getRefreshPeriod());
@@ -650,46 +635,29 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         preferences.put("dateFormat", getDateFormat());
     }
 
-    public boolean loadPreferences()
+    private boolean loadPreferences()
     {
-        try
-        {
-            if(!_preferences.nodeExists("GraphView"))
-            {
-                return false;
-            }
-        }
-        catch(BackingStoreException ex)
+        Preferences preferences = Utils.restoreWindowBounds(this, _preferences, "GraphView", _coordinator.getMainFrame());
+        if(preferences == null)
         {
             return false;
         }
 
-        Preferences preferences = _preferences.node("GraphView");
-
-        int x = preferences.getInt("x", 0);
-        int y = preferences.getInt("y", 0);
-        int width = preferences.getInt("width", 0);
-        int height = preferences.getInt("height", 0);
-        setBounds(new Rectangle(x, y, width, height));
-        if(preferences.getBoolean("maximized", false))
-        {
-            setExtendedState(Frame.MAXIMIZED_BOTH);
-        }
-        _splitPane.setDividerLocation(_preferences.node("GraphView").getInt("splitLocation", 600));
+        _splitPane.setDividerLocation(preferences.getInt("splitLocation", 600));
         for(int i = _columnNames.length -1; i >= 0; --i)
         {
             int pos = _legendTable.convertColumnIndexToView(preferences.getInt("columnPos" + Integer.toString(i), i));
             if(i != pos)
             {
                 _legendTable.getColumnModel().moveColumn(pos, i);
-            }            
+            }
             int columnWidth = preferences.getInt("colWidth" + Integer.toString(i), -1);
             if(columnWidth != -1)
             {
                 _legendTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
             }
         }
-        
+
         int refreshPeriod = preferences.getInt("refreshPeriod", _defaultRefreshPeriod);
         if(refreshPeriod < _minRefreshPeriod)
         {
@@ -766,7 +734,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             if(columns.get(j.getField().getFieldName()) == null)
                             {
                                 String color = DefaultColors[_chart.getData().size() % DefaultColors.length];
-                                final MetricsRow row = new MetricsRow(data.info, j, color, 
+                                final MetricsRow row = new MetricsRow(data.info, j, color,
                                                                       new XYChart.Series<Number, Number>());
 
                                 XYChart.Series<Number, Number> series = row.series.peek();
@@ -786,7 +754,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 {
                                     n.setOnMousePressed(new EventHandler<MouseEvent>()
                                     {
-                                        @Override public void 
+                                        @Override public void
                                         handle(MouseEvent e)
                                         {
                                             if(e.getEventType() == MouseEvent.MOUSE_PRESSED &&
@@ -823,7 +791,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                             _legendModel.addRow(row);
                                         }
                                     });
-                            } 
+                            }
                         }
                     }
                     if(_chart.getData().size() > 0)
@@ -836,7 +804,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     //
     // Added a new chart series to an existing row, the graph series will use the
-    // same configuration, the row cell field must be reset so calculations doesn't 
+    // same configuration, the row cell field must be reset so calculations doesn't
     // take into account previous data. If we don't reset fields here caculations
     // can be bogus in case the view was disabled and the data in the view was reset.
     //
@@ -860,9 +828,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         row.cell.resetField();
 
         //
-        // We need also a new click handler so click works in all segments 
+        // We need also a new click handler so click works in all segments
         // of the line.
-        // 
+        //
         // When a line is clicked we select the correspoding row in the legend table.
         //
         javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
@@ -870,7 +838,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         {
             n.setOnMousePressed(new EventHandler<MouseEvent>()
             {
-                @Override public void 
+                @Override public void
                 handle(MouseEvent e)
                 {
                     if(e.getEventType() == MouseEvent.MOUSE_PRESSED &&
@@ -898,7 +866,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
     }
 
-    private void addData(final MetricsViewInfo info, final Map<String, IceMX.Metrics[]> data, 
+    private void addData(final MetricsViewInfo info, final Map<String, IceMX.Metrics[]> data,
                          final long timestamp)
     {
         //
@@ -997,7 +965,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 }
 
                                 //
-                                // Remove the vertices from the beginning of the series that exceeded 
+                                // Remove the vertices from the beginning of the series that exceeded
                                 // the maximum number of samples.
                                 //
                                 adjustSize(row);
@@ -1013,8 +981,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             public void run()
                             {
                                 _legendModel.fireTableChanged(
-                                            new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1, 
-                                                                TableModelEvent.ALL_COLUMNS, 
+                                            new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1,
+                                                                TableModelEvent.ALL_COLUMNS,
                                                                 TableModelEvent.UPDATE));
                             }
                         });
@@ -1391,7 +1359,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         @Override
         public boolean isCellEditable(int row, int col)
         {
-            if(col < _columnNames.length && (_columnNames[col].equals("Show") || 
+            if(col < _columnNames.length && (_columnNames[col].equals("Show") ||
                                              _columnNames[col].equals("Scale") ||
                                              _columnNames[col].equals("Color")))
             {
@@ -1441,7 +1409,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     // Convert color to the CSS representation used by JavaFX style.
                     // example: #ff00aa
                     //
-                    row.color = "#" + String.format("%02X", color.getRed()) + 
+                    row.color = "#" + String.format("%02X", color.getRed()) +
                                       String.format("%02X", color.getGreen()) +
                                       String.format("%02X", color.getBlue());
                     for(int i = 0; i < row.series.size(); ++i)
@@ -1616,7 +1584,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         sb.append(color);
         sb.append(", white;");
         sb.append("-fx-stroke-width: 3;");
-        _styles.put(seriesClass, sb.toString()); 
+        _styles.put(seriesClass, sb.toString());
     }
 
     private void enqueueJFX(final Runnable runnable) {
@@ -1671,14 +1639,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         });
     }
 
-    @SuppressWarnings("rawtypes") 
+    @SuppressWarnings("rawtypes")
     static class DecimalRenderer extends DefaultListCellRenderer
-    { 
+    {
         public DecimalRenderer(ListCellRenderer renderer)
         {
             this._renderer = renderer;
         }
- 
+
         @Override
         public Component
         getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
@@ -1722,7 +1690,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             }
 
             _dialog = JColorChooser.createDialog(_button, "Select the metrics color", true, _colorChooser, this, null);
-            
+
         }
 
         @Override
@@ -1768,13 +1736,13 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         Border unselectedBorder = null;
         Border selectedBorder = null;
         boolean isBordered = true;
- 
+
         public ColorRenderer(boolean isBordered)
         {
             this.isBordered = isBordered;
             setOpaque(true); //MUST do this for background to show up.
         }
- 
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus,
                                                        int row, int column)
@@ -1825,8 +1793,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private NumberAxis _xAxis;
     private NumberAxis _yAxis;
 
-    private final static String[] _columnNames = new String[]{"Show", "Node", "Server", "Metrics View Name", 
-                                                              "Metrics Name", "Metrics Id", "Metrics Field", "Scale", 
+    private final static String[] _columnNames = new String[]{"Show", "Node", "Server", "Metrics View Name",
+                                                              "Metrics Name", "Metrics Id", "Metrics Field", "Scale",
                                                               "Last", "Average", "Minimum", "Maximum", "Color"};
 
 
@@ -1841,8 +1809,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     // Field name
     //
     private final Map<MetricsViewInfo,
-        Map<String, 
-            Map<String, 
+        Map<String,
+            Map<String,
                 Map<String, MetricsRow>>>> _series =
                                     new HashMap<MetricsViewInfo, Map<String, Map<String, Map<String, MetricsRow>>>>();
 
@@ -1872,27 +1840,27 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     private final Map<String, String> _styles = new HashMap<String, String>();
 
-    private final Double[] _scales = new Double[]{0.000000001d, 
+    private final Double[] _scales = new Double[]{0.000000001d,
                                                   0.00000001d,
-                                                  0.0000001d, 
-                                                  0.000001d, 
+                                                  0.0000001d,
+                                                  0.000001d,
                                                   0.00001d,
-                                                  0.0001d, 
-                                                  0.001d, 
-                                                  0.01d, 
-                                                  0.1d, 
-                                                  1.0d, 
-                                                  10.0d, 
+                                                  0.0001d,
+                                                  0.001d,
+                                                  0.01d,
+                                                  0.1d,
+                                                  1.0d,
+                                                  10.0d,
                                                   100.0d,
                                                   1000.0d,
-                                                  10000.0d, 
-                                                  100000.0d, 
-                                                  1000000.0d, 
+                                                  10000.0d,
+                                                  100000.0d,
+                                                  1000000.0d,
                                                   10000000.0d,
                                                   100000000.0d,
                                                   1000000000.0d};
-    
-    private final java.util.concurrent.Semaphore _sem = new java.util.concurrent.Semaphore(0);                
+
+    private final java.util.concurrent.Semaphore _sem = new java.util.concurrent.Semaphore(0);
     private final java.util.concurrent.ExecutorService _queue = java.util.concurrent.Executors.newSingleThreadExecutor(
         new java.util.concurrent.ThreadFactory()
         {
@@ -1909,4 +1877,3 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
     private final static DataFormat LocalObjectMimeType = new DataFormat("application/x-java-jvm-local-objectref");
 }
-
