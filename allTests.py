@@ -30,7 +30,7 @@ for d in languages:
 
     tests = []
 
-    tests = [ (os.path.join(d, "test", x), y) for x, y in current_mod.tests ]
+    tests = [ (os.path.join(d, "test", os.path.normpath(x)), y) for x, y in current_mod.tests ]
     if len(tests) > 0:
         testGroups.extend(tests)
 
