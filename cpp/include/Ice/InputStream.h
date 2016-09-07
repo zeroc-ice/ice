@@ -678,7 +678,7 @@ private:
     //
     // String
     //
-    void readConverted(std::string&, Int);
+    bool readConverted(std::string&, Int);
 
     //
     // We can't throw these exception from inline functions from within

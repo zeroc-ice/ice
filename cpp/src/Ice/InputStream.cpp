@@ -1130,11 +1130,8 @@ Ice::InputStream::read(std::string& v, bool convert)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        if(convert)
-        {
-            readConverted(v, sz);
-        }
-        else
+
+        if(!convert || !readConverted(v, sz))
         {
             string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
         }
@@ -1167,22 +1164,29 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
         else
         {
             string converted;
-            readConverted(converted, sz);
-            if(converted.size() <= static_cast<size_t>(sz))
+            if(readConverted(converted, sz))
             {
-                //
-                // Write converted string directly into buffer
-                //
-                std::memcpy(i, converted.data(), converted.size());
-                vdata = reinterpret_cast<const char*>(&*i);
-                vsize = converted.size();
+                if(converted.size() <= static_cast<size_t>(sz))
+                {
+                    //
+                    // Write converted string directly into buffer
+                    //
+                    std::memcpy(i, converted.data(), converted.size());
+                    vdata = reinterpret_cast<const char*>(&*i);
+                    vsize = converted.size();
+                }
+                else
+                {
+                    auto holder = new string(std::move(converted));
+                    _deleters.push_back([holder] { delete holder; });
+                    vdata = holder->data();
+                    vsize = holder->size();
+                }
             }
             else
             {
-                auto holder = new string(std::move(converted));
-                _deleters.push_back([holder] { delete holder; });
-                vdata = holder->data();
-                vsize = holder->size();
+                vdata = reinterpret_cast<const char*>(&*i);
+                vsize = static_cast<size_t>(sz);
             }
             i += sz;
         }
@@ -1229,10 +1233,17 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
 
-        readConverted(holder, sz);
+        if(readConverted(holder, sz))
+        {
+            vdata = holder.data();
+            vsize = holder.size();
+        }
+        else
+        {
+            vdata = reinterpret_cast<const char*>(&*i);
+            vsize = static_cast<size_t>(sz);
+        }
         i += sz;
-        vdata = holder.data();
-        vsize = holder.size();
     }
     else
     {
@@ -1243,12 +1254,17 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
 }
 #endif
 
-void
+bool
 Ice::InputStream::readConverted(string& v, int sz)
 {
     try
     {
         bool converted = false;
+
+        //
+        // NOTE: When using an _instance, we get a const& on the string reference to
+        // not have to increment unecessarily its reference count.
+        //
 
         if(_instance)
         {
@@ -1269,10 +1285,7 @@ Ice::InputStream::readConverted(string& v, int sz)
             }
         }
 
-        if(!converted)
-        {
-            string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-        }
+        return converted;
     }
     catch(const IllegalConversionException& ex)
     {
