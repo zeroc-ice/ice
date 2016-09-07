@@ -113,7 +113,7 @@ if(icegridguiProguard.toBoolean()) {
             }
         }
     }
-    
+
     task copyJars(type: Copy, dependsOn: updateManifest) {
         from new File("${libDir}/${jarName}")
         into "${DESTDIR}${jarDir}"
@@ -127,7 +127,7 @@ if(icegridguiProguard.toBoolean()) {
         rename("${tmpJarName}", "${jarName}")
 
     }
-    
+
     task updateManifest(dependsOn: copyTmpJars) << {
         ant.jar(update: true, destfile: "${libDir}/${jarName}") {
             delegate.manifest {
@@ -146,7 +146,7 @@ if(icegridguiProguard.toBoolean()) {
         into "${DESTDIR}${jarDir}"
         rename("${tmpJarName}", "${jarName}")
     }
-    
+
     //
     // We need to update the manifest of the installed IceGridGUI jar and fix the
     // Class-Path to point to the installed JAR files.
@@ -160,16 +160,16 @@ if(icegridguiProguard.toBoolean()) {
             }
         }
     }
-    
+
     //
     // We need to sign the install JARs after updating the manifest.
     //
-    task signInstalJar(dependsOn: updateInstallManifest) << { 
+    task signInstalJar(dependsOn: updateInstallManifest) << {
         if(keystore != null && keystore.length() > 0) {
             ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
                         alias: "zeroc.com",
                         keystore: "${keystore}",
-                        storepass:"${storepass}")
+                        storepass:"${keystore_password}")
         }
     }
 }
