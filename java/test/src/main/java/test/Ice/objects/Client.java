@@ -40,11 +40,11 @@ public class Client extends test.Util.Application
             }
             else if(type.equals("::Test::I"))
             {
-                return new HI();
+                return new II();
             }
             else if(type.equals("::Test::J"))
             {
-                return new HI();
+                return new JI();
             }
             else if(type.equals("::Test::H"))
             {

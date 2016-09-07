@@ -108,13 +108,13 @@ public final class InitialI implements _InitialDisp
     @Override
     public com.zeroc.Ice.Value getI(com.zeroc.Ice.Current current)
     {
-        return new HI();
+        return new II();
     }
 
     @Override
     public com.zeroc.Ice.Value getJ(com.zeroc.Ice.Current current)
     {
-        return new HI();
+        return new JI();
     }
 
     @Override

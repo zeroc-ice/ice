@@ -181,9 +181,9 @@ public class AllTests
         out.print("getting I, J and H... ");
         out.flush();
         com.zeroc.Ice.Value i = initial.getI();
-        test(i != null);
+        test(i != null && i.ice_id().equals(I.ice_staticId()));
         com.zeroc.Ice.Value j = initial.getJ();
-        test(j != null && ((H)j) != null);
+        test(j != null && j.ice_id().equals(J.ice_staticId()));
         com.zeroc.Ice.Value h = initial.getH();
         test(h != null && ((H)h) != null);
         out.println("ok");
