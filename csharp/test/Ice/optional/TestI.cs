@@ -368,4 +368,9 @@ public class InitialI : Test.InitialDisp_
     {
         return false;
     }
+
+    public override bool supportsNullOptional(Ice.Current current)
+    {
+        return true;
+    }
 }

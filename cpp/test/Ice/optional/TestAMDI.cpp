@@ -545,6 +545,13 @@ InitialI::supportsCppStringViewAsync(::std::function<void(bool)> response,
     response(true);
 }
 
+void
+InitialI::supportsNullOptionalAsync(::std::function<void(bool)> response,
+                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
+{
+    response(true);
+}
+
 
 #else // C++98 mapping
 
@@ -1008,6 +1015,12 @@ InitialI::supportsCsharpSerializable_async(const ::Test::AMD_Initial_supportsCsh
 void
 InitialI::supportsCppStringView_async(const ::Test::AMD_Initial_supportsCppStringViewPtr& cb,
                                       const Ice::Current&)
+{
+    cb->ice_response(true);
+}
+
+void
+InitialI::supportsNullOptional_async(const ::Test::AMD_Initial_supportsNullOptionalPtr& cb, const Ice::Current&)
 {
     cb->ice_response(true);
 }

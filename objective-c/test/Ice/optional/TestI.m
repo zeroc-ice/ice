@@ -287,5 +287,9 @@
 {
     return NO;
 }
+-(BOOL) supportsNullOptional:(ICECurrent*)current
+{
+    return YES;
+}
 
 @end

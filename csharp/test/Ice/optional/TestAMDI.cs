@@ -350,4 +350,10 @@ public class InitialI : Test.InitialDisp_
     {
         return Task.FromResult<bool>(false);
     }
+
+    public override Task<bool>
+    supportsNullOptionalAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(true);
+    }
 }

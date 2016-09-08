@@ -730,4 +730,11 @@ public final class InitialI extends Initial
     {
         return false;
     }
+
+    @Override
+    public boolean
+    supportsNullOptional(Ice.Current current)
+    {
+        return true;
+    }
 }

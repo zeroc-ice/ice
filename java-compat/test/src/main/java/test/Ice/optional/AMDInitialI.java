@@ -678,4 +678,11 @@ public final class AMDInitialI extends Initial
     {
         cb.ice_response(false);
     }
+
+    @Override
+    public void
+    supportsNullOptional_async(AMD_Initial_supportsNullOptional cb, Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
 }

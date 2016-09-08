@@ -15,4 +15,5 @@
 -(BOOL) supportsRequiredParams:(ICECurrent*)current;
 -(BOOL) supportsJavaSerializable:(ICECurrent*)current;
 -(BOOL) supportsCsharpSerializable:(ICECurrent*)current;
+-(BOOL) supportsNullOptional:(ICECurrent*)current;
 @end

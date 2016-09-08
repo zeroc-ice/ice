@@ -292,6 +292,8 @@ public:
     virtual void supportsCppStringViewAsync(::std::function<void(bool)>,
                                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
+    virtual void supportsNullOptionalAsync(::std::function<void(bool)>,
+                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
 
 #else // C++98 mapping
@@ -514,6 +516,8 @@ public:
 
     virtual void supportsCppStringView_async(const ::Test::AMD_Initial_supportsCppStringViewPtr&,
                                              const Ice::Current&);
+
+    virtual void supportsNullOptional_async(const ::Test::AMD_Initial_supportsNullOptionalPtr&, const Ice::Current&);
 
 #endif
 

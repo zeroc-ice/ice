@@ -267,6 +267,8 @@ public:
     virtual bool supportsCsharpSerializable(const Ice::Current&);
 
     virtual bool supportsCppStringView(const Ice::Current&);
+
+    virtual bool supportsNullOptional(const Ice::Current&);
 };
 
 #endif

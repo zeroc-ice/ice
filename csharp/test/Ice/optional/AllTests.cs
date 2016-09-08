@@ -1154,11 +1154,14 @@ public class AllTests : TestCommon.TestApp
             test(!p2.HasValue && !p3.HasValue);
             p2 = initial.opOneOptional(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opOneOptional(null, out p3); // Implicitly converts to Ice.Optional<OneOptional>(null)
-            test(p2.HasValue && p2.Value == null && p3.HasValue && p3.Value == null);
+            if(initial.supportsNullOptional())
+            {
+                p2 = initial.opOneOptional(null, out p3); // Implicitly converts to Ice.Optional<OneOptional>(null)
+                test(p2.HasValue && p2.Value == null && p3.HasValue && p3.Value == null);
 
-            p2 = initial.opOneOptional(new Ice.Optional<Test.OneOptional>((Test.OneOptional)null), out p3);
-            test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
+                p2 = initial.opOneOptional(new Ice.Optional<Test.OneOptional>((Test.OneOptional)null), out p3);
+                test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
+            }
 
             p1 = new Test.OneOptional(58);
             p2 = initial.opOneOptional(p1, out p3);
@@ -1207,8 +1210,11 @@ public class AllTests : TestCommon.TestApp
             test(!p2.HasValue && !p3.HasValue);
             p2 = initial.opOneOptionalProxy(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opOneOptionalProxy(null, out p3);
-            test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
+            if(initial.supportsNullOptional())
+            {
+                p2 = initial.opOneOptionalProxy(null, out p3);
+                test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
+            }
 
             //
             // Not allowed by C# language spec because OptionalOnePrx is an interface.

@@ -635,4 +635,14 @@ public final class AMDInitialI implements _InitialDisp
     {
         return CompletableFuture.completedFuture(false);
     }
+
+    @Override
+    public CompletionStage<Boolean> supportsNullOptionalAsync(Current current)
+    {
+        //
+        // The java.util.Optional class does not support a null value. Constructing an Optional
+        // using Optional.ofNullable(null) returns an optional whose value is NOT present.
+        //
+        return CompletableFuture.completedFuture(false);
+    }
 }

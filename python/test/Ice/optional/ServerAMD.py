@@ -184,6 +184,9 @@ class InitialI(Test.Initial):
     def supportsCppStringView_async(self, cb, current=None):
         cb.ice_response(False)
 
+    def supportsNullOptional(self, cb, current=None):
+        cb.ice_response(True)
+
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
