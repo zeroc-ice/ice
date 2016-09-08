@@ -3313,8 +3313,8 @@ public class Coordinator
 
     void showMainFrame()
     {
-        Utils.restoreWindowBounds(_mainFrame, _prefs, "Window", null);
         _mainFrame.pack();
+        Utils.restoreWindowBounds(_mainFrame, _prefs, "Window", null);
         _mainFrame.setVisible(true);
     }
 
