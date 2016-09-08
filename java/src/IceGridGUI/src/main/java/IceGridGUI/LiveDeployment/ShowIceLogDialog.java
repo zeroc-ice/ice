@@ -624,6 +624,8 @@ class ShowIceLogDialog extends JDialog
         setResizable(true);
         pack();
         Utils.restoreWindowBounds(this, _preferences, "IceLogDialog", _parent.getRoot().getCoordinator().getMainFrame());
+        _parent.getRoot().addShowIceLogDialog(_title, this);
+
         setVisible(true);
 
         play();
