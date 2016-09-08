@@ -636,6 +636,8 @@ class Node extends ListTreeNode
 
     void updateServer(ServerDynamicInfo updatedInfo)
     {
+        boolean destroyed = updatedInfo.state == ServerState.Destroyed;
+
         if(_info != null)
         {
             java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
@@ -645,12 +647,18 @@ class Node extends ListTreeNode
                 ServerDynamicInfo sinfo = p.next();
                 if(sinfo.id.equals(updatedInfo.id))
                 {
-                    p.set(updatedInfo);
+                    if(destroyed)
+                    {
+                        p.remove();
+                    }
+                    {
+                        p.set(updatedInfo);
+                    }
                     found = true;
                     break;
                 }
             }
-            if(!found)
+            if(!found && !destroyed)
             {
                 _info.servers.add(updatedInfo);
             }

@@ -13,6 +13,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import java.util.prefs.Preferences;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -536,6 +538,7 @@ class ShowLogFileDialog extends JDialog
         _period = period;
         _factory = factory;
         _root = root;
+        _preferences = Preferences.userNodeForPackage(getClass());
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
@@ -583,10 +586,10 @@ class ShowLogFileDialog extends JDialog
 
         getContentPane().add(scrollPane);
 
-        pack();
         setResizable(true);
+        pack();
+        Utils.restoreWindowBounds(this, _preferences, "LogFileDialog", _root.getCoordinator().getMainFrame());
 
-        setLocationRelativeTo(root.getCoordinator().getMainFrame());
         play();
     }
 
@@ -711,6 +714,9 @@ class ShowLogFileDialog extends JDialog
         {
             _root.removeShowLogFileDialog(_factory.getTitle());
         }
+
+        Utils.storeWindowBounds(this, _preferences.node("LogFileDialog"));
+
         dispose();
     }
 
@@ -737,4 +743,6 @@ class ShowLogFileDialog extends JDialog
 
     private FIFOTextArea _textArea = new FIFOTextArea(20, 45);
     private ReaderThread _thread;
+
+    private final Preferences _preferences;
 }

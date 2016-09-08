@@ -540,7 +540,7 @@ def run(tests, root = False):
         elif o in ("-l", "--loop"):
             loop = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):
-            testFilter = re.compile(a)
+            testFilter = re.compile(re.escape(os.path.normpath(a)))
             if o in ("--rfilter", "-R"):
                 filters.append((testFilter, True))
             else:
@@ -604,7 +604,7 @@ def run(tests, root = False):
                 arg += " " + a
 
     if not root:
-        tests = [ (os.path.join(getDefaultMapping(), "test", x), y) for x, y in tests ]
+        tests = [ (os.path.join(getDefaultMapping(), "test", os.path.normpath(x)), y) for x, y in tests ]
 
     # Expand all the test and argument combinations.
     expanded = []
@@ -678,14 +678,14 @@ def run(tests, root = False):
             for c in crossLang:
                 a = "--cross=%s --protocol=tcp %s" % (c, arg)
                 for test in crossTests:
-                    name = "%s/test/%s" % (lang, test)
+                    name = os.path.join(lang, "test", test)
                     expanded.append([(name, a, testConfig(name, tests))])
 
                 # Add ssl & compress for the operations test.
                 if ((compact or mono) and c == "csharp") or (c == "js"): # Don't add the ssl tests.
                     continue
                 a = "--cross=%s --protocol=ssl --compress %s" % (c, arg)
-                expanded.append([("%s/test/Ice/operations" % lang, a, [])])
+                expanded.append([(os.path.join(lang, "test", "Ice", "operations"), a, [])])
 
     # Apply filters after expanding.
     if len(filters) > 0:

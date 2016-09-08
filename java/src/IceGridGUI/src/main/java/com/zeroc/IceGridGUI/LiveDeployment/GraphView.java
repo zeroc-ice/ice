@@ -278,6 +278,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     {
                         DefaultFormBuilder builder =
                             new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
+
                         builder.append("Samples displayed:", new JSpinner(samples));
                         builder.append("", new JLabel("<html><p>The number of samples displayed on a graph;" +
                                                       "<br/>must be between 2 and 300." + "</p></html>"));
@@ -576,16 +577,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         pack();
         if(!loadPreferences())
         {
-            Rectangle otherRect = _coordinator.getMainFrame().getBounds();
-            Rectangle thisRect = getBounds();
-            if(otherRect.width < thisRect.width || otherRect.height < thisRect.height)
-            {
-                setLocationRelativeTo(null);
-            }
-            else
-            {
-                setLocationRelativeTo(_coordinator.getMainFrame());
-            }
             _splitPane.setDividerLocation(400);
         }
         setVisible(true);
@@ -623,10 +614,10 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         return _preferences.node("GraphView").getBoolean("showInfo", true);
     }
 
-    public void storePreferences()
+    private void storePreferences()
     {
         Preferences preferences = _preferences.node("GraphView");
-        Rectangle rect = getBounds();
+        Utils.storeWindowBounds(this, preferences);
 
         for(int i = _columnNames.length -1; i >= 0; --i)
         {
@@ -634,11 +625,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             preferences.putInt("colWidth" + Integer.toString(i), _legendTable.getColumnModel().getColumn(i).getWidth());
         }
 
-        preferences.putInt("x", rect.x);
-        preferences.putInt("y", rect.y);
-        preferences.putInt("width", rect.width);
-        preferences.putInt("height", rect.height);
-        preferences.putBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
         preferences.putInt("splitLocation", _splitPane.getDividerLocation());
 
         preferences.putInt("sampleInterval", getRefreshPeriod());
@@ -646,32 +632,15 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         preferences.put("dateFormat", getDateFormat());
     }
 
-    public boolean loadPreferences()
+    private boolean loadPreferences()
     {
-        try
-        {
-            if(!_preferences.nodeExists("GraphView"))
-            {
-                return false;
-            }
-        }
-        catch(BackingStoreException ex)
+        Preferences preferences = Utils.restoreWindowBounds(this, _preferences, "GraphView", _coordinator.getMainFrame());
+        if(preferences == null)
         {
             return false;
         }
 
-        Preferences preferences = _preferences.node("GraphView");
-
-        int x = preferences.getInt("x", 0);
-        int y = preferences.getInt("y", 0);
-        int width = preferences.getInt("width", 0);
-        int height = preferences.getInt("height", 0);
-        setBounds(new Rectangle(x, y, width, height));
-        if(preferences.getBoolean("maximized", false))
-        {
-            setExtendedState(Frame.MAXIMIZED_BOTH);
-        }
-        _splitPane.setDividerLocation(_preferences.node("GraphView").getInt("splitLocation", 600));
+        _splitPane.setDividerLocation(preferences.getInt("splitLocation", 600));
         for(int i = _columnNames.length -1; i >= 0; --i)
         {
             int pos = _legendTable.convertColumnIndexToView(preferences.getInt("columnPos" + Integer.toString(i), i));

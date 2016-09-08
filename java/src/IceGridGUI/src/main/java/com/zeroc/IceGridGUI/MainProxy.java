@@ -19,7 +19,16 @@ public class MainProxy
         // Save main arguments for later usage.
         //
         _args = java.util.Arrays.copyOf(args, args.length);
-        
+
+        if(System.getProperty("os.name").startsWith("Mac OS"))
+        {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid Admin");
+
+            // To catch Command+Q
+            System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
+        }
+
         String version =  System.getProperty("java.version");
 
         Class<?> cls = com.zeroc.IceInternal.Util.findClass("com.javafx.main.Main", null);
@@ -42,7 +51,7 @@ public class MainProxy
             {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(
-                    null, 
+                    null,
                     "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
                     "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -81,11 +90,11 @@ public class MainProxy
         {
         }
     }
-    
+
     public static String[] args()
     {
         return _args;
     }
-    
+
     private static String[] _args = new String[]{};
 }

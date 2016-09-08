@@ -171,7 +171,7 @@ if(icegridguiProguard.toBoolean()) {
             ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
                         alias: "zeroc.com",
                         keystore: "${keystore}",
-                        storepass:"${storepass}")
+                        storepass:"${keystore_password}")
         }
     }
 }

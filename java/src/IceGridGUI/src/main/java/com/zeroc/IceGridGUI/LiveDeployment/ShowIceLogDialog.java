@@ -15,6 +15,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import java.util.prefs.Preferences;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -273,6 +275,7 @@ class ShowIceLogDialog extends JDialog
             {
                 _rowCount = logMessages.length +
                     _queue.size() < _maxRows ? logMessages.length + _queue.size() : _maxRows;
+
                 final Object[][] data = new Object[_rowCount][];
 
                 int i = _rowCount - 1;
@@ -456,6 +459,7 @@ class ShowIceLogDialog extends JDialog
         _defaultFileName = defaultFileName;
         _maxMessages = maxMessages;
         _initialMessages = initialMessages;
+        _preferences = Preferences.userNodeForPackage(getClass());
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
@@ -563,6 +567,7 @@ class ShowIceLogDialog extends JDialog
                 }
                 return tip;
             }
+
         };
 
         _table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
@@ -604,11 +609,9 @@ class ShowIceLogDialog extends JDialog
 
         getContentPane().add(scrollPane);
 
-        pack();
         setResizable(true);
-
-        setLocationRelativeTo(_parent.getRoot().getCoordinator().getMainFrame());
-
+        pack();
+        Utils.restoreWindowBounds(this, _preferences, "IceLogDialog", _parent.getRoot().getCoordinator().getMainFrame());
         _parent.getRoot().addShowIceLogDialog(_title, this);
 
         setVisible(true);
@@ -646,6 +649,7 @@ class ShowIceLogDialog extends JDialog
             _remoteLogger = new RemoteLoggerI();
             _remoteLoggerPrx = RemoteLoggerPrx.uncheckedCast(
                 _parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
+
 
             final String prefix = "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
             final String errorTitle = "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;
@@ -805,6 +809,9 @@ class ShowIceLogDialog extends JDialog
         {
             _parent.getRoot().removeShowIceLogDialog(_title);
         }
+
+        Utils.storeWindowBounds(this, _preferences.node("IceLogDialog"));
+
         dispose();
     }
 
@@ -850,6 +857,8 @@ class ShowIceLogDialog extends JDialog
     private final DefaultTableModel _tableModel;
     private final JTable _table;
 
+    private final Preferences _preferences;
+
     private static String renderDate(java.util.Date date)
     {
         return _dateFormat.format(date) + _timeFormat.format(date);
@@ -870,6 +879,6 @@ class ShowIceLogDialog extends JDialog
 
     private static final java.text.DateFormat _dateFormat =
         java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+
     private static final java.text.DateFormat _timeFormat = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
 }
-
