@@ -184,7 +184,7 @@ class InitialI(Test.Initial):
     def supportsCppStringView_async(self, cb, current=None):
         cb.ice_response(False)
 
-    def supportsNullOptional(self, cb, current=None):
+    def supportsNullOptional_async(self, cb, current=None):
         cb.ice_response(True)
 
 def run(args, communicator):
