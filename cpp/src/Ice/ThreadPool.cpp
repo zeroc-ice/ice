@@ -70,6 +70,11 @@ public:
     execute(ThreadPoolCurrent& current)
     {
         _handler->finished(current, _close);
+
+        //
+        // Break cyclic reference count.
+        //
+        _handler->getNativeInfo()->setReadyCallback(0);
     }
 
 private:
