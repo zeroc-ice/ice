@@ -39,7 +39,6 @@ serverTraceFilters = []
 
 javaHome = os.environ.get("JAVA_HOME", "")
 javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
-javaLibraryPath = None
 
 valgrind = False                # Set to True to use valgrind for C++ executables.
 appverifier = False             # Set to True to use appverifier for C++ executables, This is windows only feature
@@ -1237,8 +1236,6 @@ def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName =
             output.write("-d64 ")
         if not config.ipv6:
             output.write("-Djava.net.preferIPv4Stack=true ")
-        if javaLibraryPath:
-            output.write("-Djava.library.path=" + javaLibraryPath)
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(" " + exe + " ")
@@ -1967,9 +1964,6 @@ def getTestEnv(lang, testdir):
                 addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
     if isWin32():
-        if lang == "java" and javaLibraryPath:
-            addPathToEnv("PATH", javaLibraryPath, env)
-
         if lang == "csharp" and not iceHome:
             pkgdir = os.path.join(getIceDir("cpp"), "msbuild", "packages")
             pkgsubdir = os.path.join("build", "native", "bin", "x64", "Release")
@@ -2653,7 +2647,3 @@ def getTestExecutable(name, baseDir = os.getcwd()):
 def setTestToplevel(path):
     global testToplevel
     testToplevel = path
-
-def setJavaLibraryPath(path):
-    global javaLibraryPath
-    javaLibraryPath = path
