@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Dispatcher* Dispatcher::_instance = 0;
+IceUtil::Handle<Dispatcher> Dispatcher::_instance;
 
 Dispatcher::Dispatcher()
 {
@@ -70,12 +70,12 @@ Dispatcher::run()
 #endif
         {
             Lock sync(*this);
-            
+
             while(!_terminated && _calls.empty())
-            {               
+            {
                 wait();
             }
-            
+
             if(!_calls.empty())
             {
                 call = _calls.front();
@@ -87,8 +87,8 @@ Dispatcher::run()
                 return;
             }
         }
-        
-        
+
+
         if(call)
         {
             try
@@ -103,4 +103,3 @@ Dispatcher::run()
         }
     }
 }
-

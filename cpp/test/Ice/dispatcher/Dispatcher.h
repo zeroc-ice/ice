@@ -57,12 +57,13 @@ public:
 
 
     void run();
+
     static void terminate();
     static bool isDispatcherThread();
 
 private:
 
-    static Dispatcher* _instance;
+    static IceUtil::Handle<Dispatcher> _instance;
 #ifdef ICE_CPP11_MAPPING
     std::deque<std::shared_ptr<DispatcherCall>> _calls;
 #else

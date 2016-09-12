@@ -172,11 +172,11 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     if(!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
         // Don't invoke from the user thread if async or invocation timeout is set
-            _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
-                                                                   outAsync->getOs(),
-                                                                   ICE_SHARED_FROM_THIS,
-                                                                   requestId,
-                                                                   batchRequestNum));
+        _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+                                                               outAsync->getOs(),
+                                                               ICE_SHARED_FROM_THIS,
+                                                               requestId,
+                                                               batchRequestNum));
     }
     else if(_dispatcher)
     {
