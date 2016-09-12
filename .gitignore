@@ -48,6 +48,7 @@ vcproj
 # OS X Keychain
 *.keychain
 .fl????????
+passwords
 
 # Makefile Build System
 build
