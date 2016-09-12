@@ -197,7 +197,7 @@ usage(const char* n)
         "Options:\n"
         "-h, --help            Show this message.\n"
         "-v, --version         Display the Ice version.\n"
-        "--validate               Validate command line options.\n"
+        "--validate            Validate command line options.\n"
         "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
         "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
         "--add-header HDR[,GUARD]\n"
