@@ -7,40 +7,24 @@
 #
 # **********************************************************************
 
-ifneq ($(prefix),)
-INSTALL_FLAGS += -Pprefix=$(prefix)
-endif
-
-ifneq ($(install_javadir),)
-INSTALL_FLAGS += -Dorg.gradle.project.jarDir=$(install_javadir)
-endif
-
-ifneq ($(install_bindir),)
-INSTALL_FLAGS += -Dorg.gradle.project.binDir=$(install_bindir)
-endif
-
-ifneq ($(DESTDIR),)
-INSTALL_FLAGS += -PDESTDIR=$(DESTDIR)
-endif
-
 ifeq ($(GRADLE),)
 GRADLE = ./gradlew
 endif
 
 all:
-	$(GRADLE) $(BUILD_FLAGS) build
+	$(GRADLE) $(GRADLEOPTS) build
 
 tests:
-	$(GRADLE) $(BUILD_FLAGS) :test:assemble
+	$(GRADLE) $(GRADLEOPTS) :test:assemble
 
 srcs:
-	$(GRADLE) $(BUILD_FLAGS) dist
+	$(GRADLE) $(GRADLEOPTS) dist
 
 distclean clean:
-	$(GRADLE) clean
+	$(GRADLE) $(GRADLEOPTS) clean
 
 install::
-	$(GRADLE) $(INSTALL_FLAGS) install
+	$(GRADLE) $(GRADLEOPTS) install
 
 test::
 	@python ./allTests.py
