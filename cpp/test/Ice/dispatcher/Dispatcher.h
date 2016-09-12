@@ -24,7 +24,7 @@ public:
     Dispatcher();
 
     virtual void dispatch(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
-    
+
     static void terminate();
     static bool isDispatcherThread();
 
@@ -32,7 +32,7 @@ private:
 
     void run();
 
-    static Dispatcher* _instance;
+    static IceUtil::Handle<Dispatcher> _instance;
 
     std::deque<Ice::DispatcherCallPtr> _calls;
     bool _terminated;
