@@ -46,18 +46,18 @@ $(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"
-	$(Q)$(INSTALL) $(lang_srcdir)/lib/*.php $(DESTDIR)$(install_phpdir)
+	$(Q)$(INSTALL) lib/*.php $(DESTDIR)$(install_phpdir)
 
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,Ice))
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,Glacier2))
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceBox))
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceGrid))
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IcePatch2))
-$(eval $(call make-php-package,$(slicedir),$(lang_srcdir)/lib,IceStorm))
+$(eval $(call make-php-package,$(slicedir),lib,Ice))
+$(eval $(call make-php-package,$(slicedir),lib,Glacier2))
+$(eval $(call make-php-package,$(slicedir),lib,IceBox))
+$(eval $(call make-php-package,$(slicedir),lib,IceGrid))
+$(eval $(call make-php-package,$(slicedir),lib,IcePatch2))
+$(eval $(call make-php-package,$(slicedir),lib,IceStorm))
 
 #
 # Translate the Slice files from test directories
 #
 tests := $(tests-without-project-makefile)
-include $(shell find $(lang_srcdir)/test -name Makefile.mk)
+include $(shell find test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call make-php-test-project,$(t))))
