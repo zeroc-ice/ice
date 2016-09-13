@@ -201,7 +201,7 @@ if(macosx)
                       icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
                       shortversion: "${project.version}",
                       applicationCategory: "public.app-category.utilities",
-                      mainclassname: "IceGridGUI/MainProxy",
+                      mainclassname: "com.zeroc.IceGridGUI/MainProxy",
                       copyright: "Copyright © 2005-2016 ZeroC, Inc. All rights reserved.") {
             classpath(file: "${libDir}/${jarName}") {
             }

@@ -507,8 +507,11 @@ public class Coordinator
 
             helpMenu.add(_helpContents);
 
-            helpMenu.addSeparator();
-            helpMenu.add(_about);
+            if(!System.getProperty("os.name").startsWith("Mac OS"))
+            {
+                helpMenu.addSeparator();
+                helpMenu.add(_about);
+            }
         }
     }
 
@@ -3260,14 +3263,19 @@ public class Coordinator
 
     private void helpContents()
     {
-        int pos = com.zeroc.Ice.Util.stringVersion().indexOf('b');
+        String version = com.zeroc.Ice.Util.stringVersion();
+
+        int pos = version.indexOf('a');
         if(pos == -1)
         {
-            pos = com.zeroc.Ice.Util.stringVersion().lastIndexOf('.');
-            assert(pos != -1);
+            pos = version.indexOf('b');
         }
 
-        String version = com.zeroc.Ice.Util.stringVersion().substring(0, pos);
+        if(pos != -1)
+        {
+            // 3.7a3 or 3.7b1 becomes simply 3.7
+            version = version.substring(0, pos);
+        }
 
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE))
