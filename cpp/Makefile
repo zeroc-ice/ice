@@ -32,6 +32,3 @@ $(call make-projects,$(projects),make-cpp-test-project)
 
 install:: | $(DESTDIR)$(install_configdir)
 	$(Q)$(INSTALL) $(lang_srcdir)/config/templates.xml $(DESTDIR)$(install_configdir)
-	$(Q)$(INSTALL) $(lang_srcdir)/config/icegrid-slice.3.5.ice.gz $(DESTDIR)$(install_configdir)
-	$(Q)$(INSTALL) $(lang_srcdir)/config/icegrid-slice.3.6.ice.gz $(DESTDIR)$(install_configdir)
-	$(Q)$(INSTALL) $(lang_srcdir)/config/upgradeicegrid36.py $(DESTDIR)$(install_configdir)
