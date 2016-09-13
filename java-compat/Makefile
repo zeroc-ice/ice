@@ -11,6 +11,22 @@ ifeq ($(GRADLE),)
 GRADLE = ./gradlew
 endif
 
+ifneq ($(prefix),)
+  GRADLEOPTS += -Pprefix=$(prefix)
+endif
+
+ifneq ($(DESTDIR),)
+  GRADLEOPTS += -PDESTDIR=$(DESTDIR)
+endif
+
+ifneq ($(install_javadir),)
+  GRADLEOPTS += -Dorg.gradle.project.jarDir=$(install_javadir)
+endif
+
+ifneq ($(install_bindir),)
+  GRADLEOPTS += -Dorg.gradle.project.binDir=$(install_bindir)
+endif
+
 all:
 	$(GRADLE) $(GRADLEOPTS) build
 
