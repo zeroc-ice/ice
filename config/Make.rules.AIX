@@ -60,7 +60,6 @@ mkshlibfilename = lib$(1).a
 
 mkpymodulename  = $(1).so
 
-IceUtil_system_libs     = -lcrypto
-Ice_system_libs         = $(IceUtil_system_libs)
+Ice_system_libs         = -lcrypto
 IceSSL_system_libs      = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs = -lcrypt
