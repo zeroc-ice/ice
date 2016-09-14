@@ -15,6 +15,7 @@ $(project)_dependencies		:= IceStorm Ice
 
 IceStormService_targetdir	:= $(libdir)
 IceStormService_dependencies 	:= IceGrid Glacier2 IceBox IceDB
+IceStormService_libs		:= lmdb
 IceStormService_sources   	:= $(addprefix $(currentdir)/,Instance.cpp \
 							     InstrumentationI.cpp \
 							     NodeI.cpp \
@@ -47,6 +48,7 @@ icestormadmin_sources	   	:= $(addprefix $(currentdir)/,Admin.cpp \
 
 icestormdb_targetdir		:= $(bindir)
 icestormdb_dependencies 	:= IcePatch2 IceDB
+icestormdb_libs			:= lmdb
 icestormdb_sources	   	:= $(addprefix $(currentdir)/,IceStormDB.cpp DBTypes.ice)
 
 projects += $(project)
