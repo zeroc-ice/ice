@@ -19,7 +19,7 @@ import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownUserException;
 
-public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
+public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
 {
     @FunctionalInterface
     static public interface Unmarshaler<V>
@@ -126,7 +126,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
     public T __waitUserEx()
         throws UserException
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }

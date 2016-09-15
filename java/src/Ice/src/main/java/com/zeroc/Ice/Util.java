@@ -168,6 +168,8 @@ public final class Util
 
     /**
      * Creates a communicator using a default configuration.
+     *
+     * @return A new communicator instance.
      **/
     public static Communicator initialize()
     {
@@ -516,6 +518,7 @@ public final class Util
      * Returns the InvocationFuture equivalent of the given CompletableFuture.
      *
      * @param f The CompletableFuture returned by an asynchronous Ice proxy invocation.
+     * @param <T> The result type.
      * @return The InvocationFuture object.
      **/
     @SuppressWarnings("unchecked")

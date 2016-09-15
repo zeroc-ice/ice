@@ -17,6 +17,8 @@ public final class Options
         {
             super(message);
         }
+
+        public static final long serialVersionUID = 0L;
     }
 
     static public String[]

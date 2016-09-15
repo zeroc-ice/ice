@@ -28,6 +28,8 @@ public abstract class DispatchInterceptor implements com.zeroc.Ice.Object
      *
      * @param request The details of the incoming request.
      * @return A completion stage if dispatched asynchronously, null otherwise.
+     * @throws UserException A user exception that propagates out of this method will be
+     * marshaled as the result.
      *
      * @see Request
      **/

@@ -32,6 +32,7 @@ local interface Logger
      * Print a message. The message is printed literally, without
      * any decorations such as executable name or time stamp.
      *
+     * @param message The message to log.
      **/
     void print(string message);
 
@@ -82,6 +83,7 @@ local interface Logger
      * Returns a clone of the logger with a new prefix.
      *
      * @param prefix The new prefix for the logger.
+     * @return A logger instance.
      *
      */
     Logger cloneWithPrefix(string prefix);

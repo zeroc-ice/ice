@@ -32,4 +32,6 @@ public abstract class ValueWriter extends Value
     {
         assert(false);
     }
+
+    public static final long serialVersionUID = 0L;
 }

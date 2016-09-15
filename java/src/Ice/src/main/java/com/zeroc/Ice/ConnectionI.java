@@ -564,11 +564,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
         if(outAsync instanceof com.zeroc.IceInternal.OutgoingAsync)
         {
-            com.zeroc.IceInternal.OutgoingAsync o = (com.zeroc.IceInternal.OutgoingAsync) outAsync;
             java.util.Iterator<OutgoingAsyncBase> it2 = _asyncRequests.values().iterator();
             while(it2.hasNext())
             {
-                if(it2.next() == o)
+                if(it2.next() == outAsync)
                 {
                     if(ex instanceof ConnectionTimeoutException)
                     {

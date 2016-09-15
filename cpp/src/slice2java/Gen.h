@@ -29,9 +29,22 @@ protected:
 
     enum ParamDir { InParam, OutParam };
 
+    struct DocComment : public IceUtil::SimpleShared
+    {
+        std::string overview;
+        std::map<std::string, std::string> params;
+        std::map<std::string, std::string> exceptions;
+        std::string returns;
+        bool deprecated;
+        std::string deprecateReason;
+        std::string misc;
+    };
+    typedef IceUtil::Handle<DocComment> DocCommentPtr;
+
     std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&);
-    void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&);
+    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
+    void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
+                                  const DocCommentPtr&);
 
     void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
     std::string getPatcher(const TypePtr&, const std::string&, const std::string&, bool);
@@ -95,18 +108,17 @@ protected:
     void writeDataMemberInitializers(::IceUtilInternal::Output&, const DataMemberList&, const std::string&);
 
     //
-    // Write doc comments.
+    // Handle doc comments.
     //
     static StringList splitComment(const ContainedPtr&);
-    void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&, const std::string&, const std::string& = "");
-    void writeDocComment(::IceUtilInternal::Output&, const std::string&, const std::string&);
-    void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
-
-    void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "");
-    void writeDocCommentAMI(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "",
-                            const std::string& = "", const std::string& = "", const std::string& = "",
-                            const std::string& = "");
-    void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, bool = true);
+    DocCommentPtr parseDocComment(const ContainedPtr&);
+    void writeDocCommentLines(::IceUtilInternal::Output&, const std::string&);
+    void writeDocComment(::IceUtilInternal::Output&, const DocCommentPtr&);
+    void writeDocComment(::IceUtilInternal::Output&, const std::string&);
+    void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&,
+                              bool, bool);
+    void writeServantDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
+                                const DocCommentPtr&, bool);
 };
 
 class Gen : private ::IceUtil::noncopyable

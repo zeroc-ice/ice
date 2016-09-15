@@ -38,7 +38,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
 
     public void flushConnection(final com.zeroc.Ice.ConnectionI con)
     {
-        class FlushBatch extends OutgoingAsyncBase<Void>
+        class FlushBatch extends OutgoingAsyncBaseI<Void>
         {
             public FlushBatch()
             {
@@ -147,7 +147,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
 
     public void __wait()
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }

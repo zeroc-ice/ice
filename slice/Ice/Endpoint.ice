@@ -121,6 +121,8 @@ local class EndpointInfo
      *
      * Returns the type of the endpoint.
      *
+     * @return The endpoint type.
+     *
      **/
     ["cpp:const"] short type();
 
@@ -128,12 +130,16 @@ local class EndpointInfo
      *
      * Returns true if this endpoint is a datagram endpoint.
      *
+     * @return True for a datagram endpoint.
+     *
      **/
     ["cpp:const"] bool datagram();
 
     /**
      *
      * Returns true if this endpoint is a secure endpoint.
+     *
+     * @return True for a secure endpoint.
      *
      **/
     ["cpp:const"] bool secure();

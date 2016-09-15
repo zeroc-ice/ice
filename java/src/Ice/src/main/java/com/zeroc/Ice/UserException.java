@@ -105,4 +105,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
     protected abstract void __writeImpl(OutputStream os);
 
     protected abstract void __readImpl(InputStream is);
+
+    public static final long serialVersionUID = 0L;
 }

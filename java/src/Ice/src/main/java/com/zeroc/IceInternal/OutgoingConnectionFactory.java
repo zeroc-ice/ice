@@ -43,6 +43,8 @@ public final class OutgoingConnectionFactory
             }
             return v;
         }
+
+        public static final long serialVersionUID = 0L;
     }
 
     interface CreateConnectionCallback

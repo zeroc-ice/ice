@@ -11,7 +11,7 @@ package com.zeroc.IceInternal;
 
 import java.util.concurrent.Callable;
 
-public class ConnectionFlushBatch extends OutgoingAsyncBase<Void>
+public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
 {
     public ConnectionFlushBatch(com.zeroc.Ice.ConnectionI con, com.zeroc.Ice.Communicator communicator,
                                 Instance instance)

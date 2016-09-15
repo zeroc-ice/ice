@@ -440,7 +440,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         }
     }
 
-    protected final void invokeSentAsync()
+    public final void invokeSentAsync()
     {
         //
         // This is called when it's not safe to call the sent callback

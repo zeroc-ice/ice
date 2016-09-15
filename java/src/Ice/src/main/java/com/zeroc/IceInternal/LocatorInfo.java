@@ -340,8 +340,7 @@ public final class LocatorInfo
             // with some endpoints which are prefered to be tried first.
             //
             _locatorRegistry =
-                (com.zeroc.Ice.LocatorRegistryPrx)locatorRegistry.ice_locator(null).ice_endpointSelection(
-                    com.zeroc.Ice.EndpointSelectionType.Ordered);
+                locatorRegistry.ice_locator(null).ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType.Ordered);
             return _locatorRegistry;
         }
     }

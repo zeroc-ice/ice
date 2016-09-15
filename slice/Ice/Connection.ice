@@ -78,6 +78,7 @@ local interface CloseCallback
      * This method is called by the the connection when the connection
      * is closed.
      *
+     * @param con The connection that closed.
      **/
     void closed(Connection con);
 };
@@ -98,6 +99,7 @@ local interface HeartbeatCallback
      * This method is called by the the connection when a heartbeat is
      * received from the peer.
      *
+     * @param con The connection on which a heartbeat was received.
      **/
     void heartbeat(Connection con);
 };

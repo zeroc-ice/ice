@@ -94,93 +94,13 @@ opFormatTypeToString(const OperationPtr& op)
     return format;
 }
 
-string
-getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
+bool
+isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
 {
-    string deprecateMetadata, deprecateReason;
-    if(p1->findMetaData("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
-    {
-        deprecateReason = "This " + type + " has been deprecated.";
-        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-        {
-            deprecateReason = deprecateMetadata.substr(10);
-        }
-    }
-    return deprecateReason;
+    string deprecateMetadata;
+    return p1->findMetaData("deprecate", deprecateMetadata) ||
+            (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata));
 }
-
-#if TBD
-string
-initValue(const TypePtr& p)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-        case Builtin::KindBool:
-        {
-            return "false";
-        }
-        case Builtin::KindByte:
-        {
-            return "(byte)0";
-        }
-        case Builtin::KindShort:
-        {
-            return "(short)0";
-        }
-        case Builtin::KindInt:
-        case Builtin::KindLong:
-        {
-            return "0";
-        }
-        case Builtin::KindFloat:
-        {
-            return "(float)0.0";
-        }
-        case Builtin::KindDouble:
-        {
-            return "0.0";
-        }
-        case Builtin::KindString:
-        case Builtin::KindObject:
-        case Builtin::KindObjectProxy:
-        case Builtin::KindLocalObject:
-        case Builtin::KindValue:
-        {
-            return "null";
-        }
-        }
-    }
-    return "null";
-}
-
-void
-writeParamList(Output& out, vector<string> params, bool end = true, bool newLine = true)
-{
-    out << "(";
-    out.useCurrentPosAsIndent();
-    for(vector<string>::const_iterator i = params.begin(); i != params.end();)
-    {
-        out << (*i);
-        if(++i != params.end() || !end)
-        {
-            out << ", ";
-            if(newLine)
-            {
-                out << nl;
-            }
-        }
-    }
-    if(end)
-    {
-        out << ")";
-        out.restoreIndent();
-    }
-}
-#endif
 
 bool isValue(const TypePtr& type)
 {
@@ -268,7 +188,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 }
 
 void
-Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package)
+Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package, const DocCommentPtr& dc)
 {
     string opName = op->name();
     opName[0] = toupper(static_cast<unsigned char>(opName[0]));
@@ -304,7 +224,33 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     // One-shot constructor.
     //
-    out << sp << nl << "public " << opName << "Result" << spar;
+    out << sp;
+    if(dc)
+    {
+        //
+        // Emit a doc comment for the constructor if necessary.
+        //
+        out << nl << "/**";
+        out << nl << " * This constructor makes shallow copies of the results for operation " << opName << '.';
+
+        if(ret && !dc->returns.empty())
+        {
+            out << nl << " * @param " << retval << ' ';
+            writeDocCommentLines(out, dc->returns);
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            const string name = (*p)->name();
+            map<string, string>::const_iterator q = dc->params.find(name);
+            if(q != dc->params.end() && !q->second.empty())
+            {
+                out << nl << " * @param " << fixKwd(q->first) << ' ';
+                writeDocCommentLines(out, q->second);
+            }
+        }
+        out << nl << " **/";
+    }
+    out << nl << "public " << opName << "Result" << spar;
     if(ret)
     {
         out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
@@ -334,6 +280,13 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     out << sp;
     if(ret)
     {
+        if(dc && !dc->returns.empty())
+        {
+            out << nl << "/**";
+            out << nl << " * ";
+            writeDocCommentLines(out, dc->returns);
+            out << nl << " **/";
+        }
         out << nl << "public " << typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
                                                op->returnIsOptional(), cl->isLocal())
             << ' ' << retval << ';';
@@ -341,6 +294,18 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
     for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
     {
+        if(dc)
+        {
+            const string name = (*p)->name();
+            map<string, string>::const_iterator q = dc->params.find(name);
+            if(q != dc->params.end() && !q->second.empty())
+            {
+                out << nl << "/**";
+                out << nl << " * ";
+                writeDocCommentLines(out, q->second);
+                out << nl << " **/";
+            }
+        }
         out << nl << "public " << typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true,
                                                (*p)->optional(), cl->isLocal())
             << ' ' << fixKwd((*p)->name()) << ';';
@@ -448,7 +413,8 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 }
 
 void
-Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op, const string& package)
+Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op, const string& package,
+                                             const DocCommentPtr& dc)
 {
     string opName = op->name();
     opName[0] = toupper(static_cast<unsigned char>(opName[0]));
@@ -462,7 +428,36 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     const ParamDeclList outParams = op->outParameters();
     const string retval = "__ret";
 
-    out << sp << nl << "public " << opName << "MarshaledResult" << spar;
+    out << sp;
+
+    //
+    // Emit a doc comment for the constructor if necessary.
+    //
+    if(dc)
+    {
+        out << nl << "/**";
+        out << nl << " * This constructor marshals the results of operation " << opName << " immediately.";
+
+        if(ret && !dc->returns.empty())
+        {
+            out << nl << " * @param " << retval << ' ';
+            writeDocCommentLines(out, dc->returns);
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            const string name = (*p)->name();
+            map<string, string>::const_iterator q = dc->params.find(name);
+            if(q != dc->params.end() && !q->second.empty())
+            {
+                out << nl << " * @param " << fixKwd(q->first) << ' ';
+                writeDocCommentLines(out, q->second);
+            }
+        }
+        out << nl << " * @param __current The Current object for the invocation.";
+        out << nl << " **/";
+    }
+
+    out << nl << "public " << opName << "MarshaledResult" << spar;
     if(ret)
     {
         out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
@@ -940,12 +935,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         OperationPtr op = *r;
 
+        DocCommentPtr dc = parseDocComment(op);
+
         //
         // The "MarshaledResult" type is generated in the servant interface.
         //
         if(!p->isInterface() && op->hasMarshaledResult())
         {
-            writeMarshaledResultType(out, op, package);
+            writeMarshaledResultType(out, op, package, dc);
         }
 
         vector<string> params = getParams(op, package);
@@ -957,12 +954,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         throws.unique();
 
         out << sp;
+        writeServantDocComment(out, op, package, dc, amd);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
 
-        const string deprecateReason = getDeprecateReason(op, p, "operation");
-        const string currentParam = "@param __current The Current object for the invocation.";
         if(amd)
         {
-            writeDocCommentAsync(out, op, InParam, currentParam);
             out << nl << "java.util.concurrent.CompletionStage<" << getResultType(op, package, true, true) << "> "
                 << op->name() << "Async" << spar << params << "com.zeroc.Ice.Current __current" << epar;
             writeThrowsClause(package, throws);
@@ -970,7 +969,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         else
         {
-            writeDocComment(out, op, deprecateReason, currentParam);
             out << nl << getResultType(op, package, false, true) << ' ' << fixKwd(op->name()) << spar << params
                 << "com.zeroc.Ice.Current __current" << epar;
             writeThrowsClause(package, throws);
@@ -1037,16 +1035,16 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         OperationPtr op = *r;
         StringList opMetaData = op->getMetaData();
-        string deprecateReason = getDeprecateReason(op, p, "operation");
+
+        DocCommentPtr dc = parseDocComment(op);
 
         string opName = op->name();
         out << sp;
-        if(!deprecateReason.empty())
+        if(dc && dc->deprecated)
         {
-            out << nl << "/** @deprecated **/";
+            out << nl << "@Deprecated";
         }
-        out << nl;
-        out << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutputStream> ___" << opName << '(';
+        out << nl << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutputStream> ___" << opName << '(';
         if(p->isInterface())
         {
             out << name;
@@ -1255,8 +1253,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             ContainerPtr container = op->container();
             ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
             assert(cl);
-            string deprecateReason = getDeprecateReason(op, cl, "operation");
-            if(!deprecateReason.empty())
+            if(isDeprecated(op, cl))
             {
                 out << nl << "@SuppressWarnings(\"deprecation\")";
                 break;
@@ -1794,385 +1791,485 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
     return result;
 }
 
-void
-Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const string& deprecateReason,
-                                    const string& extraParam)
+Slice::JavaVisitor::DocCommentPtr
+Slice::JavaVisitor::parseDocComment(const ContainedPtr& p)
 {
-    StringList lines = splitComment(p);
+    DocCommentPtr c = new DocComment;
+    c->deprecated = false;
+
+    //
+    // First check metadata for a deprecated tag.
+    //
+    string deprecateMetadata;
+    if(p->findMetaData("deprecate", deprecateMetadata))
+    {
+        c->deprecated = true;
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            c->deprecateReason = IceUtilInternal::trim(deprecateMetadata.substr(10));
+        }
+    }
+
+    const StringList lines = splitComment(p);
     if(lines.empty())
     {
-        if(!deprecateReason.empty())
+        return c->deprecated ? c : DocCommentPtr(0); // Docs exist if it's deprecated.
+    }
+
+    StringList::const_iterator i;
+    for(i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string l = *i;
+        if(l[0] == '@')
         {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
+            break;
         }
-        return;
-    }
-
-    out << nl << "/**";
-
-    bool doneExtraParam = false;
-    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        //
-        // @param must precede @return, so emit any extra parameter
-        // when @return is seen.
-        //
-        if(i->find("@return") != string::npos && !extraParam.empty())
+        if(!c->overview.empty())
         {
-            out << nl << " * " << extraParam;
-            doneExtraParam = true;
+            c->overview += "\n";
         }
-        out << nl << " *";
-        if(!(*i).empty())
-        {
-            out << " " << *i;
-        }
+        c->overview += l;
     }
 
-    if(!doneExtraParam && !extraParam.empty())
-    {
-        //
-        // Above code doesn't emit the comment for the extra parameter
-        // if the operation returns a void or doesn't have an @return.
-        //
-        out << nl << " * " << extraParam;
-    }
-
-    if(!deprecateReason.empty())
-    {
-        out << nl << " * @deprecated " << deprecateReason;
-    }
-
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeDocComment(Output& out, const string& deprecateReason, const string& summary)
-{
-    vector<string> lines;
-    IceUtilInternal::splitString(summary, "\n", lines);
-
-    out << nl << "/**";
-    for(vector<string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        out << nl << " *";
-        if(!(*i).empty())
-        {
-            out << " " << *i;
-        }
-    }
-
-    if(!deprecateReason.empty())
-    {
-        out << nl << " * @deprecated " << deprecateReason;
-    }
-
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeDocCommentOp(Output& out, const OperationPtr& p)
-{
-    ContainerPtr container = p->container();
-    ContainedPtr contained = ContainedPtr::dynamicCast(container);
-    string deprecateReason = getDeprecateReason(p, contained, "operation");
-
-    StringList lines = splitComment(p);
-
-    if(lines.empty() && deprecateReason.empty())
-    {
-        return;
-    }
-
-    out << sp << nl << "/**";
-
-    //
-    // Output the leading comment block up until the first @tag.
-    //
-    bool done = false;
-    for(StringList::const_iterator i = lines.begin(); i != lines.end() && !done; ++i)
-    {
-        if((*i)[0] == '@')
-        {
-            done = true;
-        }
-        else
-        {
-            out << nl << " * " << *i;
-        }
-    }
-
-    if(!deprecateReason.empty())
-    {
-        out << nl << " * @deprecated " << deprecateReason;
-    }
-
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeDocCommentAsync(Output& out, const OperationPtr& p, ParamDir paramType,
-                                         const string& extraParam)
-{
-    ContainerPtr container = p->container();
-    ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
-    string deprecateReason = getDeprecateReason(p, contained, "operation");
-
-    StringList lines = splitComment(p);
-    if(lines.empty() && deprecateReason.empty())
-    {
-        return;
-    }
-
-    out << nl << "/**";
-
-    if(paramType == OutParam)
-    {
-        out << nl << " * ice_response indicates that";
-        out << nl << " * the operation completed successfully.";
-
-        //
-        // Find the comment for the return value (if any) and rewrite that as an @param comment.
-        //
-        const string returnTag = "@return";
-        bool doneReturn = false;
-        bool foundReturn = false;
-        for(StringList::const_iterator i = lines.begin(); i != lines.end() && !doneReturn; ++i)
-        {
-            if(!foundReturn)
-            {
-                if(i->find(returnTag) != string::npos)
-                {
-                    foundReturn = true;
-                    out << nl << " * @param __ret (return value)" << i->substr(returnTag.length());
-                }
-            }
-            else
-            {
-                if((*i)[0] == '@')
-                {
-                    doneReturn = true;
-                }
-                else
-                {
-                    out << nl << " * " << *i;
-                }
-            }
-        }
-    }
-    else
-    {
-        //
-        // Output the leading comment block up until the first @tag.
-        //
-        bool done = false;
-        for(StringList::const_iterator i = lines.begin(); i != lines.end() && !done; ++i)
-        {
-            if((*i)[0] == '@')
-            {
-                done = true;
-            }
-            else
-            {
-                out << nl << " * " << *i;
-            }
-        }
-    }
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(out, p, paramType);
-
-    if(!extraParam.empty())
-    {
-        out << nl << " * " << extraParam;
-    }
-
-    if(paramType == InParam)
-    {
-        if(!deprecateReason.empty())
-        {
-            out << nl << " * @deprecated " << deprecateReason;
-        }
-    }
-
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p, ParamDir paramType,
-                                       const string& extraParam1, const string& extraParam2, const string& extraParam3,
-                                       const string& extraParam4, const string& extraParam5)
-{
-    ContainerPtr container = p->container();
-    ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
-    string deprecateReason = getDeprecateReason(p, contained, "operation");
-
-    StringList lines = splitComment(p);
-    if(lines.empty() && deprecateReason.empty())
-    {
-        return;
-    }
-
-    out << nl << "/**";
-
-    //
-    // Output the leading comment block up until the first @tag.
-    //
-    bool done = false;
-    for(StringList::const_iterator i = lines.begin(); i != lines.end() && !done; ++i)
-    {
-        if((*i)[0] == '@')
-        {
-            done = true;
-        }
-        else
-        {
-            out << nl << " * " << *i;
-        }
-    }
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(out, p, paramType, false);
-
-    if(!extraParam1.empty())
-    {
-        out << nl << " * " << extraParam1;
-    }
-
-    if(!extraParam2.empty())
-    {
-        out << nl << " * " << extraParam2;
-    }
-
-    if(!extraParam3.empty())
-    {
-        out << nl << " * " << extraParam3;
-    }
-
-    if(!extraParam4.empty())
-    {
-        out << nl << " * " << extraParam4;
-    }
-
-    if(!extraParam5.empty())
-    {
-        out << nl << " * " << extraParam5;
-    }
-
-    if(paramType == InParam)
-    {
-        out << nl << " * @return A future for the completion of the request.";
-        if(!deprecateReason.empty())
-        {
-            out << nl << " * @deprecated " << deprecateReason;
-        }
-    }
-    else
-    {
-        out << nl << " * @param __result The asynchronous result object.";
-        //
-        // Print @return, @throws, and @see tags.
-        //
-        const string returnTag = "@return";
-        const string throwsTag = "@throws";
-        const string seeTag = "@see";
-        bool found = false;
-        for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
-        {
-            if(!found)
-            {
-                if(i->find(returnTag) != string::npos || i->find(throwsTag) != string::npos ||
-                   i->find(seeTag) != string::npos)
-                {
-                    found = true;
-                }
-            }
-
-            if(found)
-            {
-                out << nl << " * " << *i;
-            }
-        }
-    }
-
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeDocCommentParam(Output& out, const OperationPtr& p, ParamDir paramType, bool cb)
-{
-    //
-    // Collect the names of the in- or -out parameters to be documented.
-    //
-    ParamDeclList tmp = p->parameters();
-    vector<string> params;
-    for(ParamDeclList::const_iterator q = tmp.begin(); q != tmp.end(); ++q)
-    {
-        if((*q)->isOutParam() && paramType == OutParam)
-        {
-            params.push_back((*q)->name());
-        }
-        else if(!(*q)->isOutParam() && paramType == InParam)
-        {
-            params.push_back((*q)->name());
-        }
-    }
-
-    //
-    // Print a comment for the callback parameter.
-    //
-    if(cb && paramType == InParam)
-    {
-        out << nl << " * @param __cb The callback object for the operation.";
-    }
-
-    //
-    // Print the comments for all the parameters that appear in the parameter list.
-    //
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    State state = StateMisc;
+    string name;
+    const string ws = " \t";
     const string paramTag = "@param";
-    StringList lines = splitComment(p);
-    StringList::const_iterator i = lines.begin();
-    while(i != lines.end())
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+    for(; i != lines.end(); ++i)
     {
-        string line = *i++;
-        if(line.find(paramTag) != string::npos)
+        const string l = *i;
+        if(l.find(paramTag) == 0)
         {
-            string::size_type paramNamePos = line.find_first_not_of(" \t\n\r", paramTag.length());
-            if(paramNamePos != string::npos)
+            state = StateMisc;
+            name.clear();
+            string::size_type n = l.find_first_not_of(ws, paramTag.size());
+            if(n == string::npos)
             {
-                string::size_type paramNameEndPos = line.find_first_of(" \t", paramNamePos);
-                string paramName = line.substr(paramNamePos, paramNameEndPos - paramNamePos);
-                if(std::find(params.begin(), params.end(), paramName) != params.end())
+                continue; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                continue; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            state = StateParam;
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                c->params[name] = l.substr(n); // The first line of the description.
+            }
+        }
+        else if(l.find(throwsTag) == 0 || l.find(exceptionTag) == 0)
+        {
+            state = StateMisc;
+            name.clear();
+            string::size_type n =
+                l.find_first_not_of(ws, l.find(throwsTag) == 0 ? throwsTag.size() : exceptionTag.size());
+            if(n == string::npos)
+            {
+                continue; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                continue; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            state = StateThrows;
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                c->exceptions[name] = l.substr(n); // The first line of the description.
+            }
+        }
+        else if(l.find(returnTag) == 0)
+        {
+            state = StateMisc;
+            name.clear();
+            string::size_type n = l.find_first_not_of(ws, returnTag.size());
+            if(n == string::npos)
+            {
+                continue; // Malformed line, ignore it.
+            }
+            state = StateReturn;
+            c->returns = l.substr(n); // The first line of the description.
+        }
+        else if(l.find(deprecatedTag) == 0)
+        {
+            state = StateMisc;
+            name.clear();
+            string::size_type n = l.find_first_not_of(ws, deprecatedTag.size());
+            if(n != string::npos)
+            {
+                c->deprecateReason = l.substr(n); // The first line of the description.
+            }
+            state = StateDeprecated;
+            c->deprecated = true;
+        }
+        else if(!l.empty())
+        {
+            if(l[0] == '@')
+            {
+                //
+                // Treat all other tags as miscellaneous comments.
+                //
+                state = StateMisc;
+            }
+
+            switch(state)
+            {
+            case StateMisc:
+                if(!c->misc.empty())
                 {
-                    out << nl << " * " << line;
-                    StringList::const_iterator j;
-                    if (i == lines.end())
-                    {
-                        break;
-                    }
-                    j = i++;
-                    while(j != lines.end())
-                    {
-                        if((*j)[0] != '@')
-                        {
-                            i = j;
-                            out << nl << " * " << *j++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    c->misc += "\n";
                 }
+                c->misc += l;
+                break;
+            case StateParam:
+                assert(!name.empty());
+                if(c->params.find(name) == c->params.end())
+                {
+                    c->params[name] = "";
+                }
+                if(!c->params[name].empty())
+                {
+                    c->params[name] += "\n";
+                }
+                c->params[name] += l;
+                break;
+            case StateThrows:
+                assert(!name.empty());
+                if(c->exceptions.find(name) == c->exceptions.end())
+                {
+                    c->exceptions[name] = "";
+                }
+                if(!c->exceptions[name].empty())
+                {
+                    c->exceptions[name] += "\n";
+                }
+                c->exceptions[name] += l;
+                break;
+            case StateReturn:
+                if(!c->returns.empty())
+                {
+                    c->returns += "\n";
+                }
+                c->returns += l;
+                break;
+            case StateDeprecated:
+                if(!c->deprecateReason.empty())
+                {
+                    c->deprecateReason += "\n";
+                }
+                c->deprecateReason += l;
+                break;
             }
         }
     }
+
+    return c;
+}
+
+void
+Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
+{
+    //
+    // This method emits a block of text, prepending a leading " * " to the second and
+    // subsequent lines. We assume the caller prepended a leading " * " for the first
+    // line if necessary.
+    //
+    string::size_type start = 0;
+    string::size_type pos;
+    const string ws = "\n";
+    pos = text.find_first_of(ws);
+    if(pos == string::npos)
+    {
+        out << text;
+    }
+    else
+    {
+        string s = IceUtilInternal::trim(text.substr(start, pos - start));
+        out << s; // Emit the first line.
+        start = pos + 1;
+        while((pos = text.find_first_of(ws, start)) != string::npos)
+        {
+            out << nl << " * " << IceUtilInternal::trim(text.substr(start, pos - start));
+            start = pos + 1;
+        }
+        if(start < text.size())
+        {
+            out << nl << " * " << IceUtilInternal::trim(text.substr(start));
+        }
+    }
+}
+
+void
+Slice::JavaVisitor::writeDocComment(Output& out, const DocCommentPtr& dc)
+{
+    if(!dc)
+    {
+        return;
+    }
+
+    out << nl << "/**";
+    if(!dc->overview.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->overview);
+    }
+
+    if(!dc->misc.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->misc);
+    }
+
+    if(!dc->deprecateReason.empty())
+    {
+        out << nl << " * @deprecated ";
+        writeDocCommentLines(out, dc->deprecateReason);
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeDocComment(Output& out, const string& text)
+{
+    if(!text.empty())
+    {
+        out << nl << "/**";
+        out << nl << " * ";
+        writeDocCommentLines(out, text);
+        out << nl << " **/";
+    }
+}
+
+void
+Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, const string& package,
+                                         const DocCommentPtr& dc, bool async, bool context)
+{
+    if(!dc)
+    {
+        return;
+    }
+
+    const string contextParam = " * @param __ctx The Context map to send with the invocation.";
+
+    out << nl << "/**";
+    if(!dc->overview.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->overview);
+    }
+
+    //
+    // Show in-params in order of declaration, but only those with docs.
+    //
+    const ParamDeclList paramList = p->inParameters();
+    for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+    {
+        const string name = (*i)->name();
+        map<string, string>::const_iterator j = dc->params.find(name);
+        if(j != dc->params.end() && !j->second.empty())
+        {
+            out << nl << " * @param " << fixKwd(j->first) << ' ';
+            writeDocCommentLines(out, j->second);
+        }
+    }
+    if(context)
+    {
+        out << nl << contextParam;
+    }
+
+    //
+    // Handle the return value (if any).
+    //
+    if(p->returnsMultipleValues())
+    {
+        const string r = getResultType(p, package, true, false);
+        if(async)
+        {
+            out << nl << " * @return A future that will be completed with an instance of " << r << '.';
+        }
+        else
+        {
+            out << nl << " * @return An instance of " << r << '.';
+        }
+    }
+    else if(p->returnType())
+    {
+        if(!dc->returns.empty())
+        {
+            out << nl << " * @return ";
+            writeDocCommentLines(out, dc->returns);
+        }
+        else if(async)
+        {
+            out << nl << " * @return A future that will be completed with the result.";
+        }
+    }
+    else if(!p->outParameters().empty())
+    {
+        assert(p->outParameters().size() == 1);
+        const ParamDeclPtr param = p->outParameters().front();
+        map<string, string>::const_iterator j = dc->params.find(param->name());
+        if(j != dc->params.end() && !j->second.empty())
+        {
+            out << nl << " * @return ";
+            writeDocCommentLines(out, j->second);
+        }
+        else if(async)
+        {
+            out << nl << " * @return A future that will be completed with the result.";
+        }
+    }
+    else if(async)
+    {
+        //
+        // No results but an async proxy operation still returns a future.
+        //
+        out << nl << " * @return A future that will be completed when the invocation completes.";
+    }
+
+    //
+    // Async proxy methods don't declare user exceptions.
+    //
+    if(!async)
+    {
+        for(map<string, string>::const_iterator i = dc->exceptions.begin(); i != dc->exceptions.end(); ++i)
+        {
+            out << nl << " * @throws " << fixKwd(i->first) << ' ';
+            writeDocCommentLines(out, i->second);
+        }
+    }
+
+    if(!dc->misc.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->misc);
+    }
+
+    if(!dc->deprecateReason.empty())
+    {
+        out << nl << " * @deprecated ";
+        writeDocCommentLines(out, dc->deprecateReason);
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, const string& package,
+                                           const DocCommentPtr& dc, bool async)
+{
+    if(!dc)
+    {
+        return;
+    }
+
+    const string currentParam = " * @param __current The Current object for the invocation.";
+
+    out << nl << "/**";
+    if(!dc->overview.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->overview);
+    }
+
+    //
+    // Show in-params in order of declaration, but only those with docs.
+    //
+    const ParamDeclList paramList = p->inParameters();
+    for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+    {
+        const string name = (*i)->name();
+        map<string, string>::const_iterator j = dc->params.find(name);
+        if(j != dc->params.end() && !j->second.empty())
+        {
+            out << nl << " * @param " << fixKwd(j->first) << ' ';
+            writeDocCommentLines(out, j->second);
+        }
+    }
+    out << nl << currentParam;
+
+    //
+    // Handle the return value (if any).
+    //
+    if(p->returnsMultipleValues())
+    {
+        const string r = getResultType(p, package, true, false);
+        if(async)
+        {
+            out << nl << " * @return A completion stage that the servant will complete with an instance of " << r
+                << '.';
+        }
+        else
+        {
+            out << nl << " * @return An instance of " << r << '.';
+        }
+    }
+    else if(p->returnType())
+    {
+        if(!dc->returns.empty())
+        {
+            out << nl << " * @return ";
+            writeDocCommentLines(out, dc->returns);
+        }
+        else if(async)
+        {
+            out << nl << " * @return A completion stage that the servant will complete with the result.";
+        }
+    }
+    else if(!p->outParameters().empty())
+    {
+        assert(p->outParameters().size() == 1);
+        const ParamDeclPtr param = p->outParameters().front();
+        map<string, string>::const_iterator j = dc->params.find(param->name());
+        if(j != dc->params.end() && !j->second.empty())
+        {
+            out << nl << " * @return ";
+            writeDocCommentLines(out, j->second);
+        }
+        else if(async)
+        {
+            out << nl << " * @return A completion stage that the servant will complete with the result.";
+        }
+    }
+    else if(async)
+    {
+        //
+        // No results but an async operation still returns a completion stage.
+        //
+        out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
+    }
+
+    // TBD: Check for UserException metadata
+    for(map<string, string>::const_iterator i = dc->exceptions.begin(); i != dc->exceptions.end(); ++i)
+    {
+        out << nl << " * @throws " << fixKwd(i->first) << ' ';
+        writeDocCommentLines(out, i->second);
+    }
+
+    if(!dc->misc.empty())
+    {
+        out << nl << " * ";
+        writeDocCommentLines(out, dc->misc);
+    }
+
+    if(!dc->deprecateReason.empty())
+    {
+        out << nl << " * @deprecated ";
+        writeDocCommentLines(out, dc->deprecateReason);
+    }
+
+    out << nl << " **/";
 }
 
 Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir) :
@@ -2322,11 +2419,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
+    DocCommentPtr dc = parseDocComment(p);
+
     //
     // Slice interfaces map to Java interfaces.
     //
     out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     if(p->isInterface())
     {
         out << nl << "public interface " << fixKwd(name);
@@ -2666,12 +2769,14 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     Output& out = output();
 
+    DocCommentPtr dc = parseDocComment(p);
+
     //
     // Generate the "Result" type needed by operations that return multiple values.
     //
     if(p->returnsMultipleValues())
     {
-        writeResultType(out, p, package);
+        writeResultType(out, p, package, dc);
     }
 
     //
@@ -2679,7 +2784,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     //
     if(cl->isInterface() && p->hasMarshaledResult())
     {
-        writeMarshaledResultType(out, p, package);
+        writeMarshaledResultType(out, p, package, dc);
     }
 
     if(cl->isLocal())
@@ -2694,7 +2799,11 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         throws.unique();
         out << sp;
 
-        writeDocComment(out, p, getDeprecateReason(p, cl, "operation"));
+        writeProxyDocComment(out, p, package, dc, false, false);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl;
         if(!cl->isInterface())
         {
@@ -2719,7 +2828,11 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
         {
             out << sp;
-            writeDocCommentAMI(out, p, InParam);
+            writeProxyDocComment(out, p, package, dc, true, false);
+            if(dc && dc->deprecated)
+            {
+                out << nl << "@Deprecated";
+            }
             out << nl;
             if(!cl->isInterface())
             {
@@ -2747,7 +2860,12 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
 
     out << nl << "public class " << name << " extends ";
 
@@ -3166,7 +3284,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
 
-    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
 
     out << nl << "public class " << name << " implements java.lang.Cloneable";
     if(!p->isLocal())
@@ -3480,8 +3603,12 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
-    string deprecateReason = getDeprecateReason(p, contained, "member");
-    writeDocComment(out, p, deprecateReason);
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
 
     //
     // Access visibility for class data members can be controlled by metadata.
@@ -3541,7 +3668,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Getter.
         //
         out << sp;
-        writeDocComment(out, p, deprecateReason);
+        writeDocComment(out, dc);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "public " << s << " get" << capName << "()";
         out << sb;
         if(optional)
@@ -3558,7 +3689,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Setter.
         //
         out << sp;
-        writeDocComment(out, p, deprecateReason);
+        writeDocComment(out, dc);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "public void set" << capName << '(' << s << " _" << name << ')';
         out << sb;
         if(optional)
@@ -3574,14 +3709,22 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(optional)
         {
             out << sp;
-            writeDocComment(out, p, deprecateReason);
+            writeDocComment(out, dc);
+            if(dc && dc->deprecated)
+            {
+                out << nl << "@Deprecated";
+            }
             out << nl << "public boolean has" << capName << "()";
             out << sb;
             out << nl << "return __has_" << p->name() << ';';
             out << eb;
 
             out << sp;
-            writeDocComment(out, p, deprecateReason);
+            writeDocComment(out, dc);
+            if(dc && dc->deprecated)
+            {
+                out << nl << "@Deprecated";
+            }
             out << nl << "public void clear" << capName << "()";
             out << sb;
             out << nl << "__has_" << p->name() << " = false;";
@@ -3591,7 +3734,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 typeToString(type, TypeModeMember, getPackage(contained), metaData, true, true, local);
 
             out << sp;
-            writeDocComment(out, p, deprecateReason);
+            writeDocComment(out, dc);
+            if(dc && dc->deprecated)
+            {
+                out << nl << "@Deprecated";
+            }
             out << nl << "public void optional" << capName << '(' << optType << " __v)";
             out << sb;
             out << nl << "if(__v == null || !__v.isPresent())";
@@ -3621,7 +3768,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
 
             out << sp;
-            writeDocComment(out, p, deprecateReason);
+            writeDocComment(out, dc);
+            if(dc && dc->deprecated)
+            {
+                out << nl << "@Deprecated";
+            }
             out << nl << "public " << optType << " optional" << capName << "()";
             out << sb;
             out << nl << "if(__has_" << p->name() << ')';
@@ -3679,11 +3830,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 return;
             }
             out << sp;
-            if(!deprecateReason.empty())
+            if(dc && dc->deprecated)
             {
-                out << nl << "/**";
-                out << nl << " * @deprecated " << deprecateReason;
-                out << nl << " **/";
+                out << nl << "@Deprecated";
             }
             out << nl << "public boolean is" << capName << "()";
             out << sb;
@@ -3720,11 +3869,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 // Indexed getter.
                 //
                 out << sp;
-                if(!deprecateReason.empty())
+                if(dc && dc->deprecated)
                 {
-                    out << nl << "/**";
-                    out << nl << " * @deprecated " << deprecateReason;
-                    out << nl << " **/";
+                    out << nl << "@Deprecated";
                 }
                 out << nl << "public " << elem << " get" << capName << "(int _index)";
                 out << sb;
@@ -3742,11 +3889,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 // Indexed setter.
                 //
                 out << sp;
-                if(!deprecateReason.empty())
+                if(dc && dc->deprecated)
                 {
-                    out << nl << "/**";
-                    out << nl << " * @deprecated " << deprecateReason;
-                    out << nl << " **/";
+                    out << nl << "@Deprecated";
                 }
                 out << nl << "public void set" << capName << "(int _index, " << elem << " _val)";
                 out << sb;
@@ -3777,7 +3922,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
 
     out << nl << "public enum " << name;
     if(!p->isLocal())
@@ -3792,8 +3942,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
-        out << nl;
-        writeDocComment(out, *en, getDeprecateReason(*en, 0, "enumerator"));
+        DocCommentPtr edc = parseDocComment(*en);
+        writeDocComment(out, edc);
+        if(edc && edc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << fixKwd((*en)->name()) << '(' << (*en)->value() << ')';
     }
     out << ';';
@@ -3882,7 +4036,14 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     Output& out = output();
 
     out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, "constant"));
+
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
+
     out << nl << "public interface " << name;
     out << sb;
     out << nl << typeToString(type, TypeModeIn, package) << " value = ";
@@ -4147,11 +4308,17 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         bases.pop_front();
     }
 
+    DocCommentPtr dc = parseDocComment(p);
+
     //
     // Generate a Java interface as the user-visible type
     //
     out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "public interface " << name << "Prx extends ";
     out.useCurrentPosAsIndent();
     if(bases.empty())
@@ -4181,10 +4348,12 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
 
+    DocCommentPtr dc = parseDocComment(p);
+
     const string contextParam = "java.util.Map<String, String> __ctx";
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Contacts the remote server to verify that the object implements this type.\n"
                     "Raises a local exception if a communication error occurs.\n"
                     "@param __obj The untyped proxy.\n"
@@ -4196,7 +4365,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Contacts the remote server to verify that the object implements this type.\n"
                     "Raises a local exception if a communication error occurs.\n"
                     "@param __obj The untyped proxy.\n"
@@ -4209,7 +4378,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Contacts the remote server to verify that a facet of the object implements this type.\n"
                     "Raises a local exception if a communication error occurs.\n"
                     "@param __obj The untyped proxy.\n"
@@ -4222,7 +4391,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Contacts the remote server to verify that a facet of the object implements this type.\n"
                     "Raises a local exception if a communication error occurs.\n"
                     "@param __obj The untyped proxy.\n"
@@ -4237,7 +4406,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Downcasts the given proxy to this type without contacting the remote server.\n"
                     "@param __obj The untyped proxy.\n"
                     "@return A proxy for this type.");
@@ -4248,7 +4417,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Downcasts the given proxy to this type without contacting the remote server.\n"
                     "@param __obj The untyped proxy.\n"
                     "@param __facet The name of the desired facet.\n"
@@ -4260,7 +4429,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the per-proxy context.\n"
                     "@param newContext The context for the new proxy.\n"
                     "@return A proxy with the specified per-proxy context.");
@@ -4271,7 +4440,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the adapter ID.\n"
                     "@param newAdapterId The adapter ID for the new proxy.\n"
                     "@return A proxy with the specified adapter ID.");
@@ -4282,7 +4451,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the endpoints.\n"
                     "@param newEndpoints The endpoints for the new proxy.\n"
                     "@return A proxy with the specified endpoints.");
@@ -4293,7 +4462,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the locator cache timeout.\n"
                     "@param newTimeout The new locator cache timeout (in seconds).\n"
                     "@return A proxy with the specified locator cache timeout.");
@@ -4304,7 +4473,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the invocation timeout.\n"
                     "@param newTimeout The new invocation timeout (in seconds).\n"
                     "@return A proxy with the specified invocation timeout.");
@@ -4315,7 +4484,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for connection caching.\n"
                     "@param newCache <code>true</code> if the new proxy should cache connections; <code>false</code> otherwise.\n"
                     "@return A proxy with the specified caching policy.");
@@ -4326,7 +4495,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the endpoint selection policy.\n"
                     "@param newType The new endpoint selection policy.\n"
                     "@return A proxy with the specified endpoint selection policy.");
@@ -4337,7 +4506,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for how it selects endpoints.\n"
                     "@param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are\n"
                     "used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and\n"
@@ -4350,7 +4519,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.\n"
                     "@param e The encoding version to use to marshal request parameters.\n"
                     "@return A proxy with the specified encoding version.");
@@ -4361,7 +4530,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for its endpoint selection policy.\n"
                     "@param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for invocations\n"
                     "and only use insecure endpoints if an invocation cannot be made via secure endpoints. If <code>b</code> is\n"
@@ -4374,7 +4543,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the router.\n"
                     "@param router The router for the new proxy.\n"
                     "@return A proxy with the specified router.");
@@ -4385,7 +4554,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for the locator.\n"
                     "@param locator The locator for the new proxy.\n"
                     "@return A proxy with the specified locator.");
@@ -4396,7 +4565,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for collocation optimization.\n"
                     "@param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.\n"
                     "@return A proxy with the specified collocation optimization.");
@@ -4407,7 +4576,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, but uses twoway invocations.\n"
                     "@return A proxy that uses twoway invocations.");
     out << nl << "@Override";
@@ -4417,7 +4586,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, but uses oneway invocations.\n"
                     "@return A proxy that uses oneway invocations.");
     out << nl << "@Override";
@@ -4427,7 +4596,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, but uses batch oneway invocations.\n"
                     "@return A proxy that uses batch oneway invocations.");
     out << nl << "@Override";
@@ -4437,7 +4606,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, but uses datagram invocations.\n"
                     "@return A proxy that uses datagram invocations.");
     out << nl << "@Override";
@@ -4447,7 +4616,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, but uses batch datagram invocations.\n"
                     "@return A proxy that uses batch datagram invocations.");
     out << nl << "@Override";
@@ -4457,7 +4626,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for compression.\n"
                     "@param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.\n"
                     "@return A proxy with the specified compression setting.");
@@ -4468,7 +4637,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for its connection timeout setting.\n"
                     "@param t The connection timeout for the proxy in milliseconds.\n"
                     "@return A proxy with the specified timeout.");
@@ -4479,7 +4648,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, "",
+    writeDocComment(out,
                     "Returns a proxy that is identical to this proxy, except for its connection ID.\n"
                     "@param connectionId The connection ID for the new proxy. An empty string removes the connection ID.\n"
                     "@return A proxy with the specified connection ID.");
@@ -4507,9 +4676,14 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     Output& outi = output();
 
     outi << sp;
+    if(dc && dc->deprecated)
+    {
+        outi << nl << "@Deprecated";
+    }
     outi << nl << "public class _" << p->name() << "PrxI extends com.zeroc.Ice._ObjectPrxI implements " << p->name()
          << "Prx";
     outi << sb;
+    outi << sp << nl << "public static final long serialVersionUID = 0L;";
     outi << eb;
     close();
 }
@@ -4552,16 +4726,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-    const string deprecateReason = getDeprecateReason(p, cl, "operation");
     const string contextDoc = "@param __ctx The Context map to send with the invocation.";
     const string contextParam = "java.util.Map<String, String> __ctx";
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
+
+    DocCommentPtr dc = parseDocComment(p);
 
     //
     // Synchronous methods with required parameters.
     //
     out << sp;
-    writeDocComment(out, p, deprecateReason);
+    writeProxyDocComment(out, p, package, dc, false, false);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "default " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
     out << sb;
@@ -4574,7 +4753,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << eb;
 
     out << sp;
-    writeDocComment(out, p, deprecateReason, contextDoc);
+    writeProxyDocComment(out, p, package, dc, false, true);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "default " << retS << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
     out << sb;
@@ -4619,7 +4802,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(sendsOptionals)
     {
         out << sp;
-        writeDocComment(out, p, deprecateReason);
+        writeProxyDocComment(out, p, package, dc, false, false);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "default " << retS << ' ' << name << spar << paramsOpt << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -4632,7 +4819,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
 
         out << sp;
-        writeDocComment(out, p, deprecateReason, contextDoc);
+        writeProxyDocComment(out, p, package, dc, false, true);
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "default " << retS << ' ' << name << spar << paramsOpt << contextParam << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -4676,18 +4867,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // Asynchronous methods with required parameters.
     //
     out << sp;
-    writeDocCommentAMI(out, p, InParam);
+    writeProxyDocComment(out, p, package, dc, true, false);
 
     const string future = getFutureType(p, package);
 
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << epar;
     out << sb;
     out << nl << "return __" << p->name() << "Async" << spar << args << noExplicitContextArg << "false" << epar << ';';
     out << eb;
 
     out << sp;
-    writeDocCommentAMI(out, p, InParam, contextDoc);
+    writeProxyDocComment(out, p, package, dc, true, true);
 
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << contextParam << epar;
     out << sb;
     out << nl << "return __" << p->name() << "Async" << spar << args << "__ctx" << "false" << epar << ';';
@@ -4755,10 +4954,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(sendsOptionals)
     {
         out << sp;
-        writeDocCommentAMI(out, p, InParam);
+        writeProxyDocComment(out, p, package, dc, true, false);
 
         const string future = getFutureType(p, package);
 
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "default " << future << ' ' << p->name() << "Async" << spar << paramsOpt << epar;
         out << sb;
         out << nl << "return __" << p->name() << "Async" << spar << args << noExplicitContextArg << "false" << epar
@@ -4766,8 +4969,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
 
         out << sp;
-        writeDocCommentAMI(out, p, InParam, contextDoc);
+        writeProxyDocComment(out, p, package, dc, true, true);
 
+        if(dc && dc->deprecated)
+        {
+            out << nl << "@Deprecated";
+        }
         out << nl << "default " << future << ' ' << p->name() << "Async" << spar << paramsOpt << contextParam << epar;
         out << sb;
         out << nl << "return __" << p->name() << "Async" << spar << args << "__ctx" << "false" << epar << ';';
@@ -4838,7 +5045,12 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    DocCommentPtr dc = parseDocComment(p);
+    writeDocComment(out, dc);
+    if(dc && dc->deprecated)
+    {
+        out << nl << "@Deprecated";
+    }
     out << nl << "public interface _" << name << "Disp";
 
     //

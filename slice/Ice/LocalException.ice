@@ -918,7 +918,7 @@ local exception NoValueFactoryException extends MarshalException
  * This can happen if client and server are compiled with mismatched Slice
  * definitions or if a class of the wrong type is passed as a parameter
  * or return value using dynamic invocation. This exception can also be
- * raised if {@link IceStorm} is used to send Slice class instances and
+ * raised if IceStorm is used to send Slice class instances and
  * an operation is subscribed to the wrong topic.
  *
  **/

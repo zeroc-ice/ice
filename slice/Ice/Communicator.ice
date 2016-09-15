@@ -452,7 +452,7 @@ local interface Communicator
      *
      * <p class="Note"> You can also set a locator for an individual proxy
      * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
-     * object adapter by calling the operation {@link setLocator} on the
+     * object adapter by calling the operation {@link ObjectAdapter#setLocator} on the
      * object adapter.
      *
      * @param loc The default locator to use for this communicator.
@@ -523,7 +523,7 @@ local interface Communicator
      *
      * getAdmin also creates the Admin object and creates and activates the Ice.Admin object
      * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
-     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin
+     * object created by getAdmin is [value of Ice.Admin.InstanceName]/admin, or [UUID]/admin
      * when Ice.Admin.InstanceName is not set.
      *
      * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator

@@ -17,7 +17,7 @@ import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownUserException;
 
-public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.Ice_invokeResult>
+public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object.Ice_invokeResult>
 {
     public ProxyIceInvoke(com.zeroc.Ice.ObjectPrx prx, String operation, com.zeroc.Ice.OperationMode mode,
                           boolean synchronous)
@@ -71,7 +71,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
             return new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]);
         }
 
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }

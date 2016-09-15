@@ -33,6 +33,8 @@ class RFC2253
         }
 
         public String reason;
+
+        public static final long serialVersionUID = 0L;
     }
 
     static class RDNPair

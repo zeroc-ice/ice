@@ -32,4 +32,6 @@ public abstract class ValueReader extends Value
     {
         read(is);
     }
+
+    public static final long serialVersionUID = 0L;
 }

@@ -24,4 +24,6 @@ public class RetryException extends Exception
     }
 
     private com.zeroc.Ice.LocalException _ex;
+
+    public static final long serialVersionUID = 0L;
 }

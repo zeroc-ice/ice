@@ -209,7 +209,7 @@ public class BZip2
                 cls = Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
                 if(cls != null)
                 {
-                    types = new Class[2];
+                    types = new Class<?>[2];
                     types[0] = java.io.OutputStream.class;
                     types[1] = Integer.TYPE;
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);

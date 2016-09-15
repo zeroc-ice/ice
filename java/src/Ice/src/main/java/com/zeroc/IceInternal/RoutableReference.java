@@ -92,7 +92,7 @@ public class RoutableReference extends Reference
             if(locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding))
             {
                 r._locatorInfo = getInstance().locatorManager().get(
-                    (com.zeroc.Ice.LocatorPrx)locInfo.getLocator().ice_encodingVersion(newEncoding));
+                    locInfo.getLocator().ice_encodingVersion(newEncoding));
             }
         }
         return r;

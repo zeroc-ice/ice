@@ -9,7 +9,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void>
+public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
 {
     public ProxyFlushBatch(com.zeroc.Ice._ObjectPrxI prx)
     {
@@ -80,7 +80,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase<Void>
 
     public void __wait()
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }

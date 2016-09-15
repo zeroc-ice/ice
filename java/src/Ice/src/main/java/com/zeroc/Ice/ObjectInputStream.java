@@ -21,6 +21,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
      *
      * @param communicator The communicator to use to deserialize proxies.
      * @param stream The input stream to read from.
+     * @throws java.io.IOException If an I/O error occurs.
      **/
     public
     ObjectInputStream(Communicator communicator, java.io.InputStream stream)
@@ -32,6 +33,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 
     /**
      * Returns the communicator for this stream.
+     * @return The communicator.
      **/
     public Communicator
     getCommunicator()

@@ -22,8 +22,6 @@ public interface Blobject extends com.zeroc.Ice.Object
      * Dispatch an incoming request.
      *
      * @param inEncaps The encoded in-parameters for the operation.
-     * @param outEncaps The encoded out-paramaters and return value
-     * for the operation. The return value follows any out-parameters.
      * @param current The Current object to pass to the operation.
      * @return The method returns an instance of <code>Ice_invokeResult</code>.
      * If the operation completed successfully, set the <code>returnValue</code>
@@ -33,6 +31,8 @@ public interface Blobject extends com.zeroc.Ice.Object
      * <code>false</code> and the <code>outParams</code> member to the encoded
      * user exception. If the operation raises an Ice run-time exception, it
      * must throw it directly.
+     * @throws UserException A user exception can be raised directly and the
+     * run time will marshal it.
      **/
     com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
         throws UserException;

@@ -9,7 +9,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Connection>
+public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Connection>
 {
     public ProxyGetConnection(com.zeroc.Ice._ObjectPrxI prx)
     {
@@ -74,7 +74,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Con
 
     public com.zeroc.Ice.Connection __wait()
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }

@@ -675,6 +675,7 @@ public interface ObjectPrx
 
     /**
      * Returns the Slice type ID associated with this type.
+     * @return The Slice type ID.
      **/
     static String ice_staticId()
     {
@@ -940,7 +941,7 @@ public interface ObjectPrx
     static <T> T __waitForCompletionUserEx(java.util.concurrent.CompletableFuture<T> f)
         throws UserException
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }

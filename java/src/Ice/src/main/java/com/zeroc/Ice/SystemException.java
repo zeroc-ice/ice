@@ -22,4 +22,6 @@ public abstract class SystemException extends Exception
     {
         super(cause);
     }
+
+    public static final long serialVersionUID = 0L;
 }

@@ -25,4 +25,6 @@ final public class ServantError extends java.lang.Error
     {
         super(cause);
     }
+
+    public static final long serialVersionUID = 0L;
 }

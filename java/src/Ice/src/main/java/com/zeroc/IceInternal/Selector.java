@@ -13,6 +13,7 @@ public final class Selector
 {
     static final class TimeoutException extends Exception
     {
+        public static final long serialVersionUID = 0L;
     }
 
     Selector(Instance instance)

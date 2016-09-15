@@ -88,4 +88,6 @@ public abstract class Exception extends RuntimeException implements Cloneable
         pw.flush();
         return sw.toString();
     }
+
+    public static final long serialVersionUID = 0L;
 }

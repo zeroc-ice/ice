@@ -50,4 +50,6 @@ public final class UnknownSlicedValue extends Value
 
     private final String _unknownTypeId;
     private SlicedData _slicedData;
+
+    public static final long serialVersionUID = 0L;
 }

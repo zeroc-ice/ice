@@ -85,11 +85,9 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         if(outAsync instanceof OutgoingAsync)
         {
-            OutgoingAsync o = (OutgoingAsync)outAsync;
-            assert(o != null);
             for(java.util.Map.Entry<Integer, OutgoingAsyncBase> e : _asyncRequests.entrySet())
             {
-                if(e.getValue() == o)
+                if(e.getValue() == outAsync)
                 {
                     _asyncRequests.remove(e.getKey());
                     if(outAsync.completed(ex))
