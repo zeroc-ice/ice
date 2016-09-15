@@ -19,6 +19,7 @@ endif
 # Always enable the static configuration for the IceUtil library and never
 # install it.
 IceUtil_always_enable_configs 	:= static
+IceUtil_always_enable_platforms := $(build-platform)
 IceUtil_install_configs		:= none
 
 projects += $(project)

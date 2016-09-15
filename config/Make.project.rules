@@ -376,8 +376,8 @@ $2_project	:= $1
 $2_target 	:= $$(call var-with-default,$2_target,$3)
 $2_targetname	:= $$(call var-with-default,$2_targetname,$(patsubst $1_%,%,$2))
 
-$2_platforms	:= $$(filter $(platforms),$$(call unique,$$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2))))
-$2_configs	:= $$(filter $(configs),$$(call unique,$$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2))))
+$2_platforms	:= $$(filter $(platforms) $$($2_always_enable_platforms),$$(call unique,$$($2_always_enable_platforms) $$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2))))
+$2_configs	:= $$(filter $(configs) $$($2_always_enable_configs),$$(call unique,$$($2_always_enable_configs) $$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2))))
 
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
@@ -388,10 +388,6 @@ $$(foreach p,$$($2_platforms),\
     $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$($2_configs)),\
         $$(if $$(filter $(SKIP),$2[$$p-$$c]),,\
             $$(eval $$(call create-component-with-config-targets,$1,$2,$$p,$$c,$2[$$p-$$c])))))
-
-$$(foreach c,$$($2_always_enable_configs),\
-    $$(if $$($2[$(build-platform)-$$c]_config),,\
-	$$(eval $$(call create-component-with-config-targets,$1,$2,$(build-platform),$$c,$2[$(build-platform)-$$c]))))
 
 endef
 
@@ -624,9 +620,9 @@ $$(foreach p,$$($2_platforms),\
         $$(if $$(filter $(SKIP),$2[$$p-$$c]),,\
 	    $$(eval $$(call make-component-with-config,$1,$2,$$p,$$c,$2[$$p-$$c])))))
 
-$$(foreach c,$$($2_always_enable_configs),\
-    $$(if $$($2[$(build-platform)-$$c]_objects),,\
-	$$(eval $$(call make-component-with-config,$1,$2,$(build-platform),$$c,$2[$(build-platform)-$$c]))))
+# $$(foreach c,$$($2_always_enable_configs),\
+#     $$(if $$($2[$(build-platform)-$$c]_objects),,\
+# 	$$(eval $$(call make-component-with-config,$1,$2,$(build-platform),$$c,$2[$(build-platform)-$$c]))))
 
 #
 # Component targets to build the component with the specified platforms/configurations
@@ -800,11 +796,10 @@ $1_targetdir	:= $(call bindir,$1)
 
 #
 # Only build the translator with the static configuration
-# and on the default platform.
 #
 $1_configs	:= static
-$1_platforms	:= $(build-platform)
 $(notdir $1)_always_enable_configs := static
+$(notdir $1)_always_enable_platforms := $(build-platform)
 
 #
 # Defines the target extension and path of the slice translator
