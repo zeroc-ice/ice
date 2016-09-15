@@ -74,7 +74,10 @@ public:
         //
         // Break cyclic reference count.
         //
-        _handler->getNativeInfo()->setReadyCallback(0);
+        if(_handler->getNativeInfo())
+        {
+            _handler->getNativeInfo()->setReadyCallback(0);
+        }
     }
 
 private:
