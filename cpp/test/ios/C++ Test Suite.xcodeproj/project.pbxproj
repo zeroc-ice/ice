@@ -74,6 +74,45 @@
 		D8842EDC1BFF885600A8B607 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D8842EDB1BFF885600A8B607 /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		D8BD7A061D89F009001035C7 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
+			);
+			script = "/usr/local/bin/icebuilder --cpp";
+		};
+		D8D23B1F1D8AF57D00EE192D /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "/usr/local/bin/icebuilder --cpp";
+		};
+		D8D23B201D8AF59E00EE192D /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "/usr/local/bin/icebuilder --cpp";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXFileReference section */
 		14103B2B1CFC5E0E0097DE5A /* C++11 Test Suite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++11 Test Suite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14103B2C1CFC5E0E0097DE5A /* C++11 Test Suite.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "C++11 Test Suite.plist"; path = "/Users/benoit/Devel/GitHub/ice/cpp/test/ios/C++11 Test Suite.plist"; sourceTree = "<absolute>"; };
@@ -251,6 +290,7 @@
 				14103B271CFC5E0E0097DE5A /* Run Script */,
 			);
 			buildRules = (
+				D8D23B201D8AF59E00EE192D /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -269,6 +309,7 @@
 				142B839C1B6BA7A600E28347 /* Run Script */,
 			);
 			buildRules = (
+				D8D23B1F1D8AF57D00EE192D /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -287,6 +328,7 @@
 				144B488F1A78F71F00C0E06B /* Run Script */,
 			);
 			buildRules = (
+				D8BD7A061D89F009001035C7 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -474,11 +516,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -493,7 +535,14 @@
 					"-DICE_CPP11_MAPPING",
 					"$(OTHER_CFLAGS)",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce++11",
+					"-lIceGrid++11",
+					"-lIceStorm++11",
+					"-lGlacier2++11",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -513,9 +562,9 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = "";
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -530,7 +579,14 @@
 					"-DICE_CPP11_MAPPING",
 					"$(OTHER_CFLAGS)",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce++11",
+					"-lIceGrid++11",
+					"-lIceStorm++11",
+					"-lGlacier2++11",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -555,7 +611,6 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -566,7 +621,14 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/C++98 Test Suite-Info.plist";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce",
+					"-lIceGrid",
+					"-lIceStorm",
+					"-lGlacier2",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "C++ Test Suite";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -588,7 +650,6 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -599,7 +660,14 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/C++98 Test Suite-Info.plist";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce",
+					"-lIceGrid",
+					"-lIceStorm",
+					"-lGlacier2",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "C++ Test Suite";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -620,11 +688,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -635,7 +703,14 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/C++98 Test Suite-Info.plist";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce",
+					"-lIceGrid",
+					"-lIceStorm",
+					"-lGlacier2",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "C++ Test Suite";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -655,9 +730,9 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = "";
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "C++ Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
@@ -668,7 +743,14 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/C++98 Test Suite-Info.plist";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-lIce",
+					"-lIceGrid",
+					"-lIceStorm",
+					"-lGlacier2",
+					"-lbz2",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.IceTouch-Cpp-Test-Suite";
 				PRODUCT_NAME = "C++ Test Suite";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -683,6 +765,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ADDITIONAL_SDKS = "../../../IceSDK/$(PLATFORM_NAME).sdk";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "$(IDENTIFIER)";
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -697,6 +780,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ADDITIONAL_SDKS = "../../../IceSDK/$(PLATFORM_NAME).sdk";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
