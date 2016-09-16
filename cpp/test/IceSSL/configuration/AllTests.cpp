@@ -440,11 +440,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     {
         // version format is x.y.z
         size_t first = string(&s[0]).find_first_of(".");
-        size_t last = string(&s[0]).find_last_of(".");
-
-        int majorVersion = atoi(string(&s[0]).substr(0, first - 1).c_str());
-        int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
-
+        int majorVersion = atoi(string(&s[0]).substr(0, first).c_str());
         isElCapitanOrGreater = majorVersion >= 15;
     }
 #endif
