@@ -17,10 +17,9 @@
 #include <IceUtil/Unicode.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
+#include <IceUtil/FileUtil.h>
 
 #include <limits>
-
-#include <sys/stat.h>
 #include <string.h>
 
 using namespace std;
@@ -509,14 +508,14 @@ Slice::Gen::generate(const UnitPtr& p)
             fileImplC = _dir + '/' + fileImplC;
         }
 
-        struct stat st;
-        if(stat(fileImplH.c_str(), &st) == 0)
+        IceUtilInternal::structstat st;
+        if(!IceUtilInternal::stat(fileImplH, &st))
         {
             ostringstream os;
             os << fileImplH << "' already exists - will not overwrite";
             throw FileException(__FILE__, __LINE__, os.str());
         }
-        if(stat(fileImplC.c_str(), &st) == 0)
+        if(!IceUtilInternal::stat(fileImplC, &st))
         {
             ostringstream os;
             os << fileImplC << "' already exists - will not overwrite";
@@ -3204,7 +3203,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             StringList allOpNames;
             transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                       ::IceUtil::constMemFun(&Contained::name));
-	    
+
             allOpNames.push_back("ice_id");
             allOpNames.push_back("ice_ids");
             allOpNames.push_back("ice_isA");

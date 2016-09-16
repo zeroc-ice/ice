@@ -344,6 +344,14 @@ IceUtilInternal::FileLock::~FileLock()
     unlink(_path);
 }
 
+#ifndef __MINGW32__
+wstring
+IceUtilInternal::streamFilename(const string& filename)
+{
+    return stringToWstring(filename, IceUtil::getProcessStringConverter());
+}
+#endif
+
 IceUtilInternal::ifstream::ifstream()
 {
 }

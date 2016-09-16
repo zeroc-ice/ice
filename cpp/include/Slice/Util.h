@@ -30,6 +30,11 @@ SLICE_API void emitWarning(const std::string&, const std::string&, const std::st
 SLICE_API void emitRaw(const char*);
 SLICE_API std::vector<std::string> filterMcppWarnings(const std::string&);
 SLICE_API void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
+#ifdef _WIN32
+SLICE_API std::vector<std::string> argvToArgs(int argc, wchar_t* argv[]);
+#else
+SLICE_API std::vector<std::string> argvToArgs(int argc, char* argv[]);
+#endif
 
 class SLICE_API DependOutputUtil : IceUtil::noncopyable
 {

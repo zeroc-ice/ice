@@ -28,6 +28,7 @@ tests = [
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),
     ("Slice/macros", ["once"]),
+    ("Slice/unicodePaths", ["once"]),
     ("Ice/binding", ["core"]),
     ("Ice/checksum", ["core"]),
     ("Ice/exceptions", ["core"]),

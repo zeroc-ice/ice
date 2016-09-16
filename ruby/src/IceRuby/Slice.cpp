@@ -173,45 +173,38 @@ IceRuby_compile(int argc, VALUE* argv, VALUE self)
         }
 
         vector<string> argSeq;
-	if(!arrayToStringSeq(argv[0], argSeq))
-	{
-	    throw RubyException(rb_eTypeError, "argument is not an array");
-	}
-	char** argv = new char*[argSeq.size()+1];
-	// Manufacture a fake argv[0].
-	argv[0] = const_cast<char*>("slice2rb");
-	for(size_t i = 0; i < argSeq.size(); ++i)
-	{
-	    argv[i+1] = const_cast<char*>(argSeq[i].c_str());
-	}
+        if(!arrayToStringSeq(argv[0], argSeq))
+        {
+            throw RubyException(rb_eTypeError, "argument is not an array");
+        }
+        // Manufacture a fake argv[0].
+        argSeq.insert(argSeq.begin(), "slice2rb");
 
-	int rc;
-	try
-	{
-	    rc = Slice::Ruby::compile(argSeq.size()+1, argv);
-	}
-	catch(const std::exception& ex)
-	{
-	    getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
-	    rc = EXIT_FAILURE;
-	}
-	catch(const std::string& msg)
-	{
-	    getErrorStream() << argv[0] << ": error:" << msg << endl;
-	    rc = EXIT_FAILURE;
-	}
-	catch(const char* msg)
-	{
-	    getErrorStream() << argv[0] << ": error:" << msg << endl;
-	    rc = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
-	    rc = EXIT_FAILURE;
-	}
-
-	delete[] argv;
+        int rc;
+        try
+        {
+            rc = Slice::Ruby::compile(argSeq);
+        }
+        catch(const std::exception& ex)
+        {
+            getErrorStream() << argSeq[0] << ": error:" << ex.what() << endl;
+            rc = EXIT_FAILURE;
+        }
+        catch(const std::string& msg)
+        {
+            getErrorStream() << argSeq[0] << ": error:" << msg << endl;
+            rc = EXIT_FAILURE;
+        }
+        catch(const char* msg)
+        {
+            getErrorStream() << argSeq[0] << ": error:" << msg << endl;
+            rc = EXIT_FAILURE;
+        }
+        catch(...)
+        {
+            getErrorStream() << argSeq[0] << ": error:" << "unknown exception" << endl;
+            rc = EXIT_FAILURE;
+        }
         return INT2FIX(rc);
     }
     ICE_RUBY_CATCH

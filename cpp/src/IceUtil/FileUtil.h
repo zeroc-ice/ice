@@ -104,14 +104,14 @@ public:
     // file.
     //
     FileLock(const std::string&);
-    
+
     //
     // The destructor releases the lock and removes the file.
     //
     virtual ~FileLock();
-    
+
 private:
-    
+
 #ifdef _WIN32
     HANDLE _fd;
 #else
@@ -136,7 +136,7 @@ public:
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900)
     ifstream(const ifstream&) = delete;
-#endif 
+#endif
 
 private:
 
@@ -159,7 +159,7 @@ public:
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900)
     ofstream(const ofstream&) = delete;
-#endif 
+#endif
 
 private:
 
@@ -167,6 +167,19 @@ private:
     ofstream(const char*);
     void open(const char*, std::ios_base::openmode mode = std::ios_base::out);
 };
+
+//
+// Use streamFilename to construct the filename given to std stream classes
+// like ifstream and ofstream.
+//
+#if defined(_WIN32) && !defined(__MINGW32__)
+ICE_UTIL_API std::wstring streamFilename(const std::string&);
+#else
+inline std::string streamFilename(const std::string& filename)
+{
+    return filename;
+}
+#endif
 
 }
 #endif

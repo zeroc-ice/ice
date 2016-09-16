@@ -38,6 +38,7 @@ tests = [
     ("Slice/structure", ["once"]),
     ("Slice/macros", ["once"]),
     ("Slice/headers", ["once", "nowin32"]),
+    ("Slice/unicodePaths", ["once"]),
     ("Ice/properties", ["once", "nomingw"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),

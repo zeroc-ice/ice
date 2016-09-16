@@ -28,6 +28,7 @@ tests = [
     ("Slice/structure", ["once"]),
     ("Slice/macros", ["once"]),
     ("Slice/import", ["once"]),
+    ("Slice/unicodePaths", ["once"]),
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/exceptions", ["core"]),

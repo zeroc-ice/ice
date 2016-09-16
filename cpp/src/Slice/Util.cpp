@@ -10,6 +10,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/StringConverter.h>
 #include <climits>
 
 #ifndef _MSC_VER
@@ -172,11 +173,11 @@ Slice::changeInclude(const string& path, const vector<string>& includePaths)
     {
         paths.push_back(canonicalPath);
     }
-    
+
     for(vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
         for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
-        {            
+        {
             if(i->compare(0, j->length(), *j) == 0)
             {
                 string s = i->substr(j->length() + 1); // + 1 for the '/'
@@ -186,7 +187,7 @@ Slice::changeInclude(const string& path, const vector<string>& includePaths)
                 }
             }
         }
-        
+
         //
         // If the path has been already shortened no need to test
         // with canonical path.
@@ -430,3 +431,27 @@ Slice::DependOutputUtil::os()
 {
     return _file.empty() ? cout : _os;
 }
+
+#ifdef _WIN32
+vector<string>
+Slice::argvToArgs(int argc, wchar_t* argv[])
+{
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(IceUtil::wstringToString(argv[i]));
+    }
+    return args;
+}
+#else
+vector<string>
+Slice::argvToArgs(int argc, char* argv[])
+{
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(argv[i]);
+    }
+    return args;
+}
+#endif

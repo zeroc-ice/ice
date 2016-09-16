@@ -1756,7 +1756,7 @@ def simpleTest(exe = None, options = "", interpreterOptions = ""):
     if appverifier:
         appVerifierAfterTestEnd([exe])
 
-def createConfig(path, lines, enc=None):
+def createFile(path, lines, enc=None):
     if sys.version_info[0] > 2 and enc:
         config = open(path, "w", encoding=enc)
     else:
@@ -1788,10 +1788,14 @@ def getCppBinDir(lang = None):
     return binDir
 
 def getSliceTranslator(lang = "cpp"):
+    compiler = ""
     if iceHome:
-        return os.path.join(iceHome, "bin", "slice2%s" % lang)
+        compiler = os.path.join(iceHome, "bin", "slice2%s" % lang)
     else:
-        return os.path.join(getCppBinDir(), ("slice2%s" % lang))
+        compiler = os.path.join(getCppBinDir(), ("slice2%s" % lang))
+    if isWin32():
+        compiler += ".exe"
+    return compiler
 
 def getCppLibDir(lang = None):
     if isWin32():

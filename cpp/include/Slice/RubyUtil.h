@@ -46,7 +46,7 @@ SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, IdentStyle, const 
 //
 SLICE_API void printHeader(IceUtilInternal::Output&);
 
-SLICE_API int compile(int, char*[]);
+SLICE_API int compile(const std::vector<std::string>&);
 
 }
 }
