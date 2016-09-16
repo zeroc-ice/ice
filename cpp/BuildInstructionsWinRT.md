@@ -109,7 +109,7 @@ In the "Ice Test Suite" Windows Store application, select the Server language
 mapping and Protocol you want to use.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.2
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.3
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm

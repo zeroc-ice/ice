@@ -174,16 +174,16 @@ To install Ice for Java in the directory specified by the `prefix` variable in
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-    freeze-3.6.2.jar
-    glacier2-3.6.2.jar
+    freeze-3.6.3.jar
+    glacier2-3.6.3.jar
     ice-3.6.3.jar
-    icebox-3.6.2.jar
-    icediscovery-3.6.2.jar
-    icegrid-3.6.2.jar
+    icebox-3.6.3.jar
+    icediscovery-3.6.3.jar
+    icegrid-3.6.3.jar
     icegridgui.jar
-    icelocatordiscovery-3.6.2.jar
+    icelocatordiscovery-3.6.3.jar
     icepatch2-3.6.2.jar
-    icestorm-3.6.2.jar
+    icestorm-3.6.3.jar
 
 POM files are also installed for ease of deployment to a maven-based
 distribution system.
@@ -238,6 +238,6 @@ and WinRT test suites to start the required servers.
 
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.2
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.3
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net

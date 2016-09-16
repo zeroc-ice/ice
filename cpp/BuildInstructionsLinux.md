@@ -110,7 +110,7 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Linux+Binary+Distributions
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.2
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.3
 [3]: http://expat.sourceforge.net
 [4]: http://openssl.org
 [5]: http://bzip.org

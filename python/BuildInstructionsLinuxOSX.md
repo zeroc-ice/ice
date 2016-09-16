@@ -63,4 +63,4 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.2
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.3
