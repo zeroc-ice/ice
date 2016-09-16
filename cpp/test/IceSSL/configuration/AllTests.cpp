@@ -529,20 +529,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 {
     bool elCapitanUpdate2OrLower = false;
 #ifdef __APPLE__
-    bool isElCapitan = false;
+    bool isElCapitanOrGreater = false;
     vector<char> s(256);
     size_t size = s.size();
     int ret = sysctlbyname("kern.osrelease", &s[0], &size, NULL, 0);
     if(ret == 0)
     {
-        isElCapitan = string(&s[0]).find("15.") == 0;
-        if(isElCapitan)
-        {
-            size_t first = string(&s[0]).find_first_of(".");
-            size_t last = string(&s[0]).find_last_of(".");
-            int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
-            elCapitanUpdate2OrLower = minorVersion <= 2;
-        }
+        // version format is x.y.z
+        size_t first = string(&s[0]).find_first_of(".");
+        size_t last = string(&s[0]).find_last_of(".");
+
+        int majorVersion = atoi(string(&s[0]).substr(0, first).c_str());
+        int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
+
+        isElCapitanOrGreater = majorVersion >= 15;
+        elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
     }
 #endif
     string factoryRef = "factory:tcp -p 12010";
@@ -2106,7 +2107,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
         catch(const LocalException& ex)
         {
-            if(!isElCapitan) // DH params too weak for El Capitan
+            if(!isElCapitanOrGreater) // DH params too weak for El Capitan
             {
                 cerr << ex << endl;
                 test(false);
