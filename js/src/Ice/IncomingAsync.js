@@ -128,12 +128,19 @@ class IncomingAsync
         s.push("\noperation: " + this._current.operation);
         if(this._connection !== null)
         {
-            for(let p = this._connection.getInfo(); p; p = p.underlying)
+            try
             {
-                if(p instanceof Ice.IPConnectionInfo)
+                for(let p = this._connection.getInfo(); p; p = p.underlying)
                 {
-                    s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
+                    if(p instanceof Ice.IPConnectionInfo)
+                    {
+                        s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
+                    }
                 }
+            }
+            catch(exc)
+            {
+                // Ignore.
             }
         }
         if(ex.stack)

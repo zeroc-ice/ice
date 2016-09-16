@@ -522,10 +522,16 @@ namespace IceInternal
                 output.print("\noperation: " + _current.operation);
                 if(_current.con != null)
                 {
-                    for(Ice.ConnectionInfo p = _current.con.getInfo(); p != null; p = p.underlying)
+                    try
                     {
-                        Ice.IPConnectionInfo ipinfo = p as Ice.IPConnectionInfo;
-                        output.print("\nremote host: " + ipinfo.remoteAddress + " remote port: " + ipinfo.remotePort);
+                        for(Ice.ConnectionInfo p = _current.con.getInfo(); p != null; p = p.underlying)
+                        {
+                            Ice.IPConnectionInfo ipinfo = p as Ice.IPConnectionInfo;
+                            output.print("\nremote host: " + ipinfo.remoteAddress + " remote port: " + ipinfo.remotePort);
+                        }
+                    }
+                    catch(Ice.LocalException)
+                    {
                     }
                 }
                 output.print("\n");

@@ -229,14 +229,21 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 
     if(_current.con)
     {
-        for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+        try
         {
-            Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
-            if(ipConnInfo)
+            for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
             {
-                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
-                break;
+                Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+                if(ipConnInfo)
+                {
+                    out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+                    break;
+                }
             }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
         }
     }
 }

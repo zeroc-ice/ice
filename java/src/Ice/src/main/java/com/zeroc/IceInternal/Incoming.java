@@ -538,13 +538,20 @@ final public class Incoming implements com.zeroc.Ice.Request
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {
-            for(ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
+            try
             {
-                if(connInfo instanceof IPConnectionInfo)
+                for(ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
                 {
-                    IPConnectionInfo ipConnInfo = (IPConnectionInfo)connInfo;
-                    out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    if(connInfo instanceof IPConnectionInfo)
+                    {
+                        IPConnectionInfo ipConnInfo = (IPConnectionInfo)connInfo;
+                        out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    }
                 }
+            }
+            catch(com.zeroc.Ice.LocalException exc)
+            {
+                // Ignore.
             }
         }
         out.print("\n");
@@ -849,20 +856,25 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
 
-            if(ex instanceof java.lang.Error)
-            {
-                throw new ServantError((java.lang.Error)ex);
-            }
-        }
-        finally
-        {
             if(_observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
             _responseHandler = null;
+
+            if(!amd && ex instanceof java.lang.Error)
+            {
+                throw new ServantError((java.lang.Error)ex);
+            }
         }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
+        _responseHandler = null;
     }
 
     private Instance _instance;
