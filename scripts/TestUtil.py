@@ -1961,9 +1961,6 @@ def getTestEnv(lang, testdir):
 
         # NodeJS is always installed locally even when testing against a binary installation
         if os.environ.get("USE_BIN_DIST", "no") != "yes":
-            if es5:
-                addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src", "es5"), env)
-            else:
                 addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
 
     if isWin32():

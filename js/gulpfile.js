@@ -475,7 +475,29 @@ gulp.task("lint:js", ["build"],
             .pipe(jshint.reporter("default"));
     });
 
+
+var buildDepends = ["dist", "test"];
+var cleanDepends = ["test:clean", "common:clean"];
+
+if(!useBinDist)
+{
+gulp.task("ice-module", ["dist"],
+    function()
+    {
+        return gulp.src(['src/**/*']).pipe(
+                    gulp.dest(path.join("test", "node_modules", "ice")));
+    });
+    buildDepends.push("ice-module");
+
+gulp.task("ice-module:clean", [],
+    function()
+    {
+        return gulp.src(['test/node_modules']).pipe(paths(del));
+    });
+    cleanDepends.push("ice-module:clean")
+}
+
 gulp.task("lint", ["lint:js", "lint:html"]);
-gulp.task("build", ["dist", "test"]);
-gulp.task("clean", ["test:clean", "common:clean"].concat(useBinDist ? [] : ["dist:clean"]));
+gulp.task("build", buildDepends);
+gulp.task("clean", cleanDepends.concat(useBinDist ? [] : ["dist:clean"]));
 gulp.task("default", ["build"]);
