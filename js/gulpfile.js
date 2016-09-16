@@ -156,6 +156,13 @@ gulp.task("common:css", ["bower"],
             .pipe(gulp.dest("assets"));
     });
 
+gulp.task("common:js-babel", [],
+    function(){
+        return gulp.src("test/Common/Common.js")
+                   .pipe(babel({compact: false}))
+                   .pipe(gulp.dest("test/Common/es5/"));
+    });
+
 gulp.task("common:clean", [],
     function(){
         del(["assets/common.css", "assets/common.min.js"]);
@@ -211,7 +218,8 @@ tests.forEach(
             });
     });
 
-gulp.task("test", tests.map(testBabelTask).concat(["common:slice-babel", "common:js", "common:css"]));
+gulp.task("test", tests.map(testBabelTask).concat(
+    ["common:slice-babel", "common:js", "common:js-babel", "common:css"]));
 
 gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:slice:clean"]));
 
@@ -481,18 +489,24 @@ var cleanDepends = ["test:clean", "common:clean"];
 
 if(!useBinDist)
 {
-gulp.task("ice-module", ["dist"],
+gulp.task("ice-module:package", ["dist"],
     function()
     {
-        return gulp.src(['src/**/*']).pipe(
-                    gulp.dest(path.join("test", "node_modules", "ice")));
+        return gulp.src(['package.json']).pipe(
+            gulp.dest(path.join("node_modules", "ice"))); 
+    });
+gulp.task("ice-module", ["ice-module:package"],
+    function()
+    {
+        gulp.src(['src/**/*']).pipe(
+               gulp.dest(path.join("node_modules", "ice", "src")));
     });
     buildDepends.push("ice-module");
 
 gulp.task("ice-module:clean", [],
     function()
     {
-        return gulp.src(['test/node_modules']).pipe(paths(del));
+        return gulp.src(['node_modules/ice']).pipe(paths(del));
     });
     cleanDepends.push("ice-module:clean")
 }

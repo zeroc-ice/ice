@@ -9,4 +9,4 @@
 //
 // **********************************************************************
 
-require("../../../../Common/Common").run(module);
+require("../../../../Common/es5/Common").run(module);

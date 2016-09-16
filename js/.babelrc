@@ -15,7 +15,8 @@
         [
             "rewrite-require",
                 { 
-                    "aliases": { "ice": "ice/es5"}
+                    "aliases": { "ice": "ice/src/es5", 
+				"../../../Common/Common": "../../../Common/es5/Common"}
                 }
         ]
     ]

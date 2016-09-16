@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+require("babel-polyfill")
 module.exports.Ice      = require("./Ice/Ice").Ice;
 module.exports.IceMX    = require("./Ice/Ice").IceMX;
 module.exports.IceSSL   = require("./Ice/Ice").IceSSL;
