@@ -542,15 +542,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         service->adapters.push_back(adapter);
 
         string iceboxExe = "/icebox";
-#if defined(__linux)
-#  if defined(__i386)
+#if defined(__linux) && defined(__i386)
         iceboxExe += "32";
-#  endif
-#  if defined(ICE_CPP11_COMPILER)
-        iceboxExe += "++11";
-#  endif
 #endif
-
         IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
         icebox->id = "IceBox";
         icebox->exe = properties->getProperty("IceBinDir") + iceboxExe;
