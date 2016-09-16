@@ -372,10 +372,10 @@ public class AllTests : TestCommon.TestApp
             initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
             Ice.Communicator comm = Ice.Util.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(800);
             long begin = System.DateTime.Now.Ticks;
             comm.destroy();
-            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 400);
+            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 700);
         }
         WriteLine("ok");
 
@@ -391,7 +391,7 @@ public class AllTests : TestCommon.TestApp
             proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
             try
             {
-                proxy.sleep(300);
+                proxy.sleep(500);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException)
@@ -400,7 +400,7 @@ public class AllTests : TestCommon.TestApp
 
             try
             {
-                proxy.end_sleep(proxy.begin_sleep(300));
+                proxy.end_sleep(proxy.begin_sleep(500));
                 test(false);
             }
             catch(Ice.InvocationTimeoutException)

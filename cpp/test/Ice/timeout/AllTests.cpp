@@ -417,10 +417,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         initData.properties->setProperty("Ice.Override.CloseTimeout", "100");
         Ice::CommunicatorPtr comm = Ice::initialize(initData);
         Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
-        timeout->holdAdapter(500);
+        timeout->holdAdapter(800);
         IceUtil::Time now = IceUtil::Time::now();
         comm->destroy();
-        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(400));
+        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(700));
     }
     cout << "ok" << endl;
 
@@ -435,7 +435,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         timeout = timeout->ice_invocationTimeout(100);
         try
         {
-            timeout->sleep(300);
+            timeout->sleep(500);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
@@ -445,9 +445,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            timeout->sleepAsync(300).get();
+            timeout->sleepAsync(500).get();
 #else
-            timeout->end_sleep(timeout->begin_sleep(300));
+            timeout->end_sleep(timeout->begin_sleep(500));
 #endif
             test(false);
         }
