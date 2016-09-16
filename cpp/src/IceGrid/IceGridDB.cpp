@@ -364,7 +364,7 @@ Client::run(int argc, char* argv[])
             stream->write(data);
             pair<const Ice::Byte*, const Ice::Byte*> buf = stream->finished();
 
-            ofstream fs(IceUtilInternal::streamFileName(dbFile).c_str(), ios::binary);
+            ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
                 cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
