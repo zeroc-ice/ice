@@ -136,7 +136,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
     }
     default:
     // case kSecTrustResultInvalid:
-    // //case kSecTrustResultConfirm: // Used in old OS X versions
+    // case kSecTrustResultConfirm: // Used in old OS X versions
     // case kSecTrustResultDeny:
     // case kSecTrustResultRecoverableTrustFailure:
     // case kSecTrustResultFatalTrustFailure:
@@ -225,14 +225,11 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         {
             assert(!_trust);
             err = SSLCopyPeerTrust(_ssl, &_trust);
-            if(_incoming && err == errSSLBadCert && _engine->getVerifyPeer() == 1)
+            if(_incoming && _engine->getVerifyPeer() == 1 && (err == errSSLBadCert || _trust == 0))
             {
-                //
-                // This is expected if the client doesn't provide a
-                // certificate (occurs since 10.10). The server is
-                // configured to verify to not require the client
-                // certificate so we ignore the failure.
-                //
+                // This is expected if the client doesn't provide a certificate. With 10.10 and 10.11 errSSLBadCert
+                // is expected, the server is configured to verify but not require the client
+                // certificate so we ignore the failure. In 10.12 there is no error and trust is 0.
                 continue;
             }
             if(err == noErr)
