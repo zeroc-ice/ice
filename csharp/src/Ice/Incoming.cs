@@ -227,12 +227,19 @@ namespace IceInternal
                 output.print("\noperation: " + current_.operation);
                 if(current_.con != null)
                 {
-                    Ice.ConnectionInfo connInfo = current_.con.getInfo();
-                    if(connInfo is Ice.IPConnectionInfo)
+                    try
                     {
-                        Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
-                        output.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
-                                     ipConnInfo.remotePort.ToString());
+                        Ice.ConnectionInfo connInfo = current_.con.getInfo();
+                        if(connInfo is Ice.IPConnectionInfo)
+                        {
+                            Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
+                            output.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
+                                         ipConnInfo.remotePort.ToString());
+                        }
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        // Ignore.
                     }
                 }
                 output.print("\n");

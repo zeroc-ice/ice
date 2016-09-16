@@ -178,11 +178,18 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 
     if(_current.con)
     {
-        Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
-        Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
-        if(ipConnInfo)
+        try
         {
-            out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+            Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
+            Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
+            if(ipConnInfo)
+            {
+                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
         }
     }
 }
