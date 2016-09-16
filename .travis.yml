@@ -43,6 +43,8 @@ before_install:
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
 - wget https://github.com/LMDB/lmdb/archive/LMDB_${LMDB_REVISION}.tar.gz
 - tar xvf LMDB_${LMDB_REVISION}.tar.gz
+- nvm install node
+- nvm use node
 
 install:
 - make -C ${MCPP_HOME} -j3
