@@ -466,10 +466,10 @@ public class AllTests
             initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
             Ice.Communicator comm = app.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(800);
             long now = System.nanoTime();
             comm.destroy();
-            test(System.nanoTime() - now < 400 * 1000000);
+            test(System.nanoTime() - now < 700 * 1000000);
         }
         out.println("ok");
 
@@ -485,7 +485,7 @@ public class AllTests
             proxy = (TimeoutPrx)proxy.ice_invocationTimeout(100);
             try
             {
-                proxy.sleep(300);
+                proxy.sleep(500);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException ex)

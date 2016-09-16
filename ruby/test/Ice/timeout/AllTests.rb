@@ -198,10 +198,10 @@ def allTests(communicator)
     initData.properties.setProperty("Ice.Override.CloseTimeout", "100")
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection();
-    timeout.holdAdapter(500);
+    timeout.holdAdapter(800);
     now = Time.now
     comm.destroy();
-    test((Time.now - now) < 0.4);
+    test((Time.now - now) < 0.7);
 
     puts "ok"
 
