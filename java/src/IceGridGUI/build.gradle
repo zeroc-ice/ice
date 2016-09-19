@@ -6,23 +6,22 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
 project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-def macosx = System.properties['os.name'] == "Mac OS X"
+project.ext.macosx = System.properties['os.name'] == "Mac OS X"
 
 // Check for JavaFX support
-def javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JAVA_HOME']}, {System.properties['java.home']}],
+project.ext.javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JAVA_HOME']}, {System.properties['java.home']}],
                            ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar',
                             'jre/lib/ext/jfxrt.jar'])
 
-def hasJavaFx = javafxJar != null
+project.ext.hasJavaFx = javafxJar != null
 
-if (hasJavaFx) {
+if (project.ext.hasJavaFx) {
     apply plugin: 'application'
     apply from: 'javafx.gradle'
 } else {
@@ -51,11 +50,11 @@ dependencies {
       bundleapp 'com.oracle:appbundler:1.0'
 }
 
-def tmpJarName = "IceGridGUITEMP.jar"
-def jarName = "icegridgui.jar"
-def env = System.getenv()
-def keystore = env['JARSIGNER_KEYSTORE']
-def keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
+project.ext.tmpJarName = "IceGridGUITEMP.jar"
+project.ext.jarName = "icegridgui.jar"
+project.ext.env = System.getenv()
+project.ext.keystore = env['JARSIGNER_KEYSTORE']
+project.ext.keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
 
 jar {
     archiveName = tmpJarName
@@ -66,112 +65,23 @@ jar {
     }
 }
 
-buildscript {
-        repositories {
-            mavenCentral()
-            maven {
-                url "https://${iceMavenRepo}/nexus/content/repositories/thirdparty"
-            }
-        }
-        dependencies {
-            if(icegridguiProguard.toBoolean()) {
-                classpath group: 'net.sourceforge', name: 'proguard', version: '5.0'
-            }
-        }
-}
-
-def libJars = []
+project.ext.libJars = []
 ['rt.jar', 'jsse.jar', 'i386/default/jclSC170/vm.jar', 'amd64/default/jclSC170/vm.jar', 'ibmcertpathfw.jar', 'math.jar'].each {
     def jfile = searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
                            ["${it}", "lib/${it}", "jre/lib/${it}"])
     if (jfile) {
-      libJars << jfile
+      project.ext.libJars << jfile
     }
 }
 
 if (hasJavaFx) {
-    libJars << javafxJar
+    project.ext.libJars << javafxJar
 }
 
-if(icegridguiProguard.toBoolean()) {
-
-    task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
-        injars configurations.compile.resolve(), filter: "!META-INF/**"
-        injars "${projectDir}/build/libs/${tmpJarName}"
-        outjars "${libDir}/${jarName}"
-        libraryjars libJars
-        configuration 'icegridgui.pro'
-    }
-
-    task updateManifest(dependsOn: proguardJar) << {
-        if (hasJavaFx) {
-            ant.jar(update: true, destfile: "${libDir}/${jarName}") {
-                delegate.manifest {
-                    attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
-                    attribute(name: 'Built-By', value: 'Zeroc, Inc.')
-                }
-            }
-        }
-    }
-
-    task copyJars(type: Copy, dependsOn: updateManifest) {
-        from new File("${libDir}/${jarName}")
-        into "${DESTDIR}${jarDir}"
-    }
-
-} else {
-
-    task copyTmpJars(type: Copy, dependsOn: jar) {
-        from new File("${projectDir}/build/libs/${tmpJarName}")
-        into "${libDir}"
-        rename("${tmpJarName}", "${jarName}")
-
-    }
-
-    task updateManifest(dependsOn: copyTmpJars) << {
-        ant.jar(update: true, destfile: "${libDir}/${jarName}") {
-            delegate.manifest {
-                attribute(name: "Main-Class", value: "IceGridGUI.Main")
-                attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
-            }
-        }
-    }
-
-    //
-    // Copy JARs to the install location
-    //
-    task copyJars(type: Copy, dependsOn: jar) {
-        from new File("${projectDir}/build/libs/${tmpJarName}")
-        into "${DESTDIR}${jarDir}"
-        rename("${tmpJarName}", "${jarName}")
-    }
-
-    //
-    // We need to update the manifest of the installed IceGridGUI jar and fix the
-    // Class-Path to point to the installed JAR files.
-    //
-    task updateInstallManifest(dependsOn: copyJars) << {
-        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
-            delegate.manifest {
-                attribute(name: "Main-Class", value: "IceGridGUI.Main")
-                attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
-            }
-        }
-    }
-
-    //
-    // We need to sign the install JARs after updating the manifest.
-    //
-    task signInstalJar(dependsOn: updateInstallManifest) << {
-        if(keystore != null && keystore.length() > 0) {
-            ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
-                        alias: "zeroc.com",
-                        keystore: "${keystore}",
-                        storepass:"${keystore_password}")
-        }
-    }
+if(icegridguiProguard.toBoolean()){
+    apply from: "proguard-jar.gradle"
+}else{
+    apply from: "plain-jar.gradle"
 }
 
 task signjar(dependsOn: updateManifest) << {
@@ -183,6 +93,7 @@ task signjar(dependsOn: updateManifest) << {
     }
 }
 assemble.dependsOn(signjar)
+
 
 if(macosx)
 {
@@ -226,12 +137,6 @@ if(macosx)
 clean {
     delete("${libDir}/${jarName}")
     delete("${libDir}/IceGrid Admin.app")
-}
-
-if(icegridguiProguard.toBoolean()) {
-    task install(dependsOn: copyJars)
-}else{
-    task install(dependsOn: signInstalJar)
 }
 
 if(macosx) {

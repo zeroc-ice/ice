@@ -1,0 +1,63 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+task copyTmpJars(type: Copy, dependsOn: jar) {
+    from new File("${projectDir}/build/libs/${tmpJarName}")
+    into "${libDir}"
+    rename("${tmpJarName}", "${jarName}")
+
+}
+
+task updateManifest(dependsOn: copyTmpJars) << {
+    ant.jar(update: true, destfile: "${libDir}/${jarName}") {
+        delegate.manifest {
+            attribute(name: "Main-Class", value: "IceGridGUI.Main")
+            attribute(name: "Built-By", value: "ZeroC, Inc.")
+            attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
+        }
+    }
+}
+
+//
+// Copy JARs to the install location
+//
+task copyJars(type: Copy, dependsOn: jar) {
+    from new File("${projectDir}/build/libs/${tmpJarName}")
+    into "${DESTDIR}${jarDir}"
+    rename("${tmpJarName}", "${jarName}")
+}
+
+//
+// We need to update the manifest of the installed IceGridGUI jar and fix the
+// Class-Path to point to the installed JAR files.
+//
+task updateInstallManifest(dependsOn: copyJars) << {
+    ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
+        delegate.manifest {
+            attribute(name: "Main-Class", value: "IceGridGUI.Main")
+            attribute(name: "Built-By", value: "ZeroC, Inc.")
+            attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+        }
+    }
+}
+
+//
+// We need to sign the install JARs after updating the manifest.
+//
+task signInstalJar(dependsOn: updateInstallManifest) << {
+    if(keystore != null && keystore.length() > 0) {
+        ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
+                    alias: "zeroc.com",
+                    keystore: "${keystore}",
+                    storepass:"${keystore_password}")
+    }
+}
+
+task install(dependsOn: signInstalJar)
+

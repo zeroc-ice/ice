@@ -1,0 +1,44 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "net.sf.proguard:proguard-gradle:5.2.1"
+    }
+}
+
+task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+    injars configurations.compile.resolve(), filter: "!META-INF/**"
+    injars "${projectDir}/build/libs/${tmpJarName}"
+    outjars "${libDir}/${jarName}"
+    libraryjars project.ext.libJars
+    configuration 'icegridgui.pro'
+}
+
+task updateManifest(dependsOn: proguardJar) << {
+    if (hasJavaFx) {
+        ant.jar(update: true, destfile: "${libDir}/${jarName}") {
+            delegate.manifest {
+                attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
+                attribute(name: 'Built-By', value: 'Zeroc, Inc.')
+            }
+        }
+    }
+}
+
+task copyJars(type: Copy, dependsOn: updateManifest) {
+    from new File("${libDir}/${jarName}")
+    into "${DESTDIR}${jarDir}"
+}
+
+task install(dependsOn: copyJars)
