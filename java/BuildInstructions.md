@@ -64,13 +64,11 @@ installed in a different directory:
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-version 2.4 in the distribution. You cannot build the Ice for Java source
-distribution without an Internet connection. Except for Berkeley DB, Gradle will
+version 2.4 in the distribution. Except for Berkeley DB, Gradle will
 download all required packages automatically. These packages are listed below.
-Gradle will automatically download any necessary build artifacts from ZeroC's
-Maven repository located at
+Gradle will automatically download any necessary build artifacts from Maven central
+repository.
 
-    http://repo.zeroc.com/nexus/content/repositories/thirdparty
 
 ### Bzip2 Compression
 
@@ -91,18 +89,16 @@ therefore add significant latency to Ice requests.*
 
 ### JGoodies
 
-The graphical IceGrid administrative tool uses the JGoodies libraries Common,
-Forms, and Looks. The following versions were tested:
+The graphical IceGrid administrative tool uses the JGoodies libraries Forms,
+and Looks. The following versions were tested:
 
-    JGoodies Common 1.8.0
-    JGoodies Forms 1.8.0
-    JGoodies Looks 2.6.0
+    JGoodies Forms 1.9.0
+    JGoodies Looks 2.7.0
 
 The Maven package ids for the JGoodies packages are as follows:
 
-    groupId=com.jgoodies, version=1.8.0, artifactId=jgoodies-common
-    groupId=com.jgoodies, version=1.8.0, artifactId=jgoodies-forms
-    groupId=com.jgoodies, version=2.6.0, artifactId=jgoodies-looks
+    groupId=com.jgoodies, version=1.9.0, artifactId=jgoodies-forms
+    groupId=com.jgoodies, version=2.7.0, artifactId=jgoodies-looks
 
 ### ProGuard
 
@@ -111,7 +107,7 @@ IceGrid administrative tool.
 
 The Maven package id for the ProGuard package is as follows:
 
-    groupId=net.sourceforge, version=5.0, artifactId=proguard
+    groupId='net.sf.proguard', artifactId='proguard-gradle', version='5.2.1'
 
 ### Java Application Bundler
 
@@ -182,7 +178,7 @@ The installation installs the following JAR files to `<prefix>/lib`.
     icegrid-3.6.3.jar
     icegridgui.jar
     icelocatordiscovery-3.6.3.jar
-    icepatch2-3.6.2.jar
+    icepatch2-3.6.3.jar
     icestorm-3.6.3.jar
 
 POM files are also installed for ease of deployment to a maven-based
