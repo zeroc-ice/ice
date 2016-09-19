@@ -7069,7 +7069,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string name = p->name();
 
-    _out << sp << nl << "public sealed class " << name << 'I';
+    _out << sp << nl << "public class " << name << 'I';
     if(p->isInterface())
     {
         if(p->isLocal())
