@@ -47,7 +47,7 @@ tests = [
     ("html", ["index.html"], ""),
     ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
     ("js", ["Test.js"], ""),
-    ("objc", ["Test.mm"], ""),
+    ("objc", ["Test.m"], ""),
     ("php", ["Test.php"], "")]
 
 #
