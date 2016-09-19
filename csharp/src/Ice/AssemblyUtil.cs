@@ -170,13 +170,20 @@ namespace IceInternal
                 loadAssemblies(); // Lazy initialization
                 foreach(Assembly a in _loadedAssemblies.Values)
                 {
-                    Type[] types = a.GetTypes();
-                    foreach(Type t in types)
+                    try
                     {
-                        if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                        Type[] types = a.GetTypes();
+                        foreach(Type t in types)
                         {
-                            l.AddLast(t);
+                            if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                            {
+                                l.AddLast(t);
+                            }
                         }
+                    }
+                    catch(ReflectionTypeLoadException)
+                    {
+                        // Failed to load types from the assembly, ignore and continue
                     }
                 }
             }
