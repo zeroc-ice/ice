@@ -406,9 +406,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	@mkdir -p .depend
 	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $< | sed 's/\(.*: \\\)/\$$(HDIR)\/\1/' > .depend/$(*F).ice.d
 
-#%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-
-%.h %.cpp: %.ice $(SLICE2CPP)
+%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 	@touch $(*F).cpp
