@@ -35,30 +35,38 @@ class PluginI implements Ice.Plugin
         void
         invoke(Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.equals(l))
             {
-                l.begin_ice_invoke(_operation, _mode, _inParams, _context,
-                    new Ice.Callback_Object_ice_invoke()
-                    {
-                        @Override
-                        public void
-                        response(boolean ok, byte[] outParams)
+                _locatorPrx = l;
+                try
+                {
+                    l.begin_ice_invoke(_operation, _mode, _inParams, _context,
+                        new Ice.Callback_Object_ice_invoke()
                         {
-                            _amdCB.ice_response(ok, outParams);
-                        }
+                            @Override
+                            public void
+                            response(boolean ok, byte[] outParams)
+                            {
+                                _amdCB.ice_response(ok, outParams);
+                            }
 
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            Request.this.exception(ex);
-                        }
-                    });
+                            @Override
+                            public void
+                            exception(Ice.LocalException ex)
+                            {
+                                Request.this.exception(ex);
+                            }
+                        });
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception(ex);
+                }
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                assert(_exception != null); // Don't retry if the proxy didn't change
+                _amdCB.ice_exception(_exception);
             }
         }
 
@@ -91,6 +99,7 @@ class PluginI implements Ice.Plugin
             }
             catch(Ice.LocalException exc)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
             }
         }
@@ -102,7 +111,8 @@ class PluginI implements Ice.Plugin
         private final byte[] _inParams;
         private final Ice.AMD_Object_ice_invoke _amdCB;
 
-        private Ice.LocatorPrx _locatorPrx;
+        private Ice.LocatorPrx _locatorPrx = null;
+        private Ice.LocalException _exception = null;
     };
 
     static private class VoidLocatorI extends Ice._LocatorDisp
@@ -245,7 +255,6 @@ class PluginI implements Ice.Plugin
             }
             _pendingRequests.clear();
         }
-
 
         public synchronized void
         invoke(Ice.LocatorPrx locator, Request request)

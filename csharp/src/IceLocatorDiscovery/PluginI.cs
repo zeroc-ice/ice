@@ -43,22 +43,30 @@ namespace IceLocatorDiscovery
         public void
         invoke(Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.Equals(l))
             {
-                l.begin_ice_invoke(_operation, _mode, _inParams, _context).whenCompleted(
-                    (bool ok, byte[] outParams) =>
-                    {
-                        _amdCB.ice_response(ok, outParams);
-                    },
-                    (Ice.Exception ex) =>
-                    {
-                        exception(ex);
-                    });
+                _locatorPrx = l;
+                try
+                {
+                    l.begin_ice_invoke(_operation, _mode, _inParams, _context).whenCompleted(
+                        (bool ok, byte[] outParams) =>
+                        {
+                            _amdCB.ice_response(ok, outParams);
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            exception(ex);
+                        });
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception(ex);
+                }
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                Debug.Assert(_exception != null);
+                throw _exception;
             }
         }
 
@@ -89,8 +97,9 @@ namespace IceLocatorDiscovery
             {
                 _amdCB.ice_exception(new Ice.ObjectNotExistException());
             }
-            catch(Ice.Exception)
+            catch(Ice.Exception exc)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
             }
         }
@@ -103,6 +112,7 @@ namespace IceLocatorDiscovery
         private readonly Ice.AMD_Object_ice_invoke _amdCB;
 
         private Ice.LocatorPrx _locatorPrx;
+        private Ice.Exception _exception;
     }
 
     internal class VoidLocatorI : Ice.LocatorDisp_
