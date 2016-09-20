@@ -36,6 +36,17 @@ $(document).ready(
             }
         };
 
+        window.onerror = function(msg, url, line, column, err)
+        {
+            var e = msg + " at " + url + ":" + line + ":" + column;
+            if(err)
+            {
+                e += "\n" + err.stack;
+            }
+            out.writeLine(e);
+            return false;
+        };
+
         var query = new URI(document.location.href).search(true);
 
         $("#language").val(query.language !== undefined ? query.language : "cpp");
