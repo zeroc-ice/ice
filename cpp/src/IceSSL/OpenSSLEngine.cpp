@@ -467,37 +467,6 @@ OpenSSLEngine::initialize()
                     }
                 }
 
-                if(!file && !dir)
-                {
-                    // Deprecated properties
-                    path = properties->getProperty(propPrefix + "CertAuthFile");
-                    if(!path.empty())
-                    {
-                        if(!checkPath(path, defaultDir, false, resolved))
-                        {
-                            throw PluginInitializationException(__FILE__, __LINE__,
-                                                                "IceSSL: CA certificate file not found:\n" + path);
-                        }
-                        path = resolved;
-                        file = path.c_str();
-                    }
-                    else
-                    {
-                        path = properties->getProperty(propPrefix + "CertAuthDir");
-                        if(!path.empty())
-                        {
-                            if(!checkPath(path, defaultDir, true, resolved))
-                            {
-                                throw PluginInitializationException(__FILE__, __LINE__,
-                                                                    "IceSSL: CA certificate directory not found:\n" +
-                                                                    path);
-                            }
-                            path = resolved;
-                            dir = path.c_str();
-                        }
-                    }
-                }
-
                 if(file || dir)
                 {
                     //
