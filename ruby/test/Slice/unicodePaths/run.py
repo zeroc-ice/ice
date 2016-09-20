@@ -40,16 +40,10 @@ if sys.version_info[0] == 2 and TestUtil.isWin32():
     sys.exit(0)
 
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
-    if TestUtil.isDarwin():
-        slice2rb = sys.executable + " /usr/local/bin/slice2rb"
-    elif TestUtil.isWin32():
-        pythonHome = os.path.dirname(sys.executable)
-        slice2rb = sys.executable + " " + os.path.join(pythonHome, "Scripts", "slice2rb.exe")
-    elif TestUtil.isYocto():
+    if TestUtil.isYocto():
         slice2rb = os.path.join(TestUtil.getCppBinDir(), "slice2rb")
     else:
-        import slice2rb
-        slice2rb = sys.executable + " " + os.path.normpath(os.path.join(slice2rb.__file__, "..", "..", "..", "..", "bin", "slice2rb"))
+        slice2rb = "slice2rb"
 else:
     if TestUtil.isYocto():
         slice2rb = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "..", "..", "cpp", "bin", "slice2rb")
