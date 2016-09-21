@@ -474,7 +474,7 @@ endif
 install-common::
 	@if test ! -d $(DESTDIR)$(prefix) ; \
 	then \
-		echo "Creating $(prefix)..." ; \
+		echo "Creating $(DESTDIR)$(prefix)..." ; \
 		$(call mkdir,$(DESTDIR)$(prefix), -p) ; \
 	fi
 

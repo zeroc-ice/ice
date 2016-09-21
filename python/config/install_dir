@@ -32,4 +32,4 @@ try:
 except distutils.errors.DistutilsError:
   pass
 
-print e.install_dir
+print(e.install_dir)
