@@ -12,6 +12,7 @@
 #import <CommunicatorI.h>
 #import <StreamI.h>
 #import <LoggerI.h>
+#import <IdentityI.h>
 #import <DispatcherI.h>
 #import <BatchRequestInterceptorI.h>
 #import <Util.h>
@@ -568,7 +569,7 @@ private:
     return [[ns copy] autorelease];
 }
 
-+(void)stringSeqToArgs:(NSArray*)args argc:(int*)argc argv:(char*[])argv;
++(void)stringSeqToArgs:(NSArray*)args argc:(int*)argc argv:(char*[])argv
 {
     //
     // Shift all elements in argv which are present in args to the
@@ -612,6 +613,36 @@ private:
     {
         argv[*argc] = 0;
     }
+}
+
++(ICEIdentity*) stringToIdentity:(NSString*)str
+{
+    NSException* nsex = nil;
+    try
+    {
+        return [ICEIdentity identityWithIdentity:Ice::stringToIdentity(fromNSString(str))];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
+}
+
++(NSMutableString*) identityToString:(ICEIdentity*)ident
+{
+    NSException* nsex = nil;
+    try
+    {
+        return [toNSMutableString(Ice::identityToString([ident identity])) autorelease];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 @end
 

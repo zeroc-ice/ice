@@ -28,6 +28,7 @@
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Locator.h>
 #import <objc/Ice/ObjectFactory.h>
+#import <objc/Ice/Initialize.h>
 
 #import <objc/runtime.h>
 
@@ -45,7 +46,7 @@ public:
     {
         ICEUnknownSlicedObject* obj = [[ICEUnknownSlicedObject alloc] init];
         Ice::ObjectPtr o = [ICEInputStream createObjectReader:obj];
-        [obj release];   
+        [obj release];
         return o;
     }
 
@@ -61,7 +62,7 @@ public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the dictionaries.
-    ObjectFactoryI(NSDictionary* factories, NSDictionary* prefixTable) : 
+    ObjectFactoryI(NSDictionary* factories, NSDictionary* prefixTable) :
         _factories(factories), _prefixTable(prefixTable)
     {
         CFRetain(_factories);
@@ -114,7 +115,7 @@ public:
             if(obj != nil)
             {
                 o = [ICEInputStream createObjectReader:obj];
-                [obj release];   
+                [obj release];
             }
             return o;
         }
@@ -139,7 +140,7 @@ public:
     }
 
 private:
-    
+
     NSDictionary* _factories;
     NSDictionary* _prefixTable;
 };
@@ -329,7 +330,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx objectPrx__], 
+        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx objectPrx__],
                                                              fromNSString(property))) autorelease];
     }
     catch(const std::exception& ex)
@@ -342,32 +343,12 @@ private:
 
 -(ICEIdentity*) stringToIdentity:(NSString*)str
 {
-    NSException* nsex = nil;
-    try
-    {
-        return [ICEIdentity identityWithIdentity:COMMUNICATOR->stringToIdentity(fromNSString(str))];
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
+    return [ICEUtil stringToIdentity:str];
 }
 
 -(NSMutableString*) identityToString:(ICEIdentity*)ident
 {
-    NSException* nsex = nil;
-    try
-    {
-        return [toNSMutableString(COMMUNICATOR->identityToString([ident identity])) autorelease];
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-    return nil; // Keep the compiler happy.
+    return [ICEUtil identityToString:ident];
 }
 
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;
@@ -566,21 +547,21 @@ private:
 }
 -(id<ICEAsyncResult>) begin_flushBatchRequests
 {
-    return beginCppCall(^(Ice::AsyncResultPtr& result) 
+    return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests(); 
+                            result = COMMUNICATOR->begin_flushBatchRequests();
                         });
 }
 -(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
 {
     return [self begin_flushBatchRequests:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent 
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
 {
-    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb) 
+    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests(cb); 
-                        }, 
+                            result = COMMUNICATOR->begin_flushBatchRequests(cb);
+                        },
                         ^(const Ice::AsyncResultPtr& result) {
                             COMMUNICATOR->end_flushBatchRequests(result);
                         },
@@ -588,9 +569,9 @@ private:
 }
 -(void) end_flushBatchRequests:(id<ICEAsyncResult>)result
 {
-    endCppCall(^(const Ice::AsyncResultPtr& r) 
+    endCppCall(^(const Ice::AsyncResultPtr& r)
                {
-                   COMMUNICATOR->end_flushBatchRequests(r); 
+                   COMMUNICATOR->end_flushBatchRequests(r);
                }, result);
 }
 -(id<ICEObjectPrx>) createAdmin:(id<ICEObjectAdapter>)adapter adminId:(ICEIdentity*)adminId

@@ -78,6 +78,8 @@ ICE_API @interface ICEUtil : NSObject
 +(NSString*) generateUUID;
 +(NSArray*)argsToStringSeq:(int)argc argv:(char*[])argv;
 +(void)stringSeqToArgs:(NSArray*)args argc:(int*)argc argv:(char*[])argv;
++(ICEIdentity*) stringToIdentity:(NSString*)str;
++(NSMutableString*) identityToString:(ICEIdentity*)ident;
 @end
 
 @interface ICEEncodingVersion(StringConv)
