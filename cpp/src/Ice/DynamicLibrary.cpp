@@ -15,6 +15,10 @@
 #   include <dlfcn.h>
 #endif
 
+#if defined(ICE_CPP11) && defined(__GNUC__) && (__GNUC__ < 6) && defined(__GLIBCXX__)
+#   define ICE_LIBSUFFIX "++11"
+#endif
+
 using namespace Ice;
 using namespace IceInternal;
 using namespace std;
@@ -89,8 +93,8 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if(comma == string::npos)
     {
         libName = libSpec;
-#  if defined(ICE_CPP11) && defined(__GLIBCXX__)
-        libName += "++11";
+#  ifdef ICE_LIBSUFFIX
+        libName += ICE_LIBSUFFIX;
 #  endif
         if(useIceVersion)
         {
@@ -119,9 +123,9 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             return 0;
         }
         libName = libSpec.substr(0, comma);
-#  if defined(ICE_CPP11) && defined(__GLIBCXX__)
-        libName += "++11";
-#  endif
+#ifdef ICE_LIBSUFFIX
+        libName += ICE_LIBSUFFIX;
+#endif
         version = libSpec.substr(comma + 1);
     }
 

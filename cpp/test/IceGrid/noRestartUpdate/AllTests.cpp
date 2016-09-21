@@ -544,7 +544,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #  if defined(__i386)
         iceboxExe += "32";
 #  endif
-#  if defined(ICE_CPP11)
+#  if defined(ICE_CPP11) && defined(__GNUC__) && (__GNUC__ < 6)
         iceboxExe += "++11";
 #  endif
 #endif
