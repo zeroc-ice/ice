@@ -41,6 +41,14 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
+- Added support for limiting the number of events queued for a given subscriber.
+  This is useful to prevent IceStorm from consuming too much memory when a
+  subscriber is too slow to consume published events. The queue maximum size is
+  configured with the IceStorm.Send.QueueSizeMax property. You can use the
+  property IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber|DropEvents to
+  configure the behavior of IceStorm when the limit is reached. By default,
+  IceStorm will queue events indefinitely.
+
 - Fixed a bug in the unmarshalling code where passing optional input
   parameters to an operation with no required input parameters would
   cause an Ice::EncapsulationException to be thrown if the receiver

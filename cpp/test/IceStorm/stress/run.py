@@ -31,7 +31,7 @@ if TestUtil.appverifier:
                TestUtil.getIceStormAdmin()]
     TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
 
-def doTest(server1, server2, subOpts, pubOpts):
+def doTest(server1, subOpts, pubOpts):
 
     subscriberProcs = []
     if type(subOpts) != type([]):
@@ -80,49 +80,49 @@ def runtest(type):
 
     sys.stdout.write("Sending 5000 ordered events... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 5000 --qos "reliability,ordered" ' + server1.reference(), '--events 5000')
+    doTest(server1, '--events 5000 --qos "reliability,ordered" ' + server1.reference(), '--events 5000')
     print("ok")
 
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 5000 ordered events across a link... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 5000 --qos "reliability,ordered" ' + server2.reference(), '--events 5000')
+    doTest(server1, '--events 5000 --qos "reliability,ordered" ' + server2.reference(), '--events 5000')
     print("ok")
 
     runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 20000 ' + server1.reference(), '--events 20000 --oneway')
+    doTest(server1, '--events 20000 ' + server1.reference(), '--events 20000 --oneway')
     print("ok")
 
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events across a link... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 20000 ' + server2.reference(), '--events 20000 --oneway')
+    doTest(server1, '--events 20000 ' + server2.reference(), '--events 20000 --oneway')
     print("ok")
 
     runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered batch events... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 20000 --qos "reliability,batch" ' + server1.reference(), '--events 20000 --oneway')
+    doTest(server1, '--events 20000 --qos "reliability,batch" ' + server1.reference(), '--events 20000 --oneway')
     print("ok")
 
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered batch events across a link... ")
     sys.stdout.flush()
-    doTest(server1, server2, '--events 20000 --qos "reliability,batch" ' + server2.reference(), '--events 20000 --oneway')
+    doTest(server1, '--events 20000 --qos "reliability,batch" ' + server2.reference(), '--events 20000 --oneway')
     print("ok")
 
     runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events with slow subscriber... ")
     sys.stdout.flush()
-    doTest(server1, server2, ['--events 2 --slow ' + server1.reference(), '--events 20000 ' + server1.reference()], '--events 20000 --oneway')
+    doTest(server1, ['--events 2 --slow ' + server1.reference(), '--events 20000 ' + server1.reference()], '--events 20000 --oneway')
     print("ok")
 
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events with slow subscriber & link... ")
     sys.stdout.flush()
-    doTest(server1, server2, ['--events 2 --slow' + server1.reference(), '--events 20000' + server1.reference(), '--events 2 --slow' + server2.reference(), '--events 20000' + server2.reference()], '--events 20000 --oneway')
+    doTest(server1, ['--events 2 --slow' + server1.reference(), '--events 20000' + server1.reference(), '--events 2 --slow' + server2.reference(), '--events 20000' + server2.reference()], '--events 20000 --oneway')
     print("ok")
 
     sys.stdout.write("shutting down icestorm services... ")
@@ -146,7 +146,7 @@ def runtest(type):
 
     sys.stdout.write("Sending 20000 unordered events with erratic subscriber... ")
     sys.stdout.flush()
-    doTest(server1, server2,
+    doTest(server1,
         [ '--erratic 5 --qos "reliability,ordered" --events 20000' + server1.reference(),
           '--erratic 5 --events 20000' + server1.reference(),
           '--events 20000' + server1.reference()],
@@ -156,7 +156,7 @@ def runtest(type):
     runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
     sys.stdout.write("Sending 20000 unordered events with erratic subscriber across a link... ")
     sys.stdout.flush()
-    doTest(server1, server2, 
+    doTest(server1,
          [ '--events 20000' + server1.reference(),
            '--erratic 5 --qos "reliability,ordered" --events 20000 ' + server1.reference(),
            '--erratic 5 --events 20000 ' + server1.reference(),
@@ -174,6 +174,28 @@ def runtest(type):
     server1.stop()
     server2.stop()
     print("ok")
+
+    sys.stdout.write("Sending 5000 ordered events with max queue size drop events... ")
+    sys.stdout.flush()
+    server1.start(echo=False,
+                  additionalOptions = ' --IceStorm.Send.QueueSizeMax=400 --IceStorm.Send.QueueSizeMaxPolicy=DropEvents')
+    doTest(server1,
+           '--events 5000 --qos "reliability,ordered" --maxQueueDropEvents=400 ' + server1.reference(),
+           '--events 5000')
+    server1.stop()
+    print("ok")
+
+    sys.stdout.write("Sending 5000 ordered events with max queue size remove subscriber... ")
+    sys.stdout.flush()
+    server1.start(echo=False,
+                  additionalOptions = ' --IceStorm.Send.QueueSizeMax=400 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber')
+    doTest(server1,
+           '--events 500 --qos "reliability,ordered" --maxQueueRemoveSub=400 ' + server1.reference(),
+           '--events 500')
+    server1.stop()
+    print("ok")
+
+
 
 runtest("persistent")
 runtest("replicated")
