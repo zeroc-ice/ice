@@ -685,7 +685,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
     {
         for(EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
         {
-            if(_events.size() == _instance->sendQueueSizeMax())
+            if(static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
             {
                 if(_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
                 {
