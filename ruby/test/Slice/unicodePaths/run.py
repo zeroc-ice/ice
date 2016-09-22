@@ -42,6 +42,8 @@ if sys.version_info[0] == 2 and TestUtil.isWin32():
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
     if TestUtil.isYocto():
         slice2rb = os.path.join(TestUtil.getCppBinDir(), "slice2rb")
+    if os.path.isfile("/usr/bin/slice2rb.ruby2.1"):
+        slice2rb = "slice2rb.ruby2.1"
     else:
         slice2rb = "slice2rb"
 else:
