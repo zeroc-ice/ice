@@ -560,7 +560,7 @@ def run(tests, root = False):
                 arg += " " + a
 
     if not root:
-        tests = [ (os.path.join(getDefaultMapping(), "test", os.path.normpath(x)), y) for x, y in tests ]
+        tests = [ (os.path.join(getDefaultMappingDir(), "test", os.path.normpath(x)), y) for x, y in tests ]
 
     # Expand all the tests and argument combinations.
     expanded = []
@@ -713,7 +713,6 @@ def phpCleanup():
 
 def phpProfileSetup(clientConfig = False, iceOptions = None, iceProfile = None):
     interpreterOptions = []
-
     if iceProfile != None:
         atexit.register(phpCleanup)
         interpreterOptions.append("-d ice.profiles='ice.profiles'")
@@ -753,7 +752,7 @@ def phpFlags():
         else:
             ext += ".so"
         if not iceHome:
-            extDir = os.path.abspath(os.path.join(toplevel, "php", "lib"))
+            extDir = os.path.abspath(os.path.join(toplevel, getDefaultMappingDir(), "lib"))
             incDir = extDir
         else:
             #
@@ -946,9 +945,26 @@ def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
     here = os.getcwd().split(os.sep)
     here.reverse()
+    mappings = ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c", "icetouch", "tmp"]
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c", "icetouch", "tmp"]:
+        if here[i] in mappings:
             return here[i]
+        for mapping in mappings:
+            if here[i].find(mapping) == 0:
+                return mapping
+    raise RuntimeError("cannot determine mapping")
+
+def getDefaultMappingDir():
+    """Try and guess the language mapping out of the current path"""
+    here = os.getcwd().split(os.sep)
+    here.reverse()
+    mappings = ["cpp", "csharp", "java", "js", "php", "python", "ruby", "objective-c", "icetouch", "tmp"]
+    for i in range(0, len(here)):
+        if here[i] in mappings:
+            return here[i]
+        for mapping in mappings:
+            if here[i].find(mapping) == 0:
+                return here[i]
     raise RuntimeError("cannot determine mapping")
 
 def getStringIO():
@@ -1402,7 +1418,7 @@ def getMirrorDir(base, mapping):
     while len(before) > 0:
         current = os.path.basename(before)
         before = os.path.dirname(before)
-        if current == lang:
+        if current.find(lang) == 0:
             # Deal with Java's different directory structure
             if lang == "java":
                 while len(before) > 0:

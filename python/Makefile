@@ -9,6 +9,10 @@
 
 top_srcdir	= .
 
+ifeq ($(PYTHON),)
+    PYTHON = python
+endif
+
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= modules python
@@ -34,4 +38,4 @@ $(EVERYTHING)::
 	done
 
 test::
-	@python $(top_srcdir)/allTests.py
+	@$(PYTHON) $(top_srcdir)/allTests.py
