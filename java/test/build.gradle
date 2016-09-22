@@ -30,7 +30,10 @@ dependencies {
     compile localDependency('icegrid')
     compile project(':testPlugins')
     compile project(':testController')
-    if(!gradle.startParameter.isOffline()) {
+}
+
+if(!gradle.startParameter.isOffline()) {
+    dependencies {
         runtime "org.apache.tools:bzip2:1.0"
     }
 }
