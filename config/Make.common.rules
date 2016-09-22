@@ -484,7 +484,12 @@ install-common::
 		$(call mkdir, $(DESTDIR)$(install_slicedir), -p) ; \
 		if test ! -z "$(usr_dir_install)" ; \
 		then \
-			$(call mkdir,$(DESTDIR)/$(prefix)/share/slice) ; \
+			if test "$(SLICE_DIR_SYMLINK)" = "yes" ; \
+			then \
+				ln -s Ice-$(VERSION)/slice $(DESTDIR)/$(prefix)/share/slice ; \
+			else \
+				$(call mkdir,$(DESTDIR)/$(prefix)/share/slice) ; \
+			fi; \
 		fi ; \
 		cd $(top_srcdir)/../slice ; \
 		for subdir in * ; \
@@ -492,7 +497,7 @@ install-common::
 			echo "Copying slice/$$subdir to $(DESTDIR)$(install_slicedir)..." ; \
 			cp -fpr $$subdir $(DESTDIR)$(install_slicedir) ; \
 		done ; \
-		if test ! -z "$(usr_dir_install)" ; \
+		if test ! -z "$(usr_dir_install)" -a "$(SLICE_DIR_SYMLINK)" != "yes" ; \
 		then \
 			cd $(top_srcdir)/../slice ; \
 			for subdir in * ; \
