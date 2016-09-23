@@ -24,6 +24,8 @@ task updateManifest(dependsOn: copyTmpJars) << {
     }
 }
 
+updateManifest.outputs.files("${libDir}/${jarName}")
+
 //
 // Copy JARs to the install location
 //
@@ -46,11 +48,12 @@ task updateInstallManifest(dependsOn: copyJars) << {
         }
     }
 }
+updateInstallManifest.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 
 //
 // We need to sign the install JARs after updating the manifest.
 //
-task signInstalJar(dependsOn: updateInstallManifest) << {
+task signInstallJar(dependsOn: updateInstallManifest) << {
     if(keystore != null && keystore.length() > 0) {
         ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
                     alias: "zeroc.com",
@@ -58,6 +61,7 @@ task signInstalJar(dependsOn: updateInstallManifest) << {
                     storepass:"${keystore_password}")
     }
 }
+signInstallJar.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 
-task install(dependsOn: signInstalJar)
+task install(dependsOn: signInstallJar)
 

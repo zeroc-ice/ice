@@ -35,6 +35,7 @@ task updateManifest(dependsOn: proguardJar) << {
         }
     }
 }
+updateManifest.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 
 task copyJars(type: Copy, dependsOn: updateManifest) {
     from new File("${libDir}/${jarName}")

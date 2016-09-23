@@ -144,7 +144,7 @@ if(jarsClassPath.toBoolean()){
             }
         }
     }
-
+    updateInstallManifest.files("${DESTDIR}${jarDir}/${jar.archiveName}")
     install.dependsOn(updateInstallManifest)
 } else {
     task install(type: Copy, dependsOn: jarSources, overwrite: true) {
