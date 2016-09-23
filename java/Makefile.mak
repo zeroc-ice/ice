@@ -15,18 +15,9 @@ GRADLE = gradlew.bat
 GRADLE = ./gradlew
 !endif
 
-!if "$(prefix)" != ""
-  GRADLEOPTS += -Pprefix=$(prefix)
+!if "$(PREFIX)" != ""
+GRADLEOPTS = $(GRADLEOPTS) -Pprefix=$(PREFIX)
 !endif
-
-!if "$(install_javadir)" != ""
-  GRADLEOPTS += -Dorg.gradle.project.jarDir=$(install_javadir)
-!endif
-
-!if "$(install_bindir)" != ""
-  GRADLEOPTS += -Dorg.gradle.project.binDir=$(install_bindir)
-!endif
-
 
 all:
 	$(GRADLE) $(GRADLEOPTS) build
@@ -35,10 +26,13 @@ dist:
 	$(GRADLE) $(GRADLEOPTS) dist
 
 clean:
-	$(GRADLE) $(GRADLEOPTS)  clean
+	$(GRADLE) $(GRADLEOPTS) clean
+
+tests:
+        $(GRADLE) $(GRADLEOPTS) :test:assemble
 
 install::
-	$(GRADLE) $(GRADLEOPTS)  install
+	$(GRADLE) $(GRADLEOPTS) install
 
 test:
 	@python .\allTests.py
