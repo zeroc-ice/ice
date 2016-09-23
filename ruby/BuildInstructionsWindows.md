@@ -27,7 +27,7 @@ the only C++ compiler supported by Ice for Ruby.
 The instructions in this file make the following assumptions about your build
 environment:
 
-1. You have installed the Ice 3.6.2 distribution using the ZeroC installer. The
+1. You have installed the Ice 3.6 distribution using the ZeroC installer. The
 default installation directory is `C:\Program Files (x86)\ZeroC\Ice-3.6.3`.
 2. You have installed Ruby 2.2.4 using the Windows installer. The default
 installation directory is `C:\Ruby224`.
