@@ -41,6 +41,9 @@ These are the changes since Ice 3.6.2.
 
 ## General Changes
 
+- Fixed IceGrid bug where deployment of an application would fail if a well-
+  known object was registered with an adapter whose adapter ID contained spaces.
+
 - Added support for limiting the number of events queued for a given subscriber.
   This is useful to prevent IceStorm from consuming too much memory when a
   subscriber is too slow to consume published events. The queue maximum size is

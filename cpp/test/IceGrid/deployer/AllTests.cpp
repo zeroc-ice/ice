@@ -19,7 +19,7 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-namespace 
+namespace
 {
 
 void
@@ -65,7 +65,7 @@ public:
     {
     }
 
-    bool 
+    bool
     operator()(const Ice::ObjectPrx& p1, const string& id) const
     {
         return p1->ice_getIdentity() == _communicator->stringToIdentity(id);
@@ -171,7 +171,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         test(it->read(1024, lines) && lines.empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
-        
+
         it = session->openServerLog("LogServer", testDir + "/log2.txt", 1);
         test(it->read(1024, lines) && lines.size() == 1);
         test(lines[0] == "one line file with no EOL on last line");
@@ -194,7 +194,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     {
         //
         // Test with log file with one line with EOL on last line.
-        // 
+        //
         string path = testDir + "/log3.txt";
         ofstream os(path.c_str());
         os << "one line file with EOL on last line" << endl;
@@ -211,7 +211,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         test(it->read(1024, lines) && lines.empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
-        
+
         it = session->openServerLog("LogServer", testDir + "/log3.txt", 1);
         test(it->read(1024, lines) && lines.size() == 2);
         test(lines[0] == "one line file with EOL on last line");
@@ -262,7 +262,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         test(it->read(1024, lines) && lines.empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
-        
+
         it = session->openServerLog("LogServer", testDir + "/log4.txt", 1);
         test(it->read(1024, lines) && lines.size() == 2);
         test(lines[0] == "line 3");
@@ -325,7 +325,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         test(it->read(1024, lines) && lines.empty());
         os << endl;
         test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
-        
+
         os << "starting multiple long line now, " << flush;
         test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "starting multiple long line now, ");
         writeLongLine(os);
@@ -357,7 +357,7 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
-        
+
         it = session->openServerLog("LogServer", testDir + "/log1.txt", 2);
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
@@ -414,6 +414,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "SimpleIceBox.SimpleService.SimpleService") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "ReplicatedAdapter") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "ReplicatedAdapter 2") != adapterIds.end());
     cout << "ok" << endl;
 
     cout << "testing object registration... " << flush;
@@ -532,7 +533,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("NameEscaped") == "${name}");
     test(obj->getProperty("NameEscapeEscaped") == "$Server1");
     test(obj->getProperty("NameEscapedEscapeEscaped") == "$${name}");
-    test(obj->getProperty("ManyEscape") == "$$$${name}");    
+    test(obj->getProperty("ManyEscape") == "$$$${name}");
     test(obj->getProperty("TestServer1Identity") == "Server1");
     test(obj->getProperty("LogFilePath") == "test-Server1.log");
     test(obj->getProperty("LogFilePath-Server1") == "test.log");
@@ -588,7 +589,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     obj = TestIntfPrx::checkedCast(
         comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
     proxies.push_back(obj);
-    
+
     for(vector<TestIntfPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         test((*p)->getProperty("AppVarProp") == "AppVar");
@@ -635,7 +636,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
-    
+
     cout << "ok" << endl;
 
     cout << "testing descriptions... " << flush;
@@ -656,7 +657,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(info.descriptor->adapters[0].description == "ADAPTER NodeVar");
     test(info.descriptor->dbEnvs[0].description == "DBENV NodeVar");
     cout << "ok" << endl;
-    
+
     cout << "testing property sets..." << flush;
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("AppProperty") == "AppVar");
@@ -684,7 +685,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("NodeProperty") == "NodeVar");
     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
 
-    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));    
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
@@ -697,7 +698,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-     
+
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("ServerInstanceServiceProperty") == "service1");
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
@@ -757,7 +758,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& comm)
     test(admin);
 
     cout << "testing targets... " << flush;
-    
+
     TestIntfPrx obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server3@Server3.Server"));
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox3-Service1@IceBox3.Service1.Service1"));
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox3-Service3@IceBox3.Service3.Service3"));
