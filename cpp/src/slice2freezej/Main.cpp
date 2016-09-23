@@ -724,6 +724,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sp;
         out << nl << "/**"
             << nl << " * Determines the number of elements whose index values match <code>__key</code>."
+            << nl << " * @param __key The key to match."
             << nl << " * @return The number of matching elements."
             << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
             << nl << " */";
@@ -764,7 +765,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             << nl << " * <code>__toKey</code>. Insertions and removals via this map are not supported."
             << nl << " * @param __toKey High endpoint of the keys in the returned map."
             << nl << " * @return A view of the portion of this map whose keys are strictly less than"
-            << nl << " *   <code>__toKey</code>>"
+            << nl << " *   <code>__toKey</code>"
             << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
             << nl << " */";
         out << nl << "public " + subMap;

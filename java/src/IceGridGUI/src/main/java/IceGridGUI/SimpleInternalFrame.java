@@ -165,7 +165,9 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Returns the frame's title text.
-     *      * @return String   the current title text     */
+     *
+     * @return String   the current title text
+     */
     public String getTitle() {
         return titleLabel.getText();
     }
@@ -178,7 +180,9 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Sets a new title text.
-     *      * @param newText  the title text tp be set     */
+     *
+     * @param newText  the title text tp be set
+     */
     public void setTitle(String newText) {
         String oldText = getTitle();
         titleLabel.setText(newText);
@@ -222,7 +226,9 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Returns the content - null, if none has been set.
-     *      * @return the current content     */
+     *
+     * @return the current content
+     */
     public Component getContent() {
         return hasContent() ? getComponent(1) : null;
     }
@@ -230,7 +236,9 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Sets a new panel content; replaces any existing content, if existing.
-     *      * @param newContent   the panel's new content     */
+     *
+     * @param newContent   the panel's new content
+     */
     public void setContent(Component newContent) {
         Component oldContent = getContent();
         if (hasContent()) {
