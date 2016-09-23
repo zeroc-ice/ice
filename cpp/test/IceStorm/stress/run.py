@@ -190,8 +190,8 @@ def runtest(type):
     server1.start(echo=False,
                   additionalOptions = ' --IceStorm.Send.QueueSizeMax=400 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber')
     doTest(server1,
-           '--events 500 --qos "reliability,ordered" --maxQueueRemoveSub=400 ' + server1.reference(),
-           '--events 500')
+           '--events 2000 --qos "reliability,ordered" --maxQueueRemoveSub=400 ' + server1.reference(),
+           '--events 2000')
     server1.stop()
     print("ok")
 
