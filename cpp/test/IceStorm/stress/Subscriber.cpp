@@ -419,7 +419,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         Subscription item2;
         item2.adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
         item2.servant = new ControllerEventI(communicator, events, item1.adapter);
-        item2.qos = cmdLineQos;
+        item2.qos["reliability"] = "oneway";
         subs.push_back(item2);
     }
     else
