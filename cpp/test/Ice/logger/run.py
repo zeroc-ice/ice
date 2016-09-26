@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, subprocess, glob, atexit
+import os, sys, subprocess, glob, atexit, shutil
 
 path = [ ".", "..", "../..", "../../..", "../../../..", "../../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -128,15 +128,22 @@ for f in glob.glob("client5-3-*.log"):
         print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
         sys.exit(1)
 
-if (not os.path.isfile("log/client5-4.log") or
-    os.stat("log/client5-4.log").st_size < 1024 or
-    len(glob.glob("log/client5-4-*.log")) > 0):
-    print("failed!")
-    sys.exit(1)
-
-with open("log/client5-4.log", 'r') as f:
-    if f.read().count("error: FileLogger: cannot rename `log/client5-4.log'") != 1:
+#
+# When running as root log rotation will not fail as
+# root always has write access.
+#
+if TestUtil.isWin32() or os.getuid() != 0:
+    if (not os.path.isfile("log/client5-4.log") or
+        os.stat("log/client5-4.log").st_size < 1024 or
+        len(glob.glob("log/client5-4-*.log")) > 0):
         print("failed!")
         sys.exit(1)
+
+    with open("log/client5-4.log", 'r') as f:
+        if f.read().count("error: FileLogger: cannot rename `log/client5-4.log'") != 1:
+            print("failed!")
+            sys.exit(1)
+
+shutil.rmtree("log")
 
 print("ok")
