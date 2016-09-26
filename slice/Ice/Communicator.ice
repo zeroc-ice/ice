@@ -239,7 +239,7 @@ local interface Communicator
      *
      * Create a new object adapter with endpoints. This operation sets
      * the property <tt><em>name</em>.Endpoints</tt>,
-     * and then calls {@link createObjectAdapter}. It is provided as a
+     * and then calls {@link #createObjectAdapter}. It is provided as a
      * convenience function.</p>
      *
      * <p>Calling this operation with an empty name will result in a
@@ -440,8 +440,8 @@ local interface Communicator
      *
      * <p class="Note"> You can also set a locator for an individual proxy
      * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
-     * object adapter by calling the operation {@link setLocator} on the
-     * object adapter.
+     * object adapter by calling the operation {@link ObjectAdapter#setLocator}
+     * on the object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *

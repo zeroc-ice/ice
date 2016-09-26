@@ -34,7 +34,7 @@ public class SessionHelper
     /**
      * Destroys the Glacier2 session.
      *
-     * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
+     * Once the session has been destroyed, {@link SessionCallback#disconnected} is called on
      * the associated callback object.
      */
     public void
@@ -233,7 +233,7 @@ public class SessionHelper
      * Connects a Glacier2 session using user name and password credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure {@link SessionCallback.connectFailed} is called with the exception.
+     * upon failure {@link SessionCallback#connectFailed} is called with the exception.
      *
      * @param username The user name.
      * @param password The password.

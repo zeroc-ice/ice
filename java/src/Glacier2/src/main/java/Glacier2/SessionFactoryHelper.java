@@ -13,7 +13,7 @@ package Glacier2;
  * A helper class for using Glacier2 with GUI applications.
  *
  * Applications should create a session factory for each Glacier2 router to which the application will
- * connect. To connect with the Glacier2 router, call {@link SessionFactory#connect}. The callback object is
+ * connect. To connect with the Glacier2 router, call {@link SessionFactoryHelper#connect}. The callback object is
  * notified of the various life cycle events. Once the session is torn down for whatever reason, the application
  * can use the session factory to create another connection.
  */
@@ -167,7 +167,7 @@ public class SessionFactoryHelper
      *
      * Sets the protocol that will be used by the session factory to establish the connection.
      *
-     * @param protocol.
+     * @param protocol The communication protocol.
      */
      synchronized public void setProtocol(String protocol)
      {
