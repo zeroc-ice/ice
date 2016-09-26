@@ -1839,10 +1839,10 @@ def getJavaLibraryPath():
             return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
                     "berkeley.db.java7", "build", "native", "bin", "x64" if x64 else "Win32"))
     elif isDarwin():
-        if os.path.exists('/usr/local/opt/ice/libexec/lib'):
-            return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
-        else:
+        if os.path.exists('/usr/local/opt/berkeley-db53/lib'):
             return "-Djava.library.path=/usr/local/opt/berkeley-db53/lib "
+        elif os.path.exists('/usr/local/opt/ice/libexec/lib'):
+            return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
     elif isRhel() or isSles():
         libpath = ("/usr/lib64" if x64 else "/usr/lib")
         if "LD_LIBRARY_PATH" in os.environ:
