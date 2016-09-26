@@ -53,7 +53,7 @@ public abstract class Application extends Ice.Application
     }
 
     /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
+     * Initializes an instance that calls {@link Ice.Communicator#shutdown} if
      * a signal is received.
      **/
     public
@@ -67,7 +67,7 @@ public abstract class Application extends Ice.Application
      *
      * @param signalPolicy Determines how to respond to signals.
      *
-     * @see SignalPolicy
+     * @see Ice.SignalPolicy
      **/
     public
     Application(Ice.SignalPolicy signalPolicy)
