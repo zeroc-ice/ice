@@ -64,31 +64,36 @@
 
 #endif
 
-         
-//
-// Use system headers as preferred way to detect 32 or 64 bit mode and
-// fallback to architecture based checks
-//
-#include <stdint.h>         
-         
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)
-#   define ICE_64
-#elif defined(__WORDSIZE) && (__WORDSIZE == 32)
-#   define ICE_32
-#elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
-      defined(__linux) && defined(__x86_64)                        || \
-      defined(__APPLE__) && defined(__x86_64)                      || \
-      defined(__hppa) && defined(__LP64__)                         || \
-      defined(_ARCH_COM) && defined(__64BIT__)                     || \
-      defined(__alpha__)                                           || \
-      defined(_WIN64)
+#ifdef _MSC_VER
 
-#   define ICE_64
+#   ifdef _WIN64
+#      define ICE_64
+#   else
+#      define ICE_32
+#   endif
 
 #else
 
-#   define ICE_32
+    //
+    // Use system headers as preferred way to detect 32 or 64 bit mode and
+    // fallback to architecture based checks
+    //
+#   include <stdint.h>
 
+#   if defined(__WORDSIZE) && (__WORDSIZE == 64)
+#      define ICE_64
+#   elif defined(__WORDSIZE) && (__WORDSIZE == 32)
+#      define ICE_32
+#   elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
+         defined(__linux) && defined(__x86_64)                        || \
+         defined(__APPLE__) && defined(__x86_64)                      || \
+         defined(__hppa) && defined(__LP64__)                         || \
+         defined(_ARCH_COM) && defined(__64BIT__)                     || \
+         defined(__alpha__)
+#      define ICE_64
+#   else
+#      define ICE_32
+#   endif
 #endif
 
 //
@@ -219,7 +224,7 @@
 #endif
 
 #if defined(_AIX) && defined(_LARGE_FILES)
-    // defines macros such as open that we want to use consistently everywhere 
+    // defines macros such as open that we want to use consistently everywhere
 #   include <fcntl.h>
 #endif
 
