@@ -19,7 +19,7 @@
 
 #import <stdlib.h>
 
-#define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
 #define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 
@@ -38,7 +38,7 @@
 typedef unsigned char ICEByte;
 typedef short ICEShort;
 typedef int ICEInt;
-#if defined(__x86_64)
+#if defined(__x86_64) || defined(__arm64)
 typedef long ICELong;
 #else
 typedef long long ICELong;
