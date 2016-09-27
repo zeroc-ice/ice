@@ -16,9 +16,9 @@
 
 /**
  *
- * IcePatch can be used to update file hiearchies in a simple and
+ * IcePatch can be used to update file hierarchies in a simple and
  * efficient manner. Checksums ensure file integrity, and data is
- * compressed before download.
+ * compressed before downloading.
  *
  **/
 ["objc:prefix:ICEPATCH2"]
@@ -35,8 +35,7 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * The <tt>partition</tt> argument for
- * {@link FileServer#getFileInfoSeq} was not in the range 0-255.
+ * A <tt>partition</tt> argument for was not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException
@@ -45,8 +44,7 @@ exception PartitionOutOfRangeException
 
 /**
  *
- * This exception is raised if {@link FileServer#getFileCompressed} cannot read the
- * contents of a file.
+ * This exception is raised if a file's contents cannot be read.
  *
  **/
 exception FileAccessException
@@ -61,11 +59,8 @@ exception FileAccessException
 
 /**
  *
- * This exception is raised if {@link FileServer#getFileCompressed} or
- * {@link FileServer#getFileInfoSeq} try to operate in files with size
- * large than 2.1 GB, these operations does not support working with
- * large files instead {@link FileServer#getLargeFileCompressed} and 
- * {@link FileServer#getLargeFileInfoSeq} must be used.
+ * This exception is raised if an operation tries to use a file whose size is
+ * larger than 2.1 GB. Use the "large" versions of the operations instead.
  *
  **/
 exception FileSizeRangeException extends FileAccessException
@@ -81,19 +76,18 @@ interface FileServer
 {
     /**
      *
-     * Return the {@link FileInfoSeq} for the specified partition. If the
-     * partion number is out of range, the operation throws
+     * Return file information for the specified partition.
      * 
-     * <p class="Deprecated"> This operation is deprecated, and only keep for
-     * compativility with old Ice clients (older than version 3.6).
-     *
-     * {@link PartitionOutOfRangException}.
+     * <p class="Deprecated"> This operation is deprecated and only present for
+     * compatibility with old Ice clients (older than version 3.6).
      *
      * @param partition The partition number in the range 0-255.
      *
-     * @return A sequence containing the {@link FileInfo} structures for
-     * files in the specified partition.
+     * @return A sequence containing information about the files in the
+     * specified partition.
      *
+     * @throws PartitionOutOfRangeException If the partition number is out of range.
+     * @throws FileSizeRangeException If a file is larger than 2.1GB.
      **/
     ["deprecate:getFileInfoSeq() is deprecated, use getLargeFileInfoSeq() instead.",
      "nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
@@ -101,15 +95,14 @@ interface FileServer
         
     /**
      *
-     * Return the {@link FileInfoSeq} for the specified partition. If the
-     * partion number is out of range, the operation throws
-     * {@link PartitionOutOfRangException}.
+     * Returns file information for the specified partition.
      *
      * @param partition The partition number in the range 0-255.
      *
-     * @return A sequence containing the {@link FileInfo} structures for
-     * files in the specified partition.
+     * @return A sequence containing information about the files in the
+     * specified partition.
      *
+     * @throws PartitionOutOfRangeException If the partition number is out of range.
      **/
     ["nonmutating", "cpp:const"] idempotent LargeFileInfoSeq getLargeFileInfoSeq(int partition)
         throws PartitionOutOfRangeException;
@@ -139,13 +132,11 @@ interface FileServer
 
     /**
      *
-     * Read the specified file. If the read operation fails, the
-     * operation throws {@link FileAccessException}. This operation may only
-     * return fewer bytes than requested in case there was an
-     * end-of-file condition.
+     * Read the specified file. This operation may only return fewer bytes than requested
+     * in case there was an end-of-file condition.
      *
-     * <p class="Deprecated"> This operation is deprecated, and only keep for
-     * compativility with old Ice clients (older than version 3.6).
+     * <p class="Deprecated"> This operation is deprecated and only present for
+     * compatibility with old Ice clients (older than version 3.6).
      *
      * @param path The pathname (relative to the data directory) for
      * the file to be read.
@@ -155,6 +146,9 @@ interface FileServer
      * @param num The number of bytes to be read.
      *
      * @return A sequence containing the compressed file contents.
+     *
+     * @throws FileAccessException If an error occurred while trying to read the file.
+     * @throws FileSizeRangeException If a file is larger than 2.1GB.
      *
      **/
     ["deprecate:getFileCompressed() is deprecated, use getLargeFileCompressed() instead.",
@@ -164,10 +158,8 @@ interface FileServer
         
     /**
      *
-     * Read the specified file. If the read operation fails, the
-     * operation throws {@link FileAccessException}. This operation may only
-     * return fewer bytes than requested in case there was an
-     * end-of-file condition.
+     * Read the specified file. This operation may only return fewer bytes than requested
+     * in case there was an end-of-file condition.
      *
      * @param path The pathname (relative to the data directory) for
      * the file to be read.
@@ -177,6 +169,8 @@ interface FileServer
      * @param num The number of bytes to be read.
      *
      * @return A sequence containing the compressed file contents.
+     *
+     * @throws FileAccessException If an error occurred while trying to read the file.
      *
      **/
     ["amd", "nonmutating", "cpp:const", "cpp:array"] 

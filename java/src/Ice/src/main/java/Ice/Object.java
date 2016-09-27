@@ -96,7 +96,7 @@ public interface Object
      * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
      * the operation has a <code>["freeze:write"]</code> metadata directive.
      * <p>
-     * The second- and third least significant bit indicate the transactional mode
+     * The second and third least significant bit indicate the transactional mode
      * of the operation. The expression <code>ice_operationAttributes("op") & 0x6 >> 1</code>
      * indicates the transactional mode as follows:
      * <dl>
@@ -109,8 +109,6 @@ public interface Object
      *   <dt>3</dt>
      *   <dd><code>["freeze:read:never"]</code></dd>
      * </dl>
-     *
-     * @see Freeze.TransactionalEvictor
      **/
     int ice_operationAttributes(String operation);
 

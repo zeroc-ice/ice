@@ -88,7 +88,8 @@ interface Session extends Glacier2::Session
 
     /**
      *
-     * Release an object.
+     * Release an object that was allocated using <tt>allocateObjectById</tt> or
+     * <tt>allocateObjectByType</tt>.
      *
      * @param id The identity of the object to release.
      *
@@ -99,9 +100,6 @@ interface Session extends Glacier2::Session
      * released. This might happen if the object isn't allocatable or
      * isn't allocated by the session.
      *
-     * @see #allocateObjectById
-     * @see #allocateObjectByType
-     *
      **/
     void releaseObject(Ice::Identity id)
         throws ObjectNotRegisteredException, AllocationException;
@@ -109,13 +107,11 @@ interface Session extends Glacier2::Session
     /**
      *
      * Set the allocation timeout. If no objects are available for an
-     * allocation request, the request will hang for the duration of
-     * this timeout.
+     * allocation request, a call to <tt>allocateObjectById</tt> or
+     * <tt>allocateObjectByType</tt> will block for the duration of this
+     * timeout.
      *
      * @param timeout The timeout in milliseconds.
-     *
-     * @see #allocateObjectById
-     * @see #allocateObjectByType
      *
      **/
     idempotent void setAllocationTimeout(int timeout);

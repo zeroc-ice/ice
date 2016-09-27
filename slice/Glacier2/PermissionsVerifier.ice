@@ -23,9 +23,6 @@ module Glacier2
  * This exception is raised if a client is denied the ability to create
  * a session with the router.
  *
- * @see Router#createSession
- * @see Router#createSessionFromSecureConnection
- *
  **/
 ["preserve-slice"]
 exception PermissionDeniedException

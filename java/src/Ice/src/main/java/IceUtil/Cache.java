@@ -16,7 +16,6 @@ package IceUtil;
  * evictors, such as used by Freeze.
  *
  * @see Store
- * @see Freeze.Evictor
  **/
 
 public class Cache

@@ -23,8 +23,6 @@ module Ice
  * must be implemented by the application writer, and registered
  * with the communicator.
  *
- * @see Freeze
- *
  **/
 local interface ObjectFactory
 {
