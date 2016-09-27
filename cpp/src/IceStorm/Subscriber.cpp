@@ -690,6 +690,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                 if(_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
                 {
                     error(false, IceStorm::SendQueueSizeMaxReached(__FILE__, __LINE__));
+                    return false;
                 }
                 else // DropEvents
                 {
@@ -784,10 +785,24 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
     }
 
+    //
+    // It's possible to be already in the error state if the queue maximum size
+    // has been reached or if an ObjectNotExistException occured before.
+    //
+    if(_state >= SubscriberStateError)
+    {
+        if(_shutdown)
+        {
+            _lock.notify();
+        }
+        return;
+    }
+
     // A hard error is an ObjectNotExistException or
     // NotRegisteredException.
     bool hardError = dynamic_cast<const Ice::ObjectNotExistException*>(&e) ||
-                     dynamic_cast<const Ice::NotRegisteredException*>(&e);
+                     dynamic_cast<const Ice::NotRegisteredException*>(&e) ||
+                     dynamic_cast<const IceStorm::SendQueueSizeMaxReached*>(&e);
 
     //
     // A twoway subscriber can queue multiple send events and
