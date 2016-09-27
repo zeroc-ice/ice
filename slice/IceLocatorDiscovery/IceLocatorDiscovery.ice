@@ -29,7 +29,6 @@ module IceLocatorDiscovery
  * are searching for Ice locators. Ice locator implementations invoke
  * on this interface to provide their locator proxy.
  *
- * @see Locator
  * @see Lookup
  * 
  **/
@@ -56,7 +55,6 @@ interface LookupReply
  * object accessible through UDP multicast. Clients typically make a 
  * multicast findLocator request to find the locator proxy.
  *
- * @see Locator
  * @see LookupReply
  * 
  **/

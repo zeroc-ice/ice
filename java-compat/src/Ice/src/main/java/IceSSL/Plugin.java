@@ -19,7 +19,7 @@ public interface Plugin extends Ice.Plugin
      * plug-in is initialized. Therefore, the application must set
      * the property <code>Ice.InitPlugins</code> to zero, call
      * <code>setContext</code> to set the context, and finally
-     * invoke {@link PluginManager#initializePlugins}.
+     * invoke PluginManager.initializePlugins().
      * <p>
      * If an application supplies its own SSL context, the
      * plug-in skips its normal property-based configuration.

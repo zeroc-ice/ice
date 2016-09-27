@@ -23,6 +23,9 @@ public interface BatchRequestInterceptor
      * the request isn't added to the queue. The implementation can
      * raise an Ice local exception to notify the caller of a failure.
      *
+     * @param request The request to be added.
+     * @param queueBatchRequestCount The number of requests in the batch.
+     * @param queueBatchRequestSize The number of bytes in the batch.
      **/
     void enqueue(Ice.BatchRequest request, int queueBatchRequestCount, int queueBatchRequestSize);
 }

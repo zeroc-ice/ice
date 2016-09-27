@@ -25,7 +25,7 @@ public final class ObjectPrxHolder extends Holder<ObjectPrx>
     /**
      * Instantiates the class with the passed proxy.
      *
-     * @param value The proxy stored this holder.
+     * @param value The proxy value for this holder.
      **/
     public
     ObjectPrxHolder(ObjectPrx value)

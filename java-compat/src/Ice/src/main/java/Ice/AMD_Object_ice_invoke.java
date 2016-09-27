@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Callback interface for <Blobject> AMD servants.
+ * Callback interface for Blobject AMD servants.
  *
  @see BlobjectAsync
  **/

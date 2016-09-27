@@ -57,7 +57,7 @@ public abstract class Application extends com.zeroc.Ice.Application
     }
 
     /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
+     * Initializes an instance that calls Communicator.shutdown() if
      * a signal is received.
      **/
     public Application()
@@ -69,8 +69,6 @@ public abstract class Application extends com.zeroc.Ice.Application
      * policy.
      *
      * @param signalPolicy Determines how to respond to signals.
-     *
-     * @see SignalPolicy
      **/
     public Application(com.zeroc.Ice.SignalPolicy signalPolicy)
     {
@@ -91,6 +89,8 @@ public abstract class Application extends com.zeroc.Ice.Application
      * @return The <code>runWithSession</code> method should return zero for successful
      * termination, and non-zero otherwise. <code>Application.main</code> returns the
      * value returned by <code>runWithSession</code>.
+     *
+     * @throws RestartSessionException If the session should be restarted.
      **/
     public abstract int runWithSession(String[] args)
         throws RestartSessionException;
@@ -177,9 +177,9 @@ public abstract class Application extends com.zeroc.Ice.Application
     }
 
     /**
-     * Create a new Ice identity for callback objects with the given
-     * identity name field.
-     * @return The identity.
+     * Create a new Ice identity for callback objects with the given identity name field.
+     * @param name The identity name.
+     * @return The identity with the given name and a unique category.
      * @throws SessionNotExistException No session exists.
      **/
     public com.zeroc.Ice.Identity createCallbackIdentity(String name)

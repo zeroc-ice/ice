@@ -26,6 +26,8 @@ public abstract class DispatchInterceptor extends ObjectImpl
      *
      * @param request The details of the incoming request.
      * @return The return value must be whatever is returned by {@link #ice_dispatch}.
+     * @throws UserException A user exception that propagates out of this method will be
+     * marshaled as the result.
      *
      * @see Request
      **/

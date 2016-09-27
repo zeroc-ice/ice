@@ -18,7 +18,7 @@ import com.zeroc.Ice.Util;
  * A helper class for using Glacier2 with GUI applications.
  *
  * Applications should create a session factory for each Glacier2 router to which the application will
- * connect. To connect with the Glacier2 router, call {@link SessionFactory#connect}. The callback object is
+ * connect. To connect with the Glacier2 router, call {@link SessionFactoryHelper#connect}. The callback object is
  * notified of the various life cycle events. Once the session is torn down for whatever reason, the application
  * can use the session factory to create another connection.
  */
@@ -28,7 +28,7 @@ public class SessionFactoryHelper
      * Creates a SessionFactory object.
      *
      * @param callback The callback object for notifications.
-     * @throws {@link com.zeroc.Ice.InitializationException}
+     * @throws com.zeroc.Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public SessionFactoryHelper(SessionCallback callback)
         throws InitializationException
@@ -41,7 +41,7 @@ public class SessionFactoryHelper
      *
      * @param initData The initialization data to use when creating the communicator.
      * @param callback The callback object for notifications.
-     * @throws {@link com.zeroc.Ice.InitializationException}
+     * @throws com.zeroc.Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public SessionFactoryHelper(InitializationData initData, SessionCallback callback)
         throws InitializationException
@@ -54,7 +54,7 @@ public class SessionFactoryHelper
      *
      * @param properties The properties to use when creating the communicator.
      * @param callback The callback object for notifications.
-     * @throws {@link com.zeroc.Ice.InitializationException}
+     * @throws com.zeroc.Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public SessionFactoryHelper(Properties properties, SessionCallback callback)
         throws InitializationException
@@ -157,12 +157,12 @@ public class SessionFactoryHelper
     {
         return getProtocol().equals("ssl");
     }
-    
+
     /**
      *
      * Sets the protocol that will be used by the session factory to establish the connection.
      *
-     * @param protocol.
+     * @param protocol The communication protocol.
      */
      synchronized public void setProtocol(String protocol)
      {
@@ -170,7 +170,7 @@ public class SessionFactoryHelper
         {
             throw new IllegalArgumentException("You must use a valid protocol");
         }
-        
+
         if(!protocol.equals("tcp") &&
            !protocol.equals("ssl") &&
            !protocol.equals("wss") &&
@@ -178,7 +178,7 @@ public class SessionFactoryHelper
         {
             throw new IllegalArgumentException("Unknow protocol `" + protocol + "'");
         }
-        
+
         _protocol = protocol;
      }
 
@@ -233,10 +233,10 @@ public class SessionFactoryHelper
     {
         return getPortInternal();
     }
-    
+
     private int getPortInternal()
     {
-        return _port == 0 ? ((_protocol.equals("ssl") || 
+        return _port == 0 ? ((_protocol.equals("ssl") ||
                               _protocol.equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
@@ -301,7 +301,7 @@ public class SessionFactoryHelper
      * Connect the Glacier2 session using user name and password credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure, {@link SessionCallback#connectFailed) is called with the exception.
+     * upon failure, {@link SessionCallback#connectFailed} is called with the exception.
      *
      * @param username The user name.
      * @param password The password.

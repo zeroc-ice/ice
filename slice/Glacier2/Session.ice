@@ -26,13 +26,7 @@ module Glacier2
 
 /**
  *
- * This exception is raised if an attempt to create a new session
- * failed.
- *
- * @see Router#createSession
- * @see Router#createSessionFromSecureConnection
- * @see SessionManager#create
- * @see SSLSessionManager#create
+ * This exception is raised if an attempt to create a new session failed.
  *
  **/
 ["preserve-slice"]
@@ -48,8 +42,7 @@ exception CannotCreateSessionException
 
 /**
  *
- * A client-visible session object, which is tied to the lifecycle of
- * a {@link Router}.
+ * A client-visible session object, which is tied to the lifecycle of a {@link Router}.
  *
  * @see Router
  * @see SessionManager
@@ -59,8 +52,7 @@ interface Session
 {
     /**
      *
-     * Destroy the session. This is called automatically when the
-     * {@link Router} is destroyed.
+     * Destroy the session. This is called automatically when the router is destroyed.
      *
      **/
     void destroy();

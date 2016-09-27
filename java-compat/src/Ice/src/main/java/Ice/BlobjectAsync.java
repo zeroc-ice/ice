@@ -27,6 +27,9 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
      * @param current The Current object, which provides important information
      * about the request, such as the identity of the target object and the
      * name of the operation.
+     *
+     * @throws UserException A user exception can be raised directly and the
+     * run time will marshal it.
      **/
     public abstract void
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current)

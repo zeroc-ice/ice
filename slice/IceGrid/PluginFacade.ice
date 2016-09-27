@@ -262,6 +262,8 @@ local interface RegistryPluginFacade
      *
      * @return The property value.
      *
+     * @throws AdapterNotExistException Raised if the adapter doesn't exist.
+     *
      **/
     ["nonmutating", "cpp:const"] idempotent string getPropertyForAdapter(string adapterId, string name)
         throws AdapterNotExistException;

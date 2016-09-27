@@ -17,17 +17,23 @@ public interface BatchRequest
     void enqueue();
 
     /**
-     * The marshalled size of the request.
+     * Returns the marshaled size of the request.
+     *
+     * @return The marshaled size.
      **/
     int getSize();
 
     /**
-     * The name of the operation
+     * Returns the name of the operation.
+     *
+     * @return The name of the operation.
      **/
     String getOperation();
 
     /**
-     * The proxy used to invoke the batch request.
+     * Returns the proxy used to invoke the batch request.
+     *
+     * @return The proxy used to invoke the batch request.
      **/
     Ice.ObjectPrx getProxy();
 };

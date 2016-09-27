@@ -23,7 +23,7 @@ public class PluginFactory implements Ice.PluginFactory
      *
      * @return The new plug-in. <code>null</code> can be returned to indicate
      * that a general error occurred. Alternatively, <code>create</code> can throw
-     * {@link PluginInitializationException} to provide more detailed information.
+     * PluginInitializationException to provide more detailed information.
      **/
     @Override
     public Ice.Plugin

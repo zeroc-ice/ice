@@ -58,9 +58,11 @@ subprojects {
 task dist()
 dist.dependsOn(project(":ice-compat").assemble)
 dist.dependsOn(project(":glacier2-compat").assemble)
+dist.dependsOn(project(":icebt-compat").assemble)
 dist.dependsOn(project(":icegrid-compat").assemble)
 dist.dependsOn(project(":icebox-compat").assemble)
 dist.dependsOn(project(":icediscovery-compat").assemble)
+dist.dependsOn(project(":icelocatordiscovery-compat").assemble)
 dist.dependsOn(project(":icepatch2-compat").assemble)
 dist.dependsOn(project(":icestorm-compat").assemble)
 

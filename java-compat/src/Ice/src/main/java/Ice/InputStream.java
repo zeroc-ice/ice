@@ -116,6 +116,8 @@ public class InputStream
 
     /**
      * This constructor uses the given encoding version.
+     *
+     * @param encoding The encoding version to use when extracting data.
      **/
     public InputStream(EncodingVersion encoding)
     {
@@ -126,6 +128,7 @@ public class InputStream
     /**
      * This constructor uses the given encoding version.
      *
+     * @param encoding The encoding version to use when extracting data.
      * @param data The byte array containing encoded Slice types.
      **/
     public InputStream(EncodingVersion encoding, byte[] data)
@@ -137,6 +140,7 @@ public class InputStream
     /**
      * This constructor uses the given encoding version.
      *
+     * @param encoding The encoding version to use when extracting data.
      * @param buf The byte buffer containing encoded Slice types.
      **/
     public InputStream(EncodingVersion encoding, java.nio.ByteBuffer buf)
@@ -294,7 +298,7 @@ public class InputStream
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls </code>clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls <code>clear</code>.
      **/
     public void clear()
     {
@@ -842,6 +846,7 @@ public class InputStream
     /**
      * Reads and validates a sequence size.
      *
+     * @param minSize The minimum size required by the sequence type.
      * @return The extracted size.
      **/
     public int readAndCheckSeqSize(int minSize)
@@ -1859,6 +1864,7 @@ public class InputStream
     /**
      * Extracts the index of an optional Slice value from the stream.
      *
+     * @param tag The tag associated with the value.
      * @param v Holds the optional value (if any). If a value is present, it will not be set in the
      * argument until after {@link #readPendingValues} has completed.
      **/
@@ -1877,6 +1883,8 @@ public class InputStream
 
     /**
      * Extracts a user exception from the stream and throws it.
+     *
+     * @throws UserException The user exception that was unmarshaled.
      **/
     public void throwException()
         throws UserException
@@ -1889,6 +1897,8 @@ public class InputStream
      * to instantiate exception instances.
      *
      * @param factory The user exception factory, or null to use the stream's default behavior.
+     *
+     * @throws UserException The user exception that was unmarshaled.
      **/
     public void throwException(UserExceptionFactory factory)
         throws UserException

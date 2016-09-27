@@ -28,6 +28,9 @@ public abstract class Blobject extends Ice.ObjectImpl
      * the return value is <code>false</code>; in this case, <code>outEncaps</code>
      * must contain the encoded user exception. If the operation raises an
      * Ice run-time exception, it must throw it directly.
+     *
+     * @throws UserException A user exception can be raised directly and the
+     * run time will marshal it.
      **/
     public abstract boolean
     ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current)

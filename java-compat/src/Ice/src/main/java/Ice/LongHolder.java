@@ -24,6 +24,8 @@ public final class LongHolder extends Holder<Long>
 
     /**
      * Instantiates the class with the passed value.
+     *
+     * @param value The <code>long</code> value for this holder.
      **/
     public
     LongHolder(long value)

@@ -19,6 +19,7 @@ public interface Object
      * of the state.
      *
      * @return The cloned object.
+     * @throws java.lang.CloneNotSupportedException If cloning is not supported by the implementation.
      **/
     Object clone() throws java.lang.CloneNotSupportedException;
 
@@ -93,11 +94,11 @@ public interface Object
      * @param operation The name of the operation.
      * @return The least significant bit indicates whether the operation is a read
      * or write operation. If the bit is set, the operation is a write operation.
-     * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
+     * The expression <code>ice_operationAttributes("op") &amp; 0x1</code> is true if
      * the operation has a <code>["freeze:write"]</code> metadata directive.
      * <p>
      * The second- and third least significant bit indicate the transactional mode
-     * of the operation. The expression <code>ice_operationAttributes("op") & 0x6 >> 1</code>
+     * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
      * indicates the transactional mode as follows:
      * <dl>
      *   <dt>0</dt>
@@ -134,6 +135,7 @@ public interface Object
      * @param cb The callback object for asynchronous dispatch. For synchronous dispatch, the callback object
      * must be <code>null</code>.
      * @return True for asynchronous dispatch, false otherwise.
+     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
      *
      * @see DispatchInterceptor
      * @see DispatchInterceptorAsyncCallback
@@ -147,6 +149,7 @@ public interface Object
      *
      * @param request The details of the invocation.
      * @return The dispatch status for the operation.
+     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
      *
      * @see DispatchInterceptor
      * @return True for asynchronous dispatch, false otherwise.

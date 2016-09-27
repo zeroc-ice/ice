@@ -23,6 +23,8 @@ public abstract class Callback_Connection_flushBatchRequests extends IceInternal
 
     /**
      * Called when a queued invocation is sent successfully.
+     *
+     * @param sentSynchronously True if the batch request could be flushed synchronously, false otherwise.
      **/
     public void sent(boolean sentSynchronously)
     {

@@ -21,7 +21,7 @@ public class SessionHelper
      * Creates a Glacier2 session.
      *
      * @param callback The callback for notifications about session establishment.
-     * @param initData The {@link Ice.InitializationData} for initializing the communicator.
+     * @param initData The InitializationData structure used to initialize the communicator.
      * @param finderStr The stringified Ice.RouterFinder proxy.
      * @param useCallbacks True if the session should create an object adapter for receiving callbacks.
      */
@@ -37,7 +37,7 @@ public class SessionHelper
     /**
      * Destroys the Glacier2 session.
      *
-     * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
+     * Once the session has been destroyed, {@link SessionCallback#disconnected} is called on
      * the associated callback object.
      */
     public void destroy()
@@ -205,7 +205,7 @@ public class SessionHelper
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure, {@link SessionCallback#exception} is called with the exception.
+     * upon failure, {@link SessionCallback#connectFailed} is called with the exception.
      *
      * @param context The request context to use when creating the session.
      */
@@ -226,7 +226,7 @@ public class SessionHelper
      * Connects a Glacier2 session using user name and password credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure {@link SessionCallback.exception} is called with the exception.
+     * upon failure {@link SessionCallback#connectFailed} is called with the exception.
      *
      * @param username The user name.
      * @param password The password.

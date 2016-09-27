@@ -46,8 +46,7 @@ exception SessionNotExistException
 
 /**
  *
- * The Glacier2 specialization of the {@link Ice.Router}
- * interface.
+ * The Glacier2 specialization of the <tt>Ice::Router</tt> interface.
  *
  **/
 interface Router extends Ice::Router

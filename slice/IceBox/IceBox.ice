@@ -160,6 +160,8 @@ interface ServiceManager
      *
      * @param service The service name.
      *
+     * @throws AlreadyStartedException If the service is already running.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      **/
     void startService(string service)
         throws AlreadyStartedException, NoSuchServiceException;
@@ -170,6 +172,8 @@ interface ServiceManager
      *
      * @param service The service name.
      *
+     * @throws AlreadyStoppedException If the service is already stopped.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      **/
     void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
@@ -183,7 +187,6 @@ interface ServiceManager
      *
      **/
     void addObserver(ServiceObserver* observer);
-
 
     /**
      *

@@ -105,6 +105,7 @@ public class Optional<T>
      * Helper function for creating Optional instances.
      *
      * @param v The initial value of the Optional.
+     * @param <T> The type of the Optional.
      *
      * @return A new Optional instance set to the given value.
      **/

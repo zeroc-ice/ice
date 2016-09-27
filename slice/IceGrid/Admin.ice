@@ -514,6 +514,8 @@ interface Admin
      * hold the exclusive lock or if another session is holding the
      * lock.
      *
+     * @throws DeploymentException Raised if application deployment failed.
+     *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
      *
@@ -583,6 +585,8 @@ interface Admin
     /**
      *
      * Get the default application descriptor.
+     *
+     * @return The default application descriptor.
      *
      * @throws DeploymentException Raised if the default application
      * descriptor can't be accessed or is invalid.
@@ -688,7 +692,6 @@ interface Admin
     idempotent Object* getServerAdmin(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-
     /**
      *
      * Enable or disable a server. A disabled server can't be started
@@ -717,6 +720,8 @@ interface Admin
      * Check if the server is enabled or disabled.
      *
      * @param id The server id.
+     *
+     * @return True if the server is enabled.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
@@ -860,6 +865,8 @@ interface Admin
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.
      *
+     * @throws DeploymentException Raised if application deployment failed.
+     *
      **/
     void removeAdapter(string id)
         throws AdapterNotExistException, DeploymentException;
@@ -923,6 +930,8 @@ interface Admin
      *
      * @throws ObjectExistsException Raised if the object is already
      * registered.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
      *
      **/
     void addObjectWithType(Object* obj, string type)
@@ -1620,11 +1629,10 @@ interface ObjectObserver
  *
  * Used by administrative clients to view,
  * update, and receive observer updates from the IceGrid
- * registry. Admin sessions are created either with the {@link Registry}
- * object or the registry admin {@link Glacier2.SessionManager} object.
+ * registry. Admin sessions are created either via the {@link Registry}
+ * object or via the registry admin <tt>SessionManager</tt> object.
  *
  * @see Registry
- * @see Glacier2.SessionManager
  *
  **/
 interface AdminSession extends Glacier2::Session

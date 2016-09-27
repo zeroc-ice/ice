@@ -162,7 +162,7 @@ public class OutputStream
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls </code>clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls <code>clear</code>.
      **/
     public void clear()
     {
@@ -275,6 +275,8 @@ public class OutputStream
 
     /**
      * Prepares the internal data buffer to be written to a socket.
+     *
+     * @return The internal buffer.
      **/
     public IceInternal.Buffer prepareWrite()
     {
@@ -576,6 +578,7 @@ public class OutputStream
      *
      * @param tag The numeric tag associated with the value.
      * @param format The optional format of the value.
+     * @return True if the current encoding supports optionals, false otherwise.
      **/
     public boolean writeOptional(int tag, OptionalFormat format)
     {
@@ -1655,6 +1658,7 @@ public class OutputStream
      *
      * @param tag The optional tag.
      * @param v The optional value to write to the stream.
+     * @param <T> The type of the optional value.
      **/
     public <T extends Ice.Object> void writeValue(int tag, Optional<T> v)
     {

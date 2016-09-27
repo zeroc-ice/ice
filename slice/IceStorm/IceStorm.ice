@@ -216,7 +216,7 @@ interface Topic
      * @throws AlreadySubscribed Raised if the subscriber object is
      * already subscribed.
      *
-     * @throws NullSubscriber Raised if the subscriber object is null.
+     * @throws InvalidSubscriber Raised if the subscriber object is null.
      *
      * @throws BadQoS Raised if the requested quality of service
      * is unavailable or invalid.

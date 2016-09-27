@@ -273,7 +273,7 @@ class ThreadMetrics extends Metrics
      *
      * The number of threads which are currently performing other
      * activities. These are all other that are not counted with
-     * {@link inUseForUser} or {@link inUseForIO}, such as DNS
+     * {@link #inUseForUser} or {@link #inUseForIO}, such as DNS
      * lookups, garbage collection).
      *
      **/

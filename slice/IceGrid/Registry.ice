@@ -139,9 +139,6 @@ interface Registry
      *
      * Create a client session.
      *
-     * @see Session
-     * @see Glacier2.PermissionsVerifier
-     *
      * @return A proxy for the newly created session.
      *
      * @param userId The user id.
@@ -159,9 +156,6 @@ interface Registry
     /**
      *
      * Create an administrative session.
-     *
-     * @see Session
-     * @see Glacier2.PermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -181,9 +175,6 @@ interface Registry
      *
      * Create a client session from a secure connection.
      *
-     * @see Session
-     * @see Glacier2.SSLPermissionsVerifier
-     *
      * @return A proxy for the newly created session.
      *
      * @throws PermissionDeniedException Raised if the password for
@@ -197,9 +188,6 @@ interface Registry
     /**
      *
      * Create an administrative session from a secure connection.
-     *
-     * @see Session
-     * @see Glacier2.SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *

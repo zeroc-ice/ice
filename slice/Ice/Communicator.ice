@@ -247,7 +247,7 @@ local interface Communicator
      *
      * Create a new object adapter with endpoints. This operation sets
      * the property <tt><em>name</em>.Endpoints</tt>,
-     * and then calls {@link createObjectAdapter}. It is provided as a
+     * and then calls {@link #createObjectAdapter}. It is provided as a
      * convenience function.</p>
      *
      * <p>Calling this operation with an empty name will result in a
@@ -512,7 +512,6 @@ local interface Communicator
      * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
      *
      * @see #getAdmin
-     * @see LocatorRegistry#setServerProcessProxy
      *
      **/
     Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
@@ -523,7 +522,7 @@ local interface Communicator
      *
      * getAdmin also creates the Admin object and creates and activates the Ice.Admin object
      * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
-     * object created by getAdmin is [value of Ice.Admin.InstanceName]/admin, or [UUID]/admin
+     * object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin
      * when Ice.Admin.InstanceName is not set.
      *
      * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator

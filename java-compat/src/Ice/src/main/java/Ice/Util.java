@@ -215,6 +215,8 @@ public final class Util
 
     /**
      * Creates a communicator using a default configuration.
+     *
+     * @return A new communicator instance.
      **/
     public static Communicator
     initialize()
