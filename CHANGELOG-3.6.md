@@ -18,7 +18,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-1)
   - [C# Changes](#c-changes-2)
   - [Java Changes](#java-changes)
-  - [Python Changes](#python-changes-2)
+  - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
