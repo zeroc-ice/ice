@@ -44,7 +44,7 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
         slice2py = sys.executable + " /usr/local/bin/slice2py"
     elif TestUtil.isWin32():
         pythonHome = os.path.dirname(sys.executable)
-        slice2py = sys.executable + " " + os.path.join(pythonHome, "Scripts", "slice2py.exe")
+        slice2py = sys.executable + " " + os.path.join(pythonHome, "Scripts", "slice2py-script.py")
     elif os.path.isfile(os.path.join(TestUtil.getCppBinDir(), "slice2py")):
         slice2py = os.path.join(TestUtil.getCppBinDir(), "slice2py")
     else:
@@ -58,14 +58,6 @@ else:
 
 sys.stdout.write("testing Slice compiler and unicode file paths... ")
 sys.stdout.flush()
-tests = [
-    ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl"),
-    ("cs", ["Test.cs", "TestI.cs"], "--impl"),
-    ("html", ["index.html"], ""),
-    ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
-    ("js", ["Test.js"], ""),
-    ("objc", ["Test.mm"], ""),
-    ("php", ["Test.php"], "")]
 
 #
 # Write config
