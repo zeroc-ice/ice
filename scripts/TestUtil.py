@@ -752,7 +752,7 @@ def phpFlags():
         else:
             ext += ".so"
         if not iceHome:
-            extDir = os.path.abspath(os.path.join(toplevel, getDefaultMappingDir(), "lib"))
+            extDir = os.path.abspath(os.path.join(toplevel, "php", "lib"))
             incDir = extDir
         else:
             #
