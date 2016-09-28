@@ -12,6 +12,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
   - [General Changes](#general-changes-1)
@@ -24,7 +25,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-3)
   - [JavaScript Changes](#javascript-changes)
-  - [PHP Changes](#php-changes)
+  - [PHP Changes](#php-changes-1)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-4)
@@ -32,7 +33,7 @@ particular aspect of Ice.
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes-1)
-  - [PHP Changes](#php-changes-1)
+  - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
@@ -89,6 +90,10 @@ These are the changes since Ice 3.6.2.
 
 - Added identityToString and stringToIdentity non-member functions, which
   were missing from previous releases.
+
+## PHP Changes
+
+- Added support for PHP 7.0.
 
 ## Python Changes
 
