@@ -9,14 +9,16 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
+  - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
+  - [Objective-C Changes](#objective-c-changes)
   - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
-  - [General Changes](#general-changes)
+  - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
-  - [Python Changes](#python-changes-1)
+  - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
@@ -24,12 +26,12 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes)
   - [PHP Changes](#php-changes)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
-  - [General Changes](#general-changes-2)
+  - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-3)
   - [C# Changes](#c-changes-4)
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
-  - [Objective-C Changes](#objective-c-changes)
+  - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
@@ -52,6 +54,12 @@ These are the changes since Ice 3.6.2.
   configure the behavior of IceStorm when the limit is reached. By default,
   IceStorm will queue events indefinitely.
 
+- Speed-up the update of IceStorm replicas after the election of a new IceStorm
+  coordinator.
+
+- Fixed a bug in the IceLocatorDiscovery plug-in that could occasionally
+  trigger an infinite loop.
+
 - Fixed a bug in the unmarshalling code where passing optional input
   parameters to an operation with no required input parameters would
   cause an Ice::EncapsulationException to be thrown if the receiver
@@ -62,6 +70,11 @@ These are the changes since Ice 3.6.2.
 - Fixed a bug in icegridadmin and IceGridGUI which was preventing to get
   properties for IceBox services using the IceBox shared communicator.
 
+- Fixed a bug in IceGrid Admin (IceGridGUI) that resulted in an incorrect
+  state when you removed and then re-added the same IceGrid application.
+
+- The Slice compilers now support non-ASCII paths on all platforms.
+
 - General clean up in slice2html, including a fix for broken link paths.
 
 ## C++ Changes
@@ -71,6 +84,11 @@ These are the changes since Ice 3.6.2.
   this size, the log file is renamed and a new log file is started.
   The Ice.LogFile.SizeMax property is set to 0 by default, which means the
   log file size is unlimited and a single log file is created.
+
+## Objective-C Changes
+
+- Added identityToString and stringToIdentity non-member functions, which
+  were missing from previous releases.
 
 ## Python Changes
 
