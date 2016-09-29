@@ -44,7 +44,7 @@ if os.environ.get("USE_BIN_DIST", "no") == "yes":
         slice2py = sys.executable + " /usr/local/bin/slice2py"
     elif TestUtil.isWin32():
         pythonHome = os.path.dirname(sys.executable)
-        slice2py = sys.executable + " " + os.path.join(pythonHome, "Scripts", "slice2py-script.py")
+        slice2py = os.path.join(pythonHome, "Scripts", "slice2py.exe")
     elif os.path.isfile(os.path.join(TestUtil.getCppBinDir(), "slice2py")):
         slice2py = os.path.join(TestUtil.getCppBinDir(), "slice2py")
     else:

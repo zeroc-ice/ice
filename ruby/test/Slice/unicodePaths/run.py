@@ -33,10 +33,15 @@ if TestUtil.isAIX() or TestUtil.isLinux():
         print("Skipping test")
         sys.exit(0)
 
+if TestUtil.isWin32():
+    print("Ruby on Windows is build with MINGW and it doesn't support Windows UNICODE APIs")
+    print("Skipping test")
+    sys.exit(0)
+    
 if sys.version_info[0] == 2 and TestUtil.isWin32():
     print("To run this test on Windows you need to be using Python 3.x")
     print("Python 2.x subprocess module doesn't support unicode on Windows")
-    print("Skipping tes")
+    print("Skipping test")
     sys.exit(0)
 
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
