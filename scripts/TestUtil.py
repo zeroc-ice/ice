@@ -1254,7 +1254,6 @@ def getCommandLine(exe, config, options = "", interpreterOptions = "", cfgName =
         output.write(" -f \""+ exe +"\" -- ")
     elif config.lang == "js":
         output.write(nodeCmd)
-        output.write(" --harmony")
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
