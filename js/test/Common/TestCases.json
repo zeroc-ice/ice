@@ -134,7 +134,7 @@
         },
     "Ice/optional":
         {
-            "files": ["Test.js", "Client.js"],
+            "files": ["Test.js", "Client.js", "ClientPrivate.js"],
             "configurations":
             [
                 {
@@ -151,7 +151,7 @@
         },
     "Ice/optionalBidir":
         {
-            "files": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "Client.js"]
+            "files": ["Test.js", "TestAMD.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "../optional/ClientPrivate.js", "Client.js"]
         },
     "Ice/promise":
         {
