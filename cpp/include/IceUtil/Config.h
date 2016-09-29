@@ -89,7 +89,8 @@
          defined(__APPLE__) && defined(__x86_64)                      || \
          defined(__hppa) && defined(__LP64__)                         || \
          defined(_ARCH_COM) && defined(__64BIT__)                     || \
-         defined(__alpha__)
+         defined(__alpha__)                                           || \
+         defined(_WIN64)
 #      define ICE_64
 #   else
 #      define ICE_32
