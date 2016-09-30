@@ -791,9 +791,13 @@ def phpFlags():
                     sys.exit(1)
 
     if extDir:
+        if extDir.find(" ") != -1:
+            extDir = "\"{0}\"".format(extDir)
         flags.append("-d extension_dir='%s'" % extDir)
     flags.append("-d extension='%s'" % ext)
     if incDir:
+        if incDir.find(" ") != -1:
+            incDir = "\"{0}\"".format(incDir)
         flags.append("-d include_path='%s'" % incDir)
 
     return ' '.join(flags)
