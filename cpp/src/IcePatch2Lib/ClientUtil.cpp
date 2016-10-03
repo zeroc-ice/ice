@@ -80,7 +80,7 @@ private:
     LargeFileInfoSeq _updateFiles;
     LargeFileInfoSeq _updateFlags;
     LargeFileInfoSeq _removeFiles;
-    
+
     FILE* _log;
     bool _useSmallFileAPI;
 };
@@ -146,22 +146,22 @@ void
 Decompressor::run()
 {
     LargeFileInfo info;
-    
+
     while(true)
     {
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        
+
             if(!info.path.empty())
             {
                 _filesDone.push_back(info);
             }
-        
+
             while(!_destroy && _files.empty())
             {
                 wait();
             }
-        
+
             if(!_files.empty())
             {
                 info = _files.front();
@@ -172,7 +172,7 @@ Decompressor::run()
                 return;
             }
         }
-    
+
         try
         {
             decompressFile(_dataDir + '/' + info.path);
@@ -205,7 +205,7 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
     {
         throw "property `IcePatch2Client.Proxy' is not set";
     }
-    
+
     FileServerPrx server = FileServerPrx::checkedCast(communicator->stringToProxy(clientProxy));
     if(!server)
     {
@@ -268,7 +268,7 @@ public:
     }
 
 private:
-    
+
     const PatcherFeedbackPtr _feedback;
 };
 
@@ -294,7 +294,7 @@ PatcherI::prepare()
             }
         }
     }
-    
+
     if(thorough)
     {
         if(!_feedback->checksumStart())
@@ -310,7 +310,7 @@ PatcherI::prepare()
 
         if(!_feedback->checksumEnd())
         {
-            return false;          
+            return false;
         }
 
         saveFileInfoSeq(_dataDir, _localFiles);
@@ -325,7 +325,7 @@ PatcherI::prepare()
         {
             return false;
         }
-        
+
         ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
         if(checksumSeq.size() != 256)
         {
@@ -353,9 +353,9 @@ PatcherI::prepare()
                             assert(nxtCB);
                             swap(nxtCB, curCB);
                         }
-                        
+
                         int node0Nxt = node0;
-                        
+
                         do
                         {
                             ++node0Nxt;
@@ -379,7 +379,7 @@ PatcherI::prepare()
                         {
                             files = _serverCompress->end_getLargeFileInfoSeq(curCB);
                         }
-                        
+
                         sort(files.begin(), files.end(), FileInfoLess());
                         files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
 
@@ -398,7 +398,7 @@ PatcherI::prepare()
                         //
                         LargeFileInfoSeq updatedFiles;
                         updatedFiles.reserve(files.size());
-                                            
+
                         set_difference(files.begin(),
                                        files.end(),
                                        tree0.nodes[node0].files.begin(),
@@ -453,12 +453,12 @@ PatcherI::prepare()
         {
             return false;
         }
-    }    
+    }
 
     sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
     sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
     sort(_updateFlags.begin(), _updateFlags.end(), FileInfoLess());
-                
+
     string pathLog = simplify(_dataDir + '/' + logFile);
     _log = IceUtilInternal::fopen(pathLog, "w");
     if(!_log)
@@ -483,7 +483,7 @@ PatcherI::patch(const string& d)
                 return false;
             }
         }
-        
+
         if(!_updateFiles.empty())
         {
             if(!updateFiles(_updateFiles))
@@ -499,7 +499,7 @@ PatcherI::patch(const string& d)
                 return false;
             }
         }
-        
+
         return true;
     }
     else
@@ -552,7 +552,7 @@ PatcherI::patch(const string& d)
                 return false;
             }
         }
-        
+
         if(!update.empty())
         {
             if(!updateFiles(update))
@@ -560,7 +560,7 @@ PatcherI::patch(const string& d)
                 return false;
             }
         }
-        
+
         if(!updateFlag.empty())
         {
             if(!updateFlags(updateFlag))
@@ -628,7 +628,7 @@ PatcherI::init(const FileServerPrx& server)
         }
         const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
     }
-        
+
     const_cast<FileServerPrx&>(_serverCompress) = FileServerPrx::uncheckedCast(server->ice_compress(true));
     const_cast<FileServerPrx&>(_serverNoCompress) = FileServerPrx::uncheckedCast(server->ice_compress(false));
 }
@@ -659,28 +659,28 @@ PatcherI::removeFiles(const LargeFileInfoSeq& files)
             }
         }
     }
-    
+
     LargeFileInfoSeq newLocalFiles;
     newLocalFiles.reserve(_localFiles.size());
-    
+
     set_difference(_localFiles.begin(),
                    _localFiles.end(),
                    files.begin(),
                    files.end(),
                    back_inserter(newLocalFiles),
                    FileInfoLess());
-    
+
     _localFiles.swap(newLocalFiles);
-    
+
     LargeFileInfoSeq newRemoveFiles;
-    
+
     set_difference(_removeFiles.begin(),
                    _removeFiles.end(),
                    files.begin(),
                    files.end(),
                    back_inserter(newRemoveFiles),
                    FileInfoLess());
-    
+
     _removeFiles.swap(newRemoveFiles);
 
     return true;
@@ -696,7 +696,7 @@ PatcherI::updateFiles(const LargeFileInfoSeq& files)
     // enough for this thread.
     //
     decompressor->start(256 * 1024); // 256KB
-#else 
+#else
     decompressor->start();
 #endif
     bool result;
@@ -712,7 +712,7 @@ PatcherI::updateFiles(const LargeFileInfoSeq& files)
         decompressor->log(_log);
         throw;
     }
-    
+
     decompressor->destroy();
     decompressor->getThreadControl().join();
     decompressor->log(_log);
@@ -726,7 +726,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 {
     Long total = 0;
     Long updated = 0;
-    
+
     for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size > 0) // Regular, non-empty file?
@@ -734,7 +734,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
             total += p->size;
         }
     }
-    
+
     AsyncResultPtr curCB;
     AsyncResultPtr nxtCB;
 
@@ -768,13 +768,13 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
             else
             {
                 string pathBZ2 = simplify(_dataDir + '/' + p->path + ".bz2");
-            
+
                 string dir = getDirname(pathBZ2);
                 if(!dir.empty())
                 {
                     createDirectoryRecursive(dir);
                 }
-                
+
                 try
                 {
                     removeRecursive(pathBZ2);
@@ -782,7 +782,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                 catch(...)
                 {
                 }
-                
+
                 FILE* fileBZ2 = IceUtilInternal::fopen(pathBZ2, "wb");
                 if(fileBZ2 == 0)
                 {
@@ -798,7 +798,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         if(!curCB)
                         {
                             assert(!nxtCB);
-                            curCB = _useSmallFileAPI ? 
+                            curCB = _useSmallFileAPI ?
                                 _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos), _chunkSize) :
                                 _serverNoCompress->begin_getLargeFileCompressed(p->path, pos, _chunkSize);
                         }
@@ -853,8 +853,13 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                             throw ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
-                        pos += bytes.size();
-                        updated += bytes.size();
+                        // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than '_chunkSize'
+                        // or we are reading the last chunk of a file, 'bytes' will be larger than necessary. In this
+                        // case we calculate the current position and updated size based on the known file size.
+                        Ice::Long size = pos + bytes.size() > p->size ? p->size - pos : bytes.size();
+
+                        pos += size;
+                        updated += size;
 
                         if(!_feedback->patchProgress(pos, p->size, updated, total))
                         {
@@ -868,13 +873,13 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                     fclose(fileBZ2);
                     throw;
                 }
-                
+
                 fclose(fileBZ2);
-                
+
                 decompressor->log(_log);
                 decompressor->add(*p);
             }
-            
+
             if(!_feedback->patchEnd())
             {
                 return false;
@@ -884,14 +889,14 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
     LargeFileInfoSeq newLocalFiles;
     newLocalFiles.reserve(_localFiles.size());
-        
+
     set_union(_localFiles.begin(),
               _localFiles.end(),
               files.begin(),
               files.end(),
               back_inserter(newLocalFiles),
               FileInfoLess());
-        
+
     _localFiles.swap(newLocalFiles);
 
     LargeFileInfoSeq newUpdateFiles;
@@ -902,7 +907,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                    files.end(),
                    back_inserter(newUpdateFiles),
                    FileInfoLess());
-        
+
     _updateFiles.swap(newUpdateFiles);
 
     return true;
@@ -922,7 +927,7 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
     //
     // Remove the old files whose flags were updated from the set of
     // local files.
-    // 
+    //
     LargeFileInfoSeq localFiles;
     localFiles.reserve(_localFiles.size());
     set_difference(_localFiles.begin(),
@@ -933,7 +938,7 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
                    FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags.
 
     //
-    // Add the new files to the set of local file. 
+    // Add the new files to the set of local file.
     //
     _localFiles.clear();
     set_union(localFiles.begin(),
@@ -951,7 +956,7 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
                    files.end(),
                    back_inserter(newUpdateFlags),
                    FileInfoLess());
-        
+
     _updateFlags.swap(newUpdateFlags);
 
     return true;
