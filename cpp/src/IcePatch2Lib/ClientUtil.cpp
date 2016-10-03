@@ -856,7 +856,8 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than '_chunkSize'
                         // or we are reading the last chunk of a file, 'bytes' will be larger than necessary. In this
                         // case we calculate the current position and updated size based on the known file size.
-                        Ice::Long size = pos + bytes.size() > p->size ? p->size - pos : bytes.size();
+                        Ice::Long size = static_cast<Ice::Long>(pos + bytes.size() > p->size ? p->size - pos :
+                                                                                               bytes.size());
 
                         pos += size;
                         updated += size;
