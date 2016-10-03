@@ -23,6 +23,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     IceUtilInternal::Options opts;
     opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "oneway");
+    opts.addOpt("", "maxQueueTest");
 
     try
     {
@@ -47,6 +48,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     bool oneway = opts.isSet("oneway");
+    bool maxQueueTest = opts.isSet("maxQueueTest");
 
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
@@ -74,7 +76,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
         return EXIT_FAILURE;
-        
+
     }
 
     EventPrx twowayProxy = EventPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
@@ -90,6 +92,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     for(int i = 0; i < events; ++i)
     {
+        if(maxQueueTest && i == 10)
+        {
+            // Sleep one seconds to give some time to IceStorm to connect to the subscriber
+            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        }
         proxy->pub(i);
     }
 

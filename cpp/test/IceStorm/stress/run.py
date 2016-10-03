@@ -177,21 +177,21 @@ def runtest(type):
 
     sys.stdout.write("Sending 5000 ordered events with max queue size drop events... ")
     sys.stdout.flush()
-    server1.start(echo=False,
-                  additionalOptions = ' --IceStorm.Send.QueueSizeMax=4000 --IceStorm.Send.QueueSizeMaxPolicy=DropEvents')
+    opts = " --IceStorm.Send.QueueSizeMax=2000 --IceStorm.Send.QueueSizeMaxPolicy=DropEvents"
+    server1.start(echo=False, additionalOptions = opts)
     doTest(server1,
-           '--events 5000 --qos "reliability,ordered" --maxQueueDropEvents=4000 ' + server1.reference(),
-           '--events 5000')
+           '--events 5000 --qos "reliability,ordered" --maxQueueDropEvents=2000 ' + server1.reference(),
+           '--events 5000 --maxQueueTest')
     server1.stop()
     print("ok")
 
     sys.stdout.write("Sending 5000 ordered events with max queue size remove subscriber... ")
     sys.stdout.flush()
-    server1.start(echo=False,
-                  additionalOptions = ' --IceStorm.Send.QueueSizeMax=4000 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber')
+    opts = " --IceStorm.Send.QueueSizeMax=2000 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber"
+    server1.start(echo=False, additionalOptions = opts)
     doTest(server1,
-           '--events 5000 --qos "reliability,ordered" --maxQueueRemoveSub=4000 ' + server1.reference(),
-           '--events 5000')
+           '--events 5000 --qos "reliability,ordered" --maxQueueRemoveSub=2000 ' + server1.reference(),
+           '--events 5000 --maxQueueTest')
     server1.stop()
     print("ok")
 

@@ -204,30 +204,30 @@ EXPAT_NUPKG		= $(EXPAT_HOME)\expat.$(PLATFORMTOOLSET).nupkg
 
 NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
 
-$(NUGET):
+"$(NUGET)":
 	@if not exist "$(LOCALAPPDATA)\ZeroC\nuget" $(MKDIR) "$(LOCALAPPDATA)\ZeroC\nuget"
 	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '$(NUGET)')"
 
-$(BZIP2_NUPKG): $(NUGET)
+$(BZIP2_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)"
-	$(NUGET) install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(BZIP2_VERSION) -ExcludeVersion
+	"$(NUGET)" install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(BZIP2_VERSION) -ExcludeVersion
 
-$(MCPP_NUPKG): $(NUGET)
+$(MCPP_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\mcpp.$(PLATFORMTOOLSET)"
-	$(NUGET) install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
+	"$(NUGET)" install mcpp.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(MCPP_VERSION) -ExcludeVersion
 
 !if "$(CPP_COMPILER)" != "VC100"
-$(DB_NUPKG): $(NUGET)
+$(DB_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\berkeley.db.$(PLATFORMTOOLSET)"
-	$(NUGET) install berkeley.db.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(DB_VERSION) -ExcludeVersion
+	"$(NUGET)" install berkeley.db.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(DB_VERSION) -ExcludeVersion
 
-$(EXPAT_NUPKG): $(NUGET)
+$(EXPAT_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
 	@if exist "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)" rd /s /q "$(PKG_DIR)\expat.$(PLATFORMTOOLSET)"
-	$(NUGET) install expat.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(EXPAT_VERSION) -ExcludeVersion
+	"$(NUGET)" install expat.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -Version $(EXPAT_VERSION) -ExcludeVersion
 !endif
 
 !endif
