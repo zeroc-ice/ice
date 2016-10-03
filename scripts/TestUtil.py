@@ -879,7 +879,8 @@ def hashPasswords(filePath, entries):
       os.remove(filePath)
     passwords = open(filePath, "a")
 
-    command = "%s %s" % (sys.executable, os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
+    command = '%s "%s"' % (sys.executable,
+                           os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
 
     #
     # For Linux ARM default rounds makes test slower (Usually runs on embbeded boards)

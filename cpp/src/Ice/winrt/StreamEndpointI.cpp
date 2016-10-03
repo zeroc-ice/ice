@@ -184,7 +184,7 @@ IceInternal::StreamEndpointI::acceptor(const string&) const
         ostringstream os;
         os << "SSL server endpoints are not supported with UWP applications";
         ex.unsupportedFeature = os.str();
-		throw ex;
+        throw ex;
     }
     return new StreamAcceptor(const_cast<StreamEndpointI*>(this), _instance, _host, _port);
 }
