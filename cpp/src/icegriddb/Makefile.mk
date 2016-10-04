@@ -16,9 +16,8 @@ $(project)/generated/DBTypes.cpp: $(includedir)/generated/IceGrid/Admin.h
 
 icegriddb_targetdir       := $(bindir)
 icegriddb_dependencies    := Ice IceDB Glacier2
-icegriddb_libs            := lmdb
+icegriddb_cppflags	  := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 icegriddb_sources         := $(addprefix $(slicedir)/IceGrid/,Descriptor.ice Exception.ice) \
                              $(addprefix $(currentdir)/,IceGridDB.cpp DBTypes.ice)
-
 
 projects += $(project)
