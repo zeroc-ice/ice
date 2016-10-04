@@ -30,7 +30,7 @@ function createTimerObject()
     Timer.setInterval = function () { setInterval.apply(null, arguments); };
     Timer.clearInterval = function () { clearInterval.apply(null, arguments); };
     Timer.setImmediate = typeof(setImmediate) == "function" ?
-        function () { setImmediate.apply(null, arguments); } : 
+        function () { setImmediate.apply(null, arguments); } :
         function () { setTimeout.apply(null, arguments); };
     return Timer;
 }

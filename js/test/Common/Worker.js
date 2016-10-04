@@ -11,7 +11,7 @@
     self : false,
     runTest : false
 */
- 
+
 var Output =
 {
     write: function(msg)
@@ -26,20 +26,34 @@ var Output =
 
 self.onmessage = function(e)
 {
-    if(e.data.type == "RunTest")
+    try
     {
-        var test = e.data.test;
-        self.importScripts("/lib/Ice.js");
-        self.importScripts("/test/Common/Controller.js");
-        self.importScripts("/test/Common/TestRunner.js");
-        for(var i = 0; i < test.files.length; ++i)
+        if(e.data.type == "RunTest")
         {
-            self.importScripts("/test/" + test.name + "/" + test.files[i]);
-        }
-        runTest(test.name, test.language, test.defaultHost, test.protocol, test.configurations, Output).then(
-            function(r)
+            var test = e.data.test;
+            self.importScripts("/lib/Ice.js");
+            self.importScripts("/test/Common/Controller.js");
+            self.importScripts("/test/Common/TestRunner.js");
+            for(var i = 0; i < test.files.length; ++i)
             {
-                self.postMessage({type:"TestFinished", success:r});
-            });
+                self.importScripts("/test/" + test.name + "/" + test.files[i]);
+            }
+
+            runTest(test.name, test.language, test.defaultHost, test.protocol, test.configurations, Output).then(
+                function(r)
+                {
+                    self.postMessage({type:"TestFinished", success:r});
+                }).exception(
+                    function(ex)
+                    {
+                        Output.writeLine(ex.toString());
+                        self.postMessage({type:"TestFinished", success:false});
+                    });
+        }
+    }
+    catch(ex)
+    {
+        Output.writeLine(ex.toString());
+        self.postMessage({type:"TestFinished", success:false});
     }
 };

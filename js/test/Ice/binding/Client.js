@@ -1165,15 +1165,26 @@
         return p;
     };
 
-    if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+    if(typeof(navigator) !== 'undefined' && isWorker() && (isSafari() || (isWindows() && isChrome())))
     {
+        //
+        // BUGFIX:
         //
         // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
         // web socket send() method never returns for the sending of close connection message.
         //
+        // With Chrome on Windows the Webworker is unexpectelly terminated.
+        //
         exports.__test__ = function(out, id)
         {
-            out.writeLine("Test not supported with Safari web workers.");
+            if(isSafari())
+            {
+                out.writeLine("Test not supported with Safari web workers.");
+            }
+            else if(isWindows() && isChrome())
+            {
+                out.writeLine("Test not supported with Chrome web workers.");
+            }
         };
     }
     else
