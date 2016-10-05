@@ -397,6 +397,11 @@ endsWith(const string& s, const string& findme)
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+#ifdef ICE_OS_WINRT
+    bool winrt = true;
+#else
+    bool winrt = false;
+#endif
     cout << "testing ice_print()/what()... " << flush;
     {
         A a;
@@ -449,10 +454,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(os.str() == "Test::E");
             test(ex.data == "E");
         }
-    
+
         //
         // Test custom ice_print
-        // 
+        //
         {
             F ex("F");
             ostringstream os;
@@ -498,12 +503,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Expected
         }
 
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default -h " + host);
-        first = communicator->createObjectAdapter("TestAdapter0");
         try
         {
+            first = communicator->createObjectAdapter("TestAdapter0");
             Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
             test(false);
         }
@@ -517,6 +522,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             // Expected
         }
+#ifdef ICE_OS_WINRT
+        catch(const Ice::FeatureNotSupportedException&)
+        {
+            // WinRT doesn't support SSL server side endponints.
+        }
+#endif
 
         try
         {
@@ -534,99 +545,109 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             // Expected.
         }
-        first->deactivate();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing servant registration exceptions... " << flush;
-    {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -h " + host);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-        Ice::ObjectPtr obj = new EmptyI;
-        adapter->add(obj, communicator->stringToIdentity("x"));
-        try
+#ifdef ICE_OS_WINRT
+        catch(const Ice::FeatureNotSupportedException&)
         {
+            // WinRT doesn't support SSL server side endponints.
+        }
+#else
+		first->deactivate();
+#endif
+    }
+
+    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+    {
+        cout << "testing servant registration exceptions... " << flush;
+        {
+            string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
+                "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
+            communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -h " + host);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
+            Ice::ObjectPtr obj = new EmptyI;
             adapter->add(obj, communicator->stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, communicator->stringToIdentity("x"));
+                test(false);
             }
-        }
-
-        try
-        {
-            adapter->add(obj, communicator->stringToIdentity(""));
-        }
-        catch(const Ice::IllegalIdentityException& ex)
-        {
-            test(ex.id.name == "");
-            if(printException)
+            catch(const Ice::AlreadyRegisteredException& ex)
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
             }
-        }
-        
-        try
-        {
-            adapter->add(0, communicator->stringToIdentity("x"));
-        }
-        catch(const Ice::IllegalServantException& ex)
-        {
-            if(printException)
+
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, communicator->stringToIdentity(""));
             }
-        }
+            catch(const Ice::IllegalIdentityException& ex)
+            {
+                test(ex.id.name == "");
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
+            try
+            {
+                adapter->add(0, communicator->stringToIdentity("x"));
+            }
+            catch(const Ice::IllegalServantException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
 
 
-        adapter->remove(communicator->stringToIdentity("x"));
-        try
-        {
             adapter->remove(communicator->stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::NotRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->remove(communicator->stringToIdentity("x"));
+                test(false);
             }
+            catch(const Ice::NotRegisteredException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
+            adapter->deactivate();
         }
+        cout << "ok" << endl;
 
-        adapter->deactivate();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing servant locator registrations exceptions... " << flush;
-    {
-        string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -h " + host);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-        Ice::ServantLocatorPtr loc = new ServantLocatorI;
-        adapter->addServantLocator(loc, "x");
-        try
+        cout << "testing servant locator registrations exceptions... " << flush;
         {
+            string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
+                "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
+            communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -h " + host);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
+            Ice::ServantLocatorPtr loc = new ServantLocatorI;
             adapter->addServantLocator(loc, "x");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException&)
-        {
-        }
+            try
+            {
+                adapter->addServantLocator(loc, "x");
+                test(false);
+            }
+            catch(const Ice::AlreadyRegisteredException&)
+            {
+            }
 
-        adapter->deactivate();
+            adapter->deactivate();
+        }
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     cout << "testing object factory registration exception... " << flush;
     {

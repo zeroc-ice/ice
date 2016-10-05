@@ -15,6 +15,12 @@
     <Filter Include="Styles">
       <UniqueIdentifier>65bbfccd-24aa-402e-8946-23421ba48638</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{07e8b16a-ff68-49b2-8edd-c57a68d0f344}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c22d6406-2914-479e-abf7-d07276ada0f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
