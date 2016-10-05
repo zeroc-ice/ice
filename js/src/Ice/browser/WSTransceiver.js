@@ -186,13 +186,16 @@ var WSTransceiver = Ice.Class({
         var transceiver = this;
         var cb = function()
         {
-            if(transceiver._fd && transceiver._fd.bufferedAmount + packetSize <= transceiver._maxSendPacketSize)
+            if(transceiver._fd)
             {
-                transceiver._bytesWrittenCallback(0, 0);
-            }
-            else
-            {
-                Timer.setTimeout(cb, transceiver.writeReadyTimeout());
+                if(transceiver._fd.bufferedAmount + packetSize <= transceiver._maxSendPacketSize)
+                {
+                    transceiver._bytesWrittenCallback(0, 0);
+                }
+                else
+                {
+                    Timer.setTimeout(cb, transceiver.writeReadyTimeout());
+                }
             }
         };
 
