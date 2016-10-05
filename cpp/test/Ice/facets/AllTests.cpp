@@ -25,7 +25,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #ifdef ICE_OS_WINRT
     bool winrt = true;
 #else
-    bool winrt = false
+    bool winrt = false;
 #endif
     cout << "testing Ice.Admin.Facets property... " << flush;
     test(communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets").empty());
