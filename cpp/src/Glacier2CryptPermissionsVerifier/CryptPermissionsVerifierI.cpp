@@ -202,7 +202,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
 #   else
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-    return p->second == crypt(password.c_str(), salt.c_str())
+    return p->second == crypt(password.c_str(), salt.c_str());
 #   endif
 #elif defined(__APPLE__) || defined(_WIN32)
     //
