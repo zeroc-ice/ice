@@ -101,6 +101,7 @@ class PluginI implements com.zeroc.Ice.Plugin
         }
 
         private final LocatorI _locator;
+        private com.zeroc.Ice.LocalException _exception = null;
         private final String _operation;
         private final com.zeroc.Ice.OperationMode _mode;
         private final java.util.Map<String, String> _context;
