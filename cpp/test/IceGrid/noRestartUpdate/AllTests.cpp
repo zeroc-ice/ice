@@ -546,9 +546,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         iceboxExe += "32";
 #endif
 
-#if defined(_WIN32) && !defined(NDEBUG)
-        iceboxExe += "d";
-#endif
         IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
         icebox->id = "IceBox";
         icebox->exe = properties->getProperty("IceBinDir") + iceboxExe;
