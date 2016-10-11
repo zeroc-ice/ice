@@ -10,6 +10,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/StringConverter.h>
 #include <climits>
 
 #ifndef _MSC_VER
