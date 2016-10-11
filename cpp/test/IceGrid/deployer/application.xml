@@ -23,7 +23,7 @@
       <object identity="ReplicatedObject" type="::Test"/>
     </replica-group>
 
-    <replica-group id="ReplicatedAdapter2" proxy-options="-e 1.4">
+    <replica-group id="ReplicatedAdapter 2" proxy-options="-e 1.4">
       <description>REPLICA GROUP ${AppVar}</description>
       <object identity="ReplicatedObject15" type="::Test" proxy-options="-e 1.5"/>
       <object identity="ReplicatedObject14" type="::Test"/>

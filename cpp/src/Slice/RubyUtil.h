@@ -46,7 +46,7 @@ std::string getAbsolute(const Slice::ContainedPtr&, IdentStyle, const std::strin
 //
 void printHeader(IceUtilInternal::Output&);
 
-int compile(int, char*[]);
+int compile(const std::vector<std::string>&);
 
 }
 }

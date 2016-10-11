@@ -40,9 +40,9 @@ namespace IceLocatorDiscovery
         public void
         invoke(Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.Equals(l))
             {
+                _locatorPrx = l;
                 l.ice_invokeAsync(_operation, _mode, _inParams, _context).ContinueWith(
                     (task) =>
                     {
@@ -56,9 +56,10 @@ namespace IceLocatorDiscovery
                         }
                     });
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                Debug.Assert(_exception != null);
+                throw _exception;
             }
         }
 
@@ -91,6 +92,7 @@ namespace IceLocatorDiscovery
             }
             catch(Exception)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
             }
         }
@@ -102,6 +104,7 @@ namespace IceLocatorDiscovery
         private readonly byte[] _inParams;
 
         private Ice.LocatorPrx _locatorPrx;
+        private Ice.Exception _exception;
     }
 
     internal class VoidLocatorI : Ice.LocatorDisp_

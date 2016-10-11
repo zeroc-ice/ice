@@ -11,15 +11,14 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Gen.h>
 
 #include <limits>
-#include <sys/stat.h>
-
 #ifndef _WIN32
-#   include <unistd.h>
+#  include <unistd.h>
 #else
-#   include <direct.h>
+#  include <direct.h>
 #endif
 
 #include <IceUtil/Iterator.h>
@@ -2165,8 +2164,8 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     if(impl || implTie)
     {
-        struct stat st;
-        if(stat(fileImpl.c_str(), &st) == 0)
+        IceUtilInternal::structstat st;
+        if(!IceUtilInternal::stat(fileImpl, &st))
         {
             ostringstream os;
             os << "`" << fileImpl << "' already exists - will not overwrite";
@@ -5684,7 +5683,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string name = p->name();
 
-    _out << sp << nl << "public sealed class " << name << 'I';
+    _out << sp << nl << "public class " << name << 'I';
     if(p->isInterface())
     {
         if(p->isLocal())

@@ -501,147 +501,156 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         localOAEndpoint = ostr.str();
     }
+#ifdef ICE_OS_WINRT
+    bool winrt = true;
+#else
+    bool winrt = false;
+#endif
 
-    cout << "testing object adapter registration exceptions... " << flush;
+    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
-        Ice::ObjectAdapterPtr first;
-        try
+        cout << "testing object adapter registration exceptions... " << flush;
         {
+            Ice::ObjectAdapterPtr first;
+            try
+            {
+                first = communicator->createObjectAdapter("TestAdapter0");
+                test(false);
+            }
+            catch(const Ice::InitializationException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+                // Expected
+            }
+
+            communicator->getProperties()->setProperty("TestAdapter0.Endpoints", localOAEndpoint);
             first = communicator->createObjectAdapter("TestAdapter0");
-            test(false);
-        }
-        catch(const Ice::InitializationException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
+                test(false);
             }
-            // Expected
-        }
-
-        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", localOAEndpoint);
-        first = communicator->createObjectAdapter("TestAdapter0");
-        try
-        {
-            Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            catch(const Ice::AlreadyRegisteredException& ex)
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+
+                // Expected
             }
 
-            // Expected
-        }
-
-        try
-        {
-            Ice::ObjectAdapterPtr second =
-                communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                Ice::ObjectAdapterPtr second =
+                    communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                test(false);
             }
+            catch(const Ice::AlreadyRegisteredException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
 
-            // Expected.
+                // Expected.
+            }
+            first->deactivate();
         }
-        first->deactivate();
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 
-    cout << "testing servant registration exceptions... " << flush;
-    {
-        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-        Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
-        adapter->add(obj, Ice::stringToIdentity("x"));
-        try
+        cout << "testing servant registration exceptions... " << flush;
         {
+            communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
+            Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
             adapter->add(obj, Ice::stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, Ice::stringToIdentity("x"));
+                test(false);
             }
-        }
-
-        try
-        {
-            adapter->add(obj, Ice::stringToIdentity(""));
-        }
-        catch(const Ice::IllegalIdentityException& ex)
-        {
-            test(ex.id.name == "");
-            if(printException)
+            catch(const Ice::AlreadyRegisteredException& ex)
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
             }
-        }
 
-        try
-        {
-            adapter->add(0, Ice::stringToIdentity("x"));
-        }
-        catch(const Ice::IllegalServantException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, Ice::stringToIdentity(""));
             }
-        }
+            catch(const Ice::IllegalIdentityException& ex)
+            {
+                test(ex.id.name == "");
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
 
-        adapter->remove(Ice::stringToIdentity("x"));
-        try
-        {
+            try
+            {
+                adapter->add(0, Ice::stringToIdentity("x"));
+            }
+            catch(const Ice::IllegalServantException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
             adapter->remove(Ice::stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::NotRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->remove(Ice::stringToIdentity("x"));
+                test(false);
             }
+            catch(const Ice::NotRegisteredException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
+            adapter->deactivate();
         }
+        cout << "ok" << endl;
 
-        adapter->deactivate();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing servant locator registrations exceptions... " << flush;
-    {
-        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-        Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
-        adapter->addServantLocator(loc, "x");
-        try
+        cout << "testing servant locator registrations exceptions... " << flush;
         {
+            communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
+            Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
             adapter->addServantLocator(loc, "x");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException&)
-        {
-        }
+            try
+            {
+                adapter->addServantLocator(loc, "x");
+                test(false);
+            }
+            catch(const Ice::AlreadyRegisteredException&)
+            {
+            }
 
-        adapter->deactivate();
+            adapter->deactivate();
+        }
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     cout << "testing value factory registration exception... " << flush;
     {

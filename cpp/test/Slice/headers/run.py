@@ -149,7 +149,7 @@ f.close()
 os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
 f = open("project1/A.h")
 if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
-    print("failed!")
+    print("failed!2")
     sys.exit(1)
 clean()
 

@@ -741,7 +741,7 @@ Slice::Preprocessor::checkInputFile()
         return false;
     }
 
-    ifstream test(_fileName.c_str());
+    ifstream test(IceUtilInternal::streamFilename(_fileName).c_str());
     if(!test)
     {
         getErrorStream() << _path << ": error: cannot open `" << _fileName << "' for reading" << endl;

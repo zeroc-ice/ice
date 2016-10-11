@@ -431,3 +431,27 @@ Slice::DependOutputUtil::os()
 {
     return _file.empty() ? cout : _os;
 }
+
+#ifdef _WIN32
+vector<string>
+Slice::argvToArgs(int argc, wchar_t* argv[])
+{
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(IceUtil::wstringToString(argv[i]));
+    }
+    return args;
+}
+#else
+vector<string>
+Slice::argvToArgs(int argc, char* argv[])
+{
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(argv[i]);
+    }
+    return args;
+}
+#endif

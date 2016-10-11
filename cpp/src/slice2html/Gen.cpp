@@ -10,20 +10,19 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
+#  include <direct.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 
 #include <iterator>
-
 #include <string.h>
 
 using namespace std;
@@ -352,7 +351,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const SyntaxTreeBasePt
             {
                 item = q->substr(pos);
             }
-            
+
             start("dt", "Symbol");
             _out << term;
             end();
@@ -393,7 +392,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const SyntaxTreeBasePt
             {
                 item = q->substr(pos);
             }
-            
+
             start("dt", "Symbol");
             _out << getURL(toSliceID(term, source->definitionContext()->filename()), source, false);
             end();
@@ -1316,14 +1315,14 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
         {
             return result;
         }
-        
+
         string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
         if(pos1 == string::npos)
         {
             comment.erase(begin);
             return result;
         }
-        
+
         string::size_type pos2 = comment.find('@', pos1);
         string line = comment.substr(pos1, pos2 - pos1);
         comment.erase(begin, pos2 - 1 - begin);
@@ -1357,7 +1356,7 @@ Slice::GeneratorBase::getScopedMinimized(const SyntaxTreeBasePtr& target, const 
     {
         return scoped.substr(2);
     }
-    
+
     do
     {
         string scoped2 = s->scoped();
@@ -1559,9 +1558,8 @@ Slice::GeneratorBase::toStringList(const string& scoped)
 void
 Slice::GeneratorBase::makeDir(const string& dir)
 {
-    struct stat st;
-    int rc = stat(dir.c_str(), &st);
-    if(rc == 0)
+    IceUtilInternal::structstat st;
+    if(!IceUtilInternal::stat(dir, &st))
     {
         if(!(st.st_mode & S_IFDIR))
         {
@@ -1573,12 +1571,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
         return;
     }
 
-#ifdef _WIN32
-    rc = _mkdir(dir.c_str());
-#else
-    rc = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
-    if(rc != 0)
+    if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
         os << "cannot create directory `" << dir << "': " << strerror(errno);
@@ -1590,7 +1583,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
 string
 Slice::GeneratorBase::readFile(const string& file)
 {
-    ifstream in(file.c_str());
+    ifstream in(streamFilename(file).c_str());
     if(!in)
     {
         ostringstream os;
@@ -1606,7 +1599,7 @@ Slice::GeneratorBase::readFile(const string& file)
         result << line << '\n';
         getline(in, line);
     }
-    
+
     return result.str();
 }
 
@@ -1664,7 +1657,7 @@ Slice::GeneratorBase::getFooter(const string& footer)
 void
 Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 {
-    ifstream in(file.c_str());
+    ifstream in(streamFilename(file).c_str());
     if(!in)
     {
         ostringstream os;
@@ -2568,7 +2561,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         }
         end();
     }
-        
+
     _out << nl << "<hr>";
     printHeaderFooter(e);
 
@@ -2894,7 +2887,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         }
         end();
     }
-        
+
     _out << nl << "<hr>";
     printHeaderFooter(s);
 
@@ -2973,7 +2966,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         }
         end();
     }
-        
+
     closeDoc();
 
     _out << nl << "<hr>";

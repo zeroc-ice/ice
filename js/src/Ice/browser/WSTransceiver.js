@@ -187,6 +187,22 @@ class WSTransceiver
         }
         Debug.assert(this._fd);
 
+        var transceiver = this;
+        var cb = function()
+        {
+            if(transceiver._fd)
+            {
+                if(transceiver._fd.bufferedAmount + packetSize <= transceiver._maxSendPacketSize)
+                {
+                    transceiver._bytesWrittenCallback(0, 0);
+                }
+                else
+                {
+                    Timer.setTimeout(cb, transceiver.writeReadyTimeout());
+                }
+            }
+        };
+
         var i = byteBuffer.position;
         while(true)
         {
@@ -199,14 +215,7 @@ class WSTransceiver
             Debug.assert(packetSize > 0);
             if(this._fd.bufferedAmount + packetSize > this._maxSendPacketSize)
             {
-                Timer.setTimeout(() =>
-                    {
-                        if(this._fd && this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize)
-                        {
-                            this._bytesWrittenCallback();
-                        }
-                    },
-                    this.writeReadyTimeout());
+                Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;
             }
             this._writeReadyTimeout = 0;
@@ -352,7 +361,7 @@ class WSTransceiver
             this._bytesAvailableCallback();
         }
     }
-    
+
     static createOutgoing(instance, secure, addr, resource)
     {
         var transceiver = new WSTransceiver(instance);

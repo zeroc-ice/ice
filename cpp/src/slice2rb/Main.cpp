@@ -17,9 +17,10 @@ using namespace Slice::Ruby;
 int
 main(int argc, char* argv[])
 {
+    vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
-        return Slice::Ruby::compile(argc, argv);
+        return Slice::Ruby::compile(args);
     }
     catch(const std::exception& ex)
     {

@@ -80,7 +80,7 @@ public:
             // Close the connection otherwise the peer has no way to know that
             // the session has gone.
             //
-            _connection->close(false);
+            _connection->close(true);
             _router->destroySession(_connection);
         }
     }
@@ -922,7 +922,7 @@ SessionRouterI::refreshSession(const Ice::ConnectionPtr& con)
             // Close the connection otherwise the peer has no way to know that the
             // session has gone.
             //
-            con->close(false);
+            con->close(true);
             throw SessionNotExistException();
         }
     }

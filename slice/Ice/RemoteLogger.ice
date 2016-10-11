@@ -30,30 +30,30 @@ module Ice
 enum LogMessageType
 {
     /**
-     * 
+     *
      * The {@link Logger} received a print message.
-     * 
+     *
      **/
     PrintMessage,
 
     /**
-     * 
+     *
      * The {@link Logger} received a trace message.
-     * 
+     *
      **/
     TraceMessage,
 
     /**
-     * 
+     *
      * The {@link Logger} received a warning message.
-     * 
+     *
      **/
     WarningMessage,
 
     /**
-     * 
+     *
      * The {@link Logger} received an error message.
-     * 
+     *
      **/
     ErrorMessage
 };
@@ -75,32 +75,32 @@ sequence<LogMessageType> LogMessageTypeSeq;
 struct LogMessage
 {
     /**
-     * 
+     *
      * The type of message sent to the {@link Logger}.
-     * 
+     *
      **/
     LogMessageType type;
-    
+
     /**
-     * 
+     *
      * The date and time when the {@link Logger} received this message, expressed
      * as the number of microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970)
-     * 
+     *
      **/
     long timestamp;
 
     /**
-     * 
-     * For a message of type trace, the trace category of this log message; 
+     *
+     * For a message of type trace, the trace category of this log message;
      * otherwise, the empty string.
-     * 
+     *
      **/
     string traceCategory;
 
      /**
-     * 
+     *
      * The log message itself.
-     * 
+     *
      **/
     string message;
 };
@@ -127,24 +127,24 @@ interface RemoteLogger
     /**
      *
      * init is called by {@link LoggerAdmin#attachRemoteLogger} when a
-     * RemoteLogger proxy is attached. 
+     * RemoteLogger proxy is attached.
      *
      * @param prefix The prefix of the associated local {@link Logger}
-     * 
+     *
      * @param logMessages Old log messages generated before "now".
      *
      * @see LoggerAdmin#attachRemoteLogger
      *
      *
      **/
-    void init(string prefix, LogMessageSeq logMessages); 
+    void init(string prefix, LogMessageSeq logMessages);
 
-    
+
     /**
      *
      * Log a {@link LogMessage}. Note that log may be called by {@link LoggerAdmin}
      * before {@link #init}.
-     * 
+     *
      * @param message The message to log.
      *
      * @see Logger
@@ -167,7 +167,7 @@ exception RemoteLoggerAlreadyAttachedException
 
 /**
  *
- * The interface of the admin object that allows an Ice application the attach its 
+ * The interface of the admin object that allows an Ice application the attach its
  * {@link RemoteLogger} to the {@link Logger} of this admin object's Ice communicator.
  *
  **/
@@ -175,8 +175,8 @@ interface LoggerAdmin
 {
     /**
      *
-     * attachRemoteLogger is called to attach a {@link RemoteLogger} object to 
-     * the local {@link Logger}. 
+     * attachRemoteLogger is called to attach a {@link RemoteLogger} object to
+     * the local {@link Logger}.
      * attachRemoteLogger calls init on the provided {@link RemoteLogger} proxy.
      *
      * @param prx A proxy to the remote logger.
@@ -186,9 +186,9 @@ interface LoggerAdmin
      *
      * @param traceCategories The categories of traces that the remote logger wishes to receive.
      * This parameter is ignored if messageTypes is not empty and does not include trace.
-     * An empty list means no filtering (send all trace categories). 
+     * An empty list means no filtering (send all trace categories).
      *
-     * @param messageMax The maximum number of log messages (of all types) to be provided 
+     * @param messageMax The maximum number of log messages (of all types) to be provided
      * to {@link RemoteLogger#init}. A negative value requests all messages available.
      *
      * @throws RemoteLoggerAlreadyAttachedException Raised if this remote logger is already
@@ -196,7 +196,7 @@ interface LoggerAdmin
      *
      **/
     void attachRemoteLogger(RemoteLogger* prx, LogMessageTypeSeq messageTypes, StringSeq traceCategories,
-                            int messageMax) 
+                            int messageMax)
         throws RemoteLoggerAlreadyAttachedException;
 
     /**
@@ -215,14 +215,14 @@ interface LoggerAdmin
      *
      * getLog retrieves log messages recently logged.
      *
-     * @param messageTypes The list of message types that the caller wishes to receive. 
+     * @param messageTypes The list of message types that the caller wishes to receive.
      * An empty list means no filtering (send all message types).
      *
      * @param traceCategories The categories of traces that caller wish to receive.
      * This parameter is ignored if messageTypes is not empty and does not include trace.
-     * An empty list means no filtering (send all trace categories). 
+     * An empty list means no filtering (send all trace categories).
      *
-     * @param messageMax The maximum number of log messages (of all types) to be returned. 
+     * @param messageMax The maximum number of log messages (of all types) to be returned.
      * A negative value requests all messages available.
      *
      * @param prefix The prefix of the associated local {@link Logger}.

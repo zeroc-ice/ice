@@ -187,10 +187,8 @@ PackageVisitor::visitModuleEnd(const ModulePtr& p)
 void
 PackageVisitor::createDirectory(const string& dir)
 {
-    struct stat st;
-    int result;
-    result = stat(dir.c_str(), &st);
-    if(result == 0)
+    IceUtilInternal::structstat st;
+    if(!IceUtilInternal::stat(dir, &st))
     {
         if(!(st.st_mode & S_IFDIR))
         {
@@ -201,13 +199,8 @@ PackageVisitor::createDirectory(const string& dir)
         }
         return;
     }
-#ifdef _WIN32
-    result = _mkdir(dir.c_str());
-#else
-    result = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
 
-    if(result != 0)
+    if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
         os << "cannot create directory `" << dir << "': " << strerror(errno);
@@ -254,10 +247,10 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 {
     string initPath = dir + "/__init__.py";
 
-    struct stat st;
-    if(stat(initPath.c_str(), &st) == 0)
+    IceUtilInternal::structstat st;
+    if(!IceUtilInternal::stat(initPath, &st))
     {
-        ifstream in(initPath.c_str());
+        ifstream in(IceUtilInternal::streamFilename(initPath).c_str());
         if(!in)
         {
             ostringstream os;
@@ -358,7 +351,7 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
 {
     string initPath = dir + "/__init__.py";
 
-    ofstream os(initPath.c_str());
+    ofstream os(IceUtilInternal::streamFilename(initPath).c_str());
     if(!os)
     {
         ostringstream os;
@@ -388,7 +381,7 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
 }
 
 void
-usage(const char* n)
+usage(const string& n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
     getErrorStream() <<
@@ -416,7 +409,7 @@ usage(const char* n)
 }
 
 int
-Slice::Python::compile(int argc, char* argv[])
+Slice::Python::compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -441,7 +434,7 @@ Slice::Python::compile(int argc, char* argv[])
     vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {

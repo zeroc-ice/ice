@@ -46,7 +46,7 @@ function createTimerObject()
             clearInterval.apply(null, arguments);
         }
     };
-    
+
     if(typeof(setImmediate) == "function")
     {
         Timer.setImmediate = function()

@@ -863,8 +863,14 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                             throw ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
-                        pos += bytes.size();
-                        updated += bytes.size();
+                        // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than '_chunkSize'
+                        // or we are reading the last chunk of a file, 'bytes' will be larger than necessary. In this
+                        // case we calculate the current position and updated size based on the known file size.
+                        size_t size = (pos + bytes.size()) > static_cast<size_t>(p->size) ?
+                            static_cast<size_t>(p->size - pos) : bytes.size();
+
+                        pos += size;
+                        updated += size;
 
                         if(!_feedback->patchProgress(pos, p->size, updated, total))
                         {

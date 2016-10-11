@@ -20,7 +20,7 @@ using namespace Test;
 class HelloI : public virtual Hello
 {
 public:
-    
+
     virtual void
     sayHello(const Ice::Current&)
     {
@@ -689,29 +689,39 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;
 
-    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+#ifdef ICE_OS_WINRT
+    bool winrt = true;
+#else
+    bool winrt = false;
+#endif
+    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-    if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
-    {
-        cout << "testing indirect proxies to collocated objects... " << flush;
-        //
-        // Set up test for calling a collocated object through an indirect, adapterless reference.
-        //
-        Ice::PropertiesPtr properties = communicator->getProperties();
-        properties->setProperty("Ice.PrintAdapterReady", "0");
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
-        adapter->setLocator(locator);
-
-        Ice::Identity id;
-        id.name = Ice::generateUUID();
-        registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
-        adapter->activate();
         
-        HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(identityToString(id)));
-        test(!helloPrx->ice_getConnection());
+    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+    {
+        if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
+        {
+            cout << "testing indirect proxies to collocated objects... " << flush;
+            //
+            // Set up test for calling a collocated object through an indirect, adapterless reference.
+            //
+            Ice::PropertiesPtr properties = communicator->getProperties();
+            properties->setProperty("Ice.PrintAdapterReady", "0");
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
+            adapter->setLocator(locator);
 
-        adapter->deactivate();
-        cout << "ok" << endl;
+            Ice::Identity id;
+            id.name = Ice::generateUUID();
+            registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
+            adapter->activate();
+            
+            HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(identityToString(id)));
+            test(!helloPrx->ice_getConnection());
+
+            adapter->deactivate();
+            cout << "ok" << endl;
+        }
     }
     cout << "shutdown server manager... " << flush;
     manager->shutdown();

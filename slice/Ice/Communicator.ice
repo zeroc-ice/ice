@@ -452,8 +452,8 @@ local interface Communicator
      *
      * <p class="Note"> You can also set a locator for an individual proxy
      * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
-     * object adapter by calling the operation {@link ObjectAdapter#setLocator} on the
-     * object adapter.
+     * object adapter by calling the operation {@link ObjectAdapter#setLocator}
+     * on the object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *

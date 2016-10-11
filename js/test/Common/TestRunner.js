@@ -19,9 +19,23 @@ function isSafari()
     return /^((?!chrome).)*safari/i.test(navigator.userAgent);
 }
 
+function isChrome()
+{
+    //
+    // We need to check for Edge browser as it might include Chrome in its user agent.
+    //
+    return navigator.userAgent.indexOf("Edge/") === -1 &&
+           navigator.userAgent.indexOf("Chrome/") !== -1;
+}
+
 function isWorker()
 {
     return typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope;
+}
+
+function isWindows()
+{
+    return navigator.userAgent.indexOf("Windows") != -1;
 }
 
 function runTest(name, language, defaultHost, protocol, configurations, out)

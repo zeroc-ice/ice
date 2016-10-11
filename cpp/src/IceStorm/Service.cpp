@@ -535,6 +535,8 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Trace.Topic",
         "Trace.TopicManager",
         "Send.Timeout",
+        "Send.QueueSizeMax",
+        "Send.QueueSizeMaxPolicy",
         "Discard.Interval",
         "LMDB.Path",
         "LMDB.MapSize"

@@ -184,5 +184,5 @@ The enclosing directory also needs to be accessible. For example:
 
     # chcon -R -t httpd_sys_content_t /opt/MyApp/slice
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0

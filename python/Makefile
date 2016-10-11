@@ -10,6 +10,10 @@
 top_srcdir 	:= ..
 lang_srcdir	:= $(top_srcdir)/python
 
+ifeq ($(PYTHON),)
+    PYTHON = python
+endif
+
 include $(top_srcdir)/config/Make.rules
 
 #

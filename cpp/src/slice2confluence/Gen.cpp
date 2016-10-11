@@ -9,16 +9,16 @@
 
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Slice/FileTracker.h>
 #include <Gen.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
+#   include <direct.h>
 #else
-#include <unistd.h>
+#   include <unistd.h>
 #endif
 
 #include <iterator>
@@ -1780,8 +1780,7 @@ void
 Slice::GeneratorBase::makeDir(const string& dir)
 {
     struct stat st;
-    int rc = stat(dir.c_str(), &st);
-    if(rc == 0)
+    if(!IceUtilInternal::stat(dir, &st))
     {
         if(!(st.st_mode & S_IFDIR))
         {
@@ -1793,12 +1792,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
         return;
     }
 
-#ifdef _WIN32
-    rc = _mkdir(dir.c_str());
-#else
-    rc = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
-    if(rc != 0)
+    if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
         os << "cannot create directory `" << dir << "': " << strerror(errno);

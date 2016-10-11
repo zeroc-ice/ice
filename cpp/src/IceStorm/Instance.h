@@ -61,6 +61,12 @@ class Instance : public IceUtil::Shared
 {
 public:
 
+    enum SendQueueSizeMaxPolicy
+    {
+        RemoveSubscriber,
+        DropEvents
+    };
+
     Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
              const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0, const IceStormElection::NodePrx& = 0);
     ~Instance();
@@ -88,6 +94,8 @@ public:
     IceUtil::Time discardInterval() const;
     IceUtil::Time flushInterval() const;
     int sendTimeout() const;
+    int sendQueueSizeMax() const;
+    SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
     void shutdown();
     virtual void destroy();
@@ -105,6 +113,8 @@ private:
     const IceUtil::Time _discardInterval;
     const IceUtil::Time _flushInterval;
     const int _sendTimeout;
+    const int _sendQueueSizeMax;
+    const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
     const Ice::ObjectPrx _topicReplicaProxy;
     const Ice::ObjectPrx _publisherReplicaProxy;
     const TopicReaperPtr _topicReaper;

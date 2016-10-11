@@ -76,6 +76,6 @@ startScripts {
     enabled = false
 }
 
-installApp {
+installDist {
     enabled = false
 }

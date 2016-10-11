@@ -137,16 +137,18 @@ public class Utils
     static public void
     storeWindowBounds(java.awt.Window window, java.util.prefs.Preferences prefs)
     {
+        if(window instanceof java.awt.Frame)
+        {
+            java.awt.Frame frame = (java.awt.Frame)window;
+            boolean maximized = frame.getExtendedState() == java.awt.Frame.MAXIMIZED_BOTH;
+            prefs.putBoolean("maximized", maximized);
+        }
+
         Rectangle rect = window.getBounds();
         prefs.putInt("x", rect.x);
         prefs.putInt("y", rect.y);
         prefs.putInt("width", rect.width);
         prefs.putInt("height", rect.height);
-
-        if(window instanceof java.awt.Frame)
-        {
-            prefs.putBoolean("maximized", ((java.awt.Frame)window).getExtendedState() == java.awt.Frame.MAXIMIZED_BOTH);
-        }
     }
 
     static public java.util.prefs.Preferences
@@ -173,6 +175,7 @@ public class Utils
             int y = prefs.getInt("y", 0);
             int width = prefs.getInt("width", 0);
             int height = prefs.getInt("height", 0);
+            boolean maximized = prefs.getBoolean("maximized", false);
 
             Rectangle visibleBounds = new Rectangle();
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -181,15 +184,21 @@ public class Utils
             {
                 visibleBounds.add(s.getDefaultConfiguration().getBounds());
             }
-            locationVisible = visibleBounds.contains(x, y);
+            locationVisible = visibleBounds.contains(x, y) || (maximized && visibleBounds.contains(x + 20, y + 20));
 
             if(locationVisible)
             {
-                window.setBounds(new Rectangle(x, y, width, height));
-                if(prefs.getBoolean("maximized", false))
+                if(maximized)
                 {
-                    ((java.awt.Frame)window).setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+                    java.awt.Frame frame = (java.awt.Frame)window;
+                    frame.setBounds(new Rectangle(x + 20, y + 20, width, height));
+                    frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
                 }
+                else
+                {
+                    window.setBounds(new Rectangle(x, y, width, height));
+                }
+
             }
             else
             {

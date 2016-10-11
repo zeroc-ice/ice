@@ -215,7 +215,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * The expression <code>ice_operationAttributes("op") &amp; 0x1</code> is true if
      * the operation has a <code>["freeze:write"]</code> metadata directive.
      * <p>
-     * The second- and third least significant bit indicate the transactional mode
+     * The second and third least significant bit indicate the transactional mode
      * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
      * indicates the transactional mode as follows:
      * <dl>

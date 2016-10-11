@@ -39,6 +39,10 @@ module IceStorm
     Ice::Context context;
 };
 
+local exception SendQueueSizeMaxReached
+{
+};
+
 /** A sequence of EventData. */
 ["cpp:type:std::deque< ::IceStorm::EventDataPtr>"] sequence<EventData> EventDataSeq;
 

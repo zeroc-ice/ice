@@ -177,41 +177,34 @@ IceRuby_compile(int argc, VALUE* argv, VALUE self)
         {
             throw RubyException(rb_eTypeError, "argument is not an array");
         }
-        char** argv = new char*[argSeq.size()+1];
         // Manufacture a fake argv[0].
-        argv[0] = const_cast<char*>("slice2rb");
-        for(size_t i = 0; i < argSeq.size(); ++i)
-        {
-            argv[i+1] = const_cast<char*>(argSeq[i].c_str());
-        }
+        argSeq.insert(argSeq.begin(), "slice2rb");
 
         int rc;
         try
         {
-            rc = Slice::Ruby::compile(argSeq.size()+1, argv);
+            rc = Slice::Ruby::compile(argSeq);
         }
         catch(const std::exception& ex)
         {
-            getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+            getErrorStream() << argSeq[0] << ": error:" << ex.what() << endl;
             rc = EXIT_FAILURE;
         }
         catch(const std::string& msg)
         {
-            getErrorStream() << argv[0] << ": error:" << msg << endl;
+            getErrorStream() << argSeq[0] << ": error:" << msg << endl;
             rc = EXIT_FAILURE;
         }
         catch(const char* msg)
         {
-            getErrorStream() << argv[0] << ": error:" << msg << endl;
+            getErrorStream() << argSeq[0] << ": error:" << msg << endl;
             rc = EXIT_FAILURE;
         }
         catch(...)
         {
-            getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+            getErrorStream() << argSeq[0] << ": error:" << "unknown exception" << endl;
             rc = EXIT_FAILURE;
         }
-
-        delete[] argv;
         return INT2FIX(rc);
     }
     ICE_RUBY_CATCH

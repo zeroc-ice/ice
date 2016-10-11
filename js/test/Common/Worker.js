@@ -11,7 +11,7 @@
     self : false,
     runTest : false
 */
- 
+
 var Output =
 {
     write: function(msg)
@@ -26,7 +26,7 @@ var Output =
 
 self.onmessage = function(e)
 {
-    if(e.data.type == "RunTest")
+    try
     {
         var test = e.data.test;
         if(test.es5)
@@ -51,10 +51,23 @@ self.onmessage = function(e)
             }
             self.importScripts(f);
         }
+
+
         runTest(test.name, test.language, test.defaultHost, test.protocol, test.configurations, Output).then(
             function(r)
             {
                 self.postMessage({type:"TestFinished", success:r});
+            }
+        ).catch(
+            function(ex)
+            {
+                Output.writeLine(ex.toString());
+                self.postMessage({type:"TestFinished", success:false});
             });
+    }
+    catch(ex)
+    {
+        Output.writeLine(ex.toString());
+        self.postMessage({type:"TestFinished", success:false});
     }
 };

@@ -42,7 +42,7 @@ directory, for example:
   $ export JBOSS_HOME=$HOME/EnterprisePlatform-5.1.2/jboss-eap-5.1/jboss-as/
 
 If Ice isn't installed in the default location set the ICE_HOME
-environment variable to your Ice 3.7.0 installation directory.
+environment variable to your Ice installation directory.
 
 Run ant to build and deploy the application:
 

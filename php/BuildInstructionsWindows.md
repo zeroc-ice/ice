@@ -205,5 +205,5 @@ installation directory, you can modify the access rights as shown below:
     cacls bzip2.dll /G SYSTEM:F Administrators:F
     ...
 
-[1]: https://zeroc.com/downloads/ice
+[1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0

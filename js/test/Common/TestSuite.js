@@ -36,6 +36,17 @@ $(document).ready(
             }
         };
 
+        window.onerror = function(msg, url, line, column, err)
+        {
+            var e = msg + " at " + url + ":" + line + ":" + column;
+            if(err)
+            {
+                e += "\n" + err.stack;
+            }
+            out.writeLine(e);
+            return false;
+        };
+
         var query = new URI(document.location.href).search(true);
 
         $("#language").val(query.language !== undefined ? query.language : "cpp");
@@ -43,7 +54,7 @@ $(document).ready(
         $("#test").val("/test/" + current + "/index.html");
         $("#worker").prop("checked", query.worker == "true");
         $("#loop").prop("checked", query.loop == "true");
-        
+
         function nextTest()
         {
             var path = $("#test").val();
@@ -79,7 +90,7 @@ $(document).ready(
                 updateLocation();
             }
         }
-        
+
         function setRunning(running)
         {
             if(running)
@@ -100,7 +111,7 @@ $(document).ready(
                 $("#run").removeClass("disabled");
             }
         }
-        
+
         function updateLocation()
         {
             var path = $("#test").val();
@@ -140,6 +151,7 @@ $(document).ready(
                         }
                         else if(e.data.type == "TestFinished")
                         {
+                            worker.terminate();
                             setRunning(false);
                             next(e.data.success);
                         }
@@ -159,6 +171,11 @@ $(document).ready(
                                 es5: document.location.pathname.indexOf("/es5/") !== -1
                             }
                         });
+
+                    worker.onerror = function(e)
+                    {
+                        console.log(e);
+                    };
                 }
                 else
                 {
@@ -192,7 +209,7 @@ $(document).ready(
                               updateLocation();
                               return false;
                           });
-        
+
         $("#worker").on("change",
                           function(e)
                           {

@@ -56,10 +56,10 @@ interruptedCallback(int /*signal*/)
 }
 
 void
-usage(const char* n)
+usage(const string& n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<        
+    getErrorStream() <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -83,7 +83,7 @@ usage(const char* n)
 }
 
 int
-Slice::Ruby::compile(int argc, char* argv[])
+Slice::Ruby::compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -101,11 +101,11 @@ Slice::Ruby::compile(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
-     
+
     vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
@@ -222,7 +222,7 @@ Slice::Ruby::compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Ruby : Preprocessor::SliceXML, includePaths, 
+            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::Ruby : Preprocessor::SliceXML, includePaths,
                                                   "-D__SLICE2RB__"))
             {
                 out.cleanup();

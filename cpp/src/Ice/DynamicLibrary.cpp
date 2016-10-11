@@ -15,6 +15,10 @@
 #   include <dlfcn.h>
 #endif
 
+#if defined(ICE_CPP11) && defined(__GNUC__) && (__GNUC__ < 6) && defined(__GLIBCXX__)
+#   define ICE_LIBSUFFIX "++11"
+#endif
+
 using namespace Ice;
 using namespace IceInternal;
 using namespace std;

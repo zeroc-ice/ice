@@ -1851,7 +1851,7 @@ def simpleTest(exe = None, options = "", interpreterOptions = ""):
     if appverifier:
         appVerifierAfterTestEnd([exe])
 
-def createConfig(path, lines, enc=None):
+def createFile(path, lines, enc=None):
     if sys.version_info[0] > 2 and enc:
         config = open(path, "w", encoding=enc)
     else:

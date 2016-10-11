@@ -95,7 +95,7 @@ IceUtilInternal::OutputBase::open(const string& s)
     // mismatches on case-insensitive OSs.
     //
     IceUtilInternal::unlink(s);
-    _fout.open(s.c_str());
+    _fout.open(IceUtilInternal::streamFilename(s).c_str());
 }
 
 void
@@ -172,13 +172,13 @@ IceUtilInternal::OutputBase::currIndent()
     return _indent;
 }
 
-void 
+void
 IceUtilInternal::OutputBase::setIndent(int indentSize)
 {
-    _indentSize = indentSize; 
+    _indentSize = indentSize;
 }
 
-void 
+void
 IceUtilInternal::OutputBase::setUseTab(bool useTab)
 {
     _useTab = useTab;
@@ -554,7 +554,7 @@ IceUtilInternal::StartElement::StartElement(const string& name) :
     _name(name)
 {
 }
-    
+
 const string&
 IceUtilInternal::StartElement::getName() const
 {

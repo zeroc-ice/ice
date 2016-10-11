@@ -131,6 +131,10 @@
         {
             "files": ["Test.js", "InitialI.js", "AMDInitialI.js", "../optional/Client.js", "../optional/ClientPrivate.js", "Client.js"]
         },
+    "Ice/promise":
+        {
+            "files": ["Client.js"]
+        },
     "Ice/properties":
         {
             "files": ["Client.js"]

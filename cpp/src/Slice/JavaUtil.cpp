@@ -13,9 +13,9 @@
 #include <Slice/Util.h>
 #include <Slice/MD5.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -644,10 +644,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 path += dir.substr(start);
             }
 
-            struct stat st;
-            int result;
-            result = stat(path.c_str(), &st);
-            if(result == 0)
+            IceUtilInternal::structstat st;
+            if(!IceUtilInternal::stat(path, &st))
             {
                 if(!(st.st_mode & S_IFDIR))
                 {
@@ -658,12 +656,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 }
                 continue;
             }
-#ifdef _WIN32
-            result = _mkdir(path.c_str());
-#else
-            result = ::mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
-            if(result != 0)
+
+            if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
                 os << "cannot create directory `" << path << "': " << strerror(errno);

@@ -414,6 +414,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "SimpleIceBox.SimpleService.SimpleService") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "ReplicatedAdapter") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "ReplicatedAdapter 2") != adapterIds.end());
     cout << "ok" << endl;
 
     cout << "testing object registration... " << flush;

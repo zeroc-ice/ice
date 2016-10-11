@@ -106,55 +106,64 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
-    cout << "test object adapter endpoint information... " << flush;
+#ifdef ICE_OS_WINRT
+    bool winrt = true;
+#else
+    bool winrt = false;
+#endif
+    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
-        communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-
-        Ice::EndpointSeq endpoints = adapter->getEndpoints();
-        test(endpoints.size() == 2);
-        Ice::EndpointSeq publishedEndpoints = adapter->getPublishedEndpoints();
-        test(endpoints == publishedEndpoints);
-
-        Ice::TCPEndpointInfoPtr ipEndpoint = getTCPEndpointInfo(endpoints[0]->getInfo());
-        test(ipEndpoint);
-        test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == Ice::SSLEndpointType ||
-             ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
-        test(ipEndpoint->host == "127.0.0.1");
-        test(ipEndpoint->port > 0);
-        test(ipEndpoint->timeout == 15000);
-
-        Ice::UDPEndpointInfoPtr udpEndpoint = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, endpoints[1]->getInfo());
-        test(udpEndpoint);
-        test(udpEndpoint->host == "127.0.0.1");
-        test(udpEndpoint->datagram());
-        test(udpEndpoint->port > 0);
-
-        adapter->destroy();
-
-        communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
-        communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
-        adapter = communicator->createObjectAdapter("TestAdapter");
-
-        endpoints = adapter->getEndpoints();
-        test(endpoints.size() >= 1);
-        publishedEndpoints = adapter->getPublishedEndpoints();
-        test(publishedEndpoints.size() == 1);
-
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        cout << "test object adapter endpoint information... " << flush;
         {
-            ipEndpoint = getTCPEndpointInfo((*p)->getInfo());
+            communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+
+            Ice::EndpointSeq endpoints = adapter->getEndpoints();
+            test(endpoints.size() == 2);
+            Ice::EndpointSeq publishedEndpoints = adapter->getPublishedEndpoints();
+            test(endpoints == publishedEndpoints);
+
+            Ice::TCPEndpointInfoPtr ipEndpoint = getTCPEndpointInfo(endpoints[0]->getInfo());
+            test(ipEndpoint);
+            test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == Ice::SSLEndpointType ||
+                ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
+            test(ipEndpoint->host == "127.0.0.1");
+            test(ipEndpoint->port > 0);
+            test(ipEndpoint->timeout == 15000);
+
+            Ice::UDPEndpointInfoPtr udpEndpoint = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, endpoints[1]->getInfo());
+            test(udpEndpoint);
+            test(udpEndpoint->host == "127.0.0.1");
+            test(udpEndpoint->datagram());
+            test(udpEndpoint->port > 0);
+
+            adapter->destroy();
+
+            communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
+            communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
+            adapter = communicator->createObjectAdapter("TestAdapter");
+
+            endpoints = adapter->getEndpoints();
+            test(endpoints.size() >= 1);
+            publishedEndpoints = adapter->getPublishedEndpoints();
+            test(publishedEndpoints.size() == 1);
+
+            for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            {
+                ipEndpoint = getTCPEndpointInfo((*p)->getInfo());
+                test(ipEndpoint->port == 12020);
+            }
+
+            ipEndpoint = getTCPEndpointInfo(publishedEndpoints[0]->getInfo());
+            test(ipEndpoint->host == "127.0.0.1");
             test(ipEndpoint->port == 12020);
+
+            adapter->destroy();
         }
-
-        ipEndpoint = getTCPEndpointInfo(publishedEndpoints[0]->getInfo());
-        test(ipEndpoint->host == "127.0.0.1");
-        test(ipEndpoint->port == 12020);
-
-        adapter->destroy();
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
-
+    
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010:udp -p 12010 -c");
     TestIntfPrxPtr testIntf = ICE_CHECKED_CAST(TestIntfPrx, base);
 

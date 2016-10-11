@@ -36,26 +36,34 @@ class PluginI implements com.zeroc.Ice.Plugin
 
         void invoke(com.zeroc.Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.equals(l))
             {
-                final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
-                    l.ice_invokeAsync(_operation, _mode, _inParams, _context);
-                f.whenComplete((result, ex) ->
-                    {
-                        if(ex != null)
-                        {
-                            exception((com.zeroc.Ice.LocalException)ex);
-                        }
-                        else
-                        {
-                            _future.complete(result);
-                        }
-                    });
+                _locatorPrx = l;
+                try
+                {
+                    final CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> f =
+                        l.ice_invokeAsync(_operation, _mode, _inParams, _context);
+                    f.whenComplete((result, ex) ->
+                                   {
+                                       if(ex != null)
+                                       {
+                                           exception((com.zeroc.Ice.LocalException)ex);
+                                       }
+                                       else
+                                       {
+                                           _future.complete(result);
+                                       }
+                                   });
+                }
+                catch(com.zeroc.Ice.LocalException ex)
+                {
+                    exception(ex);
+                }
             }
-            catch(com.zeroc.Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                assert(_exception != null); // Don't retry if the proxy didn't change
+                exception(_exception);
             }
         }
 
@@ -87,6 +95,7 @@ class PluginI implements com.zeroc.Ice.Plugin
             }
             catch(com.zeroc.Ice.LocalException exc)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
             }
         }

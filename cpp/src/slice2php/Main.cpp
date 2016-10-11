@@ -1627,7 +1627,7 @@ interruptedCallback(int /*signal*/)
 }
 
 static void
-usage(const char* n)
+usage(const string& n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
     getErrorStream() <<
@@ -1654,7 +1654,7 @@ usage(const char* n)
 }
 
 int
-compile(int argc, char* argv[])
+compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -1675,20 +1675,12 @@ compile(int argc, char* argv[])
     opts.addOpt("", "checksum");
     opts.addOpt("n", "namespace");
 
-    bool validate = false;
-    for(int i = 0; i < argc; ++i)
-    {
-        if(string(argv[i]) == "--validate")
-        {
-            validate = true;
-            break;
-        }
-    }
+    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
     vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
@@ -1954,31 +1946,35 @@ compile(int argc, char* argv[])
     return status;
 }
 
-int
-main(int argc, char* argv[])
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
 {
+    vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
-        return compile(argc, argv);
+        return compile(args);
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        getErrorStream() << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        getErrorStream() << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        getErrorStream() << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        getErrorStream() << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

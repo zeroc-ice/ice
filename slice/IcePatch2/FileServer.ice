@@ -39,7 +39,7 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * A <tt>partition</tt> argument for was not in the range 0-255.
+ * A <tt>partition</tt> argument was not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException
