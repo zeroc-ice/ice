@@ -264,6 +264,9 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
             {
                 case '\\':
                 {
+                    //
+                    // add extra escape to our internal string
+                    //
                     str->v += '\\';
                     str->v += '\\';
                     break;
@@ -274,13 +277,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     str->v += next;
                     break;
                 }
-            
+
                 case 'n':
                 {
                     str->v += '\n';
                     break;
                 }
-            
+
                 case 'r':
                 {
                     str->v += '\r';
@@ -292,13 +295,13 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     str->v += '\t';
                     break;
                 }
-            
+
                 case 'v':
                 {
                     str->v += '\v';
                     break;
                 }
-            
+
                 case 'f':
                 {
                     str->v += '\f';
@@ -324,7 +327,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 }
 
                 //
-                // Octal value \nnn limited to three octal digits but terminate at the first character 
+                // Octal value \nnn limited to three octal digits but terminate at the first character
                 // that is not a valid octal digit if encountered sooner.
                 //
                 case '0':
@@ -347,11 +350,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                             unput(next);
                             break;
                         }
-                        escape += next;                        
+                        escape += next;
                     }
                     str->literal += escape;
                     value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
-                    
+
                     if(value == 0)
                     {
                         unit->error("illegal NUL character in string constant");
@@ -365,16 +368,21 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     str->v += static_cast<char>(value);
                     break;
                 }
+
                 case 'x':
                 {
                     IceUtil::Int64 value = 0;
                     string escape = "";
-                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
+
+                    //
+                    // Unlike C++, we limit hex escape sequences to 2 hex digits
+                    //
+                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))) && escape.length() < 2)
                     {
                         escape += next;
                     }
                     unput(next);
-                    
+
                     str->literal += escape;
                     value = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
 
@@ -382,16 +390,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    else if(value > 255)
-                    {
-                        ostringstream os;
-                        os << "hex escape sequence out of range: '\\x" << hex << value << "'";
-                        unit->warning(os.str());
-                    }
+                    assert(value >= 0 && value <= 255);
                     str->v += static_cast<char>(value);
                     break;
                 }
-        
+
                 //
                 // Universal character name \unnnn code point U+nnnn
                 //
@@ -411,7 +414,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                         }
                         escape += next;
                     }
-                    
+
                     value = escape.size() == 4 ? IceUtilInternal::strToInt64(escape.c_str(), 0, 16) : -1;
 
                     ostringstream os;
@@ -419,16 +422,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     os.fill('0');
                     os.width(4);
                     os << hex << value;
-                    
+
                     if(value == 0)
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    
-                    
+
+
                     //
                     // Determine if a character is a surrogate:
-                    // 
+                    //
                     // * High surrogate code point, ranging from 0xd800 to 0xdbff, inclusive
                     // * Low surrogate code point, ranging from 0xdc00 to 0xdfff, inclusive.
                     //
@@ -438,15 +441,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     }
 
                     str->v += os.str();
-                    
+
                     break;
                 }
-                
+
                 case 'U':
                 {
                     IceUtil::Int64 value = 0;
                     string escape = "";
-                    
+
                     for(int i = 0; i < 8; ++i)
                     {
                         next = static_cast<char>(yyinput());
@@ -459,7 +462,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                         }
                         escape += next;
                     }
-                    
+
                     value = escape.size() == 8 ? IceUtilInternal::strToInt64(escape.c_str(), 0, 16) : -1;
 
                     ostringstream os;
@@ -467,15 +470,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     os.fill('0');
                     os.width(8);
                     os << hex << value;
-                    
+
                     if(value == 0)
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    
+
                     //
                     // Determine if a character is a surrogate:
-                    // 
+                    //
                     // * High surrogate code point, ranging from 0xd800 to 0xdbff, inclusive
                     // * Low surrogate code point, ranging from 0xdc00 to 0xdfff, inclusive.
                     //
@@ -493,12 +496,10 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     ostringstream os;
                     os << "unknown escape sequence '\\" << next << "'";
                     unit->warning(os.str());
-                    //
-                    // We escape the backslack in a unknown escape sequence 
-                    // to keep compativility with 3.6"
-                    //
+
+                    // Escape the \ in this unknown escape sequence
                     str->v += '\\';
-                    str->v += c;
+                    str->v += '\\';
                     unput(next);
                 }
             }

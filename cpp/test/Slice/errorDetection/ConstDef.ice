@@ -23,7 +23,7 @@ const int intconst = 0;
 const long longconst = 0;
 const float floatconst = 0.;
 const double doubleconst = 0.;
-const string stringconst = "X\aX\x00001X\rX\007\xff\xff\xff";
+const string stringconst = "X\aX\x01000\x100\rX\007\xff\xff\xff\x0ff\xfff\x1X";
 const string stringconst2 = "Hello World!";
 enum color { red, green, blue };
 const color colorconst = blue;
@@ -151,7 +151,6 @@ const string unknowescape = "a\g";                  // Unknown escape sequence
 const string invalidCodepoint = "a\u000N";          // Invalid code point
 const string invalidCodepoint1 = "a\U0000000K";     // Invalid code point
 const string octalRange = "\455";                   // OCT escape sequence out of range
-const string hexRange = "\xFFF";                    // HEX escape sequence out of range
 const string surrogatePair = "\uD83C\uDF4C";        // surrogate pair not allow in slice
 
 };

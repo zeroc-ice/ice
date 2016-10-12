@@ -30,6 +30,5 @@ ConstDef.ice:150: warning: unknown escape sequence '\g'
 ConstDef.ice:151: unknown escape sequence in string constant: "a\u000N
 ConstDef.ice:152: unknown escape sequence in string constant: "a\U0000000K
 ConstDef.ice:153: warning: octal escape sequence out of range: '\455'
-ConstDef.ice:154: warning: hex escape sequence out of range: '\xfff'
-ConstDef.ice:155: unknown escape sequence in string constant: '\ud83c'
-ConstDef.ice:155: unknown escape sequence in string constant: '\udf4c'
+ConstDef.ice:154: unknown escape sequence in string constant: '\ud83c'
+ConstDef.ice:154: unknown escape sequence in string constant: '\udf4c'

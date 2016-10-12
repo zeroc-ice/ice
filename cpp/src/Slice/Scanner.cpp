@@ -1138,6 +1138,9 @@ YY_RULE_SETUP
             {
                 case '\\':
                 {
+                    //
+                    // add extra escape to our internal string
+                    //
                     str->v += '\\';
                     str->v += '\\';
                     break;
@@ -1243,7 +1246,11 @@ YY_RULE_SETUP
                 {
                     IceUtil::Int64 value = 0;
                     string escape = "";
-                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
+
+                    //
+                    // Unlike C++, we limit hex escape sequences to 2 hex digits
+                    //
+                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))) && escape.length() < 2)
                     {
                         escape += next;
                     }
@@ -1256,16 +1263,11 @@ YY_RULE_SETUP
                     {
                         unit->error("illegal NUL character in string constant");
                     }
-                    else if(value > 255)
-                    {
-                        ostringstream os;
-                        os << "hex escape sequence out of range: '\\x" << hex << value << "'";
-                        unit->warning(os.str());
-                    }
+                    assert(value >= 0 && value <= 255);
                     str->v += static_cast<char>(value);
                     break;
                 }
-        
+
                 //
                 // Universal character name \unnnn code point U+nnnn
                 //
@@ -1367,12 +1369,10 @@ YY_RULE_SETUP
                     ostringstream os;
                     os << "unknown escape sequence '\\" << next << "'";
                     unit->warning(os.str());
-                    //
-                    // We escape the backslack in a unknown escape sequence 
-                    // to keep compativility with 3.6"
-                    //
+
+                    // Escape the \ in this unknown escape sequence
                     str->v += '\\';
-                    str->v += c;
+                    str->v += '\\';
                     unput(next);
                 }
             }

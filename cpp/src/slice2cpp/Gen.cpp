@@ -204,7 +204,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                     else
                     {
                         //
-                        // Write any pedding characters in the utf8 buffer
+                        // Write any padding characters in the utf8 buffer
                         //
                         if(!u8buffer.empty())
                         {
@@ -229,7 +229,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
 
                                 //
                                 // An even number of slash \ will escape the backslash and
-                                // the codepoint will be interpreted as its charaters
+                                // the codepoint will be interpreted as its characters
                                 //
                                 // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
                                 // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
@@ -243,7 +243,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
 
                                     size_t sz = value[j] == 'U' ? 8 : 4;
                                     string codepoint = value.substr(j + 1, sz);
-                                    assert(codepoint.size() ==  sz);
+                                    assert(codepoint.size() == sz);
 
                                     IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
                                     out << u32CodePoint(static_cast<unsigned int>(v), cpp11);
@@ -271,7 +271,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 }
 
                 //
-                // Write any pedding characters in the utf8 buffer
+                // Write any padding characters in the utf8 buffer
                 //
                 if(!u8buffer.empty())
                 {

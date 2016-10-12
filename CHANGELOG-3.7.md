@@ -13,7 +13,7 @@ particular aspect of Ice.
 
 # Changes in Ice 3.7.0
 
-These are the changes since Ice 3.6.2.
+These are the changes since Ice 3.6.3.
 
 ## General Changes
 
@@ -78,6 +78,10 @@ These are the changes since Ice 3.6.2.
   the `Connection` interface.
 
 - Updating Windows build system to use MSBuild instead of nmake.
+
+- Changed the parsing of hex escape sequences (\x....) in Slice string literals: 
+  the parsing now stops after 2 hex digits. For example, \x0ab is now read as '\x0a' 
+  followed by 'b'. Previously all the hex digits where read like in C++.
 
 ## Java Changes
 
