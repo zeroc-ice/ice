@@ -11,6 +11,7 @@ namespace IceLocatorDiscovery
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     public sealed class PluginFactory : Ice.PluginFactory
@@ -90,7 +91,7 @@ namespace IceLocatorDiscovery
             {
                 SetException(new Ice.ObjectNotExistException());
             }
-            catch(Exception)
+            catch(Exception exc)
             {
                 _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
@@ -104,7 +105,7 @@ namespace IceLocatorDiscovery
         private readonly byte[] _inParams;
 
         private Ice.LocatorPrx _locatorPrx;
-        private Ice.Exception _exception;
+        private Exception _exception;
     }
 
     internal class VoidLocatorI : Ice.LocatorDisp_
