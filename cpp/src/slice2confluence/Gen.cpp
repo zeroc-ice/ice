@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/FileUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
@@ -1804,7 +1805,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
 string
 Slice::GeneratorBase::readFile(const string& file)
 {
-    ifstream in(file.c_str());
+    std::ifstream in(file.c_str());
     if(!in)
     {
         ostringstream os;
@@ -1840,7 +1841,7 @@ Slice::GeneratorBase::getFooter(const string& footer)
 void
 Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 {
-    ifstream in(file.c_str());
+    std::ifstream in(file.c_str());
     if(!in)
     {
         ostringstream os;
