@@ -52,6 +52,7 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/timeout", ["core"]),
     ("Ice/number", ["once"]),
+    ("Ice/import", ["once", "noes5"]),
     ("Glacier2/router", ["service"]),
     ]
 

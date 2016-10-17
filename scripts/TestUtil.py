@@ -2347,6 +2347,10 @@ def runTests(start, expanded, num = 0, script = False):
                     print("%s*** test does not support cross testing%s" % (prefix, suffix))
                     continue
 
+            if args.find("es5") != -1 and "noes5" in config:
+                print("%s*** test not supported with es5%s" % (prefix, suffix))
+                continue
+
             #
             # Skip tests not supported with IPv6 if necessary
             #

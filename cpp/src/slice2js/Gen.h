@@ -59,6 +59,7 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         std::ostream&);
+
     ~Gen();
 
     void generate(const UnitPtr&);
@@ -79,7 +80,7 @@ private:
     {
     public:
 
-        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
+        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -94,6 +95,7 @@ private:
     private:
 
         bool _icejs;
+        bool _es6modules;
         bool _seenClass;
         bool _seenCompactId;
         bool _seenOperation;
@@ -134,12 +136,13 @@ private:
     {
     public:
 
-        ExportVisitor(::IceUtilInternal::Output&, bool);
+        ExportVisitor(::IceUtilInternal::Output&, bool, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
     private:
 
         bool _icejs;
+        bool _es6modules;
     };
 };
 

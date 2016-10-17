@@ -25,7 +25,8 @@ var babel       = require("gulp-babel"),
     paths       = require('vinyl-paths'),
     sourcemaps  = require('gulp-sourcemaps'),
     spawn       = require("child_process").spawn,
-    uglify      = require("gulp-uglify");
+    uglify      = require("gulp-uglify"),
+    rollup      = require("rollup").rollup;
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
@@ -168,6 +169,42 @@ gulp.task("common:clean", [],
         del(["assets/common.css", "assets/common.min.js"]);
     });
 
+gulp.task("import:slice2js", [],
+    function(){
+        return gulp.src(["test/Ice/import/Demo/Point.ice",
+                         "test/Ice/import/Demo/Circle.ice",
+                         "test/Ice/import/Demo/Square.ice",
+                         "test/Ice/import/Demo/Canvas.ice"])
+            .pipe(slice2js(
+                {dest: "test/Ice/import/Demo",
+                 args:["-Itest/Ice/import"]}))
+            .pipe(gulp.dest("test/Ice/import/Demo"));
+    });
+
+gulp.task("import:bundle", ["import:slice2js"],
+    function()
+    {
+        return rollup({
+            entry: "test/Ice/import/main.js",
+            external: "ice"
+        }).then(function(bundle){
+            return bundle.write({
+                format: "cjs",
+                dest: "test/Ice/import/bundle.js"
+            });
+        });
+    });
+
+gulp.task("import:clean", [],
+    function()
+    {
+        del(["test/Ice/import/Demo/Point.js",
+             "test/Ice/import/Demo/Circle.js",
+             "test/Ice/import/Demo/Square.js",
+             "test/Ice/import/Demo/Canvas.js",
+             "test/Ice/import/bundle.js"]);
+    });
+
 function testTask(name) { return name.replace(/\//g, "_"); }
 function testBabelTask(name) { return testTask(name) + "-babel"; }
 function testCleanDependTask(name) { return testTask(name) + "-depend:clean"; }
@@ -176,7 +213,7 @@ function testBabelCleanTask(name) { return testCleanTask(name) + "-babel"; }
 
 tests.forEach(
     function(name){
-        gulp.task(testTask(name), (useBinDist ? [] : ["dist"]),
+        gulp.task(testTask(name), (useBinDist ? [] : ["ice-module"]),
             function(){
                 return gulp.src(path.join(name, "*.ice"))
                     .pipe(
@@ -219,9 +256,9 @@ tests.forEach(
     });
 
 gulp.task("test", tests.map(testBabelTask).concat(
-    ["common:slice-babel", "common:js", "common:js-babel", "common:css"]));
+    ["common:slice-babel", "common:js", "common:js-babel", "common:css", "import:bundle"]));
 
-gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:slice:clean"]));
+gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:slice:clean", "import:clean"]));
 
 //
 // Tasks to build IceJS Distribution
