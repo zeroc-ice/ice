@@ -118,14 +118,14 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" />
-    <Import Project="..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v140.2.7.2.10\build\native\mcpp.v140.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.10\build\native\mcpp.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v120.2.7.2.10\build\native\mcpp.v120.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.10\build\native\mcpp.v120.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.10\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.10\build\native\mcpp.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.10\build\native\mcpp.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v120.2.7.2.10\build\native\mcpp.v120.targets'))" />
   </Target>
 </Project>

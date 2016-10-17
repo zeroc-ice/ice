@@ -89,3 +89,9 @@ IceBuilder.d
 xcuserdata
 xcshareddata
 /IceSDK
+
+# IceBuilder build log
+IceBuilder.command.*.log
+# Nuget packages
+**/msbuild/packages/*
+*.nupkg
