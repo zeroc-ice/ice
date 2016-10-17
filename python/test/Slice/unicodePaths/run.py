@@ -36,7 +36,7 @@ if TestUtil.isAIX() or TestUtil.isLinux():
 if sys.version_info[0] == 2 and TestUtil.isWin32():
     print("To run this test on Windows you need to be using Python 3.x")
     print("Python 2.x subprocess module doesn't support unicode on Windows")
-    print("Skipping tes")
+    print("Skipping test")
     sys.exit(0)
 
 if os.environ.get("USE_BIN_DIST", "no") == "yes":
