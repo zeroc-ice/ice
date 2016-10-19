@@ -129,14 +129,14 @@
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </DistSolution>
       </ItemGroup>
-      
+
       <!-- ARM Builds require Win32 for the Slice translators -->
       <ItemGroup Condition="'$(Platform)' == 'ARM'">
         <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
           <Properties>Configuration=$(Configuration);Platform=Win32</Properties>
         </DistSolution>
       </ItemGroup>
-      
+
       <!-- Ice for UWP builds -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
         <UWPDistSolution Include="ice.uwp.sln">
@@ -150,14 +150,14 @@
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </TestSoution>
       </ItemGroup>
-      
+
       <!-- Ice for C++ test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' != 'ARM'">
         <TestSoution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
         </TestSoution>
       </ItemGroup>
-      
+
       <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
         <TestSoution Include="ice.testuwp.sln">
@@ -172,7 +172,7 @@
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"/>
-    
+
     <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
     <MSBuild Projects="@(UWPDistSolution)"
              BuildInParallel="true"
@@ -207,7 +207,7 @@
           DependsOnTargets="$(NugetDepends)"
           Condition="$(BuildAllConfigurations) == 'yes'">
     <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
-    
+
     <MSBuild Projects="ice.nuget.targets"
              Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
     <MSBuild Projects="ice.nuget.targets"
@@ -223,15 +223,15 @@
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
           DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\native" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive -Symbols"
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
   </Target>
 
   <Target Name="NugetPack-UWP"
           DependsOnTargets="$(NugetDepends)"
-          Condition="$(BuildAllConfigurations) == 'yes'">
+          Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
     <RemoveDir Directories="zeroc.ice.uwp" />
-    
+
     <MSBuild Projects="ice.nuget.uwp.targets"
              Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp" />
     <MSBuild Projects="ice.nuget.uwp.targets"
@@ -252,7 +252,7 @@
           DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.uwp.props" />
     <Copy SourceFiles="zeroc.ice.uwp.targets"
           DestinationFolder="zeroc.ice.uwp\build\native" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive -Symbols"
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp"/>
   </Target>
 </Project>

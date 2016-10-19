@@ -41,8 +41,6 @@
                  Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
                           $(Ice_SrcRootDir)include\IceBT\*.h"/>
         <Headers Include="$(Ice_SrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h" />
-
-        <Sources Include="$(Ice_SrcRootDir)src\**\*.cpp" />
     </ItemGroup>
 
     <!-- Copy header files in Win32 Release, the files are identical in all configurations -->
@@ -50,24 +48,9 @@
         <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
     </Target>
 
-    <!-- Copy source files in Win32 Release, the files are identical in all configurations -->
-    <Target Name="CopySources" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Copy SourceFiles="@(Sources)" DestinationFolder="$(PackageDirectory)\src\%(Sources.RecursiveDir)" />
-    </Target>
-
-    <!-- Copy PDB files in Debug configurations -->
-    <Target Name="CopyPDBs" Condition="'$(Configuration)' == 'Debug'">
-        <Copy SourceFiles="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\%(Executables.FileName).pdb"
-              DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)"
-              Condition="Exists('$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\%(Executables.FileName).pdb')"/>
-
-        <Copy SourceFiles="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\%(Libraries.FileName).pdb"
-              DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)"
-              Condition="Exists('$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\%(Libraries.FileName).pdb')"/>
-    </Target>
 
     <!-- Copy required files to the package specific directories -->
-    <Target Name="NugetPack" DependsOnTargets="CopyHeaders;CopySources;CopyPDBs">
+    <Target Name="NugetPack" DependsOnTargets="CopyHeaders">
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
