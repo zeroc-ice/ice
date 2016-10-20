@@ -1475,7 +1475,10 @@ def getMirrorDir(base, mapping):
     after = []
 
     if lang == "js":
-        base = base.replace("/es5", "")
+        if isWin32():
+            base = base.replace("\\es5", "")
+        else:
+            base = base.replace("/es5", "")
     elif "java" in lang:
         # Remove Java's extra directory structure from the path while we search it
         base = base.replace(os.path.join("src", "main", "java", "test"), '')
@@ -2494,8 +2497,13 @@ def runTests(start, expanded, num = 0, script = False):
                     print("  exit 1")
                 print("fi")
             else:
-                if dir.find(os.path.join("js","test")) != -1 and es5 and dir.find("/es5/") == -1:
-                    dir = dir.replace("test/Ice/", "test/Ice/es5/").replace("test/Glacier2/", "test/Glacier2/es5/")
+                if isWin32():
+                    if dir.find(os.path.join("js", "test")) != -1 and es5 and dir.find("\\es5\\") == -1:
+                        dir = dir.replace("test\\Ice\\", "test\\Ice\\es5\\").replace("test\\Glacier2\\", "test\\Glacier2\\es5\\")
+                    print("dir: {0}".format(dir))
+                else:
+                    if dir.find(os.path.join("js", "test")) != -1 and es5 and dir.find("/es5/") == -1:
+                        dir = dir.replace("test/Ice/", "test/Ice/es5/").replace("test/Glacier2/", "test/Glacier2/es5/")
                 status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
                 if status:
                     status = status if isWin32() else (status >> 8)
