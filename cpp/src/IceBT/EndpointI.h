@@ -73,34 +73,6 @@ private:
     void hashInit();
     bool checkOption(const std::string&, const std::string&, const std::string&);
 
-    void findCompleted(const std::vector<int>&, Ice::EndpointSelectionType);
-    void findException(const Ice::LocalException&);
-
-    class FindCallbackI : public FindServiceCallback
-    {
-    public:
-
-        FindCallbackI(const EndpointIPtr& e, Ice::EndpointSelectionType selType) :
-            _endpoint(e),
-            _selType(selType)
-        {
-        }
-
-        virtual void completed(const std::vector<int>& channels)
-        {
-            _endpoint->findCompleted(channels, _selType);
-        }
-
-        virtual void exception(const Ice::LocalException& ex)
-        {
-            _endpoint->findException(ex);
-        }
-
-        EndpointIPtr _endpoint;
-        Ice::EndpointSelectionType _selType;
-    };
-    friend class FindCallbackI;
-
     const InstancePtr _instance;
     const std::string _addr;
     const std::string _uuid;
@@ -110,9 +82,6 @@ private:
     const std::string _connectionId;
     const bool _compress;
     const Ice::Int _hashValue;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
-    bool _findPending;
-    std::vector<IceInternal::EndpointI_connectorsPtr> _callbacks;
 };
 
 class EndpointInfoI : public EndpointInfo

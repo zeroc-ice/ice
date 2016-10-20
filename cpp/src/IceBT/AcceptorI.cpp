@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceBT/AcceptorI.h>
+#include <IceBT/Engine.h>
 #include <IceBT/EndpointI.h>
 #include <IceBT/Instance.h>
 #include <IceBT/TransceiverI.h>
@@ -27,6 +28,30 @@ using namespace IceBT;
 
 IceUtil::Shared* IceBT::upCast(AcceptorI* p) { return p; }
 
+namespace
+{
+
+class ProfileCallbackI : public ProfileCallback
+{
+public:
+
+    ProfileCallbackI(const AcceptorIPtr& acceptor) :
+        _acceptor(acceptor)
+    {
+    }
+
+    virtual void newConnection(int fd)
+    {
+        _acceptor->newConnection(fd);
+    }
+
+private:
+
+    AcceptorIPtr _acceptor;
+};
+
+}
+
 IceInternal::NativeInfoPtr
 IceBT::AcceptorI::getNativeInfo()
 {
@@ -36,44 +61,44 @@ IceBT::AcceptorI::getNativeInfo()
 void
 IceBT::AcceptorI::close()
 {
-    try
+    if(!_path.empty())
     {
-        _instance->engine()->removeService(_adapter, _serviceHandle);
-    }
-    catch(const BluetoothException&)
-    {
-        // Ignore.
-    }
-
-    if(_fd != INVALID_SOCKET)
-    {
-        IceInternal::closeSocketNoThrow(_fd);
-        _fd = INVALID_SOCKET;
+        try
+        {
+            _instance->engine()->unregisterProfile(_path);
+        }
+        catch(...)
+        {
+        }
     }
 }
 
 IceInternal::EndpointIPtr
 IceBT::AcceptorI::listen()
 {
-    try
-    {
-        if(!_instance->engine()->adapterExists(_adapter))
-        {
-            throw SocketException(__FILE__, __LINE__, EADDRNOTAVAIL);
-        }
-        _addr = doBind(_fd, _addr);
-        IceInternal::doListen(_fd, _backlog);
-    }
-    catch(...)
-    {
-        _fd = INVALID_SOCKET;
-        throw;
-    }
-
     assert(!_uuid.empty());
 
-    _serviceHandle = _instance->engine()->addService(_adapter, _name, _uuid, _addr.rc_channel);
+    //
+    // The Bluetooth daemon will select an available channel if _channel == 0.
+    //
 
+    try
+    {
+        ProfileCallbackPtr cb = ICE_MAKE_SHARED(ProfileCallbackI, this);
+        _path = _instance->engine()->registerProfile(_uuid, _name, _channel, cb);
+    }
+    catch(const BluetoothException& ex)
+    {
+        InitializationException e(__FILE__, __LINE__);
+        e.reason = "unable to register Bluetooth profile";
+        if(!ex.reason.empty())
+        {
+            e.reason += "\n" + ex.reason;
+        }
+        throw e;
+    }
+
+    _endpoint = _endpoint->endpoint(this);
     return _endpoint;
 }
 
@@ -90,9 +115,26 @@ IceBT::AcceptorI::accept()
         throw ex;
     }
 
-    SOCKET fd = doAccept(_fd);
+    IceInternal::TransceiverPtr t;
 
-    return new TransceiverI(_instance, new StreamSocket(_instance, fd), _uuid);
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+        //
+        // The thread pool should only call accept() when we've notified it that we have a
+        // new transceiver ready to be accepted.
+        //
+        assert(!_transceivers.empty());
+        t = _transceivers.top();
+        _transceivers.pop();
+
+        //
+        // Update our status with the thread pool.
+        //
+        ready(IceInternal::SocketOperationRead, !_transceivers.empty());
+    }
+
+    return t;
 }
 
 string
@@ -104,7 +146,7 @@ IceBT::AcceptorI::protocol() const
 string
 IceBT::AcceptorI::toString() const
 {
-    return addrToString(_addr);
+    return addrToString(_addr, _channel);
 }
 
 string
@@ -126,7 +168,27 @@ IceBT::AcceptorI::toDetailedString() const
 int
 IceBT::AcceptorI::effectiveChannel() const
 {
-    return _addr.rc_channel;
+    //
+    // If no channel was specified in the endpoint (_channel == 0), the Bluetooth daemon will select
+    // an available channel for us. Unfortunately, there's no way to discover what that channel is
+    // (aside from waiting for the first incoming connection and inspecting the socket endpoint).
+    //
+
+    return _channel;
+}
+
+void
+IceBT::AcceptorI::newConnection(int fd)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+
+    _transceivers.push(new TransceiverI(_instance, new StreamSocket(_instance, fd), 0, _uuid));
+
+    //
+    // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
+    // and we can return the new transceiver.
+    //
+    ready(IceInternal::SocketOperationRead, true);
 }
 
 IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& instance, const string& adapterName,
@@ -134,40 +196,39 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
     _endpoint(endpoint),
     _instance(instance),
     _adapterName(adapterName),
+    _addr(addr),
     _uuid(uuid),
     _name(name),
-    _serviceHandle(0)
+    _channel(channel)
 {
-    // TBD - Necessary?
-    //_backlog = instance->properties()->getPropertyAsIntWithDefault("IceBT.Backlog", 1);
-    _backlog = 1;
-
-    _addr.rc_family = AF_BLUETOOTH;
-    _addr.rc_channel = channel;
-
-    _adapter = IceUtilInternal::trim(addr);
-    if(_adapter.empty())
+    string s = IceUtilInternal::trim(_addr);
+    if(s.empty())
     {
         //
         // If no address was specified, we use the first available BT adapter.
         //
-        _adapter = _instance->engine()->getDefaultAdapterAddress();
+        s = _instance->engine()->getDefaultAdapterAddress();
     }
 
-    _adapter = IceUtilInternal::toUpper(_adapter);
+    s = IceUtilInternal::toUpper(s);
 
-    if(!parseDeviceAddress(_adapter, _addr.rc_bdaddr))
+    DeviceAddress da;
+    if(!parseDeviceAddress(s, da))
     {
         EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "invalid address value `" + _adapter + "' in endpoint " + endpoint->toString();
+        ex.str = "invalid address value `" + s + "' in endpoint " + endpoint->toString();
+        throw ex;
+    }
+    if(!_instance->engine()->adapterExists(s))
+    {
+        EndpointParseException ex(__FILE__, __LINE__);
+        ex.str = "no device found for `" + s + "' in endpoint " + endpoint->toString();
         throw ex;
     }
 
-    _fd = createSocket();
-    IceInternal::setBlock(_fd, false);
+    const_cast<string&>(_addr) = s;
 }
 
 IceBT::AcceptorI::~AcceptorI()
 {
-    assert(_fd == INVALID_SOCKET);
 }

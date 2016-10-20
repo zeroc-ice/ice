@@ -27,6 +27,8 @@ namespace IceBT
 
 typedef std::map<std::string, std::string> PropertyMap;
 
+typedef std::map<std::string, PropertyMap> DeviceMap;
+
 #ifndef ICE_CPP11_MAPPING
 //
 // An application can receive discovery notifications
@@ -55,7 +57,6 @@ public:
     // The given callback will be invoked for each discovered device. The same
     // device may be reported more than once. Discovery remains active until
     // explicitly stopped by a call to stopDiscovery(), or via other administrative means.
-    // The address argument can be an empty string to select the default adapter.
     //
 #ifdef ICE_CPP11_MAPPING
     virtual void startDiscovery(const std::string& address,
@@ -63,13 +64,20 @@ public:
 #else
     virtual void startDiscovery(const std::string& address, const DiscoveryCallbackPtr& cb) = 0;
 #endif
+
     //
     // Stops Bluetooth device discovery on the adapter with the specified address.
-    // The address argument can be an empty string to select the default adapter.
     // All discovery callbacks are removed when discovery stops.
     //
     virtual void stopDiscovery(const std::string& address) = 0;
+
+    //
+    // Retrieve a snapshot of all known remote devices. The plug-in obtains a snapshot of the remote devices at
+    // startup and then dynamically updates its map as the host adds and removes devices.
+    //
+    virtual DeviceMap getDevices() const = 0;
 };
+ICE_DEFINE_PTR(PluginPtr, Plugin);
 
 }
 

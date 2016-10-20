@@ -11,9 +11,11 @@
 #define ICE_BT_TRANSCEIVER_H
 
 #include <IceBT/InstanceF.h>
+#include <IceBT/Engine.h>
 #include <IceBT/StreamSocket.h>
 
 #include <Ice/Transceiver.h>
+#include <IceUtil/UniquePtr.h>
 
 namespace IceBT
 {
@@ -28,7 +30,6 @@ public:
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
@@ -42,15 +43,49 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, const StreamSocketPtr&, const std::string&);
+    TransceiverI(const InstancePtr&, const StreamSocketPtr&, const ConnectionPtr&, const std::string&);
+    TransceiverI(const InstancePtr&, const std::string&, const std::string&);
     virtual ~TransceiverI();
 
     friend class ConnectorI;
     friend class AcceptorI;
 
     const InstancePtr _instance;
-    const StreamSocketPtr _stream;
-    const std::string _uuid;
+    StreamSocketPtr _stream;
+    ConnectionPtr _connection;
+    std::string _addr;
+    std::string _uuid;
+    bool _needConnect;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceUtil::Monitor<IceUtil::Mutex> _lock;
+
+    void connectCompleted(int, const ConnectionPtr&);
+    void connectFailed(const Ice::LocalException&);
+
+    class ConnectCallbackI : public ConnectCallback
+    {
+    public:
+
+        ConnectCallbackI(const TransceiverIPtr& transceiver) :
+            _transceiver(transceiver)
+        {
+        }
+
+        virtual void completed(int fd, const ConnectionPtr& conn)
+        {
+            _transceiver->connectCompleted(fd, conn);
+        }
+
+        virtual void failed(const Ice::LocalException& ex)
+        {
+            _transceiver->connectFailed(ex);
+        }
+
+    private:
+
+        TransceiverIPtr _transceiver;
+    };
+    friend class ConnectCallbackI;
 };
 
 }

@@ -21,8 +21,12 @@ IceUtil::Shared* upCast(Engine*);
 typedef IceInternal::Handle<Engine> EnginePtr;
 
 class BluetoothService;
+#ifdef ICE_CPP11_MAPPING
+using BluetoothServicePtr = ::std::shared_ptr<BluetoothService>;
+#else
 IceUtil::Shared* upCast(BluetoothService*);
 typedef IceInternal::Handle<BluetoothService> BluetoothServicePtr;
+#endif
 
 }
 

@@ -205,6 +205,9 @@ public:
     virtual ~NativeInfo();
 
     NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+        , _newFd(INVALID_SOCKET)
+#endif
     {
     }
 
@@ -234,6 +237,9 @@ public:
     void queueOperation(SocketOperation, Windows::Foundation::IAsyncOperation<unsigned int>^);
     void setCompletedHandler(SocketOperationCompletedHandler^);
     void completed(SocketOperation);
+#else
+    bool newFd();
+    void setNewFd(SOCKET);
 #endif
 
 protected:
@@ -247,6 +253,8 @@ protected:
 #elif defined(ICE_OS_WINRT)
     bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, bool = false);
     SocketOperationCompletedHandler^ _completedHandler;
+#else
+    SOCKET _newFd;
 #endif
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;

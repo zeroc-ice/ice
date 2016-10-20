@@ -78,7 +78,6 @@ Selector::initialize(EventHandler* handler)
     handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 #else
     EventHandlerPtr h = ICE_GET_SHARED_FROM_THIS(handler);
-
     handler->getNativeInfo()->setCompletedHandler(
         ref new SocketOperationCompletedHandler(
             [=](int operation)
@@ -349,7 +348,20 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
     NativeInfoPtr nativeInfo = handler->getNativeInfo();
     if(!nativeInfo || nativeInfo->fd() == INVALID_SOCKET)
     {
-        return;
+        if(!nativeInfo->newFd()) // If no new FD is set, nothing to do.
+        {
+            return;
+        }
+
+        // If a new FD is set, we update the selector to add operations for the FD, there's
+        // nothing to remove from the selector because the FD wasn't previously set.
+        assert(!handler->_disabled);
+        previous = SocketOperationNone;
+        remove = SocketOperationNone;
+        if(!add)
+        {
+            return;
+        }
     }
 
 #if defined(ICE_USE_EPOLL)
@@ -835,13 +847,11 @@ Selector::checkReady(EventHandler* handler)
     if(handler->_ready & ~handler->_disabled & handler->_registered)
     {
         _readyHandlers.insert(make_pair(ICE_GET_SHARED_FROM_THIS(handler), SocketOperationNone));
-
         wakeup();
     }
     else
     {
         map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(ICE_GET_SHARED_FROM_THIS(handler));
-
         if(p != _readyHandlers.end())
         {
             _readyHandlers.erase(p);

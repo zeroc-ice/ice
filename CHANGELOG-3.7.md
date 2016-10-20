@@ -17,6 +17,9 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- Added Bluetooth transport plug-in for C++ and Android. The C++ plug-in
+  requires BlueZ 5.40 or later.
+
 - Dispatch interceptors and ice_dispatch can now handle user exceptions. User
   exceptions raised by a servant dispatch are propagated to ice_dispatch and
   can also be raised from the Ice::DispatchInterceptor::dispatch implementation.

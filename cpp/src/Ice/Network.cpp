@@ -928,6 +928,27 @@ IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^
     }
 }
 
+#else
+
+void
+IceInternal::NativeInfo::setNewFd(SOCKET fd)
+{
+    assert(_fd == INVALID_SOCKET); // This can only be called once, when the current socket isn't set yet.
+    _newFd = fd;
+}
+
+bool
+IceInternal::NativeInfo::newFd()
+{
+    if(_newFd == INVALID_SOCKET)
+    {
+        return false;
+    }
+    assert(_fd == INVALID_SOCKET);
+    swap(_fd, _newFd);
+    return true;
+}
+
 #endif
 
 bool
@@ -1371,10 +1392,10 @@ IceInternal::closeSocket(SOCKET fd)
     WSASetLastError(error);
 #else
     int error = errno;
-    
+
 #  if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
-    // FreeBSD returns ECONNRESET if the underlying object was 
+    // FreeBSD returns ECONNRESET if the underlying object was
     // a stream socket that was shut down by the peer before all
     // pending data was delivered.
     //

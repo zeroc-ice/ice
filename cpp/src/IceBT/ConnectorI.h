@@ -30,15 +30,16 @@ public:
     virtual std::string toString() const;
 
     virtual bool operator==(const IceInternal::Connector&) const;
+    virtual bool operator!=(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
 
 private:
 
-    ConnectorI(const InstancePtr&, const SocketAddress&, const std::string&, Ice::Int, const std::string&);
+    ConnectorI(const InstancePtr&, const std::string&, const std::string&, Ice::Int, const std::string&);
     friend class EndpointI;
 
     const InstancePtr _instance;
-    const SocketAddress _addr;
+    const std::string _addr;
     const std::string _uuid;
     const Ice::Int _timeout;
     const std::string _connectionId;

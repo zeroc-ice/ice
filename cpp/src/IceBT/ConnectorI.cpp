@@ -8,14 +8,10 @@
 // **********************************************************************
 
 #include <IceBT/ConnectorI.h>
-#include <IceBT/EndpointI.h>
 #include <IceBT/Instance.h>
 #include <IceBT/TransceiverI.h>
-#include <IceBT/Util.h>
 
-#include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
-#include <Ice/Network.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,7 +30,10 @@ IceBT::ConnectorI::connect()
         throw ex;
     }
 
-    return new TransceiverI(_instance, new StreamSocket(_instance, _addr), _uuid);
+    //
+    // The transceiver handles all connection activity.
+    //
+    return new TransceiverI(_instance, _addr, _uuid);
 }
 
 Short
@@ -46,7 +45,7 @@ IceBT::ConnectorI::type() const
 string
 IceBT::ConnectorI::toString() const
 {
-    return addrToString(_addr);
+    return _addr;
 }
 
 bool
@@ -58,7 +57,7 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
-    if(compareAddress(_addr, p->_addr) != 0)
+    if(_addr != p->_addr)
     {
         return false;
     }
@@ -82,6 +81,12 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 }
 
 bool
+IceBT::ConnectorI::operator!=(const IceInternal::Connector& r) const
+{
+    return !operator==(r);
+}
+
+bool
 IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
     const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
@@ -90,14 +95,9 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
         return type() < r.type();
     }
 
-    int rc = compareAddress(_addr, p->_addr);
-    if(rc < 0)
+    if(_addr < p->_addr)
     {
         return true;
-    }
-    else if(rc > 0)
-    {
-        return false;
     }
 
     if(_uuid < p->_uuid)
@@ -121,7 +121,7 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     return _connectionId < p->_connectionId;
 }
 
-IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const SocketAddress& addr, const string& uuid, Int timeout,
+IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const string& addr, const string& uuid, Int timeout,
                               const string& connectionId) :
     _instance(instance),
     _addr(addr),

@@ -101,7 +101,15 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
         //
         SOCKET fd = _delegate->getNativeInfo()->fd();
-        assert(fd != INVALID_SOCKET); // Underlying transport must be SOCKET based.
+        if(fd == INVALID_SOCKET)
+        {
+            //
+            // The delegate has finished its initialization but may not have a file descriptor yet (e.g., Bluetooth).
+            // The underlying transport must (eventually) be socket-based.
+            //
+            return IceInternal::SocketOperationRead;
+        }
+
         BIO* bio = BIO_new_socket(static_cast<int>(fd), 0);
         if(!bio)
         {

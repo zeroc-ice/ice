@@ -103,3 +103,9 @@ IceBT::PluginI::stopDiscovery(const string& address)
 {
     _engine->stopDiscovery(address);
 }
+
+IceBT::DeviceMap
+IceBT::PluginI::getDevices() const
+{
+    return _engine->getDevices();
+}

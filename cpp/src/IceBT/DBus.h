@@ -511,13 +511,16 @@ public:
 class AsyncResult;
 typedef IceUtil::Handle<AsyncResult> AsyncResultPtr;
 
-class AsyncCallback : public IceUtil::Shared
+class AsyncCallback
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
     virtual void completed(const AsyncResultPtr&) = 0;
 };
-typedef IceUtil::Handle<AsyncCallback> AsyncCallbackPtr;
+ICE_DEFINE_PTR(AsyncCallbackPtr, AsyncCallback);
 
 //
 // The result of an asynchronous DBus operation.
@@ -542,7 +545,10 @@ typedef IceUtil::Handle<Connection> ConnectionPtr;
 //
 // Allows a subclass to intercept DBus messages.
 //
-class Filter : public IceUtil::Shared
+class Filter
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
@@ -551,18 +557,21 @@ public:
     //
     virtual bool handleMessage(const ConnectionPtr&, const MessagePtr&) = 0;
 };
-typedef IceUtil::Handle<Filter> FilterPtr;
+ICE_DEFINE_PTR(FilterPtr, Filter);
 
 //
 // Allows a subclass to receive DBus method invocations.
 //
-class Service : public IceUtil::Shared
+class Service
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
     virtual void handleMethodCall(const ConnectionPtr&, const MessagePtr&) = 0;
 };
-typedef IceUtil::Handle<Service> ServicePtr;
+ICE_DEFINE_PTR(ServicePtr, Service);
 
 //
 // Encapsulates a DBus connection.
