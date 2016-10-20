@@ -950,7 +950,7 @@ relativePath(string p1, string p2)
     vector<string>::const_iterator i1 = tokens1.begin();
     vector<string>::const_iterator i2 = tokens2.begin();
 
-    while(*i1 == *i2 && i1 != tokens1.end() && i2 != tokens2.end())
+    while(i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
     {
         i1++;
         i2++;
