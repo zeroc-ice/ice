@@ -3,7 +3,7 @@
     <metadata>
         <id>zeroc.ice.net</id>
         <title>ZeroC Ice for .NET</title>
-        <version>3.7.0.0</version>
+        <version>3.7.0-alpha3</version>
         <authors>ZeroC, Inc</authors>
         <owners>ZeroC, Inc</owners>
         <licenseUrl>https://zeroc.com/licensing</licenseUrl>
@@ -12,7 +12,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A comprehensive rpc framework.</description>
         <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
-        <tags>ice native</tags>
+        <tags>ice</tags>
         <references>
             <reference file="Ice.dll" />
         </references>

@@ -30,19 +30,27 @@
                  Targets="Clean" />
     </Target>
 
-    <!-- Build all the test solution configurations -->
     <Target Name="Build" DependsOnTargets="BuildDist">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
     </Target>
 
-    <!-- Clean all the test solution configurations -->
     <Target Name="Clean" DependsOnTargets="CleanDist">
         <MSBuild Projects="@(TestSoution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
     </Target>
 
     <Target Name="NugetPack" DependsOnTargets="BuildDist">
-        <MSBuild Projects="ice.nuget.targets" Properties="NugetExe=$(NugetExe)"/>
+        <MSBuild Projects="ice.nuget.targets"
+                 Properties="PackageDirectory=zeroc.ice.net"/>
+
+        <Copy SourceFiles="zeroc.ice.net.nuspec"
+              DestinationFolder="zeroc.ice.net" />
+
+        <Copy SourceFiles="zeroc.ice.net.props"
+              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props" />
+
+        <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+              WorkingDirectory="zeroc.ice.net"/>
     </Target>
 </Project>

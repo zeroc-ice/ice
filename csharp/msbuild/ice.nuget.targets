@@ -1,0 +1,22 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+    </PropertyGroup>
+
+    <!-- For CSharp we use Slice compiler from Win32 Release builds -->
+    <ItemGroup>
+        <Executables Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2cs.exe"/>
+    </ItemGroup>
+
+    <!-- public header files and sources -->
+    <ItemGroup>
+        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll"/>
+        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml"/>
+    </ItemGroup>
+
+    <!-- Copy required files to the package specific directories -->
+    <Target Name="NugetPack">
+        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\Win32\Release" />
+        <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib" />
+    </Target>
+</Project>
