@@ -359,18 +359,19 @@ def allTests(communicator)
     #
     # Verify that ToStringMode is passed correctly
     #
-    ident = Ice::Identity.new("test", "\x7F\xE2\x82\xAC")
+    ident = Ice::Identity.new("test", "\x7f\u20ac")
 
     idStr = Ice::identityToString(ident, Ice::ToStringMode::Unicode)
-    test(idStr == "\\u007f\xE2\x82\xAC/test")
+    test(idStr == "\\u007f\u20ac/test")
     ident2 = Ice::stringToIdentity(idStr)
-    test(ident == ident2)
     test(Ice::identityToString(ident) == idStr)
 
     idStr = Ice::identityToString(ident, Ice::ToStringMode::ASCII)
     test(idStr == "\\u007f\\u20ac/test")
     ident2 = Ice::stringToIdentity(idStr)
-    test(ident == ident2)
+    test(ident.name == ident2.name)
+
+    test(ident.category == ident2.category)
 
     idStr = Ice::identityToString(ident, Ice::ToStringMode::Compat)
     test(idStr == "\\177\\342\\202\\254/test")
