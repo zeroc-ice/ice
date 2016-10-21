@@ -310,7 +310,7 @@ public class AllTests
         test(idStr.equals("\\u007f€/test"));
         id2 = Ice.Util.stringToIdentity(idStr);
         test(id.equals(id2));
-        // test(Ice.Util.identityToString(id).equals(idStr));
+        test(Ice.Util.identityToString(id).equals(idStr));
 
         idStr = Ice.Util.identityToString(id, Ice.ToStringMode.ASCII);
         test(idStr.equals("\\u007f\\u20ac/test"));

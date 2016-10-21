@@ -348,11 +348,10 @@ public final class Util
      *
      * @return The string representation of the object identity using the default mode (Unicode)
      **/
-    // public static String identityToString(Identity ident)
-    //  {
-    //    return identityToString(ident, ToStringMode.Unicode);
-    //  }
-
+    public static String identityToString(Identity ident)
+    {
+        return identityToString(ident, ToStringMode.Unicode);
+    }
 
     /**
      * Compares the object identities of two proxies.
