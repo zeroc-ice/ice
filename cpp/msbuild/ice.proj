@@ -25,7 +25,7 @@
   <Choose>
     <!--
         If BuildAllConfigurations is set to yes we build all configurations that are
-        part of the binary distribution, otherwise we just build the specific platform
+        part of the binary distribution, otherwise we just build the given platform
         and configuration.
     -->
     <When Condition="'$(BuildAllConfigurations)' == 'yes'">
@@ -70,56 +70,56 @@
 
       <!-- Ice for C++ test configurations (C++98 mapping) -->
       <ItemGroup>
-        <TestSoution Include="ice.test.sln">
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Debug;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
-        </TestSoution>
+        </TestSolution>
       </ItemGroup>
 
       <!-- Ice for C++ test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
-        <TestSoution Include="ice.test.sln">
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=x64</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-Release;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.test.sln">
+        </TestSolution>
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
-        </TestSoution>
+        </TestSolution>
       </ItemGroup>
 
       <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
-        <TestSoution Include="ice.testuwp.sln">
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.testuwp.sln">
+        </UWPTestSolution>
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.testuwp.sln">
+        </UWPTestSolution>
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=ARM</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.testuwp.sln">
+        </UWPTestSolution>
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.testuwp.sln">
+        </UWPTestSolution>
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
-        </TestSoution>
-        <TestSoution Include="ice.testuwp.sln">
+        </UWPTestSolution>
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=ARM</Properties>
-        </TestSoution>
+        </UWPTestSolution>
       </ItemGroup>
     </When>
     <Otherwise>
@@ -146,65 +146,59 @@
 
       <!-- Ice for C++ test configurations (C++98 mapping) -->
       <ItemGroup Condition="'$(Platform)' != 'ARM'">
-        <TestSoution Include="ice.test.sln">
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </TestSoution>
+        </TestSolution>
       </ItemGroup>
 
       <!-- Ice for C++ test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' != 'ARM'">
-        <TestSoution Include="ice.test.sln">
+        <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
-        </TestSoution>
+        </TestSolution>
       </ItemGroup>
 
       <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
-        <TestSoution Include="ice.testuwp.sln">
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </TestSoution>
+        </UWPTestSolution>
       </ItemGroup>
     </Otherwise>
   </Choose>
 
+  <!-- Build distribution targets -->
   <Target Name="BuildDist" DependsOnTargets="NugetRestore"
           Condition="'$(UseBinDist)' != 'yes'">
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"/>
-
-    <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
-    <MSBuild Projects="@(UWPDistSolution)"
-             BuildInParallel="true"
-             Properties="%(Properties)" />
   </Target>
 
+  <!-- Clean distribution targets -->
   <Target Name="CleanDist"
           Condition="'$(UseBinDist)' != 'yes'">
-    <MSBuild Projects="@(DistSolution);@(UWPDistSolution)"
+    <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"
              Targets="Clean" />
   </Target>
 
-  <!-- Build all the test solution configurations -->
+  <!-- Build test solution -->
   <Target Name="Build" DependsOnTargets="NugetRestore;BuildDist">
-    <MSBuild Projects="@(TestSoution)"
+    <MSBuild Projects="@(TestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
   </Target>
 
-  <!-- Clean all the test solution configurations -->
+  <!-- Clean test solution -->
   <Target Name="Clean" DependsOnTargets="CleanDist">
-    <MSBuild Projects="@(TestSoution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
+    <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
   </Target>
 
-  <PropertyGroup Condition="'$(SkipBuild)' != 'yes'">
-    <NugetDepends>BuildDist</NugetDepends>
-  </PropertyGroup>
-
+  <!-- Create nuget packages -->
   <Target Name="NugetPack"
-          DependsOnTargets="$(NugetDepends)"
+          DependsOnTargets="BuildDist"
           Condition="$(BuildAllConfigurations) == 'yes'">
     <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
@@ -227,8 +221,45 @@
           WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
   </Target>
 
-  <Target Name="NugetPack-UWP"
-          DependsOnTargets="$(NugetDepends)"
+  <!-- UWP targets -->
+
+  <!-- Build UWP distribution targetes -->
+  <Target Name="UWPBuildDist" DependsOnTargets="NugetRestore">
+    <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
+    <MSBuild Projects="@(DistSolution)"
+             BuildInParallel="true"
+             Properties="%(Properties)"
+             Targets="C++98\slice2cpp"/>
+    
+    <MSBuild Projects="@(UWPDistSolution)"
+             BuildInParallel="true"
+             Properties="%(Properties)" />
+  </Target>
+
+  <!-- Clean UWP distribution targets -->
+  <Target Name="UWPCleanDist"
+          Condition="'$(UseBinDist)' != 'yes'">
+    <MSBuild Projects="@(UWPDistSolution)"
+             BuildInParallel="true"
+             Properties="%(Properties)"
+             Targets="Clean" />
+  </Target>
+
+  <!-- Build UWP test solution -->
+  <Target Name="UWPBuild" DependsOnTargets="NugetRestore;UWPBuildDist">
+    <MSBuild Projects="@(UWPTestSolution)"
+             BuildInParallel="true"
+             Properties="%(Properties)" />
+  </Target>
+
+  <!-- Clean UWP test solution -->
+  <Target Name="UWPClean" DependsOnTargets="UWPCleanDist">
+    <MSBuild Projects="@(UWPTestSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
+  </Target>
+
+  <!-- Create UWP Nuget packages -->
+  <Target Name="NugetUWPPack"
+          DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
     <RemoveDir Directories="zeroc.ice.uwp" />
 
