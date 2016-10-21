@@ -83,11 +83,9 @@ Slice::Preprocessor::addQuotes(const string& arg)
 {
     //
     // Add quotes around the given argument to ensure that arguments
-    // with spaces will be preserved as a single argument. We also
-    // escape the "\" character to ensure that we don't end up with a
-    // \" at the end of the string.
+    // with spaces will be preserved as a single argument
     //
-    return "\"" + IceUtilInternal::escapeString(arg, "\\") + "\"";
+    return "\"" + escapeString(arg, "", IceUtilInternal::Unicode) + "\"";
 }
 
 string

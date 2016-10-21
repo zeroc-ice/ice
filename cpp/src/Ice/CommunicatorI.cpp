@@ -89,7 +89,7 @@ Ice::CommunicatorI::stringToIdentity(const string& s) const
 string
 Ice::CommunicatorI::identityToString(const Identity& ident) const
 {
-    return Ice::identityToString(ident);
+    return Ice::identityToString(ident, _instance->toStringMode());
 }
 
 ObjectAdapterPtr

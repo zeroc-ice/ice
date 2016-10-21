@@ -12,7 +12,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
-#include <IceUtil/StringUtil.h>
+#include <Ice/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -44,11 +44,11 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
         {
             AlreadyRegisteredException ex(__FILE__, __LINE__);
             ex.kindOfObject = "servant";
-            ex.id = Ice::identityToString(ident);
+            ToStringMode toStringMode = _instance->toStringMode();
+            ex.id = Ice::identityToString(ident, toStringMode);
             if(!facet.empty())
             {
-                string fs = nativeToUTF8(facet, _instance->getStringConverter());
-                ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
+                ex.id += " -f " + escapeString(facet, "", toStringMode);
             }
             throw ex;
         }
@@ -104,11 +104,11 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     {
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant";
-        ex.id = Ice::identityToString(ident);
+        ToStringMode toStringMode = _instance->toStringMode();
+        ex.id = Ice::identityToString(ident, toStringMode);
         if(!facet.empty())
         {
-            string fs = nativeToUTF8(facet, _instance->getStringConverter());
-            ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
+            ex.id += " -f " + escapeString(facet, "", toStringMode);
         }
         throw ex;
     }
@@ -178,7 +178,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     {
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant";
-        ex.id = Ice::identityToString(ident);
+        ex.id = Ice::identityToString(ident, _instance->toStringMode());
         throw ex;
     }
 

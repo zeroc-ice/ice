@@ -174,7 +174,7 @@ public:
             }
             catch(const ::Ice::FixedProxyException&)
             {
-                _id = identityToString(_proxy->ice_getIdentity());
+                _id = _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
             }
         }
         return _id;
@@ -206,7 +206,7 @@ public:
     string
     getIdentity() const
     {
-        return identityToString(_proxy->ice_getIdentity());
+        return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
     }
 
 private:

@@ -716,7 +716,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
             registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
             adapter->activate();
             
-            HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(identityToString(id)));
+            HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));
             test(!helloPrx->ice_getConnection());
 
             adapter->deactivate();

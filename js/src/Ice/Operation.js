@@ -280,7 +280,7 @@ function __dispatchImpl(servant, op, incomingAsync, current)
     const method = servant[op.servantMethod];
     if(method === undefined || typeof(method) !== "function")
     {
-        throw new Ice.UnknownException("servant for identity " + Ice.identityToString(current.id) +
+        throw new Ice.UnknownException("servant for identity " + current.adapter.getCommunicator().identityToString(current.id) +
                                        " does not define operation `" + op.servantMethod + "'");
     }
 

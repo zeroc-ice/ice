@@ -546,7 +546,7 @@ Subscriber::create(
         Ice::Identity perId;
         perId.category = instance->instanceName();
         perId.name = "topic." + rec.topicName + ".publish." +
-            identityToString(rec.obj->ice_getIdentity());
+            instance->communicator()->identityToString(rec.obj->ice_getIdentity());
         Ice::ObjectPrx proxy = instance->publishAdapter()->add(per, perId);
         TraceLevelsPtr traceLevels = instance->traceLevels();
         SubscriberPtr subscriber;
@@ -829,7 +829,7 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         if(_currentRetry == 0)
         {
             Ice::Warning warn(traceLevels->logger);
-            warn << traceLevels->subscriberCat << ":" << identityToString(_rec.id);
+            warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_rec.id);
             if(traceLevels->subscriber > 1)
             {
                 warn << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
@@ -842,7 +842,7 @@ Subscriber::error(bool dec, const Ice::Exception& e)
             if(traceLevels->subscriber > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-                out << identityToString(_rec.id);
+                out << _instance->communicator()->identityToString(_rec.id);
                 if(traceLevels->subscriber > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
@@ -870,7 +870,7 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         if(traceLevels->subscriber > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-            out << identityToString(_rec.id);
+            out << _instance->communicator()->identityToString(_rec.id);
             if(traceLevels->subscriber > 1)
             {
                 out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);

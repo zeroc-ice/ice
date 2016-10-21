@@ -28,8 +28,8 @@
 #include <Ice/ConnectionRequestHandler.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Comparable.h>
+#include <Ice/StringUtil.h>
 
-#include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -231,13 +231,18 @@ IceInternal::Reference::toString() const
     //
     ostringstream s;
 
+    ToStringMode toStringMode = _instance->toStringMode();
+    const string separators = " :@";
+
+    string id = Ice::identityToString(_identity, toStringMode);
+
     //
     // If the encoded identity string contains characters which
     // the reference parser uses as separators, then we enclose
     // the identity string in quotes.
     //
-    string id = Ice::identityToString(_identity);
-    if(id.find_first_of(" :@") != string::npos)
+
+    if(id.find_first_of(separators) != string::npos)
     {
         s << '"' << id << '"';
     }
@@ -250,14 +255,13 @@ IceInternal::Reference::toString() const
     {
         s << " -f ";
 
+        string fs = escapeString(fs, "", toStringMode);
         //
         // If the encoded facet string contains characters which
         // the reference parser uses as separators, then we enclose
         // the facet string in quotes.
         //
-        string fs = nativeToUTF8(_facet, _instance->getStringConverter());
-        fs = IceUtilInternal::escapeString(fs, "");
-        if(fs.find_first_of(" :@") != string::npos)
+        if(fs.find_first_of(separators) != string::npos)
         {
             s << '"' << fs << '"';
         }
@@ -1224,8 +1228,7 @@ IceInternal::RoutableReference::toString() const
         // reference parser uses as separators, then we enclose the
         // adapter id string in quotes.
         //
-        string a = nativeToUTF8(_adapterId, getInstance()->getStringConverter());
-        a = IceUtilInternal::escapeString(a, "");
+        string a = escapeString(_adapterId, "", getInstance()->toStringMode());
         if(a.find_first_of(" :@") != string::npos)
         {
             result.append("\"");

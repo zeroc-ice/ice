@@ -682,7 +682,7 @@ Ice::ObjectAdapterI::getEndpoints() const
 
     EndpointSeq endpoints;
     transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-            back_inserter(endpoints), 
+            back_inserter(endpoints),
 #ifdef ICE_CPP11_MAPPING
             [](const IncomingConnectionFactoryPtr& factory)
             {
@@ -1020,8 +1020,9 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                 //
                 if(_routerInfo->getAdapter())
                 {
-                    throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router",
-                                                     Ice::identityToString(router->ice_getIdentity()));
+                    throw AlreadyRegisteredException(__FILE__, __LINE__,
+                                                     "object adapter with router",
+                                                     _communicator->identityToString(router->ice_getIdentity()));
                 }
 
                 //

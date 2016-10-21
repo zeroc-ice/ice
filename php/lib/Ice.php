@@ -187,6 +187,7 @@ require_once 'Ice/Version.php';
 require_once 'Ice/Instrumentation.php';
 require_once 'Ice/Metrics.php';
 require_once 'Ice/RemoteLogger.php';
+require_once 'Ice/Communicator.php';
 
 $Ice_Protocol_1_0 = new Ice_ProtocolVersion(1, 0);
 $Ice_Encoding_1_0 = new Ice_EncodingVersion(1, 0);

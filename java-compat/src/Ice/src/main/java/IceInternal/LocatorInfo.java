@@ -466,7 +466,7 @@ public final class LocatorInfo
         else
         {
             s.append("object = ");
-            s.append(Ice.Util.identityToString(ref.getIdentity()));
+            s.append(Ice.Util.identityToString(ref.getIdentity(), ref.getInstance().toStringMode()));
             s.append("\n");
         }
 
@@ -518,13 +518,13 @@ public final class LocatorInfo
                 StringBuilder s = new StringBuilder(128);
                 s.append("object not found\n");
                 s.append("object = ");
-                s.append(Ice.Util.identityToString(ref.getIdentity()));
+                s.append(Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
             }
 
             Ice.NotRegisteredException e = new Ice.NotRegisteredException();
             e.kindOfObject = "object";
-            e.id = Ice.Util.identityToString(ref.getIdentity());
+            e.id = Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode());
             throw e;
         }
         catch(Ice.NotRegisteredException ex)
@@ -547,7 +547,7 @@ public final class LocatorInfo
                 else
                 {
                     s.append("object = ");
-                    s.append(Ice.Util.identityToString(ref.getIdentity()));
+                    s.append(Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
                     s.append("\n");
                 }
                 s.append("reason = " + ex);
@@ -591,7 +591,7 @@ public final class LocatorInfo
             {
                 s.append("object\n");
                 s.append("object = ");
-                s.append(Ice.Util.identityToString(ref.getIdentity()));
+                s.append(Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
                 s.append("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
@@ -630,7 +630,7 @@ public final class LocatorInfo
             StringBuilder s = new StringBuilder(128);
             s.append("searching for object by id\n");
             s.append("object = ");
-            s.append(Ice.Util.identityToString(ref.getIdentity()));
+            s.append(Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
         }
 

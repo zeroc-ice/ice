@@ -55,11 +55,11 @@ class ServantManager
             if(m.has(facet))
             {
                 const ex = new Ice.AlreadyRegisteredException();
-                ex.id = Ice.identityToString(ident);
+                ex.id = Ice.identityToString(ident, this._instance.toStringMode());
                 ex.kindOfObject = "servant";
                 if(facet.length > 0)
                 {
-                    ex.id += " -f " + StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
                 }
                 throw ex;
             }
@@ -96,11 +96,11 @@ class ServantManager
         if(m === undefined || !m.has(facet))
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = Ice.identityToString(ident);
+            ex.id = Ice.identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
             if(facet.length > 0)
             {
-                ex.id += " -f " + StringUtil.escapeString(facet, "");
+                ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
             throw ex;
         }
@@ -141,7 +141,7 @@ class ServantManager
         if(m === undefined)
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = Ice.identityToString(ident);
+            ex.id = Ice.identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
             throw ex;
         }
@@ -234,7 +234,7 @@ class ServantManager
         if(this._locatorMap.has(category))
         {
             const ex = new Ice.AlreadyRegisteredException();
-            ex.id = StringUtil.escapeString(category, "");
+            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -250,7 +250,7 @@ class ServantManager
         if(l === undefined)
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = StringUtil.escapeString(category, "");
+            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }

@@ -322,17 +322,18 @@ namespace Ice
         /// Converts an object identity to a string.
         /// </summary>
         /// <param name="ident">The object identity to convert.</param>
+        /// <param name="toStringMode">Specifies if and how non-printable ASCII characters are escaped in the result.</param>
         /// <returns>The string representation of the object identity.</returns>
-        public static string identityToString(Identity ident)
+        public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
         {
             if(ident.category == null || ident.category.Length == 0)
             {
-                return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
             else
             {
-                return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' +
-                    IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
+                    IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
         }
 

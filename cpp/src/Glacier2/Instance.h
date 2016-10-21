@@ -44,7 +44,7 @@ public:
     const Glacier2::Instrumentation::RouterObserverPtr& getObserver() const { return _observer; }
 
     void destroy();
-    
+
 private:
 
     friend class SessionRouterI;

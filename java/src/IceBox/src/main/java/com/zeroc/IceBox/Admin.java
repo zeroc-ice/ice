@@ -82,7 +82,7 @@ public final class Admin
                         return 1;
                     }
 
-                    managerProxy = "\"" + com.zeroc.Ice.Util.identityToString(managerIdentity) + "\" :" +
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" +
                         managerEndpoints;
                 }
                 else
@@ -94,7 +94,7 @@ public final class Admin
                         return 1;
                     }
 
-                    managerProxy = "\"" + com.zeroc.Ice.Util.identityToString(managerIdentity) + "\" @" +
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" +
                         managerAdapterId;
                 }
 

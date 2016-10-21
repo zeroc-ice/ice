@@ -14,6 +14,7 @@
 #include <Ice/SlicedData.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include <Ice/Initialize.h>
 #include <IceUtil/StringUtil.h>
 #ifdef ICE_OS_WINRT
 #    include <Ice/StringConverter.h>
@@ -339,16 +340,7 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `";
-    if(id.category.empty())
-    {
-        out << IceUtilInternal::escapeString(id.name, "/");
-    }
-    else
-    {
-        out << IceUtilInternal::escapeString(id.category, "/") << '/' << IceUtilInternal::escapeString(id.name, "/");
-    }
-    out << "'";
+    out << ":\nillegal identity: `" << identityToString(id, ICE_ENUM(ToStringMode, Unicode)) << "'";
 }
 
 void
@@ -362,16 +354,7 @@ Ice::IllegalServantException::ice_print(ostream& out) const
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << ":\nidentity: `";
-    if(ex.id.category.empty())
-    {
-        out << IceUtilInternal::escapeString(ex.id.name, "/");
-    }
-    else
-    {
-        out << IceUtilInternal::escapeString(ex.id.category, "/") << '/' << IceUtilInternal::escapeString(ex.id.name, "/");
-    }
-    out << "'";
+    out << ":\nidentity: `" << identityToString(ex.id, ICE_ENUM(ToStringMode, Unicode)) << "'";
     out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }

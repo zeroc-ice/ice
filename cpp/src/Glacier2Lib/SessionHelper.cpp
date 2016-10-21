@@ -1215,7 +1215,9 @@ string
 Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
 {
     ostringstream os;
-    os << "\"" << Ice::identityToString(ident) << "\":" << _protocol << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
+    os << "\"" << identityToString(ident, Ice::ICE_ENUM(ToStringMode, Unicode)) << "\":" << _protocol
+       << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
+
     if(_timeout > 0)
     {
         os << " -t " << _timeout;

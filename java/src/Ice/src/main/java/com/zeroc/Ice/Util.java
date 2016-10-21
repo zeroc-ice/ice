@@ -275,18 +275,33 @@ public final class Util
      *
      * @param ident The object identity to convert.
      *
+     * @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the result.
+     *
      * @return The string representation of the object identity.
      **/
-    public static String identityToString(Identity ident)
+    public static String identityToString(Identity ident, ToStringMode toStringMode)
     {
         if(ident.category == null || ident.category.length() == 0)
         {
-            return StringUtil.escapeString(ident.name, "/");
+            return StringUtil.escapeString(ident.name, "/", toStringMode);
         }
         else
         {
-            return StringUtil.escapeString(ident.category, "/") + '/' + StringUtil.escapeString(ident.name, "/");
+            return StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
+                StringUtil.escapeString(ident.name, "/", toStringMode);
         }
+    }
+
+    /**
+     * Converts an object identity to a string.
+     *
+     * @param ident The object identity to convert.
+     *
+     * @return The string representation of the object identity using the default mode (Unicode)
+     **/
+    public static String identityToString(Identity ident)
+    {
+        return identityToString(ident, ToStringMode.Unicode);
     }
 
     /**

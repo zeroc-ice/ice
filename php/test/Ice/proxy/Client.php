@@ -42,6 +42,18 @@ function allTests($communicator)
 
     $identityToString = $NS ? "Ice\\identityToString" : "Ice_identityToString";
     $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
+    $modeUnicode = $NS ? constant("Ice\\ToStringMode::Unicode") : constant("Ice_ToStringMode::Unicode");
+    $modeASCII = $NS ? constant("Ice\\ToStringMode::ASCII") : constant("Ice_ToStringMode::ASCII");
+    $modeCompat = $NS ? constant("Ice\\ToStringMode::Compat") : constant("Ice_ToStringMode::Compat");
+
+    if($NS)
+    {
+        echo "namespace ON\n";
+    }
+    else
+    {
+        echo "namespace OFF\n";
+    }
 
     echo "testing stringToProxy... ";
     flush();
@@ -439,7 +451,31 @@ function allTests($communicator)
     echo "testing proxy methods... ";
     flush();
     test($communicator->identityToString($base->ice_identity($communicator->stringToIdentity("other"))->ice_getIdentity()) == "other");
-    test($identityToString($base->ice_identity($stringToIdentity("other"))->ice_getIdentity()) == "other");
+
+    //
+    // Verify that ToStringMode is passed correctly
+    //
+    $ident = new Ice_Identity("test", "\x7F\xE2\x82\xAC");
+
+    $idStr = $identityToString($ident, $modeUnicode);
+    test($idStr == "\\u007f\xE2\x82\xAC/test");
+    $ident2 = $stringToIdentity($idStr);
+    test($ident == $ident2);
+    test($identityToString($ident) == $idStr);
+
+    $idStr = $identityToString($ident, $modeASCII);
+    test($idStr == "\\u007f\\u20ac/test");
+    $ident2 = $stringToIdentity($idStr);
+    test($ident == $ident2);
+
+    $idStr = $identityToString($ident, $modeCompat);
+    test($idStr == "\\177\\342\\202\\254/test");
+    $ident2 = $stringToIdentity($idStr);
+    test($ident == $ident2);
+
+    $ident2 = $stringToIdentity($communicator->identityToString($ident));
+    test($ident == $ident2);
+
     test($base->ice_facet("facet")->ice_getFacet() == "facet");
     test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test($base->ice_twoway()->ice_isTwoway());

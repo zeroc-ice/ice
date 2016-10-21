@@ -168,14 +168,20 @@ public final class TraceUtil
     {
         try
         {
+            com.zeroc.Ice.ToStringMode toStringMode = com.zeroc.Ice.ToStringMode.Unicode;
+            if(stream.instance() != null)
+            {
+                toStringMode = stream.instance().toStringMode();
+            }
+
             com.zeroc.Ice.Identity identity = com.zeroc.Ice.Identity.read(stream, null);
-            out.write("\nidentity = " + com.zeroc.Ice.Util.identityToString(identity));
+            out.write("\nidentity = " + com.zeroc.Ice.Util.identityToString(identity, toStringMode));
 
             String[] facet = stream.readStringSeq();
             out.write("\nfacet = ");
             if(facet.length > 0)
             {
-                out.write(com.zeroc.IceUtilInternal.StringUtil.escapeString(facet[0], ""));
+                out.write(com.zeroc.IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
             }
 
             String operation = stream.readString();

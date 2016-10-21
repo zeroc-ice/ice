@@ -306,13 +306,18 @@ public abstract class Reference implements Cloneable
         //
         StringBuilder s = new StringBuilder(128);
 
+        com.zeroc.Ice.ToStringMode toStringMode = _instance.toStringMode();
+        final String separators = " :@";
+
+        String id = com.zeroc.Ice.Util.identityToString(_identity, toStringMode);
+
         //
         // If the encoded identity string contains characters which
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        String id = com.zeroc.Ice.Util.identityToString(_identity);
-        if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
+
+        if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(id, separators) != -1)
         {
             s.append('"');
             s.append(id);
@@ -331,8 +336,8 @@ public abstract class Reference implements Cloneable
             // the facet string in quotes.
             //
             s.append(" -f ");
-            String fs = com.zeroc.IceUtilInternal.StringUtil.escapeString(_facet, "");
-            if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
+            String fs = com.zeroc.IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
+            if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(fs, separators) != -1)
             {
                 s.append('"');
                 s.append(fs);
@@ -481,16 +486,16 @@ public abstract class Reference implements Cloneable
     @Override
     public Reference clone()
     {
-	Reference c = null;
-	try
-	{
-	    c = (Reference)super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
-	return c;
+        Reference c = null;
+        try
+        {
+            c = (Reference)super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false;
+        }
+        return c;
     }
 
     protected int _hashValue;

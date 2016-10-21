@@ -948,6 +948,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
     _collectObjects(false),
+    _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
@@ -1188,6 +1189,21 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         }
 
         const_cast<bool&>(_collectObjects) = _initData.properties->getPropertyAsInt("Ice.CollectObjects") > 0;
+
+        string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+        if(toStringModeStr == "ASCII")
+        {
+            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, ASCII);
+        }
+        else if(toStringModeStr == "Compat")
+        {
+            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, Compat);
+        }
+        else if(toStringModeStr != "Unicode")
+        {
+            throw InitializationException(__FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+        }
+
 
         //
         // Client ACM enabled by default. Server ACM disabled by default.

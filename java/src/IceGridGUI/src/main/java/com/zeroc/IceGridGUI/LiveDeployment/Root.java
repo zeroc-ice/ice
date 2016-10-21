@@ -600,23 +600,23 @@ public class Root extends ListArrayTreeNode
     {
         for(ObjectInfo info : objects)
         {
-            _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+            _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
         }
     }
 
     public void objectAdded(ObjectInfo info)
     {
-        _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+        _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
     }
 
     public void objectUpdated(ObjectInfo info)
     {
-        _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+        _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
     }
 
     public void objectRemoved(com.zeroc.Ice.Identity id)
     {
-        _objects.remove(com.zeroc.Ice.Util.identityToString(id));
+        _objects.remove(_coordinator.getCommunicator().identityToString(id));
     }
 
     //
@@ -836,7 +836,7 @@ public class Root extends ListArrayTreeNode
                 JOptionPane.ERROR_MESSAGE);
         }
 
-        String strIdentity = com.zeroc.Ice.Util.identityToString(proxy.ice_getIdentity());
+        String strIdentity = _coordinator.getCommunicator().identityToString(proxy.ice_getIdentity());
 
         final String prefix = "Adding well-known object '" + strIdentity + "'...";
         final AdminPrx admin = _coordinator.getAdmin();
@@ -887,7 +887,7 @@ public class Root extends ListArrayTreeNode
     {
         com.zeroc.Ice.ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
         com.zeroc.Ice.Identity identity = proxy.ice_getIdentity();
-        final String strIdentity = com.zeroc.Ice.Util.identityToString(identity);
+        final String strIdentity = _coordinator.getCommunicator().identityToString(identity);
 
         final String prefix = "Removing well-known object '" + strIdentity + "'...";
         final String errorTitle = "Failed to remove object '" + strIdentity + "'";

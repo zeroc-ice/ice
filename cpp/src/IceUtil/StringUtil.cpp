@@ -35,96 +35,89 @@ toOctalString(unsigned int n)
     return string(s, charPos, (32 - charPos));
 }
 
+char
+toHexDigit(Byte b)
+{
+    assert(b < 16);
+    if(b < 10)
+    {
+        return '0' + b;
+    }
+    else
+    {
+        return 'a' - 10 + b;
+    }
+}
+
+
+unsigned int
+addContinuationByte(string::iterator& p, string::iterator end, unsigned int codePoint)
+{
+    if(p == end)
+    {
+        throw IllegalArgumentException(__FILE__, __LINE__, "UTF-8 sequence too short");
+    }
+
+    Byte b = static_cast<Byte>(*p++);
+
+    if((b >> 6) != 2)
+    {
+        throw IllegalArgumentException(__FILE__, __LINE__, "Invalid UTF-8 sequence");
+    }
+    return (codePoint << 6) + (b & 0x3F);
+}
+
 //
-// Write the byte b as an escape sequence if it isn't a printable ASCII
-// character and append the escape sequence to s. Additional characters
-// that should be escaped can be passed in special. If b is any of these
-// characters, b is preceded by a backslash in s.
+// Appends a 2 to 4 bytes UTF-8 sequence as a universal character name
 //
 void
-encodeChar(string::value_type b, string& s, const string& special)
+appendUniversalName(char c, string::iterator& p, string::iterator end, string& result)
 {
-    switch(b)
+    unsigned int codePoint;
+
+    Byte b = static_cast<Byte>(c);
+    if((b >> 5) == 0x06)
     {
-        case '\\': 
+        // 2 bytes
+        codePoint = (b & 0x1F);
+        codePoint = addContinuationByte(p, end, codePoint);
+    }
+    else if((b >> 4) == 0x0E)
+    {
+        // 3 bytes
+        codePoint = (b & 0x0F);
+        codePoint = addContinuationByte(p, end, codePoint);
+        codePoint = addContinuationByte(p, end, codePoint);
+    }
+    else if((b >> 3) == 0x1E)
+    {
+        // 4 bytes
+        codePoint = (b & 0x07);
+        codePoint = addContinuationByte(p, end, codePoint);
+        codePoint = addContinuationByte(p, end, codePoint);
+        codePoint = addContinuationByte(p, end, codePoint);
+    }
+    else
+    {
+        ostringstream ostr;
+        ostr <<  "Invalid first byte 0x" << hex << static_cast<unsigned short>(b) << " in UTF-8 sequence" << endl;
+        throw IllegalArgumentException(__FILE__, __LINE__,  ostr.str());
+    }
+
+    if(codePoint > 0xFFFF)
+    {
+        result.append("\\U");
+        for(int j = 7; j >= 0; j--)
         {
-            s.append("\\\\");
-            break;
+            result.push_back(toHexDigit(static_cast<Byte>((codePoint >> (j * 4)) & 0x0F)));
         }
-        
-        case '\'': 
+    }
+    else
+    {
+        result.append("\\u");
+        for(int j = 3; j >= 0; j--)
         {
-            s.append("\\'");
-            break;
-        }
-        
-        case '"': 
-        {
-            s.append("\\\"");
-            break;
-        }
-        
-        case '\b': 
-        {
-            s.append("\\b");
-            break;
-        }
-        
-        case '\f': 
-        {
-            s.append("\\f");
-            break;
-        }
-        
-        case '\n': 
-        {
-            s.append("\\n");
-            break;
-        }
-        
-        case '\r': 
-        {
-            s.append("\\r");
-            break;
-        }
-        
-        case '\t': 
-        {
-            s.append("\\t");
-            break;
-        }
-        
-        default: 
-        {
-            unsigned char i = static_cast<unsigned char>(b);
-            if(!(i >= 32 && i <= 126))
-            {
-                s.push_back('\\');
-                string octal = toOctalString(i);
-                //
-                // Add leading zeroes so that we avoid problems during
-                // decoding. For example, consider the escaped string
-                // \0013 (i.e., a character with value 1 followed by the
-                // character '3'). If the leading zeroes were omitted, the
-                // result would be incorrectly interpreted as a single
-                // character with value 11.
-                //
-                for(string::size_type j = octal.size(); j < 3; j++)
-                {
-                    s.push_back('0');
-                }
-                s.append(octal);
-            }
-            else if(special.find(b) != string::npos)
-            {
-                s.push_back('\\');
-                s.push_back(b);
-            }
-            else
-            {
-                s.push_back(b);
-            }
-            break;
+            result.push_back(toHexDigit(static_cast<Byte>((codePoint >> (j * 4)) & 0x0F)));
         }
     }
 }
@@ -132,27 +125,153 @@ encodeChar(string::value_type b, string& s, const string& special)
 }
 
 //
-// Add escape sequences (such as "\n", or "\007") to make a string
-// readable in ASCII. Any characters that appear in special are
-// prefixed with a backslash in the returned string.
+// Add escape sequences. Any characters that appear in special are prefixed with a backslash in the returned string.
 //
 string
-IceUtilInternal::escapeString(const string& s, const string& special)
+IceUtilInternal::escapeString(const string& s, const string& special, ToStringMode toStringMode)
 {
     for(string::size_type i = 0; i < special.size(); ++i)
     {
         if(static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "special characters must be in ASCII range 32-126");
+            throw IllegalArgumentException(__FILE__, __LINE__, "Special characters must be in ASCII range 32-126");
         }
     }
-    
+
+    //
+    // First convert to UTF-8
+    //
+    string u8s = nativeToUTF8(s, getProcessStringConverter());
+
+    string::iterator p = u8s.begin();
+
     string result;
-    for(string::size_type i = 0; i < s.size(); ++i)
+
+    while(p != u8s.end())
     {
-        encodeChar(s[i], result, special);
+        char c = *p++;
+
+        switch(c)
+        {
+            case '\\':
+            {
+                result.append("\\\\");
+                break;
+            }
+
+            case '\'':
+            {
+                result.append("\\'");
+                break;
+            }
+
+            case '"':
+            {
+                result.append("\\\"");
+                break;
+            }
+
+            case '\b':
+            {
+                result.append("\\b");
+                break;
+            }
+
+            case '\f':
+            {
+                result.append("\\f");
+                break;
+            }
+
+            case '\n':
+            {
+                result.append("\\n");
+                break;
+            }
+
+            case '\r':
+            {
+                result.append("\\r");
+                break;
+            }
+
+            case '\t':
+            {
+                result.append("\\t");
+                break;
+            }
+
+            default:
+            {
+                if(special.find(c) != string::npos)
+                {
+                    result.push_back('\\');
+                    result.push_back(c);
+                }
+                else
+                {
+                    unsigned char i = static_cast<unsigned char>(c);
+
+                    if(i < 32 || i > 126)
+                    {
+                        if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                        {
+                            // append octal string
+
+                            result.push_back('\\');
+                            string octal = toOctalString(i);
+                            //
+                            // Add leading zeroes so that we avoid problems during
+                            // decoding. For example, consider the escaped string
+                            // \0013 (i.e., a character with value 1 followed by the
+                            // character '3'). If the leading zeroes were omitted, the
+                            // result would be incorrectly interpreted as a single
+                            // character with value 11.
+                            //
+                            for(string::size_type j = octal.size(); j < 3; j++)
+                            {
+                                result.push_back('0');
+                            }
+                            result.append(octal);
+                        }
+                        else if(i < 32 || i == 127)
+                        {
+                            // append \u00nn
+                            result.append("\\u00");
+                            result.push_back(toHexDigit(i >> 4));
+                            result.push_back(toHexDigit(i & 0x0F));
+                        }
+                        else if(toStringMode == ICE_ENUM(ToStringMode, ASCII))
+                        {
+                            // append \unnnn or \Unnnnnnnn after reading more UTF-8 bytes
+                            appendUniversalName(c, p, u8s.end(), result);
+                        }
+                        else
+                        {
+                            // keep as is
+                            result.push_back(c);
+                        }
+                    }
+                    else
+                    {
+                        // printable ASCII character
+                        result.push_back(c);
+                    }
+                }
+                break;
+            }
+        }
     }
-    
+
+    if(toStringMode == ICE_ENUM(ToStringMode, Unicode))
+    {
+        //
+        // Convert back to Native
+        //
+        result = UTF8ToNative(result, getProcessStringConverter());
+    }
+    // else it's a pure ASCII string
+
     return result;
 }
 
@@ -163,7 +282,7 @@ char
 checkChar(const string& s, string::size_type pos)
 {
     unsigned char c = static_cast<unsigned char>(s[pos]);
-    if(!(c >= 32 && c <= 126))
+    if(c < 32 || c == 127)
     {
         ostringstream ostr;
         if(pos > 0)
@@ -174,29 +293,74 @@ checkChar(const string& s, string::size_type pos)
         {
             ostr << "first character";
         }
-        ostr << " is not a printable ASCII character (ordinal " << static_cast<int>(c) << ")";
+        ostr << " has invalid ordinal value " << static_cast<int>(c);
         throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
     }
     return c;
 }
 
 //
-// Decode the character or escape sequence starting at start and return it.
+// Append codePoint as a UTF-8 sequence
+//
+void
+appendUTF8(unsigned int codePoint, bool inBMP, string& result)
+{
+    if(inBMP && codePoint >= 0xD800 && codePoint <= 0xDFFF)
+    {
+        throw IllegalArgumentException(__FILE__, __LINE__,
+                                       "A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+    }
+
+    if(codePoint <= 0x7F)
+    {
+        // ASCII
+        result.push_back(static_cast<char>(codePoint));
+    }
+    else if(codePoint <= 0x7FF)
+    {
+        // 2 bytes
+        result.push_back(static_cast<char>((codePoint >> 6) | 0xC0));
+        result.push_back(static_cast<char>((codePoint & 0x3F) | 0x80));
+    }
+    else if(codePoint <= 0xFFFF)
+    {
+        // 3 bytes
+        result.push_back(static_cast<char>((codePoint >> 12) | 0xE0));
+        result.push_back(static_cast<char>(((codePoint >> 6) & 0x3F) | 0x80));
+        result.push_back(static_cast<char>((codePoint & 0x3F) | 0x80));
+    }
+    else if(codePoint <= 0x10FFFF)
+    {
+        // 4 bytes
+        result.push_back(static_cast<char>((codePoint >> 18) | 0xF0));
+        result.push_back(static_cast<char>(((codePoint >> 12) & 0x3F) | 0x80));
+        result.push_back(static_cast<char>(((codePoint >> 6) & 0x3F) | 0x80));
+        result.push_back(static_cast<char>((codePoint & 0x3F) | 0x80));
+    }
+    else
+    {
+        throw IllegalArgumentException(__FILE__, __LINE__, "Invalid universal character name");
+    }
+}
+
+//
+// Decode the character or escape sequence starting at start and appends it to result;
 // end marks the one-past-the-end position of the substring to be scanned.
 // nextStart is set to the index of the first character following the decoded
 // character or escape sequence.
 //
-char
-decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart)
+bool
+decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart,
+           string& result)
 {
     assert(start < end);
     assert(end <= s.size());
 
-    char c;
+    bool pureASCII = true;
 
     if(s[start] != '\\')
     {
-        c = checkChar(s, start++);
+        result.push_back(checkChar(s, start++));
     }
     else
     {
@@ -204,43 +368,90 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash");
         }
-        switch(s[++start])
+
+        char c = s[++start];
+
+        switch(c)
         {
-            case '\\': 
-            case '\'': 
-            case '"': 
-            {
-                c = s[start++];
-                break;
-            }
-            case 'b': 
+            case '\\':
+            case '\'':
+            case '"':
             {
                 ++start;
-                c = '\b';
+                result.push_back(c);
                 break;
             }
-            case 'f': 
+            case 'b':
             {
                 ++start;
-                c = '\f';
+                result.push_back('\b');
                 break;
             }
-            case 'n': 
+            case 'f':
             {
                 ++start;
-                c = '\n';
+                result.push_back('\f');
                 break;
             }
-            case 'r': 
+            case 'n':
             {
                 ++start;
-                c = '\r';
+                result.push_back('\n');
                 break;
             }
-            case 't': 
+            case 'r':
             {
                 ++start;
-                c = '\t';
+                result.push_back('\r');
+                break;
+            }
+            case 't':
+            {
+                ++start;
+                result.push_back('\t');
+                break;
+            }
+            case 'u':
+            case 'U':
+            {
+                unsigned int codePoint = 0;
+                bool inBMP = (c == 'u');
+                int size = inBMP ? 4 : 8;
+                ++start;
+                while(size > 0 && start < end)
+                {
+                    c = s[start++];
+                    int charVal = 0;
+                    if(c >= '0' && c <= '9')
+                    {
+                        charVal = c - '0';
+                    }
+                    else if(c >= 'a' && c <= 'f')
+                    {
+                        charVal = 10 + (c - 'a');
+                    }
+                    else if(c >= 'A' && c <= 'F')
+                    {
+                        charVal = 10 + (c - 'A');
+                    }
+                    else
+                    {
+                        break; // while
+                    }
+                    codePoint = codePoint * 16 + static_cast<unsigned int>(charVal);
+                    --size;
+                }
+                if(size > 0)
+                {
+                    throw IllegalArgumentException(__FILE__, __LINE__,
+                                                   "Invalid universal character name: too few hex digits");
+                }
+
+                appendUTF8(codePoint, inBMP, result);
+                if(codePoint > 127)
+                {
+                    pureASCII = false;
+                }
                 break;
             }
             case '0':
@@ -269,31 +480,26 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
                     ostr << "octal value \\" << oct << val << dec << " (" << val << ") is out of range";
                     throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
                 }
-                c = static_cast<char>(val);
+                result.push_back(static_cast<char>(val));
+                if(val > 127)
+                {
+                    pureASCII = false;
+                }
                 break;
             }
             default:
             {
-                c = checkChar(s, start++);
+                if(static_cast<unsigned char>(c) > 127)
+                {
+                    pureASCII = false;
+                }
+                result.push_back(checkChar(s, start++));
                 break;
             }
         }
     }
     nextStart = start;
-    return c;
-}
-
-//
-// Remove escape sequences from s and append the result to sb.
-// Return true if successful, false otherwise.
-//
-void
-decodeString(const string& s, string::size_type start, string::size_type end, string& sb)
-{
-    while(start < end)
-    {
-        sb.push_back(decodeChar(s, start, end, start));
-    }
+    return pureASCII;
 }
 
 }
@@ -306,11 +512,61 @@ IceUtilInternal::unescapeString(const string& s, string::size_type start, string
 {
     assert(start <= end && end <= s.size());
 
-    string result;
-    result.reserve(end - start);
-    result.clear();
-    decodeString(s, start, end, result);
-    return result;
+    // Optimization for strings without escapes
+    string::size_type p = s.find('\\', start);
+    if(p == string::npos || p >= end)
+    {
+        p = start;
+        while(p < end)
+        {
+            checkChar(s, p++);
+        }
+        return s.substr(start, end);
+    }
+    else
+    {
+        StringConverterPtr stringConverter = getProcessStringConverter();
+
+        const string* inputStringPtr = &s;
+        string u8s;
+
+        if(stringConverter)
+        {
+            bool inputIsPureASCII = true;
+            string::size_type i = start;
+            while(i < end && inputIsPureASCII)
+            {
+                inputIsPureASCII = static_cast<unsigned char>(s[i++]) <= 127;
+            }
+
+            if(!inputIsPureASCII)
+            {
+                u8s = nativeToUTF8(s.substr(start, end), stringConverter);
+                inputStringPtr = &u8s;
+                start = 0;
+                end = u8s.size();
+            }
+        }
+
+        bool resultIsPureASCII = true;
+        string result;
+        result.reserve(end - start);
+        while(start < end)
+        {
+            if(decodeChar(*inputStringPtr, start, end, start, result))
+            {
+                resultIsPureASCII = false;
+            }
+        }
+
+        if(stringConverter && !resultIsPureASCII)
+        {
+            // Need to convert from UTF-8 to Native
+            result = UTF8ToNative(result, stringConverter);
+        }
+
+        return result;
+    }
 }
 
 bool
@@ -328,7 +584,7 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             quoteChar = str[pos++];
             continue; // Skip the quote
         }
-        else if(quoteChar == '\0' && str[pos] == '\\' && pos + 1 < length && 
+        else if(quoteChar == '\0' && str[pos] == '\\' && pos + 1 < length &&
                 (str[pos + 1] == '\'' || str[pos + 1] == '"'))
         {
             ++pos;
@@ -356,7 +612,7 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
                 continue;
             }
         }
-            
+
         if(pos < length)
         {
             elt += str[pos++];
@@ -437,7 +693,7 @@ IceUtilInternal::checkQuote(const string& s, string::size_type start)
 //
 // Match `s' against the pattern `pat'. A * in the pattern acts
 // as a wildcard: it matches any non-empty sequence of characters.
-// We match by hand here because it's portable across platforms 
+// We match by hand here because it's portable across platforms
 // (whereas regex() isn't). Only one * per pattern is supported.
 //
 bool
@@ -500,7 +756,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 
         wstring lpMsgBuf(256, wchar_t());
         DWORD stored = 0;
-        
+
         while(stored == 0)
         {
             stored = FormatMessageW(
@@ -531,7 +787,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 else
                 {
                     break;
-                }   
+                }
             }
         }
 
@@ -539,7 +795,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 
 #else
         LPWSTR msg = 0;
- 
+
         DWORD stored = FormatMessageW(
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
@@ -552,7 +808,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             0,
             NULL);
 #endif
-        
+
         if(stored > 0)
         {
             assert(msg && wcslen(msg) > 0);
@@ -576,159 +832,159 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             return os.str();
         }
     }
-    
+
     switch(error)
     {
     case WSAEINTR:
         return "WSAEINTR";
-        
+
     case WSAEBADF:
         return "WSAEBADF";
-        
+
     case WSAEACCES:
         return "WSAEACCES";
-        
+
     case WSAEFAULT:
         return "WSAEFAULT";
-        
+
     case WSAEINVAL:
         return "WSAEINVAL";
-        
+
     case WSAEMFILE:
         return "WSAEMFILE";
-        
+
     case WSAEWOULDBLOCK:
         return "WSAEWOULDBLOCK";
-        
+
     case WSAEINPROGRESS:
         return "WSAEINPROGRESS";
-        
+
     case WSAEALREADY:
         return "WSAEALREADY";
-        
+
     case WSAENOTSOCK:
         return "WSAENOTSOCK";
-        
+
     case WSAEDESTADDRREQ:
         return "WSAEDESTADDRREQ";
-        
+
     case WSAEMSGSIZE:
         return "WSAEMSGSIZE";
-        
+
     case WSAEPROTOTYPE:
         return "WSAEPROTOTYPE";
-        
+
     case WSAENOPROTOOPT:
         return "WSAENOPROTOOPT";
-        
+
     case WSAEPROTONOSUPPORT:
         return "WSAEPROTONOSUPPORT";
-        
+
     case WSAESOCKTNOSUPPORT:
         return "WSAESOCKTNOSUPPORT";
-        
+
     case WSAEOPNOTSUPP:
         return "WSAEOPNOTSUPP";
-        
+
     case WSAEPFNOSUPPORT:
         return "WSAEPFNOSUPPORT";
-        
+
     case WSAEAFNOSUPPORT:
         return "WSAEAFNOSUPPORT";
-        
+
     case WSAEADDRINUSE:
         return "WSAEADDRINUSE";
-        
+
     case WSAEADDRNOTAVAIL:
         return "WSAEADDRNOTAVAIL";
-        
+
     case WSAENETDOWN:
         return "WSAENETDOWN";
-        
+
     case WSAENETUNREACH:
         return "WSAENETUNREACH";
-        
+
     case WSAENETRESET:
         return "WSAENETRESET";
-        
+
     case WSAECONNABORTED:
         return "WSAECONNABORTED";
-        
+
     case WSAECONNRESET:
         return "WSAECONNRESET";
-        
+
     case WSAENOBUFS:
         return "WSAENOBUFS";
-        
+
     case WSAEISCONN:
         return "WSAEISCONN";
-        
+
     case WSAENOTCONN:
         return "WSAENOTCONN";
-        
+
     case WSAESHUTDOWN:
         return "WSAESHUTDOWN";
-        
+
     case WSAETOOMANYREFS:
         return "WSAETOOMANYREFS";
-        
+
     case WSAETIMEDOUT:
         return "WSAETIMEDOUT";
-        
+
     case WSAECONNREFUSED:
         return "WSAECONNREFUSED";
-        
+
     case WSAELOOP:
         return "WSAELOOP";
-        
+
     case WSAENAMETOOLONG:
         return "WSAENAMETOOLONG";
-        
+
     case WSAEHOSTDOWN:
         return "WSAEHOSTDOWN";
-        
+
     case WSAEHOSTUNREACH:
         return "WSAEHOSTUNREACH";
-        
+
     case WSAENOTEMPTY:
         return "WSAENOTEMPTY";
-        
+
     case WSAEPROCLIM:
         return "WSAEPROCLIM";
-        
+
     case WSAEUSERS:
         return "WSAEUSERS";
-        
+
     case WSAEDQUOT:
         return "WSAEDQUOT";
-        
+
     case WSAESTALE:
         return "WSAESTALE";
-        
+
     case WSAEREMOTE:
         return "WSAEREMOTE";
-        
+
     case WSAEDISCON:
         return "WSAEDISCON";
-        
+
     case WSASYSNOTREADY:
         return "WSASYSNOTREADY";
-        
+
     case WSAVERNOTSUPPORTED:
         return "WSAVERNOTSUPPORTED";
-        
+
     case WSANOTINITIALISED:
         return "WSANOTINITIALISED";
-        
+
     case WSAHOST_NOT_FOUND:
         return "WSAHOST_NOT_FOUND";
-        
+
     case WSATRY_AGAIN:
         return "WSATRY_AGAIN";
-        
+
     case WSANO_RECOVERY:
         return "WSANO_RECOVERY";
-        
+
     case WSANO_DATA:
         return "WSANO_DATA";
 

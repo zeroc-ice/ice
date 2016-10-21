@@ -77,7 +77,7 @@ public class TableField extends JTable
         {
             com.zeroc.Ice.Identity id =
                 new com.zeroc.Ice.Identity(resolver.substitute(p.id.name), resolver.substitute(p.id.category));
-            map.put(com.zeroc.Ice.Util.identityToString(id), resolver.substitute(p.type));
+            map.put(com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode), resolver.substitute(p.type));
         }
         setSortedMap(map);
     }

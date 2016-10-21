@@ -24,5 +24,5 @@ import TestUtil
 TestUtil.queueClientServerTest()
 TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
                                server="test.Ice.proxy.AMDServer")
-TestUtil.queueCollocatedTest()
+TestUtil.queueCollocatedTest(additionalOptions = "--Ice.ToStringMode=Compat")
 TestUtil.runQueuedTests()

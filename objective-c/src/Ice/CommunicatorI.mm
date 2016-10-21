@@ -242,7 +242,17 @@
 
 -(NSMutableString*) identityToString:(ICEIdentity*)ident
 {
-    return [ICEUtil identityToString:ident];
+    NSException* nsex = nil;
+    try
+    {
+        return [toNSMutableString(COMMUNICATOR->identityToString([ident identity])) autorelease];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;

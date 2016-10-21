@@ -442,8 +442,8 @@ IceRuby::contextToHash(const Ice::Context& ctx)
     volatile VALUE result = callRuby(rb_hash_new);
     for(Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
-        volatile VALUE key = callRuby(rb_str_new, p->first.c_str(), static_cast<long>(p->first.size()));
-        volatile VALUE value = callRuby(rb_str_new, p->second.c_str(), static_cast<long>(p->second.size()));
+        volatile VALUE key = createString(p->first);
+        volatile VALUE value = createString(p->second);
         callRuby(rb_hash_aset, result, key, value);
     }
     return result;
@@ -522,8 +522,8 @@ IceRuby::createIdentity(const Ice::Identity& id)
     assert(!NIL_P(cls));
 
     volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
-    volatile VALUE name = callRuby(rb_str_new, id.name.c_str(), static_cast<long>(id.name.size()));
-    volatile VALUE category = callRuby(rb_str_new, id.category.c_str(), static_cast<long>(id.category.size()));
+    volatile VALUE name = createString(id.name);
+    volatile VALUE category = createString(id.category);
     callRuby(rb_iv_set, result, "@name", name);
     callRuby(rb_iv_set, result, "@category", category);
     return result;

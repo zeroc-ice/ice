@@ -1267,12 +1267,15 @@ class Reference
         //
         const s = [];
 
+        const toStringMode = this._instance.toStringMode();
+
         //
         // If the encoded identity string contains characters which
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        const id = Ice.identityToString(this._identity);
+
+        const id = Ice.identityToString(this._identity, toStringMode);
         if(id.search(/[ :@]/) != -1)
         {
             s.push('"');
@@ -1292,7 +1295,7 @@ class Reference
             // the facet string in quotes.
             //
             s.push(" -f ");
-            const fs = StringUtil.escapeString(this._facet, "");
+            const fs = StringUtil.escapeString(this._facet, "", toStringMode);
             if(fs.search(/[ :@]/) != -1)
             {
                 s.push('"');
@@ -1967,7 +1970,7 @@ class RoutableReference extends Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            const a = StringUtil.escapeString(this._adapterId, null);
+            const a = StringUtil.escapeString(this._adapterId, null, this._instance.toStringMode());
             if(a.search(/[ :@]/) != -1)
             {
                 s.push('"');

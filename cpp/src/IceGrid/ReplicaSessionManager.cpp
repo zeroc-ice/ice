@@ -177,7 +177,7 @@ public:
         {
             ostringstream os;
             os << ex << ":\n";
-            os << "id: " << identityToString(info.proxy->ice_getIdentity());
+            os << "id: " << _database->getCommunicator()->identityToString(info.proxy->ice_getIdentity());
             failure = os.str();
         }
         receivedUpdate(ObjectObserverTopicName, serial, failure);
@@ -196,7 +196,7 @@ public:
         {
             ostringstream os;
             os << ex << ":\n";
-            os << "id: " << identityToString(info.proxy->ice_getIdentity());
+            os << "id: " << _database->getCommunicator()->identityToString(info.proxy->ice_getIdentity());
             failure = os.str();
         }
         catch(const DeploymentException& ex)

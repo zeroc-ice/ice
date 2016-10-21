@@ -83,7 +83,7 @@ class Communicator
 
     identityToString(ident)
     {
-        return Ice.identityToString(ident);
+        return Ice.identityToString(ident, this._instance.toStringMode());
     }
 
     createObjectAdapter(name)

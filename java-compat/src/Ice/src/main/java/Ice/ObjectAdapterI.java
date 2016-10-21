@@ -980,7 +980,8 @@ public final class ObjectAdapterI implements ObjectAdapter
                     if(_routerInfo.getAdapter() != null)
                     {
                         throw new AlreadyRegisteredException("object adapter with router",
-                                                             Ice.Util.identityToString(router.ice_getIdentity()));
+                                                             Ice.Util.identityToString(router.ice_getIdentity(),
+                                                                                       _instance.toStringMode()));
                     }
 
                     //

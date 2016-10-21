@@ -111,11 +111,11 @@ public class PropertiesField extends JTable
 
                 for(ObjectDescriptor q : p.objects)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
                 for(ObjectDescriptor q : p.allocatables)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
             }
         }

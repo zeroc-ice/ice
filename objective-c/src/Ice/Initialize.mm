@@ -554,12 +554,13 @@ private:
     return nil; // Keep the compiler happy.
 }
 
-+(NSMutableString*) identityToString:(ICEIdentity*)ident
++(NSMutableString*) identityToString:(ICEIdentity*)ident toStringMode:(ICEToStringMode)toStringMode
 {
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(Ice::identityToString([ident identity])) autorelease];
+        return [toNSMutableString(Ice::identityToString([ident identity],
+                                                        static_cast<Ice::ToStringMode>(toStringMode))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -568,6 +569,12 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
+
++(NSMutableString*) identityToString:(ICEIdentity*)ident
+{
+    return [ICEUtil identityToString:ident toStringMode:ICEUnicode];
+}
+
 @end
 
 @implementation ICEEncodingVersion(StringConv)

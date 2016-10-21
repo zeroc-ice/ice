@@ -353,7 +353,7 @@ public class RoutableReference extends Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
+            String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
             if(IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
             {
                 s.append('"');

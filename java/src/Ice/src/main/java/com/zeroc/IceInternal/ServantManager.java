@@ -32,11 +32,12 @@ public final class ServantManager
             if(m.containsKey(facet))
             {
                 com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
-                ex.id = com.zeroc.Ice.Util.identityToString(ident);
+                ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
                 ex.kindOfObject = "servant";
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + com.zeroc.IceUtilInternal.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + com.zeroc.IceUtilInternal.StringUtil.escapeString(facet, "",
+                                                                                        _instance.toStringMode());
                 }
                 throw ex;
             }
@@ -77,11 +78,12 @@ public final class ServantManager
         if(m == null || (obj = m.remove(facet)) == null)
         {
             com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-            ex.id = com.zeroc.Ice.Util.identityToString(ident);
+            ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
             ex.kindOfObject = "servant";
             if(facet.length() > 0)
             {
-                ex.id += " -f " + com.zeroc.IceUtilInternal.StringUtil.escapeString(facet, "");
+                ex.id += " -f " + com.zeroc.IceUtilInternal.StringUtil.escapeString(facet, "",
+                                                                                    _instance.toStringMode());
             }
             throw ex;
         }
@@ -120,7 +122,7 @@ public final class ServantManager
         if(m == null)
         {
             com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-            ex.id = com.zeroc.Ice.Util.identityToString(ident);
+            ex.id = com.zeroc.Ice.Util.identityToString(ident, _instance.toStringMode());
             ex.kindOfObject = "servant";
             throw ex;
         }
@@ -218,7 +220,8 @@ public final class ServantManager
         if(l != null)
         {
             com.zeroc.Ice.AlreadyRegisteredException ex = new com.zeroc.Ice.AlreadyRegisteredException();
-            ex.id = com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "");
+            ex.id = com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "",
+                                                                      _instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -236,7 +239,8 @@ public final class ServantManager
         if(l == null)
         {
             com.zeroc.Ice.NotRegisteredException ex = new com.zeroc.Ice.NotRegisteredException();
-            ex.id = com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "");
+            ex.id = com.zeroc.IceUtilInternal.StringUtil.escapeString(category, "",
+                                                                      _instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }

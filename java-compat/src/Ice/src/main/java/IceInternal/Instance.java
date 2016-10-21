@@ -393,6 +393,13 @@ public final class Instance implements Ice.ClassResolver
         return _batchAutoFlushSize;
     }
 
+    public Ice.ToStringMode
+    toStringMode()
+    {
+        // No mutex lock, immutable
+        return _toStringMode;
+    }
+
     public int
     cacheMessageBuffers()
     {
@@ -1016,6 +1023,24 @@ public final class Instance implements Ice.ClassResolver
                 {
                     _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
                 }
+            }
+
+            String toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            if(toStringModeStr.equals("Unicode"))
+            {
+                _toStringMode = Ice.ToStringMode.Unicode;
+            }
+            else if(toStringModeStr.equals("ASCII"))
+            {
+                _toStringMode = Ice.ToStringMode.ASCII;
+            }
+            else if(toStringModeStr.equals("Compat"))
+            {
+                _toStringMode = Ice.ToStringMode.Compat;
+            }
+            else
+            {
+                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
@@ -1820,6 +1845,7 @@ public final class Instance implements Ice.ClassResolver
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
     private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
+    private final Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private final ACMConfig _clientACM; // Immutable, not reset by destroy().
     private final ACMConfig _serverACM; // Immutable, not reset by destroy().

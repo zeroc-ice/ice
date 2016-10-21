@@ -421,14 +421,14 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
         out << "init";
         for(TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
         {
-            out << " topic: " << identityToString(p->id) << " subscribers: ";
+            out << " topic: " << _instance->communicator()->identityToString(p->id) << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = p->records.begin(); q != p->records.end(); ++q)
             {
                 if(q != p->records.begin())
                 {
                     out << ",";
                 }
-                out << identityToString(q->id);
+                out << _instance->communicator()->identityToString(q->id);
                 if(traceLevels->topicMgr > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
@@ -803,7 +803,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
         if(create)
         {
             out << "creating new topic \"" << name << "\". id: "
-                << identityToString(id)
+                << _instance->communicator()->identityToString(id)
                 << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
             {
@@ -813,7 +813,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
                 }
                 if(traceLevels->topicMgr > 1)
                 {
-                    out << identityToString(q->id)
+                    out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
                 }
             }
@@ -821,7 +821,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
         else
         {
             out << "loading topic \"" << name << "\" from database. id: "
-                << identityToString(id)
+                << _instance->communicator()->identityToString(id)
                 << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
             {
@@ -831,7 +831,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
                 }
                 if(traceLevels->topicMgr > 1)
                 {
-                    out << identityToString(q->id)
+                    out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
                 }
             }

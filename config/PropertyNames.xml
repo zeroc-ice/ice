@@ -383,6 +383,7 @@ generated from the section label.
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
+        <property name="ToStringMode" />
         <property name="Trace.Admin.Properties" />
         <property name="Trace.Admin.Logger" />
         <property name="Trace.Locator" />

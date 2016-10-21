@@ -198,7 +198,7 @@ class LocatorInfo
         else
         {
             s.push("object = ");
-            s.push(Ice.identityToString(ref.getIdentity()));
+            s.push(Ice.identityToString(ref.getIdentity(), ref.getInstance().toStringMode()));
             s.push("\n");
         }
 
@@ -241,13 +241,13 @@ class LocatorInfo
                     const s = [];
                     s.push("object not found\n");
                     s.push("object = ");
-                    s.push(Ice.identityToString(ref.getIdentity()));
+                    s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
 
                 const e = new Ice.NotRegisteredException();
                 e.kindOfObject = "object";
-                e.id = Ice.identityToString(ref.getIdentity());
+                e.id = Ice.identityToString(ref.getIdentity(), instance.toStringMode());
                 throw e;
             }
             else if(ex instanceof Ice.NotRegisteredException)
@@ -269,7 +269,7 @@ class LocatorInfo
                     else
                     {
                         s.push("object = ");
-                        s.push(Ice.identityToString(ref.getIdentity()));
+                        s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
                         s.push("\n");
                     }
                     s.push("reason = " + ex.toString());
@@ -313,7 +313,7 @@ class LocatorInfo
             {
                 s.push("object\n");
                 s.push("object = ");
-                s.push(Ice.identityToString(ref.getIdentity()));
+                s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
                 s.push("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
@@ -350,7 +350,7 @@ class LocatorInfo
             const s = [];
             s.push("searching for object by id\n");
             s.push("object = ");
-            s.push(Ice.identityToString(ref.getIdentity()));
+            s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
 

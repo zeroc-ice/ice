@@ -1368,7 +1368,9 @@ ZEND_FUNCTION(Ice_identityToString)
     assert(identityClass);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
+    long mode = 0;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O|l"), &zv, identityClass, &mode) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1380,7 +1382,7 @@ ZEND_FUNCTION(Ice_identityToString)
 
     try
     {
-        string str = Ice::identityToString(id);
+        string str = Ice::identityToString(id, static_cast<Ice::ToStringMode>(mode));
         RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)

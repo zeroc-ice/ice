@@ -2014,7 +2014,7 @@ public class Coordinator
                                 masterRegistryId.name = "Registry";
 
                                 cb.setRegistry(RegistryPrx.uncheckedCast(_communicator.stringToProxy(
-                                                    "\"" + com.zeroc.Ice.Util.identityToString(masterRegistryId) +
+                                                    "\"" + _communicator.identityToString(masterRegistryId) +
                                                     "\"")));
                             }
 

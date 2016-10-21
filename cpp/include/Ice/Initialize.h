@@ -11,7 +11,7 @@
 #define ICE_INITIALIZE_H
 
 #include <IceUtil/Timer.h>
-#include <Ice/CommunicatorF.h>
+#include <Ice/Communicator.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
@@ -152,7 +152,8 @@ private:
 };
 
 ICE_API Identity stringToIdentity(const std::string&);
-ICE_API std::string identityToString(const Identity&);
+ICE_API std::string identityToString(const Identity&, ToStringMode = ICE_ENUM(ToStringMode, Unicode));
+
 }
 
 namespace IceInternal

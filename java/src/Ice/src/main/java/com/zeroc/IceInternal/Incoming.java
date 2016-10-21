@@ -533,8 +533,8 @@ final public class Incoming implements com.zeroc.Ice.Request
         com.zeroc.IceUtilInternal.OutputBase out = new com.zeroc.IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
-        out.print("\nidentity: " + Util.identityToString(_current.id));
-        out.print("\nfacet: " + com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
+        out.print("\nidentity: " + Util.identityToString(_current.id, _instance.toStringMode()));
+        out.print("\nfacet: " + com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {

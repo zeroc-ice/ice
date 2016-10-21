@@ -77,6 +77,7 @@ ICE_API @interface ICEUtil : NSObject
 +(NSArray*)argsToStringSeq:(int)argc argv:(char*[])argv;
 +(void)stringSeqToArgs:(NSArray*)args argc:(int*)argc argv:(char*[])argv;
 +(ICEIdentity*) stringToIdentity:(NSString*)str;
++(NSMutableString*) identityToString:(ICEIdentity*)ident toStringMode:(ICEToStringMode)toStringMode;
 +(NSMutableString*) identityToString:(ICEIdentity*)ident;
 @end
 

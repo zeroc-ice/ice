@@ -399,7 +399,7 @@ TopicImpl::TopicImpl(
             if(traceLevels->topic > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                out << _name << " recreate " << identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(id);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -418,7 +418,7 @@ TopicImpl::TopicImpl(
             catch(const Ice::Exception& ex)
             {
                 Ice::Warning out(traceLevels->logger);
-                out << _name << " recreate " << identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(id);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -491,7 +491,7 @@ trace(Ice::Trace& out, const PersistentInstancePtr& instance, const vector<Subsc
         {
             out << ",";
         }
-        out << identityToString((*p)->id());
+        out << instance->communicator()->identityToString((*p)->id());
     }
     out << "]";
 }
@@ -516,7 +516,7 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribeAndGetPublisher: " << identityToString(id);
+        out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -600,7 +600,7 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": unsubscribe: " << identityToString(id);
+        out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -637,7 +637,7 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": link " << identityToString(topic->ice_getIdentity())
+        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
             << " cost " << cost;
     }
 
@@ -722,7 +722,7 @@ TopicImpl::unlink(const TopicPrx& topic)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << " unlink " << identityToString(id);
+        out << _name << " unlink " << _instance->communicator()->identityToString(id);
     }
 
     Ice::IdentitySeq ids;
@@ -746,7 +746,7 @@ TopicImpl::reap(const Ice::IdentitySeq& ids)
             {
                 out << ",";
             }
-            out << identityToString(*p);
+            out << _instance->communicator()->identityToString(*p);
         }
     }
 
@@ -1045,7 +1045,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": add replica observer: " << identityToString(record.id);
+        out << _name << ": add replica observer: " << _instance->communicator()->identityToString(record.id);
 
         if(traceLevels->topic > 1)
         {
@@ -1072,7 +1072,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << identityToString(record.id) << ": already subscribed";
+            out << _instance->communicator()->identityToString(record.id) << ": already subscribed";
         }
         return;
     }
@@ -1116,7 +1116,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
             {
                 out << ",";
             }
-            out << identityToString(*id);
+            out << _instance->communicator()->identityToString(*id);
         }
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }

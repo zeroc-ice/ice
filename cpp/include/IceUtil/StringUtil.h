@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STRING_UTIL_H
-#define ICE_STRING_UTIL_H
+#ifndef ICE_UTIL_STRING_UTIL_H
+#define ICE_UTIL_STRING_UTIL_H
 
 #include <IceUtil/Config.h>
 #include <vector>
@@ -17,10 +17,21 @@ namespace IceUtilInternal
 {
 
 //
-// Add escape sequences (like "\n", or "\0xxx") to make a string
-// readable in ASCII.
+// Must be kept in sync with Ice::ToStringMode
 //
-ICE_API std::string escapeString(const std::string&, const std::string&);
+#ifdef ICE_CPP11_MAPPING
+enum class ToStringMode : unsigned char
+#else
+enum ToStringMode
+#endif
+{ Unicode, ASCII, Compat };
+
+//
+// Add escape sequences (like "\n", or "\123") to the input string
+// (first parameter).
+// The second parameter adds characters to escape, and can be empty.
+//
+ICE_API std::string escapeString(const std::string&, const std::string&, ToStringMode);
 
 //
 // Remove escape sequences added by escapeString. Throws IllegalArgumentException
@@ -35,7 +46,7 @@ ICE_API std::string unescapeString(const std::string&, std::string::size_type, s
 ICE_API bool splitString(const std::string&, const std::string&, std::vector<std::string>&);
 
 //
-// Join a list of strings using the given delimiter. 
+// Join a list of strings using the given delimiter.
 //
 ICE_API std::string joinString(const std::vector<std::string>&, const std::string&);
 

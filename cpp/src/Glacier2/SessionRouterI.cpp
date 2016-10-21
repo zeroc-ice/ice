@@ -1150,7 +1150,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
         {
             Trace out(_instance->logger(), "Glacier2");
             out << "rejecting request. no session is associated with the connection.\n";
-            out << "identity: " << identityToString(id);
+            out << "identity: " << _instance->communicator()->identityToString(id);
         }
         connection->close(true);
         throw ObjectNotExistException(__FILE__, __LINE__);

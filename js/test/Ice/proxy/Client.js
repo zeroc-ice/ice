@@ -321,15 +321,91 @@
                     }
                 }
 
+
                 //
                 // Test for bug ICE-5543: escaped escapes in stringToIdentity
                 //
+
                 var id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
                 var id2 = Ice.stringToIdentity(Ice.identityToString(id));
                 test(id.equals(id2));
 
                 id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
                 id2 = Ice.stringToIdentity(Ice.identityToString(id));
+                test(id.equals(id2));
+
+                id = new Ice.Identity("/test", "cat/");
+                var idStr = Ice.identityToString(id);
+                test(idStr === "cat\\//\\/test");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+
+                try
+                {
+                    // Illegal character < 32
+                    id = Ice.stringToIdentity("xx\x01FooBar");
+                    test(false);
+                }
+                catch(ex)
+                {
+                    if(!(ex instanceof Ice.IdentityParseException))
+                    {
+                        test(false);
+                    }
+                }
+                try
+                {
+                    // Illegal surrogate
+                    id = Ice.stringToIdentity("xx\\ud911");
+                    test(false);
+                }
+                catch(ex)
+                {
+                    if(!(ex instanceof Ice.IdentityParseException))
+                    {
+                        test(false);
+                    }
+                }
+
+                // Testing bytes 127 (\x7F) and €
+                id = new Ice.Identity("test", "\x7F€");
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.Unicode);
+                test(idStr === "\\u007f€/test");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+                test(Ice.identityToString(id) === idStr);
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.ASCII);
+                test(idStr === "\\u007f\\u20ac/test");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.Compat);
+                test(idStr === "\\177\\342\\202\\254/test");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+
+                id2 = Ice.stringToIdentity(communicator.identityToString(id));
+                test(id.equals(id2));
+
+                // More unicode characters
+
+                id = new Ice.Identity("banana \x0e-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.Unicode);
+                test(idStr === "greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.ASCII);
+                test(idStr === "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
+                id2 = Ice.stringToIdentity(idStr);
+                test(id.equals(id2));
+
+                idStr = Ice.identityToString(id, Ice.ToStringMode.Compat);
+                test(idStr === "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$")
+                id2 = Ice.stringToIdentity(idStr);
                 test(id.equals(id2));
 
                 out.writeLine("ok");

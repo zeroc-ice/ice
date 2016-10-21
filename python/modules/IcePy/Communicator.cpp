@@ -1740,19 +1740,34 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
 
 extern "C"
 PyObject*
-IcePy_identityToString(PyObject* /*self*/, PyObject* obj)
+IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
+    PyObject* identityType = lookupType("Ice.Identity");
+    PyObject* obj;
+    PyObject* mode = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &obj, &mode))
+    {
+        return 0;
+    }
+
     Ice::Identity id;
     if(!getIdentity(obj, id))
     {
         return 0;
     }
-    
+
+    Ice::ToStringMode toStringMode = Ice::Unicode;
+    if(mode != Py_None && PyObject_HasAttrString(mode, STRCAST("value")))
+    {
+        PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+        toStringMode = static_cast<Ice::ToStringMode>(PyLong_AsLong(modeValue.get()));
+    }
+
     string str;
 
     try
     {
-        str = Ice::identityToString(id);
+        str = identityToString(id, toStringMode);
     }
     catch(const Ice::Exception& ex)
     {

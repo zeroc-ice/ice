@@ -166,15 +166,21 @@ public final class TraceUtil
     {
         try
         {
+            Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
+            if(stream.instance() != null)
+            {
+                toStringMode = stream.instance().toStringMode();
+            }
+
             Ice.Identity identity = new Ice.Identity();
             identity.__read(stream);
-            out.write("\nidentity = " + Ice.Util.identityToString(identity));
+            out.write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
 
             String[] facet = stream.readStringSeq();
             out.write("\nfacet = ");
             if(facet.length > 0)
             {
-                out.write(IceUtilInternal.StringUtil.escapeString(facet[0], ""));
+                out.write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
             }
 
             String operation = stream.readString();

@@ -1114,7 +1114,7 @@ public class SessionKeeper
                                         {
                                             com.zeroc.Ice.LocatorPrx prx = com.zeroc.Ice.LocatorPrx.uncheckedCast(
                                                 communicator.stringToProxy(
-                                                    com.zeroc.Ice.Util.identityToString(locator.ice_getIdentity()) +
+                                                    communicator.identityToString(locator.ice_getIdentity()) +
                                                         ":" + e.toString()));
 
                                             if(_directDiscoveryEndpointModel.indexOf(prx) == -1)
@@ -2226,7 +2226,7 @@ public class SessionKeeper
                                     id.name = "Locator";
                                     id.category = _directInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
                                     _coordinator.getCommunicator().stringToProxy(endpoint.toString());
@@ -2283,7 +2283,7 @@ public class SessionKeeper
                                     id.name = "router";
                                     id.category = _routedInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
                                     _coordinator.getCommunicator().stringToProxy(endpoint.toString());
@@ -3125,7 +3125,7 @@ public class SessionKeeper
                     id.name = "Locator";
                     id.category = _directInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_directCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3143,7 +3143,7 @@ public class SessionKeeper
                     id.name = "router";
                     id.category = _routedInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_routedCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3335,7 +3335,7 @@ public class SessionKeeper
                     id.name = inf.getDirect() ? "Locator" : "router";
                     id.category = inf.getInstanceName();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(inf.getEndpoint());
                     ssl = containsSecureEndpoints(endpoint.toString());

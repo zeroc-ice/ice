@@ -1483,7 +1483,7 @@ Database::addObject(const ObjectInfo& info)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "added object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "added object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1539,7 +1539,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << (!update ? "added" : "updated") << " object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1556,7 +1556,7 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
         if(_objectCache.has(id))
         {
             DeploymentException ex;
-            ex.reason = "removing object `" + identityToString(id) + "' is not allowed:\n";
+            ex.reason = "removing object `" + _communicator->identityToString(id) + "' is not allowed:\n";
             ex.reason += "the object was added with the application descriptor `";
             ex.reason += _objectCache.get(id)->getApplication();
             ex.reason += "'";
@@ -1590,7 +1590,7 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "removed object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1609,7 +1609,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         if(_objectCache.has(id))
         {
             DeploymentException ex;
-            ex.reason = "updating object `" + identityToString(id) + "' is not allowed:\n";
+            ex.reason = "updating object `" + _communicator->identityToString(id) + "' is not allowed:\n";
             ex.reason += "the object was added with the application descriptor `";
             ex.reason += _objectCache.get(id)->getApplication();
             ex.reason += "'";
@@ -1644,7 +1644,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "updated object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "updated object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1833,7 +1833,7 @@ Database::getAllObjectInfos(const string& expression)
     ObjectsMapROCursor cursor(_objects, txn);
     while(cursor.get(id, info, MDB_NEXT))
     {
-        if(expression.empty() || IceUtilInternal::match(identityToString(id), expression, true))
+        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(id), expression, true))
         {
             infos.push_back(info);
         }
@@ -2089,7 +2089,7 @@ Database::checkObjectForAddition(const Ice::Identity& objectId,
     if(found)
     {
         DeploymentException ex;
-        ex.reason = "object `" + identityToString(objectId) + "' is already registered";
+        ex.reason = "object `" + _communicator->identityToString(objectId) + "' is already registered";
         throw ex;
     }
 }
@@ -2761,7 +2761,7 @@ Database::addObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool
         catch(const IceDB::KeyTooLongException& ex)
         {
             throw DeploymentException("object identity `" +
-                                      identityToString(info.proxy->ice_getIdentity()) 
+                                      _communicator->identityToString(info.proxy->ice_getIdentity())
                                       + "' is too long: " + ex.what());
         }
         try

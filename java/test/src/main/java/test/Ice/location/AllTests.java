@@ -663,7 +663,7 @@ public class AllTests
         // Note the quotes are necessary here due to ":" in the
         // java generated UUID.
         HelloPrx helloPrx = HelloPrx.checkedCast(
-            communicator.stringToProxy("\"" + com.zeroc.Ice.Util.identityToString(id) + "\""));
+            communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
         adapter.deactivate();

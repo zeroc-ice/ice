@@ -91,7 +91,7 @@ public class AllTests
         b1 = communicator.stringToProxy("test\\40test");
         test(b1.ice_getIdentity().name.equals("test test"));
 
-        // Test some octal and hex corner cases.
+        // Test some octal corner cases.
         b1 = communicator.stringToProxy("test\\4test");
         test(b1.ice_getIdentity().name.equals("test\4test"));
         b1 = communicator.stringToProxy("test\\04test");
@@ -273,11 +273,77 @@ public class AllTests
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        com.zeroc.Ice.Identity id2 = com.zeroc.Ice.Util.stringToIdentity(com.zeroc.Ice.Util.identityToString(id));
+        com.zeroc.Ice.Identity id2 = com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
 
         id = new com.zeroc.Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = com.zeroc.Ice.Util.stringToIdentity(com.zeroc.Ice.Util.identityToString(id));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
+        test(id.equals(id2));
+
+        id = new com.zeroc.Ice.Identity("/test", "cat/");
+        String idStr = communicator.identityToString(id);
+        test(idStr.equals("cat\\//\\/test"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        try
+        {
+            // Illegal character < 32
+            id = com.zeroc.Ice.Util.stringToIdentity("xx\01FooBar");
+            test(false);
+        }
+        catch(com.zeroc.Ice.IdentityParseException e)
+        {
+        }
+
+        try
+        {
+            // Illegal surrogate
+            id = com.zeroc.Ice.Util.stringToIdentity("xx\\ud911");
+            test(false);
+        }
+        catch(com.zeroc.Ice.IdentityParseException e)
+        {
+        }
+
+        // Testing bytes 127 (\x7F, \177) and €
+        id = new com.zeroc.Ice.Identity("test", "\177€");
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode);
+        test(idStr.equals("\\u007f€/test"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+        test(com.zeroc.Ice.Util.identityToString(id).equals(idStr));
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.ASCII);
+        test(idStr.equals("\\u007f\\u20ac/test"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Compat);
+        test(idStr.equals("\\177\\342\\202\\254/test"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        id2 = com.zeroc.Ice.Util.stringToIdentity(communicator.identityToString(id));
+        test(id.equals(id2));
+
+        // More unicode character
+        id = new com.zeroc.Ice.Identity("banana \016-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode);
+        test(idStr.equals("greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.ASCII);
+        test(idStr.equals("greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$"));
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(id.equals(id2));
+
+        idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Compat);
+        id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
+        test(idStr.equals("greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$"));
         test(id.equals(id2));
 
         out.println("ok");
@@ -464,10 +530,6 @@ public class AllTests
 
         out.print("testing proxy methods... ");
         out.flush();
-        test(com.zeroc.Ice.Util.identityToString(
-                 base.ice_identity(com.zeroc.Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
-        test(com.zeroc.Ice.Util.identityToString(
-                 base.ice_identity(com.zeroc.Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
         test(base.ice_facet("facet").ice_getFacet().equals("facet"));
         test(base.ice_adapterId("id").ice_getAdapterId().equals("id"));
         test(base.ice_twoway().ice_isTwoway());

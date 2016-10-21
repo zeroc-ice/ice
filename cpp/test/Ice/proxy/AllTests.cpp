@@ -20,6 +20,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     const string endp = getTestEndpoint(communicator, 0);
     cout << "testing stringToProxy... " << flush;
+
     string ref = "test:" + endp;
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
@@ -64,6 +65,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::ProxyParseException&)
     {
     }
+
     b1 = communicator->stringToProxy("test\\040test");
     test(b1->ice_getIdentity().name == "test test" && b1->ice_getIdentity().category.empty());
     try
@@ -74,10 +76,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::IdentityParseException&)
     {
     }
+
     b1 = communicator->stringToProxy("test\\40test");
     test(b1->ice_getIdentity().name == "test test");
 
-    // Test some octal and hex corner cases.
+    // Test some octal corner cases.
     b1 = communicator->stringToProxy("test\\4test");
     test(b1->ice_getIdentity().name == "test\4test");
     b1 = communicator->stringToProxy("test\\04test");
@@ -98,6 +101,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1);
     b1 = communicator->stringToProxy("\"\"");
     test(!b1);
+
     try
     {
         b1 = communicator->stringToProxy("\"\" test"); // Invalid trailing characters.
@@ -106,6 +110,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::ProxyParseException&)
     {
     }
+
     try
     {
         b1 = communicator->stringToProxy("test:"); // Missing endpoint.
@@ -142,8 +147,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
          b1->ice_getAdapterId() == "adapter 1");
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
-         b1->ice_getAdapterId() == "adapter");
+
+    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo"
+         && b1->ice_getAdapterId() == "adapter");
+
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
          b1->ice_getAdapterId() == "adapter:tcp");
@@ -258,13 +265,84 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // Test for bug ICE-5543: escaped escapes in stringToIdentity
     //
     Ice::Identity id = { "test", ",X2QNUAzSBcJ_e$AV;E\\" };
-    Ice::Identity id2 = Ice::stringToIdentity(Ice::identityToString(id));
+    Ice::Identity id2 = Ice::stringToIdentity(communicator->identityToString(id));
     test(id == id2);
 
     id.name = "test";
     id.category = ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\";
-    id2 = Ice::stringToIdentity(Ice::identityToString(id));
+    id2 = Ice::stringToIdentity(communicator->identityToString(id));
     test(id == id2);
+
+    id.name = "/test";
+    id.category = "cat/";
+    string idStr = communicator->identityToString(id);
+    test(idStr == "cat\\//\\/test");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+
+    try
+    {
+        // Illegal character < 32
+        id = Ice::stringToIdentity("xx\01FooBar");
+        test(false);
+    }
+    catch(const Ice::IdentityParseException&)
+    {
+    }
+
+    try
+    {
+        // Illegal surrogate
+        id = Ice::stringToIdentity("xx\\ud911");
+        test(false);
+    }
+    catch(const Ice::IdentityParseException&)
+    {
+    }
+
+    // Testing bytes 127 (\x7F) and €
+    id.name = "test";
+    id.category = "\x7F\xE2\x82\xAC";
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Unicode));
+    test(idStr == "\\u007f\xE2\x82\xAC/test");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+    test(Ice::identityToString(id) == idStr);
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, ASCII));
+    test(idStr == "\\u007f\\u20ac/test");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Compat));
+    test(idStr == "\\177\\342\\202\\254/test");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+
+    id2 = Ice::stringToIdentity(communicator->identityToString(id));
+    test(id == id2);
+
+    // More unicode characters
+#ifdef ICE_CPP11_MAPPING
+    id.name = u8"banana \016-\U0001F34C\U000020AC\u00a2\u0024";
+    id.category = u8"greek \U0001016A";
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Unicode));
+    test(idStr == u8"greek \U0001016A/banana \\u000e-\U0001F34C\U000020AC\u00a2$");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, ASCII));
+    test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+
+    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Compat));
+    test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
+    id2 = Ice::stringToIdentity(idStr);
+    test(id == id2);
+#endif
 
     cout << "ok" << endl;
 
@@ -445,10 +523,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing proxy methods... " << flush;
 
-//   Deprecated  
-//   test(communicator->identityToString(base->ice_identity(communicator->stringToIdentity("other"))->ice_getIdentity())
-//         == "other");
-    test(Ice::identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test(communicator->identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity())
+         == "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
     test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test(base->ice_twoway()->ice_isTwoway());

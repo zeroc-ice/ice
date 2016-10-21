@@ -34,7 +34,7 @@ stringToSeq(const string& str, vector<string>& seq)
 }
 
 static void
-stringToSeq(const CommunicatorPtr& comm, const string& str, vector<Identity>& seq)
+stringToSeq(const string& str, vector<Identity>& seq)
 {
     string const ws = " \t";
 
@@ -214,7 +214,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
     // 
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
-    stringToSeq(instance->communicator(), allow, allowIdSeq);
+    stringToSeq(allow, allowIdSeq);
     Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
 
     return new Glacier2::FilterManager(instance, categoryFilter, adapterIdFilter, identityFilter);

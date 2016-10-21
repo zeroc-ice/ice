@@ -523,7 +523,8 @@ namespace IceInternal
             }
             else
             {
-                s.Append("object = " + Ice.Util.identityToString(r.getIdentity()) + "\n");
+                s.Append("object = " + Ice.Util.identityToString(r.getIdentity(), r.getInstance().toStringMode())
+                         + "\n");
             }
 
             s.Append("endpoints = ");
@@ -569,13 +570,13 @@ namespace IceInternal
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("object not found\n");
-                    s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity()));
+                    s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
                 }
 
                 Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
                 e.kindOfObject = "object";
-                e.id = Ice.Util.identityToString(@ref.getIdentity());
+                e.id = Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode());
                 throw e;
             }
             catch(Ice.NotRegisteredException)
@@ -595,7 +596,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity()) + "\n");
+                        s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()) + "\n");
                     }
                     s.Append("reason = " + ex);
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -634,7 +635,7 @@ namespace IceInternal
                 else
                 {
                     s.Append("object\n");
-                    s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity()));
+                    s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
                 }
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
             }
@@ -674,7 +675,7 @@ namespace IceInternal
                 Instance instance = @ref.getInstance();
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("searching for object by id\nobject = ");
-                s.Append(Ice.Util.identityToString(@ref.getIdentity()));
+                s.Append(Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
             }
 

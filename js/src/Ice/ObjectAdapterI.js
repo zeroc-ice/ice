@@ -176,7 +176,7 @@ class ObjectAdapterI
                 {
                     throw new Ice.AlreadyRegisteredException(
                         "object adapter with router",
-                        Ice.identityToString(router.ice_getIdentity()));
+                        Ice.identityToString(router.ice_getIdentity(), this._instance.toStringMode()));
                 }
 
                 //

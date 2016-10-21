@@ -111,12 +111,12 @@ Init::checkPermissionVerifier(const string& val)
         // check if it's actually a stringified identity
         // (with typically missing " " because the category contains a space)
         
-        if(val == identityToString(_nullPVId))
+        if(val == _communicator->identityToString(_nullPVId))
         {
             createObjects();
             return _adapter->createProxy(_nullPVId)->ice_toString(); // Return valid proxy to rewrite the property
         }
-        else if(val == identityToString(_nullSSLPVId))
+        else if(val == _communicator->identityToString(_nullSSLPVId))
         {
             createObjects();
             return _adapter->createProxy(_nullSSLPVId)->ice_toString(); // Return valid proxy to rewrite the property

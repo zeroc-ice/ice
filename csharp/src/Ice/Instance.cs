@@ -336,6 +336,13 @@ namespace IceInternal
             return _batchAutoFlushSize;
         }
 
+        public Ice.ToStringMode
+        toStringMode()
+        {
+            // No mutex lock, immutable
+            return _toStringMode;
+        }
+
         public int cacheMessageBuffers()
         {
             // No mutex lock, immutable.
@@ -860,6 +867,24 @@ namespace IceInternal
                     {
                         _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
                     }
+                }
+
+                string toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+                if(toStringModeStr == "Unicode")
+                {
+                    _toStringMode = Ice.ToStringMode.Unicode;
+                }
+                else if(toStringModeStr == "ASCII")
+                {
+                    _toStringMode = Ice.ToStringMode.ASCII;
+                }
+                else if(toStringModeStr == "Compat")
+                {
+                    _toStringMode = Ice.ToStringMode.Compat;
+                }
+                else
+                {
+                    throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
                 }
 
                 _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
@@ -1539,6 +1564,7 @@ namespace IceInternal
         private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
         private int _messageSizeMax; // Immutable, not reset by destroy().
         private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+        private Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
         private int _cacheMessageBuffers; // Immutable, not reset by destroy().
         private ACMConfig _clientACM; // Immutable, not reset by destroy().
         private ACMConfig _serverACM; // Immutable, not reset by destroy().

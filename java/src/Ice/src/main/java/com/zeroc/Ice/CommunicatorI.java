@@ -74,11 +74,11 @@ public final class CommunicatorI implements Communicator
         return Util.stringToIdentity(s);
     }
 
-    @Override @SuppressWarnings("deprecation")
+    @Override
     public String
     identityToString(Identity ident)
     {
-        return Util.identityToString(ident);
+        return Util.identityToString(ident, _instance.toStringMode());
     }
 
     @Override

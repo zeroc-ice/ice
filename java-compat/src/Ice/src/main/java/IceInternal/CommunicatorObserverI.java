@@ -319,7 +319,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         public String
         getIdentity()
         {
-            return Ice.Util.identityToString(_current.id);
+            return _current.adapter.getCommunicator().identityToString(_current.id);
         }
 
         final private Ice.Current _current;
@@ -428,7 +428,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     catch(Exception ex)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.append(Ice.Util.identityToString(_proxy.ice_getIdentity()));
+                        os.append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
                     _id = os.toString();
@@ -458,7 +458,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             if(_proxy != null)
             {
-                return Ice.Util.identityToString(_proxy.ice_getIdentity());
+                return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
             }
             else
             {

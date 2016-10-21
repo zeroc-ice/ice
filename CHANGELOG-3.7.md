@@ -26,7 +26,7 @@ These are the changes since Ice 3.6.3.
   As a result, the Ice::DispatchStatus enumeration has been removed. See the
   Ice manual for details on the new dispatch interceptor API.
 
-- The ice_getConnection() method now correctly returns a connection if 
+- The ice_getConnection() method now correctly returns a connection if
   connection caching is disabled (it previously returned a null connection).
 
 - The iOS SSL transport is now based on the same implementation as macOS. Most
@@ -82,9 +82,13 @@ These are the changes since Ice 3.6.3.
 
 - Updating Windows build system to use MSBuild instead of nmake.
 
-- Changed the parsing of hex escape sequences (\x....) in Slice string literals: 
-  the parsing now stops after 2 hex digits. For example, \x0ab is now read as '\x0a' 
+- Changed the parsing of hex escape sequences (\x....) in Slice string literals:
+  the parsing now stops after 2 hex digits. For example, \x0ab is now read as '\x0a'
   followed by 'b'. Previously all the hex digits where read like in C++.
+
+- Stringified identities and proxies now support non-ASCII characters
+  and universal character names (\unnnn and \Unnnnnnnn). See the property
+  Ice.ToStringMode and the static function/method identityToString.
 
 ## Java Changes
 

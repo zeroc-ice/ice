@@ -65,7 +65,7 @@ namespace Ice
 
         public string identityToString(Ice.Identity ident)
         {
-            return Ice.Util.identityToString(ident);
+            return Ice.Util.identityToString(ident, instance_.toStringMode());
         }
 
         public ObjectAdapter createObjectAdapter(string name)

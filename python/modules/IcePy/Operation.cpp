@@ -3349,7 +3349,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
     if(!method.get())
     {
         ostringstream ostr;
-        ostr << "servant for identity " << identityToString(current.id)
+        ostr << "servant for identity " << _communicator->identityToString(current.id)
              << " does not define operation `" << _op->dispatchName << "'";
         string str = ostr.str();
         PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
@@ -3712,7 +3712,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
     if(!method.get())
     {
         ostringstream ostr;
-        ostr << "servant for identity " << identityToString(current.id)
+        ostr << "servant for identity " << communicator->identityToString(current.id)
              << " does not define operation `" << dispatchName << "'";
         string str = ostr.str();
         PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));

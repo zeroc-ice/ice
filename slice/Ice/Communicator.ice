@@ -216,7 +216,7 @@ local interface Communicator
      * @see #stringToIdentity
      *
      **/
-    ["cpp:const", "deprecate:identityToString() is deprecated, use the static identityToString() method instead."]
+    ["cpp:const"]
     string identityToString(Identity ident);
 
     /**
@@ -581,6 +581,36 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
+};
+
+
+/**
+ * The output mode for xxxToString method such as identityToString and proxyToString.
+ * The actual encoding format for the string is the same for all modes: you
+ * don't need to specify an encoding format or mode when reading such a string.
+ *
+ **/
+local enum ToStringMode
+{
+    /**
+     * Characters > 127 are kept as-is in the resulting string. Non-printable ASCII
+     * characters <= 127 are encoded as \\t, \\n (etc.) or \\unnnn.
+     **/
+    Unicode,
+
+    /**
+     * Characters > 127 are encoded as universal character names in the resulting string:
+     * \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters. Non-printable ASCII
+     * characters <= 127 are encoded as \\t, \\n (etc.) or \\unnnn.
+     **/
+    ASCII,
+
+    /**
+     * Characters > 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
+     * characters <= 127 are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
+     * to generate strings compatible with Ice 3.6 and earlier.
+     **/
+    Compat
 };
 
 };

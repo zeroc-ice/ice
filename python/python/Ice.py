@@ -716,8 +716,8 @@ the list that were recognized by the Ice run time.
 #
 # Ice.identityToString
 #
-def identityToString(id):
-    return IcePy.identityToString(id)
+def identityToString(id, toStringMode=None):
+    return IcePy.identityToString(id, toStringMode)
 
 #
 # Ice.stringToIdentity

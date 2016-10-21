@@ -413,8 +413,31 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing proxy methods... ");
     test([[communicator identityToString:[[base ice_identity:[communicator stringToIdentity:@"other"]] ice_getIdentity]]
              isEqualToString:@"other"]);
-    test([[ICEUtil identityToString:[[base ice_identity:[ICEUtil stringToIdentity:@"other"]] ice_getIdentity]]
-             isEqualToString:@"other"]);
+
+    //
+    // Verify that ToStringMode is passed correctly
+    //
+    ICEIdentity *ident = [ICEIdentity identity:@"test" category:@"\x7F\xE2\x82\xAC"];
+
+    NSString *idStr = [ICEUtil identityToString:ident toStringMode:ICEUnicode];
+    test([idStr isEqualToString:@"\\u007f\xE2\x82\xAC/test"]);
+    ICEIdentity *id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+    test([[ICEUtil identityToString:ident] isEqualToString:idStr]);
+
+    idStr = [ICEUtil identityToString:ident toStringMode:ICEASCII];
+    test([idStr isEqualToString:@"\\u007f\\u20ac/test"]);
+    id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+
+    idStr = [ICEUtil identityToString:ident toStringMode:ICECompat];
+    test([idStr isEqualToString:@"\\177\\342\\202\\254/test"]);
+    id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+
+    id2 = [ICEUtil stringToIdentity:[communicator identityToString:ident]];
+    test([ident isEqual:id2]);
+
     test([[[base ice_facet:@"facet"] ice_getFacet] isEqualToString:@"facet"]);
     test([[[base ice_adapterId:@"id"] ice_getAdapterId] isEqualToString:@"id"]);
     test([[base ice_twoway] ice_isTwoway]);

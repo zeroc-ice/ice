@@ -213,6 +213,7 @@ end
 #
 require 'Ice/BuiltinSequences.rb'
 require 'Ice/Current.rb'
+require 'Ice/Communicator.rb'
 require 'Ice/EndpointTypes.rb'
 require 'Ice/LocalException.rb'
 require 'Ice/Locator.rb'

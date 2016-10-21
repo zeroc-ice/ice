@@ -22,7 +22,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
 #include <Ice/ResponseHandler.h>
-#include <IceUtil/StringUtil.h>
+#include <Ice/StringUtil.h>
 #include <typeinfo>
 
 using namespace std;
@@ -222,9 +222,12 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
+    ToStringMode toStringMode = _os.instance()->toStringMode();
+
     out << "dispatch exception: " << ex;
-    out << "\nidentity: " << Ice::identityToString(_current.id);
-    out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
+    out << "\nidentity: " << identityToString(_current.id, toStringMode);
+    out << "\nfacet: ";
+    out << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
     if(_current.con)
@@ -252,10 +255,11 @@ void
 IceInternal::IncomingBase::warning(const string& msg) const
 {
     Warning out(_os.instance()->initializationData().logger);
+    ToStringMode toStringMode = _os.instance()->toStringMode();
 
     out << "dispatch exception: " << msg;
-    out << "\nidentity: " << Ice::identityToString(_current.id);
-    out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
+    out << "\nidentity: " << identityToString(_current.id, toStringMode);
+    out << "\nfacet: " << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
     if(_current.con)

@@ -269,7 +269,7 @@ public:
         Lock sync(*this);
         this->objects.erase(id);
         updated(updateSerial(0, "object removed `" +
-                             identityToString(id) + "'"));
+                             current.adapter->getCommunicator()->identityToString(id) + "'"));
     }
 
     int serial;

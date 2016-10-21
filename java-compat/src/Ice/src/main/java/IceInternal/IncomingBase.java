@@ -236,8 +236,8 @@ class IncomingBase
         IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
-        out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-        out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
+        out.print("\nidentity: " + Ice.Util.identityToString(_current.id, _instance.toStringMode()));
+        out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {

@@ -71,7 +71,7 @@ class ObjectObserverI implements ObjectObserver
     {
         if(_trace)
         {
-            _coordinator.traceObserver("objectRemoved for object " + com.zeroc.Ice.Util.identityToString(id));
+            _coordinator.traceObserver("objectRemoved for object " + _coordinator.getCommunicator().identityToString(id));
         }
 
         SwingUtilities.invokeLater(() -> _coordinator.objectRemoved(id));

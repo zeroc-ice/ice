@@ -239,12 +239,27 @@ IceRuby_stringToIdentity(VALUE self, VALUE str)
 
 extern "C"
 VALUE
-IceRuby_identityToString(VALUE self, VALUE id)
+IceRuby_identityToString(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::Identity ident = getIdentity(id);
-        string str = Ice::identityToString(ident);
+        if(argc < 1 || argc > 2)
+        {
+            throw RubyException(rb_eArgError, "wrong number of arguments");
+        }
+
+        Ice::Identity ident = getIdentity(argv[0]);
+
+
+        Ice::ToStringMode toStringMode = Ice::Unicode;
+        if(argc == 2)
+        {
+            volatile VALUE modeValue = callRuby(rb_funcall, argv[1], rb_intern("to_i"), 0);
+            assert(TYPE(modeValue) == T_FIXNUM);
+            toStringMode = static_cast<Ice::ToStringMode>(FIX2LONG(modeValue));
+        }
+
+        string str = Ice::identityToString(ident, toStringMode);
         return createString(str);
     }
     ICE_RUBY_CATCH
@@ -602,7 +617,7 @@ void
 IceRuby::initCommunicator(VALUE iceModule)
 {
     rb_define_module_function(iceModule, "initialize", CAST_METHOD(IceRuby_initialize), -1);
-    rb_define_module_function(iceModule, "identityToString", CAST_METHOD(IceRuby_identityToString), 1);
+    rb_define_module_function(iceModule, "identityToString", CAST_METHOD(IceRuby_identityToString), -1);
     rb_define_module_function(iceModule, "stringToIdentity", CAST_METHOD(IceRuby_stringToIdentity), 1);
 
     _communicatorClass = rb_define_class_under(iceModule, "CommunicatorI", rb_cObject);

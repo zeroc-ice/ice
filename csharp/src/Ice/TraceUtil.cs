@@ -175,15 +175,22 @@ namespace IceInternal
         {
             try
             {
+
+                Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
+                if(str.instance() != null)
+                {
+                    toStringMode = str.instance().toStringMode();
+                }
+
                 Ice.Identity identity = new Ice.Identity();
                 identity.read__(str);
-                s.Write("\nidentity = " + Ice.Util.identityToString(identity));
+                s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
 
                 string[] facet = str.readStringSeq();
                 s.Write("\nfacet = ");
                 if(facet.Length > 0)
                 {
-                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], ""));
+                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
                 }
 
                 string operation = str.readString();

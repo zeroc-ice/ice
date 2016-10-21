@@ -36,7 +36,8 @@ Ice.__M.require(module,
         "../Ice/LocalException",
         "../Ice/Exception",
         "../Ice/ProcessLogger",
-        "../Ice/ACM"
+        "../Ice/ACM",
+        "../Ice/ToStringMode"
     ]);
 
 const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
@@ -80,6 +81,7 @@ class Instance
         this._messageSizeMax = 0;
         this._batchAutoFlushSize = 0;
         this._clientACM = null;
+        this._toStringMode = Ice.ToStringMode.Unicode;
         this._implicitContext = null;
         this._routerManager = null;
         this._locatorManager = null;
@@ -247,6 +249,12 @@ class Instance
         return this._clientACM;
     }
 
+    toStringMode()
+    {
+        // this value is immutable
+        return this._toStringMode;
+    }
+
     getImplicitContext()
     {
         return this._implicitContext;
@@ -346,6 +354,21 @@ class Instance
             this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
                                             new ACMConfig(this._initData.properties, this._initData.logger,
                                                             "Ice.ACM", new ACMConfig()));
+
+
+            const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            if(toStringModeStr === "ASCII")
+            {
+                _toStringMode = Ice.ToStringMode.ASCII;
+            }
+            else if(toStringModeStr === "Compat")
+            {
+                _toStringMode = Ice.ToStringMode.Compat;
+            }
+            else if(toStringModeStr !== "Unicode")
+            {
+                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            }
 
             this._implicitContext =
                 ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));

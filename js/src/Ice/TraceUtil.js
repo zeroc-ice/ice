@@ -39,15 +39,21 @@ function traceSlicing(kind, typeId, slicingCat, logger)
 
 function printIdentityFacetOperation(s, stream)
 {
+    let toStringMode = Ice.ToStringMode.Unicode;
+    if(stream.instance() !== null)
+    {
+        toStringMode = stream.instance().toStringMode();
+    }
+
     const identity = new Identity();
     identity.__read(stream);
-    s.push("\nidentity = " + Ice.identityToString(identity));
+    s.push("\nidentity = " + Ice.identityToString(identity, toStringMode));
 
     const facet = Ice.StringSeqHelper.read(stream);
     s.push("\nfacet = ");
     if(facet.length > 0)
     {
-        s.push(StringUtil.escapeString(facet[0], ""));
+        s.push(StringUtil.escapeString(facet[0], "", toStringMode));
     }
 
     const operation = stream.readString();

@@ -603,7 +603,7 @@ public class AllTests : TestCommon.TestApp
         adapter.activate();
 
         HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-            communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
+            communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
         adapter.deactivate();

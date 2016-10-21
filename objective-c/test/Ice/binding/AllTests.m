@@ -137,7 +137,7 @@ createTestIntfPrx(NSArray* adapters)
         test = [a getTestIntf];
         [endpoints addObjectsFromArray:getEndpoints(test)];
     }
-    NSString* proxy = [ICEUtil identityToString:[test ice_getIdentity]];
+    NSString* proxy = [[test ice_getCommunicator] identityToString:[test ice_getIdentity]];
     for(NSString* e in endpoints)
     {
         proxy = [proxy stringByAppendingString:@":"];

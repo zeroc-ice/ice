@@ -110,6 +110,7 @@ public:
     size_t messageSizeMax() const { return _messageSizeMax; }
     size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
     bool collectObjects() const { return _collectObjects; }
+    Ice::ToStringMode toStringMode() const { return _toStringMode; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
 
@@ -177,6 +178,7 @@ private:
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
     const size_t _batchAutoFlushSize; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
+    const Ice::ToStringMode _toStringMode; // Immutable, not reset by destroy()
     ACMConfig _clientACM;
     ACMConfig _serverACM;
     RouterManagerPtr _routerManager;

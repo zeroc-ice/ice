@@ -254,11 +254,77 @@ public class AllTests : TestCommon.TestApp
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        Ice.Identity id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
+        Ice.Identity id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
 
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
+        id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
+        test(id.Equals(id2));
+
+        id = new Ice.Identity("/test", "cat/");
+        string idStr = communicator.identityToString(id);
+        test(idStr == "cat\\//\\/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        try
+        {
+            // Illegal character < 32
+            id = Ice.Util.stringToIdentity("xx\01FooBar");
+            test(false);
+        }
+        catch(Ice.IdentityParseException)
+        {
+        }
+
+        try
+        {
+            // Illegal surrogate
+            id = Ice.Util.stringToIdentity("xx\\ud911");
+            test(false);
+        }
+        catch(Ice.IdentityParseException)
+        {
+        }
+
+        // Testing bytes 127 (\x7F, \177) and €
+        id = new Ice.Identity("test", "\x7f€");
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Unicode);
+        test(idStr == "\\u007f€/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+        test(Ice.Util.identityToString(id) == idStr);
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.ASCII);
+        test(idStr == "\\u007f\\u20ac/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Compat);
+        test(idStr == "\\177\\342\\202\\254/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
+        test(id.Equals(id2));
+
+        // More unicode character
+        id = new Ice.Identity("banana \x0E-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Unicode);
+        test(idStr == "greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.ASCII);
+        test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Compat);
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
         test(id.Equals(id2));
 
         WriteLine("ok");
@@ -456,8 +522,6 @@ public class AllTests : TestCommon.TestApp
         test(communicator.identityToString(
                  baseProxy.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
 #pragma warning restore 612, 618
-        test(Ice.Util.identityToString(
-                 baseProxy.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
         test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
         test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
         test(baseProxy.ice_twoway().ice_isTwoway());

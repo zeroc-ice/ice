@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-const Ice = require("../Ice/Debug").Ice;    
+const Ice = require("../Ice/Debug").Ice;
 const Debug = Ice.Debug;
 
 Ice.StringUtil = class
@@ -49,11 +49,9 @@ Ice.StringUtil = class
         return -1;
     }
     //
-    // Add escape sequences (such as "\n", or "\007") to make a string
-    // readable in ASCII. Any characters that appear in special are
-    // prefixed with a backlash in the returned string.
+    // Add escape sequences (such as "\n", or "\123") to s
     //
-    static escapeString(s, special)
+    static escapeString(s, special, toStringMode)
     {
         special = special === undefined ? null : special;
         if(special !== null)
@@ -68,26 +66,51 @@ Ice.StringUtil = class
         }
 
         let result = [];
-        for(let i = 0; i < s.length; ++i)
+
+        if(toStringMode === Ice.ToStringMode.Compat)
         {
-            const c = s.charCodeAt(i);
-            if(c < 128)
+            // Encode UTF-8 bytes
+            var bytes = unescape(encodeURIComponent(s));
+            for(let i = 0; i < bytes.length; ++i)
             {
-                encodeChar(c, result, special);
-            }
-            else if(c > 127 && c < 2048)
-            {
-                encodeChar((c >> 6) | 192, result, special);
-                encodeChar((c & 63) | 128, result, special);
-            }
-            else
-            {
-                encodeChar((c >> 12) | 224, result, special);
-                encodeChar(((c >> 6) & 63) | 128, result, special);
-                encodeChar((c & 63) | 128, result, special);
+                const c = bytes.charCodeAt(i);
+                encodeChar(c, result, special, toStringMode);
             }
         }
+        else
+        {
+            for(let i = 0; i < s.length; ++i)
+            {
+                const c = s.charCodeAt(i);
+                if(toStringMode === Ice.ToStringMode.Unicode || c < 0xD800 || c > 0xDFFF)
+                {
+                    encodeChar(c, result, special, toStringMode);
+                }
+                else
+                {
+                    Debug.assert(toStringMode === Ice.ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
+                    if(i + 1 === s.length)
+                    {
+                        throw new Error("High surrogate without low surrogate");
+                    }
+                    else
+                    {
+                        const codePoint = s.codePointAt(i);
+                        Debug.assert(codePoint > 0xFFFF);
+                        i++;
 
+                        // append \Unnnnnnnn
+                        result.push("\\U");
+                        const hex = codePoint.toString(16);
+                        for(let j = hex.length; j < 8; j++)
+                        {
+                            result.push('0');
+                        }
+                        result.push(hex);
+                    }
+                }
+            }
+        }
         return result.join("");
     }
     //
@@ -101,10 +124,26 @@ Ice.StringUtil = class
 
         Debug.assert(start >= 0 && start <= end && end <= s.length);
 
-        const arr = [];
-        decodeString(s, start, end, arr);
-
-        return arr.join("");
+        // Optimization for strings without escapes
+        let p = s.indexOf('\\', start);
+        if(p == -1 || p >= end)
+        {
+            p = start;
+            while(p < end)
+            {
+                checkChar(s, p++);
+            }
+            return s.substring(start, end);
+        }
+        else
+        {
+            const arr = [];
+            while(start < end)
+            {
+                start = decodeChar(s, start, end, arr);
+            }
+            return arr.join("");
+        }
     }
     //
     // Split string helper; returns null for unmatched quotes
@@ -217,15 +256,10 @@ Ice.StringUtil = class
 };
 module.exports.Ice = Ice;
 
-//
-// Write the byte b as an escape sequence if it isn't a printable ASCII
-// character and append the escape sequence to sb. Additional characters
-// that should be escaped can be passed in special. If b is any of these
-// characters, b is preceded by a backslash in sb.
-//
-function encodeChar(b, sb, special)
+
+function encodeChar(c, sb, special, toStringMode)
 {
-    switch(b)
+    switch(c)
     {
         case 92: // '\\'
         {
@@ -269,44 +303,71 @@ function encodeChar(b, sb, special)
         }
         default:
         {
-            if(!(b >= 32 && b <= 126))
+            var s = String.fromCharCode(c);
+
+            if(special !== null && special.indexOf(s) !== -1)
             {
                 sb.push('\\');
-                const octal = b.toString(8);
-                //
-                // Add leading zeroes so that we avoid problems during
-                // decoding. For example, consider the encoded string
-                // \0013 (i.e., a character with value 1 followed by
-                // the character '3'). If the leading zeroes were omitted,
-                // the result would be incorrectly interpreted by the
-                // decoder as a single character with value 11.
-                //
-                for(let j = octal.length; j < 3; j++)
-                {
-                    sb.push('0');
-                }
-                sb.push(octal);
+                sb.push(s);
             }
             else
             {
-                const c = String.fromCharCode(b);
-                if(special !== null && special.indexOf(c) !== -1)
+                if(c < 32 || c > 126)
                 {
-                    sb.push('\\');
-                    sb.push(c);
+                    if(toStringMode === Ice.ToStringMode.Compat)
+                    {
+                        //
+                        // When ToStringMode=Compat, c is a UTF-8 byte
+                        //
+                        Debug.assert(c < 256);
+                        sb.push('\\');
+                        const octal = c.toString(8);
+                        //
+                        // Add leading zeroes so that we avoid problems during
+                        // decoding. For example, consider the encoded string
+                        // \0013 (i.e., a character with value 1 followed by
+                        // the character '3'). If the leading zeroes were omitted,
+                        // the result would be incorrectly interpreted by the
+                        // decoder as a single character with value 11.
+                        //
+                        for(let j = octal.length; j < 3; j++)
+                        {
+                            sb.push('0');
+                        }
+                        sb.push(octal);
+                    }
+                    else if(c < 32 || c == 127 || toStringMode === Ice.ToStringMode.ASCII)
+                    {
+                        // append \\unnnn
+                        sb.push("\\u");
+                        const hex = c.toString(16);
+                        for(let j = hex.length; j < 4; j++)
+                        {
+                            sb.push('0');
+                        }
+                        sb.push(hex);
+                    }
+                    else
+                    {
+                        // keep as is
+                        sb.push(s);
+                    }
                 }
                 else
                 {
-                    sb.push(c);
+                    // printable ASCII character
+                    sb.push(s);
                 }
             }
+            break;
         }
     }
 }
+
 function checkChar(s, pos)
 {
-    const n = s.charCodeAt(pos);
-    if(!(n >= 32 && n <= 126))
+    const c = s.charCodeAt(pos);
+    if(c < 32 || c === 127)
     {
         let msg;
         if(pos > 0)
@@ -317,32 +378,25 @@ function checkChar(s, pos)
         {
             msg = "first character";
         }
-        msg += " is not a printable ASCII character (ordinal " + n + ")";
+        msg += " has invalid ordinal value" + c;
         throw new Error(msg);
     }
-    return n;
+    return s.charAt(pos)
 }
-
 //
-// Decode the character or escape sequence starting at start and return it.
-// nextStart is set to the index of the first character following the decoded
-// character or escape sequence.
+// Decode the character or escape sequence starting at start and appends it to result;
+// returns the index of the first character following the decoded character
+// or escape sequence.
 //
-function decodeChar(s, start, end, nextStart)
+function decodeChar(s, start, end, result)
 {
     Debug.assert(start >= 0);
+    Debug.assert(start < end);
     Debug.assert(end <= s.length);
-
-    if(start >= end)
-    {
-        throw new Error("EOF while decoding string");
-    }
-
-    let c;
 
     if(s.charAt(start) != '\\')
     {
-        c = checkChar(s, start++);
+        result.push(checkChar(s, start++));
     }
     else
     {
@@ -350,43 +404,94 @@ function decodeChar(s, start, end, nextStart)
         {
             throw new Error("trailing backslash");
         }
-        switch(s.charAt(++start))
+
+        const c = s.charAt(++start);
+
+        switch(c)
         {
             case '\\':
             case '\'':
             case '"':
             {
-                c = s.charCodeAt(start++);
+                ++start;
+                result.push(c);
                 break;
             }
             case 'b':
             {
                 ++start;
-                c = "\b".charCodeAt(0);
+                result.push("\b");
                 break;
             }
             case 'f':
             {
                 ++start;
-                c = "\f".charCodeAt(0);
+                result.push("\f");
                 break;
             }
             case 'n':
             {
                 ++start;
-                c = "\n".charCodeAt(0);
+                result.push("\n");
                 break;
             }
             case 'r':
             {
                 ++start;
-                c = "\r".charCodeAt(0);
+                result.push("\r")
                 break;
             }
             case 't':
             {
                 ++start;
-                c = "\t".charCodeAt(0);
+                result.push("\t")
+                break;
+            }
+            case 'u':
+            case 'U':
+            {
+                let codePoint = 0;
+                const inBMP = (c === 'u');
+                let size = inBMP ? 4 : 8;
+                ++start;
+                while(size > 0 && start < end)
+                {
+                    let charVal = s.charCodeAt(start++);
+                    if(charVal >= 0x30 && charVal <= 0x39)
+                    {
+                        charVal -= 0x30;
+                    }
+                    else if(charVal >= 0x61 && charVal <= 0x66)
+                    {
+                        charVal += 10 - 0x61;
+                    }
+                    else if(charVal >= 0x41 && charVal <= 0x46)
+                    {
+                        charVal += 10 - 0x41;
+                    }
+                    else
+                    {
+                        break; // while
+                    }
+                    codePoint = codePoint * 16 + charVal;
+                    --size;
+                }
+                if(size > 0)
+                {
+                    throw new Error("Invalid universal character name: too few hex digits");
+                }
+                if(inBMP && codePoint >= 0xD800 && codePoint <= 0xDFFF)
+                {
+                    throw new Error("A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+                }
+                if(inBMP || codePoint <= 0xFFFF)
+                {
+                    result.push(String.fromCharCode(codePoint));
+                }
+                else
+                {
+                    result.push(String.fromCodePoint(codePoint));
+                }
                 break;
             }
             case '0':
@@ -398,65 +503,61 @@ function decodeChar(s, start, end, nextStart)
             case '6':
             case '7':
             {
-                const octalChars = "01234567";
-                let val = 0;
-                for(let j = 0; j < 3 && start < end; ++j)
+                // UTF-8 byte sequence encoded with octal escapes
+
+                let arr = [];
+                let done = false;
+                while(!done)
                 {
-                    const ch = s.charAt(start++);
-                    if(octalChars.indexOf(ch) == -1)
+                    let val = 0;
+                    for(let j = 0; j < 3 && start < end; ++j)
                     {
-                        --start;
-                        break;
+                        let charVal = s.charCodeAt(start++) - '0'.charCodeAt(0);
+                        if(charVal < 0 || charVal > 7)
+                        {
+                            --start;
+                            if(j === 0)
+                            {
+                                // first character after escape is not 0-7:
+                                done = true;
+                                --start; // go back to the previous backslash
+                            }
+                            break; // for
+                        }
+                        val = val * 8 + charVal;
                     }
-                    val = val * 8 + parseInt(ch);
+
+                    if(!done)
+                    {
+                        if(val > 255)
+                        {
+                            throw new Error("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
+                        }
+                        arr.push(String.fromCharCode(val));
+
+                        if((start + 1 < end) && s.charAt(start) === '\\')
+                        {
+                            start++;
+                            // loop, read next octal escape sequence
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
                 }
-                if(val > 255)
-                {
-                    throw new Error("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
-                }
-                c = val;
+
+                // Decode UTF-8 arr into string
+                result.push(decodeURIComponent(escape(arr.join(""))));
                 break;
             }
             default:
             {
-                c = checkChar(s, start++);
+                result.push(checkChar(s, start++));
                 break;
             }
         }
     }
-    nextStart.value = start;
-    return c;
-}
 
-//
-// Remove escape sequences from s and append the result to sb.
-// Return true if successful, false otherwise.
-//
-function decodeString(s, start, end, arr)
-{
-    let nextStart = { 'value': 0 };
-    while(start < end)
-    {
-        const c = decodeChar(s, start, end, nextStart);
-        start = nextStart.value;
-
-        if(c < 128)
-        {
-            arr.push(String.fromCharCode(c));
-        }
-        else if(c > 191 && c < 224)
-        {
-            const c2 = decodeChar(s, start, end, nextStart);
-            start = nextStart.value;
-            arr.push(String.fromCharCode(((c & 31) << 6) | (c2 & 63)));
-        }
-        else
-        {
-            const c2 = decodeChar(s, start, end, nextStart);
-            start = nextStart.value;
-            const c3 = decodeChar(s, start, end, nextStart);
-            start = nextStart.value;
-            arr.push(String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63)));
-        }
-    }
+    return start;
 }

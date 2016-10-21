@@ -127,13 +127,28 @@ main(int argc, char* argv[])
         wstring wmsg = proxy->widen(msg);
         test(proxy->narrow(wmsg) == msg);
         test(wmsg.size() == msg.size());
+
+        // Test stringToIdentity and identityToString
+
+        string identStr = "cat/" + msg;
+        Ice::Identity ident = Ice::stringToIdentity(identStr);
+        test(ident.name == msg);
+        test(ident.category == "cat");
+        test(identityToString(ident, Ice::ICE_ENUM(ToStringMode, Unicode)) == identStr);
+
+        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, ASCII));
+        test(identStr == "cat/tu me fends le c\\u0153ur!");
+        test(Ice::stringToIdentity(identStr) == ident);
+        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, Compat));
+        test(identStr == "cat/tu me fends le c\\305\\223ur!");
+        test(Ice::stringToIdentity(identStr) == ident);
+
         communicator->destroy();
         cout << "ok" << endl;
     }
 
     Ice::setProcessStringConverter(ICE_NULLPTR);
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
-
 
     string propValue = "Ice:createStringConverter";
     if(useIconv && !useLocale)

@@ -369,7 +369,7 @@ public class SessionFactoryHelper
     {
         StringBuilder sb = new StringBuilder();
         sb.append("\"");
-        sb.append(Ice.Util.identityToString(ident));
+        sb.append(Ice.Util.identityToString(ident, Ice.ToStringMode.Unicode));
         sb.append("\":");
         sb.append(_protocol + " -p ");
         sb.append(getPortInternal());

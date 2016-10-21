@@ -231,8 +231,8 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  KEY = TOPIC(" << identityToString(q->first.topic)
-                             << ") ID(" << identityToString(q->first.id) << ")" <<endl;
+                        cout << "  KEY = TOPIC(" << communicator()->identityToString(q->first.topic)
+                             << ") ID(" << communicator()->identityToString(q->first.id) << ")" <<endl;
                     }
                     subscriberMap.put(txn, q->first, q->second);
                 }
@@ -286,8 +286,8 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  KEY = TOPIC(" << identityToString(key.topic)
-                             << ") ID(" << identityToString(key.id) << ")" <<endl;
+                        cout << "  KEY = TOPIC(" << communicator()->identityToString(key.topic)
+                             << ") ID(" << communicator()->identityToString(key.id) << ")" <<endl;
                     }
                     data.subscribers.insert(std::make_pair(key, record));
                 }

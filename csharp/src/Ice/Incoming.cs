@@ -515,10 +515,11 @@ namespace IceInternal
             using(StringWriter sw = new StringWriter(CultureInfo.CurrentCulture))
             {
                 IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
+                Ice.ToStringMode toStringMode = _instance.toStringMode();
                 output.setUseTab(false);
                 output.print("dispatch exception:");
-                output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-                output.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
+                output.print("\nidentity: " + Ice.Util.identityToString(_current.id, toStringMode));
+                output.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, "", toStringMode));
                 output.print("\noperation: " + _current.operation);
                 if(_current.con != null)
                 {
