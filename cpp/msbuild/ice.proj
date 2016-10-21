@@ -258,7 +258,7 @@
   </Target>
 
   <!-- Create UWP Nuget packages -->
-  <Target Name="NugetUWPPack"
+  <Target Name="UWPNugetPack"
           DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
     <RemoveDir Directories="zeroc.ice.uwp" />

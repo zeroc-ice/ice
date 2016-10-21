@@ -12,8 +12,6 @@
 
     <!-- For UWP we use Slice compiler from Win32 Release builds -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\IceUtil*.dll"/>
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\Slice*.dll"/>
         <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.*"/>
     </ItemGroup>
 
@@ -23,8 +21,6 @@
                  Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
                           $(Ice_SrcRootDir)include\IceBT\*.h"/>
         <Headers Include="$(Ice_SrcRootDir)include\generated\uwp\$(Platform)\$(Configuration)\**\*.h" />
-
-        <Sources Include="$(Ice_SrcRootDir)src\**\*.cpp" />
     </ItemGroup>
 
     <!-- Copy header files in Win32 Release, the files are identical in all configurations -->
@@ -32,13 +28,8 @@
         <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
     </Target>
 
-    <!-- Copy source files in Win32 Release, the files are identical in all configurations -->
-    <Target Name="CopySources" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Copy SourceFiles="@(Sources)" DestinationFolder="$(PackageDirectory)\src\%(Sources.RecursiveDir)" />
-    </Target>
-
     <!-- Copy required files to the package specific directories -->
-    <Target Name="NugetPack" DependsOnTargets="CopyHeaders;CopySources">
+    <Target Name="NugetPack" DependsOnTargets="CopyHeaders">
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
     </Target>
