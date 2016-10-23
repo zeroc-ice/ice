@@ -158,7 +158,7 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 DH*
 IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
-#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#  if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
 #  else
     SSL_CTX* ctx = ssl->ctx;
@@ -399,7 +399,7 @@ OpenSSLEngine::initialize()
                                                     "IceSSL: unable to create SSL context:\n" + sslErrors());
             }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
             int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
             if(securityLevel != -1)
             {
@@ -954,7 +954,7 @@ OpenSSLEngine::parseProtocols(const StringSeq& protocols) const
 SSL_METHOD*
 OpenSSLEngine::getMethod(int /*protocols*/)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
 #else
     //
