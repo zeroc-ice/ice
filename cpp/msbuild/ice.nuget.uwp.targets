@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <!-- Static libraries -->
-    <ItemGroup>
+    <ItemGroup Condition="'$(Platform)' == 'Win32' or '$(Platform)' == 'x64'">
         <Libraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
         <Libraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.pdb"/>
     </ItemGroup>

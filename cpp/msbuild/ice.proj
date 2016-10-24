@@ -53,9 +53,9 @@
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
         </UWPDistSolution>
-        <UWPDistSolution Include="ice.uwp.sln">
+        <IoTDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Debug;Platform=ARM</Properties>
-        </UWPDistSolution>
+        </IoTDistSolution>
 
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
@@ -63,9 +63,9 @@
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
         </UWPDistSolution>
-        <UWPDistSolution Include="ice.uwp.sln">
+        <IoTDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=ARM</Properties>
-        </UWPDistSolution>
+        </IoTDistSolution>
       </ItemGroup>
 
       <!-- Ice for C++ test configurations (C++98 mapping) -->
@@ -108,18 +108,18 @@
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
         </UWPTestSolution>
-        <UWPTestSolution Include="ice.testuwp.sln">
+        <IoTTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=ARM</Properties>
-        </UWPTestSolution>
+        </IoTTestSolution>
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
         </UWPTestSolution>
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
         </UWPTestSolution>
-        <UWPTestSolution Include="ice.testuwp.sln">
+        <IoTTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=ARM</Properties>
-        </UWPTestSolution>
+        </IoTTestSolution>
       </ItemGroup>
     </When>
     <Otherwise>
@@ -127,13 +127,6 @@
       <ItemGroup Condition="'$(Platform)' != 'ARM'">
         <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </DistSolution>
-      </ItemGroup>
-
-      <!-- ARM Builds require Win32 for the Slice translators -->
-      <ItemGroup Condition="'$(Platform)' == 'ARM'">
-        <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
-          <Properties>Configuration=$(Configuration);Platform=Win32</Properties>
         </DistSolution>
       </ItemGroup>
 
@@ -159,10 +152,16 @@
       </ItemGroup>
 
       <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' != 'ARM'">
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </UWPTestSolution>
+      </ItemGroup>
+
+      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' == 'ARM'">
+        <IoTTestSolution Include="ice.testuwp.sln">
+          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </IoTTestSolution>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -215,6 +214,8 @@
           DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).props"
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
+    <Copy SourceFiles="zeroc.ice.props"
+          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.props" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
           DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\native" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
@@ -279,6 +280,8 @@
 
     <Copy SourceFiles="zeroc.ice.uwp.nuspec"
           DestinationFolder="zeroc.ice.uwp" />
+    <Copy SourceFiles="zeroc.ice.props"
+          DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.props" />
     <Copy SourceFiles="zeroc.ice.uwp.props"
           DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.uwp.props" />
     <Copy SourceFiles="zeroc.ice.uwp.targets"
