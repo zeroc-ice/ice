@@ -260,7 +260,7 @@ namespace IceInternal
 
                         try
                         {
-                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length);
+                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
                         }
                         catch(System.ArgumentException argEx)
                         {
@@ -528,7 +528,7 @@ namespace IceInternal
 
                 try
                 {
-                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length);
+                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
                 }
                 catch(System.ArgumentException argEx)
                 {

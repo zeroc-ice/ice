@@ -340,6 +340,10 @@
                 id2 = Ice.stringToIdentity(idStr);
                 test(id.equals(id2));
 
+                // Input string with various pitfalls
+                // id = Ice.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+                // test(id.name === "€0\t0\\" && id.category.isEmpty());
+
                 try
                 {
                     // Illegal character < 32

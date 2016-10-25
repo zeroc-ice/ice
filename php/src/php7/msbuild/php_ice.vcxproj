@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -92,6 +92,7 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Preprocessor.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Scanner.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\SliceUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
     <ClCompile Include="..\Communicator.cpp" />
     <ClCompile Include="..\Connection.cpp" />
     <ClCompile Include="..\Endpoint.cpp" />

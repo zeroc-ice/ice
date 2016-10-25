@@ -100,7 +100,7 @@
                      Test.s10 == literals[10] &&
                      Test.s10 == literals[21]);
 
-                test(Test.ss0 == "\'\"\?\\\u0007\b\f\n\r\t\v" &&
+                test(Test.ss0 == "\'\"\?\\\u0007\b\f\n\r\t\v\u0006" &&
                      Test.ss0 == Test.ss1 &&
                      Test.ss0 == Test.ss2 &&
                      Test.ss0 == literals[22] &&

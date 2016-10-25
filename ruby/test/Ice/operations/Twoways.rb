@@ -38,37 +38,37 @@ def twoways(communicator, p)
          Test::S4 == literals[4] &&
          Test::S4 == literals[15]);
 
-    test(Test::S5 == "\xc3\xbf" &&
+    test(Test::S5 == "\u00FF" &&
          Test::S5 == Test::Sw5 &&
          Test::S5 == literals[5] &&
          Test::S5 == literals[16]);
 
-    test(Test::S6 == "\xcf\xbf" &&
+    test(Test::S6 == "\u03FF" &&
          Test::S6 == Test::Sw6 &&
          Test::S6 == literals[6] &&
          Test::S6 == literals[17]);
 
-    test(Test::S7 == "\xd7\xb0" &&
+    test(Test::S7 == "\u05F0" &&
          Test::S7 == Test::Sw7 &&
          Test::S7 == literals[7] &&
          Test::S7 == literals[18]);
 
-    test(Test::S8 == "\xf0\x90\x80\x80" &&
+    test(Test::S8 == "\u{10000}" &&
          Test::S8 == Test::Sw8 &&
          Test::S8 == literals[8] &&
          Test::S8 == literals[19]);
 
-    test(Test::S9 == "\xf0\x9f\x8d\x8c" &&
+    test(Test::S9 == "\u{01F34C}" &&
          Test::S9 == Test::Sw9 &&
          Test::S9 == literals[9] &&
          Test::S9 == literals[20]);
 
-    test(Test::S10 == "\xe0\xb6\xa7" &&
+    test(Test::S10 == "\u0DA7" &&
          Test::S10 == Test::Sw10 &&
          Test::S10 == literals[10] &&
          Test::S10 == literals[21]);
 
-    test(Test::Ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v" &&
+    test(Test::Ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v\6" &&
          Test::Ss0 == Test::Ss1 &&
          Test::Ss0 == Test::Ss2 &&
          Test::Ss0 == literals[22] &&

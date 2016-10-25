@@ -141,7 +141,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
              [TestOperationss10 isEqualToString:[literals objectAtIndex:10]] &&
              [TestOperationss10 isEqualToString:[literals objectAtIndex:21]]);
 
-        test([TestOperationsss0 isEqualToString:@"\'\"\?\\\a\b\f\n\r\t\v"] &&
+        test([TestOperationsss0 isEqualToString:@"\'\"\?\\\a\b\f\n\r\t\v\6"] &&
              [TestOperationsss0 isEqualToString:TestOperationsss1] &&
              [TestOperationsss0 isEqualToString:TestOperationsss2] &&
              [TestOperationsss0 isEqualToString:[literals objectAtIndex:22]] &&

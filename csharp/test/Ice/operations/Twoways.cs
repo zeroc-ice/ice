@@ -111,7 +111,7 @@ class Twoways
              Test.s10.value.Equals(literals[10]) &&
              Test.s10.value.Equals(literals[21]));
 
-        test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v") &&
+        test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v\u0006") &&
              Test.ss0.value.Equals(Test.ss1.value) &&
              Test.ss0.value.Equals(Test.ss2.value) &&
              Test.ss0.value.Equals(literals[22]) &&

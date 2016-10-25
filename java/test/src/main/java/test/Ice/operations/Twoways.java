@@ -110,7 +110,7 @@ class Twoways
              s10.value.equals(literals[10]) &&
              s10.value.equals(literals[21]));
 
-        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b") &&
+        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") &&
              ss0.value.equals(ss1.value) &&
              ss0.value.equals(ss2.value) &&
              ss0.value.equals(literals[22]) &&

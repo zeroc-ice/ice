@@ -17,8 +17,6 @@
 #include <direct.h>
 #endif
 #include <IceUtil/Iterator.h>
-#include <IceUtil/StringConverter.h>
-#include <IceUtil/InputUtil.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
@@ -1493,106 +1491,7 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
 {
     if(isString(type))
     {
-        //
-        // Expand strings into the basic source character set. We can't use isalpha() and the like
-        // here because they are sensitive to the current locale.
-        //
-        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                               "0123456789"
-                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-        out << "@\"";                                      // Opening @"
-
-        for(size_t i = 0; i < val.size();)
-        {
-            if(charSet.find(val[i]) == charSet.end())
-            {
-                unsigned char uc = val[i];                  // char may be signed, so make it positive
-                ostringstream s;
-                s << "\\";                                    // Print as octal if not in basic source character set
-                s.width(3);
-                s.fill('0');
-                s << oct;
-                s << static_cast<unsigned>(uc);
-                out << s.str();
-            }
-            else
-            {
-                switch(val[i])
-                {
-                    case '\\':
-                    {
-                        string s = "\\";
-                        size_t j = i + 1;
-                        for(; j < val.size(); ++j)
-                        {
-                            if(val[j] != '\\')
-                            {
-                                break;
-                            }
-                            s += "\\";
-                        }
-
-                        //
-                        // An even number of slash \ will escape the backslash and
-                        // the codepoint will be interpreted as its charaters
-                        //
-                        // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
-                        // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
-                        //
-                        if(s.size() % 2 != 0 && (val[j] == 'U' || val[j] == 'u'))
-                        {
-                            //
-                            // Convert codepoint to UTF8 bytes and write the escaped bytes
-                            //
-                            out << s.substr(0, s.size() - 1);
-
-                            size_t sz = val[j] == 'U' ? 8 : 4;
-                            string codepoint = val.substr(j + 1, sz);
-                            assert(codepoint.size() ==  sz);
-
-                            IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-
-
-                            vector<unsigned int> u32buffer;
-                            u32buffer.push_back(static_cast<unsigned int>(v));
-
-                            vector<unsigned char> u8buffer = fromUTF32(u32buffer);
-
-                            ostringstream s;
-                            for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
-                            {
-                                s << "\\";
-                                s.fill('0');
-                                s.width(3);
-                                s << oct;
-                                s << static_cast<unsigned int>(*q);
-                            }
-                            out << s.str();
-
-                            i = j + 1 + sz;
-                        }
-                        else
-                        {
-                            out << s;
-                            i = j;
-                        }
-                        continue;
-                    }
-                    case '"':
-                    {
-                        out << "\\";
-                        break;
-                    }
-                }
-
-                out << val[i];                              // Print normally if in basic source character set
-            }
-            ++i;
-        }
-        out << "\"";                                    // Closing "
+        out << "@\"" << toStringLiteral(val, "\a\b\f\n\r\t\v", "?", Octal, 0) << "\"";
     }
     else
     {

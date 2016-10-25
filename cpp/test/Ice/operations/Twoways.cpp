@@ -121,7 +121,10 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
          Test::s10 == literals[10] &&
          Test::s10 == literals[21]);
 
-    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v" &&
+    test(Test::s11 == "\xe2\x82\xac\xe2\x82\xac\xe2\x82\xac");
+    test(Test::s12 == "\\101");
+
+    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" &&
          Test::ss0 == Test::ss1 &&
          Test::ss0 == Test::ss2 &&
          Test::ss0 == literals[22] &&
@@ -203,7 +206,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
          Test::ws10 == wliterals[10] &&
          Test::ws10 == wliterals[21]);
 
-    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v" &&
+    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" &&
          Test::wss0 == Test::wss1 &&
          Test::wss0 == Test::wss2 &&
          Test::wss0 == wliterals[22] &&

@@ -137,7 +137,7 @@ function twoways($communicator, $p)
              $s10 == $literals[10] &&
              $s10 == $literals[21]);
 
-        test($ss0 == "'\"?\\\007\010\f\n\r\t\v" &&
+        test($ss0 == "'\"?\\\007\010\f\n\r\t\v\6" &&
              $ss0 == $ss1 &&
              $ss1 == $ss2 &&
              $ss0 == $literals[22] &&

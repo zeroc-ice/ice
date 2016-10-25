@@ -280,7 +280,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 
                 try
                 {
-                    facet = unescapeString(argument, 0, argument.size());
+                    facet = unescapeString(argument, 0, argument.size(), "");
                 }
                 catch(const IceUtil::IllegalArgumentException& e)
                 {
@@ -554,7 +554,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 
             try
             {
-                adapter = unescapeString(adapterstr, 0, adapterstr.size());
+                adapter = unescapeString(adapterstr, 0, adapterstr.size(), "");
             }
             catch(const IceUtil::IllegalArgumentException& e)
             {

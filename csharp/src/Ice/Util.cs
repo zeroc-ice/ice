@@ -275,7 +275,7 @@ namespace Ice
                 ident.category = "";
                 try
                 {
-                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length);
+                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
                 }
                 catch(System.ArgumentException e)
                 {
@@ -288,7 +288,7 @@ namespace Ice
             {
                 try
                 {
-                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash);
+                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
                 }
                 catch(System.ArgumentException e)
                 {
@@ -300,7 +300,7 @@ namespace Ice
                 {
                     try
                     {
-                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length);
+                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
                     }
                     catch(System.ArgumentException e)
                     {

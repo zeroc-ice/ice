@@ -19,9 +19,10 @@ IcePHP_ldflags		:= $(php_ldflags)
 IcePHP_dependencies	:= IceDiscovery IceLocatorDiscovery IceSSL Ice
 IcePHP_libs             := mcpp
 IcePHP_extra_sources    := $(filter-out %Util.cpp %Python.cpp %Ruby.cpp,\
-				$(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
+			   $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
 			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
-			   $(top_srcdir)/cpp/src/Slice/PHPUtil.cpp
+			   $(top_srcdir)/cpp/src/Slice/PHPUtil.cpp \
+                           $(top_srcdir)/cpp/src/Slice/StringLiteralUtil.cpp
 
 projects += $(project)
 srcs:: $(project)

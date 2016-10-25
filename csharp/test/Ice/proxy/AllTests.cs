@@ -267,6 +267,10 @@ public class AllTests : TestCommon.TestApp
         id2 = Ice.Util.stringToIdentity(idStr);
         test(id.Equals(id2));
 
+        // Input string with various pitfalls
+        id = Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+        test(id.name == "€0\t0\\" && id.category == "");
+
         try
         {
             // Illegal character < 32

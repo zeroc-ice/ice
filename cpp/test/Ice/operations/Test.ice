@@ -300,6 +300,8 @@ const string s7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH
 const string s8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
 const string s9 = "\U0001F34C";                       // BANANA (U+1F34C)
 const string s10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+const string s11 = "\xE2\x82\xac\342\202\254\342\x82\254"; // 3 euro signs (U+20AC) in UTF-8
+const string s12 = "\x5C101";                          // \101 (not an octal escape)
 
 const string sw0 = "\U0000005c";                      // backslash
 const string sw1 = "\U00000041";                      // A
@@ -327,9 +329,9 @@ const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraa
 \v	vertical tab	byte 0x0b in ASCII encoding
 **/
 
-const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v";
-const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
-const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
+const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
+const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
 
 const string ss3 = "\\\\U\\u\\"; /* \\U\u\  */
 const string ss4 = "\\\u0041\\"; /* \A\     */
@@ -394,9 +396,9 @@ const ["cpp:type:wstring"]string wsw10 = "\U00000DA7";                     // Si
 \t	horizontal tab	byte 0x09 in ASCII encoding
 \v	vertical tab	byte 0x0b in ASCII encoding
 **/
-const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v";
-const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
-const ["cpp:type:wstring"]string wss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
+const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
+const ["cpp:type:wstring"]string wss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
 
 const ["cpp:type:wstring"]string wss3 = "\\\\U\\u\\"; /* \\U\u\  */
 const ["cpp:type:wstring"]string wss4 = "\\\u0041\\"; /* \A\     */

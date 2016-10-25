@@ -12,7 +12,6 @@
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
-#include <IceUtil/StringConverter.h>
 #include <iterator>
 
 using namespace std;
@@ -1451,134 +1450,8 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
             }
             case Slice::Builtin::KindString:
             {
-                //
-                // Expand strings into the basic source character set. We can't use isalpha() and the like
-                // here because they are sensitive to the current locale.
-                //
-                static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                                       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                       "0123456789"
-                                                       "_{}[]#()<>%:;.?*+-/^&|~!=, '";
-                static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-                _out << "\"";                                      // Opening "
-
-                for(size_t i = 0; i < value.size();)
-                {
-                    char c = value[i];
-                    switch(c)
-                    {
-                        case '"':
-                        {
-                            _out << "\\\"";
-                            break;
-                        }
-                        case '\\':
-                        {
-                            string s = "\\";
-                            size_t j = i + 1;
-                            for(; j < value.size(); ++j)
-                            {
-                                if(value[j] != '\\')
-                                {
-                                    break;
-                                }
-                                s += "\\";
-                            }
-
-                            //
-                            // An even number of slash \ will escape the backslash and
-                            // the codepoint will be interpreted as its charaters
-                            //
-                            // \\u00000041  - ['\\', 'u', '0', '0', '0', '0', '0', '0', '4', '1']
-                            // \\\u00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
-                            //
-                            if(s.size() % 2 != 0 && (value[j] == 'U' || value[j] == 'u'))
-                            {
-                                //
-                                // Convert codepoint to UTF8 bytes and write the escaped bytes
-                                //
-                                _out << s.substr(0, s.size() - 1);
-
-                                size_t sz = value[j] == 'U' ? 8 : 4;
-                                string codepoint = value.substr(j + 1, sz);
-                                assert(codepoint.size() == sz);
-                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-
-                                vector<unsigned int> u32buffer;
-                                u32buffer.push_back(static_cast<unsigned int>(v));
-
-                                vector<unsigned char> u8buffer = fromUTF32(u32buffer);
-
-                                ostringstream s;
-                                for(vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
-                                {
-                                    s << "\\";
-                                    s.fill('0');
-                                    s.width(3);
-                                    s << oct;
-                                    s << static_cast<unsigned int>(*q);
-                                }
-                                _out << s.str();
-
-                                i = j + 1 + sz;
-                            }
-                            else
-                            {
-                                _out << s;
-                                i = j;
-                            }
-                            continue;
-                        }
-                        case '\r':
-                        {
-                            _out << "\\r";
-                            break;
-                        }
-                        case '\n':
-                        {
-                            _out << "\\n";
-                            break;
-                        }
-                        case '\t':
-                        {
-                            _out << "\\t";
-                            break;
-                        }
-                        case '\b':
-                        {
-                            _out << "\\b";
-                            break;
-                        }
-                        case '\f':
-                        {
-                            _out << "\\f";
-                            break;
-                        }
-                        default:
-                        {
-                            if(charSet.find(c) == charSet.end())
-                            {
-                                unsigned char uc = c;              // Char may be signed, so make it positive.
-                                stringstream s;
-                                s << "\\";                         // Print as octal if not in basic source character set.
-                                s.flags(ios_base::oct);
-                                s.width(3);
-                                s.fill('0');
-                                s << static_cast<unsigned>(uc);
-                                _out << s.str();
-                            }
-                            else
-                            {
-                                _out << c;                         // Print normally if in basic source character set.
-                            }
-                            break;
-                        }
-                    }
-                    ++i;
-                }
-
-                _out << "\"";                                      // Closing "
+                // RubyUCN available in Ruby 1.9 or greater
+                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\x20\x1b", "", EC6UCN, 0) << "\"";
                 break;
             }
 

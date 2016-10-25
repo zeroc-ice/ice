@@ -20,7 +20,6 @@
 #include <direct.h>
 #endif
 #include <IceUtil/Iterator.h>
-#include <IceUtil/StringConverter.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
@@ -34,29 +33,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
-string
-u16CodePoint(unsigned short value)
-{
-    ostringstream s;
-    s << "\\u";
-    s << hex;
-    s.width(4);
-    s.fill('0');
-    s << value;
-    return s.str();
-}
-
-void
-writeU8Buffer(const vector<unsigned char>& u8buffer, ostringstream& out)
-{
-    vector<unsigned short> u16buffer = toUTF16(u8buffer);
-
-    for(vector<unsigned short>::const_iterator c = u16buffer.begin(); c != u16buffer.end(); ++c)
-    {
-        out << u16CodePoint(*c);
-    }
-}
 
 string
 sliceModeToIceMode(Operation::Mode opMode)
@@ -459,124 +435,9 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
         if(bp && bp->kind() == Builtin::KindString)
         {
             //
-            // Expand strings into the basic source character set. We can't use isalpha() and the like
-            // here because they are sensitive to the current locale.
+            // For now, we generate strings in ECMAScript 5 format, with two \unnnn for astral characters
             //
-            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                   "0123456789"
-                                                   "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-            os << "\"";                                      // Opening "
-
-            vector<unsigned char> u8buffer;                  // Buffer to convert multibyte characters
-
-            for(size_t i = 0; i < value.size();)
-            {
-                if(charSet.find(value[i]) == charSet.end())
-                {
-                    if(static_cast<unsigned char>(value[i]) < 128) // Single byte character
-                    {
-                        //
-                        // Print as unicode if not in basic source character set
-                        //
-                        os << u16CodePoint(static_cast<unsigned int>(value[i]));
-                    }
-                    else
-                    {
-                        u8buffer.push_back(value[i]);
-                    }
-                }
-                else
-                {
-                    //
-                    // Write any pedding characters in the utf8 buffer
-                    //
-                    if(!u8buffer.empty())
-                    {
-                        writeU8Buffer(u8buffer, os);
-                        u8buffer.clear();
-                    }
-                    switch(value[i])
-                    {
-                        case '\\':
-                        {
-                            string s = "\\";
-                            size_t j = i + 1;
-                            for(; j < value.size(); ++j)
-                            {
-                                if(value[j] != '\\')
-                                {
-                                    break;
-                                }
-                                s += "\\";
-                            }
-
-                            //
-                            // An even number of slash \ will escape the backslash and
-                            // the codepoint will be interpreted as its charaters
-                            //
-                            // \\U00000041  - ['\\', 'U', '0', '0', '0', '0', '0', '0', '4', '1']
-                            // \\\U00000041 - ['\\', 'A'] (41 is the codepoint for 'A')
-                            //
-                            if(s.size() % 2 != 0 && value[j] == 'U')
-                            {
-                                os << s.substr(0, s.size() - 1);
-                                i = j + 1;
-
-                                string codepoint = value.substr(j + 1, 8);
-                                assert(codepoint.size() ==  8);
-
-                                IceUtil::Int64 v = IceUtilInternal::strToInt64(codepoint.c_str(), 0, 16);
-
-
-                                //
-                                // Unicode character in the range U+10000 to U+10FFFF is not permitted in a character literal
-                                // and is represented using a Unicode surrogate pair.
-                                //
-                                if(v > 0xFFFF)
-                                {
-                                    unsigned int high = ((static_cast<unsigned int>(v) - 0x10000) / 0x400) + 0xD800;
-                                    unsigned int low = ((static_cast<unsigned int>(v) - 0x10000) % 0x400) + 0xDC00;
-                                    os << u16CodePoint(high);
-                                    os << u16CodePoint(low);
-                                }
-                                else
-                                {
-                                    os << u16CodePoint(static_cast<unsigned int>(v));
-                                }
-
-                                i = j + 1 + 8;
-                            }
-                            else
-                            {
-                                os << s;
-                                i = j;
-                            }
-                            continue;
-                        }
-                        case '"':
-                        {
-                            os << "\\";
-                            break;
-                        }
-                    }
-                    os << value[i];                        // Print normally if in basic source character set
-                }
-                i++;
-            }
-
-            //
-            // Write any pedding characters in the utf8 buffer
-            //
-            if(!u8buffer.empty())
-            {
-                writeU8Buffer(u8buffer, os);
-                u8buffer.clear();
-            }
-
-            os << "\"";                                    // Closing "
+            os << "\"" << toStringLiteral(value, "\b\f\n\r\t\v", "", ShortUCN, 0) << "\"";
         }
         else if(bp && bp->kind() == Builtin::KindLong)
         {
@@ -749,7 +610,7 @@ void
 Slice::Gen::generate(const UnitPtr& p)
 {
     //
-    // Check for global "js:ice-build" and "js:es6-module" 
+    // Check for global "js:ice-build" and "js:es6-module"
     // metadata. If this is set then we are building Ice.
     //
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
@@ -943,7 +804,7 @@ relativePath(string p1, string p2)
 
     string f1 = tokens1.back();
     string f2 = tokens2.back();
-    
+
     tokens1.pop_back();
     tokens2.pop_back();
 
@@ -963,14 +824,14 @@ relativePath(string p1, string p2)
     {
         return p1;
     }
-    
+
     string newPath;
     if(i2 == tokens2.end())
     {
         newPath += "./";
         for(; i1 != tokens1.end(); ++i1)
         {
-            newPath += *i1 + "/"; 
+            newPath += *i1 + "/";
         }
     }
     else
@@ -981,7 +842,7 @@ relativePath(string p1, string p2)
         }
     }
     newPath += f1;
-    
+
     return newPath;
 }
 
@@ -1050,8 +911,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         _out << nl << "import { Ice } from \"ice\";";
         _out << nl << "const __M = Ice.__M;";
         seenModules.push_back("Ice");
-        
-        
+
+
         for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
@@ -1091,7 +952,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                     }
                     _out << " } from ";
                 }
-            
+
                 string result = relativePath(*i, p->topLevelFile());
                 string::size_type pos;
                 if((pos = result.rfind('.')) != string::npos)

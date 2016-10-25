@@ -86,46 +86,65 @@ namespace IceUtilInternal
                     sb.Append("\\\\");
                     break;
                 }
-
                 case '\'':
                 {
                     sb.Append("\\'");
                     break;
                 }
-
                 case '"':
                 {
                     sb.Append("\\\"");
                     break;
                 }
-
+                case '\a':
+                {
+                    if(toStringMode == Ice.ToStringMode.Compat)
+                    {
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.Append("\\007");
+                    }
+                    else
+                    {
+                        sb.Append("\\a");
+                    }
+                    break;
+                }
                 case '\b':
                 {
                     sb.Append("\\b");
                     break;
                 }
-
                 case '\f':
                 {
                     sb.Append("\\f");
                     break;
                 }
-
                 case '\n':
                 {
                     sb.Append("\\n");
                     break;
                 }
-
                 case '\r':
                 {
                     sb.Append("\\r");
                     break;
                 }
-
                 case '\t':
                 {
                     sb.Append("\\t");
+                    break;
+                }
+                case '\v':
+                {
+                    if(toStringMode == Ice.ToStringMode.Compat)
+                    {
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.Append("\\013");
+                    }
+                    else
+                    {
+                        sb.Append("\\v");
+                    }
                     break;
                 }
                 default:
@@ -289,7 +308,7 @@ namespace IceUtilInternal
         // or escape sequence.
         //
         private static int
-        decodeChar(string s, int start, int end, StringBuilder result, UTF8Encoding utf8Encoding)
+        decodeChar(string s, int start, int end, string special, StringBuilder result, UTF8Encoding utf8Encoding)
         {
             Debug.Assert(start >= 0);
             Debug.Assert(start < end);
@@ -299,13 +318,13 @@ namespace IceUtilInternal
             {
                 result.Append(checkChar(s, start++));
             }
+            else if(start + 1 == end)
+            {
+                ++start;
+                result.Append('\\'); // trailing backslash
+            }
             else
             {
-                if(start + 1 == end)
-                {
-                    throw new System.ArgumentException("trailing backslash");
-                }
-
                 char c = s[++start];
 
                 switch(c)
@@ -313,9 +332,16 @@ namespace IceUtilInternal
                     case '\\':
                     case '\'':
                     case '"':
+                    case '?':
                     {
                         ++start;
                         result.Append(c);
+                        break;
+                    }
+                    case 'a':
+                    {
+                        ++start;
+                        result.Append('\a');
                         break;
                     }
                     case 'b':
@@ -346,6 +372,12 @@ namespace IceUtilInternal
                     {
                         ++start;
                         result.Append('\t');
+                        break;
+                    }
+                    case 'v':
+                    {
+                        ++start;
+                        result.Append('\v');
                         break;
                     }
                     case 'u':
@@ -382,9 +414,9 @@ namespace IceUtilInternal
                         {
                             throw new System.ArgumentException("Invalid universal character name: too few hex digits");
                         }
-                        if(inBMP && System.Char.IsSurrogate((char)codePoint))
+                        if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
                         {
-                            throw new System.ArgumentException("A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+                            throw new System.ArgumentException("A universal character name cannot designate a surrogate");
                         }
                         if(inBMP || codePoint <= 0xFFFF)
                         {
@@ -405,49 +437,80 @@ namespace IceUtilInternal
                     case '5':
                     case '6':
                     case '7':
+                    case 'x':
                     {
                         // UTF-8 byte sequence encoded with octal escapes
 
                         byte[] arr = new byte[end - start];
                         int i = 0;
-                        bool done = false;
-                        while(!done)
+                        bool more = true;
+                        while(more)
                         {
                             int val = 0;
-                            for(int j = 0; j < 3 && start < end; ++j)
+                            if(c == 'x')
                             {
-                                int charVal = s[start++] - '0';
-                                if(charVal < 0 || charVal > 7)
+                                int size = 2;
+                                ++start;
+                                while(size > 0 && start < end)
                                 {
-                                    --start;
-                                    if(j == 0)
+                                    c = s[start++];
+                                    int charVal = 0;
+                                    if(c >= '0' && c <= '9')
                                     {
-                                        // first character after escape is not 0-7:
-                                        done = true;
-                                        --start; // go back to the previous backslash
+                                        charVal = c - '0';
                                     }
-                                    break; // for
+                                    else if(c >= 'a' && c <= 'f')
+                                    {
+                                        charVal = 10 + (c - 'a');
+                                    }
+                                    else if(c >= 'A' && c <= 'F')
+                                    {
+                                        charVal = 10 + (c - 'A');
+                                    }
+                                    else
+                                    {
+                                        --start; // move back
+                                        break; // while
+                                    }
+                                    val = val * 16 + charVal;
+                                    --size;
                                 }
-                                val = val * 8 + charVal;
+                                if(size == 2)
+                                {
+                                    throw new System.ArgumentException("Invalid \\x escape sequence: no hex digit");
+                                }
                             }
-
-                            if(!done)
+                            else
                             {
+                                for(int j = 0; j < 3 && start < end; ++j)
+                                {
+                                    int charVal = s[start++] - '0';
+                                    if(charVal < 0 || charVal > 7)
+                                    {
+                                        --start; // move back
+                                        Debug.Assert(j != 0); // must be at least one digit
+                                        break; // for
+                                    }
+                                    val = val * 8 + charVal;
+                                }
                                 if(val > 255)
                                 {
                                     string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
                                     throw new System.ArgumentException(msg);
                                 }
-                                arr[i++] = (byte)val;
+                            }
 
-                                if((start + 1 < end) && s[start] == '\\')
+                            arr[i++] = (byte)val;
+
+                            more = false;
+
+                            if((start + 1 < end) && s[start] == '\\')
+                            {
+                                c = s[start + 1];
+                                if(c == 'x' || (c >= '0' && c <= '9'))
                                 {
                                     start++;
-                                    // loop, read next octal escape sequence
-                                }
-                                else
-                                {
-                                    done = true;
+                                    more = true;
                                 }
                             }
                         }
@@ -457,6 +520,10 @@ namespace IceUtilInternal
                     }
                     default:
                     {
+                        if(System.String.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                        {
+                            result.Append('\\'); // not in special, so we keep the backslash
+                        }
                         result.Append(checkChar(s, start++));
                         break;
                     }
@@ -469,9 +536,21 @@ namespace IceUtilInternal
         // Remove escape sequences added by escapeString. Throws System.ArgumentException
         // for an invalid input string.
         //
-        public static string unescapeString(string s, int start, int end)
+        public static string unescapeString(string s, int start, int end, string special)
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
+
+            if(special != null)
+            {
+                for(int i = 0; i < special.Length; ++i)
+                {
+                    if(special[i] < 32 || special[i] > 126)
+                    {
+                        throw new System.ArgumentException("special characters must be in ASCII range 32-126",
+                                                           "special");
+                    }
+                }
+            }
 
             // Optimization for strings without escapes
             if(start == end || s.IndexOf('\\', start, end - start) == -1)
@@ -489,7 +568,7 @@ namespace IceUtilInternal
                 UTF8Encoding utf8Encoding = new UTF8Encoding(false, true);
                 while(start < end)
                 {
-                    start = decodeChar(s, start, end, sb, utf8Encoding);
+                    start = decodeChar(s, start, end, special, sb, utf8Encoding);
                 }
                 return sb.ToString();
             }

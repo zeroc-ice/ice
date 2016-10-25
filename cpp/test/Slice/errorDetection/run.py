@@ -58,6 +58,8 @@ for file in files:
             line1 = regex2.sub("", lines1[i].decode("utf-8")).strip()
             line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
+            print("\n" + line1)
+            print("\n" + line2)
             print("failed!")
             sys.exit(1)
         i = i + 1

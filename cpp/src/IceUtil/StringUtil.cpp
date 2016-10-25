@@ -11,29 +11,13 @@
 #include <IceUtil/StringConverter.h>
 #include <cstring>
 
+#include <iomanip>
+
 using namespace std;
 using namespace IceUtil;
 
 namespace
 {
-
-string
-toOctalString(unsigned int n)
-{
-    string s;
-    s.resize(32);
-    string::size_type charPos = 32;
-    const int radix = 1 << 3;
-    int mask = radix - 1;
-    do
-    {
-        s[--charPos] = '0' + (n & mask);
-        n >>= 3;
-    }
-    while(n != 0);
-
-    return string(s, charPos, (32 - charPos));
-}
 
 char
 toHexDigit(Byte b)
@@ -158,49 +142,67 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
                 result.append("\\\\");
                 break;
             }
-
             case '\'':
             {
                 result.append("\\'");
                 break;
             }
-
             case '"':
             {
                 result.append("\\\"");
                 break;
             }
-
+            case '\a':
+            {
+                if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                {
+                    // Octal escape for compatibility with 3.6 and earlier
+                    result.append("\\007");
+                }
+                else
+                {
+                    result.append("\\a");
+                }
+                break;
+            }
             case '\b':
             {
                 result.append("\\b");
                 break;
             }
-
             case '\f':
             {
                 result.append("\\f");
                 break;
             }
-
             case '\n':
             {
                 result.append("\\n");
                 break;
             }
-
             case '\r':
             {
                 result.append("\\r");
                 break;
             }
-
             case '\t':
             {
                 result.append("\\t");
                 break;
             }
-
+            case '\v':
+            {
+                if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                {
+                    // Octal escape for compatibility with 3.6 and earlier
+                    result.append("\\013");
+                }
+                else
+                {
+                    result.append("\\v");
+                }
+                break;
+            }
             default:
             {
                 if(special.find(c) != string::npos)
@@ -218,9 +220,6 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
                         {
                             // append octal string
 
-                            result.push_back('\\');
-                            string octal = toOctalString(i);
-                            //
                             // Add leading zeroes so that we avoid problems during
                             // decoding. For example, consider the escaped string
                             // \0013 (i.e., a character with value 1 followed by the
@@ -228,11 +227,9 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
                             // result would be incorrectly interpreted as a single
                             // character with value 11.
                             //
-                            for(string::size_type j = octal.size(); j < 3; j++)
-                            {
-                                result.push_back('0');
-                            }
-                            result.append(octal);
+                            ostringstream os;
+                            os << '\\' << oct << setfill('0') << setw(3) << static_cast<unsigned int>(i);
+                            result.append(os.str());
                         }
                         else if(i < 32 || i == 127)
                         {
@@ -305,10 +302,10 @@ checkChar(const string& s, string::size_type pos)
 void
 appendUTF8(unsigned int codePoint, bool inBMP, string& result)
 {
-    if(inBMP && codePoint >= 0xD800 && codePoint <= 0xDFFF)
+    if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
     {
         throw IllegalArgumentException(__FILE__, __LINE__,
-                                       "A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+                                       "A universal character name cannot designate a surrogate");
     }
 
     if(codePoint <= 0x7F)
@@ -351,7 +348,7 @@ appendUTF8(unsigned int codePoint, bool inBMP, string& result)
 //
 bool
 decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart,
-           string& result)
+           const string& special, string& result)
 {
     assert(start < end);
     assert(end <= s.size());
@@ -362,13 +359,14 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
     {
         result.push_back(checkChar(s, start++));
     }
+    else if(start + 1 == end)
+    {
+        // Keep trailing backslash
+        ++start;
+        result.push_back('\\');
+    }
     else
     {
-        if(start + 1 == end)
-        {
-            throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash");
-        }
-
         char c = s[++start];
 
         switch(c)
@@ -376,9 +374,16 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
             case '\\':
             case '\'':
             case '"':
+            case '?':
             {
                 ++start;
                 result.push_back(c);
+                break;
+            }
+            case 'a':
+            {
+                ++start;
+                result.push_back('\a');
                 break;
             }
             case 'b':
@@ -409,6 +414,12 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
             {
                 ++start;
                 result.push_back('\t');
+                break;
+            }
+            case 'v':
+            {
+                ++start;
+                result.push_back('\v');
                 break;
             }
             case 'u':
@@ -487,11 +498,56 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
                 }
                 break;
             }
+            case 'x':
+            {
+                int val = 0;
+                int size = 2;
+                ++start;
+                while(size > 0 && start < end)
+                {
+                    c = s[start++];
+                    int charVal = 0;
+                    if(c >= '0' && c <= '9')
+                    {
+                        charVal = c - '0';
+                    }
+                    else if(c >= 'a' && c <= 'f')
+                    {
+                        charVal = 10 + (c - 'a');
+                    }
+                    else if(c >= 'A' && c <= 'F')
+                    {
+                        charVal = 10 + (c - 'A');
+                    }
+                    else
+                    {
+                        --start; // move back
+                        break; // while
+                    }
+                    val = val * 16 + charVal;
+                    --size;
+                }
+                if(size == 2)
+                {
+                    throw IllegalArgumentException(__FILE__, __LINE__,
+                                                   "Invalid \\x escape sequence: no hex digit");
+                }
+                result.push_back(static_cast<char>(val));
+                if(val > 127)
+                {
+                    pureASCII = false;
+                }
+                break;
+            }
             default:
             {
                 if(static_cast<unsigned char>(c) > 127)
                 {
                     pureASCII = false;
+                }
+                if(special.empty() || special.find(c) == string::npos)
+                {
+                    result.push_back('\\'); // not in special, so we keep the backslash
                 }
                 result.push_back(checkChar(s, start++));
                 break;
@@ -508,9 +564,17 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
 // Remove escape sequences added by escapeString.
 //
 string
-IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end)
+IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, const string& special)
 {
     assert(start <= end && end <= s.size());
+
+    for(string::size_type i = 0; i < special.size(); ++i)
+    {
+        if(static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "Special characters must be in ASCII range 32-126");
+        }
+    }
 
     // Optimization for strings without escapes
     string::size_type p = s.find('\\', start);
@@ -553,7 +617,7 @@ IceUtilInternal::unescapeString(const string& s, string::size_type start, string
         result.reserve(end - start);
         while(start < end)
         {
-            if(decodeChar(*inputStringPtr, start, end, start, result))
+            if(decodeChar(*inputStringPtr, start, end, start, special, result))
             {
                 resultIsPureASCII = false;
             }

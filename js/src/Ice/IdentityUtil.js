@@ -64,7 +64,7 @@ Ice.stringToIdentity = function(s)
         ident.category = "";
         try
         {
-            ident.name = StringUtil.unescapeString(s);
+            ident.name = StringUtil.unescapeString(s, 0, s.length, "/");
         }
         catch(e)
         {
@@ -75,7 +75,7 @@ Ice.stringToIdentity = function(s)
     {
         try
         {
-            ident.category = StringUtil.unescapeString(s, 0, slash);
+            ident.category = StringUtil.unescapeString(s, 0, slash, "/");
         }
         catch(e)
         {
@@ -85,7 +85,7 @@ Ice.stringToIdentity = function(s)
         {
             try
             {
-                ident.name = StringUtil.unescapeString(s, slash + 1, s.length);
+                ident.name = StringUtil.unescapeString(s, slash + 1, s.length, "/");
             }
             catch(e)
             {

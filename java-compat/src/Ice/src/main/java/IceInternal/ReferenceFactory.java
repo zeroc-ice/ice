@@ -253,7 +253,7 @@ public final class ReferenceFactory
 
                     try
                     {
-                        facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.length());
+                        facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.length(), "");
                     }
                     catch(IllegalArgumentException ex)
                     {
@@ -521,7 +521,7 @@ public final class ReferenceFactory
 
             try
             {
-                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.length());
+                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
             }
             catch(IllegalArgumentException ex)
             {

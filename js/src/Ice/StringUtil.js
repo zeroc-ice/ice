@@ -117,12 +117,24 @@ Ice.StringUtil = class
     // Remove escape sequences added by escapeString. Throws Error
     // for an invalid input string.
     //
-    static unescapeString(s, start, end)
+    static unescapeString(s, start, end, special)
     {
         start = start === undefined ? 0 : start;
         end = end === undefined ? s.length : end;
+        special = special === undefined ? null : special;
 
         Debug.assert(start >= 0 && start <= end && end <= s.length);
+
+        if(special !== null)
+        {
+            for(let i = 0; i < special.length; ++i)
+            {
+                if(special.charCodeAt(i) < 32 || special.charCodeAt(i) > 126)
+                {
+                    throw new Error("special characters must be in ASCII range 32-126");
+                }
+            }
+        }
 
         // Optimization for strings without escapes
         let p = s.indexOf('\\', start);
@@ -140,7 +152,7 @@ Ice.StringUtil = class
             const arr = [];
             while(start < end)
             {
-                start = decodeChar(s, start, end, arr);
+                start = decodeChar(s, start, end, special, arr);
             }
             return arr.join("");
         }
@@ -276,6 +288,19 @@ function encodeChar(c, sb, special, toStringMode)
             sb.push("\\\"");
             break;
         }
+        case 7: // '\a'
+        {
+            if(toStringMode == Ice.ToStringMode.Compat)
+            {
+                // Octal escape for compatibility with 3.6 and earlier
+                sb.push("\\007");
+            }
+            else
+            {
+                sb.push("\\a");
+            }
+            break;
+        }
         case 8: // '\b'
         {
             sb.push("\\b");
@@ -299,6 +324,19 @@ function encodeChar(c, sb, special, toStringMode)
         case 9: // '\t'
         {
             sb.push("\\t");
+            break;
+        }
+        case 11: // '\v'
+        {
+            if(toStringMode == Ice.ToStringMode.Compat)
+            {
+                // Octal escape for compatibility with 3.6 and earlier
+                sb.push("\\013");
+            }
+            else
+            {
+                sb.push("\\v");
+            }
             break;
         }
         default:
@@ -388,7 +426,7 @@ function checkChar(s, pos)
 // returns the index of the first character following the decoded character
 // or escape sequence.
 //
-function decodeChar(s, start, end, result)
+function decodeChar(s, start, end, special, result)
 {
     Debug.assert(start >= 0);
     Debug.assert(start < end);
@@ -398,23 +436,30 @@ function decodeChar(s, start, end, result)
     {
         result.push(checkChar(s, start++));
     }
+    else if(start + 1 === end)
+    {
+        ++start;
+        result.push("\\"); // trailing backslash
+    }
     else
     {
-        if(start + 1 == end)
-        {
-            throw new Error("trailing backslash");
-        }
-
-        const c = s.charAt(++start);
+        let c = s.charAt(++start);
 
         switch(c)
         {
             case '\\':
             case '\'':
             case '"':
+            case '?':
             {
                 ++start;
                 result.push(c);
+                break;
+            }
+            case 'a':
+            {
+                ++start;
+                result.append("\u0007");
                 break;
             }
             case 'b':
@@ -445,6 +490,12 @@ function decodeChar(s, start, end, result)
             {
                 ++start;
                 result.push("\t")
+                break;
+            }
+            case 'v':
+            {
+                ++start;
+                result.push("\v");
                 break;
             }
             case 'u':
@@ -480,9 +531,9 @@ function decodeChar(s, start, end, result)
                 {
                     throw new Error("Invalid universal character name: too few hex digits");
                 }
-                if(inBMP && codePoint >= 0xD800 && codePoint <= 0xDFFF)
+                if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
                 {
-                    throw new Error("A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+                    throw new Error("A universal character name cannot designate a surrogate");
                 }
                 if(inBMP || codePoint <= 0xFFFF)
                 {
@@ -502,47 +553,76 @@ function decodeChar(s, start, end, result)
             case '5':
             case '6':
             case '7':
+            case 'x':
             {
-                // UTF-8 byte sequence encoded with octal escapes
+                // UTF-8 byte sequence encoded with octal or hex escapes
 
                 let arr = [];
-                let done = false;
-                while(!done)
+                let more = true;
+                while(more)
                 {
                     let val = 0;
-                    for(let j = 0; j < 3 && start < end; ++j)
+                    if(c === 'x')
                     {
-                        let charVal = s.charCodeAt(start++) - '0'.charCodeAt(0);
-                        if(charVal < 0 || charVal > 7)
+                        let size = 2;
+                        ++start;
+                        while(size > 0 && start < end)
                         {
-                            --start;
-                            if(j === 0)
+                            let charVal = s.charCodeAt(start++);
+                            if(charVal >= 0x30 && charVal <= 0x39)
                             {
-                                // first character after escape is not 0-7:
-                                done = true;
-                                --start; // go back to the previous backslash
+                                charVal -= 0x30;
                             }
-                            break; // for
+                            else if(charVal >= 0x61 && charVal <= 0x66)
+                            {
+                                charVal += 10 - 0x61;
+                            }
+                            else if(charVal >= 0x41 && charVal <= 0x46)
+                            {
+                                charVal += 10 - 0x41;
+                            }
+                            else
+                            {
+                                break; // while
+                            }
+                            val = val * 16 + charVal;
+                            --size;
                         }
-                        val = val * 8 + charVal;
+                        if(size === 2)
+                        {
+                            throw new Error("Invalid \\x escape sequence: no hex digit");
+                        }
                     }
-
-                    if(!done)
+                    else
                     {
+                        for(let j = 0; j < 3 && start < end; ++j)
+                        {
+                            let charVal = s.charCodeAt(start++) - '0'.charCodeAt(0);
+                            if(charVal < 0 || charVal > 7)
+                            {
+                                --start; // move back
+                                Debug.assert(j !== 0); // must be at least one digit
+                                break; // for
+                            }
+                            val = val * 8 + charVal;
+                        }
                         if(val > 255)
                         {
                             throw new Error("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
                         }
-                        arr.push(String.fromCharCode(val));
+                    }
 
-                        if((start + 1 < end) && s.charAt(start) === '\\')
+                    arr.push(String.fromCharCode(val));
+
+                    more = false;
+                    if((start + 1 < end) && s.charAt(start) === '\\')
+                    {
+                        c = s.charAt(start + 1);
+                        let charVal = s.charCodeAt(start + 1);
+                        if(c === 'x' || (charVal >= 0x30 && charVal <= 0x39))
                         {
                             start++;
-                            // loop, read next octal escape sequence
-                        }
-                        else
-                        {
-                            done = true;
+                            more = true;
                         }
                     }
                 }
@@ -553,6 +633,10 @@ function decodeChar(s, start, end, result)
             }
             default:
             {
+                if(special === null || special.length === 0 || special.indexOf(c) === -1)
+                {
+                    result.push("\\"); // not in special, so we keep the backslash
+                }
                 result.push(checkChar(s, start++));
                 break;
             }

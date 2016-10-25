@@ -256,7 +256,7 @@ public final class ReferenceFactory
 
                     try
                     {
-                        facet = StringUtil.unescapeString(argument, 0, argument.length());
+                        facet = StringUtil.unescapeString(argument, 0, argument.length(), "");
                     }
                     catch(IllegalArgumentException ex)
                     {
@@ -524,7 +524,7 @@ public final class ReferenceFactory
 
             try
             {
-                adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length());
+                adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
             }
             catch(IllegalArgumentException ex)
             {

@@ -73,7 +73,7 @@ def twoways(communicator, p):
     test(Test.s10 == literals[10])
     test(Test.s10 == literals[21])
 
-    test(Test.ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v")
+    test(Test.ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v\x06")
     test(Test.ss0 == Test.ss1)
     test(Test.ss0 == Test.ss2)
     test(Test.ss0 == literals[22])

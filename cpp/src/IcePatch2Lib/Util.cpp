@@ -114,7 +114,7 @@ IcePatch2Internal::readFileInfo(FILE* fp, LargeFileInfo& info)
     getline(is, s, '\t');
     try
     {
-        info.path = IceUtilInternal::unescapeString(s, 0, s.size());
+        info.path = IceUtilInternal::unescapeString(s, 0, s.size(), "");
     }
     catch(const IceUtil::IllegalArgumentException& ex)
     {

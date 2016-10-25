@@ -124,10 +124,10 @@ const byte b2 = 255;                    // OK
 const byte b3 = -1;                     // underflow
 const byte b4 = 256;                    // overflow
 
-const string nullstring1 = "a\000";
-const string nullstring2 = "a\x000";
-const string nullstring3 = "a\u0000";
-const string nullstring4 = "a\U00000000";
+const string nullstring1 = "a\000";     // OK
+const string nullstring2 = "a\x000";    // OK
+const string nullstring3 = "a\u0000";   // OK
+const string nullstring4 = "a\U00000000"; // OK
 
 const byte c1 = l1;             // OK
 const short c2 = l1;            // OK
@@ -147,10 +147,11 @@ const string c12 = stringconst; // OK
 
 const color c13 = colorconst;   // OK
 
-const string unknowescape = "a\g";                  // Unknown escape sequence
+const string unknownEscape = "a\g";                  // Unknown escape sequence
 const string invalidCodepoint = "a\u000N";          // Invalid code point
 const string invalidCodepoint1 = "a\U0000000K";     // Invalid code point
-const string octalRange = "\455";                   // OCT escape sequence out of range
+const string octalRange = "\455";                   // Octal escape sequence out of range
+const string badHex = "\x";                         // Missing hex digit
 const string surrogatePair = "\uD83C\uDF4C";        // surrogate pair not allow in slice
 
 };

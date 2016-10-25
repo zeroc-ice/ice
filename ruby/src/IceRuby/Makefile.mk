@@ -19,9 +19,10 @@ IceRuby_ldflags		:= $(ruby_ldflags)
 IceRuby_dependencies	:= IceSSL Ice
 IceRuby_libs            := mcpp
 IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp,\
-				$(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
+			   $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
 			   $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
-			   $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp
+			   $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp \
+                           $(top_srcdir)/cpp/src/Slice/StringLiteralUtil.cpp
 
 
 #

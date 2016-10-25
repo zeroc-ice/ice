@@ -95,6 +95,19 @@ public final class StringUtil
                 sb.append("\\\"");
                 break;
             }
+            case '\007':
+            {
+                if(toStringMode == Ice.ToStringMode.Compat)
+                {
+                    // Octal escape for compatibility with 3.6 and earlier
+                    sb.append("\\007");
+                }
+                else
+                {
+                    sb.append("\\a");
+                }
+                break;
+            }
             case '\b':
             {
                 sb.append("\\b");
@@ -118,6 +131,19 @@ public final class StringUtil
             case '\t':
             {
                 sb.append("\\t");
+                break;
+            }
+            case '\013':
+            {
+                if(toStringMode == Ice.ToStringMode.Compat)
+                {
+                    // Octal escape for compatibility with 3.6 and earlier
+                    sb.append("\\013");
+                }
+                else
+                {
+                    sb.append("\\v");
+                }
                 break;
             }
             default:
@@ -288,7 +314,7 @@ public final class StringUtil
     // or escape sequence.
     //
     private static int
-    decodeChar(String s, int start, int end, StringBuilder result)
+    decodeChar(String s, int start, int end, String special, StringBuilder result)
     {
         assert(start >= 0);
         assert(start < end);
@@ -298,13 +324,13 @@ public final class StringUtil
         {
             result.append(checkChar(s, start++));
         }
+        else if(start + 1 == end)
+        {
+            ++start;
+            result.append('\\');
+        }
         else
         {
-            if(start + 1 == end)
-            {
-                throw new IllegalArgumentException("trailing backslash");
-            }
-
             char c = s.charAt(++start);
 
             switch(c)
@@ -312,9 +338,16 @@ public final class StringUtil
                 case '\\':
                 case '\'':
                 case '"':
+                case '?':
                 {
                     ++start;
                     result.append(c);
+                    break;
+                }
+                case 'a':
+                {
+                    ++start;
+                    result.append('\u0007');
                     break;
                 }
                 case 'b':
@@ -346,6 +379,11 @@ public final class StringUtil
                     ++start;
                     result.append('\t');
                     break;
+                }
+                case 'v':
+                {
+                    ++start;
+                    result.append('\u000b');
                 }
                 case 'u':
                 case 'U':
@@ -381,9 +419,9 @@ public final class StringUtil
                     {
                         throw new IllegalArgumentException("Invalid universal character name: too few hex digits");
                     }
-                    if(inBMP && Character.isSurrogate((char)codePoint))
+                    if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
                     {
-                        throw new IllegalArgumentException("A non-BMP character cannot be encoded with \\unnnn, use \\Unnnnnnnn instead");
+                        throw new IllegalArgumentException("A universal character name cannot designate a surrogate");
                     }
                     if(inBMP || Character.isBmpCodePoint(codePoint))
                     {
@@ -404,49 +442,80 @@ public final class StringUtil
                 case '5':
                 case '6':
                 case '7':
+                case 'x':
                 {
-                    // UTF-8 byte sequence encoded with octal escapes
+                    // UTF-8 byte sequence encoded with octal or hex escapes
 
                     byte[] arr = new byte[end - start];
                     int i = 0;
-                    boolean done = false;
-                    while(!done)
+                    boolean more = true;
+                    while(more)
                     {
                         int val = 0;
-                        for(int j = 0; j < 3 && start < end; ++j)
+                        if(c == 'x')
                         {
-                            int charVal = s.charAt(start++) - '0';
-                            if(charVal < 0 || charVal > 7)
+                            int size = 2;
+                            ++start;
+                            while(size > 0 && start < end)
                             {
-                                --start;
-                                if(j == 0)
+                                c = s.charAt(start++);
+                                int charVal = 0;
+                                if(c >= '0' && c <= '9')
                                 {
-                                    // first character after escape is not 0-7:
-                                    done = true;
-                                    --start; // go back to the previous backslash
+                                    charVal = c - '0';
                                 }
-                                break; // for
+                                else if(c >= 'a' && c <= 'f')
+                                {
+                                    charVal = 10 + (c - 'a');
+                                }
+                                else if(c >= 'A' && c <= 'F')
+                                {
+                                    charVal = 10 + (c - 'A');
+                                }
+                                else
+                                {
+                                    --start; // move back
+                                    break; // while
+                                }
+                                val = val * 16 + charVal;
+                                --size;
                             }
-                            val = val * 8 + charVal;
+                            if(size == 2)
+                            {
+                                throw new IllegalArgumentException("Invalid \\x escape sequence: no hex digit");
+                            }
                         }
-
-                        if(!done)
+                        else
                         {
+                            for(int j = 0; j < 3 && start < end; ++j)
+                            {
+                                int charVal = s.charAt(start++) - '0';
+                                if(charVal < 0 || charVal > 7)
+                                {
+                                    --start; // move back
+                                    assert(j != 0); // must be at least one digit
+                                    break; // for
+                                }
+                                val = val * 8 + charVal;
+                            }
                             if(val > 255)
                             {
                                 String msg = "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
                                 throw new IllegalArgumentException(msg);
                             }
-                            arr[i++] = (byte)val;
+                        }
 
-                            if((start + 1 < end) && s.charAt(start) == '\\')
+                        arr[i++] = (byte)val;
+
+                        more = false;
+
+                        if((start + 1 < end) && s.charAt(start) == '\\')
+                        {
+                            c = s.charAt(start + 1);
+                            if(c == 'x' || (c >= '0' && c <= '9'))
                             {
                                 start++;
-                                // loop, read next octal escape sequence
-                            }
-                            else
-                            {
-                                done = true;
+                                more = true;
                             }
                         }
                     }
@@ -463,6 +532,10 @@ public final class StringUtil
                 }
                 default:
                 {
+                    if(special == null || special.isEmpty() || special.indexOf(c) == -1)
+                    {
+                        result.append('\\'); // not in special, so we keep the backslash
+                    }
                     result.append(checkChar(s, start++));
                     break;
                 }
@@ -477,9 +550,20 @@ public final class StringUtil
     // for an invalid input string.
     //
     public static String
-    unescapeString(String s, int start, int end)
+    unescapeString(String s, int start, int end, String special)
     {
         assert(start >= 0 && start <= end && end <= s.length());
+
+        if(special != null)
+        {
+            for(int i = 0; i < special.length(); ++i)
+            {
+                if(special.charAt(i) < 32 || special.charAt(i) > 126)
+                {
+                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
+                }
+            }
+        }
 
         // Optimization for strings without escapes
         int p = s.indexOf('\\', start);
@@ -497,7 +581,7 @@ public final class StringUtil
             StringBuilder sb = new StringBuilder(end - start);
             while(start < end)
             {
-                start = decodeChar(s, start, end, sb);
+                start = decodeChar(s, start, end, special, sb);
             }
             return sb.toString();
         }

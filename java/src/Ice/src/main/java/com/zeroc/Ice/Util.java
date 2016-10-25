@@ -227,7 +227,7 @@ public final class Util
             ident.category = "";
             try
             {
-                ident.name = StringUtil.unescapeString(s, 0, s.length());
+                ident.name = StringUtil.unescapeString(s, 0, s.length(), "/");
             }
             catch(IllegalArgumentException e)
             {
@@ -240,7 +240,7 @@ public final class Util
         {
             try
             {
-                ident.category = StringUtil.unescapeString(s, 0, slash);
+                ident.category = StringUtil.unescapeString(s, 0, slash, "/");
             }
             catch(IllegalArgumentException e)
             {
@@ -252,7 +252,7 @@ public final class Util
             {
                 try
                 {
-                    ident.name = StringUtil.unescapeString(s, slash + 1, s.length());
+                    ident.name = StringUtil.unescapeString(s, slash + 1, s.length(), "/");
                 }
                 catch(IllegalArgumentException e)
                 {

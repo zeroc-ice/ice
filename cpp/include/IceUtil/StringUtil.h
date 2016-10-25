@@ -37,7 +37,7 @@ ICE_API std::string escapeString(const std::string&, const std::string&, ToStrin
 // Remove escape sequences added by escapeString. Throws IllegalArgumentException
 // for an invalid input string.
 //
-ICE_API std::string unescapeString(const std::string&, std::string::size_type, std::string::size_type);
+ICE_API std::string unescapeString(const std::string&, std::string::size_type, std::string::size_type, const std::string&);
 
 //
 // Split a string using the given delimiters. Considers single and double quotes;

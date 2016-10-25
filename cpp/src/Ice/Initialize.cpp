@@ -398,7 +398,7 @@ Ice::stringToIdentity(const string& s)
     {
         try
         {
-            ident.name = unescapeString(s, 0, s.size());
+            ident.name = unescapeString(s, 0, s.size(), "/");
         }
         catch(const IceUtil::IllegalArgumentException& e)
         {
@@ -411,7 +411,7 @@ Ice::stringToIdentity(const string& s)
     {
         try
         {
-            ident.category = unescapeString(s, 0, slash);
+            ident.category = unescapeString(s, 0, slash, "/");
         }
         catch(const IceUtil::IllegalArgumentException& e)
         {
@@ -424,7 +424,7 @@ Ice::stringToIdentity(const string& s)
         {
             try
             {
-                ident.name = unescapeString(s, slash + 1, s.size());
+                ident.name = unescapeString(s, slash + 1, s.size(), "/");
             }
             catch(const IceUtil::IllegalArgumentException& e)
             {
