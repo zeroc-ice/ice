@@ -333,6 +333,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
                 case '3':
                 case '4':
                 case '5':
+                case '6':
                 case '7':
                 {
                     static string octalDigits = "01234567";
