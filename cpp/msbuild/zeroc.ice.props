@@ -20,8 +20,6 @@
 
         <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>
         <IceBinPath>$(IceHome)\build\native\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
-        <IceLibraryPath>$(IceHome)\build\native\lib\$(Platform)\$(Ice_Configuration)</IceLibraryPath>
-        <IceIncludePath>$(IceHome)\build\native\include</IceIncludePath>
 
         <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
     </PropertyGroup>

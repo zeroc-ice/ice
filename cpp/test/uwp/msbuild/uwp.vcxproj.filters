@@ -1424,5 +1424,6 @@
       <Filter>Tests\ARM\Debug</Filter>
     </None>
     <None Include="..\TestSuite_TemporaryKey.pfx" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

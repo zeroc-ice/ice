@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <IceSoVersion>37a3</IceSoVersion>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)' == 'Cpp11-Debug' Or '$(Configuration)' == 'Cpp11-Release'">
     <Ice_CppMapping>cpp11</Ice_CppMapping>
   </PropertyGroup>

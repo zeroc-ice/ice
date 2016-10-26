@@ -7,6 +7,14 @@
       <Configuration>Debug</Configuration>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(UseNugetBinDist)' == 'yes'">
+      <UseBinDist>yes</UseBinDist>
+    </PropertyGroup>
+
+    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+      <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    </Target>
+
     <ItemGroup>
         <DistSolution Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
@@ -30,7 +38,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="BuildDist">
+    <Target Name="Build" DependsOnTargets="TestNugetRestore;BuildDist">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
@@ -41,6 +49,7 @@
     </Target>
 
     <Target Name="NugetPack" DependsOnTargets="BuildDist">
+        <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net"/>
 

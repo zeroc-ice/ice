@@ -97,4 +97,7 @@
     <ClInclude Include="x64\Debug\Test.h" />
     <ClInclude Include="x64\Release\Test.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

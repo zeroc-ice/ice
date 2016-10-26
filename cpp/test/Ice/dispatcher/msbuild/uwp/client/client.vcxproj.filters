@@ -123,4 +123,7 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

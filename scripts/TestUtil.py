@@ -1697,8 +1697,6 @@ def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
     else:
        serverdir = testdir
 
-    print("serverdir: " + serverdir)
-
     if server is None:
         server = getDefaultServerFile(serverdir)
     if client is None:
@@ -2500,7 +2498,6 @@ def runTests(start, expanded, num = 0, script = False):
                 if isWin32():
                     if dir.find(os.path.join("js", "test")) != -1 and es5 and dir.find("\\es5\\") == -1:
                         dir = dir.replace("test\\Ice\\", "test\\Ice\\es5\\").replace("test\\Glacier2\\", "test\\Glacier2\\es5\\")
-                    print("dir: {0}".format(dir))
                 else:
                     if dir.find(os.path.join("js", "test")) != -1 and es5 and dir.find("/es5/") == -1:
                         dir = dir.replace("test/Ice/", "test/Ice/es5/").replace("test/Glacier2/", "test/Glacier2/es5/")

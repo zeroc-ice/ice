@@ -1,8 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props')" />
   <PropertyGroup Label="Globals">
     <IceBuilderCsharpProps Condition="!Exists('$(IceBuilderCsharpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.props', SearchOption.AllDirectories))</IceBuilderCsharpProps>
     <IceBuilderCsharpTargets Condition="!Exists('$(IceBuilderCsharpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.targets', SearchOption.AllDirectories))</IceBuilderCsharpTargets>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -18,10 +21,9 @@
     <OutputPath>..\..\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,6 +52,7 @@
     <None Include="..\..\Test.ice">
       <Link>Test.ice</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\..\msbuild\ice.test.props" />
@@ -59,4 +62,10 @@
     <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(UseNugetBinDist)' == 'yes'">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props'))" />
+  </Target>
 </Project>

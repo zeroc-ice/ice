@@ -41,6 +41,8 @@
                  Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
                           $(Ice_SrcRootDir)include\IceBT\*.h"/>
         <Headers Include="$(Ice_SrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h" />
+
+        <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
 
     <!-- Copy header files in Win32 Release, the files are identical in all configurations -->
@@ -48,9 +50,14 @@
         <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
     </Target>
 
+    <!-- Copy slice files -->
+    <Target Name="CopySlices" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+    </Target>
+
 
     <!-- Copy required files to the package specific directories -->
-    <Target Name="NugetPack" DependsOnTargets="CopyHeaders">
+    <Target Name="NugetPack" DependsOnTargets="CopyHeaders;CopySlices">
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />

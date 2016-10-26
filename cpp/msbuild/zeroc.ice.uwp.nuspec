@@ -12,5 +12,10 @@
     <description>A comprehensive rpc framework.</description>
     <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
     <tags>ice native</tags>
+    <dependencies>
+      <dependency id="zeroc.ice.uwp.x86" version="[3.7.0-alpha3]"/>
+      <dependency id="zeroc.ice.uwp.x64" version="[3.7.0-alpha3]"/>
+      <dependency id="zeroc.ice.uwp.arm" version="[3.7.0-alpha3]"/>
+    </dependencies>
   </metadata>
 </package>

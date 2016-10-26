@@ -5,3 +5,6 @@ BundleArtifacts/
 zeroc.ice.v120
 zeroc.ice.v140
 zeroc.ice.uwp
+zeroc.ice.uwp.arm
+zeroc.ice.uwp.x86
+zeroc.ice.uwp.x64

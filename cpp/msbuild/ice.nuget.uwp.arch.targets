@@ -1,0 +1,17 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+    </PropertyGroup>
+
+    <!-- Static libraries -->
+    <ItemGroup>
+        <Libraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
+        <Libraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.pdb"/>
+    </ItemGroup>
+
+    <!-- Copy required files to the package specific directories -->
+    <Target Name="NugetPack">
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
+    </Target>
+</Project>

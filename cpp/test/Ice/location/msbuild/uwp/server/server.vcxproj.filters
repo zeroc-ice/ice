@@ -122,4 +122,7 @@
       <Filter>Slice Files</Filter>
     </IceBuilder>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

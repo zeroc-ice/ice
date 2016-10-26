@@ -3,7 +3,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <Icev140Package>$(MSBuildThisFileDirectory)zeroc.ice.props</Icev140Package>
+        <IceV140Package>$(MSBuildThisFileDirectory)zeroc.ice.props</IceV140Package>
     </PropertyGroup>
 
 </Project>

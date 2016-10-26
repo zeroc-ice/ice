@@ -12,11 +12,23 @@
     <Platform>Win32</Platform>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(UseNugetBinDist)' == 'yes'">
+    <UseBinDist>yes</UseBinDist>
+  </PropertyGroup>
+
   <!--
       Restore Nuget packages.
   -->
   <Target Name="NugetRestore" DependsOnTargets="GetNuget">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
+  </Target>
+
+  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+  </Target>
+
+  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.testuwp.sln"/>
   </Target>
 
   <!--
@@ -53,9 +65,9 @@
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
         </UWPDistSolution>
-        <IoTDistSolution Include="ice.uwp.sln">
+        <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Debug;Platform=ARM</Properties>
-        </IoTDistSolution>
+        </UWPDistSolution>
 
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
@@ -63,9 +75,9 @@
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
         </UWPDistSolution>
-        <IoTDistSolution Include="ice.uwp.sln">
+        <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=ARM</Properties>
-        </IoTDistSolution>
+        </UWPDistSolution>
       </ItemGroup>
 
       <!-- Ice for C++ test configurations (C++98 mapping) -->
@@ -108,18 +120,18 @@
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
         </UWPTestSolution>
-        <IoTTestSolution Include="ice.testuwp.sln">
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=ARM</Properties>
-        </IoTTestSolution>
+        </UWPTestSolution>
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
         </UWPTestSolution>
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
         </UWPTestSolution>
-        <IoTTestSolution Include="ice.testuwp.sln">
+        <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Release;Platform=ARM</Properties>
-        </IoTTestSolution>
+        </UWPTestSolution>
       </ItemGroup>
     </When>
     <Otherwise>
@@ -128,17 +140,7 @@
         <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </DistSolution>
-      </ItemGroup>
 
-      <!-- Ice for UWP builds -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
-        <UWPDistSolution Include="ice.uwp.sln">
-          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </UWPDistSolution>
-      </ItemGroup>
-
-      <!-- Ice for C++ test configurations (C++98 mapping) -->
-      <ItemGroup Condition="'$(Platform)' != 'ARM'">
         <TestSolution Include="ice.test.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </TestSolution>
@@ -151,17 +153,21 @@
         </TestSolution>
       </ItemGroup>
 
-      <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' != 'ARM'">
+      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+        <UWPDistSolution Include="ice.uwp.sln">
+          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </UWPDistSolution>
+
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </UWPTestSolution>
       </ItemGroup>
-
+            
+      <!-- Ice for ARM builds require the Win32 Slice compiler -->
       <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' == 'ARM'">
-        <IoTTestSolution Include="ice.testuwp.sln">
-          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </IoTTestSolution>
+        <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+          <Properties>Configuration=$(Configuration);Platform=Win32</Properties>
+        </DistSolution>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -184,7 +190,7 @@
   </Target>
 
   <!-- Build test solution -->
-  <Target Name="Build" DependsOnTargets="NugetRestore;BuildDist">
+  <Target Name="Build" DependsOnTargets="TestNugetRestore;BuildDist">
     <MSBuild Projects="@(TestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
@@ -247,7 +253,7 @@
   </Target>
 
   <!-- Build UWP test solution -->
-  <Target Name="UWPBuild" DependsOnTargets="NugetRestore;UWPBuildDist">
+  <Target Name="UWPBuild" DependsOnTargets="UWPTestNugetRestore;UWPBuildDist">
     <MSBuild Projects="@(UWPTestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
@@ -262,22 +268,43 @@
   <Target Name="UWPNugetPack"
           DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
-    <RemoveDir Directories="zeroc.ice.uwp" />
+    <RemoveDir Directories="zeroc.ice.uwp;zeroc.ice.uwp.x86;zeroc.ice.uwp.x64;zeroc.ice.uwp.arm" />
+
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp.x86" />
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.uwp.x86" />
+    <Copy SourceFiles="zeroc.ice.uwp.x86.nuspec"
+          DestinationFolder="zeroc.ice.uwp.x86" />
+    <Copy SourceFiles="zeroc.ice.uwp.arch.targets"
+          DestinationFiles="zeroc.ice.uwp.x86\build\native\zeroc.ice.uwp.x86.targets" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.uwp.x86"/>
+
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.uwp.x64" />
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.uwp.x64" />
+    <Copy SourceFiles="zeroc.ice.uwp.x64.nuspec"
+          DestinationFolder="zeroc.ice.uwp.x64" />
+    <Copy SourceFiles="zeroc.ice.uwp.arch.targets"
+          DestinationFiles="zeroc.ice.uwp.x64\build\native\zeroc.ice.uwp.x64.targets" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.uwp.x64"/>
+
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Debug;Platform=ARM;PackageDirectory=zeroc.ice.uwp.arm" />
+    <MSBuild Projects="ice.nuget.uwp.arch.targets"
+             Properties="Configuration=Release;Platform=ARM;PackageDirectory=zeroc.ice.uwp.arm" />
+    <Copy SourceFiles="zeroc.ice.uwp.arm.nuspec"
+          DestinationFolder="zeroc.ice.uwp.arm" />
+    <Copy SourceFiles="zeroc.ice.uwp.arch.targets"
+          DestinationFiles="zeroc.ice.uwp.arm\build\native\zeroc.ice.uwp.arm.targets" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.uwp.arm"/>
 
     <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp" />
-    <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.uwp" />
-    <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Debug;Platform=ARM;PackageDirectory=zeroc.ice.uwp" />
-
-    <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.uwp" />
-    <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.uwp" />
-    <MSBuild Projects="ice.nuget.uwp.targets"
-             Properties="Configuration=Release;Platform=ARM;PackageDirectory=zeroc.ice.uwp" />
-
+             Properties="PackageDirectory=zeroc.ice.uwp" />
     <Copy SourceFiles="zeroc.ice.uwp.nuspec"
           DestinationFolder="zeroc.ice.uwp" />
     <Copy SourceFiles="zeroc.ice.props"
@@ -289,4 +316,5 @@
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp"/>
   </Target>
+  
 </Project>
