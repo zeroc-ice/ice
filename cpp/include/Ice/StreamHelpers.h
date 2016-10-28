@@ -362,13 +362,17 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
 template<typename T, typename S>
 struct StreamWriter
 {
+#ifdef ICE_CPP11_MAPPING
     static inline void write(S* stream, const T& v)
     {
-#ifdef ICE_CPP11_MAPPING
         stream->writeAll(v.ice_tuple());
-#endif
+    }
+#else
+    static inline void write(S*, const T&)
+    {
         // Default is to write nothing for C++98
     }
+#endif
 };
 
 template<typename T, typename S>
