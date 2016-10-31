@@ -9,7 +9,12 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+
+#ifndef ICE_BUILDING_ICEGRIDDB
+[["cpp:dll-export:ICE_GRID_API", "objc:dll-export:ICEGRID_API"]]
+#endif
+
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>

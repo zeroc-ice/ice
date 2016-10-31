@@ -17,7 +17,7 @@ ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
     Ice_cppflags        += -DICE_PRIO_INHERIT
 endif
 
-Ice_sliceflags		:= --include-dir Ice --dll-export ICE_API
+Ice_sliceflags		:= --include-dir Ice
 Ice_libs		:= bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 Ice_excludes		= src/Ice/DLLMain.cpp

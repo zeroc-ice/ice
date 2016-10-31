@@ -10,7 +10,7 @@
 $(project)_libraries		= IceStormObjC
 
 IceStormObjC_targetdir		:= $(libdir)
-IceStormObjC_sliceflags		:= --include-dir objc/IceStorm --dll-export ICESTORM_API
+IceStormObjC_sliceflags		:= --include-dir objc/IceStorm
 IceStormObjC_dependencies 	:= IceObjC
 IceStormObjC_slicedir		:= $(slicedir)/IceStorm
 IceStormObjC_includedir		:= $(includedir)/objc/IceStorm

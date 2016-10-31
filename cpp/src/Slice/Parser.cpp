@@ -2426,23 +2426,34 @@ Slice::Container::checkIdentifier(const string& name) const
         //
         // For rules controlled by a translator option, we don't complain about included files.
         //
-        _unit->error("illegal underscore in identifier `" + name + "'");
+
+        DefinitionContextPtr dc = _unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("underscore") != "underscore") // no "underscore" global metadata
+        {
+            _unit->error("illegal underscore in identifier `" + name + "'");
+        }
     }
 
+    //
+    // For rules controlled by a translator option, we don't complain about included files.
+    //
     if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
     {
-        //
-        // For rules controlled by a translator option, we don't complain about included files.
-        //
-        if(name.size() >= 3)
+        DefinitionContextPtr dc = _unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no "ice-prefix" global metadata
         {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
+            if(name.size() >= 3)
             {
-                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                string prefix3;
+                prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+                prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+                prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
+                if(prefix3 == "ice")
+                {
+                    _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                }
             }
         }
     }

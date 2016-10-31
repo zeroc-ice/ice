@@ -1058,6 +1058,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         int headerDir = 0;
+        int dllExport = 0;
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
             string s = *r;
@@ -1066,10 +1067,24 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 if(s.find(_objcPrefix) == 0)
                 {
                     static const string objcHeaderDirPrefix = "objc:header-dir:";
+                    static const string objcDllExportPrefix = "objc:dll-export:";
                     if(s.find(objcHeaderDirPrefix) == 0 && s.size() > objcHeaderDirPrefix.size())
                     {
                         headerDir++;
                         if(headerDir > 1)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                 << "': directive can appear only once per file";
+                            emitWarning(file, -1, ostr.str());
+                            _history.insert(s);
+                        }
+                        continue;
+                    }
+                    else if(s.find(objcDllExportPrefix) == 0 && s.size() > objcDllExportPrefix.size())
+                    {
+                        dllExport++;
+                        if(dllExport > 1)
                         {
                             ostringstream ostr;
                             ostr << "ignoring invalid global metadata `" << s

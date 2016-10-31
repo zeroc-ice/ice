@@ -463,6 +463,21 @@ Slice::Gen::generate(const UnitPtr& p)
         _headerExtension = headerExtension;
     }
 
+    //
+    // Give precedence to --dll-export command-line option
+    //
+    if(_dllExport.empty())
+    {
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        static const string dllExportPrefix = "cpp:dll-export:";
+        string meta = dc->findMetaData(dllExportPrefix);
+        if(meta.size() > dllExportPrefix.size())
+        {
+            _dllExport = meta.substr(dllExportPrefix.size());
+        }
+    }
+
     if(_implCpp98 || _implCpp11)
     {
         string fileImplH = _base + "I." + _implHeaderExtension;
@@ -4459,6 +4474,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         int headerExtension = 0;
+        int dllExport = 0;
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
             string s = *r;
@@ -4468,6 +4484,8 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 {
                     static const string cppIncludePrefix = "cpp:include:";
                     static const string cppHeaderExtPrefix = "cpp:header-ext:";
+                    static const string cppDllExportPrefix = "cpp:dll-export:";
+
                     if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
                     {
                         continue;
@@ -4485,6 +4503,20 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                         }
                         continue;
                     }
+                    else if(s.find(cppDllExportPrefix) == 0 && s.size() > cppDllExportPrefix.size())
+                    {
+                        dllExport++;
+                        if(dllExport > 1)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                << "': directive can appear only once per file";
+                            emitWarning(file, -1, ostr.str());
+                            _history.insert(s);
+                        }
+                        continue;
+                    }
+
                     ostringstream ostr;
                     ostr << "ignoring invalid global metadata `" << s << "'";
                     emitWarning(file, -1, ostr.str());

@@ -127,11 +127,11 @@ public:
     GenCompat(const std::string&,
               const std::string&,
               const std::vector<std::string>&,
-              const std::string&);
+              const std::string&,
+              bool);
     ~GenCompat();
 
     void generate(const UnitPtr&);
-    void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
 
@@ -142,6 +142,7 @@ private:
     std::string _base;
     std::vector<std::string> _includePaths;
     std::string _dir;
+    bool _tie;
 
     class OpsVisitor : public JavaCompatVisitor
     {
@@ -153,15 +154,6 @@ private:
 
     private:
         void writeOperations(const ClassDefPtr&, bool);
-    };
-
-    class TieVisitor : public JavaCompatVisitor
-    {
-    public:
-
-        TieVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
     class PackageVisitor : public JavaCompatVisitor
@@ -253,9 +245,12 @@ private:
     {
     public:
 
-        DispatcherVisitor(const std::string&);
+        DispatcherVisitor(const std::string&, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+        bool _tie;
     };
 
     class BaseImplVisitor : public JavaCompatVisitor

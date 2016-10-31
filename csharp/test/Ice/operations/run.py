@@ -23,9 +23,9 @@ import TestUtil
 TestUtil.queueClientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
 TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "Running test with AMD server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0", server="serveramd")
-TestUtil.queueClientServerTest(configName = "tie", message = "Running test with TIE server.",
+TestUtil.queueClientServerTest(configName = "tie", message = "Running test with tie server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0", server="servertie")
-TestUtil.queueClientServerTest(configName = "amdTie", localOnly = True, message = "Running test with AMD TIE server.",
+TestUtil.queueClientServerTest(configName = "amdTie", localOnly = True, message = "Running test with AMD tie server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0", server="serveramdtie")
 TestUtil.queueCollocatedTest()
 TestUtil.runQueuedTests()

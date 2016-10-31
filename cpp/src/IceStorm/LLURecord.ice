@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 module IceStormElection
 {

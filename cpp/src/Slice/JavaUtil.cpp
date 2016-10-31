@@ -164,7 +164,12 @@ public:
                         bool ok = false;
 
                         static const string packagePrefix = "java:package:";
+                        static const string checksumPrefix = "java:checksum:";
                         if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+                        {
+                            ok = true;
+                        }
+                        else if(s.find(checksumPrefix) == 0 && s.size() > checksumPrefix.size())
                         {
                             ok = true;
                         }
@@ -369,12 +374,18 @@ private:
                             if(rest == "getset")
                             {
                                 result.push_back(s);
+                                continue;
                             }
                             else if(rest == "buffer")
                             {
                                 result.push_back(s);
+                                continue;
                             }
-                            continue;
+                            else if(rest == "tie")
+                            {
+                                result.push_back(s);
+                                continue;
+                            }
                         }
                     }
                     else if(s.substr(prefix.size(), pos - prefix.size()) == "type")

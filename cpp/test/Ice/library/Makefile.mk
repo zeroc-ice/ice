@@ -10,7 +10,6 @@
 $(test)_libraries            := $(test)_GenCode $(test)_Consumer $(test)_AllTests
 
 $(test)_GenCode_sources     	:= Test.ice
-$(test)_sliceflags		:= --dll-export LIBRARY_TEST_API
 
 $(test)_Consumer_sources     	:= Consumer.cpp
 $(test)_Consumer_dependencies 	:= $(test)_GenCode

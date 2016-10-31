@@ -72,16 +72,19 @@ usage(const string& n)
         "-E                       Print preprocessor output on stdout.\n"
         "--include-dir DIR        Use DIR as the header include directory in source files.\n"
         "--output-dir DIR         Create files in the directory DIR.\n"
-        "--dll-export SYMBOL      Use SYMBOL for DLL exports.\n"
         "--impl-c++98             Generate sample implementations for C++98 mapping.\n"
         "--impl-c++11             Generate sample implementations for C++11 mapping.\n"
+        "--checksum               Generate checksums for Slice definitions.\n"
         "--depend                 Generate Makefile dependencies.\n"
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "-d, --debug              Print debug messages.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore             Allow underscores in Slice identifiers.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
+        "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
+        "                         deprecated: use instead [[\"cpp:dll-export:SYMBOL\"]] metadata.\n"
+        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
+        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore             Allow underscores in Slice identifiers\n"
+        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -174,7 +177,7 @@ compile(const vector<string>& argv)
     string dllExport = opts.optArg("dll-export");
 
     bool implCpp98 = opts.isSet("impl-c++98");
-    
+
     bool implCpp11 = opts.isSet("impl-c++11");
 
     bool depend = opts.isSet("depend");
@@ -210,7 +213,7 @@ compile(const vector<string>& argv)
         }
         return EXIT_FAILURE;
     }
-    
+
     if(implCpp98 && implCpp11)
     {
         getErrorStream() << argv[0] << ": error: cannot specify both --impl-c++98 and --impl-c++11" << endl;

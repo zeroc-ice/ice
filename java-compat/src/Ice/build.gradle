@@ -17,7 +17,6 @@ project.ext.description = "Ice is a comprehensive RPC framework that helps you b
 slice {
     java {
         set1 {
-            args = "--ice"
             files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice', 'IceSSL/*.ice'], excludes:['Ice/*F.ice'])
         }
     }

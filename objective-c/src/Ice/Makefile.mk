@@ -11,7 +11,7 @@ $(project)_libraries	= IceObjC
 
 IceObjC_targetdir	:= $(libdir)
 IceObjC_cppflags	:= -DICE_API_EXPORTS -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
-IceObjC_sliceflags	:= --include-dir objc/Ice --dll-export ICE_API
+IceObjC_sliceflags	:= --include-dir objc/Ice
 IceObjC_dependencies	:= Ice
 IceObjC_slicedir	:= $(slicedir)/Ice
 IceObjC_includedir	:= $(includedir)/objc/Ice

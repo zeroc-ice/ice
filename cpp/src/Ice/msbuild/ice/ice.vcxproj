@@ -73,7 +73,6 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>Ice</IceBuilderBaseDirectoryForGeneratedInclude>
-    <IceBuilderDLLExport>ICE_API</IceBuilderDLLExport>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -2199,10 +2199,11 @@ Slice::JavaCompatVisitor::writeDocCommentParam(Output& out, const OperationPtr& 
     }
 }
 
-Slice::GenCompat::GenCompat(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir) :
+Slice::GenCompat::GenCompat(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir, bool tie) :
     _base(base),
     _includePaths(includePaths),
-    _dir(dir)
+    _dir(dir),
+    _tie(tie)
 {
 }
 
@@ -2236,18 +2237,11 @@ Slice::GenCompat::generate(const UnitPtr& p)
     ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
 
-    DispatcherVisitor dispatcherVisitor(_dir);
+    DispatcherVisitor dispatcherVisitor(_dir, _tie);
     p->visit(&dispatcherVisitor, false);
 
     AsyncVisitor asyncVisitor(_dir);
     p->visit(&asyncVisitor, false);
-}
-
-void
-Slice::GenCompat::generateTie(const UnitPtr& p)
-{
-    TieVisitor tieVisitor(_dir);
-    p->visit(&tieVisitor, false);
 }
 
 void
@@ -2461,218 +2455,6 @@ Slice::GenCompat::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurre
     close();
 }
 
-Slice::GenCompat::TieVisitor::TieVisitor(const string& dir) :
-    JavaCompatVisitor(dir)
-{
-}
-
-bool
-Slice::GenCompat::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "Tie");
-    string opIntfName = "Operations";
-    if(p->isLocal())
-    {
-        opIntfName += "NC";
-    }
-
-    //
-    // Don't generate a TIE class for a non-abstract class
-    //
-    if(!p->isAbstract())
-    {
-        return false;
-    }
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    //
-    // Generate the TIE class
-    //
-    out << sp << nl << "public class " << '_' << name << "Tie";
-    if(p->isInterface())
-    {
-        if(p->isLocal())
-        {
-            out << " implements " << fixKwd(name) << ", Ice.TieBase";
-        }
-        else
-        {
-            out << " extends " << '_' << name << "Disp implements Ice.TieBase";
-        }
-    }
-    else
-    {
-        out << " extends " << fixKwd(name) << " implements Ice.TieBase";
-    }
-
-    out << sb;
-
-    out << sp << nl << "public _" << name << "Tie()";
-    out << sb;
-    out << eb;
-
-    out << sp << nl << "public _" << name << "Tie(" << '_' << name << opIntfName << " delegate)";
-    out << sb;
-    out << nl << "_ice_delegate = delegate;";
-    out << eb;
-
-    out << sp << nl << "public java.lang.Object ice_delegate()";
-    out << sb;
-    out << nl << "return _ice_delegate;";
-    out << eb;
-
-    out << sp << nl << "public void ice_delegate(java.lang.Object delegate)";
-    out << sb;
-    out << nl << "_ice_delegate = (_" << name << opIntfName << ")delegate;";
-    out << eb;
-
-    out << sp << nl << "public boolean equals(java.lang.Object rhs)";
-    out << sb;
-    out << nl << "if(this == rhs)";
-    out << sb;
-    out << nl << "return true;";
-    out << eb;
-    out << nl << "if(!(rhs instanceof " << '_' << name << "Tie))";
-    out << sb;
-    out << nl << "return false;";
-    out << eb;
-    out << sp << nl << "return _ice_delegate.equals(((" << '_' << name << "Tie)rhs)._ice_delegate);";
-    out << eb;
-
-    out << sp << nl << "public int hashCode()";
-    out << sb;
-    out << nl << "return _ice_delegate.hashCode();";
-    out << eb;
-
-    if(p->isLocal())
-    {
-        out << sp << nl << "public _" << name << "Tie clone()";
-        out.inc();
-        out << nl << "throws java.lang.CloneNotSupportedException";
-        out.dec();
-        out << sb;
-        out << nl << "return (_" << name << "Tie)super.clone();";
-        out << eb;
-    }
-
-    OperationList ops = p->allOperations();
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        ContainerPtr container = (*r)->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        const bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        const bool optionalMapping = useOptionalMapping(*r);
-
-        string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
-
-        TypePtr ret = (*r)->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData(), true,
-                                   optionalMapping && (*r)->returnIsOptional());
-
-        vector<string> params;
-        vector<string> args;
-        if(hasAMD)
-        {
-            params = getParamsAsync((*r), package, true, true);
-            args = getArgsAsync(*r);
-        }
-        else
-        {
-            params = getParams((*r), package, false, optionalMapping);
-            args = getArgs(*r);
-        }
-
-        string deprecateReason = getDeprecateReason(*r, cl, "operation");
-
-        out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "@Deprecated";
-            out << nl << "@SuppressWarnings(\"deprecation\")";
-        }
-        out << nl << "public " << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
-        if(!p->isLocal())
-        {
-            out << "Ice.Current __current";
-        }
-        out << epar;
-
-        if((*r)->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            ExceptionList throws = (*r)->throws();
-            throws.sort();
-            throws.unique();
-            writeThrowsClause(package, throws);
-        }
-        out << sb;
-        out << nl;
-        if(ret && !hasAMD)
-        {
-            out << "return ";
-        }
-        out << "_ice_delegate." << opName << spar << args;
-        if(!p->isLocal())
-        {
-            out << "__current";
-        }
-        out << epar << ';';
-        out << eb;
-    }
-
-    out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
-    out << sp << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
-    {
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if(pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            emitWarning("", "", os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if(serialVersionUID != "0")
-            {
-                if(!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                       << "'; generating default value";
-                    emitWarning("", "", os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
-    out << eb;
-    close();
-
-    return false;
-}
-
 Slice::GenCompat::PackageVisitor::PackageVisitor(const string& dir) :
     JavaCompatVisitor(dir)
 {
@@ -2770,7 +2552,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
 
-	StringList implements;
+        StringList implements;
         bool implementsOnNewLine = true;
 
         if(bases.empty() || bases.front()->isInterface())
@@ -2778,7 +2560,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(p->isLocal())
             {
                 implementsOnNewLine = false;
-		implements.push_back("java.lang.Cloneable");
+                implements.push_back("java.lang.Cloneable");
             }
             else
             {
@@ -3134,28 +2916,28 @@ Slice::GenCompat::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-	out << sp << nl << "public " << name << nl << "clone()";
-	out << sb;
+        out << sp << nl << "public " << name << nl << "clone()";
+        out << sb;
 
-	if(p->isLocal() && !baseClass)
-	{
-	    out << nl << name << " c = null;";
-	    out << nl << "try";
-	    out << sb;
-	    out << nl << "c = (" << name << ")super.clone();";
-	    out << eb;
-	    out << nl << "catch(CloneNotSupportedException ex)";
-	    out << sb;
-	    out << nl << "assert false; // impossible";
-	    out << eb;
-	    out << nl << "return c;";
+        if(p->isLocal() && !baseClass)
+        {
+            out << nl << name << " c = null;";
+            out << nl << "try";
+            out << sb;
+            out << nl << "c = (" << name << ")super.clone();";
+            out << eb;
+            out << nl << "catch(CloneNotSupportedException ex)";
+            out << sb;
+            out << nl << "assert false; // impossible";
+            out << eb;
+            out << nl << "return c;";
 
-	}
-	else
-	{
-	    out << nl << "return (" << name << ")super.clone();";
-	}
-	out << eb;
+        }
+        else
+        {
+            out << nl << "return (" << name << ")super.clone();";
+        }
+        out << eb;
     }
 
     if(p->isInterface() && !p->isLocal())
@@ -3566,7 +3348,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(p->usesClasses(false))
         {
-	    if(!base || (base && !base->usesClasses(false)))
+            if(!base || (base && !base->usesClasses(false)))
             {
                 out << sp << nl << "public boolean" << nl << "__usesClasses()";
                 out << sb;
@@ -5752,48 +5534,252 @@ Slice::GenCompat::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::GenCompat::DispatcherVisitor::DispatcherVisitor(const string& dir) :
-    JavaCompatVisitor(dir)
+Slice::GenCompat::DispatcherVisitor::DispatcherVisitor(const string& dir, bool tie) :
+    JavaCompatVisitor(dir),
+    _tie(tie)
 {
 }
 
 bool
 Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || !p->isInterface())
-    {
-        return false;
-    }
-
     string name = p->name();
     ClassList bases = p->bases();
-    string absolute = getAbsolute(p, "", "_", "Disp");
 
-    open(absolute, p->file());
+    if(!p->isLocal() && p->isInterface())
+    {
+        string absolute = getAbsolute(p, "", "_", "Disp");
 
-    Output& out = output();
+        open(absolute, p->file());
 
-    out << sp;
-    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
-    out << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
-    out << sb;
+        Output& out = output();
 
-    out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
-    out.inc();
-    out << nl << "throws java.lang.CloneNotSupportedException";
-    out.dec();
-    out << sb;
-    out << nl << "throw new java.lang.CloneNotSupportedException();";
-    out << eb;
+        out << sp;
+        writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+        out << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
+        out << sb;
 
-    writeDispatchAndMarshalling(out, p);
+        out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
+        out.inc();
+        out << nl << "throws java.lang.CloneNotSupportedException";
+        out.dec();
+        out << sb;
+        out << nl << "throw new java.lang.CloneNotSupportedException();";
+        out << eb;
 
-    //
-    // Avoid serialVersionUID warnings for dispatch classes.
-    //
-    out << sp << nl << "public static final long serialVersionUID = 0L;";
-    out << eb;
-    close();
+        writeDispatchAndMarshalling(out, p);
+
+        //
+        // Avoid serialVersionUID warnings for dispatch classes.
+        //
+        out << sp << nl << "public static final long serialVersionUID = 0L;";
+        out << eb;
+        close();
+    }
+
+    if(_tie || p->hasMetaData("java:tie"))
+    {
+        // Tie class
+
+        string package = getPackage(p);
+        string absolute = getAbsolute(p, "", "_", "Tie");
+        string opIntfName = "Operations";
+        if(p->isLocal())
+        {
+            opIntfName += "NC";
+        }
+
+        //
+        // Don't generate a tie class for a non-abstract class
+        //
+        if(!p->isAbstract())
+        {
+            return false;
+        }
+
+        open(absolute, p->file());
+
+        Output& out = output();
+
+        //
+        // Generate the tie class
+        //
+        out << sp << nl << "public class " << '_' << name << "Tie";
+        if(p->isInterface())
+        {
+            if(p->isLocal())
+            {
+                out << " implements " << fixKwd(name) << ", Ice.TieBase";
+            }
+            else
+            {
+                out << " extends " << '_' << name << "Disp implements Ice.TieBase";
+            }
+        }
+        else
+        {
+            out << " extends " << fixKwd(name) << " implements Ice.TieBase";
+        }
+
+        out << sb;
+
+        out << sp << nl << "public _" << name << "Tie()";
+        out << sb;
+        out << eb;
+
+        out << sp << nl << "public _" << name << "Tie(" << '_' << name << opIntfName << " delegate)";
+        out << sb;
+        out << nl << "_ice_delegate = delegate;";
+        out << eb;
+
+        out << sp << nl << "public java.lang.Object ice_delegate()";
+        out << sb;
+        out << nl << "return _ice_delegate;";
+        out << eb;
+
+        out << sp << nl << "public void ice_delegate(java.lang.Object delegate)";
+        out << sb;
+        out << nl << "_ice_delegate = (_" << name << opIntfName << ")delegate;";
+        out << eb;
+
+        out << sp << nl << "public boolean equals(java.lang.Object rhs)";
+        out << sb;
+        out << nl << "if(this == rhs)";
+        out << sb;
+        out << nl << "return true;";
+        out << eb;
+        out << nl << "if(!(rhs instanceof " << '_' << name << "Tie))";
+        out << sb;
+        out << nl << "return false;";
+        out << eb;
+        out << sp << nl << "return _ice_delegate.equals(((" << '_' << name << "Tie)rhs)._ice_delegate);";
+        out << eb;
+
+        out << sp << nl << "public int hashCode()";
+        out << sb;
+        out << nl << "return _ice_delegate.hashCode();";
+        out << eb;
+
+        if(p->isLocal())
+        {
+            out << sp << nl << "public _" << name << "Tie clone()";
+            out.inc();
+            out << nl << "throws java.lang.CloneNotSupportedException";
+            out.dec();
+            out << sb;
+            out << nl << "return (_" << name << "Tie)super.clone();";
+            out << eb;
+        }
+
+        OperationList ops = p->allOperations();
+        for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
+        {
+            ContainerPtr container = (*r)->container();
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+            const bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
+            const bool optionalMapping = useOptionalMapping(*r);
+
+            string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
+
+            TypePtr ret = (*r)->returnType();
+            string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData(), true,
+                                       optionalMapping && (*r)->returnIsOptional());
+
+            vector<string> params;
+            vector<string> args;
+            if(hasAMD)
+            {
+                params = getParamsAsync((*r), package, true, true);
+                args = getArgsAsync(*r);
+            }
+            else
+            {
+                params = getParams((*r), package, false, optionalMapping);
+                args = getArgs(*r);
+            }
+
+            string deprecateReason = getDeprecateReason(*r, cl, "operation");
+
+            out << sp;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "@Deprecated";
+                out << nl << "@SuppressWarnings(\"deprecation\")";
+            }
+            out << nl << "public " << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
+            if(!p->isLocal())
+            {
+                out << "Ice.Current __current";
+            }
+            out << epar;
+
+            if((*r)->hasMetaData("UserException"))
+            {
+                out.inc();
+                out << nl << "throws Ice.UserException";
+                out.dec();
+            }
+            else
+            {
+                ExceptionList throws = (*r)->throws();
+                throws.sort();
+                throws.unique();
+                writeThrowsClause(package, throws);
+            }
+            out << sb;
+            out << nl;
+            if(ret && !hasAMD)
+            {
+                out << "return ";
+            }
+            out << "_ice_delegate." << opName << spar << args;
+            if(!p->isLocal())
+            {
+                out << "__current";
+            }
+            out << epar << ';';
+            out << eb;
+        }
+
+        out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
+        out << sp << nl << "public static final long serialVersionUID = ";
+        string serialVersionUID;
+        if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+        {
+            string::size_type pos = serialVersionUID.rfind(":") + 1;
+            if(pos == string::npos)
+            {
+                ostringstream os;
+                os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+                emitWarning("", "", os.str());
+                out << computeSerialVersionUUID(p);
+            }
+            else
+            {
+                Int64 v = 0;
+                serialVersionUID = serialVersionUID.substr(pos);
+                if(serialVersionUID != "0")
+                {
+                    if(!stringToInt64(serialVersionUID, v)) // conversion error
+                    {
+                        ostringstream os;
+                        os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                           << "'; generating default value";
+                        emitWarning("", "", os.str());
+                        out << computeSerialVersionUUID(p);
+                    }
+                }
+                out << v;
+            }
+        }
+        else
+        {
+            out << computeSerialVersionUUID(p);
+        }
+        out << "L;";
+        out << eb;
+        close();
+    }
 
     return false;
 }

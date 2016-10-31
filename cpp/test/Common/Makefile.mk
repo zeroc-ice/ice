@@ -16,7 +16,6 @@ $(project)_noinstall	:= 1
 #
 TestCommon[shared]_targetdir	:= lib
 TestCommon_dependencies 	:= Ice
-TestCommon_sliceflags   	:= --dll-export TEST_API
 TestCommon_cppflags		:= -DTEST_API_EXPORTS -I$(includedir) -I$(project) -Itest/include
 
 projects += $(project)

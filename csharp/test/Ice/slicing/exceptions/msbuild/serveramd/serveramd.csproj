@@ -56,7 +56,6 @@
   <Import Project="$(IceBuilderCsharpProps)" Condition="Exists('$(IceBuilderCsharpProps)')" />
   <PropertyGroup Label="IceBuilder">
     <IceBuilderIncludeDirectories>$(IceHome)\slice;$(MSBuildProjectDirectory)\..\..</IceBuilderIncludeDirectories>
-    <IceBuilderAllowIcePrefix>yes</IceBuilderAllowIcePrefix>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(UseNugetBinDist)' == 'yes'">

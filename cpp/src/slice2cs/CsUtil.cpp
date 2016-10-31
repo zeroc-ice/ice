@@ -2531,7 +2531,12 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             if(s.find(prefix) == 0)
             {
                 static const string csAttributePrefix = prefix + "attribute:";
+                static const string csTie = prefix + "tie";
                 if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
+                {
+                    continue;
+                }
+                else if(s.find(csTie) == 0 && s.size() == csTie.size())
                 {
                     continue;
                 }

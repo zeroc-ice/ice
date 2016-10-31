@@ -1984,7 +1984,9 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir,
-                bool impl, bool implTie) : _includePaths(includePaths)
+                bool tie, bool impl, bool implTie) :
+    _includePaths(includePaths),
+    _tie(tie)
 {
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -2084,15 +2086,8 @@ Slice::Gen::generate(const UnitPtr& p)
     HelperVisitor helperVisitor(_out);
     p->visit(&helperVisitor, false);
 
-    DispatcherVisitor dispatcherVisitor(_out);
+    DispatcherVisitor dispatcherVisitor(_out, _tie);
     p->visit(&dispatcherVisitor, false);
-}
-
-void
-Slice::Gen::generateTie(const UnitPtr& p)
-{
-    TieVisitor tieVisitor(_out);
-    p->visit(&tieVisitor, false);
 }
 
 void
@@ -5149,8 +5144,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output &out)
-    : CsVisitor(out)
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out, bool tie) :
+    CsVisitor(out),
+    _tie(tie)
 {
 }
 
@@ -5241,113 +5237,80 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     writeInheritedOperations(p);
-
     writeDispatch(p);
 
-    _out << eb;
-
-    return true;
-}
-
-Slice::Gen::TieVisitor::TieVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::TieVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasClassDefs())
+    if((_tie || p->hasMetaData("cs:tie")) && !p->isLocal() && p->isAbstract())
     {
-        return false;
+        // Need to generate tie
+
+        // close previous class
+        _out << eb;
+
+        string opIntfName = "Operations";
+
+        _out << sp;
+        emitComVisibleAttribute();
+        emitGeneratedCodeAttribute();
+        _out << nl << "public class " << name << "Tie_ : " << name << "Disp_, Ice.TieBase";
+
+        _out << sb;
+
+        _out << sp << nl << "public " << name << "Tie_()";
+        _out << sb;
+        _out << eb;
+
+        _out << sp << nl << "public " << name << "Tie_(" << name << opIntfName << "_ del)";
+        _out << sb;
+        _out << nl << "_ice_delegate = del;";
+        _out << eb;
+
+        _out << sp << nl << "public object ice_delegate()";
+        _out << sb;
+        _out << nl << "return _ice_delegate;";
+        _out << eb;
+
+        _out << sp << nl << "public void ice_delegate(object del)";
+        _out << sb;
+        _out << nl << "_ice_delegate = (" << name << opIntfName << "_)del;";
+        _out << eb;
+
+        _out << sp << nl << "public override int GetHashCode()";
+        _out << sb;
+        _out << nl << "return _ice_delegate == null ? 0 : _ice_delegate.GetHashCode();";
+        _out << eb;
+
+        _out << sp << nl << "public override bool Equals(object rhs)";
+        _out << sb;
+        _out << nl << "if(object.ReferenceEquals(this, rhs))";
+        _out << sb;
+        _out << nl << "return true;";
+        _out << eb;
+        _out << nl << "if(!(rhs is " << name << "Tie_))";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << nl << "if(_ice_delegate == null)";
+        _out << sb;
+        _out << nl << "return ((" << name << "Tie_)rhs)._ice_delegate == null;";
+        _out << eb;
+        _out << nl << "return _ice_delegate.Equals(((" << name << "Tie_)rhs)._ice_delegate);";
+        _out << eb;
+
+        writeTieOperations(p);
+
+        _out << sp << nl << "private " << name << opIntfName << "_ _ice_delegate;";
     }
 
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-
     return true;
 }
-
 void
-Slice::Gen::TieVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal() || !p->isAbstract())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    string opIntfName = "Operations";
-
-    _out << sp;
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
-    _out << nl << "public class " << name << "Tie_ : " << name << "Disp_, Ice.TieBase";
-
-    _out << sb;
-
-    _out << sp << nl << "public " << name << "Tie_()";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "Tie_(" << name << opIntfName << "_ del)";
-    _out << sb;
-    _out << nl << "_ice_delegate = del;";
-    _out << eb;
-
-    _out << sp << nl << "public object ice_delegate()";
-    _out << sb;
-    _out << nl << "return _ice_delegate;";
-    _out << eb;
-
-    _out << sp << nl << "public void ice_delegate(object del)";
-    _out << sb;
-    _out << nl << "_ice_delegate = (" << name << opIntfName << "_)del;";
-    _out << eb;
-
-    _out << sp << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "return _ice_delegate == null ? 0 : _ice_delegate.GetHashCode();";
-    _out << eb;
-
-    _out << sp << nl << "public override bool Equals(object rhs)";
-    _out << sb;
-    _out << nl << "if(object.ReferenceEquals(this, rhs))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "if(!(rhs is " << name << "Tie_))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "if(_ice_delegate == null)";
-    _out << sb;
-    _out << nl << "return ((" << name << "Tie_)rhs)._ice_delegate == null;";
-    _out << eb;
-    _out << nl << "return _ice_delegate.Equals(((" << name << "Tie_)rhs)._ice_delegate);";
-    _out << eb;
-
-    writeOperations(p);
-
-    _out << sp << nl << "private " << name << opIntfName << "_ _ice_delegate;";
-
-    return true;
-}
-
-void
-Slice::Gen::TieVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
 }
 
 void
-Slice::Gen::TieVisitor::writeOperations(const ClassDefPtr& p, NameSet* opNames)
+Slice::Gen::DispatcherVisitor::writeTieOperations(const ClassDefPtr& p, NameSet* opNames)
 {
     OperationList ops = p->operations();
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -5382,7 +5345,7 @@ Slice::Gen::TieVisitor::writeOperations(const ClassDefPtr& p, NameSet* opNames)
         ClassList bases = p->bases();
         for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
         {
-            writeOperations(*i, &opNames);
+            writeTieOperations(*i, &opNames);
         }
     }
     else
@@ -5390,7 +5353,7 @@ Slice::Gen::TieVisitor::writeOperations(const ClassDefPtr& p, NameSet* opNames)
         ClassList bases = p->bases();
         for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
         {
-            writeOperations(*i, opNames);
+            writeTieOperations(*i, opNames);
         }
     }
 }

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #pragma once
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Identity.ice>
 

@@ -27,7 +27,7 @@ sourceSets {
 slice {
     java {
         set1 {
-            args = "--ice --checksum com.zeroc.Glacier2.SliceChecksums"
+            args = "--checksum com.zeroc.Glacier2.SliceChecksums"
             files = fileTree(dir: "${sliceDir}/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
         }
     }

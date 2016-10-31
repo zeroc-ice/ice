@@ -7,7 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_sliceflags      = --underscore
 $(test)_client_sources  = Client.cpp Key.ice
 
 tests += $(test)

@@ -1517,11 +1517,13 @@ usage(const string& n)
         "--depend-xml         Generate dependencies in XML format.\n"
         "--depend-file FILE   Write dependencies to FILE instead of standard output.\n"
         "-d, --debug          Print debug messages.\n"
-        "--ice                Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore         Allow underscores in Slice identifiers.\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         "-n, --namespace      Use PHP namespaces (requires PHP 5.3 or later).\n"
+        "--ice                Allow reserved Ice prefix in Slice identifiers\n"
+        "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore         Allow underscores in Slice identifiers\n"
+        "                     deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 

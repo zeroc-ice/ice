@@ -85,11 +85,11 @@ public:
         const std::vector<std::string>&,
         const std::string&,
         bool,
+        bool,
         bool);
     ~Gen();
 
     void generate(const UnitPtr&);
-    void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
     void generateChecksums(const UnitPtr&);
@@ -99,8 +99,8 @@ private:
 
     IceUtilInternal::Output _out;
     IceUtilInternal::Output _impl;
-
     std::vector<std::string> _includePaths;
+    bool _tie;
 
     void printHeader();
 
@@ -219,18 +219,7 @@ private:
     {
     public:
 
-        DispatcherVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class TieVisitor : public CsVisitor
-    {
-    public:
-
-        TieVisitor(::IceUtilInternal::Output&);
+        DispatcherVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -240,7 +229,9 @@ private:
     private:
 
         typedef std::set<std::string> NameSet;
-        void writeOperations(const ClassDefPtr&, NameSet* = 0);
+        void writeTieOperations(const ClassDefPtr&, NameSet* = 0);
+
+        bool _tie;
     };
 
     class BaseImplVisitor : public CsVisitor

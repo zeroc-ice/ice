@@ -10,7 +10,7 @@
 $(project)_libraries 	:= IceBox
 $(project)_programs	:= icebox iceboxadmin
 $(project)_dependencies	:= Ice
-$(project)_sliceflags	:= --include-dir IceBox --dll-export ICEBOX_API
+$(project)_sliceflags	:= --include-dir IceBox
 
 IceBox_targetdir	:= $(libdir)
 IceBox_sources	    	:= $(slicedir)/IceBox/IceBox.ice $(currentdir)/Exception.cpp

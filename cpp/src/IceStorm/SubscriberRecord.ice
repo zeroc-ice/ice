@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 #include <Ice/Identity.ice>
 #include <IceStorm/IceStorm.ice>

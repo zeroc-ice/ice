@@ -346,7 +346,7 @@ libs.forEach(
         gulp.task(generateTask(lib),
             function(){
                 return gulp.src(sources.slice.map(sliceFile))
-                    .pipe(slice2js({args: ["--ice"], dest: srcDir(lib)}))
+                    .pipe(slice2js({dest: srcDir(lib)}))
                     .pipe(gulp.dest(srcDir(lib)));
             });
 

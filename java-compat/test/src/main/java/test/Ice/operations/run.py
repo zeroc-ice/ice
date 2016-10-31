@@ -27,11 +27,11 @@ TestUtil.queueClientServerTest(configName = "amd", localOnly = True, message = "
                                additionalClientOptions = "--Ice.Warn.AMICallback=0",
                                server="test.Ice.operations.AMDServer")
 
-TestUtil.queueClientServerTest(configName = "tie", localOnly = True, message = "Running test with TIE server.",
+TestUtil.queueClientServerTest(configName = "tie", localOnly = True, message = "Running test with tie server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0",
                                server="test.Ice.operations.TieServer")
 
-TestUtil.queueClientServerTest(configName = "amdTie", localOnly = True, message = "Running test with AMD TIE server.",
+TestUtil.queueClientServerTest(configName = "amdTie", localOnly = True, message = "Running test with AMD tie server.",
                                additionalClientOptions = "--Ice.Warn.AMICallback=0",
                                server="test.Ice.operations.AMDTieServer")
 

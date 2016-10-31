@@ -9,7 +9,7 @@
 
 $(project)_programs             :=  icegriddb
 $(project)_generated_includedir := $(project)/generated/IceGrid
-$(project)_sliceflags           := -Isrc --include-dir IceGrid
+$(project)_sliceflags           := -Isrc --include-dir IceGrid -DICE_BUILDING_ICEGRIDDB
 
 $(project)/IceGridDB.cpp: $(includedir)/generated/IceGrid/Admin.h
 $(project)/generated/DBTypes.cpp: $(includedir)/generated/IceGrid/Admin.h

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-alpha3\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-alpha3\build\native\zeroc.ice.v140.props') and '$(UseNugetBinDist)' == 'yes'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-alpha3\build\native\zeroc.ice.v120.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-alpha3\build\native\zeroc.ice.v120.props') and '$(UseNugetBinDist)' == 'yes'" />
@@ -117,9 +117,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Label="IceBuilder">
-    <IceBuilderUnderscore>true</IceBuilderUnderscore>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

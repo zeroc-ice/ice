@@ -10,7 +10,7 @@
 $(project)_libraries		= Glacier2ObjC
 
 Glacier2ObjC_targetdir		:= $(libdir)
-Glacier2ObjC_sliceflags		:= --include-dir objc/Glacier2 --dll-export GLACIER2_API
+Glacier2ObjC_sliceflags		:= --include-dir objc/Glacier2
 Glacier2ObjC_dependencies 	:= IceObjC
 Glacier2ObjC_slicedir		:= $(slicedir)/Glacier2
 Glacier2ObjC_includedir		:= $(includedir)/objc/Glacier2

@@ -15,7 +15,6 @@ project.ext.description = "Allow Ice applications to discover objects and object
 
 slice {
     java {
-        args = "--ice"
         files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

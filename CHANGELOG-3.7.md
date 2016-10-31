@@ -74,6 +74,9 @@ These are the changes since Ice 3.6.3.
   `findObjectFactory` have been deprecated in favor of similar operations on the
   new interface `ValueFactoryManager`.
 
+- The Slice compiler options --ice and --underscore are now deprecated, and
+  replaced by the global Slice metadata ice-prefix and underscore.
+
 - Renamed local interface metadata `async` to `async-oneway`.
 
 - Replaced `ConnectionCallback` by delegates `CloseCallback` and `HeartbeatCallback`.
@@ -92,12 +95,28 @@ These are the changes since Ice 3.6.3.
 
 - IcePatch2 and IceGrid's distribution mechanism have been deprecated.
 
+## C++ Changes
+
+- The --dll-export option of slice2cpp is now deprecated, and replaced by the global
+  Slice metadata cpp:dll-export:SYMBOL.
+
+## C# Changes
+
+- Added new interface/class metadata cs:tie. Use this metadata to generate a tie
+  class for a given interface or class.
+
 ## Java Changes
 
 - Fixed a bug where unmarshaling Ice objects was really slow when using
   compact type IDs.
 
+- (Java Compat) Added new interface/class metadata java:tie. Use this metadata
+  to generate a tie class for a given interface or class.
+
 ## Objective-C Changes
 
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.
+
+- The --dll-export option of slice2objc is now deprecated, and replaced by the global
+  Slice metadata objc:dll-export:SYMBOL.

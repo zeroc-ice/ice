@@ -690,6 +690,21 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     ObjCGenerator::validateMetaData(p);
 
+    //
+    // Give precedence to --dll-export command-line option
+    //
+    if(_dllExport.empty())
+    {
+        DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+        assert(dc);
+        static const string dllExportPrefix = "objc:dll-export:";
+        string meta = dc->findMetaData(dllExportPrefix);
+        if(meta.size() > dllExportPrefix.size())
+        {
+            _dllExport = meta.substr(dllExportPrefix.size());
+        }
+    }
+
     _H << sp << nl << "#import <objc/Ice/Config.h>";
     if(p->hasNonLocalClassDecls())
     {

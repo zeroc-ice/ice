@@ -68,13 +68,16 @@ usage(const string& n)
         "-E                      Print preprocessor output on stdout.\n"
         "--include-dir DIR       Use DIR as the header include directory in source files.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
-        "--dll-export SYMBOL     Use SYMBOL for DLL exports.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-xml            Generate dependencies in XML format.\n"
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore            Allow underscores in Slice identifiers.\n"
+        "--dll-export SYMBOL     Use SYMBOL for DLL exports\n"
+        "                        deprecated: use instead [[\"objc:dll-export:SYMBOL\"]] metadata.\n"
+        "--ice                   Allow reserved Ice prefix in Slice identifiers\n"
+        "                        deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore            Allow underscores in Slice identifiers\n"
+        "                        deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }

@@ -10,7 +10,7 @@
 $(project)_libraries		= IceGridObjC
 
 IceGridObjC_targetdir		:= $(libdir)
-IceGridObjC_sliceflags		:= --include-dir objc/IceGrid --dll-export ICEGRID_API
+IceGridObjC_sliceflags		:= --include-dir objc/IceGrid
 IceGridObjC_dependencies 	:= IceObjC Glacier2ObjC
 IceGridObjC_slicedir		:= $(slicedir)/IceGrid
 IceGridObjC_includedir		:= $(includedir)/objc/IceGrid

@@ -276,7 +276,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 };
 
-class MyDerivedClass extends MyClass
+["java:tie"] class MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

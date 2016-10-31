@@ -68,16 +68,18 @@ usage(const string& n)
         "-IDIR                   Put DIR in the include file search path.\n"
         "-E                      Print preprocessor output on stdout.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
-        "--tie                   Generate TIE classes.\n"
+        "--tie                   Generate tie classes.\n"
         "--impl                  Generate sample implementations.\n"
-        "--impl-tie              Generate sample TIE implementations.\n"
+        "--impl-tie              Generate sample tie implementations.\n"
         "--depend                Generate Makefile dependencies.\n"
         "--depend-xml            Generate dependencies in XML format.\n"
         "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
         "-d, --debug             Print debug messages.\n"
-        "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore            Allow underscores in Slice identifiers.\n"
         "--checksum              Generate checksums for Slice definitions.\n"
+        "--ice                   Allow reserved Ice prefix in Slice identifiers\n"
+        "                        deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore            Allow underscores in Slice identifiers\n"
+        "                        deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -309,12 +311,8 @@ compile(const vector<string>& argv)
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output, impl, implTie);
+                        Gen gen(icecpp->getBaseName(), includePaths, output, tie, impl, implTie);
                         gen.generate(p);
-                        if(tie)
-                        {
-                            gen.generateTie(p);
-                        }
                         if(impl)
                         {
                             gen.generateImpl(p);

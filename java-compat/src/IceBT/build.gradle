@@ -16,7 +16,6 @@ project.ext.description = "Bluetooth support for Ice"
 slice {
     java {
         set1 {
-            args = "--ice"
             files = fileTree(dir: "$sliceDir/IceBT", includes:['*.ice'], excludes:["*F.ice"])
         }
     }

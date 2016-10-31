@@ -70,7 +70,7 @@ endif
 define make-objc-src-project
 ifneq ($(USE_BIN_DIST),yes)
 $1_slicecompiler 	:= slice2objc
-$1_sliceflags		+= --ice -I$(slicedir)
+$1_sliceflags		+= -I$(slicedir)
 $1_cppflags 		+= -I$(includedir) -I$(includedir)/generated
 $1_ldflags		+= -framework Foundation
 $(make-project)

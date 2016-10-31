@@ -11,6 +11,6 @@ $(project)_libraries	:= IceStorm
 
 IceStorm_targetdir	:= $(libdir)
 IceStorm_dependencies	:= Ice
-IceStorm_sliceflags	:= --include-dir IceStorm --dll-export ICE_STORM_LIB_API
+IceStorm_sliceflags	:= --include-dir IceStorm
 
 projects += $(project)

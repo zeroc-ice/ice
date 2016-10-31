@@ -21,7 +21,6 @@
     <Ice_SrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</Ice_SrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <IceBuilderOutputDir Condition="'$(IceBuilderOutputDir)' == ''">$(Platform)\$(Configuration)</IceBuilderOutputDir>
-    <IceBuilderAllowIcePrefix Condition="'$(IceBuilderAllowIcePrefix)' == ''">true</IceBuilderAllowIcePrefix>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
 
