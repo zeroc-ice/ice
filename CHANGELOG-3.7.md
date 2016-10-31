@@ -90,6 +90,8 @@ These are the changes since Ice 3.6.3.
   and universal character names (\unnnn and \Unnnnnnnn). See the property
   Ice.ToStringMode and the static function/method identityToString.
 
+- IcePatch2 and IceGrid's distribution mechanism have been deprecated.
+
 ## Java Changes
 
 - Fixed a bug where unmarshaling Ice objects was really slow when using
@@ -99,7 +101,3 @@ These are the changes since Ice 3.6.3.
 
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.
-
-## PHP Changes
-
-- Added support for PHP 7.
