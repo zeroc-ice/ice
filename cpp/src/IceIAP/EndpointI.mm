@@ -63,7 +63,7 @@ public:
 
 }
 
-extern "C" ICE_IAP_API Plugin*
+extern "C" ICEIAP_API Plugin*
 createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 {
     return new iAPEndpointFactoryPlugin(com);
@@ -72,7 +72,7 @@ createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 namespace Ice
 {
 
-ICE_IAP_API void
+ICEIAP_API void
 registerIceIAP(bool loadOnInitialize)
 {
     Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
@@ -83,7 +83,7 @@ registerIceIAP(bool loadOnInitialize)
 //
 // Objective-C function to allow Objective-C programs to register plugin.
 //
-extern "C" ICE_IAP_API void
+extern "C" ICEIAP_API void
 ICEregisterIceIAP(bool loadOnInitialize)
 {
     Ice::registerIceIAP(loadOnInitialize);

@@ -15,7 +15,7 @@
 //
 // Automatically link IceSSL[D|++11|++11D].lib with Visual C++
 //
-#if !defined(ICE_BUILDING_ICE_SSL) && defined(ICE_SSL_API_EXPORTS)
+#if !defined(ICE_BUILDING_ICE_SSL) && defined(ICESSL_API_EXPORTS)
 #   define ICE_BUILDING_ICE_SSL
 #endif
 

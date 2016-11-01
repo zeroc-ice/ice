@@ -24,7 +24,7 @@ using namespace IceSSL;
 //
 // Plug-in factory function.
 //
-extern "C" ICE_SSL_API Ice::Plugin*
+extern "C" ICESSL_API Ice::Plugin*
 createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
     return new PluginI(communicator);
@@ -33,7 +33,7 @@ createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const 
 namespace Ice
 {
 
-ICE_SSL_API void
+ICESSL_API void
 registerIceSSL(bool loadOnInitialize)
 {
     Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
@@ -67,7 +67,7 @@ IceSSL::Plugin::~Plugin()
 //
 // Objective-C function to allow Objective-C programs to register plugin.
 //
-extern "C" ICE_SSL_API void
+extern "C" ICESSL_API void
 ICEregisterIceSSL(bool loadOnInitialize)
 {
     Ice::registerIceSSL(loadOnInitialize);

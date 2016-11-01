@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_API_EXPORTS
-#   define ICE_GRID_API_EXPORTS
+#ifndef ICEGRID_API_EXPORTS
+#   define ICEGRID_API_EXPORTS
 #endif
 
 #include <IceGrid/IceGrid.h>
@@ -28,7 +28,7 @@ RegistryPluginFacade* pluginFacade = 0;
 namespace IceGrid
 {
 
-ICE_GRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 };
 

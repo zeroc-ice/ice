@@ -18,7 +18,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-ICE_GRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 }
 

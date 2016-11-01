@@ -34,7 +34,7 @@ IceBT::BluetoothException::ice_print(ostream& out) const
 extern "C"
 {
 
-ICE_BT_API Ice::Plugin*
+ICEBT_API Ice::Plugin*
 createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
     return new PluginI(communicator);
@@ -45,7 +45,7 @@ createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const S
 namespace Ice
 {
 
-ICE_BT_API void
+ICEBT_API void
 registerIceBT(bool loadOnInitialize)
 {
     Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);

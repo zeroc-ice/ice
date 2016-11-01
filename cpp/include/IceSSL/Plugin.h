@@ -39,13 +39,13 @@
 #   include <wincrypt.h>
 #endif
 
-#ifndef ICE_SSL_API
+#ifndef ICESSL_API
 #   if defined(ICE_STATIC_LIBS)
-#       define ICE_SSL_API /**/
-#   elif defined(ICE_SSL_API_EXPORTS)
-#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
+#       define ICESSL_API /**/
+#   elif defined(ICESSL_API_EXPORTS)
+#       define ICESSL_API ICE_DECLSPEC_EXPORT
 #   else
-#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
+#       define ICESSL_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -85,7 +85,7 @@ namespace IceSSL
 //
 // This exception is thrown if the certificate cannot be read.
 //
-class ICE_SSL_API CertificateReadException : public IceUtil::ExceptionHelper<CertificateReadException>
+class ICESSL_API CertificateReadException : public IceUtil::ExceptionHelper<CertificateReadException>
 {
 public:
 
@@ -108,7 +108,7 @@ private:
 //
 // This exception is thrown if the certificate cannot be encoded.
 //
-class ICE_SSL_API CertificateEncodingException : public IceUtil::ExceptionHelper<CertificateEncodingException>
+class ICESSL_API CertificateEncodingException : public IceUtil::ExceptionHelper<CertificateEncodingException>
 {
 public:
 
@@ -134,7 +134,7 @@ private:
 //
 // This exception is thrown if a distinguished name cannot be parsed.
 //
-class ICE_SSL_API ParseException : public IceUtil::ExceptionHelper<ParseException>
+class ICESSL_API ParseException : public IceUtil::ExceptionHelper<ParseException>
 {
 public:
 
@@ -163,7 +163,7 @@ ICE_DEFINE_PTR(CertificatePtr, Certificate);
 //
 // A representation of a PublicKey.
 //
-class ICE_SSL_API PublicKey
+class ICESSL_API PublicKey
 #ifndef ICE_CPP11_MAPPING
     : public virtual IceUtil::Shared
 #endif
@@ -205,7 +205,7 @@ ICE_DEFINE_PTR(PublicKeyPtr, PublicKey);
 // provided in the constructor (i.e., "ZeroC, Inc." will not turn
 // into ZeroC\, Inc.).
 //
-class ICE_SSL_API DistinguishedName
+class ICESSL_API DistinguishedName
 {
 public:
 
@@ -240,8 +240,8 @@ public:
     // This is an exact match. The order of the RDN components is
     // important.
     //
-    friend ICE_SSL_API bool operator==(const DistinguishedName&, const DistinguishedName&);
-    friend ICE_SSL_API bool operator<(const DistinguishedName&, const DistinguishedName&);
+    friend ICESSL_API bool operator==(const DistinguishedName&, const DistinguishedName&);
+    friend ICESSL_API bool operator<(const DistinguishedName&, const DistinguishedName&);
 
     //
     // Perform a partial match with another DistinguishedName. The function
@@ -292,7 +292,7 @@ operator!=(const DistinguishedName& lhs, const DistinguishedName& rhs)
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
-class ICE_SSL_API Certificate :
+class ICESSL_API Certificate :
 #ifdef ICE_CPP11_MAPPING
         public std::enable_shared_from_this<Certificate>
 #else
@@ -503,7 +503,7 @@ private:
 // NativeConnectionInfo is an extension of IceSSL::ConnectionInfo that
 // provides access to native certificates.
 //
-class ICE_SSL_API NativeConnectionInfo : public ConnectionInfo
+class ICESSL_API NativeConnectionInfo : public ConnectionInfo
 {
 public:
 
@@ -525,7 +525,7 @@ ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
 // by implementing the CertificateVerifier interface.
 //
 
-class ICE_SSL_API CertificateVerifier : public IceUtil::Shared
+class ICESSL_API CertificateVerifier : public IceUtil::Shared
 {
 public:
 
@@ -554,7 +554,7 @@ typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plug-in.
 //
-class ICE_SSL_API PasswordPrompt : public IceUtil::Shared
+class ICESSL_API PasswordPrompt : public IceUtil::Shared
 {
 public:
 
@@ -571,7 +571,7 @@ typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
 #endif
 
 
-class ICE_SSL_API Plugin : public Ice::Plugin
+class ICESSL_API Plugin : public Ice::Plugin
 {
 public:
 

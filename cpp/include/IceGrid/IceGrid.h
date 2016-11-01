@@ -25,7 +25,7 @@ namespace IceGrid
 //
 // Global function to obtain a RegistryPluginFacade
 //
-ICE_GRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
+ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
 
 }
 

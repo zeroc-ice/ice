@@ -14,7 +14,7 @@
 // Automatically link with IceGrid[D|++11|++11D].lib
 //
 
-#if !defined(ICE_BUILDING_ICE_GRID) && defined(ICE_GRID_API_EXPORTS)
+#if !defined(ICE_BUILDING_ICE_GRID) && defined(ICEGRID_API_EXPORTS)
 #   define ICE_BUILDING_ICE_GRID
 #endif
 

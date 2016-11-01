@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_PATCH2_API", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEPATCH2_API", "objc:header-dir:objc"]]
 [["cpp:include:IcePatch2/Config.h"]]
 
 #include <IcePatch2/FileInfo.ice>

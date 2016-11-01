@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#define ICE_STORM_SERVICE_API_EXPORTS
+#define ICESTORM_SERVICE_API_EXPORTS
 
 #include <Ice/PluginManagerI.h> // For loadPlugin
 
@@ -94,7 +94,7 @@ private:
 extern "C"
 {
 
-ICE_STORM_SERVICE_API ::IceBox::Service*
+ICESTORM_SERVICE_API ::IceBox::Service*
 createIceStorm(CommunicatorPtr communicator)
 {
     return new ServiceI;

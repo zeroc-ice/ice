@@ -17,7 +17,7 @@
 // Automatically link with IceStormService[D|++11|++11D].lib
 //
 
-#if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICE_STORM_SERVICE_API_EXPORTS)
+#if !defined(ICE_BUILDING_ICE_STORM_SERVICE) && defined(ICESTORM_SERVICE_API_EXPORTS)
 #   define ICE_BUILDING_ICE_STORM_SERVICE
 #endif
 
@@ -25,13 +25,13 @@
 #   pragma comment(lib, ICE_LIBNAME("IceStormService"))
 #endif
 
-#ifndef ICE_STORM_SERVICE_API
+#ifndef ICESTORM_SERVICE_API
 #   if defined(ICE_STATIC_LIBS)
-#       define ICE_STORM_SERVICE_API /**/
-#   elif defined(ICE_STORM_SERVICE_API_EXPORTS)
-#       define ICE_STORM_SERVICE_API ICE_DECLSPEC_EXPORT
+#       define ICESTORM_SERVICE_API /**/
+#   elif defined(ICESTORM_SERVICE_API_EXPORTS)
+#       define ICESTORM_SERVICE_API ICE_DECLSPEC_EXPORT
 #   else
-#       define ICE_STORM_SERVICE_API ICE_DECLSPEC_IMPORT
+#       define ICESTORM_SERVICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -48,7 +48,7 @@ class Service : public ::IceBox::Service
 {
 public:
 
-    ICE_STORM_SERVICE_API static ServicePtr create(const Ice::CommunicatorPtr&,
+    ICESTORM_SERVICE_API static ServicePtr create(const Ice::CommunicatorPtr&,
                                                    const Ice::ObjectAdapterPtr&,
                                                    const Ice::ObjectAdapterPtr&,
                                                    const std::string&,
@@ -57,7 +57,7 @@ public:
 
     virtual void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) = 0;
 
-    ICE_STORM_SERVICE_API virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
+    ICESTORM_SERVICE_API virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
 
     virtual void stop() = 0;
 };

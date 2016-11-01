@@ -19,24 +19,24 @@ namespace IceSSL
 {
 
 class SSLEngine;
-ICE_SSL_API IceUtil::Shared* upCast(SSLEngine*);
+ICESSL_API IceUtil::Shared* upCast(SSLEngine*);
 typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
 class SecureTransportEngine;
-ICE_SSL_API IceUtil::Shared* upCast(SecureTransportEngine*);
+ICESSL_API IceUtil::Shared* upCast(SecureTransportEngine*);
 typedef IceInternal::Handle<SecureTransportEngine> SecureTransportEnginePtr;
 #elif defined(ICE_USE_SCHANNEL)
 class SChannelEngine;
-ICE_SSL_API IceUtil::Shared* upCast(SChannelEngine*);
+ICESSL_API IceUtil::Shared* upCast(SChannelEngine*);
 typedef IceInternal::Handle<SChannelEngine> SChannelEnginePtr;
 #elif defined(ICE_OS_WINRT)
 class WinRTEngine;
-ICE_SSL_API IceUtil::Shared* upCast(WinRTEngine*);
+ICESSL_API IceUtil::Shared* upCast(WinRTEngine*);
 typedef IceInternal::Handle<WinRTEngine> WinRTEnginePtr;
 #else // OpenSSL
 class OpenSSLEngine;
-ICE_SSL_API IceUtil::Shared* upCast(OpenSSLEngine*);
+ICESSL_API IceUtil::Shared* upCast(OpenSSLEngine*);
 typedef IceInternal::Handle<OpenSSLEngine> OpenSSLEnginePtr;
 #endif
 

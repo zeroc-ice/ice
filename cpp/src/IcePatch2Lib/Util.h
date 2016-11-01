@@ -17,39 +17,39 @@
 namespace IcePatch2Internal
 {
 
-ICE_PATCH2_API extern const char* checksumFile;
-ICE_PATCH2_API extern const char* logFile;
+ICEPATCH2_API extern const char* checksumFile;
+ICEPATCH2_API extern const char* logFile;
 
-ICE_PATCH2_API std::string lastError();
+ICEPATCH2_API std::string lastError();
 
-ICE_PATCH2_API std::string bytesToString(const Ice::ByteSeq&);
-ICE_PATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
+ICEPATCH2_API std::string bytesToString(const Ice::ByteSeq&);
+ICEPATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 
-ICE_PATCH2_API std::string simplify(const std::string&);
+ICEPATCH2_API std::string simplify(const std::string&);
 
-ICE_PATCH2_API bool isRoot(const std::string&);
+ICEPATCH2_API bool isRoot(const std::string&);
 
-ICE_PATCH2_API std::string getSuffix(const std::string&);
-ICE_PATCH2_API std::string getWithoutSuffix(const std::string&);
-ICE_PATCH2_API bool ignoreSuffix(const std::string&);
+ICEPATCH2_API std::string getSuffix(const std::string&);
+ICEPATCH2_API std::string getWithoutSuffix(const std::string&);
+ICEPATCH2_API bool ignoreSuffix(const std::string&);
 
-ICE_PATCH2_API std::string getBasename(const std::string&);
-ICE_PATCH2_API std::string getDirname(const std::string&);
+ICEPATCH2_API std::string getBasename(const std::string&);
+ICEPATCH2_API std::string getDirname(const std::string&);
 
-ICE_PATCH2_API void rename(const std::string&, const std::string&);
+ICEPATCH2_API void rename(const std::string&, const std::string&);
 
-ICE_PATCH2_API void remove(const std::string&);
-ICE_PATCH2_API void removeRecursive(const std::string&);
+ICEPATCH2_API void remove(const std::string&);
+ICEPATCH2_API void removeRecursive(const std::string&);
 
-ICE_PATCH2_API Ice::StringSeq readDirectory(const std::string&);
+ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
 
-ICE_PATCH2_API void createDirectory(const std::string&);
-ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
+ICEPATCH2_API void createDirectory(const std::string&);
+ICEPATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
-ICE_PATCH2_API void decompressFile(const std::string&);
+ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICEPATCH2_API void decompressFile(const std::string&);
 
-ICE_PATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
+ICEPATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
 
 struct FileInfoEqual : public std::binary_function<const IcePatch2::LargeFileInfo&, const IcePatch2::LargeFileInfo&, bool>
 {
@@ -152,7 +152,7 @@ struct FileInfoLess : public FileInfoWithoutFlagsLess
     }
 };
 
-class ICE_PATCH2_API GetFileInfoSeqCB
+class ICEPATCH2_API GetFileInfoSeqCB
 {
 public:
 
@@ -163,20 +163,20 @@ public:
     virtual bool compress(const std::string&) = 0;
 };
 
-ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
+ICEPATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
+ICEPATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
+ICEPATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
+ICEPATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
 
-ICE_PATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
+ICEPATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
 
-ICE_PATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
-ICE_PATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
+ICEPATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
+ICEPATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
 
-ICE_PATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
+ICEPATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
 
 struct FileTree1
 {
@@ -192,7 +192,7 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICE_PATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
+ICEPATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
 
 }
 

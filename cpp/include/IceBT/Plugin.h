@@ -12,13 +12,13 @@
 
 #include <Ice/Plugin.h>
 
-#ifndef ICE_BT_API
+#ifndef ICEBT_API
 #   if defined(ICE_STATIC_LIBS)
-#       define ICE_BT_API /**/
-#   elif defined(ICE_BT_API_EXPORTS)
-#       define ICE_BT_API ICE_DECLSPEC_EXPORT
+#       define ICEBT_API /**/
+#   elif defined(ICEBT_API_EXPORTS)
+#       define ICEBT_API ICE_DECLSPEC_EXPORT
 #   else
-#       define ICE_BT_API ICE_DECLSPEC_IMPORT
+#       define ICEBT_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -34,7 +34,7 @@ typedef std::map<std::string, PropertyMap> DeviceMap;
 // An application can receive discovery notifications
 // by implementing the DiscoveryCallback interface.
 //
-class ICE_BT_API DiscoveryCallback : public IceUtil::Shared
+class ICEBT_API DiscoveryCallback : public IceUtil::Shared
 {
 public:
 
@@ -48,7 +48,7 @@ public:
 typedef IceUtil::Handle<DiscoveryCallback> DiscoveryCallbackPtr;
 #endif
 
-class ICE_BT_API Plugin : public Ice::Plugin
+class ICEBT_API Plugin : public Ice::Plugin
 {
 public:
 

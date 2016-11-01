@@ -38,7 +38,7 @@ namespace Ice
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceStringConverter(bool = true);
 #endif
 
-#ifndef ICE_SSL_API_EXPORTS
+#ifndef ICESSL_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSL(bool = true);
 #endif
 
@@ -50,12 +50,12 @@ ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool = true);
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool = true);
 #endif
 
-#ifndef ICE_BT_API_EXPORTS
+#ifndef ICEBT_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool = true);
 #endif
 
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#ifndef ICE_IAP_API_EXPORTS
+#ifndef ICEIAP_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool = true);
 #endif
 #endif

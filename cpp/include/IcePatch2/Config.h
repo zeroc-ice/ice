@@ -14,7 +14,7 @@
 // Automatically link with IcePatch2[D|++11|++11D].lib
 //
 
-#if !defined(ICE_BUILDING_ICE_PATCH2) && defined(ICE_PATCH2_API_EXPORTS)
+#if !defined(ICE_BUILDING_ICE_PATCH2) && defined(ICEPATCH2_API_EXPORTS)
 #   define ICE_BUILDING_ICE_PATCH2
 #endif
 
