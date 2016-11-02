@@ -1768,4 +1768,5 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets'))" />
   </Target>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
 </Project>

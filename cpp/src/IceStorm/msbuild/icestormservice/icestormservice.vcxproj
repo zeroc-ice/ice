@@ -391,4 +391,5 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets'))" />
   </Target>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
 </Project>

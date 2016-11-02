@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampServer>http://timestamp.verisign.com/scripts/timstamp.dll</TimeStampServer>
+    <SignCommand>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommand>
+  </PropertyGroup>
+  <Target Name="SignPackage" AfterTargets="Build" DependsOnTargets="Build" Condition="Exists('$(SIGN_CERTIFICATE)')">
+    <Message Text="Signing $(TargetName)$(TargetExt)" />
+    <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" />
+  </Target>
+</Project>
