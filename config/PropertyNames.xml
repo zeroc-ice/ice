@@ -428,7 +428,7 @@ generated from the section label.
         <property name="DomainId"/>
     </section>
 
-    <section name="IceGridDiscovery">
+    <section name="IceLocatorDiscovery">
         <property name="Reply" class="objectadapter" />
         <property name="Locator" class="objectadapter" />
         <property name="Lookup"/>

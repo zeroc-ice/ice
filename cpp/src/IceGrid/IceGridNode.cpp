@@ -41,14 +41,14 @@ namespace
 class ProcessI : public Process
 {
 public:
-    
+
     ProcessI(const ActivatorPtr&, const ProcessPtr&);
 
     virtual void shutdown(const Current&);
     virtual void writeMessage(const std::string&, Int, const Current&);
-    
+
 private:
-    
+
     ActivatorPtr _activator;
     ProcessPtr _origProcess;
 };
@@ -119,11 +119,11 @@ setNoIndexingAttribute(const string& pa)
 }
 #endif
 
-} 
+}
 
 
-CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com, 
-                                       const ActivatorPtr& activator, 
+CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
+                                       const ActivatorPtr& activator,
                                        bool nowarn,
                                        bool readonly,
                                        const string& initFromReplica,
@@ -139,7 +139,7 @@ CollocatedRegistry::shutdown()
     _activator->shutdown();
 }
 
-ProcessI::ProcessI(const ActivatorPtr& activator, const ProcessPtr& origProcess) : 
+ProcessI::ProcessI(const ActivatorPtr& activator, const ProcessPtr& origProcess) :
     _activator(activator),
     _origProcess(origProcess)
 {
@@ -239,7 +239,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             }
 
             initFromReplica = argv[++i];
-        } 
+        }
         else if(strcmp(argv[i], "--deploy") == 0)
         {
             if(i + 1 >= argc)
@@ -293,7 +293,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         out << "setting `Ice.ThreadPool.Server.Size' is not useful, ";
         out << "you should set individual adapter thread pools instead.";
     }
-    
+
     setupThreadPool(properties, "IceGrid.Node.ThreadPool", 1, 100);
 
     //
@@ -314,7 +314,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
 
         communicator()->setDefaultLocator(_registry->getLocator());
-        
+
         //
         // Set the default locator property to point to the collocated
         // locator (this property is passed by the activator to each
@@ -349,7 +349,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             FileException ex(__FILE__, __LINE__);
             ex.path = dataPath;
             ex.error = IceInternal::getSystemErrno();
-      
+
             ServiceError err(this);
             err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;
@@ -360,7 +360,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         //
         if(dataPath[dataPath.length() - 1] != '/')
         {
-            dataPath += "/"; 
+            dataPath += "/";
         }
 
         IcePatch2Internal::createDirectory(dataPath + "servers");
@@ -459,7 +459,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string instanceName = properties->getProperty("IceGrid.InstanceName");
     if(instanceName.empty())
     {
-        instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+        instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if(instanceName.empty())
     {
@@ -483,7 +483,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     _adapter->addDefaultServant(new NodeServerAdminRouter(_node), _node->getServerAdminCategory());
-    
+
     //
     // Start the platform info thread if needed.
     //
@@ -491,7 +491,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     //
     // Ensures that the locator is reachable.
-    // 
+    //
     if(!nowarn)
     {
         try
@@ -520,7 +520,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         // Replace Admin facet
         ProcessPtr origProcess = ProcessPtr::dynamicCast(communicator()->removeAdminFacet("Process"));
         communicator()->addAdminFacet(new ProcessI(_activator, origProcess), "Process");
-       
+
         Identity adminId;
         adminId.name = "NodeAdmin-" + name;
         adminId.category = instanceName;
@@ -568,15 +568,15 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             Ice::Identity regId;
             regId.category = instanceName;
             regId.name = "Registry";
-            
+
             RegistryPrx registry = RegistryPrx::checkedCast(communicator()->getDefaultLocator()->findObjectById(regId));
             if(!registry)
             {
                 throw "invalid registry";
             }
-        
+
             registry = registry->ice_preferSecure(true); // Use SSL if available.
-            
+
             IceGrid::AdminSessionPrx session;
             if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
@@ -592,14 +592,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                     getline(cin, id);
                     id = IceUtilInternal::trim(id);
                 }
-                
+
                 if(password.empty())
                 {
                     cout << "password: " << flush;
                     getline(cin, password);
                     password = IceUtilInternal::trim(password);
                 }
-                
+
                 session = registry->createAdminSession(id, password);
             }
             assert(session);
@@ -625,7 +625,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch(const AccessDeniedException& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" 
+            warn << "failed to deploy application `" << desc << "':\n"
                  << "registry database is locked by `" << ex.lockUserId << "'";
         }
         catch(const std::exception& ex)
@@ -763,7 +763,7 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[], 
+NodeService::initializeCommunicator(int& argc, char* argv[],
                                     const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
