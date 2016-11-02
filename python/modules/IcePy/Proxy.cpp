@@ -164,7 +164,7 @@ extern "C"
 static long
 proxyHash(ProxyObject* self)
 {
-    return static_cast<long>((*self->proxy)->__hash());
+    return static_cast<long>((*self->proxy)->iceHash());
 }
 
 #ifdef WIN32

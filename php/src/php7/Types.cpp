@@ -2923,7 +2923,7 @@ IcePHP::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePHP::ObjectWriter::__write(Ice::OutputStream* os) const
+IcePHP::ObjectWriter::iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -2959,7 +2959,7 @@ IcePHP::ObjectWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IcePHP::ObjectWriter::__read(Ice::InputStream*)
+IcePHP::ObjectWriter::iceRead(Ice::InputStream*)
 {
     assert(false);
 }
@@ -3032,13 +3032,13 @@ IcePHP::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePHP::ObjectReader::__write(Ice::OutputStream*) const
+IcePHP::ObjectReader::iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePHP::ObjectReader::__read(Ice::InputStream* is)
+IcePHP::ObjectReader::iceRead(Ice::InputStream* is)
 {
     is->startValue();
 
@@ -3383,13 +3383,13 @@ IcePHP::ExceptionReader::ice_throw() const
 }
 
 void
-IcePHP::ExceptionReader::__write(Ice::OutputStream*) const
+IcePHP::ExceptionReader::iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePHP::ExceptionReader::__read(Ice::InputStream* is)
+IcePHP::ExceptionReader::iceRead(Ice::InputStream* is)
 {
     is->startException();
 
@@ -3399,7 +3399,7 @@ IcePHP::ExceptionReader::__read(Ice::InputStream* is)
 }
 
 bool
-IcePHP::ExceptionReader::__usesClasses() const
+IcePHP::ExceptionReader::iceUsesClasses() const
 {
     return _info->usesClasses;
 }

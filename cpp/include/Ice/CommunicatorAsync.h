@@ -33,18 +33,18 @@ public:
     {
     }
 
-    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& iceResult) const
     {
-        ::Ice::CommunicatorPtr __com = __result->getCommunicator();
-        assert(__com);
+        ::Ice::CommunicatorPtr iceCom = iceResult->getCommunicator();
+        assert(iceCom);
         try
         {
-            __com->end_flushBatchRequests(__result);
+            iceCom->end_flushBatchRequests(iceResult);
             assert(false);
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(iceResult, ex);
         }
     }
 };
@@ -81,18 +81,18 @@ public:
     {
     }
 
-    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& iceResult) const
     {
-        ::Ice::CommunicatorPtr __com = __result->getCommunicator();
-        assert(__com);
+        ::Ice::CommunicatorPtr iceCom = iceResult->getCommunicator();
+        assert(iceCom);
         try
         {
-            __com->end_flushBatchRequests(__result);
+            iceCom->end_flushBatchRequests(iceResult);
             assert(false);
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(iceResult, ex);
         }
     }
 };

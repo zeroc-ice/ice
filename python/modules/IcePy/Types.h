@@ -554,8 +554,8 @@ public:
 
     virtual void ice_preMarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void iceWrite(Ice::OutputStream*) const;
+    virtual void iceRead(Ice::InputStream*);
 
 private:
 
@@ -578,8 +578,8 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void iceWrite(Ice::OutputStream*) const;
+    virtual void iceRead(Ice::InputStream*);
 
     virtual ClassInfoPtr getInfo() const;
 
@@ -610,15 +610,15 @@ public:
 #endif
     virtual void ice_throw() const;
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void iceWrite(Ice::OutputStream*) const;
+    virtual void iceRead(Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool iceUsesClasses() const;
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void iceWriteImpl(Ice::OutputStream*) const {}
+    virtual void iceReadImpl(Ice::InputStream*) {}
 
 private:
 
@@ -643,22 +643,22 @@ public:
 #endif
     virtual void ice_throw() const;
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void iceWrite(Ice::OutputStream*) const;
+    virtual void iceRead(Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool iceUsesClasses() const;
 
     PyObject* getException() const; // Borrowed reference.
 
     Ice::SlicedDataPtr getSlicedData() const;
 
-    using Ice::UserException::__read;
-    using Ice::UserException::__write;
+    using Ice::UserException::iceRead;
+    using Ice::UserException::iceWrite;
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void iceWriteImpl(Ice::OutputStream*) const {}
+    virtual void iceReadImpl(Ice::InputStream*) {}
 
 private:
 

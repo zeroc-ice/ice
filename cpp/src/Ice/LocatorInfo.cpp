@@ -351,7 +351,7 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
     vector<EndpointIPtr> endpoints;
     if(proxy)
     {
-        ReferencePtr r = proxy->__reference();
+        ReferencePtr r = proxy->iceReference();
         if(_ref->isWellKnown() && !isSupported(_ref->getEncoding(), r->getEncoding()))
         {
             //
@@ -482,7 +482,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
     vector<EndpointIPtr> endpoints;
     if(_proxy)
     {
-        ReferencePtr r = _proxy->__reference();
+        ReferencePtr r = _proxy->iceReference();
         if(!r->isIndirect())
         {
             endpoints = r->getEndpoints();
@@ -924,7 +924,7 @@ IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
                                         const Ice::ObjectPrxPtr& proxy,
                                         bool notRegistered)
 {
-    if(!proxy || proxy->__reference()->isIndirect())
+    if(!proxy || proxy->iceReference()->isIndirect())
     {
         //
         // Remove the cached references of well-known objects for which we tried
@@ -938,9 +938,9 @@ IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
 
     if(!ref->isWellKnown())
     {
-        if(proxy && !proxy->__reference()->isIndirect()) // Cache the adapter endpoints.
+        if(proxy && !proxy->iceReference()->isIndirect()) // Cache the adapter endpoints.
         {
-            _table->addAdapterEndpoints(ref->getAdapterId(), proxy->__reference()->getEndpoints());
+            _table->addAdapterEndpoints(ref->getAdapterId(), proxy->iceReference()->getEndpoints());
         }
         else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
         {
@@ -953,9 +953,9 @@ IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
     }
     else
     {
-        if(proxy && !proxy->__reference()->isWellKnown()) // Cache the well-known object reference.
+        if(proxy && !proxy->iceReference()->isWellKnown()) // Cache the well-known object reference.
         {
-            _table->addObjectReference(ref->getIdentity(), proxy->__reference());
+            _table->addObjectReference(ref->getIdentity(), proxy->iceReference());
         }
         else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
         {

@@ -63,12 +63,12 @@ public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _object.
-    virtual void __incRef()
+    virtual void iceIncRef()
     {
         CFRetain(_object);
     }
 
-    virtual void __decRef()
+    virtual void iceDecRef()
     {
         CFRelease(_object);
     }
@@ -95,12 +95,12 @@ public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _blobject.
-    virtual void __incRef()
+    virtual void iceIncRef()
     {
         CFRetain(_blobject);
     }
 
-    virtual void __decRef()
+    virtual void iceDecRef()
     {
         CFRelease(_blobject);
     }
@@ -562,7 +562,7 @@ static NSString* ICEObject_all__[4] =
         {
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
-            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
+            // to call iceIncRef/iceDecRef here. The C++ object and Objective-C object are sharing
             // the same reference count (the one of the Objective-C object). This is necessary
             // to properly release both objects when there's either no more C++ handle/ObjC
             // reference to the object (without this, servants added to the object adapter
@@ -584,7 +584,7 @@ static NSString* ICEObject_all__[4] =
         {
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
-            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
+            // to call iceIncRef/iceDecRef here. The C++ object and Objective-C object are sharing
             // the same reference count (the one of the Objective-C object). This is necessary
             // to properly release both objects when there's either no more C++ handle/ObjC
             // reference to the object (without this, servants added to the object adapter
@@ -607,7 +607,7 @@ static NSString* ICEObject_all__[4] =
     }
 
     object__ = arg;
-    object__->__incRef();
+    object__->iceIncRef();
     assert(cachedObjects.find(object__) == cachedObjects.end());
     cachedObjects.insert(std::make_pair(object__, self));
     return self;
@@ -615,7 +615,7 @@ static NSString* ICEObject_all__[4] =
 -(void) dealloc
 {
     cachedObjects.erase(object__);
-    object__->__decRef();
+    object__->iceDecRef();
     [super dealloc];
 }
 +(id) servantWrapperWithCxxObject:(Ice::Object*)arg
@@ -709,7 +709,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        object__->__write([(ICEOutputStream*)os os]);
+        object__->iceWrite([(ICEOutputStream*)os os]);
     }
     catch(const std::exception& ex)
     {
@@ -722,7 +722,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        object__->__read([(ICEInputStream*)is is]);
+        object__->iceRead([(ICEInputStream*)is is]);
     }
     catch(const std::exception& ex)
     {

@@ -44,7 +44,7 @@ Ice::LocalObject* Ice::upCast(ConnectionI* p) { return p; }
 namespace
 {
 
-const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+const ::std::string iceC_flushBatchRequests_name = "flushBatchRequests";
 
 class TimeoutCallback : public IceUtil::TimerTask
 {
@@ -718,7 +718,7 @@ Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void(::std::exception_
         }
     };
     auto outAsync = make_shared<ConnectionFlushBatchLambda>(ICE_SHARED_FROM_THIS, _instance, ex, sent);
-    outAsync->invoke(__flushBatchRequests_name);
+    outAsync->invoke(iceC_flushBatchRequests_name);
     return [outAsync]() { outAsync->cancel(); };
 }
 #else
@@ -731,24 +731,24 @@ Ice::ConnectionI::flushBatchRequests()
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests()
 {
-    return __begin_flushBatchRequests(__dummyCallback, 0);
+    return iceI_begin_flushBatchRequests(dummyCallback, 0);
 }
 
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests(const CallbackPtr& cb, const LocalObjectPtr& cookie)
 {
-    return __begin_flushBatchRequests(cb, cookie);
+    return iceI_begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr& cb,
                                            const LocalObjectPtr& cookie)
 {
-    return __begin_flushBatchRequests(cb, cookie);
+    return iceI_begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
-Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
+Ice::ConnectionI::iceI_begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     class ConnectionFlushBatchAsyncWithCallback : public ConnectionFlushBatchAsync, public CallbackCompletion
     {
@@ -780,7 +780,7 @@ Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const Lo
         virtual const std::string&
         getOperation() const
         {
-            return __flushBatchRequests_name;
+            return iceC_flushBatchRequests_name;
         }
 
     private:
@@ -790,15 +790,15 @@ Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const Lo
     };
 
     ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsyncWithCallback(this, _communicator, _instance, cb, cookie);
-    result->invoke(__flushBatchRequests_name);
+    result->invoke(iceC_flushBatchRequests_name);
     return result;
 }
 
 void
 Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
 {
-    AsyncResult::__check(r, this, __flushBatchRequests_name);
-    r->__wait();
+    AsyncResult::iceCheck(r, this, iceC_flushBatchRequests_name);
+    r->iceWait();
 }
 #endif
 

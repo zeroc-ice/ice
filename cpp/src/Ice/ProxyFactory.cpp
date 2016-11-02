@@ -41,7 +41,7 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrxPtr& proxy) const
 {
     if(proxy)
     {
-        return proxy->__reference()->toString();
+        return proxy->iceReference()->toString();
     }
     else
     {
@@ -62,7 +62,7 @@ IceInternal::ProxyFactory::proxyToProperty(const ObjectPrxPtr& proxy, const stri
 {
     if(proxy)
     {
-        return proxy->__reference()->toProperty(prefix);
+        return proxy->iceReference()->toProperty(prefix);
     }
     else
     {

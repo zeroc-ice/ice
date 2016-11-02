@@ -50,9 +50,9 @@ class TestObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void iceRead(Ice::InputStream* in)
     {
         in->startValue();
         in->startSlice();
@@ -80,9 +80,9 @@ class BObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::B
@@ -117,9 +117,9 @@ class CObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::C
@@ -158,7 +158,7 @@ class DObjectWriter : public Ice::Object
 {
 public:
 
-    virtual void __write(Ice::OutputStream* out) const
+    virtual void iceWrite(Ice::OutputStream* out) const
     {
         out->startValue(0);
         // ::Test::D
@@ -188,7 +188,7 @@ public:
         out->endValue();
     }
 
-    virtual void __read(Ice::InputStream*) { }
+    virtual void iceRead(Ice::InputStream*) { }
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -211,9 +211,9 @@ class DObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::D
@@ -268,9 +268,9 @@ class FObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void iceRead(Ice::InputStream* in)
     {
         _f = ICE_MAKE_SHARED(F);
         in->startValue();

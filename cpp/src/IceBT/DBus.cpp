@@ -826,7 +826,7 @@ public:
         // Bump our refcount to ensure this object lives until the reply is received.
         // The pendingFree function will decrement the refcount.
         //
-        __incRef();
+        iceIncRef();
 
         if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, this, pendingCallFree))
         {
@@ -971,7 +971,7 @@ pendingCallFree(void* userData)
 {
     AsyncResultI* r = static_cast<AsyncResultI*>(userData);
     assert(r);
-    r->__decRef();
+    r->iceDecRef();
 }
 
 static DBusHandlerResult filterCallback(DBusConnection*, DBusMessage*, void*);
@@ -1117,7 +1117,7 @@ public:
         ::dbus_bus_add_match(_connection, "type='signal'", 0);
         //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
-        __incRef(); // __decRef called in freeConnection.
+        iceIncRef(); // iceDecRef called in freeConnection.
 
         _thread = new HelperThread(this);
         _thread->start();
@@ -1229,7 +1229,7 @@ static void freeConnection(void* p)
 {
     ConnectionI* c = static_cast<ConnectionI*>(p);
     assert(c);
-    c->__decRef();
+    c->iceDecRef();
 }
 
 }

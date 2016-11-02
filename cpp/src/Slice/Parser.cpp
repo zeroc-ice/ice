@@ -425,12 +425,14 @@ string
 Slice::Contained::flattenedScope() const
 {
     string s = scope();
-    string flattenedScope;
-    for(string::const_iterator r = s.begin(); r != s.end(); ++r)
+    const string doubleColon = "::";
+
+    size_t pos = 0;
+    while((pos = s.find(doubleColon, pos)) != string::npos)
     {
-        flattenedScope += ((*r) == ':') ? '_' : *r;
+        s.replace(pos++, doubleColon.length(), "_");
     }
-    return flattenedScope;
+    return s;
 }
 
 string
@@ -3805,13 +3807,13 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 bool
 Slice::Proxy::isLocal() const
 {
-    return __class->isLocal();
+    return _classDM->isLocal();
 }
 
 string
 Slice::Proxy::typeId() const
 {
-    return __class->scoped();
+    return _classDM->scoped();
 }
 
 bool
@@ -3835,13 +3837,13 @@ Slice::Proxy::isVariableLength() const
 ClassDeclPtr
 Slice::Proxy::_class() const
 {
-    return __class;
+    return _classDM;
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
      SyntaxTreeBase(cl->unit()),
      Type(cl->unit()),
-    __class(cl)
+    _classDM(cl)
 {
 }
 

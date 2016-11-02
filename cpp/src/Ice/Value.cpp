@@ -29,25 +29,25 @@ Ice::Value::ice_postUnmarshal()
 }
 
 void
-Ice::Value::__write(Ice::OutputStream* os) const
+Ice::Value::iceWrite(Ice::OutputStream* os) const
 {
     os->startValue(0);
-    __writeImpl(os);
+    iceWriteImpl(os);
     os->endValue();
 }
 
 void
-Ice::Value::__read(Ice::InputStream* is)
+Ice::Value::iceRead(Ice::InputStream* is)
 {
    is->startValue();
-   __readImpl(is);
+   iceReadImpl(is);
    is->endValue(false);
 }
 
 namespace
 {
 
-const string __Ice__Object_ids[] =
+const string iceC_Ice_Object_ids[] =
 {
     "::Ice::Object"
 };
@@ -57,13 +57,13 @@ const string __Ice__Object_ids[] =
 string
 Ice::Value::ice_id() const
 {
-    return __Ice__Object_ids[0];
+    return iceC_Ice_Object_ids[0];
 }
 
 const string&
 Ice::Value::ice_staticId()
 {
-    return __Ice__Object_ids[0];
+    return iceC_Ice_Object_ids[0];
 }
 
 ValuePtr

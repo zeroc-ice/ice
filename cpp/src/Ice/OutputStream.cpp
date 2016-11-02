@@ -800,7 +800,7 @@ Ice::OutputStream::write(const ObjectPrx& v)
 {
     if(v)
     {
-        v->__write(*this);
+        v->iceWrite(*this);
     }
     else
     {
@@ -963,9 +963,9 @@ Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
     // This allows reading the pending instances even if some part of
     // the exception was sliced.
     //
-    bool usesClasses = v.__usesClasses();
+    bool usesClasses = v.iceUsesClasses();
     _stream->write(usesClasses);
-    v.__write(_stream);
+    v.iceWrite(_stream);
     if(usesClasses)
     {
         writePendingValues();
@@ -1076,7 +1076,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
                 out << "unknown exception raised by ice_preMarshal";
             }
 
-            p->first->__write(_stream);
+            p->first->iceWrite(_stream);
         }
     }
     _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -1151,7 +1151,7 @@ Ice::OutputStream::EncapsEncoder11::write(const ValuePtr& v)
 void
 Ice::OutputStream::EncapsEncoder11::write(const UserException& v)
 {
-    v.__write(_stream);
+    v.iceWrite(_stream);
 }
 
 void
@@ -1395,5 +1395,5 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const ValuePtr& v)
     }
 
     _stream->writeSize(1); // Object instance marker.
-    v->__write(_stream);
+    v->iceWrite(_stream);
 }

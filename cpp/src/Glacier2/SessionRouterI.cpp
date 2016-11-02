@@ -678,7 +678,7 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
 {
     if(_sessionThread)
     {
-        __setNoDelete(true);
+        iceSetNoDelete(true);
         try
         {
             _sessionThread->start();
@@ -687,10 +687,10 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
         {
             _sessionThread->destroy();
             _sessionThread = 0;
-            __setNoDelete(false);
+            iceSetNoDelete(false);
             throw;
         }
-        __setNoDelete(false);
+        iceSetNoDelete(false);
     }
 
     try

@@ -52,7 +52,8 @@ void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool,
                                bool, const StringList& = StringList(), int = 0, const std::string& = "",
                                bool = true, const std::string& = "");
 
-void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
+                      const std::string& = "");
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
                         const std::string& = "", const std::string& = "");
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);

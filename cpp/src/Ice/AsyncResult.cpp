@@ -24,9 +24,9 @@ AsyncResult::~AsyncResult()
 }
 
 void
-AsyncResult::__check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, const string& operation)
+AsyncResult::iceCheck(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, const string& operation)
 {
-    __check(r, operation);
+    iceCheck(r, operation);
     if(r->getProxy().get() != prx)
     {
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Proxy for call to end_" + operation +
@@ -36,9 +36,9 @@ AsyncResult::__check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, 
 }
 
 void
-AsyncResult::__check(const AsyncResultPtr& r, const Ice::Communicator* com, const string& operation)
+AsyncResult::iceCheck(const AsyncResultPtr& r, const Ice::Communicator* com, const string& operation)
 {
-    __check(r, operation);
+    iceCheck(r, operation);
     if(r->getCommunicator().get() != com)
     {
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Communicator for call to end_" + operation +
@@ -48,9 +48,9 @@ AsyncResult::__check(const AsyncResultPtr& r, const Ice::Communicator* com, cons
 }
 
 void
-AsyncResult::__check(const AsyncResultPtr& r, const Ice::Connection* con, const string& operation)
+AsyncResult::iceCheck(const AsyncResultPtr& r, const Ice::Connection* con, const string& operation)
 {
-    __check(r, operation);
+    iceCheck(r, operation);
     if(r->getConnection().get() != con)
     {
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Connection for call to end_" + operation +
@@ -60,7 +60,7 @@ AsyncResult::__check(const AsyncResultPtr& r, const Ice::Connection* con, const 
 }
 
 void
-AsyncResult::__check(const AsyncResultPtr& r, const string& operation)
+AsyncResult::iceCheck(const AsyncResultPtr& r, const string& operation)
 {
     if(!r)
     {

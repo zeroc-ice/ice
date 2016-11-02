@@ -143,7 +143,7 @@ public:
         std::swap(_value, other._value);
     }
 
-    void __setIsSet()
+    void iceSetIsSet()
     {
         _isSet = true;
     }

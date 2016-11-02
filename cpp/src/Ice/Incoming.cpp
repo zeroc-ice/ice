@@ -39,11 +39,11 @@ extern bool printStackTraces;
 
 #ifdef ICE_CPP11_MAPPING
 Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
-    __os(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
+    _os(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
 {
-    __os->writeBlob(replyHdr, sizeof(replyHdr));
-    __os->write(current.requestId);
-    __os->write(replyOK);
+    _os->writeBlob(replyHdr, sizeof(replyHdr));
+    _os->write(current.requestId);
+    _os->write(replyOK);
 }
 #endif
 
@@ -732,7 +732,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
         //
         // Dispatch in the incoming call
         //
-        _servant->__dispatch(*this, _current);
+        _servant->iceDispatch(*this, _current);
 
         //
         // If the request was not dispatched asynchronously, send the response.

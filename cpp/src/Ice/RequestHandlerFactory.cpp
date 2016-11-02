@@ -30,7 +30,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(proxy);
         if(adapter)
         {
-            return proxy->__setRequestHandler(ICE_MAKE_SHARED(CollocatedRequestHandler, ref, adapter));
+            return proxy->iceSetRequestHandler(ICE_MAKE_SHARED(CollocatedRequestHandler, ref, adapter));
         }
     }
 
@@ -64,7 +64,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         ref->getConnection(handler.get());
 #endif
     }
-    return proxy->__setRequestHandler(handler->connect(proxy));
+    return proxy->iceSetRequestHandler(handler->connect(proxy));
 }
 
 void

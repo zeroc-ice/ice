@@ -815,7 +815,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
-    return proxy->__setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
+    return proxy->iceSetRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
 }
 
 BatchRequestQueuePtr
@@ -1269,7 +1269,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     }
     if(_routerInfo)
     {
-        PropertyDict routerProperties = _routerInfo->getRouter()->__reference()->toProperty(prefix + ".Router");
+        PropertyDict routerProperties = _routerInfo->getRouter()->iceReference()->toProperty(prefix + ".Router");
         for(PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
         {
             properties[p->first] = p->second;
@@ -1278,7 +1278,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
 
     if(_locatorInfo)
     {
-        PropertyDict locatorProperties = _locatorInfo->getLocator()->__reference()->toProperty(prefix + ".Locator");
+        PropertyDict locatorProperties = _locatorInfo->getLocator()->iceReference()->toProperty(prefix + ".Locator");
         for(PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
         {
             properties[p->first] = p->second;

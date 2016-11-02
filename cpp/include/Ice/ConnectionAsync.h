@@ -34,18 +34,18 @@ public:
     {
     }
 
-    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& iceResult) const
     {
-        ::Ice::ConnectionPtr __con = __result->getConnection();
-        assert(__con);
+        ::Ice::ConnectionPtr iceCon = iceResult->getConnection();
+        assert(iceCon);
         try
         {
-            __con->end_flushBatchRequests(__result);
+            iceCon->end_flushBatchRequests(iceResult);
             assert(false);
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(iceResult, ex);
         }
     }
 };
@@ -81,18 +81,18 @@ public:
     {
     }
 
-    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& iceResult) const
     {
-        ::Ice::ConnectionPtr __con = __result->getConnection();
-        assert(__con);
+        ::Ice::ConnectionPtr iceCon = iceResult->getConnection();
+        assert(iceCon);
         try
         {
-            __con->end_flushBatchRequests(__result);
+            iceCon->end_flushBatchRequests(iceResult);
             assert(false);
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(iceResult, ex);
         }
     }
 };

@@ -316,7 +316,7 @@ ConnectRequestHandler::flushRequests()
         _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
         for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
-            (*p)->__updateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
+            (*p)->iceUpdateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
         }
     }
 

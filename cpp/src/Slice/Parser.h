@@ -707,7 +707,7 @@ public:
 
 protected:
 
-    ClassDeclPtr __class;
+    ClassDeclPtr _classDM;
 };
 
 // ----------------------------------------------------------------------
