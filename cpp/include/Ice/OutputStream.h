@@ -311,7 +311,7 @@ public:
 
     template<size_t I = 0, typename... Te>
     typename std::enable_if<I == sizeof...(Te), void>::type
-    writeAll(std::tuple<Te...> tuple)
+    writeAll(std::tuple<Te...>)
     {
         // Do nothing. Either tuple is empty or we are at the end.
     }
