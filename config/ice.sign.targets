@@ -8,4 +8,10 @@
     <Message Text="Signing $(TargetName)$(TargetExt)" />
     <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" />
   </Target>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == ''">$(MSBuildThisFileDirectory)IceDevKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 </Project>

@@ -83,4 +83,5 @@
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\config\ice.sign.targets" />
 </Project>
