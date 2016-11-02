@@ -1519,7 +1519,15 @@ Slice::writeStreamHelpers(Output& out,
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
         out << sb;
-        out << nl << "static void write(S* __os, const " << fullName << "& v)";
+        if(requiredMembers.empty() && optionalMembers.empty())
+        {
+            out << nl << "static void write(S*, const " << fullName << "&)";
+        }
+        else
+        {
+            out << nl << "static void write(S* __os, const " << fullName << "& v)";
+        }
+
         out << sb;
 
         if(cpp11)
@@ -1550,7 +1558,15 @@ Slice::writeStreamHelpers(Output& out,
     out << nl << "template<typename S>";
     out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
     out << sb;
-    out << nl << "static void read(S* __is, " << fullName << "& v)";
+    if (requiredMembers.empty() && optionalMembers.empty())
+    {
+        out << nl << "static void read(S*, " << fullName << "&)";
+    }
+    else
+    {
+        out << nl << "static void read(S* __is, " << fullName << "& v)";
+    }
+
     out << sb;
 
     if(cpp11)
