@@ -105,6 +105,7 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BatchRequestInterceptor.h">
