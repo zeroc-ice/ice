@@ -48,6 +48,8 @@
         <MSBuild Projects="@(TestSoution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
     </Target>
 
+    <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
+
     <Target Name="NugetPack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="ice.nuget.targets"
@@ -55,6 +57,17 @@
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
+
+        <!-- Generate iceboxnet.exe.config with the correct assembly 
+             pulbic key token and assembly paths -->
+        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\Assemblies\Ice.dll">
+          <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
+        </GetPublicKeyToken>
+
+        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config"
+                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
+                                   Tokens="@PublicKeyToken@;@AssemblyDir@"
+                                   Replacements="$(PublicKeyToken);..\lib"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props" />
