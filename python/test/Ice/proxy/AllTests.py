@@ -366,10 +366,11 @@ def allTests(communicator, collocated):
     #
     # Verify that ToStringMode is passed correctly
     #
-    ident = Ice.Identity("test", "\x7F\xE2\x82\xAC")
+    euroStr = "\xE2\x82\xAC" if sys.version_info[0] < 3 else "\u20ac"
+    ident = Ice.Identity("test", "\x7F{}".format(euroStr))
 
     idStr = Ice.identityToString(ident, Ice.ToStringMode.Unicode)
-    test(idStr == "\\u007f\xE2\x82\xAC/test")
+    test(idStr == "\\u007f{}/test".format(euroStr))
     ident2 = Ice.stringToIdentity(idStr)
     test(ident == ident2)
     test(Ice.identityToString(ident) == idStr)
