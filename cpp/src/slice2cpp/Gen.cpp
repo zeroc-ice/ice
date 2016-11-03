@@ -1187,11 +1187,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if(preserved && !basePreserved)
         {
 
-            H << sp << nl << "::Ice::SlicedDataPtr _slicedData;";
+            H << sp << nl << "::Ice::SlicedDataPtr _iceSlicedData;";
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::iceWrite(::Ice::OutputStream* iceOs) const";
             C << sb;
-            C << nl << "iceOs->startException(_slicedData);";
+            C << nl << "iceOs->startException(_iceSlicedData);";
             C << nl << "iceWriteImpl(iceOs);";
             C << nl << "iceOs->endException();";
             C << eb;
@@ -1200,7 +1200,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << sb;
             C << nl << "iceIs->startException();";
             C << nl << "iceReadImpl(iceIs);";
-            C << nl << "_slicedData = iceIs->endException(true);";
+            C << nl << "_iceSlicedData = iceIs->endException(true);";
             C << eb;
         }
 
@@ -2669,7 +2669,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::iceWrite(::Ice::OutputStream* iceOs) const";
             C << sb;
-            C << nl << "iceOs->startValue(_slicedData);";
+            C << nl << "iceOs->startValue(_iceSlicedData);";
             C << nl << "iceWriteImpl(iceOs);";
             C << nl << "iceOs->endValue();";
             C << eb;
@@ -2679,7 +2679,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sb;
             C << nl << "iceIs->startValue();";
             C << nl << "iceReadImpl(iceIs);";
-            C << nl << "_slicedData = iceIs->endValue(true);";
+            C << nl << "_iceSlicedData = iceIs->endValue(true);";
             C << eb;
         }
 
@@ -2787,7 +2787,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H.inc();
             inProtected = true;
         }
-        H << sp << nl << "::Ice::SlicedDataPtr _slicedData;";
+        H << sp << nl << "::Ice::SlicedDataPtr _iceSlicedData;";
     }
 
     if(generateFriend)
@@ -3147,9 +3147,9 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
         if(preserved && !basePreserved)
         {
-            C << nl << "if(_slicedData)";
+            C << nl << "if(_iceSlicedData)";
             C << sb;
-            C << nl << "_slicedData->iceGcVisitMembers(_v);";
+            C << nl << "_iceSlicedData->iceGcVisitMembers(_v);";
             C << eb;
         }
 
@@ -5480,11 +5480,11 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             H << sp << nl << _dllMemberExport << "virtual void iceWrite(::Ice::OutputStream*) const override;";
             H << nl << _dllMemberExport << "virtual void iceRead(::Ice::InputStream*) override;";
 
-            H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> _slicedData;";
+            H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> _iceSlicedData;";
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::iceWrite(::Ice::OutputStream* iceOs) const";
             C << sb;
-            C << nl << "iceOs->startException(_slicedData);";
+            C << nl << "iceOs->startException(_iceSlicedData);";
             C << nl << "iceWriteImpl(iceOs);";
             C << nl << "iceOs->endException();";
             C << eb;
@@ -5493,7 +5493,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << sb;
             C << nl << "iceIs->startException();";
             C << nl << "iceReadImpl(iceIs);";
-            C << nl << "_slicedData = iceIs->endException(true);";
+            C << nl << "_iceSlicedData = iceIs->endException(true);";
             C << eb;
         }
     }
@@ -7165,7 +7165,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << sp;
         C << nl << "void" << nl << scoped.substr(2) << "::iceWrite(::Ice::OutputStream* iceOs) const";
         C << sb;
-        C << nl << "iceOs->startValue(_slicedData);";
+        C << nl << "iceOs->startValue(_iceSlicedData);";
         C << nl << "iceWriteImpl(iceOs);";
         C << nl << "iceOs->endValue();";
         C << eb;
@@ -7175,7 +7175,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << sb;
         C << nl << "iceIs->startValue();";
         C << nl << "iceReadImpl(iceIs);";
-        C << nl << "_slicedData = iceIs->endValue(true);";
+        C << nl << "_iceSlicedData = iceIs->endValue(true);";
         C << eb;
     }
 
@@ -7242,7 +7242,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H.inc();
             inProtected = true;
         }
-        H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> _slicedData;";
+        H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> _iceSlicedData;";
     }
 
     if(generateFriend)
