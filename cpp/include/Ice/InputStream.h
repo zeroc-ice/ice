@@ -383,7 +383,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
             v.emplace();
 #else
-            v.iceSetIsSet();
+            v.__setIsSet();
 #endif
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,

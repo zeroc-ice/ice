@@ -63,12 +63,12 @@ public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _object.
-    virtual void iceIncRef()
+    virtual void __incRef()
     {
         CFRetain(_object);
     }
 
-    virtual void iceDecRef()
+    virtual void __decRef()
     {
         CFRelease(_object);
     }
@@ -95,12 +95,12 @@ public:
 
     // We must explicitely CFRetain/CFRelease so that the garbage
     // collector does not trash the _blobject.
-    virtual void iceIncRef()
+    virtual void __incRef()
     {
         CFRetain(_blobject);
     }
 
-    virtual void iceDecRef()
+    virtual void __decRef()
     {
         CFRelease(_blobject);
     }
@@ -607,7 +607,7 @@ static NSString* ICEObject_all__[4] =
     }
 
     object__ = arg;
-    object__->iceIncRef();
+    object__->__incRef();
     assert(cachedObjects.find(object__) == cachedObjects.end());
     cachedObjects.insert(std::make_pair(object__, self));
     return self;
@@ -615,7 +615,7 @@ static NSString* ICEObject_all__[4] =
 -(void) dealloc
 {
     cachedObjects.erase(object__);
-    object__->iceDecRef();
+    object__->__decRef();
     [super dealloc];
 }
 +(id) servantWrapperWithCxxObject:(Ice::Object*)arg

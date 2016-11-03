@@ -45,13 +45,13 @@ public:
         return *this;
     }
 
-    void iceIncRef()
+    void __incRef()
     {
         assert(_ref >= 0);
         ++_ref;
     }
 
-    void iceDecRef()
+    void __decRef()
     {
         assert(_ref > 0);
         if(--_ref == 0)
@@ -63,12 +63,12 @@ public:
         }
     }
 
-    int iceGetRef() const
+    int __getRef() const
     {
         return _ref;
     }
 
-    void iceSetNoDelete(bool b)
+    void __setNoDelete(bool b)
     {
         _noDelete = b;
     }
@@ -101,22 +101,22 @@ public:
         return *this;
     }
 
-    virtual void iceIncRef();
-    virtual void iceDecRef();
-    virtual int iceGetRef() const;
-    virtual void iceSetNoDelete(bool);
+    virtual void __incRef();
+    virtual void __decRef();
+    virtual int __getRef() const;
+    virtual void __setNoDelete(bool);
 
-    void iceSetFlag(unsigned char flag)
+    void __setFlag(unsigned char flag)
     {
         _flags |= flag;
     }
 
-    void iceClearFlag(unsigned char flag)
+    void __clearFlag(unsigned char flag)
     {
         _flags &= ~flag;
     }
 
-    bool iceHasFlag(unsigned char flag)
+    bool __hasFlag(unsigned char flag)
     {
         return (_flags & flag) > 0;
     }

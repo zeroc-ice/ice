@@ -18,9 +18,9 @@ Dispatcher::Dispatcher()
 {
     _instance = this;
     _terminated = false;
-    iceSetNoDelete(true);
+    __setNoDelete(true);
     start();
-    iceSetNoDelete(false);
+    __setNoDelete(false);
 }
 
 void

@@ -956,7 +956,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 {
     try
     {
-        iceSetNoDelete(true);
+        __setNoDelete(true);
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
             instanceList->push_back(this);
@@ -1264,7 +1264,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _retryQueue = new RetryQueue(this);
 
-        iceSetNoDelete(false);
+        __setNoDelete(false);
     }
     catch(...)
     {
@@ -1273,7 +1273,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             instanceList->remove(this);
         }
         destroy();
-        iceSetNoDelete(false);
+        __setNoDelete(false);
         throw;
     }
 }

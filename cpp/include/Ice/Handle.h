@@ -43,7 +43,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->iceIncRef();
+            upCast(this->_ptr)->__incRef();
         }
     }
     
@@ -54,7 +54,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->iceIncRef();
+            upCast(this->_ptr)->__incRef();
         }
     }
 
@@ -65,7 +65,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->iceIncRef();
+            upCast(this->_ptr)->__incRef();
         }
     }
 
@@ -75,7 +75,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->iceIncRef();
+            upCast(this->_ptr)->__incRef();
         }
     }
     
@@ -83,7 +83,7 @@ public:
     {
         if(this->_ptr)
         {
-            upCast(this->_ptr)->iceDecRef();
+            upCast(this->_ptr)->__decRef();
         }
     }
     
@@ -93,7 +93,7 @@ public:
         {
             if(p)
             {
-                upCast(p)->iceIncRef();
+                upCast(p)->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -101,7 +101,7 @@ public:
 
             if(ptr)
             {
-                upCast(ptr)->iceDecRef();
+                upCast(ptr)->__decRef();
             }
         }
         return *this;
@@ -114,7 +114,7 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->iceIncRef();
+                upCast(r._ptr)->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -122,7 +122,7 @@ public:
 
             if(ptr)
             {
-                upCast(ptr)->iceDecRef();
+                upCast(ptr)->__decRef();
             }
         }
         return *this;
@@ -135,7 +135,7 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->iceIncRef();
+                upCast(r._ptr)->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -143,7 +143,7 @@ public:
 
             if(ptr)
             {
-                upCast(ptr)->iceDecRef();
+                upCast(ptr)->__decRef();
             }
         }
         return *this;
@@ -155,7 +155,7 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->iceIncRef();
+                upCast(r._ptr)->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -163,7 +163,7 @@ public:
 
             if(ptr)
             {
-                upCast(ptr)->iceDecRef();
+                upCast(ptr)->__decRef();
             }
         }
         return *this;

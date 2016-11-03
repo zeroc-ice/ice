@@ -43,7 +43,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
         return nil;
     }
     cxxObject_ = arg;
-    CXXOBJECT->iceIncRef();
+    CXXOBJECT->__incRef();
 
     //
     // No synchronization because initWithCxxObject is always called with the wrapper class object locked
@@ -66,7 +66,7 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
         // No synchronization because dealloc is always called with the wrapper class object locked
         //
         cachedObjects.erase(CXXOBJECT);
-        CXXOBJECT->iceDecRef();
+        CXXOBJECT->__decRef();
         cxxObject_ = 0;
     }
 

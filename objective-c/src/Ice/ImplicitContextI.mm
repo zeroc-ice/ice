@@ -18,7 +18,7 @@
     if(self)
     {
         self->implicitContext__ = implicitContext;
-        self->implicitContext__->iceIncRef();
+        self->implicitContext__->__incRef();
     }
     return self;
 }
@@ -37,7 +37,7 @@
 
 -(void) dealloc
 {
-    self->implicitContext__->iceDecRef();
+    self->implicitContext__->__decRef();
     [super dealloc];
 }
 

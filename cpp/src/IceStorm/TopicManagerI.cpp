@@ -255,7 +255,7 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
 {
     try
     {
-        iceSetNoDelete(true);
+        __setNoDelete(true);
 
         if(_instance->observer())
         {
@@ -319,10 +319,10 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
     catch(...)
     {
         shutdown();
-        iceSetNoDelete(false);
+        __setNoDelete(false);
         throw;
     }
-    iceSetNoDelete(false);
+    __setNoDelete(false);
 }
 
 TopicManagerImpl::~TopicManagerImpl()

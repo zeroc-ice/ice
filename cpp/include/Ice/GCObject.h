@@ -47,10 +47,10 @@ public:
     //
     // Override IceUtil::Shared methods
     //
-    virtual void iceIncRef();
-    virtual void iceDecRef();
-    virtual int iceGetRef() const;
-    virtual void iceSetNoDelete(bool);
+    virtual void __incRef();
+    virtual void __decRef();
+    virtual int __getRef() const;
+    virtual void __setNoDelete(bool);
 
     //
     // Override Object methods
@@ -64,7 +64,7 @@ public:
     //
     virtual void iceGcVisitMembers(IceInternal::GCVisitor&) = 0;
 
-    int iceGetRefUnsafe()
+    int __getRefUnsafe()
     {
         return _ref;
     }

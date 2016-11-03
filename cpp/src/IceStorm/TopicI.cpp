@@ -352,7 +352,7 @@ TopicImpl::TopicImpl(
 {
     try
     {
-        iceSetNoDelete(true);
+        __setNoDelete(true);
 
         // TODO: If we want to improve the performance of the
         // non-replicated case we could allocate a null-topic impl here.
@@ -435,10 +435,10 @@ TopicImpl::TopicImpl(
     catch(...)
     {
         shutdown();
-        iceSetNoDelete(false);
+        __setNoDelete(false);
         throw;
     }
-    iceSetNoDelete(false);
+    __setNoDelete(false);
 }
 
 TopicImpl::~TopicImpl()
