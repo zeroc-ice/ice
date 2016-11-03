@@ -69,7 +69,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void write(Ice.OutputStream outS)
         {
-            obj.write__(outS);
+            obj.iceWrite(outS);
             called = true;
         }
 
@@ -82,7 +82,7 @@ public class AllTests : TestCommon.TestApp
         public override void read(Ice.InputStream inS)
         {
             obj = new MyClass();
-            obj.read__(inS);
+            obj.iceRead(inS);
             called = true;
         }
 

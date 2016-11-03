@@ -281,7 +281,7 @@ namespace IceInternal
                 _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
                 foreach(Ice.ObjectPrxHelperBase prx in _proxies)
                 {
-                    prx.updateRequestHandler__(this, _requestHandler);
+                    prx.iceUpdateRequestHandler(this, _requestHandler);
                 }
             }
 

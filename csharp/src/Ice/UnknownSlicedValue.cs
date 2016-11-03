@@ -32,16 +32,16 @@ namespace Ice
             return _unknownTypeId;
         }
 
-        public override void write__(OutputStream os__)
+        public override void iceWrite(OutputStream iceOs)
         {
-            os__.startValue(_slicedData);
-            os__.endValue();
+            iceOs.startValue(_slicedData);
+            iceOs.endValue();
         }
 
-        public override void read__(InputStream is__)
+        public override void iceRead(InputStream iceIs)
         {
-            is__.startValue();
-            _slicedData = is__.endValue(true);
+            iceIs.startValue();
+            _slicedData = iceIs.endValue(true);
         }
 
         private string _unknownTypeId;

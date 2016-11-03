@@ -14,7 +14,7 @@ namespace Ice
     [Serializable]
     public abstract class Value : ICloneable
     {
-        public static readonly string static_id__ = "::Ice::Object";
+        public static readonly string s_iceId = "::Ice::Object";
 
         /// <summary>
         /// Returns the Slice type ID of the interface supported by this object.
@@ -22,7 +22,7 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public static string ice_staticId()
         {
-            return static_id__;
+            return s_iceId;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public virtual string ice_id()
         {
-            return static_id__;
+            return s_iceId;
         }
 
         /// <summary>
@@ -50,25 +50,25 @@ namespace Ice
         {
         }
 
-        public virtual void write__(OutputStream os__)
+        public virtual void iceWrite(OutputStream iceOs)
         {
-            os__.startValue(null);
-            writeImpl__(os__);
-            os__.endValue();
+            iceOs.startValue(null);
+            iceWriteImpl(iceOs);
+            iceOs.endValue();
         }
 
-        public virtual void read__(InputStream is__)
+        public virtual void iceRead(InputStream iceIs)
         {
-            is__.startValue();
-            readImpl__(is__);
-            is__.endValue(false);
+            iceIs.startValue();
+            iceReadImpl(iceIs);
+            iceIs.endValue(false);
         }
 
-        protected virtual void writeImpl__(OutputStream os__)
+        protected virtual void iceWriteImpl(OutputStream iceOs)
         {
         }
 
-        protected virtual void readImpl__(InputStream is__)
+        protected virtual void iceReadImpl(InputStream iceIs)
         {
         }
 
@@ -95,16 +95,16 @@ namespace Ice
             return id_;
         }
 
-        protected override void writeImpl__(OutputStream os__)
+        protected override void iceWriteImpl(OutputStream iceOs)
         {
-            os__.startSlice(ice_id(), -1, true);
-            os__.endSlice();
+            iceOs.startSlice(ice_id(), -1, true);
+            iceOs.endSlice();
         }
 
-        protected override void readImpl__(InputStream is__)
+        protected override void iceReadImpl(InputStream iceIs)
         {
-            is__.startSlice();
-            is__.endSlice();
+            iceIs.startSlice();
+            iceIs.endSlice();
         }
 
         private string id_;

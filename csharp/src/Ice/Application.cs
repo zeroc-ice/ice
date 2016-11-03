@@ -95,7 +95,7 @@ namespace Ice
         /// <param name="signalPolicy">Determines how to respond to signals.</param>
         public Application(SignalPolicy signalPolicy)
         {
-            signalPolicy__ = signalPolicy;
+            s_iceSignalPolicy = signalPolicy;
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Ice
         {
             if(Util.getProcessLogger() is ConsoleLoggerI)
             {
-                Util.setProcessLogger(new ConsoleLoggerI(appName__));
+                Util.setProcessLogger(new ConsoleLoggerI(s_iceAppName));
             }
 
             InitializationData initData = new InitializationData();
@@ -178,10 +178,10 @@ namespace Ice
         {
             if(Util.getProcessLogger() is ConsoleLoggerI)
             {
-                Util.setProcessLogger(new ConsoleLoggerI(appName__));
+                Util.setProcessLogger(new ConsoleLoggerI(s_iceAppName));
             }
 
-            if(communicator__ != null)
+            if(s_iceCommunicator != null)
             {
                 Util.getProcessLogger().error("only one instance of the Application class can be used");
                 return 1;
@@ -214,13 +214,13 @@ namespace Ice
                 Util.getProcessLogger().error("unknown exception:\n" + ex);
                 return 1;
             }
-            appName__ = initData.properties.getPropertyWithDefault("Ice.ProgramName", appName__);
+            s_iceAppName = initData.properties.getPropertyWithDefault("Ice.ProgramName", s_iceAppName);
 
-            nohup__ = initData.properties.getPropertyAsInt("Ice.Nohup") > 0;
+            s_iceNohup = initData.properties.getPropertyAsInt("Ice.Nohup") > 0;
             _application = this;
 
             int status;
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
                 if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
                 {
@@ -254,7 +254,7 @@ namespace Ice
         /// <returns>The name of the application.</returns>
         public static string appName()
         {
-            return appName__;
+            return s_iceAppName;
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace Ice
         /// <returns>The communicator for the application.</returns>
         public static Communicator communicator()
         {
-            return communicator__;
+            return s_iceCommunicator;
         }
 
         /// <summary>
@@ -274,14 +274,14 @@ namespace Ice
         /// </summary>
         public static void destroyOnInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback == _holdCallback)
                     {
-                        released__ = true;
-                        System.Threading.Monitor.Pulse(mutex__);
+                        s_iceReleased = true;
+                        System.Threading.Monitor.Pulse(s_iceMutex);
                     }
                     _callback = _destroyCallback;
                 }
@@ -298,14 +298,14 @@ namespace Ice
         /// </summary>
         public static void shutdownOnInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback == _holdCallback)
                     {
-                        released__ = true;
-                        System.Threading.Monitor.Pulse(mutex__);
+                        s_iceReleased = true;
+                        System.Threading.Monitor.Pulse(s_iceMutex);
                     }
                     _callback = _shutdownCallback;
                 }
@@ -322,14 +322,14 @@ namespace Ice
         /// </summary>
         public static void ignoreInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback == _holdCallback)
                     {
-                        released__ = true;
-                        System.Threading.Monitor.Pulse(mutex__);
+                        s_iceReleased = true;
+                        System.Threading.Monitor.Pulse(s_iceMutex);
                     }
                     _callback = null;
                 }
@@ -347,14 +347,14 @@ namespace Ice
         /// </summary>
         public static void callbackOnInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback == _holdCallback)
                     {
-                        released__ = true;
-                        System.Threading.Monitor.Pulse(mutex__);
+                        s_iceReleased = true;
+                        System.Threading.Monitor.Pulse(s_iceMutex);
                     }
                     _callback = _userCallback;
                 }
@@ -371,14 +371,14 @@ namespace Ice
         /// </summary>
         public static void holdInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback != _holdCallback)
                     {
                         _previousCallback = _callback;
-                        released__ = false;
+                        s_iceReleased = false;
                         _callback = _holdCallback;
                     }
                     // else, we were already holding signals
@@ -397,22 +397,22 @@ namespace Ice
         /// </summary>
         public static void releaseInterrupt()
         {
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                lock(mutex__)
+                lock(s_iceMutex)
                 {
                     if(_callback == _holdCallback)
                     {
                         //
                         // Note that it's very possible no signal is held;
                         // in this case the callback is just replaced and
-                        // setting released__ to true and signalling this
+                        // setting s_iceReleased to true and signalling this
                         // will do no harm.
                         //
 
-                        released__ = true;
+                        s_iceReleased = true;
                         _callback = _previousCallback;
-                        System.Threading.Monitor.Pulse(mutex__);
+                        System.Threading.Monitor.Pulse(s_iceMutex);
                     }
                     // Else nothing to release.
                 }
@@ -431,9 +431,9 @@ namespace Ice
         /// <returns>True if a signal caused the communicator to shut down; false otherwise.</returns>
         public static bool interrupted()
         {
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                return interrupted__;
+                return s_iceInterrupted;
             }
         }
 
@@ -453,13 +453,13 @@ namespace Ice
                     Util.setProcessLogger(new ConsoleLoggerI(initData.properties.getProperty("Ice.ProgramName")));
                 }
 
-                communicator__ = Util.initialize(ref args, initData);
-                destroyed__ = false;
+                s_iceCommunicator = Util.initialize(ref args, initData);
+                s_iceDestroyed = false;
 
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(signalPolicy__ == SignalPolicy.HandleSignals)
+                if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -482,38 +482,38 @@ namespace Ice
             // (post-run), it would not make sense to release a held
             // signal to run shutdown or destroy.
             //
-            if(signalPolicy__ == SignalPolicy.HandleSignals)
+            if(s_iceSignalPolicy == SignalPolicy.HandleSignals)
             {
                 ignoreInterrupt();
             }
 
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                while(callbackInProgress__)
+                while(s_iceCallbackInProgress)
                 {
-                    System.Threading.Monitor.Wait(mutex__);
+                    System.Threading.Monitor.Wait(s_iceMutex);
                 }
-                if(destroyed__)
+                if(s_iceDestroyed)
                 {
-                    communicator__ = null;
+                    s_iceCommunicator = null;
                 }
                 else
                 {
-                    destroyed__ = true;
+                    s_iceDestroyed = true;
                     //
-                    // communicator__ != null means that it will be destroyed
-                    // next; destroyed__ == true ensures that any
+                    // s_iceCommunicator != null means that it will be destroyed
+                    // next; s_iceDestroyed == true ensures that any
                     // remaining callback won't do anything
                     //
                 }
                 _application = null;
             }
 
-            if(communicator__ != null)
+            if(s_iceCommunicator != null)
             {
                 try
                 {
-                    communicator__.destroy();
+                    s_iceCommunicator.destroy();
                 }
                 catch(Ice.Exception ex)
                 {
@@ -525,7 +525,7 @@ namespace Ice
                     Util.getProcessLogger().error("unknown exception:\n" + ex);
                     status = 1;
                 }
-                communicator__ = null;
+                s_iceCommunicator = null;
             }
 
             return status;
@@ -538,7 +538,7 @@ namespace Ice
         {
             Callback callback;
 
-            lock(mutex__)
+            lock(s_iceMutex)
             {
                 callback = _callback;
             }
@@ -562,14 +562,14 @@ namespace Ice
         private static void holdInterruptCallback(int sig)
         {
             Callback callback = null;
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                while(!released__)
+                while(!s_iceReleased)
                 {
-                    System.Threading.Monitor.Wait(mutex__);
+                    System.Threading.Monitor.Wait(s_iceMutex);
                 }
 
-                if(destroyed__)
+                if(s_iceDestroyed)
                 {
                     //
                     // Being destroyed by main thread
@@ -591,86 +591,86 @@ namespace Ice
         //
         private static void destroyOnInterruptCallback(int sig)
         {
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                if(destroyed__)
+                if(s_iceDestroyed)
                 {
                     //
                     // Being destroyed by main thread
                     //
                     return;
                 }
-                if(nohup__ && sig == SIGHUP)
+                if(s_iceNohup && sig == SIGHUP)
                 {
                     return;
                 }
 
-                Debug.Assert(!callbackInProgress__);
-                callbackInProgress__ = true;
-                interrupted__ = true;
-                destroyed__ = true;
+                Debug.Assert(!s_iceCallbackInProgress);
+                s_iceCallbackInProgress = true;
+                s_iceInterrupted = true;
+                s_iceDestroyed = true;
             }
 
             try
             {
-                Debug.Assert(communicator__ != null);
-                communicator__.destroy();
+                Debug.Assert(s_iceCommunicator != null);
+                s_iceCommunicator.destroy();
             }
             catch(System.Exception ex)
             {
                 Util.getProcessLogger().error("(while destroying in response to signal " + sig + "):\n" + ex);
             }
 
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                callbackInProgress__ = false;
-                System.Threading.Monitor.Pulse(mutex__);
+                s_iceCallbackInProgress = false;
+                System.Threading.Monitor.Pulse(s_iceMutex);
             }
         }
 
         private static void shutdownOnInterruptCallback(int sig)
         {
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                if(destroyed__)
+                if(s_iceDestroyed)
                 {
                     //
                     // Being destroyed by main thread
                     //
                     return;
                 }
-                if(nohup__ && sig == SIGHUP)
+                if(s_iceNohup && sig == SIGHUP)
                 {
                     return;
                 }
 
-                Debug.Assert(!callbackInProgress__);
-                callbackInProgress__ = true;
-                interrupted__ = true;
+                Debug.Assert(!s_iceCallbackInProgress);
+                s_iceCallbackInProgress = true;
+                s_iceInterrupted = true;
             }
 
             try
             {
-                Debug.Assert(communicator__ != null);
-                communicator__.shutdown();
+                Debug.Assert(s_iceCommunicator != null);
+                s_iceCommunicator.shutdown();
             }
             catch(System.Exception ex)
             {
                 Util.getProcessLogger().error("(while shutting down in response to signal " + sig + "):\n" + ex);
             }
 
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                callbackInProgress__ = false;
-                System.Threading.Monitor.Pulse(mutex__);
+                s_iceCallbackInProgress = false;
+                System.Threading.Monitor.Pulse(s_iceMutex);
             }
         }
 
         private static void userCallbackOnInterruptCallback(int sig)
         {
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                if(destroyed__)
+                if(s_iceDestroyed)
                 {
                     //
                     // Being destroyed by main thread
@@ -679,9 +679,9 @@ namespace Ice
                 }
                 // For SIGHUP the user callback is always called. It can
                 // decide what to do.
-                Debug.Assert(!callbackInProgress__);
-                callbackInProgress__ = true;
-                interrupted__ = true;
+                Debug.Assert(!s_iceCallbackInProgress);
+                s_iceCallbackInProgress = true;
+                s_iceInterrupted = true;
             }
 
             try
@@ -694,20 +694,20 @@ namespace Ice
                 Util.getProcessLogger().error("(while interrupting in response to signal " + sig + "):\n" + ex);
             }
 
-            lock(mutex__)
+            lock(s_iceMutex)
             {
-                callbackInProgress__ = false;
-                System.Threading.Monitor.Pulse(mutex__);
+                s_iceCallbackInProgress = false;
+                System.Threading.Monitor.Pulse(s_iceMutex);
             }
         }
 
-        protected static object mutex__ = new object();
-        protected static bool callbackInProgress__ = false;
-        protected static bool destroyed__ = false;
-        protected static bool interrupted__ = false;
-        protected static bool released__ = false;
-        protected static bool nohup__ = false;
-        protected static SignalPolicy signalPolicy__ = SignalPolicy.HandleSignals;
+        protected static object s_iceMutex = new object();
+        protected static bool s_iceCallbackInProgress = false;
+        protected static bool s_iceDestroyed = false;
+        protected static bool s_iceInterrupted = false;
+        protected static bool s_iceReleased = false;
+        protected static bool s_iceNohup = false;
+        protected static SignalPolicy s_iceSignalPolicy = SignalPolicy.HandleSignals;
 
         private delegate void Callback(int sig);
         private static readonly Callback _destroyCallback = new Callback(destroyOnInterruptCallback);
@@ -722,8 +722,8 @@ namespace Ice
         // We use FriendlyName instead of Process.GetCurrentProcess().ProcessName because the latter
         // is terribly slow. (It takes around 1 second!)
         //
-        protected static string appName__ = AppDomain.CurrentDomain.FriendlyName;
-        protected static Communicator communicator__;
+        protected static string s_iceAppName = AppDomain.CurrentDomain.FriendlyName;
+        protected static Communicator s_iceCommunicator;
         private static Application _application;
 
         private static int SIGHUP;
