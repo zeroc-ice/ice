@@ -255,7 +255,7 @@ IceInternal::Reference::toString() const
     {
         s << " -f ";
 
-        string fs = escapeString(fs, "", toStringMode);
+        string fs = escapeString(_facet, "", toStringMode);
         //
         // If the encoded facet string contains characters which
         // the reference parser uses as separators, then we enclose
