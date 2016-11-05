@@ -30,7 +30,7 @@ Ice::LoggerOutputBase::str() const
 }
 
 ostringstream&
-Ice::LoggerOutputBase::iceStr()
+Ice::LoggerOutputBase::__str()
 {
     return _str;
 }
@@ -38,7 +38,7 @@ Ice::LoggerOutputBase::iceStr()
 Ice::LoggerOutputBase&
 Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 {
-    out.iceStr() << val;
+    out.__str() << val;
     return out;
 }
 
@@ -47,11 +47,11 @@ Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
 {
     if(IceUtilInternal::printStackTraces)
     {
-        out.iceStr() << ex.what() << '\n' << ex.ice_stackTrace();
+        out.__str() << ex.what() << '\n' << ex.ice_stackTrace();
     }
     else
     {
-        out.iceStr() << ex.what();
+        out.__str() << ex.what();
     }
     return out;
 }
@@ -71,12 +71,12 @@ Ice::Trace::~Trace()
 void
 Ice::Trace::flush()
 {
-    string s = iceStr().str();
+    string s = __str().str();
     if(!s.empty())
     {
         _logger->trace(_category, s);
     }
-    iceStr().str("");
+    __str().str("");
 }
 
 

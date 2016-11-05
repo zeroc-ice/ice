@@ -47,24 +47,24 @@ public:
     //
     // Override IceUtil::Shared methods
     //
-    virtual void iceIncRef();
-    virtual void iceDecRef();
-    virtual int iceGetRef() const;
-    virtual void iceSetNoDelete(bool);
+    virtual void __incRef();
+    virtual void __decRef();
+    virtual int __getRef() const;
+    virtual void __setNoDelete(bool);
 
     //
     // Override Object methods
     //
-    virtual bool iceGcVisit(GCVisitor&);
+    virtual bool __gcVisit(GCVisitor&);
     virtual void ice_collectable(bool);
 
     //
     // This method is implemented by Slice classes to visit class
     // members.
     //
-    virtual void iceGcVisitMembers(IceInternal::GCVisitor&) = 0;
+    virtual void __gcVisitMembers(IceInternal::GCVisitor&) = 0;
 
-    int iceGetRefUnsafe()
+    int __getRefUnsafe()
     {
         return _ref;
     }

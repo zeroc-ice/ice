@@ -41,7 +41,7 @@ patchHandle(void* addr, const ValuePtr& v)
     }
 #else
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
-    icePatch(*p, v); // Generated icePatch method, necessary for forward declarations.
+    __patch(*p, v); // Generated __patch method, necessary for forward declarations.
 #endif
 }
 
@@ -383,7 +383,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
             v.emplace();
 #else
-            v.iceSetIsSet();
+            v.__setIsSet();
 #endif
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
@@ -594,14 +594,14 @@ public:
         else
         {
             v = ::IceInternal::createProxy<T>();
-            v->iceCopyFrom(proxy);
+            v->__copyFrom(proxy);
         }
     }
 #else
     void read(ObjectPrx&);
     template<typename T> void read(IceInternal::ProxyHandle<T>& v)
     {
-        iceRead(this, v); // Generated iceRead method, necessary for forward declarations.
+        __read(this, v); // Generated __read method, necessary for forward declarations.
     }
 #endif
 

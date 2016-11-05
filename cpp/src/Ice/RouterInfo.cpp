@@ -335,7 +335,7 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy)
             //
             // If getClientProxy() return nil, use router endpoints.
             //
-            _clientEndpoints = _router->iceReference()->getEndpoints();
+            _clientEndpoints = _router->__reference()->getEndpoints();
         }
         else
         {
@@ -351,7 +351,7 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy)
                 clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
             }
 
-            _clientEndpoints = clientProxy->iceReference()->getEndpoints();
+            _clientEndpoints = clientProxy->__reference()->getEndpoints();
         }
     }
     return _clientEndpoints;
@@ -372,7 +372,7 @@ IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrxPtr& /*serverPro
 
         serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 
-        _serverEndpoints = serverProxy->iceReference()->getEndpoints();
+        _serverEndpoints = serverProxy->__reference()->getEndpoints();
     }
     return _serverEndpoints;
 }

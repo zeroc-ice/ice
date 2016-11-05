@@ -3232,7 +3232,7 @@ IcePy::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePy::ObjectWriter::iceWrite(Ice::OutputStream* os) const
+IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -3266,7 +3266,7 @@ IcePy::ObjectWriter::iceWrite(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ObjectWriter::iceRead(Ice::InputStream*)
+IcePy::ObjectWriter::__read(Ice::InputStream*)
 {
     assert(false);
 }
@@ -3341,13 +3341,13 @@ IcePy::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePy::ObjectReader::iceWrite(Ice::OutputStream*) const
+IcePy::ObjectReader::__write(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ObjectReader::iceRead(Ice::InputStream* is)
+IcePy::ObjectReader::__read(Ice::InputStream* is)
 {
     is->startValue();
 
@@ -3735,7 +3735,7 @@ IcePy::ExceptionWriter::ice_throw() const
 }
 
 void
-IcePy::ExceptionWriter::iceWrite(Ice::OutputStream* os) const
+IcePy::ExceptionWriter::__write(Ice::OutputStream* os) const
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3743,12 +3743,12 @@ IcePy::ExceptionWriter::iceWrite(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ExceptionWriter::iceRead(Ice::InputStream*)
+IcePy::ExceptionWriter::__read(Ice::InputStream*)
 {
 }
 
 bool
-IcePy::ExceptionWriter::iceUsesClasses() const
+IcePy::ExceptionWriter::__usesClasses() const
 {
     return _info->usesClasses;
 }
@@ -3790,13 +3790,13 @@ IcePy::ExceptionReader::ice_throw() const
 }
 
 void
-IcePy::ExceptionReader::iceWrite(Ice::OutputStream*) const
+IcePy::ExceptionReader::__write(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ExceptionReader::iceRead(Ice::InputStream* is)
+IcePy::ExceptionReader::__read(Ice::InputStream* is)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3808,7 +3808,7 @@ IcePy::ExceptionReader::iceRead(Ice::InputStream* is)
 }
 
 bool
-IcePy::ExceptionReader::iceUsesClasses() const
+IcePy::ExceptionReader::__usesClasses() const
 {
     return _info->usesClasses;
 }

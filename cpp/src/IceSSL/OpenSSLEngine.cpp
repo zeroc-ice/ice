@@ -195,7 +195,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
     _initialized(false),
     _ctx(0)
 {
-    iceSetNoDelete(true);
+    __setNoDelete(true);
 
     //
     // Initialize OpenSSL if necessary.
@@ -325,7 +325,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
 #  endif
         }
     }
-    iceSetNoDelete(false);
+    __setNoDelete(false);
 }
 
 OpenSSLEngine::~OpenSSLEngine()

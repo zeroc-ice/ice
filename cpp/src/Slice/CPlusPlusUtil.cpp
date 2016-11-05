@@ -217,7 +217,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
             {
                 s = toOptional(s, typeCtx);
             }
-            out << nl << s << " iceP_" << fixedName << ";";
+            out << nl << s << " ___" << fixedName << ";";
         }
     }
 }
@@ -228,7 +228,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 {
     string objPrefix = obj.empty() ? obj : obj + ".";
     string paramName = objPrefix + fixedName;
-    string escapedParamName = objPrefix + "iceP_" + fixedName;
+    string escapedParamName = objPrefix + "___" + fixedName;
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
@@ -269,7 +269,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                 {
                     out << nl << "if(" << escapedParamName << ")";
                     out << sb;
-                    out << nl << paramName << ".iceSetIsSet();";
+                    out << nl << paramName << ".__setIsSet();";
                     out << nl << "if(!" << escapedParamName << "->empty())";
                     out << sb;
                     out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
@@ -301,7 +301,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             {
                 out << nl << "if(" << escapedParamName << ")";
                 out << sb;
-                out << nl << paramName << ".iceSetIsSet();";
+                out << nl << paramName << ".__setIsSet();";
                 out << nl << paramName << "->first = (*" << escapedParamName << ").begin();";
                 out << nl << paramName << "->second = (*" << escapedParamName << ").end();";
                 out << eb;
@@ -317,12 +317,10 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& retP = "", const string& obj = "",
-                            const string& stream = "")
+                            bool prepend, int typeCtx, const string& retP = "", const string& obj = "")
 {
     string prefix = prepend ? paramPrefix : "";
-    string returnValueS = retP.empty() ? string("iceRet") : retP;
-    string streamTarget = stream.empty() ? (marshal ? "iceOs" : "iceIs") : stream;
+    string returnValueS = retP.empty() ? string("__ret") : retP;
 
     string objPrefix = obj.empty() ? obj : obj + ".";
 
@@ -353,11 +351,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << nl;
             if(marshal)
             {
-                out << streamTarget << "->writeAll";
+                out << "__os->writeAll";
             }
             else
             {
-                out << streamTarget << "->readAll";
+                out << "__is->readAll";
             }
             out << spar;
             for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
@@ -409,11 +407,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << nl;
             if(marshal)
             {
-                out << streamTarget << "->writeAll";
+                out << "__os->writeAll";
             }
             else
             {
-                out << streamTarget << "->readAll";
+                out << "__is->readAll";
             }
             out << spar;
 
@@ -496,7 +494,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 }
 
 Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
-string Slice::paramPrefix = "iceP_";
+string Slice::paramPrefix = "__p_";
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -1257,7 +1255,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
     ostringstream os;
     if(str.empty())
     {
-        os << (marshal ? "iceOs" : "iceIs");
+        os << (marshal ? "__os" : "__is");
     }
     else
     {
@@ -1304,13 +1302,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                     return;
                 }
 
-                out << nl << func << objPrefix << "iceP_" << param << ");";
+                out << nl << func << objPrefix << "___" << param << ");";
                 writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
             else if(seqType.find("%range") == 0)
             {
-                out << nl << func << objPrefix << "iceP_" << param << ");";
+                out << nl << func << objPrefix << "___" << param << ");";
                 writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
@@ -1321,10 +1319,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                        const string& streamTarget)
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx, "", "", streamTarget);
+    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx);
 }
 
 void
@@ -1338,7 +1335,7 @@ void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
 {
     string prefix = prepend ? paramPrefix : "";
-    string returnValueS = "iceRet";
+    string returnValueS = "__ret";
 
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
@@ -1376,11 +1373,11 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
                builtin->kind() != Builtin::KindObject &&
                builtin->kind() != Builtin::KindObjectProxy)
             {
-                endArg = "iceP_" + endArg;
+                endArg = "___" + endArg;
             }
             else if(!builtin || builtin->kind() != Builtin::KindByte)
             {
-                endArg = "iceP_" + endArg;
+                endArg = "___" + endArg;
             }
         }
         else if(seqType.find("%range") == 0)
@@ -1390,7 +1387,7 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
             {
                 md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
             }
-            endArg = "iceP_" + endArg;
+            endArg = "___" + endArg;
         }
     }
     return endArg;
@@ -1406,7 +1403,7 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     }
     if(op && op->returnType())
     {
-        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "iceRet", op->getMetaData());
+        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "__ret", op->getMetaData());
     }
 }
 
@@ -1432,7 +1429,7 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
         return;
     }
 
-    string stream = marshal ? "iceOs" : "iceIs";
+    string stream = marshal ? "__os" : "__is";
     string streamOp = marshal ? "writeAll" : "readAll";
 
     out << nl << stream << "->" << streamOp;
@@ -1522,15 +1519,15 @@ Slice::writeStreamHelpers(Output& out,
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
         out << sb;
-
         if(requiredMembers.empty() && optionalMembers.empty())
         {
             out << nl << "static void write(S*, const " << fullName << "&)";
         }
         else
         {
-            out << nl << "static void write(S* iceOs, const " << fullName << "& v)";
+            out << nl << "static void write(S* __os, const " << fullName << "& v)";
         }
+
         out << sb;
 
         if(cpp11)
@@ -1561,14 +1558,13 @@ Slice::writeStreamHelpers(Output& out,
     out << nl << "template<typename S>";
     out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
     out << sb;
-
     if (requiredMembers.empty() && optionalMembers.empty())
     {
         out << nl << "static void read(S*, " << fullName << "&)";
     }
     else
     {
-        out << nl << "static void read(S* iceIs, " << fullName << "& v)";
+        out << nl << "static void read(S* __is, " << fullName << "& v)";
     }
 
     out << sb;

@@ -18,7 +18,7 @@ using namespace Ice::Instrumentation;
 
 IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrxPtr& proxy, const string& op, const Context& ctx)
 {
-    const CommunicatorObserverPtr& obsv = proxy->iceReference()->getInstance()->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)
     {
         return;
@@ -40,7 +40,7 @@ IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* insta
 void
 IceInternal::InvocationObserver::attach(const Ice::ObjectPrxPtr& proxy, const string& op, const Context& ctx)
 {
-    const CommunicatorObserverPtr& obsv = proxy->iceReference()->getInstance()->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
     if(!obsv)
     {
         return;

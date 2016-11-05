@@ -537,7 +537,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrxPtr& proxy) const
 
     checkForDeactivation();
 
-    ReferencePtr ref = proxy->iceReference();
+    ReferencePtr ref = proxy->__reference();
     return findFacet(ref->getIdentity(), ref->getFacet());
 }
 
@@ -712,7 +712,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
     // it can be called for AMI invocations if the proxy has no delegate set yet.
     //
 
-    ReferencePtr ref = proxy->iceReference();
+    ReferencePtr ref = proxy->__reference();
     if(ref->isWellKnown())
     {
         //

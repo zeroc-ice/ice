@@ -722,7 +722,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& server, const SessionIP
 }
 
 void
-NodeEntry::iceIncRef()
+NodeEntry::__incRef()
 {
     Lock sync(*this);
     assert(_ref >= 0);
@@ -730,7 +730,7 @@ NodeEntry::iceIncRef()
 }
 
 void
-NodeEntry::iceDecRef()
+NodeEntry::__decRef()
 {
     //
     // The node entry implements its own reference counting. If the

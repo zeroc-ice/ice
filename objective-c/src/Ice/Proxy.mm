@@ -196,7 +196,7 @@ BOOL _returnsData;
     }
 
     asyncResult__ = arg.get();
-    ASYNCRESULT->iceIncRef();
+    ASYNCRESULT->__incRef();
     operation_ = [op retain];
     proxy_ = [p retain];
     return self;
@@ -209,7 +209,7 @@ BOOL _returnsData;
 
 -(void) dealloc
 {
-    ASYNCRESULT->iceDecRef();
+    ASYNCRESULT->__decRef();
     asyncResult__ = 0;
     [operation_ release];
     [proxy_ release];
@@ -322,7 +322,7 @@ BOOL _returnsData;
     }
     communicator__ = [ICECommunicator localObjectWithCxxObjectNoAutoRelease:arg->ice_getCommunicator().get()];
     objectPrx__ = arg.get();
-    OBJECTPRX->iceIncRef();
+    OBJECTPRX->__incRef();
     return self;
 }
 
@@ -333,7 +333,7 @@ BOOL _returnsData;
 
 -(void) dealloc
 {
-    OBJECTPRX->iceDecRef();
+    OBJECTPRX->__decRef();
     objectPrx__ = 0;
     [communicator__ release];
     [super dealloc];
@@ -828,7 +828,7 @@ BOOL _returnsData;
     try
     {
         std::pair<const Ice::Byte*, const Ice::Byte*> outParams;
-        BOOL ok = OBJECTPRX->iceI_end_ice_invoke(outParams, [result asyncResult__]);
+        BOOL ok = OBJECTPRX->___end_ice_invoke(outParams, [result asyncResult__]);
 
         ICEInputStream* is;
         is = [[ICEInputStream alloc] initWithCxxCommunicator:OBJECTPRX->ice_getCommunicator().get() data:outParams];
@@ -883,7 +883,7 @@ BOOL _returnsData;
 
 -(NSUInteger) hash
 {
-    return (NSUInteger)OBJECTPRX->iceHash();
+    return (NSUInteger)OBJECTPRX->__hash();
 }
 -(NSString*) description
 {
@@ -1342,7 +1342,7 @@ BOOL _returnsData;
                         },
                         ^(const Ice::AsyncResultPtr& result) {
                             std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
-                            BOOL ret__ = OBJECTPRX->iceI_end_ice_invoke(outP, result);
+                            BOOL ret__ = OBJECTPRX->___end_ice_invoke(outP, result);
                             if(response)
                             {
                                 NSMutableData* outEncaps =
@@ -1373,7 +1373,7 @@ BOOL _returnsData;
                         context,
                         ^(const Ice::AsyncResultPtr& result) {
                             std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
-                            BOOL ret__ = OBJECTPRX->iceI_end_ice_invoke(outP, result);
+                            BOOL ret__ = OBJECTPRX->___end_ice_invoke(outP, result);
                             if(response)
                             {
                                 NSMutableData* outEncaps =
@@ -1390,7 +1390,7 @@ BOOL _returnsData;
     endCppCall(^(const Ice::AsyncResultPtr& r)
                {
                    std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
-                   ret__ = OBJECTPRX->iceI_end_ice_invoke(outP, r);
+                   ret__ = OBJECTPRX->___end_ice_invoke(outP, r);
                    *outEncaps = [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
                }, result);
     return ret__;

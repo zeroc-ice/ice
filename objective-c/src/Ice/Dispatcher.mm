@@ -85,12 +85,12 @@ typedef IceUtil::Handle<DispatcherI> DispatcherIPtr;
     }
 
     cxxCall_ = call;
-    cxxCall_->iceIncRef();
+    cxxCall_->__incRef();
     return self;
 }
 -(void) dealloc
 {
-    cxxCall_->iceDecRef();
+    cxxCall_->__decRef();
     cxxCall_ = 0;
     [super dealloc];
 }

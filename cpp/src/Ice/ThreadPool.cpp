@@ -373,7 +373,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
             << _sizeWarn;
     }
 
-    iceSetNoDelete(true);
+    __setNoDelete(true);
     try
     {
         for(int i = 0 ; i < _size ; ++i)
@@ -399,15 +399,15 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 
         destroy();
         joinWithAllThreads();
-        iceSetNoDelete(false);
+        __setNoDelete(false);
         throw;
     }
     catch(...)
     {
-        iceSetNoDelete(false);
+        __setNoDelete(false);
         throw;
     }
-    iceSetNoDelete(false);
+    __setNoDelete(false);
 }
 
 IceInternal::ThreadPool::~ThreadPool()

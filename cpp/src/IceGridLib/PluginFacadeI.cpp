@@ -46,12 +46,12 @@ IceGrid::setRegistryPluginFacade(const RegistryPluginFacadePtr& facade)
 #else
     if(pluginFacade)
     {
-        pluginFacade->iceDecRef();
+        pluginFacade->__decRef();
     }
     pluginFacade = facade.get();
     if(pluginFacade)
     {
-        pluginFacade->iceIncRef();
+        pluginFacade->__incRef();
     }
 #endif
 }

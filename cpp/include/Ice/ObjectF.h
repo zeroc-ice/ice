@@ -23,7 +23,7 @@ using ObjectPtr = ::std::shared_ptr<Object>;
 ICE_API Object* upCast(Object*);
 typedef IceInternal::Handle<Object> ObjectPtr;
 typedef ObjectPtr ValuePtr;
-ICE_API void icePatch(ObjectPtr&, const ObjectPtr&);
+ICE_API void __patch(ObjectPtr&, const ObjectPtr&);
 #endif
 
 }

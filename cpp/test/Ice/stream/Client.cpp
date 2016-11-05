@@ -32,13 +32,13 @@ public:
         called = false;
     }
 
-    virtual void iceWrite(Ice::OutputStream* out) const
+    virtual void __write(Ice::OutputStream* out) const
     {
-        obj->iceWrite(out);
+        obj->__write(out);
         const_cast<TestObjectWriter*>(this)->called = true;
     }
 
-    virtual void iceRead(Ice::InputStream*)
+    virtual void __read(Ice::InputStream*)
     {
         assert(false);
     }
@@ -61,15 +61,15 @@ public:
         called = false;
     }
 
-    virtual void iceWrite(Ice::OutputStream*) const
+    virtual void __write(Ice::OutputStream*) const
     {
         assert(false);
     }
 
-    virtual void iceRead(Ice::InputStream* in)
+    virtual void __read(Ice::InputStream* in)
     {
         obj = ICE_MAKE_SHARED(MyClass);
-        obj->iceRead(in);
+        obj->__read(in);
         called = true;
     }
 
@@ -78,29 +78,29 @@ public:
 };
 ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
 
-// Required for ValueHelper<>'s iceReadImpl and iceWriteIpml
+// Required for ValueHelper<>'s __readImpl and __writeIpml
 #ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 template<class S>
 struct StreamWriter<TestObjectWriter, S>
 {
-    static void write(S* iceOs, const TestObjectWriter&) { assert(false); }
+    static void write(S* __os, const TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectWriter, S>
 {
-    static void read(S* iceIs, TestObjectWriter&) { assert(false); }
+    static void read(S* __is, TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamWriter<TestObjectReader, S>
 {
-    static void write(S* iceOs, const TestObjectReader&) { assert(false); }
+    static void write(S* __os, const TestObjectReader&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectReader, S>
 {
-    static void read(S* iceIs, TestObjectReader&) { assert(false); }
+    static void read(S* __is, TestObjectReader&) { assert(false); }
 };
 }
 #endif

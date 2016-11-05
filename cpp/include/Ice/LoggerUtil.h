@@ -24,7 +24,7 @@ public:
 
     std::string str() const;
 
-    std::ostringstream& iceStr(); // For internal use only. Don't use in your code.
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
 
 private:
 
@@ -48,7 +48,7 @@ struct LoggerOutputInserter
     static inline LoggerOutputBase&
     insert(LoggerOutputBase& out, const T& val)
     {
-        out.iceStr() << val;
+        out.__str() << val;
         return out;
     }
 };
@@ -87,7 +87,7 @@ operator<<(LoggerOutputBase& os, const ::IceInternal::ProxyHandle<T>& p)
 inline LoggerOutputBase&
 operator<<(LoggerOutputBase& out, const ::std::exception& ex)
 {
-    out.iceStr() << ex.what();
+    out.__str() << ex.what();
     return out;
 }
 
@@ -108,13 +108,13 @@ public:
 
     inline void flush()
     {
-        std::string s = iceStr().str();
+        std::string s = __str().str();
         if(!s.empty())
         {
             L& ref = *_logger;
             (ref.*output)(s);
         }
-        iceStr().str("");
+        __str().str("");
     }
 
 private:

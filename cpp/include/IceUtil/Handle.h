@@ -154,7 +154,7 @@ public:
 
         if(this->_ptr)
         {
-            this->_ptr->iceIncRef();
+            this->_ptr->__incRef();
         }
     }
     
@@ -165,7 +165,7 @@ public:
 
         if(this->_ptr)
         {
-            this->_ptr->iceIncRef();
+            this->_ptr->__incRef();
         }
     }
 
@@ -175,7 +175,7 @@ public:
 
         if(this->_ptr)
         {
-            this->_ptr->iceIncRef();
+            this->_ptr->__incRef();
         }
     }
     
@@ -183,7 +183,7 @@ public:
     {
         if(this->_ptr)
         {
-            this->_ptr->iceDecRef();
+            this->_ptr->__decRef();
         }
     }
     
@@ -193,7 +193,7 @@ public:
         {
             if(p)
             {
-                p->iceIncRef();
+                p->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -201,7 +201,7 @@ public:
 
             if(ptr)
             {
-                ptr->iceDecRef();
+                ptr->__decRef();
             }
         }
         return *this;
@@ -214,7 +214,7 @@ public:
         {
             if(r._ptr)
             {
-                r._ptr->iceIncRef();
+                r._ptr->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -222,7 +222,7 @@ public:
 
             if(ptr)
             {
-                ptr->iceDecRef();
+                ptr->__decRef();
             }
         }
         return *this;
@@ -234,7 +234,7 @@ public:
         {
             if(r._ptr)
             {
-                r._ptr->iceIncRef();
+                r._ptr->__incRef();
             }
 
             T* ptr = this->_ptr;
@@ -242,7 +242,7 @@ public:
 
             if(ptr)
             {
-                ptr->iceDecRef();
+                ptr->__decRef();
             }
         }
         return *this;

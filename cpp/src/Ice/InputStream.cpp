@@ -1899,7 +1899,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
     //
     // Read the object.
     //
-    v->iceRead(_stream);
+    v->__read(_stream);
 
     //
     // Patch all instances now that the object is unmarshaled.
@@ -2034,7 +2034,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_USER_EXCEPTION_FACT
             }
             catch(UserException& ex)
             {
-                ex.iceRead(_stream);
+                ex.__read(_stream);
                 if(usesClasses)
                 {
                     readPendingValues();
@@ -2329,7 +2329,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_USER_EXCEPTION_FACT
             }
             catch(UserException& ex)
             {
-                ex.iceRead(_stream);
+                ex.__read(_stream);
                 throw;
 
                 // Never reached.

@@ -29,8 +29,8 @@ public:
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 
-    virtual void iceWrite(Ice::OutputStream*) const;
-    virtual void iceRead(Ice::InputStream*);
+    virtual void __write(Ice::OutputStream*) const;
+    virtual void __read(Ice::InputStream*);
 
     virtual std::string ice_id() const;
     static const std::string& ice_staticId();
@@ -41,8 +41,8 @@ protected:
 
     virtual std::shared_ptr<Value> cloneImpl() const = 0;
 
-    virtual void iceWriteImpl(Ice::OutputStream*) const {}
-    virtual void iceReadImpl(Ice::InputStream*) {}
+    virtual void __writeImpl(Ice::OutputStream*) const {}
+    virtual void __readImpl(Ice::InputStream*) {}
 };
 
 template<typename T, typename Base> class ValueHelper : public Base
@@ -70,20 +70,20 @@ protected:
         return std::make_shared<T>(static_cast<const T&>(*this));
     }
 
-    virtual void iceWriteImpl(Ice::OutputStream* os) const override
+    virtual void __writeImpl(Ice::OutputStream* os) const override
     {
         os->startSlice(T::ice_staticId(), -1, std::is_same<Base, Ice::Value>::value ? true : false);
         Ice::StreamWriter<T, Ice::OutputStream>::write(os, static_cast<const T&>(*this));
         os->endSlice();
-        Base::iceWriteImpl(os);
+        Base::__writeImpl(os);
     }
 
-    virtual void iceReadImpl(Ice::InputStream* is) override
+    virtual void __readImpl(Ice::InputStream* is) override
     {
         is->startSlice();
         Ice::StreamReader<T, Ice::InputStream>::read(is, static_cast<T&>(*this));
         is->endSlice();
-        Base::iceReadImpl(is);
+        Base::__readImpl(is);
     }
 };
 

@@ -2114,7 +2114,7 @@ IcePy::AsyncTypedInvocation::end(const Ice::ObjectPrx& proxy, const OperationPtr
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking operations.
-            ok = proxy->iceI_end_ice_invoke(results, r);
+            ok = proxy->___end_ice_invoke(results, r);
         }
 
         if(ok)
@@ -2803,7 +2803,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking operations.
-            ok = proxy->iceI_end_ice_invoke(results, r);
+            ok = proxy->___end_ice_invoke(results, r);
         }
 
         //
@@ -4142,7 +4142,7 @@ IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr
         //
         if(!op->pseudoOp)
         {
-            iceCheckMode(op->mode, current.mode);
+            __checkMode(op->mode, current.mode);
         }
 
         UpcallPtr up = new TypedUpcall(op, cb, current.adapter->getCommunicator());

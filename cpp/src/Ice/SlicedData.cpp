@@ -33,7 +33,7 @@ Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
 
 #ifndef ICE_CPP11_MAPPING
 void
-Ice::SlicedData::iceGcVisitMembers(IceInternal::GCVisitor& visitor)
+Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
 {
     //
     // Iterate over the object references in each preserved slice.
@@ -42,7 +42,7 @@ Ice::SlicedData::iceGcVisitMembers(IceInternal::GCVisitor& visitor)
     {
         for(vector<ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
-            if(q->get()->iceGcVisit(visitor))
+            if(q->get()->__gcVisit(visitor))
             {
                 *q = 0;
             }
@@ -51,11 +51,11 @@ Ice::SlicedData::iceGcVisitMembers(IceInternal::GCVisitor& visitor)
 }
 
 void
-Ice::UnknownSlicedValue::iceGcVisitMembers(IceInternal::GCVisitor& _v)
+Ice::UnknownSlicedValue::__gcVisitMembers(IceInternal::GCVisitor& _v)
 {
     if(_slicedData)
     {
-        _slicedData->iceGcVisitMembers(_v);
+        _slicedData->__gcVisitMembers(_v);
     }
 }
 
@@ -78,17 +78,17 @@ Ice::UnknownSlicedValue::getSlicedData() const
 }
 
 void
-Ice::UnknownSlicedValue::iceWrite(Ice::OutputStream* iceOs) const
+Ice::UnknownSlicedValue::__write(Ice::OutputStream* __os) const
 {
-    iceOs->startValue(_slicedData);
-    iceOs->endValue();
+    __os->startValue(_slicedData);
+    __os->endValue();
 }
 
 void
-Ice::UnknownSlicedValue::iceRead(Ice::InputStream* iceIs)
+Ice::UnknownSlicedValue::__read(Ice::InputStream* __is)
 {
-    iceIs->startValue();
-    _slicedData = iceIs->endValue(true);
+    __is->startValue();
+    _slicedData = __is->endValue(true);
 }
 
 #ifdef ICE_CPP11_MAPPING

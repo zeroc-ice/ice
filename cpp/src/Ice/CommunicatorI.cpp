@@ -204,7 +204,7 @@ Ice::CommunicatorI::getValueFactoryManager() const
 namespace
 {
 
-const ::std::string iceC_flushBatchRequests_name = "flushBatchRequests";
+const ::std::string __flushBatchRequests_name = "flushBatchRequests";
 
 }
 
@@ -230,7 +230,7 @@ Ice::CommunicatorI::flushBatchRequestsAsync(function<void(exception_ptr)> ex, fu
         }
     };
     auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, ex, sent);
-    outAsync->invoke(iceC_flushBatchRequests_name);
+    outAsync->invoke(__flushBatchRequests_name);
     return [outAsync]() { outAsync->cancel(); };
 }
 
@@ -245,24 +245,24 @@ Ice::CommunicatorI::flushBatchRequests()
 AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests()
 {
-    return iceI_begin_flushBatchRequests(::IceInternal::dummyCallback, 0);
+    return __begin_flushBatchRequests(::IceInternal::__dummyCallback, 0);
 }
 
 AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests(const CallbackPtr& cb, const LocalObjectPtr& cookie)
 {
-    return iceI_begin_flushBatchRequests(cb, cookie);
+    return __begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr& cb,
                                              const LocalObjectPtr& cookie)
 {
-    return iceI_begin_flushBatchRequests(cb, cookie);
+    return __begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
-Ice::CommunicatorI::iceI_begin_flushBatchRequests(const IceInternal::CallbackBasePtr& cb, const LocalObjectPtr& cookie)
+Ice::CommunicatorI::__begin_flushBatchRequests(const IceInternal::CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     class CommunicatorFlushBatchAsyncWithCallback : public CommunicatorFlushBatchAsync, public CallbackCompletion
     {
@@ -285,7 +285,7 @@ Ice::CommunicatorI::iceI_begin_flushBatchRequests(const IceInternal::CallbackBas
         virtual const std::string&
         getOperation() const
         {
-            return iceC_flushBatchRequests_name;
+            return __flushBatchRequests_name;
         }
 
     private:
@@ -294,15 +294,15 @@ Ice::CommunicatorI::iceI_begin_flushBatchRequests(const IceInternal::CallbackBas
     };
 
     CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsyncWithCallback(this, _instance, cb, cookie);
-    result->invoke(iceC_flushBatchRequests_name);
+    result->invoke(__flushBatchRequests_name);
     return result;
 }
 
 void
 Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
 {
-    AsyncResult::iceCheck(r, this, iceC_flushBatchRequests_name);
-    r->iceWait();
+    AsyncResult::__check(r, this, __flushBatchRequests_name);
+    r->__wait();
 }
 #endif
 
