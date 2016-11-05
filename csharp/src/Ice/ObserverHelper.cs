@@ -37,7 +37,7 @@ namespace IceInternal
         static public InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
         {
             CommunicatorObserver obsv = 
-                ((Ice.ObjectPrxHelperBase)proxy).iceReference().getInstance().initializationData().observer;
+                ((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance().initializationData().observer;
             if(obsv != null)
             {
                 InvocationObserver observer;

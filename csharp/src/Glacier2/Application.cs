@@ -190,7 +190,7 @@ public abstract class Application : Ice.Application
             throw new SessionNotExistException();
         }
 
-        lock(s_iceMutex)
+        lock(mutex__)
         {
             if(_adapter == null)
             {
@@ -235,21 +235,21 @@ public abstract class Application : Ice.Application
         // Reset internal state variables from Ice.Application. The
         // remainder are reset at the end of this method.
         //
-        s_iceCallbackInProgress = false;
-        s_iceDestroyed = false;
-        s_iceInterrupted = false;
+        callbackInProgress__ = false;
+        destroyed__ = false;
+        interrupted__ = false;
 
         bool restart = false;
         status = 0;
 
         try
         {
-            s_iceCommunicator = Ice.Util.initialize(ref args, initData);
+            communicator__ = Ice.Util.initialize(ref args, initData);
 
             _router = Glacier2.RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
             if(_router == null)
             {
-                Ice.Util.getProcessLogger().error(s_iceAppName + ": no Glacier2 router configured");
+                Ice.Util.getProcessLogger().error(appName__ + ": no Glacier2 router configured");
                 status = 1;
             }
             else
@@ -257,7 +257,7 @@ public abstract class Application : Ice.Application
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(s_iceSignalPolicy == Ice.SignalPolicy.HandleSignals)
+                if(signalPolicy__ == Ice.SignalPolicy.HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -353,28 +353,28 @@ public abstract class Application : Ice.Application
         // (post-run), it would not make sense to release a held
         // signal to run shutdown or destroy.
         //
-        if(s_iceSignalPolicy == Ice.SignalPolicy.HandleSignals)
+        if(signalPolicy__ == Ice.SignalPolicy.HandleSignals)
         {
             ignoreInterrupt();
         }
 
-        lock(s_iceMutex)
+        lock(mutex__)
         {
-            while(s_iceCallbackInProgress)
+            while(callbackInProgress__)
             {
-                System.Threading.Monitor.Wait(s_iceMutex);
+                System.Threading.Monitor.Wait(mutex__);
             }
 
-            if(s_iceDestroyed)
+            if(destroyed__)
             {
-                s_iceCommunicator = null;
+                communicator__ = null;
             }
             else
             {
-                s_iceDestroyed = true;
+                destroyed__ = true;
                 //
-                // And s_iceCommunicator != null, meaning will be
-                // destroyed next, s_iceDestroyed = true also ensures that
+                // And communicator__ != null, meaning will be
+                // destroyed next, destroyed__ = true also ensures that
                 // any remaining callback won't do anything
                 //
             }
@@ -409,11 +409,11 @@ public abstract class Application : Ice.Application
             _router = null;
         }
 
-        if(s_iceCommunicator != null)
+        if(communicator__ != null)
         {
             try
             {
-                s_iceCommunicator.destroy();
+                communicator__.destroy();
             }
             catch(Ice.LocalException ex)
             {
@@ -425,12 +425,12 @@ public abstract class Application : Ice.Application
                 Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
                 status = 1;
             }
-            s_iceCommunicator = null;
+            communicator__ = null;
         }
 
         //
         // Reset internal state. We cannot reset the Application state
-        // here, since s_iceDestroyed must remain true until we re-run
+        // here, since destroyed__ must remain true until we re-run
         // this method.
         //
         _adapter = null;

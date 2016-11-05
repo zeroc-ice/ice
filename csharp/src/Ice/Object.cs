@@ -69,7 +69,7 @@ namespace Ice
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
         Task<Ice.OutputStream> ice_dispatch(Request request);
 
-        Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inc, Current current);
+        Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inc, Current current);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ namespace Ice
             return MemberwiseClone();
         }
 
-        public static readonly string[] s_iceIds =
+        public static readonly string[] ids__ =
         {
             "::Ice::Object"
         };
@@ -107,19 +107,19 @@ namespace Ice
         /// <returns>The return value is true if s is ::Ice::Object.</returns>
         public virtual bool ice_isA(string s, Current current = null)
         {
-            return s.Equals(s_iceIds[0]);
+            return s.Equals(ids__[0]);
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_isA(Ice.Object iceObj, IceInternal.Incoming iceInS, Current iceCurrent)
+        public static Task<Ice.OutputStream> ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            InputStream iceIs = iceInS.startReadParams();
-            var iceId = iceIs.readString();
-            iceInS.endReadParams();
-            var iceRet = iceObj.ice_isA(iceId, iceCurrent);
-            var iceOs = iceInS.startWriteParams();
-            iceOs.writeBool(iceRet);
-            iceInS.endWriteParams(iceOs);
-            iceInS.setResult(iceOs);
+            InputStream is__ = inS__.startReadParams();
+            var __id = is__.readString();
+            inS__.endReadParams();
+            var __ret = __obj.ice_isA(__id, __current);
+            var os__ = inS__.startWriteParams();
+            os__.writeBool(__ret);
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
             return null;
         }
 
@@ -132,11 +132,11 @@ namespace Ice
             // Nothing to do.
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_ping(Ice.Object iceObj, IceInternal.Incoming iceInS, Current iceCurrent)
+        public static Task<Ice.OutputStream> ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            iceInS.readEmptyParams();
-            iceObj.ice_ping(iceCurrent);
-            iceInS.setResult(iceInS.writeEmptyParams());
+            inS__.readEmptyParams();
+            __obj.ice_ping(__current);
+            inS__.setResult(inS__.writeEmptyParams());
             return null;
         }
 
@@ -147,17 +147,17 @@ namespace Ice
         /// <returns>An array whose only element is ::Ice::Object.</returns>
         public virtual string[] ice_ids(Current current = null)
         {
-            return s_iceIds;
+            return ids__;
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_ids(Ice.Object iceObj, IceInternal.Incoming iceInS, Current iceCurrent)
+        public static Task<Ice.OutputStream> ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            iceInS.readEmptyParams();
-            var iceRet = iceObj.ice_ids(iceCurrent);
-            var iceOs = iceInS.startWriteParams();
-            iceOs.writeStringSeq(iceRet);
-            iceInS.endWriteParams(iceOs);
-            iceInS.setResult(iceOs);
+            inS__.readEmptyParams();
+            var ret__ = __obj.ice_ids(__current);
+            var os__ = inS__.startWriteParams();
+            os__.writeStringSeq(ret__);
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
             return null;
         }
 
@@ -168,17 +168,17 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public virtual string ice_id(Current current = null)
         {
-            return s_iceIds[0];
+            return ids__[0];
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_id(Ice.Object iceObj, IceInternal.Incoming iceInS, Current iceCurrent)
+        public static Task<Ice.OutputStream> ice_id___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            iceInS.readEmptyParams();
-            var iceRet = iceObj.ice_id(iceCurrent);
-            var iceOs = iceInS.startWriteParams();
-            iceOs.writeString(iceRet);
-            iceInS.endWriteParams(iceOs);
-            iceInS.setResult(iceOs);
+            inS__.readEmptyParams();
+            var __ret = __obj.ice_id(__current);
+            var os__ = inS__.startWriteParams();
+            os__.writeString(__ret);
+            inS__.endWriteParams(os__);
+            inS__.setResult(os__);
             return null;
         }
 
@@ -188,10 +188,10 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public static string ice_staticId()
         {
-            return s_iceIds[0];
+            return ids__[0];
         }
 
-        private static readonly string[] s_iceAll = new string[]
+        private static readonly string[] all__ = new string[]
         {
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
@@ -206,12 +206,12 @@ namespace Ice
         {
             var inc = (IceInternal.Incoming)request;
             inc.startOver();
-            return iceDispatch(inc, inc.getCurrent());
+            return dispatch__(inc, inc.getCurrent());
         }
 
-        public virtual Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inc, Current current)
+        public virtual Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inc, Current current)
         {
-            int pos = System.Array.BinarySearch(s_iceAll, current.operation);
+            int pos = System.Array.BinarySearch(all__, current.operation);
             if(pos < 0)
             {
                 throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
@@ -221,19 +221,19 @@ namespace Ice
             {
                 case 0:
                 {
-                    return iceD_ice_id(this, inc, current);
+                    return ice_id___(this, inc, current);
                 }
                 case 1:
                 {
-                    return iceD_ice_ids(this, inc, current);
+                    return ice_ids___(this, inc, current);
                 }
                 case 2:
                 {
-                    return iceD_ice_isA(this, inc, current);
+                    return ice_isA___(this, inc, current);
                 }
                 case 3:
                 {
-                    return iceD_ice_ping(this, inc, current);
+                    return ice_ping___(this, inc, current);
                 }
             }
 
@@ -260,7 +260,7 @@ namespace Ice
             return "???";
         }
 
-        public static void iceCheckMode(OperationMode expected, OperationMode received)
+        public static void checkMode__(OperationMode expected, OperationMode received)
         {
             if(expected != received)
             {
@@ -303,7 +303,7 @@ namespace Ice
         /// Ice run-time exception, it must throw it directly.</returns>
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
-        public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
+        public override Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inS, Current current)
         {
             byte[] inEncaps = inS.readParamEncaps();
             byte[] outEncaps;
@@ -317,7 +317,7 @@ namespace Ice
     {
         public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
-        public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
+        public override Task<Ice.OutputStream> dispatch__(IceInternal.Incoming inS, Current current)
         {
             byte[] inEncaps = inS.readParamEncaps();
             return ice_invokeAsync(inEncaps, current).ContinueWith((Task<Ice.Object_Ice_invokeResult> t) =>

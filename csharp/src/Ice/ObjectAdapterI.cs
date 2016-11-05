@@ -450,7 +450,7 @@ namespace Ice
             {
                 checkForDeactivation();
 
-                Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
+                Reference @ref = ((ObjectPrxHelperBase)proxy).reference__();
                 return findFacet(@ref.getIdentity(), @ref.getFacet());
             }
         }
@@ -617,7 +617,7 @@ namespace Ice
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             //
 
-            Reference r = ((ObjectPrxHelperBase)proxy).iceReference();
+            Reference r = ((ObjectPrxHelperBase)proxy).reference__();
             if(r.isWellKnown())
             {
                 //

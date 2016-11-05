@@ -269,8 +269,8 @@ namespace IceInternal
 
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                protocol_.iceWrite(s);
-                encoding_.iceWrite(s);
+                protocol_.write__(s);
+                encoding_.write__(s);
             }
 
             // Derived class writes the remainder of the reference.
@@ -728,7 +728,7 @@ namespace IceInternal
                 compress = _fixedConnection.endpoint().compress();
             }
 
-            return ((Ice.ObjectPrxHelperBase)proxy).iceSetRequestHandler(new ConnectionRequestHandler(this,
+            return ((Ice.ObjectPrxHelperBase)proxy).setRequestHandler__(new ConnectionRequestHandler(this,
                                                                                                      _fixedConnection,
                                                                                                      compress));
         }
@@ -1090,7 +1090,7 @@ namespace IceInternal
             if(_routerInfo != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
-                Dictionary<String, String> routerProperties = h.iceReference().toProperty(prefix + ".Router");
+                Dictionary<String, String> routerProperties = h.reference__().toProperty(prefix + ".Router");
                 foreach(KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1100,7 +1100,7 @@ namespace IceInternal
             if(_locatorInfo != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
-                Dictionary<String, String> locatorProperties = h.iceReference().toProperty(prefix + ".Locator");
+                Dictionary<String, String> locatorProperties = h.reference__().toProperty(prefix + ".Locator");
                 foreach(KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;

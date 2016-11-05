@@ -173,7 +173,7 @@ namespace Ice
         {
             var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
             var outgoing = new CommunicatorFlushBatchAsync(instance_, completed);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(__flushBatchRequests_name);
             return completed.Task;
         }
 
@@ -182,7 +182,7 @@ namespace Ice
             return begin_flushBatchRequests(null, null);
         }
 
-        private const string _flushBatchRequests_name = "flushBatchRequests";
+        private const string __flushBatchRequests_name = "flushBatchRequests";
 
         private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
         {
@@ -216,9 +216,9 @@ namespace Ice
 
         public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
         {
-            var result = new CommunicatorFlushBatchCompletionCallback(this, instance_, _flushBatchRequests_name, cookie, cb);
+            var result = new CommunicatorFlushBatchCompletionCallback(this, instance_, __flushBatchRequests_name, cookie, cb);
             var outgoing = new CommunicatorFlushBatchAsync(instance_, result);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(__flushBatchRequests_name);
             return result;
         }
 
@@ -226,12 +226,12 @@ namespace Ice
         {
             if(result != null && result.getCommunicator() != this)
             {
-                const string msg = "Communicator for call to end_" + _flushBatchRequests_name +
+                const string msg = "Communicator for call to end_" + __flushBatchRequests_name +
                                    " does not match communicator that was used to call corresponding begin_" +
-                                   _flushBatchRequests_name + " method";
+                                   __flushBatchRequests_name + " method";
                 throw new ArgumentException(msg);
             }
-            AsyncResultI.check(result, _flushBatchRequests_name).wait();
+            AsyncResultI.check(result, __flushBatchRequests_name).wait();
         }
 
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)

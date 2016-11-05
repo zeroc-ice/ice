@@ -593,9 +593,9 @@ namespace IceInternal
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new Ice.ProtocolVersion();
-                protocol.iceRead(s);
+                protocol.read__(s);
                 encoding = new Ice.EncodingVersion();
-                encoding.iceRead(s);
+                encoding.read__(s);
             }
             else
             {
@@ -749,7 +749,7 @@ namespace IceInternal
             LocatorInfo locatorInfo = null;
             if(_defaultLocator != null)
             {
-                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding))
+                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).reference__().getEncoding().Equals(encoding))
                 {
                     locatorInfo = instance_.locatorManager().get(
                         (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
@@ -789,7 +789,7 @@ namespace IceInternal
                 Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(locator != null)
                 {
-                    if(!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding))
+                    if(!((Ice.ObjectPrxHelperBase)locator).reference__().getEncoding().Equals(encoding))
                     {
                         locatorInfo = instance_.locatorManager().get(
                             (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));

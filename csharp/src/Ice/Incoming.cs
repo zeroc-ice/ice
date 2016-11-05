@@ -110,7 +110,7 @@ namespace IceInternal
             //
             // Read the current.
             //
-            _current.id.iceRead(_is);
+            _current.id.read__(_is);
 
             //
             // For compatibility with the old FacetPath.
@@ -211,7 +211,7 @@ namespace IceInternal
 
             try
             {
-                Task<Ice.OutputStream> task = _servant.iceDispatch(this, _current);
+                Task<Ice.OutputStream> task = _servant.dispatch__(this, _current);
                 if(task == null)
                 {
                     completed(null, false);
@@ -605,7 +605,7 @@ namespace IceInternal
                     {
                         Debug.Assert(false);
                     }
-                    ex.id.iceWrite(_os);
+                    ex.id.write__(_os);
 
                     //
                     // For compatibility with the old FacetPath.

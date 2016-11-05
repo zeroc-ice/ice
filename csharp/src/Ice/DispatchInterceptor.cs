@@ -31,7 +31,7 @@ namespace Ice
         dispatch(Request request);
 
         public override System.Threading.Tasks.Task<Ice.OutputStream>
-        iceDispatch(IceInternal.Incoming inc, Current current)
+        dispatch__(IceInternal.Incoming inc, Current current)
         {
             return dispatch(inc);
         }

@@ -558,7 +558,7 @@ namespace Ice
             _encapsStack.sz = sz;
 
             EncodingVersion encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.read__(this);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
             _encapsStack.setEncoding(encoding);
 
@@ -627,7 +627,7 @@ namespace Ice
             }
 
             var encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.read__(this);
             if(encoding.Equals(Util.Encoding_1_0))
             {
                 if(sz != 6)
@@ -664,7 +664,7 @@ namespace Ice
             }
 
             encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.read__(this);
             _buf.b.position(_buf.b.position() - 6);
 
             byte[] v = new byte[sz];
@@ -710,7 +710,7 @@ namespace Ice
                 throw new UnmarshalOutOfBoundsException();
             }
             EncodingVersion encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.read__(this);
             try
             {
                 _buf.b.position(_buf.b.position() + sz - 6);
@@ -2900,7 +2900,7 @@ namespace Ice
                 //
                 // Read the instance.
                 //
-                v.iceRead(_stream);
+                v.read__(_stream);
 
                 if(_patchMap != null)
                 {
@@ -3073,7 +3073,7 @@ namespace Ice
                     //
                     if(userEx != null)
                     {
-                        userEx.iceRead(_stream);
+                        userEx.read__(_stream);
                         if(usesClasses)
                         {
                             readPendingValues();
@@ -3382,7 +3382,7 @@ namespace Ice
                     //
                     if(userEx != null)
                     {
-                        userEx.iceRead(_stream);
+                        userEx.read__(_stream);
                         throw userEx;
 
                         // Never reached.
@@ -4018,12 +4018,12 @@ namespace Ice
         /// <param name="inStream">The input stream to read from.</param>
         public abstract void read(InputStream inStream);
 
-        public override void iceWrite(OutputStream os)
+        public override void write__(OutputStream os)
         {
             Debug.Assert(false);
         }
 
-        public override void iceRead(InputStream istr)
+        public override void read__(InputStream istr)
         {
             read(istr);
         }

@@ -26,7 +26,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.iceReference().ToString();
+                return h.reference__().ToString();
             }
             else
             {
@@ -46,7 +46,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.iceReference().toProperty(prefix);
+                return h.reference__().toProperty(prefix);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace IceInternal
         public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
-            ident.iceRead(s);
+            ident.read__(s);
 
             Reference r = instance_.referenceFactory().create(ident, s);
             return referenceToProxy(r);

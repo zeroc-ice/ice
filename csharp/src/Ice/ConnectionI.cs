@@ -520,16 +520,16 @@ namespace Ice
         {
             var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(__flushBatchRequests_name);
             return completed.Task;
         }
 
         public AsyncResult begin_flushBatchRequests(AsyncCallback cb = null, object cookie = null)
         {
             var result = new ConnectionFlushBatchCompletionCallback(this, _communicator, _instance,
-                                                                    _flushBatchRequests_name, cookie, cb);
+                                                                    __flushBatchRequests_name, cookie, cb);
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, result);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(__flushBatchRequests_name);
             return result;
         }
 
@@ -537,15 +537,15 @@ namespace Ice
         {
             if(r != null && r.getConnection() != this)
             {
-                const string msg = "Connection for call to end_" + _flushBatchRequests_name +
+                const string msg = "Connection for call to end_" + __flushBatchRequests_name +
                                    " does not match connection that was used to call corresponding begin_" +
-                                   _flushBatchRequests_name + " method";
+                                   __flushBatchRequests_name + " method";
                 throw new ArgumentException(msg);
             }
-            AsyncResultI.check(r, _flushBatchRequests_name).wait();
+            AsyncResultI.check(r, __flushBatchRequests_name).wait();
         }
 
-        private const string _flushBatchRequests_name = "flushBatchRequests";
+        private const string __flushBatchRequests_name = "flushBatchRequests";
 
         public void setCloseCallback(CloseCallback callback)
         {
@@ -1071,10 +1071,10 @@ namespace Ice
                                 }
 
                                 ProtocolVersion pv  = new ProtocolVersion();
-                                pv.iceRead(_readStream);
+                                pv.read__(_readStream);
                                 IceInternal.Protocol.checkSupportedProtocol(pv);
                                 EncodingVersion ev = new EncodingVersion();
-                                ev.iceRead(_readStream);
+                                ev.read__(_readStream);
                                 IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
 
                                 _readStream.readByte(); // messageType
@@ -1949,8 +1949,8 @@ namespace Ice
                 //
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
-                Ice.Util.currentProtocol.iceWrite(os);
-                Ice.Util.currentProtocolEncoding.iceWrite(os);
+                Ice.Util.currentProtocol.write__(os);
+                Ice.Util.currentProtocolEncoding.write__(os);
                 os.writeByte(IceInternal.Protocol.closeConnectionMsg);
                 os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1981,8 +1981,8 @@ namespace Ice
             {
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
-                Ice.Util.currentProtocol.iceWrite(os);
-                Ice.Util.currentProtocolEncoding.iceWrite(os);
+                Ice.Util.currentProtocol.write__(os);
+                Ice.Util.currentProtocolEncoding.write__(os);
                 os.writeByte(IceInternal.Protocol.validateConnectionMsg);
                 os.writeByte((byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2027,8 +2027,8 @@ namespace Ice
                     if(_writeStream.size() == 0)
                     {
                         _writeStream.writeBlob(IceInternal.Protocol.magic);
-                        Ice.Util.currentProtocol.iceWrite(_writeStream);
-                        Ice.Util.currentProtocolEncoding.iceWrite(_writeStream);
+                        Ice.Util.currentProtocol.write__(_writeStream);
+                        Ice.Util.currentProtocolEncoding.write__(_writeStream);
                         _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                         _writeStream.writeByte((byte)0); // Compression status (always zero for validate connection).
                         _writeStream.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2098,11 +2098,11 @@ namespace Ice
                     }
 
                     ProtocolVersion pv  = new ProtocolVersion();
-                    pv.iceRead(_readStream);
+                    pv.read__(_readStream);
                     IceInternal.Protocol.checkSupportedProtocol(pv);
 
                     EncodingVersion ev = new EncodingVersion();
-                    ev.iceRead(_readStream);
+                    ev.read__(_readStream);
                     IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
 
                     byte messageType = _readStream.readByte();

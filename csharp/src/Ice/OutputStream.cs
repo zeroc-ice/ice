@@ -343,7 +343,7 @@ namespace Ice
             _encapsStack.start = _buf.b.position();
 
             writeInt(0); // Placeholder for the encapsulation length.
-            _encapsStack.encoding.iceWrite(this);
+            _encapsStack.encoding.write__(this);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Ice
         {
             Protocol.checkSupportedEncoding(encoding);
             writeInt(6); // Size
-            encoding.iceWrite(this);
+            encoding.write__(this);
         }
 
         /// <summary>
@@ -1967,12 +1967,12 @@ namespace Ice
         {
             if(v != null)
             {
-                v.iceWrite(this);
+                v.write__(this);
             }
             else
             {
                 Identity ident = new Identity();
-                ident.iceWrite(this);
+                ident.write__(this);
             }
         }
 
@@ -2258,9 +2258,9 @@ namespace Ice
                 // This allows reading the pending instances even if some part of
                 // the exception was sliced.
                 //
-                bool usesClasses = v.iceUsesClasses();
+                bool usesClasses = v.usesClasses__();
                 _stream.writeBool(usesClasses);
-                v.iceWrite(_stream);
+                v.write__(_stream);
                 if(usesClasses)
                 {
                     writePendingValues();
@@ -2363,7 +2363,7 @@ namespace Ice
                             _stream.instance().initializationData().logger.warning(s);
                         }
 
-                        p.Key.iceWrite(_stream);
+                        p.Key.write__(_stream);
                     }
                 }
                 _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -2456,7 +2456,7 @@ namespace Ice
 
             internal override void writeException(UserException v)
             {
-                v.iceWrite(_stream);
+                v.write__(_stream);
             }
 
             internal override void startInstance(SliceType sliceType, SlicedData data)
@@ -2700,7 +2700,7 @@ namespace Ice
                 }
 
                 _stream.writeSize(1); // Object instance marker.
-                v.iceWrite(_stream);
+                v.write__(_stream);
             }
 
             private sealed class InstanceData
@@ -2820,12 +2820,12 @@ namespace Ice
         /// <param name="outStream">The stream to write to.</param>
         public abstract void write(OutputStream outStream);
 
-        public override void iceWrite(OutputStream os)
+        public override void write__(OutputStream os)
         {
             write(os);
         }
 
-        public override void iceRead(InputStream istr)
+        public override void read__(InputStream istr)
         {
             Debug.Assert(false);
         }

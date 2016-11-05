@@ -207,7 +207,7 @@ namespace IceInternal
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).iceReference().getEndpoints();
+                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).reference__().getEndpoints();
                     }
                     else
                     {
@@ -223,7 +223,7 @@ namespace IceInternal
                             clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                         }
 
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).iceReference().getEndpoints();
+                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).reference__().getEndpoints();
                     }
                 }
                 return _clientEndpoints;
@@ -240,7 +240,7 @@ namespace IceInternal
                 }
 
                 serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-                _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
+                _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).reference__().getEndpoints();
                 return _serverEndpoints;
             }
         }
