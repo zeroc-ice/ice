@@ -495,7 +495,7 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
     _preferIPv6(instance->preferIPv6()),
     _destroyed(false)
 {
-    __setNoDelete(true);
+    iceSetNoDelete(true);
     try
     {
         updateObserver();
@@ -518,7 +518,7 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
         }
         throw;
     }
-    __setNoDelete(false);
+    iceSetNoDelete(false);
 }
 
 void

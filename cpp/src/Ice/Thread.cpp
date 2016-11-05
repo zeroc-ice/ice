@@ -162,7 +162,7 @@ WINAPI startHook(void* arg)
         //
         // See the comment in IceUtil::Thread::start() for details.
         //
-        rawThread->__decRef();
+        rawThread->iceDecRef();
         thread->run();
     }
     catch(...)
@@ -209,9 +209,9 @@ IceUtil::Thread::start(size_t, int)
     // object could be deleted before the thread object takes
     // ownership. It's also necessary to increment the reference count
     // prior to calling pthread_create since the thread itself calls
-    // __decRef().
+    // iceDecRef().
     //
-    __incRef();
+    iceIncRef();
     _thread.reset(new thread(startHook, this));
 
     _started = true;
@@ -397,7 +397,7 @@ WINAPI startHook(void* arg)
         //
         // See the comment in IceUtil::Thread::start() for details.
         //
-        rawThread->__decRef();
+        rawThread->iceDecRef();
         thread->run();
     }
     catch(...)
@@ -444,9 +444,9 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     // object could be deleted before the thread object takes
     // ownership. It's also necessary to increment the reference count
     // prior to calling pthread_create since the thread itself calls
-    // __decRef().
+    // iceDecRef().
     //
-    __incRef();
+    iceIncRef();
     
     unsigned int id;
     _handle = 
@@ -460,7 +460,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     assert(_handle != (HANDLE)-1L);
     if(_handle == 0)
     {
-        __decRef();
+        iceDecRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     if(SetThreadPriority(_handle, priority) == 0)
@@ -469,7 +469,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     }
     if(static_cast<int>(ResumeThread(_handle)) == -1)
     {
-        __decRef();
+        iceDecRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 
@@ -643,7 +643,7 @@ startHook(void* arg)
         //
         // See the comment in IceUtil::Thread::start() for details.
         //
-        rawThread->__decRef();
+        rawThread->iceDecRef();
         thread->run();
     }
     catch(...)
@@ -695,15 +695,15 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
     // object could be deleted before the thread object takes
     // ownership. It's also necessary to increment the reference count
     // prior to calling pthread_create since the thread itself calls
-    // __decRef().
+    // iceDecRef().
     //
-    __incRef();
+    iceIncRef();
 
     pthread_attr_t attr;
     int rc = pthread_attr_init(&attr);
     if(rc != 0)
     {
-        __decRef();
+        iceDecRef();
         pthread_attr_destroy(&attr);
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
@@ -722,7 +722,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setstacksize(&attr, stackSize);
         if(rc != 0)
         {
-            __decRef();
+            iceDecRef();
             pthread_attr_destroy(&attr);
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
@@ -733,7 +733,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setschedpolicy(&attr, SCHED_RR);
         if(rc != 0)
         {
-            __decRef();
+            iceDecRef();
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
         sched_param param;
@@ -741,7 +741,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setschedparam(&attr, &param);
         if(rc != 0)
         {
-            __decRef();
+            iceDecRef();
             pthread_attr_destroy(&attr);
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
@@ -751,7 +751,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
     pthread_attr_destroy(&attr);
     if(rc != 0)
     {
-        __decRef();
+        iceDecRef();
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 

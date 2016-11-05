@@ -47,14 +47,14 @@ IceUtil::Shared::Shared(const Shared&) :
 }
 
 void
-IceUtil::Shared::__incRef()
+IceUtil::Shared::iceIncRef()
 {
     assert(_ref >= 0);
     ++_ref;
 }
 
 void
-IceUtil::Shared::__decRef()
+IceUtil::Shared::iceDecRef()
 {
     assert(_ref > 0);
     if(--_ref == 0 && !(_flags & NoDelete))
@@ -64,13 +64,13 @@ IceUtil::Shared::__decRef()
 }
 
 int
-IceUtil::Shared::__getRef() const
+IceUtil::Shared::iceGetRef() const
 {
     return _ref;
 }
 
 void
-IceUtil::Shared::__setNoDelete(bool b)
+IceUtil::Shared::iceSetNoDelete(bool b)
 {
     _flags = b ? (_flags | NoDelete) : (_flags & ~NoDelete);
 }

@@ -42,7 +42,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
     _destroy(false)
 {
-    __setNoDelete(true);
+    iceSetNoDelete(true);
     try
     {
         _database->getReplicaCache().add(info->name, this);
@@ -54,7 +54,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     }
     catch(const ReplicaActiveException&)
     {
-        __setNoDelete(false);
+        iceSetNoDelete(false);
         throw;
     }
     catch(...)
@@ -64,10 +64,10 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 
         _database->getReplicaCache().remove(_info->name, false);
 
-        __setNoDelete(false);
+        iceSetNoDelete(false);
         throw;
     }
-    __setNoDelete(false);
+    iceSetNoDelete(false);
 }
 
 void

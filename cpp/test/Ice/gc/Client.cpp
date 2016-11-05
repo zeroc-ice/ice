@@ -132,15 +132,15 @@ public:
 
     virtual bool visit(IceInternal::GCObject* obj)
     {
-        if(obj->__hasFlag(IceInternal::GCObject::Visiting))
+        if(obj->iceHasFlag(IceInternal::GCObject::Visiting))
         {
             return false;
         }
-        test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
+        test(obj->iceHasFlag(IceInternal::GCObject::CycleMember) && obj->iceHasFlag(IceInternal::GCObject::Collectable));
 
-        obj->__setFlag(IceInternal::GCObject::Visiting);
+        obj->iceSetFlag(IceInternal::GCObject::Visiting);
         obj->iceGcVisitMembers(*this);
-        obj->__clearFlag(IceInternal::GCObject::Visiting);
+        obj->iceClearFlag(IceInternal::GCObject::Visiting);
         return false;
     }
 };

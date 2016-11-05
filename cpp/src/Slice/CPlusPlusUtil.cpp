@@ -269,7 +269,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                 {
                     out << nl << "if(" << escapedParamName << ")";
                     out << sb;
-                    out << nl << paramName << ".__setIsSet();";
+                    out << nl << paramName << ".iceSetIsSet();";
                     out << nl << "if(!" << escapedParamName << "->empty())";
                     out << sb;
                     out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
@@ -301,7 +301,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             {
                 out << nl << "if(" << escapedParamName << ")";
                 out << sb;
-                out << nl << paramName << ".__setIsSet();";
+                out << nl << paramName << ".iceSetIsSet();";
                 out << nl << paramName << "->first = (*" << escapedParamName << ").begin();";
                 out << nl << paramName << "->second = (*" << escapedParamName << ").end();";
                 out << eb;

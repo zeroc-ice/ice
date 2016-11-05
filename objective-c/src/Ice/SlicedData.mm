@@ -22,13 +22,13 @@
         return nil;
     }
     self->slicedData__ = slicedData;
-    self->slicedData__->__incRef();
+    self->slicedData__->iceIncRef();
     return self;
 }
 
 -(void) dealloc
 {
-    self->slicedData__->__decRef();
+    self->slicedData__->iceDecRef();
     [super dealloc];
 }
 

@@ -117,7 +117,7 @@ Instance::Instance(
 {
     try
     {
-        __setNoDelete(true);
+        iceSetNoDelete(true);
 
         Ice::PropertiesPtr properties = communicator->getProperties();
         if(properties->getProperty(name + ".TopicManager.AdapterId").empty())
@@ -167,11 +167,11 @@ Instance::Instance(
     {
         shutdown();
         destroy();
-        __setNoDelete(false);
+        iceSetNoDelete(false);
 
         throw;
     }
-    __setNoDelete(false);
+    iceSetNoDelete(false);
 }
 
 Instance::~Instance()

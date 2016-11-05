@@ -125,7 +125,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__incRef();
+            upCast(this->_ptr)->iceIncRef();
         }
     }
 
@@ -136,7 +136,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__incRef();
+            upCast(this->_ptr)->iceIncRef();
         }
     }
 
@@ -147,7 +147,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__incRef();
+            upCast(this->_ptr)->iceIncRef();
         }
     }
 
@@ -157,7 +157,7 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__incRef();
+            upCast(this->_ptr)->iceIncRef();
         }
     }
 
@@ -165,7 +165,7 @@ public:
     {
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__decRef();
+            upCast(this->_ptr)->iceDecRef();
         }
     }
 
@@ -175,12 +175,12 @@ public:
         {
             if(p)
             {
-                upCast(p)->__incRef();
+                upCast(p)->iceIncRef();
             }
 
             if(this->_ptr)
             {
-                upCast(this->_ptr)->__decRef();
+                upCast(this->_ptr)->iceDecRef();
             }
 
             this->_ptr = p;
@@ -195,12 +195,12 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->__incRef();
+                upCast(r._ptr)->iceIncRef();
             }
 
             if(this->_ptr)
             {
-                upCast(this->_ptr)->__decRef();
+                upCast(this->_ptr)->iceDecRef();
             }
 
             this->_ptr = r._ptr;
@@ -215,12 +215,12 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->__incRef();
+                upCast(r._ptr)->iceIncRef();
             }
 
             if(this->_ptr)
             {
-                upCast(this->_ptr)->__decRef();
+                upCast(this->_ptr)->iceDecRef();
             }
 
             this->_ptr = r._ptr;
@@ -234,12 +234,12 @@ public:
         {
             if(r._ptr)
             {
-                upCast(r._ptr)->__incRef();
+                upCast(r._ptr)->iceIncRef();
             }
 
             if(this->_ptr)
             {
-                upCast(this->_ptr)->__decRef();
+                upCast(this->_ptr)->iceDecRef();
             }
 
             this->_ptr = r._ptr;

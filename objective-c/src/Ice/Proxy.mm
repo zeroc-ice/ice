@@ -196,7 +196,7 @@ BOOL _returnsData;
     }
 
     asyncResult__ = arg.get();
-    ASYNCRESULT->__incRef();
+    ASYNCRESULT->iceIncRef();
     operation_ = [op retain];
     proxy_ = [p retain];
     return self;
@@ -209,7 +209,7 @@ BOOL _returnsData;
 
 -(void) dealloc
 {
-    ASYNCRESULT->__decRef();
+    ASYNCRESULT->iceDecRef();
     asyncResult__ = 0;
     [operation_ release];
     [proxy_ release];
@@ -322,7 +322,7 @@ BOOL _returnsData;
     }
     communicator__ = [ICECommunicator localObjectWithCxxObjectNoAutoRelease:arg->ice_getCommunicator().get()];
     objectPrx__ = arg.get();
-    OBJECTPRX->__incRef();
+    OBJECTPRX->iceIncRef();
     return self;
 }
 
@@ -333,7 +333,7 @@ BOOL _returnsData;
 
 -(void) dealloc
 {
-    OBJECTPRX->__decRef();
+    OBJECTPRX->iceDecRef();
     objectPrx__ = 0;
     [communicator__ release];
     [super dealloc];

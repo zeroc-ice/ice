@@ -145,7 +145,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     _load(load),
     _destroy(false)
 {
-    __setNoDelete(true);
+    iceSetNoDelete(true);
     try
     {
         _database->getNode(info->name, true)->setSession(this);
@@ -159,7 +159,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     }
     catch(const NodeActiveException&)
     {
-        __setNoDelete(false);
+        iceSetNoDelete(false);
         throw;
     }
     catch(...)
@@ -174,10 +174,10 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 
         _database->getNode(info->name)->setSession(0);
 
-        __setNoDelete(false);
+        iceSetNoDelete(false);
         throw;
     }
-    __setNoDelete(false);
+    iceSetNoDelete(false);
 }
 
 void

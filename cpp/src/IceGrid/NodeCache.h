@@ -62,8 +62,8 @@ public:
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
     InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&, const SessionIPtr&);
     
-    void __incRef();
-    void __decRef();
+    void iceIncRef();
+    void iceDecRef();
 
     void checkSession() const;
     void setProxy(const NodePrx&);
