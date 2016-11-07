@@ -539,7 +539,7 @@
                                             return forEach(proxies,
                                                            function(p)
                                                            {
-                                                               p.getAdapterName();
+                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException));
                                                            });
                                         }
                                     ).then(
@@ -793,15 +793,15 @@
                     ).then(
                         function(prx)
                         {
-                            var f2 = function(i, names)
+                            var f2 = function(j, names)
                             {
                                 return prx.getAdapterName().then(
                                     function(name)
                                     {
                                         test(name === names[0]);
-                                        if(i < nRetry)
+                                        if(j < nRetry)
                                         {
-                                            return f2(++i, names);
+                                            return f2(++j, names);
                                         }
                                         else if(names.length > 1)
                                         {
@@ -938,7 +938,7 @@
                 return f1().then(
                     function(prx)
                     {
-                        com.deactivateObjectAdapter(adapters[0]).then(
+                       return com.deactivateObjectAdapter(adapters[0]).then(
                             function()
                             {
                                 names = ["Adapter52", "Adapter53"];

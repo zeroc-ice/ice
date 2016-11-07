@@ -1227,7 +1227,7 @@
                 }
                 out.writeLine("ok");
                 out.write("shutdown server manager... ");
-                manager.shutdown();
+                return manager.shutdown();
             }
         ).then(
             function()

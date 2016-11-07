@@ -284,30 +284,17 @@
                         test(!r.isSent());
 
                         var r1 = p.ice_ping();
+                        r1.then(
+                            () => test(false),
+                            (ex) => test(ex instanceof Ice.InvocationCanceledException));
+
                         var r2 = p.ice_id();
+                        r2.then(
+                            () => test(false),
+                            (ex) => test(ex instanceof Ice.InvocationCanceledException));
                     
                         r1.cancel();
                         r2.cancel();
-
-                        try
-                        {
-                            r1.throwLocalException();
-                            test(false);
-                        }
-                        catch(ex)
-                        {
-                            test(ex instanceof Ice.InvocationCanceledException);
-                        }
-
-                        try
-                        {
-                            r2.throwLocalException();
-                            test(false);
-                        }
-                        catch(ex)
-                        {
-                            test(ex instanceof Ice.InvocationCanceledException);
-                        }
 
                         return testController.resumeAdapter()
                             .then(() => p.ice_ping())
@@ -325,27 +312,16 @@
                         return p.ice_oneway().ice_ping().then(() =>
                             {
                                 r1.cancel();
-                                r2.cancel();
-                                try
-                                {
-                                    r1.throwLocalException();
-                                    test(false);
-                                }
-                                catch(ex)
-                                {
-                                    test(ex instanceof Ice.InvocationCanceledException);
-                                }
-                                try
-                                {
-                                    r2.throwLocalException();
-                                    test(false);
-                                }
-                                catch(ex)
-                                {
-                                    test(ex instanceof Ice.InvocationCanceledException);
-                                }
+                                r1.then(
+                                    () => test(false),
+                                    (ex) => test(ex instanceof Ice.InvocationCanceledException));
 
-                                testController.resumeAdapter();
+                                r2.cancel();
+                                r2.then(
+                                    () => test(false),
+                                    (ex) => test(ex instanceof Ice.InvocationCanceledException));
+
+                                return testController.resumeAdapter();
                             });
                     }
                 ).then(() => out.writeLine("ok"));
