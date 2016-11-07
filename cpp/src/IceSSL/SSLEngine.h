@@ -40,6 +40,8 @@
 #  include <sspi.h>
 #  include <schannel.h>
 #  undef SECURITY_WIN32
+#elif defined(ICE_OS_WINRT)
+#  include <mutex>
 #endif
 
 namespace IceSSL
@@ -81,10 +83,10 @@ public:
     std::string getPassword() const;
     void setPassword(const std::string& password);
 
-    bool getCheckCertName() const { return _checkCertName; }
-    int getVerifyPeer() const { return _verifyPeer; }
-    int securityTraceLevel() const { return _securityTraceLevel; }
-    std::string securityTraceCategory() const { return _securityTraceCategory; }
+    bool getCheckCertName() const;
+    int getVerifyPeer() const;
+    int securityTraceLevel() const;
+    std::string securityTraceCategory() const;
 
 private:
 
@@ -234,6 +236,13 @@ public:
     virtual void initialize();
     virtual bool initialized() const;
     virtual void destroy();
+    virtual std::shared_ptr<Certificate> certificate();
+
+private:
+
+    std::shared_ptr<Certificate> _certificate;
+    bool _initialized;
+    std::mutex _mutex;
 };
 
 #else // OpenSSL
@@ -262,7 +271,6 @@ private:
     void setOptions(int);
     enum Protocols { SSLv3 = 0x01, TLSv1_0 = 0x02, TLSv1_1 = 0x04, TLSv1_2 = 0x08 };
     int parseProtocols(const Ice::StringSeq&) const;
-
 
     bool _initialized;
     SSL_CTX* _ctx;

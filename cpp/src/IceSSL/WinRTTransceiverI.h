@@ -67,6 +67,8 @@ private:
 
     bool _connected;
     bool _upgraded;
+    bool _verified;
+    Windows::Security::Cryptography::Certificates::CertificateChain^ _chain;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

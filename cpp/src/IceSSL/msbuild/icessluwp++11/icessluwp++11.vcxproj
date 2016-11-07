@@ -318,10 +318,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\uwp\AcceptorI.h" />
-    <ClInclude Include="..\..\uwp\ConnectorI.h" />
-    <ClInclude Include="..\..\uwp\EndpointI.h" />
-    <ClInclude Include="..\..\uwp\TransceiverI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />

@@ -291,3 +291,27 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
         throw ex;
     }
 }
+
+bool
+IceSSL::SSLEngine::getCheckCertName() const
+{
+    return _checkCertName;
+}
+
+int
+IceSSL::SSLEngine::getVerifyPeer() const
+{
+    return _verifyPeer;
+}
+
+int
+IceSSL::SSLEngine::securityTraceLevel() const
+{
+    return _securityTraceLevel;
+}
+
+std::string
+IceSSL::SSLEngine::securityTraceCategory() const
+{
+    return _securityTraceCategory;
+}

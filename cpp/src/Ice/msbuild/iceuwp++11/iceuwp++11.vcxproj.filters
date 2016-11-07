@@ -1087,7 +1087,6 @@
     <ClCompile Include="..\..\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\TcpEndpointI.cpp" />
     <ClCompile Include="..\..\TcpAcceptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1098,6 +1097,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\StreamSocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TcpEndpointI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WindowsStringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -23,6 +23,11 @@
 #include <Ice/StringConverter.h>
 #include <fstream>
 
+#ifdef ICE_OS_WINRT
+#   include <ppltasks.h>
+#endif
+using namespace IceUtilInternal;
+
 #ifdef ICE_USE_OPENSSL
 #   include <openssl/err.h>
 //
@@ -36,6 +41,17 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
+#ifdef ICE_OS_WINRT
+using namespace concurrency;
+using namespace Platform;
+using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Streams;
+using namespace Windows::Security::Cryptography;
+using namespace Windows::Security::Cryptography::Core;
+using namespace Windows::Security::Cryptography::Certificates;
+#endif
 
 #ifdef ICE_CPP11_MAPPING
 IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> v) :
@@ -1676,6 +1692,125 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
         stores.push_back(store);
     }
     return certs;
+}
+#elif defined (ICE_OS_WINRT)
+IVectorView<Certificates::Certificate^>^
+IceSSL::findCertificates(const string& name, const string& value)
+{
+    CertificateQuery^ query = ref new CertificateQuery();
+    query->StoreName = ref new String(stringToWstring(name).c_str());
+    query->IncludeDuplicates = true;
+
+    if(value != "*")
+    {
+        if(value.find(':', 0) == string::npos)
+        {
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no key in `" + value + "'");
+        }
+        size_t start = 0;
+        size_t pos;
+        while((pos = value.find(':', start)) != string::npos)
+        {
+            string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+            if(field != "ISSUER" && field != "THUMBPRINT" && field != "FRIENDLYNAME")
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
+            }
+
+            start = pos + 1;
+            while(start < value.size() && (value[start] == ' ' || value[start] == '\t'))
+            {
+                ++start;
+            }
+
+            if(start == value.size())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
+            }
+
+            string arg;
+            if(value[start] == '"' || value[start] == '\'')
+            {
+                size_t end = start;
+                ++end;
+                while(end < value.size())
+                {
+                    if(value[end] == value[start] && value[end - 1] != '\\')
+                    {
+                        break;
+                    }
+                    ++end;
+                }
+                if(end == value.size() || value[end] != value[start])
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unmatched quote in `" + value + "'");
+                }
+                ++start;
+                arg = value.substr(start, end - start);
+                start = end + 1;
+            }
+            else
+            {
+                size_t end = value.find_first_of(" \t", start);
+                if(end == string::npos)
+                {
+                    arg = value.substr(start);
+                    start = value.size();
+                }
+                else
+                {
+                    arg = value.substr(start, end - start);
+                    start = end + 1;
+                }
+            }
+
+            if(field == "ISSUER")
+            {
+                query->IssuerName = ref new String(stringToWstring(arg).c_str());
+            }
+            else if(field == "FRIENDLYNAME")
+            {
+                query->FriendlyName = ref new String(stringToWstring(arg).c_str());
+            }
+            else if(field == "THUMBPRINT")
+            {
+                vector<BYTE> buffer;
+                if(!parseBytes(arg, buffer))
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__,
+                        "IceSSL: invalid `IceSSL.FindCert' property: can't decode the value");
+                }
+                query->Thumbprint = ref new Array<unsigned char>(&buffer[0], static_cast<unsigned int>(buffer.size()));
+            }
+        }
+    }
+
+    std::promise<IVectorView<Certificates::Certificate^>^> p;
+    HRESULT error = 0;
+    create_task(CertificateStores::FindAllAsync(query)).then(
+        [&](task<IVectorView<Certificates::Certificate^>^> previous)
+        {
+            try
+            {
+                p.set_value(previous.get());
+            }
+            catch(Platform::Exception^ err)
+            {
+                try
+                {
+                    Ice::SyscallException ex(__FILE__, __LINE__);
+                    ex.error = err->HResult;
+                    throw ex;
+                }
+                catch(...)
+                {
+                    p.set_exception(current_exception());
+                }
+            }
+        },
+        task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
 }
 #endif
 

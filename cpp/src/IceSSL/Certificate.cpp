@@ -28,6 +28,9 @@
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 #  include <Security/Security.h>
+#elif defined(ICE_OS_WINRT)
+#  include <ppltasks.h>
+#  include <nserror.h>
 #endif
 
 #ifdef __SUNPRO_CC
@@ -48,6 +51,15 @@ extern "C" typedef void (*FreeFunc)(void*);
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
+
+#ifdef ICE_OS_WINRT
+using namespace concurrency;
+using namespace Platform;
+using namespace Windows::Foundation;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Streams;
+using namespace Windows::Security::Cryptography;
+#endif
 
 #if defined(ICE_USE_SECURE_TRANSPORT) || defined(ICE_USE_SCHANNEL)
 
@@ -599,19 +611,19 @@ vector<pair<int, string> >
 certificateAltNames(Windows::Security::Cryptography::Certificates::SubjectAlternativeNameInfo^ subAltNames)
 {
     vector<pair<int, string> > altNames;
-    for (auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
+    for(auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
     {
         altNames.push_back(make_pair(AltNameEmail, wstringToString(iter->Current->Data())));
     }
-    for (auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
+    for(auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
     {
         altNames.push_back(make_pair(AltNameDNS, wstringToString(iter->Current->Data())));
     }
-    for (auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
+    for(auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
     {
         altNames.push_back(make_pair(AltNameURL, wstringToString(iter->Current->Data())));
     }
-    for (auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
+    for(auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
     {
         altNames.push_back(make_pair(AltNAmeIP, wstringToString(iter->Current->Data())));
     }
@@ -1035,7 +1047,7 @@ Certificate::Certificate(X509CertificateRef cert) : _cert(cert)
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Invalid certificate reference");
     }
 
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL)
     _certInfo = 0;
     try
     {
@@ -1055,9 +1067,7 @@ Certificate::Certificate(X509CertificateRef cert) : _cert(cert)
         _cert = 0;
         throw;
     }
-#endif
-
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+#elif defined(ICE_USE_SECURE_TRANSPORT_IOS)
     _subject = NULL;
     _issuer = NULL;
 #endif
@@ -1125,8 +1135,39 @@ Certificate::load(const string& file)
     BIO_free(cert);
     return ICE_MAKE_SHARED(Certificate, x);
 #elif defined(ICE_OS_WINRT)
-    // TODO
-    return ICE_NULLPTR;
+    promise<shared_ptr<Certificate>> result;
+    create_task(StorageFile::GetFileFromApplicationUriAsync(
+            ref new Uri(ref new String(stringToWstring(file).c_str())))).then([](StorageFile^ file)
+        {
+            return FileIO::ReadBufferAsync(file);
+        },
+        task_continuation_context::use_arbitrary()).then([&result, &file](task<IBuffer^> previous)
+        {
+            try
+            {
+                result.set_value(make_shared<Certificate>(ref new Certificates::Certificate(previous.get())));
+            }
+            catch(Platform::Exception^ ex)
+            {
+                try
+                {
+                    if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
+                    {
+                        throw CertificateReadException(__FILE__, __LINE__, "certificate file not found:\n" + file);
+                    }
+                    else
+                    {
+                        throw Ice::SyscallException(__FILE__, __LINE__, ex->HResult);
+                    }
+                }
+                catch(...)
+                {
+                    result.set_exception(current_exception());
+                }
+            }
+        },
+        task_continuation_context::use_arbitrary());
+        return result.get_future().get();
 #else
 #   error "Unknown platform"
 #endif
@@ -1198,8 +1239,25 @@ Certificate::decode(const string& encoding)
     BIO_free(cert);
     return ICE_MAKE_SHARED(Certificate, x);
 #elif defined(ICE_OS_WINRT)
-    // TODO
-    return ICE_NULLPTR;
+    string::size_type size, startpos, endpos = 0;
+    startpos = encoding.find("-----BEGIN CERTIFICATE-----", endpos);
+    if (startpos != string::npos)
+    {
+        startpos += sizeof("-----BEGIN CERTIFICATE-----");
+        endpos = encoding.find("-----END CERTIFICATE-----", startpos);
+        size = endpos - startpos;
+    }
+    else
+    {
+        startpos = 0;
+        endpos = string::npos;
+        size = encoding.size();
+    }
+
+    vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
+    auto writer = ref new DataWriter();
+    writer->WriteBytes(Platform::ArrayReference<unsigned char>(&data[0], data.size()));
+    return make_shared<Certificate>(ref new Certificates::Certificate(writer->DetachBuffer()));
 #else
 #   error "Unknown platform"
 #endif
@@ -1461,7 +1519,7 @@ Certificate::encode() const
 #elif defined(ICE_OS_WINRT)
     auto reader = Windows::Storage::Streams::DataReader::FromBuffer(_cert->GetCertificateBlob());
     std::vector<unsigned char> data(reader->UnconsumedBufferLength);
-    if (!data.empty())
+    if(!data.empty())
     {
         reader->ReadBytes(Platform::ArrayReference<unsigned char>(&data[0], static_cast<unsigned int>(data.size())));
     }
@@ -1646,9 +1704,9 @@ Certificate::getSubjectDN() const
     }
     else
     {
-        string s = "CN=";
-        s += fromCFString(UniqueRef<CFStringRef>(SecCertificateCopySubjectSummary(_cert)).get());
-        return DistinguishedName(s);
+        ostringstream os;
+        os << "CN=" << fromCFString(UniqueRef<CFStringRef>(SecCertificateCopySubjectSummary(_cert)).get());
+        return DistinguishedName(os.str());
     }
 #elif defined(ICE_USE_SECURE_TRANSPORT_MACOS)
     return getX509Name(_cert, kSecOIDX509V1SubjectName);
@@ -1657,7 +1715,9 @@ Certificate::getSubjectDN() const
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(_cert))));
 #elif defined(ICE_OS_WINRT)
-    return DistinguishedName(wstringToString(_cert->Subject->Data()));
+    ostringstream os;
+    os << "CN=" << wstringToString(_cert->Subject->Data());
+    return DistinguishedName(os.str());
 #else
 #   error "Unknown platform"
 #endif

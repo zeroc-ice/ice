@@ -100,6 +100,9 @@ These are the changes since Ice 3.6.3.
 - The --dll-export option of slice2cpp is now deprecated, and replaced by the global
   Slice metadata cpp:dll-export:SYMBOL.
 
+- Upgrade UWP IceSSL implementation to support client side certificates and custom
+  certificate verification.
+
 ## C# Changes
 
 - Added new interface/class metadata cs:tie. Use this metadata to generate a tie
