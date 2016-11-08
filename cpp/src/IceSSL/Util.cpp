@@ -26,7 +26,6 @@
 #ifdef ICE_OS_WINRT
 #   include <ppltasks.h>
 #endif
-using namespace IceUtilInternal;
 
 #ifdef ICE_USE_OPENSSL
 #   include <openssl/err.h>
