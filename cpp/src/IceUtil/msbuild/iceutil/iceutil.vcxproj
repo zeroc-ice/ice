@@ -114,7 +114,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Functional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\IconvStringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Lock.h" />
@@ -144,7 +143,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\UniquePtr.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
     <ClInclude Include="..\..\ArgVector.h" />
-    <ClInclude Include="..\..\StopWatch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
