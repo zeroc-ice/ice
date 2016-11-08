@@ -30,6 +30,10 @@ namespace IceStorm
 
 Parser* parser;
 
+#ifdef _WIN32
+Ice::StringConverterPtr windowsConsoleConverter = 0;
+#endif
+
 }
 
 namespace
@@ -489,13 +493,17 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
 
             line += c;
-
             if(c == '\n')
             {
                 break;
             }
         }
-
+#ifdef _WIN32
+        if(windowsConsoleConverter)
+        {
+            line = nativeToUTF8(line, windowsConsoleConverter);
+        }
+#endif
         result = line.length();
         if(result > maxSize)
         {
@@ -661,6 +669,12 @@ Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin
     _defaultManager(admin),
     _managers(managers)
 {
+#ifdef _WIN32
+    if(!windowsConsoleConverter)
+    {
+        windowsConsoleConverter = Ice::createWindowsStringConverter(GetConsoleOutputCP());
+    }
+#endif
 }
 
 void

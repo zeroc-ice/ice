@@ -91,7 +91,6 @@ Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-
     ObjectPrxPtr base = communicator()->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
     if(base == 0)

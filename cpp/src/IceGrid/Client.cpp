@@ -31,6 +31,8 @@
 #   include <termios.h>
 #else
 #   include <conio.h>
+#   include <fcntl.h>
+#   include <io.h>
 #endif
 
 using namespace std;
@@ -256,14 +258,17 @@ interruptCallback(int /*signal*/)
 
 int
 wmain(int argc, wchar_t* argv[])
-
+{
+    //
+    // Enable binary input mode for stdin to avoid automatic conversions.
+    //
+    _setmode(_fileno(stdin), _O_BINARY);
 #else
 
 int
 main(int argc, char* argv[])
-
-#endif
 {
+#endif
     Client app;
     StringSeq args = argsToStringSeq(argc, argv);
     return app.main(args);

@@ -2654,9 +2654,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
         }
 #else
-
         cout << parser->getPrompt() << flush;
-
         string line;
         while(true)
         {
@@ -2669,14 +2667,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
                 break;
             }
-            line += c;
 
+            line += c;
             if(c == '\n')
             {
                 break;
             }
         }
-
+#ifdef _WIN32
+        if(windowsConsoleConverter)
+        {
+            line = nativeToUTF8(line, windowsConsoleConverter);
+        }
+#endif
         result = line.length();
         if(result > maxSize)
         {
@@ -2688,7 +2691,6 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         {
             strcpy(buf, line.c_str());
         }
-
 #endif
     }
 }

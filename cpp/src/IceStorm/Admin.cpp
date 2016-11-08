@@ -12,6 +12,11 @@
 #include <Ice/SliceChecksums.h>
 #include <IceStorm/Parser.h>
 
+#ifdef  _WIN32
+#   include <fcntl.h>
+#   include <io.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -28,14 +33,17 @@ public:
 
 int
 wmain(int argc, wchar_t* argv[])
-
+{
+    //
+    // Enable binary input mode for stdin to avoid automatic conversions.
+    //
+    _setmode(_fileno(stdin), _O_BINARY);
 #else
 
 int
 main(int argc, char* argv[])
-
-#endif
 {
+#endif
     Client app;
     Ice::InitializationData id;
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
