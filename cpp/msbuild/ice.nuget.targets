@@ -16,7 +16,11 @@
 
     <!-- Win32 Release binaries -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"/>
+        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe" 
+                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
+
+        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe;
+                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.pdb" />
     </ItemGroup>
 
     <!-- x64 Release binaries -->

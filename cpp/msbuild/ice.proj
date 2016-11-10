@@ -317,4 +317,26 @@
           WorkingDirectory="zeroc.ice.uwp"/>
   </Target>
   
+  <!-- Create zeroc.ice.java Nuget package -->
+  <Target Name="JavaNugetPack"
+          DependsOnTargets="BuildDist"
+          Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
+
+    <MSBuild Projects="ice.nuget.java.targets"
+             Properties="PackageDirectory=zeroc.ice.java" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.java"/>
+  </Target>
+
+  <!-- Create zeroc.ice.html Nuget package -->
+  <Target Name="HtmlNugetPack"
+          DependsOnTargets="BuildDist"
+          Condition="$(BuildAllConfigurations) == 'yes' and '$(DefaultPlatformToolset)' == 'v140'">
+
+    <MSBuild Projects="ice.nuget.html.targets"
+             Properties="PackageDirectory=zeroc.ice.html" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.html"/>
+  </Target>
+
 </Project>

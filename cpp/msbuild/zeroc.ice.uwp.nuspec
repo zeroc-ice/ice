@@ -9,7 +9,7 @@
     <projectUrl>http://www.zeroc.com</projectUrl>
     <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A comprehensive rpc framework.</description>
+    <description>This package contains the slice2cpp compiler and C++ header files, required to develop Ice for C++ applications targeting Univeral Windows platform with Visual Studio 2015 (v140), the required static libraries for x64, x86 and ARM targets are installed as a dependency of this package. Ice is a comprehensive RPC framework that helps you network your software with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic.</description>
     <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
     <tags>ice native</tags>
     <dependencies>
