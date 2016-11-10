@@ -32,7 +32,7 @@ namespace Ice
         public OutputStream()
         {
             _buf = new IceInternal.Buffer();
-            instance_ = null;
+            _instance = null;
             _closure = null;
             _encoding = Util.currentEncoding;
             _format = FormatType.CompactFormat;
@@ -111,12 +111,12 @@ namespace Ice
         {
             Debug.Assert(instance != null);
 
-            instance_ = instance;
+            _instance = instance;
             _buf = buf;
             _closure = null;
             _encoding = encoding;
 
-            _format = instance_.defaultsAndOverrides().defaultFormat;
+            _format = _instance.defaultsAndOverrides().defaultFormat;
 
             _encapsStack = null;
             _encapsCache = null;
@@ -149,7 +149,7 @@ namespace Ice
 
         public IceInternal.Instance instance()
         {
-            return instance_;
+            return _instance;
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         public void swap(OutputStream other)
         {
-            Debug.Assert(instance_ == other.instance_);
+            Debug.Assert(_instance == other._instance);
 
             IceInternal.Buffer tmpBuf = other._buf;
             other._buf = _buf;
@@ -343,7 +343,7 @@ namespace Ice
             _encapsStack.start = _buf.b.position();
 
             writeInt(0); // Placeholder for the encapsulation length.
-            _encapsStack.encoding.write__(this);
+            _encapsStack.encoding.iceWrite(this);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Ice
         {
             Protocol.checkSupportedEncoding(encoding);
             writeInt(6); // Size
-            encoding.write__(this);
+            encoding.iceWrite(this);
         }
 
         /// <summary>
@@ -1967,12 +1967,12 @@ namespace Ice
         {
             if(v != null)
             {
-                v.write__(this);
+                v.iceWrite(this);
             }
             else
             {
                 Identity ident = new Identity();
-                ident.write__(this);
+                ident.iceWrite(this);
             }
         }
 
@@ -2160,7 +2160,7 @@ namespace Ice
             _buf.expand(n);
         }
 
-        private IceInternal.Instance instance_;
+        private IceInternal.Instance _instance;
         private IceInternal.Buffer _buf;
         private object _closure;
         private FormatType _format;
@@ -2258,9 +2258,9 @@ namespace Ice
                 // This allows reading the pending instances even if some part of
                 // the exception was sliced.
                 //
-                bool usesClasses = v.usesClasses__();
+                bool usesClasses = v.iceUsesClasses();
                 _stream.writeBool(usesClasses);
-                v.write__(_stream);
+                v.iceWrite(_stream);
                 if(usesClasses)
                 {
                     writePendingValues();
@@ -2363,7 +2363,7 @@ namespace Ice
                             _stream.instance().initializationData().logger.warning(s);
                         }
 
-                        p.Key.write__(_stream);
+                        p.Key.iceWrite(_stream);
                     }
                 }
                 _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -2456,7 +2456,7 @@ namespace Ice
 
             internal override void writeException(UserException v)
             {
-                v.write__(_stream);
+                v.iceWrite(_stream);
             }
 
             internal override void startInstance(SliceType sliceType, SlicedData data)
@@ -2700,7 +2700,7 @@ namespace Ice
                 }
 
                 _stream.writeSize(1); // Object instance marker.
-                v.write__(_stream);
+                v.iceWrite(_stream);
             }
 
             private sealed class InstanceData
@@ -2792,7 +2792,7 @@ namespace Ice
 
             if(_encapsStack.format == FormatType.DefaultFormat)
             {
-                _encapsStack.format = instance_.defaultsAndOverrides().defaultFormat;
+                _encapsStack.format = _instance.defaultsAndOverrides().defaultFormat;
             }
 
             if(_encapsStack.encoder == null) // Lazy initialization.
@@ -2820,12 +2820,12 @@ namespace Ice
         /// <param name="outStream">The stream to write to.</param>
         public abstract void write(OutputStream outStream);
 
-        public override void write__(OutputStream os)
+        public override void iceWrite(OutputStream os)
         {
             write(os);
         }
 
-        public override void read__(InputStream istr)
+        public override void iceRead(InputStream istr)
         {
             Debug.Assert(false);
         }

@@ -17,7 +17,7 @@ namespace IceInternal
     {
         public Ice.ObjectPrx stringToProxy(string str)
         {
-            Reference r = instance_.referenceFactory().create(str, null);
+            Reference r = _instance.referenceFactory().create(str, null);
             return referenceToProxy(r);
         }
 
@@ -26,7 +26,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.reference__().ToString();
+                return h.iceReference().ToString();
             }
             else
             {
@@ -36,8 +36,8 @@ namespace IceInternal
 
         public Ice.ObjectPrx propertyToProxy(string prefix)
         {
-            string proxy = instance_.initializationData().properties.getProperty(prefix);
-            Reference r = instance_.referenceFactory().create(proxy, prefix);
+            string proxy = _instance.initializationData().properties.getProperty(prefix);
+            Reference r = _instance.referenceFactory().create(proxy, prefix);
             return referenceToProxy(r);
         }
 
@@ -46,7 +46,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.reference__().toProperty(prefix);
+                return h.iceReference().toProperty(prefix);
             }
             else
             {
@@ -57,9 +57,9 @@ namespace IceInternal
         public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
-            ident.read__(s);
+            ident.iceRead(s);
 
-            Reference r = instance_.referenceFactory().create(ident, s);
+            Reference r = _instance.referenceFactory().create(ident, s);
             return referenceToProxy(r);
         }
 
@@ -79,8 +79,8 @@ namespace IceInternal
 
         public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
         {
-            TraceLevels traceLevels = instance_.traceLevels();
-            Ice.Logger logger = instance_.initializationData().logger;
+            TraceLevels traceLevels = _instance.traceLevels();
+            Ice.Logger logger = _instance.initializationData().logger;
 
             //
             // We don't retry batch requests because the exception might have caused
@@ -233,9 +233,9 @@ namespace IceInternal
         //
         internal ProxyFactory(Instance instance)
         {
-            instance_ = instance;
+            _instance = instance;
 
-            string[] arr = instance_.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
+            string[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
             if(arr.Length > 0)
             {
@@ -273,7 +273,7 @@ namespace IceInternal
             }
         }
 
-        private Instance instance_;
+        private Instance _instance;
         private int[] _retryIntervals;
     }
 

@@ -45,7 +45,7 @@ public class AllTests : TestCommon.TestApp
     {
         for (int i = 0; i < array.Count - 1; ++i)
         {
-            int r = rand_.Next(array.Count - i) + i;
+            int r = _rand.Next(array.Count - i) + i;
             Debug.Assert(r >= i && r < array.Count);
             if (r != i)
             {
@@ -949,5 +949,5 @@ public class AllTests : TestCommon.TestApp
         com.shutdown();
     }
 
-    private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
+    private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 }

@@ -34,7 +34,7 @@ namespace IceInternal
 
         public Mode getMode()
         {
-            return mode_;
+            return _mode;
         }
 
         public bool getSecure()
@@ -44,43 +44,43 @@ namespace IceInternal
 
         public Ice.ProtocolVersion getProtocol()
         {
-            return protocol_;
+            return _protocol;
         }
 
         public Ice.EncodingVersion getEncoding()
         {
-            return encoding_;
+            return _encoding;
         }
 
         public Ice.Identity getIdentity()
         {
-            return identity_;
+            return _identity;
         }
 
         public string getFacet()
         {
-            return facet_;
+            return _facet;
         }
 
         public Instance getInstance()
         {
-            return instance_;
+            return _instance;
         }
 
         public Dictionary<string, string> getContext()
         {
-            return context_;
+            return _context;
         }
 
         public int
         getInvocationTimeout()
         {
-            return invocationTimeout_;
+            return _invocationTimeout;
         }
 
         public Ice.Communicator getCommunicator()
         {
-            return communicator_;
+            return _communicator;
         }
 
         public abstract EndpointI[] getEndpoints();
@@ -105,26 +105,26 @@ namespace IceInternal
             {
                 newContext = _emptyContext;
             }
-            Reference r = instance_.referenceFactory().copy(this);
+            Reference r = _instance.referenceFactory().copy(this);
             if(newContext.Count == 0)
             {
-                r.context_ = _emptyContext;
+                r._context = _emptyContext;
             }
             else
             {
-                r.context_ = new Dictionary<string, string>(newContext);
+                r._context = new Dictionary<string, string>(newContext);
             }
             return r;
         }
 
         public Reference changeMode(Mode newMode)
         {
-            if(newMode == mode_)
+            if(newMode == _mode)
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
-            r.mode_ = newMode;
+            Reference r = _instance.referenceFactory().copy(this);
+            r._mode = newMode;
             return r;
         }
 
@@ -134,52 +134,52 @@ namespace IceInternal
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
+            Reference r = _instance.referenceFactory().copy(this);
             r.secure_ = newSecure;
             return r;
         }
 
         public Reference changeIdentity(Ice.Identity newIdentity)
         {
-            if(newIdentity.Equals(identity_))
+            if(newIdentity.Equals(_identity))
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
-            r.identity_ = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
+            Reference r = _instance.referenceFactory().copy(this);
+            r._identity = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
             return r;
         }
 
         public Reference changeFacet(string newFacet)
         {
-            if(newFacet.Equals(facet_))
+            if(newFacet.Equals(_facet))
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
-            r.facet_ = newFacet;
+            Reference r = _instance.referenceFactory().copy(this);
+            r._facet = newFacet;
             return r;
         }
 
         public Reference changeInvocationTimeout(int newTimeout)
         {
-            if(newTimeout == invocationTimeout_)
+            if(newTimeout == _invocationTimeout)
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
-            r.invocationTimeout_ = newTimeout;
+            Reference r = _instance.referenceFactory().copy(this);
+            r._invocationTimeout = newTimeout;
             return r;
         }
 
         public virtual Reference changeEncoding(Ice.EncodingVersion newEncoding)
         {
-            if(newEncoding.Equals(encoding_))
+            if(newEncoding.Equals(_encoding))
             {
                 return this;
             }
-            Reference r = instance_.referenceFactory().copy(this);
-            r.encoding_ = newEncoding;
+            Reference r = _instance.referenceFactory().copy(this);
+            r._encoding = newEncoding;
             return r;
         }
 
@@ -190,7 +190,7 @@ namespace IceInternal
                 return this;
             }
 
-            Reference r = instance_.referenceFactory().copy(this);
+            Reference r = _instance.referenceFactory().copy(this);
             r.compress_ = newCompress;
             r.overrideCompress_ = true;
             return r;
@@ -218,19 +218,19 @@ namespace IceInternal
                     return hashValue_;
                 }
                 int h = 5381;
-                IceInternal.HashUtil.hashAdd(ref h, mode_);
+                IceInternal.HashUtil.hashAdd(ref h, _mode);
                 IceInternal.HashUtil.hashAdd(ref h, secure_);
-                IceInternal.HashUtil.hashAdd(ref h, identity_);
-                IceInternal.HashUtil.hashAdd(ref h, context_);
-                IceInternal.HashUtil.hashAdd(ref h, facet_);
+                IceInternal.HashUtil.hashAdd(ref h, _identity);
+                IceInternal.HashUtil.hashAdd(ref h, _context);
+                IceInternal.HashUtil.hashAdd(ref h, _facet);
                 IceInternal.HashUtil.hashAdd(ref h, overrideCompress_);
                 if(overrideCompress_)
                 {
                     IceInternal.HashUtil.hashAdd(ref h, compress_);
                 }
-                IceInternal.HashUtil.hashAdd(ref h, protocol_);
-                IceInternal.HashUtil.hashAdd(ref h, encoding_);
-                IceInternal.HashUtil.hashAdd(ref h, invocationTimeout_);
+                IceInternal.HashUtil.hashAdd(ref h, _protocol);
+                IceInternal.HashUtil.hashAdd(ref h, _encoding);
+                IceInternal.HashUtil.hashAdd(ref h, _invocationTimeout);
                 hashValue_ = h;
                 hashInitialized_ = true;
                 return hashValue_;
@@ -253,24 +253,24 @@ namespace IceInternal
             //
             // For compatibility with the old FacetPath.
             //
-            if(facet_.Length == 0)
+            if(_facet.Length == 0)
             {
                 s.writeStringSeq(null);
             }
             else
             {
-                string[] facetPath = { facet_ };
+                string[] facetPath = { _facet };
                 s.writeStringSeq(facetPath);
             }
 
-            s.writeByte((byte)mode_);
+            s.writeByte((byte)_mode);
 
             s.writeBool(secure_);
 
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                protocol_.write__(s);
-                encoding_.write__(s);
+                _protocol.iceWrite(s);
+                _encoding.iceWrite(s);
             }
 
             // Derived class writes the remainder of the reference.
@@ -290,14 +290,14 @@ namespace IceInternal
             //
             StringBuilder s = new StringBuilder();
 
-            Ice.ToStringMode toStringMode = instance_.toStringMode();
+            Ice.ToStringMode toStringMode = _instance.toStringMode();
 
             //
             // If the encoded identity string contains characters which
             // the reference parser uses as separators, then we enclose
             // the identity string in quotes.
             //
-            string id = Ice.Util.identityToString(identity_, toStringMode);
+            string id = Ice.Util.identityToString(_identity, toStringMode);
             if(IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
             {
                 s.Append('"');
@@ -309,7 +309,7 @@ namespace IceInternal
                 s.Append(id);
             }
 
-            if(facet_.Length > 0)
+            if(_facet.Length > 0)
             {
                 //
                 // If the encoded facet string contains characters which
@@ -317,7 +317,7 @@ namespace IceInternal
                 // the facet string in quotes.
                 //
                 s.Append(" -f ");
-                string fs = IceUtilInternal.StringUtil.escapeString(facet_, "", toStringMode);
+                string fs = IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
                 if(IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
                 {
                     s.Append('"');
@@ -330,7 +330,7 @@ namespace IceInternal
                 }
             }
 
-            switch(mode_)
+            switch(_mode)
             {
             case Mode.ModeTwoway:
             {
@@ -368,7 +368,7 @@ namespace IceInternal
                 s.Append(" -s");
             }
 
-            if(!protocol_.Equals(Ice.Util.Protocol_1_0))
+            if(!_protocol.Equals(Ice.Util.Protocol_1_0))
             {
                 //
                 // We only print the protocol if it's not 1.0. It's fine as
@@ -377,7 +377,7 @@ namespace IceInternal
                 // stringToProxy.
                 //
                 s.Append(" -p ");
-                s.Append(Ice.Util.protocolVersionToString(protocol_));
+                s.Append(Ice.Util.protocolVersionToString(_protocol));
             }
 
             //
@@ -386,7 +386,7 @@ namespace IceInternal
             // stringToProxy (and won't use Ice.Default.EncodingVersion).
             //
             s.Append(" -e ");
-            s.Append(Ice.Util.encodingVersionToString(encoding_));
+            s.Append(Ice.Util.encodingVersionToString(_encoding));
 
             return s.ToString();
 
@@ -407,7 +407,7 @@ namespace IceInternal
 
             Reference r = (Reference)obj; // Guaranteed to succeed.
 
-            if(mode_ != r.mode_)
+            if(_mode != r._mode)
             {
                 return false;
             }
@@ -417,17 +417,17 @@ namespace IceInternal
                 return false;
             }
 
-            if(!identity_.Equals(r.identity_))
+            if(!_identity.Equals(r._identity))
             {
                 return false;
             }
 
-            if(!Ice.CollectionComparer.Equals(context_, r.context_))
+            if(!Ice.CollectionComparer.Equals(_context, r._context))
             {
                 return false;
             }
 
-            if(!facet_.Equals(r.facet_))
+            if(!_facet.Equals(r._facet))
             {
                 return false;
             }
@@ -441,17 +441,17 @@ namespace IceInternal
                 return false;
             }
 
-            if(!protocol_.Equals(r.protocol_))
+            if(!_protocol.Equals(r._protocol))
             {
                 return false;
             }
 
-            if(!encoding_.Equals(r.encoding_))
+            if(!_encoding.Equals(r._encoding))
             {
                 return false;
             }
 
-            if(invocationTimeout_ != r.invocationTimeout_)
+            if(_invocationTimeout != r._invocationTimeout)
             {
                 return false;
             }
@@ -471,17 +471,17 @@ namespace IceInternal
         protected bool hashInitialized_;
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
-        private Instance instance_;
-        private Ice.Communicator communicator_;
+        private Instance _instance;
+        private Ice.Communicator _communicator;
 
-        private Mode mode_;
-        private Ice.Identity identity_;
-        private Dictionary<string, string> context_;
-        private string facet_;
+        private Mode _mode;
+        private Ice.Identity _identity;
+        private Dictionary<string, string> _context;
+        private string _facet;
         protected bool secure_;
-        private Ice.ProtocolVersion protocol_;
-        private Ice.EncodingVersion encoding_;
-        private int invocationTimeout_;
+        private Ice.ProtocolVersion _protocol;
+        private Ice.EncodingVersion _encoding;
+        private int _invocationTimeout;
 
         protected bool overrideCompress_;
         protected bool compress_; // Only used if _overrideCompress == true
@@ -504,15 +504,15 @@ namespace IceInternal
             Debug.Assert(identity.category != null);
             Debug.Assert(facet != null);
 
-            instance_ = instance;
-            communicator_ = communicator;
-            mode_ = mode;
-            identity_ = identity;
-            context_ = context != null ? new Dictionary<string, string>(context) : _emptyContext;
-            facet_ = facet;
-            protocol_ = protocol;
-            encoding_ = encoding;
-            invocationTimeout_ = invocationTimeout;
+            _instance = instance;
+            _communicator = communicator;
+            _mode = mode;
+            _identity = identity;
+            _context = context != null ? new Dictionary<string, string>(context) : _emptyContext;
+            _facet = facet;
+            _protocol = protocol;
+            _encoding = encoding;
+            _invocationTimeout = invocationTimeout;
             secure_ = secure;
             hashInitialized_ = false;
             overrideCompress_ = false;
@@ -728,7 +728,7 @@ namespace IceInternal
                 compress = _fixedConnection.endpoint().compress();
             }
 
-            return ((Ice.ObjectPrxHelperBase)proxy).setRequestHandler__(new ConnectionRequestHandler(this,
+            return ((Ice.ObjectPrxHelperBase)proxy).iceSetRequestHandler(new ConnectionRequestHandler(this,
                                                                                                      _fixedConnection,
                                                                                                      compress));
         }
@@ -1090,7 +1090,7 @@ namespace IceInternal
             if(_routerInfo != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
-                Dictionary<String, String> routerProperties = h.reference__().toProperty(prefix + ".Router");
+                Dictionary<String, String> routerProperties = h.iceReference().toProperty(prefix + ".Router");
                 foreach(KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1100,7 +1100,7 @@ namespace IceInternal
             if(_locatorInfo != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
-                Dictionary<String, String> locatorProperties = h.reference__().toProperty(prefix + ".Locator");
+                Dictionary<String, String> locatorProperties = h.iceReference().toProperty(prefix + ".Locator");
                 foreach(KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;

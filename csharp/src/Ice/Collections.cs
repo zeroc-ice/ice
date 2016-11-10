@@ -161,11 +161,11 @@ namespace IceUtilInternal
 
         public static void Shuffle<T>(ref List<T> l)
         {
-            lock(rand_)
+            lock(_rand)
             {
                 for(int j = 0; j < l.Count - 1; ++j)
                 {
-                    int r = rand_.Next(l.Count - j) + j;
+                    int r = _rand.Next(l.Count - j) + j;
                     Debug.Assert(r >= j && r < l.Count);
                     if(r != j)
                     {
@@ -234,6 +234,6 @@ namespace IceUtilInternal
             }
         }
 
-        private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));        
+        private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));        
     }
 }

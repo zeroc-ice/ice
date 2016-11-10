@@ -24,7 +24,7 @@ public class Client
     public sealed class caseI : @abstract.caseDisp_
     {
         public override Task<int>
-        catchAsync(int @checked,  Ice.Current current__)
+        catchAsync(int @checked,  Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
@@ -32,14 +32,14 @@ public class Client
 
     public sealed class decimalI : @abstract.decimalDisp_
     {
-        public override void @default(Ice.Current current__)
+        public override void @default(Ice.Current current)
         {
         }
     }
 
     public sealed class delegateI : @abstract.delegateDisp_
     {
-        public override void foo(@abstract.casePrx @else, out int @event, Ice.Current current__)
+        public override void foo(@abstract.casePrx @else, out int @event, Ice.Current current)
         {
             @event = 0;
         }
@@ -48,7 +48,7 @@ public class Client
     public sealed class explicitI : @abstract.explicitDisp_
     {
         public override Task<int>
-        catchAsync(int @checked,  Ice.Current current__)
+        catchAsync(int @checked,  Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
@@ -58,7 +58,7 @@ public class Client
             test(current.operation == "default");
         }
 
-        public override void foo(@abstract.casePrx @else, out int @event, Ice.Current current__)
+        public override void foo(@abstract.casePrx @else, out int @event, Ice.Current current)
         {
             @event = 0;
         }

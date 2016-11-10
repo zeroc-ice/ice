@@ -18,7 +18,7 @@ namespace IceInternal
     {
         internal EndpointFactoryManager(Instance instance)
         {
-            instance_ = instance;
+            _instance = instance;
             _factories = new List<EndpointFactory>();
         }
 
@@ -77,7 +77,7 @@ namespace IceInternal
 
             if(protocol.Equals("default"))
             {
-                protocol = instance_.defaultsAndOverrides().defaultProtocol;
+                protocol = _instance.defaultsAndOverrides().defaultProtocol;
             }
 
             EndpointFactory factory = null;
@@ -109,7 +109,7 @@ namespace IceInternal
 
                 /*
                 EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
-                BasicStream bs = new BasicStream(instance_, true);
+                BasicStream bs = new BasicStream(_instance, true);
                 e.streamWrite(bs);
                 Buffer buf = bs.getBuffer();
                 buf.b.position(0);
@@ -142,11 +142,11 @@ namespace IceInternal
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    Ice.OutputStream os = new Ice.OutputStream(instance_, Ice.Util.currentProtocolEncoding);
+                    Ice.OutputStream os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
                     os.writeShort(ue.type());
                     ue.streamWrite(os);
                     Ice.InputStream iss =
-                        new Ice.InputStream(instance_, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
+                        new Ice.InputStream(_instance, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
                     iss.pos(0);
                     iss.readShort(); // type
                     iss.startEncapsulation();
@@ -196,7 +196,7 @@ namespace IceInternal
             _factories.Clear();
         }
 
-        private readonly Instance instance_;
+        private readonly Instance _instance;
         private readonly List<EndpointFactory> _factories;
     }
 

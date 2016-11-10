@@ -15,17 +15,17 @@ public class PasswordCallbackI : IceSSL.PasswordCallback
 {
     public PasswordCallbackI()
     {
-        password_ = createSecureString("password");
+        _password = createSecureString("password");
     }
 
     public PasswordCallbackI(string password)
     {
-        password_ = createSecureString(password);
+        _password = createSecureString(password);
     }
 
     public SecureString getPassword(string file)
     {
-        return password_;
+        return _password;
     }
 
     public SecureString getImportPassword(string file)
@@ -44,5 +44,5 @@ public class PasswordCallbackI : IceSSL.PasswordCallback
         return result;
     }
 
-    private SecureString password_;
+    private SecureString _password;
 }

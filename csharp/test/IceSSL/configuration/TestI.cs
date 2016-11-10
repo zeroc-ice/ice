@@ -16,7 +16,7 @@ internal sealed class ServerI : ServerDisp_
 {
     internal ServerI(Ice.Communicator communicator)
     {
-        communicator_ = communicator;
+        _communicator = communicator;
     }
 
     public override void
@@ -66,7 +66,7 @@ internal sealed class ServerI : ServerDisp_
 
     internal void destroy()
     {
-        communicator_.destroy();
+        _communicator.destroy();
     }
 
     private static void test(bool b)
@@ -77,7 +77,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    private Ice.Communicator communicator_;
+    private Ice.Communicator _communicator;
 }
 
 internal sealed class ServerFactoryI : ServerFactoryDisp_
@@ -103,7 +103,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.addWithUUID(server);
-        servers_[obj.ice_getIdentity()] = server;
+        _servers[obj.ice_getIdentity()] = server;
         adapter.activate();
         return ServerPrxHelper.uncheckedCast(obj);
     }
@@ -111,19 +111,19 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
     public override void destroyServer(ServerPrx srv, Ice.Current current)
     {
         Ice.Identity key = srv.ice_getIdentity();
-        if(servers_.Contains(key))
+        if(_servers.Contains(key))
         {
-            ServerI server = servers_[key] as ServerI;
+            ServerI server = _servers[key] as ServerI;
             server.destroy();
-            servers_.Remove(key);
+            _servers.Remove(key);
         }
     }
 
     public override void shutdown(Ice.Current current)
     {
-        test(servers_.Count == 0);
+        test(_servers.Count == 0);
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Hashtable servers_ = new Hashtable();
+    private Hashtable _servers = new Hashtable();
 }

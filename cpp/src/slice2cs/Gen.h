@@ -25,20 +25,21 @@ public:
 
 protected:
 
-    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false);
+    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false,
+                                     bool = false, const std::string& = "");
     void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
-    void writeMarshalDataMember(const DataMemberPtr&, const std::string&);
-    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
+    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string& = "");
+    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&, const std::string& = "");
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
     static std::vector<std::string> getParams(const OperationPtr&);
-    static std::vector<std::string> getInParams(const OperationPtr&);
+    static std::vector<std::string> getInParams(const OperationPtr&, bool = false);
     static std::vector<std::string> getOutParams(const OperationPtr&, bool, bool);
     static std::vector<std::string> getArgs(const OperationPtr&);
-    static std::vector<std::string> getInArgs(const OperationPtr&);
+    static std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
     static std::string getDispatchParams(const OperationPtr&, std::string&, std::vector<std::string>&, std::vector<std::string>&);
 
     void emitAttributes(const ContainedPtr&);

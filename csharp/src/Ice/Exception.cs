@@ -202,27 +202,27 @@ namespace Ice
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
-        public virtual void write__(OutputStream os__)
+        public virtual void iceWrite(OutputStream ostr)
         {
-            os__.startException(null);
-            writeImpl__(os__);
-            os__.endException();
+            ostr.startException(null);
+            iceWriteImpl(ostr);
+            ostr.endException();
         }
 
-        public virtual void read__(InputStream is__)
+        public virtual void iceRead(InputStream istr)
         {
-            is__.startException();
-            readImpl__(is__);
-            is__.endException(false);
+            istr.startException();
+            iceReadImpl(istr);
+            istr.endException(false);
         }
 
-        public virtual bool usesClasses__()
+        public virtual bool iceUsesClasses()
         {
             return false;
         }
 
-        protected abstract void writeImpl__(OutputStream os__);
-        protected abstract void readImpl__(InputStream is__);
+        protected abstract void iceWriteImpl(OutputStream ostr);
+        protected abstract void iceReadImpl(InputStream istr);
     }
 }
 

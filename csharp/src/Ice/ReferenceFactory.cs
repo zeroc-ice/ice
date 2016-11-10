@@ -56,13 +56,13 @@ namespace IceInternal
             // Create new reference
             //
             return new FixedReference(
-                instance_,
+                _instance,
                 _communicator,
                 ident,
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
                 connection.endpoint().secure(),
-                instance_.defaultsAndOverrides().defaultEncoding,
+                _instance.defaultsAndOverrides().defaultEncoding,
                 connection);
         }
 
@@ -169,7 +169,7 @@ namespace IceInternal
             string facet = "";
             Reference.Mode mode = Reference.Mode.ModeTwoway;
             bool secure = false;
-            Ice.EncodingVersion encoding = instance_.defaultsAndOverrides().defaultEncoding;
+            Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
             Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
             string adapter = "";
 
@@ -450,7 +450,7 @@ namespace IceInternal
                     }
 
                     string es = s.Substring(beg, end - beg);
-                    EndpointI endp = instance_.endpointFactoryManager().create(es, false);
+                    EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                     if(endp != null)
                     {
                         endpoints.Add(endp);
@@ -468,7 +468,7 @@ namespace IceInternal
                     throw e2;
                 }
                 else if(unknownEndpoints.Count != 0 &&
-                        instance_.initializationData().properties.getPropertyAsIntWithDefault(
+                        _instance.initializationData().properties.getPropertyAsIntWithDefault(
                                                                                 "Ice.Warn.Endpoints", 1) > 0)
                 {
                     StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
@@ -479,7 +479,7 @@ namespace IceInternal
                         msg.Append((string)unknownEndpoints[idx]);
                         msg.Append("'");
                     }
-                    instance_.initializationData().logger.warning(msg.ToString());
+                    _instance.initializationData().logger.warning(msg.ToString());
                 }
 
                 EndpointI[] ep = endpoints.ToArray();
@@ -593,9 +593,9 @@ namespace IceInternal
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new Ice.ProtocolVersion();
-                protocol.read__(s);
+                protocol.iceRead(s);
                 encoding = new Ice.EncodingVersion();
-                encoding.read__(s);
+                encoding.iceRead(s);
             }
             else
             {
@@ -612,7 +612,7 @@ namespace IceInternal
                 endpoints = new EndpointI[sz];
                 for(int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = instance_.endpointFactoryManager().read(s);
+                    endpoints[i] = _instance.endpointFactoryManager().read(s);
                 }
             }
             else
@@ -630,7 +630,7 @@ namespace IceInternal
                 return this;
             }
 
-            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
             factory._defaultLocator = _defaultLocator;
             factory._defaultRouter = defaultRouter;
             return factory;
@@ -648,7 +648,7 @@ namespace IceInternal
                 return this;
             }
 
-            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
             factory._defaultLocator = defaultLocator;
             factory._defaultRouter = _defaultRouter;
             return factory;
@@ -664,7 +664,7 @@ namespace IceInternal
         //
         internal ReferenceFactory(Instance instance, Ice.Communicator communicator)
         {
-            instance_ = instance;
+            _instance = instance;
             _communicator = communicator;
         }
 
@@ -697,7 +697,7 @@ namespace IceInternal
 
             List<string> unknownProps = new List<string>();
             Dictionary<string, string> props
-                = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+                = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
             foreach(String prop in props.Keys)
             {
                 bool valid = false;
@@ -727,7 +727,7 @@ namespace IceInternal
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                instance_.initializationData().logger.warning(message.ToString());
+                _instance.initializationData().logger.warning(message.ToString());
             }
         }
 
@@ -741,7 +741,7 @@ namespace IceInternal
                                  string adapterId,
                                  string propertyPrefix)
         {
-            DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
             //
             // Default local proxy options.
@@ -749,17 +749,17 @@ namespace IceInternal
             LocatorInfo locatorInfo = null;
             if(_defaultLocator != null)
             {
-                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).reference__().getEncoding().Equals(encoding))
+                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding))
                 {
-                    locatorInfo = instance_.locatorManager().get(
+                    locatorInfo = _instance.locatorManager().get(
                         (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
                 }
                 else
                 {
-                    locatorInfo = instance_.locatorManager().get(_defaultLocator);
+                    locatorInfo = _instance.locatorManager().get(_defaultLocator);
                 }
             }
-            RouterInfo routerInfo = instance_.routerManager().get(_defaultRouter);
+            RouterInfo routerInfo = _instance.routerManager().get(_defaultRouter);
             bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
@@ -773,7 +773,7 @@ namespace IceInternal
             //
             if(propertyPrefix != null && propertyPrefix.Length > 0)
             {
-                Ice.Properties properties = instance_.initializationData().properties;
+                Ice.Properties properties = _instance.initializationData().properties;
 
                 //
                 // Warn about unknown properties.
@@ -789,14 +789,14 @@ namespace IceInternal
                 Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(locator != null)
                 {
-                    if(!((Ice.ObjectPrxHelperBase)locator).reference__().getEncoding().Equals(encoding))
+                    if(!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding))
                     {
-                        locatorInfo = instance_.locatorManager().get(
+                        locatorInfo = _instance.locatorManager().get(
                             (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
                     }
                     else
                     {
-                        locatorInfo = instance_.locatorManager().get(locator);
+                        locatorInfo = _instance.locatorManager().get(locator);
                     }
                 }
 
@@ -808,11 +808,11 @@ namespace IceInternal
                     {
                         string s = "`" + property + "=" + properties.getProperty(property) +
                             "': cannot set a router on a router; setting ignored";
-                        instance_.initializationData().logger.warning(s);
+                        _instance.initializationData().logger.warning(s);
                     }
                     else
                     {
-                        routerInfo = instance_.routerManager().get(router);
+                        routerInfo = _instance.routerManager().get(router);
                     }
                 }
 
@@ -858,7 +858,7 @@ namespace IceInternal
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        instance_.initializationData().logger.warning(msg.ToString());
+                        _instance.initializationData().logger.warning(msg.ToString());
                     }
                 }
 
@@ -876,7 +876,7 @@ namespace IceInternal
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        instance_.initializationData().logger.warning(msg.ToString());
+                        _instance.initializationData().logger.warning(msg.ToString());
                     }
                 }
 
@@ -895,7 +895,7 @@ namespace IceInternal
             //
             // Create new reference
             //
-            return new RoutableReference(instance_,
+            return new RoutableReference(_instance,
                                          _communicator,
                                          ident,
                                          facet,
@@ -916,7 +916,7 @@ namespace IceInternal
                                          context);
         }
 
-        private Instance instance_;
+        private Instance _instance;
         private Ice.Communicator _communicator;
         private Ice.RouterPrx _defaultRouter;
         private Ice.LocatorPrx _defaultLocator;

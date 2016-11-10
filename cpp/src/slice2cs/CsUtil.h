@@ -48,12 +48,14 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool);
-    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
+                                   const std::string& = "");
+    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool,
+                                           const std::string& = "");
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                           bool, bool);
+                                           bool, bool, const std::string& = "");
     void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                                   int, bool);
+                                                   int, bool, const std::string& = "");
 
     void writeSerializeDeserializeCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool, int, bool);
 
