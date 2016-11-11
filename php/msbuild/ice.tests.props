@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props" />
-  <Import Project="$(MSBuildThisFileDirectory)packages\zeroc.ice.php.$(IceNugetPackageVersion)\build\native\zeroc.ice.php.props" Condition="Exists('$(MSBuildThisFileDirectory)packages\zeroc.ice.php.3.7.0-alpha3\build\native\zeroc.ice.php.props') and '$(UseBinDist)' == 'yes'" />
+  <Import Project="$(MSBuildThisFileDirectory)packages\zeroc.ice.php.$(IceJSONVersion)\build\native\zeroc.ice.php.props" Condition="Exists('$(MSBuildThisFileDirectory)packages\zeroc.ice.php.$(IceJSONVersion)\build\native\zeroc.ice.php.props') and '$(UseBinDist)' == 'yes'" />
   <PropertyGroup Condition="'$(UseBinDist)' != 'yes'">
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>

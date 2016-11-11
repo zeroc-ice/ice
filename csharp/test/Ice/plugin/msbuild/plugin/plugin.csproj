@@ -2,10 +2,11 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props') and '$(UseNugetBinDist)' == 'yes'" />
   <PropertyGroup Label="Globals">
-    <IceBuilderCsharpProps Condition="!Exists('$(IceBuilderCsharpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.props', SearchOption.AllDirectories))</IceBuilderCsharpProps>
-    <IceBuilderCsharpTargets Condition="!Exists('$(IceBuilderCsharpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Csharp.targets', SearchOption.AllDirectories))</IceBuilderCsharpTargets>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
+    <IceBuilderCsharpProps>$(IceBuilderInstallDir)\Resources\IceBuilder.CSharp.props</IceBuilderCsharpProps>
+    <IceBuilderCsharpTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.CSharp.targets</IceBuilderCsharpTargets>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -82,5 +83,11 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props'))" />
+  </Target>
+  <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(IceBuilderCSharpProps)')" Text="$(ErrorText)" />
   </Target>
 </Project>

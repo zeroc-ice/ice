@@ -27,7 +27,7 @@
     <!-- Restore Nuget packages to build Ice for PHP distribution -->
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(UseBinDist)' != 'yes'"/>
     <!-- Install Ice for PHP Nuget package to build test suite with the binary distribution -->
-    <Exec Command="$(NugetExe) install zeroc.ice.php -Prerelease -Version $(IceNugetPackageVersion) -OutputDirectory packages" 
+    <Exec Command="$(NugetExe) install zeroc.ice.php -Prerelease -Version $(IceJSONVersion) -OutputDirectory packages" 
           Condition="'$(UseBinDist)' == 'yes'"/>
   </Target>
 
