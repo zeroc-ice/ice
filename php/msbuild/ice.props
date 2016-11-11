@@ -1,36 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
 
   <PropertyGroup Label="UserMacros">
 
-    <!-- Set PhpHome to your PHP source directory -->
-    <PhpHome>C:\php-7.0.6</PhpHome>
-
-    <!-- Set PhpThreadSafe to "no" (or comment it out) to disable Zend Thread Safety. -->
-    <PhpThreadSafe>yes</PhpThreadSafe>
+    <!-- The PHP version used to build the extension, then only supported value is 7.0 -->
+    <BuildWithPhpVersion>7.0</BuildWithPhpVersion>
 
     <!-- Determines whether the extension uses PHP namespaces (requires PHP 5.3 or later). -->
     <PhpUseNamespaces>no</PhpUseNamespaces>
-  </PropertyGroup>
-
-  <!-- Set PhpBinHome to your PHP binary installation directory, you must set different
-       values for Win32 and x64 platforms. -->
-  <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
-    <PhpBinHome>C:\Program Files (x86)\PHP7</PhpBinHome>
-  </PropertyGroup>
-
-  <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PhpBinHome>C:\Program Files\PHP7</PhpBinHome>
-  </PropertyGroup>
-
-  <!-- Don't change anything below this line! -->
-
-  <PropertyGroup Condition="'$(PhpThreadSafe)'=='yes'">
-    <PhpLibPrefix>php7ts</PhpLibPrefix>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(PhpThreadSafe)'!='yes'">
-    <PhpLibPrefix>php7</PhpLibPrefix>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -39,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <BuildMacro Include="PhpHome">
-      <Value>$(PhpHome)</Value>
+    <BuildMacro Include="BuildWithPhpVersion">
+      <Value>$(BuildWithPhpVersion)</Value>
     </BuildMacro>
     <BuildMacro Include="PhpThreadSafe">
       <Value>$(PhpThreadSafe)</Value>
@@ -51,37 +29,17 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;PHP_WIN32;ZEND_WIN32;ZEND_WIN32_KEEP_INLINE;WIN32</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..;$(PhpHome);$(PhpHome)\main;$(PhpHome)\TSRM;$(PhpHome)\Zend;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;WIN32</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(PhpBinHome)\dev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <PreprocessorDefinitions>_DEBUG;ZEND_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>$(PhpLibPrefix)_debug.lib</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;ZEND_DEBUG=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>$(PhpLibPrefix).lib</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(PhpThreadSafe)'=='yes'">
-    <ClCompile>
-      <PreprocessorDefinitions>ZTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(PhpUseNamespaces)' == 'yes'">

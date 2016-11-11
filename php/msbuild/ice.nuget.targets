@@ -1,0 +1,47 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
+
+  <PropertyGroup>
+      <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+  </PropertyGroup>
+
+  <!-- Dynamic libraries and import libraries -->
+  <ItemGroup>
+      <Libraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*.dll;
+                          $(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*.pdb" />
+
+      <!-- Include the Ice for C++ dependencies Ice, IceSSL and Bzip2 DLLs -->
+      <Libraries Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion).dll;
+                          $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion).pdb" />
+
+      <Libraries Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion).dll;
+                          $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion).pdb" />
+
+      <Libraries Include="$(Ice_SrcRootDir)..\cpp\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bin\$(Platform)\$(Configuration)\bzip2.dll" />
+  </ItemGroup>
+
+  <!-- Win32 Release binaries -->
+  <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
+      <Executables Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\slice2php.exe;
+                            $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\slice2php.pdb" />
+      <PHP Include="$(Ice_SrcRootDir)lib\**\*.php;$(Ice_SrcRootDir)lib\*.php" />
+      <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
+  </ItemGroup>
+
+  <!-- Copy header files in Win32 Release, the files are identical in all configurations -->
+  <Target Name="CopyPHP" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
+    <Copy SourceFiles="@(PHP)" DestinationFolder="$(PackageDirectory)\php\%(PHP.RecursiveDir)" />
+  </Target>
+
+  <!-- Copy slice files -->
+  <Target Name="CopySlices" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
+    <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+  </Target>
+
+  <!-- Copy required files to the package specific directories -->
+  <Target Name="NugetPack" DependsOnTargets="CopyPHP;CopySlices">
+    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+    <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+  </Target>
+</Project>

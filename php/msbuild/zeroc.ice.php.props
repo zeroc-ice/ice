@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2016 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup Condition="'$(UseDebugLibraries)' == 'true'">
+        <Ice_Configuration>Debug</Ice_Configuration>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(UseDebugLibraries)' != 'true'">
+        <Ice_Configuration>Release</Ice_Configuration>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IceVersion>3.7a3</IceVersion>
+        <IceIntVersion>30753</IceIntVersion>
+        <IceVersionMM>3.7</IceVersionMM>
+        <IceSoVersion>37a3</IceSoVersion>
+        <IceNugetPackageVersion>3.7.53.0</IceNugetPackageVersion>
+        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+
+        <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>
+        <IceBinPath>$(IceHome)\build\native\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
+
+        <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
+    </PropertyGroup>
+
+</Project>

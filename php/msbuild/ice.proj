@@ -1,95 +1,121 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props" />
 
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-      <Configuration>Release</Configuration>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == ''">
+    <Configuration>Release</Configuration>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Platform)' == ''">
-      <Platform>Win32</Platform>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == ''">
+    <Platform>Win32</Platform>
+  </PropertyGroup>
 
-    <!-- Ice for PHP configurations -->
-    <PropertyGroup>
-        <ProjectFiles>
-            ..\lib\Glacier2\msbuild\glacier2.proj;
-            ..\lib\Ice\msbuild\ice.proj;
-            ..\lib\IceBox\msbuild\icebox.proj;
-            ..\lib\IceGrid\msbuild\icegrid.proj;
-            ..\lib\IcePatch2\msbuild\icepatch2.proj;
-            ..\lib\IceStorm\msbuild\icestorm.proj
-        </ProjectFiles>
-    </PropertyGroup>
+  <!-- Ice for PHP configurations -->
+  <PropertyGroup>
+    <ProjectFiles>
+    ..\lib\Glacier2\msbuild\glacier2.proj;
+    ..\lib\Ice\msbuild\ice.proj;
+    ..\lib\IceBox\msbuild\icebox.proj;
+    ..\lib\IceGrid\msbuild\icegrid.proj;
+    ..\lib\IcePatch2\msbuild\icepatch2.proj;
+    ..\lib\IceStorm\msbuild\icestorm.proj
+    </ProjectFiles>
+  </PropertyGroup>
 
-    <!-- Restore Nuget packages -->
-    <Target Name="NugetRestore" DependsOnTargets="GetNuget">
-        <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+  <Target Name="NugetRestore" DependsOnTargets="GetNuget">
+    <!-- Restore Nuget packages to build Ice for PHP distribution -->
+    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(UseBinDist)' != 'yes'"/>
+    <!-- Install Ice for PHP Nuget package to build test suite with the binary distribution -->
+    <Exec Command="$(NugetExe) install zeroc.ice.php -Prerelease -Version $(IceNugetPackageVersion) -OutputDirectory packages" 
+          Condition="'$(UseBinDist)' == 'yes'"/>
+  </Target>
+
+  <Choose>
+    <!--
+    If BuildAllConfigurations is set to yes we build all configurations that are
+    part of the binary distribution, otherwise we just build the specific platform
+    and configuration.
+    -->
+    <When Condition="'$(BuildAllConfigurations)' == 'yes'">
+      <ItemGroup>
+        <DistProjects Include="ice.sln">
+          <Properties>Configuration=Release;Platform=Win32</Properties>
+        </DistProjects>
+        <DistProjects Include="ice.sln">
+          <Properties>Configuration=Release;Platform=x64</Properties>
+        </DistProjects>
+        <DistProjects Include="ice.sln">
+          <Properties>Configuration=NTS-Release;Platform=Win32</Properties>
+        </DistProjects>
+        <DistProjects Include="ice.sln">
+          <Properties>Configuration=NTS-Release;Platform=x64</Properties>
+        </DistProjects>
+
+        <DistProjects Include="$(ProjectFiles)">
+          <Properties>Configuration=Release;Platform=Win32</Properties>
+        </DistProjects>
+
+        <TestProjects Include="..\test\**\msbuild\test.proj">
+          <Properties>Configuration=Release;Platform=Win32</Properties>
+        </TestProjects>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <DistProjects Include="ice.sln;$(ProjectFiles)">
+          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </DistProjects>
+        <TestProjects Include="..\test\**\msbuild\test.proj">
+          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </TestProjects>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+    <Target Name="BuildDist" DependsOnTargets="NugetRestore" Condition="'$(UseBinDist)' != 'yes'">
+      <MSBuild Projects="@(DistProjects)"
+               BuildInParallel="true"
+               Properties="%(Properties)" />
     </Target>
 
-    <Choose>
-        <!--
-            If BuildAllConfigurations is set to yes we build all configurations that are
-            part of the binary distribution, otherwise we just build the specific platform
-            and configuration.
-        -->
-        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
-            <ItemGroup>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=x64</Properties>
-                </DistProjects>
-                <DistProjects Include="$(ProjectFiles)">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-            </ItemGroup>
-
-            <ItemGroup>
-                <TestProjects Include="..\test\**\msbuild\test.proj">
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                </TestProjects>
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <ItemGroup>
-                <DistProjects Include="ice.sln;$(ProjectFiles)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </DistProjects>
-            </ItemGroup>
-
-            <ItemGroup>
-                <TestProjects Include="..\test\**\msbuild\test.proj">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </TestProjects>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
-
-    <Target Name="BuildDist" DependsOnTargets="NugetRestore">
-        <MSBuild Projects="@(DistProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
+    <Target Name="CleanDist" Condition="'$(UseBinDist)' != 'yes'">
+      <MSBuild Projects="@(DistProjects)"
+               BuildInParallel="true"
+               Properties="%(Properties)"
+               Targets="Clean" />
     </Target>
 
-    <Target Name="CleanDist">
-        <MSBuild Projects="@(DistProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
-    </Target>
-
-    <Target Name="Build" DependsOnTargets="BuildDist">
-        <MSBuild Projects="@(TestProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
+    <Target Name="Build" DependsOnTargets="BuildDist;NugetRestore">
+      <MSBuild Projects="@(TestProjects)"
+               BuildInParallel="true"
+               Properties="%(Properties)" />
     </Target>
 
     <Target Name="Clean" DependsOnTargets="CleanDist">
-        <MSBuild Projects="@(TestProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
+      <MSBuild Projects="@(TestProjects)"
+               BuildInParallel="true"
+               Properties="%(Properties)"
+               Targets="Clean" />
      </Target>
+
+  <!-- Create nuget packages -->
+  <Target Name="NugetPack"
+          DependsOnTargets="BuildDist"
+          Condition="$(BuildAllConfigurations) == 'yes'">
+    <RemoveDir Directories="zeroc.ice.php" />
+
+    <MSBuild Projects="ice.nuget.targets"
+             Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.php" />
+
+    <MSBuild Projects="ice.nuget.targets"
+             Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.php" />
+
+    <Copy SourceFiles="zeroc.ice.php.nuspec"
+          DestinationFolder="zeroc.ice.php" />
+    <Copy SourceFiles="zeroc.ice.php.props"
+          DestinationFiles="zeroc.ice.php\build\native\zeroc.ice.php.props" />
+    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+          WorkingDirectory="zeroc.ice.php"/>
+  </Target>
 </Project>
