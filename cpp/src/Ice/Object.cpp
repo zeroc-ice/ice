@@ -27,7 +27,7 @@ const Current noExplicitCurrent = Current();
 Object* Ice::upCast(Object* p) { return p; }
 
 void
-Ice::__patch(ObjectPtr& obj, const ObjectPtr& v)
+Ice::_icePatchObjectPtr(ObjectPtr& obj, const ObjectPtr& v)
 {
     obj = v;
 }
@@ -48,9 +48,17 @@ Ice::Object::operator<(const Object& r) const
 namespace
 {
 
-const string __Ice__Object_ids[] =
+const string object_ids[] =
 {
     "::Ice::Object"
+};
+
+const string object_all[] =
+{
+    "ice_id",
+    "ice_ids",
+    "ice_isA",
+    "ice_ping"
 };
 
 }
@@ -74,7 +82,7 @@ Ice::Object::ice_isA(string s, const Current&) const
 Ice::Object::ice_isA(const string& s, const Current&) const
 #endif
 {
-    return s == __Ice__Object_ids[0];
+    return s == object_ids[0];
 }
 
 void
@@ -86,7 +94,7 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    return vector<string>(&__Ice__Object_ids[0], &__Ice__Object_ids[1]);
+    return vector<string>(&object_ids[0], &object_ids[1]);
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -96,13 +104,13 @@ const string&
 #endif
 Ice::Object::ice_id(const Current&) const
 {
-    return __Ice__Object_ids[0];
+    return object_ids[0];
 }
 
 const ::std::string&
 Ice::Object::ice_staticId()
 {
-    return __Ice__Object_ids[0];
+    return object_ids[0];
 }
 
 #ifndef ICE_CPP11_MAPPING
@@ -115,62 +123,53 @@ Ice::Object::ice_clone() const
 #endif
 
 bool
-Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
+Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
 {
-    InputStream* __is = __inS.startReadParams();
-    string __id;
-    __is->read(__id, false);
-    __inS.endReadParams();
+    InputStream* istr = inS.startReadParams();
+    string iceP_id;
+    istr->read(iceP_id, false);
+    inS.endReadParams();
 #ifdef ICE_CPP11_MAPPING
-    bool __ret = ice_isA(move(__id), __current);
+    bool ret = ice_isA(move(iceP_id), current);
 #else
-    bool __ret = ice_isA(__id, __current);
+    bool ret = ice_isA(iceP_id, current);
 #endif
-    OutputStream* __os = __inS.startWriteParams();
-    __os->write(__ret);
-    __inS.endWriteParams();
+    OutputStream* ostr = inS.startWriteParams();
+    ostr->write(ret);
+    inS.endWriteParams();
     return false;
 }
 
 bool
-Ice::Object::___ice_ping(Incoming& __inS, const Current& __current)
+Ice::Object::_iceD_ice_ping(Incoming& inS, const Current& current)
 {
-    __inS.readEmptyParams();
-    ice_ping(__current);
-    __inS.writeEmptyParams();
+    inS.readEmptyParams();
+    ice_ping(current);
+    inS.writeEmptyParams();
     return false;
 }
 
 bool
-Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
+Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
 {
-    __inS.readEmptyParams();
-    vector<string> __ret = ice_ids(__current);
-    OutputStream* __os = __inS.startWriteParams();
-    __os->write(&__ret[0], &__ret[0] + __ret.size(), false);
-    __inS.endWriteParams();
+    inS.readEmptyParams();
+    vector<string> ret = ice_ids(current);
+    OutputStream* ostr = inS.startWriteParams();
+    ostr->write(&ret[0], &ret[0] + ret.size(), false);
+    inS.endWriteParams();
     return false;
 }
 
 bool
-Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
+Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
 {
-    __inS.readEmptyParams();
-    string __ret = ice_id(__current);
-    OutputStream* __os = __inS.startWriteParams();
-    __os->write(__ret, false);
-    __inS.endWriteParams();
+    inS.readEmptyParams();
+    string ret = ice_id(current);
+    OutputStream* ostr = inS.startWriteParams();
+    ostr->write(ret, false);
+    inS.endWriteParams();
     return false;
 }
-
-
-string Ice::Object::__all[] =
-{
-    "ice_id",
-    "ice_ids",
-    "ice_isA",
-    "ice_ping"
-};
 
 
 bool
@@ -193,7 +192,7 @@ Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallba
 #endif
         try
         {
-            return __dispatch(in, in.getCurrent());
+            return _iceDispatch(in, in.getCurrent());
             in.pop();
         }
         catch(...)
@@ -204,37 +203,37 @@ Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallba
     }
     else
     {
-        return __dispatch(in, in.getCurrent());
+        return _iceDispatch(in, in.getCurrent());
     }
 }
 
 bool
-Ice::Object::__dispatch(Incoming& in, const Current& current)
+Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 {
-    pair<string*, string*> r = equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
+    pair<const string*, const string*> r = equal_range(object_all, object_all + sizeof(object_all) / sizeof(string), current.operation);
 
     if(r.first == r.second)
     {
         throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - __all)
+    switch(r.first - object_all)
     {
         case 0:
         {
-            return ___ice_id(in, current);
+            return _iceD_ice_id(in, current);
         }
         case 1:
         {
-            return ___ice_ids(in, current);
+            return _iceD_ice_ids(in, current);
         }
         case 2:
         {
-            return ___ice_isA(in, current);
+            return _iceD_ice_isA(in, current);
         }
         case 3:
         {
-            return ___ice_ping(in, current);
+            return _iceD_ice_ping(in, current);
         }
         default:
         {
@@ -256,18 +255,18 @@ Ice::Object::ice_postUnmarshal()
 }
 
 void
-Ice::Object::__write(Ice::OutputStream* os) const
+Ice::Object::_iceWrite(Ice::OutputStream* os) const
 {
     os->startValue(0);
-    __writeImpl(os);
+    _iceWriteImpl(os);
     os->endValue();
 }
 
 void
-Ice::Object::__read(Ice::InputStream* is)
+Ice::Object::_iceRead(Ice::InputStream* is)
 {
    is->startValue();
-   __readImpl(is);
+   _iceReadImpl(is);
    is->endValue(false);
 }
 
@@ -311,7 +310,7 @@ operationModeToString(OperationMode mode)
 }
 
 void
-Ice::Object::__checkMode(OperationMode expected, OperationMode received)
+Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
@@ -330,19 +329,19 @@ Ice::Object::__checkMode(OperationMode expected, OperationMode received)
         else
         {
             Ice::MarshalException ex(__FILE__, __LINE__);
-            std::ostringstream __reason;
-            __reason << "unexpected operation mode. expected = "
-                     << operationModeToString(expected)
-                     << " received = "
-                     << operationModeToString(received);
-            ex.reason = __reason.str();
+            std::ostringstream reason;
+            reason << "unexpected operation mode. expected = "
+                   << operationModeToString(expected)
+                   << " received = "
+                   << operationModeToString(received);
+            ex.reason = reason.str();
             throw ex;
         }
     }
 }
 
 bool
-Ice::Blobject::__dispatch(Incoming& in, const Current& current)
+Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
 {
     const Byte* inEncaps;
     Int sz;
@@ -361,7 +360,7 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
+Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
 {
     pair<const Byte*, const Byte*> inEncaps;
     Int sz;
@@ -381,7 +380,7 @@ Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
+Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
 {
     const Byte* inEncaps;
     Int sz;
@@ -409,7 +408,7 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
+Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
 {
     pair<const Byte*, const Byte*> inEncaps;
     Int sz;

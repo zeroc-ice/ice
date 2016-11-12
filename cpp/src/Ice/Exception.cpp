@@ -106,7 +106,7 @@ throwMarshalException(const char* file, int line, const string& reason)
 namespace
 {
 
-const string __Ice__UserException_ids[] =
+const string userException_ids[] =
 {
     "::Ice::UserException"
 };
@@ -116,7 +116,7 @@ const string __Ice__UserException_ids[] =
 const std::string&
 Ice::UserException::ice_staticId()
 {
-    return __Ice__UserException_ids[0];
+    return userException_ids[0];
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -128,23 +128,23 @@ Ice::UserException::ice_clone() const
 #endif
 
 void
-Ice::UserException::__write(::Ice::OutputStream* os) const
+Ice::UserException::_write(::Ice::OutputStream* os) const
 {
     os->startException(0);
-    __writeImpl(os);
+    _writeImpl(os);
     os->endException();
 }
 
 void
-Ice::UserException::__read(::Ice::InputStream* is)
+Ice::UserException::_read(::Ice::InputStream* is)
 {
     is->startException();
-    __readImpl(is);
+    _readImpl(is);
     is->endException(false);
 }
 
 bool
-Ice::UserException::__usesClasses() const
+Ice::UserException::_usesClasses() const
 {
     return false;
 }
@@ -173,7 +173,7 @@ Ice::LocalException::ice_clone() const
 namespace
 {
 
-const string __Ice__LocalException_ids[] =
+const string localException_ids[] =
 {
     "::Ice::LocalException"
 };
@@ -183,7 +183,7 @@ const string __Ice__LocalException_ids[] =
 const std::string&
 Ice::LocalException::ice_staticId()
 {
-    return __Ice__LocalException_ids[0];
+    return localException_ids[0];
 }
 
 Ice::SystemException::SystemException(const char* file, int line) :
@@ -209,7 +209,7 @@ Ice::SystemException::ice_clone() const
 namespace
 {
 
-const string __Ice__SystemException_ids[] =
+const string systemException_ids[] =
 {
     "::Ice::SystemException"
 };
@@ -219,7 +219,7 @@ const string __Ice__SystemException_ids[] =
 const std::string&
 Ice::SystemException::ice_staticId()
 {
-    return __Ice__SystemException_ids[0];
+    return systemException_ids[0];
 }
 
 void

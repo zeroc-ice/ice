@@ -101,12 +101,12 @@ public:
 
     virtual void throwLocalException() const;
 
-    virtual bool __wait();
-    virtual Ice::InputStream* __startReadParams();
-    virtual void __endReadParams();
-    virtual void __readEmptyParams();
-    virtual void __readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
-    virtual void __throwUserException();
+    virtual bool waitForResponse();
+    virtual Ice::InputStream* startReadParams();
+    virtual void endReadParams();
+    virtual void readEmptyParams();
+    virtual void readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
+    virtual void throwUserException();
 #endif
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)
@@ -753,7 +753,7 @@ public:
 //
 // See comments in OutgoingAsync.cpp
 //
-extern ICE_API CallbackBasePtr __dummyCallback;
+extern ICE_API CallbackBasePtr dummyCallback;
 
 //
 // Generic callback template that requires the caller to down-cast the

@@ -57,10 +57,10 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:
 
-    virtual void __write(::Ice::OutputStream*) const;
-    virtual void __read(::Ice::InputStream*);
+    virtual void _write(::Ice::OutputStream*) const;
+    virtual void _read(::Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool _usesClasses() const;
 
 #ifdef ICE_CPP11_MAPPING
     std::unique_ptr<UserException> ice_clone() const;
@@ -72,8 +72,8 @@ public:
 
 protected:
 
-    virtual void __writeImpl(::Ice::OutputStream*) const {};
-    virtual void __readImpl(::Ice::InputStream*) {};
+    virtual void _writeImpl(::Ice::OutputStream*) const {};
+    virtual void _readImpl(::Ice::InputStream*) {};
 };
 
 

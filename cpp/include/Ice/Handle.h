@@ -180,11 +180,6 @@ public:
     {
         return Handle(dynamic_cast<T*>(p));
     }
-
-    void __clearHandleUnsafe()
-    {
-        this->_ptr = 0;
-    }
 };
 
 }

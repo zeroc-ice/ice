@@ -41,7 +41,7 @@ patchHandle(void* addr, const ValuePtr& v)
     }
 #else
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
-    __patch(*p, v); // Generated __patch method, necessary for forward declarations.
+    _icePatchObjectPtr(*p, v); // Generated _icePatchObjectPtr function, necessary for forward declarations.
 #endif
 }
 
@@ -594,14 +594,14 @@ public:
         else
         {
             v = ::IceInternal::createProxy<T>();
-            v->__copyFrom(proxy);
+            v->_copyFrom(proxy);
         }
     }
 #else
     void read(ObjectPrx&);
     template<typename T> void read(IceInternal::ProxyHandle<T>& v)
     {
-        __read(this, v); // Generated __read method, necessary for forward declarations.
+        _readProxy(this, v); // Generated _readProxy method, necessary for forward declarations.
     }
 #endif
 

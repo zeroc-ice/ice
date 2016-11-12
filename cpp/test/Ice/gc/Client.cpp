@@ -139,7 +139,7 @@ public:
         test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
 
         obj->__setFlag(IceInternal::GCObject::Visiting);
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
         obj->__clearFlag(IceInternal::GCObject::Visiting);
         return false;
     }

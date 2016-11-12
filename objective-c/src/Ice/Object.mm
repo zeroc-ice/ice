@@ -709,7 +709,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        object__->__write([(ICEOutputStream*)os os]);
+        object__->_iceWrite([(ICEOutputStream*)os os]);
     }
     catch(const std::exception& ex)
     {
@@ -722,7 +722,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        object__->__read([(ICEInputStream*)is is]);
+        object__->_iceRead([(ICEInputStream*)is is]);
     }
     catch(const std::exception& ex)
     {

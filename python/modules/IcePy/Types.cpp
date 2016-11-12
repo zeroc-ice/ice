@@ -3232,7 +3232,7 @@ IcePy::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
+IcePy::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -3266,7 +3266,7 @@ IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ObjectWriter::__read(Ice::InputStream*)
+IcePy::ObjectWriter::_iceRead(Ice::InputStream*)
 {
     assert(false);
 }
@@ -3341,13 +3341,13 @@ IcePy::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePy::ObjectReader::__write(Ice::OutputStream*) const
+IcePy::ObjectReader::_iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ObjectReader::__read(Ice::InputStream* is)
+IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
 {
     is->startValue();
 
@@ -3735,7 +3735,7 @@ IcePy::ExceptionWriter::ice_throw() const
 }
 
 void
-IcePy::ExceptionWriter::__write(Ice::OutputStream* os) const
+IcePy::ExceptionWriter::_write(Ice::OutputStream* os) const
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3743,12 +3743,12 @@ IcePy::ExceptionWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ExceptionWriter::__read(Ice::InputStream*)
+IcePy::ExceptionWriter::_read(Ice::InputStream*)
 {
 }
 
 bool
-IcePy::ExceptionWriter::__usesClasses() const
+IcePy::ExceptionWriter::_usesClasses() const
 {
     return _info->usesClasses;
 }
@@ -3790,13 +3790,13 @@ IcePy::ExceptionReader::ice_throw() const
 }
 
 void
-IcePy::ExceptionReader::__write(Ice::OutputStream*) const
+IcePy::ExceptionReader::_write(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ExceptionReader::__read(Ice::InputStream* is)
+IcePy::ExceptionReader::_read(Ice::InputStream* is)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3808,7 +3808,7 @@ IcePy::ExceptionReader::__read(Ice::InputStream* is)
 }
 
 bool
-IcePy::ExceptionReader::__usesClasses() const
+IcePy::ExceptionReader::_usesClasses() const
 {
     return _info->usesClasses;
 }

@@ -102,7 +102,7 @@ public:
     }
 
     void
-    __write(Ice::OutputStream* s) const
+    _write(Ice::OutputStream* s) const
     {
         ICEOutputStream* os = [[ICEOutputStream alloc] initWithCxxStream:s];
         [_ex write__:os];
@@ -110,13 +110,13 @@ public:
     }
 
     void
-    __read(Ice::InputStream*)
+    _read(Ice::InputStream*)
     {
         assert(false);
     }
 
     bool
-    __usesClasses() const
+    _usesClasses() const
     {
         return [_ex usesClasses__];
     }
@@ -141,8 +141,8 @@ public:
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 

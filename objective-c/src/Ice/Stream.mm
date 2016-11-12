@@ -46,7 +46,7 @@ public:
     }
 
     virtual void
-    __write(Ice::OutputStream* stream) const
+    _iceWrite(Ice::OutputStream* stream) const
     {
         @try
         {
@@ -59,7 +59,7 @@ public:
     }
 
     virtual void
-    __read(Ice::InputStream* stream)
+    _iceRead(Ice::InputStream* stream)
     {
         @try
         {
@@ -268,7 +268,7 @@ public:
     }
 
     virtual bool
-    __usesClasses() const
+    _usesClasses() const
     {
         return [_ex usesClasses__];
     }
@@ -292,13 +292,13 @@ public:
     }
 
     virtual void
-    __write(Ice::OutputStream* s) const
+    _write(Ice::OutputStream* s) const
     {
         [_ex write__:static_cast<ICEOutputStream*>(s->getClosure())];
     }
 
     virtual void
-    __read(Ice::InputStream* s)
+    _read(Ice::InputStream* s)
     {
         [_ex read__:static_cast<ICEInputStream*>(s->getClosure())];
     }
@@ -311,8 +311,8 @@ public:
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 

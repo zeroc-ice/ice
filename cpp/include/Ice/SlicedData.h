@@ -74,7 +74,7 @@ public:
 
     const SliceInfoSeq slices;
 #ifndef ICE_CPP11_MAPPING
-    void __gcVisitMembers(IceInternal::GCVisitor&);
+    void _iceGcVisitMembers(IceInternal::GCVisitor&);
 #endif
 };
 
@@ -97,8 +97,8 @@ public:
     SlicedDataPtr getSlicedData() const;
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void __write(::Ice::OutputStream*) const override;
-    virtual void __read(::Ice::InputStream*) override;
+    virtual void _iceWrite(::Ice::OutputStream*) const override;
+    virtual void _iceRead(::Ice::InputStream*) override;
 
     virtual std::string ice_id() const override;
     std::shared_ptr<UnknownSlicedValue> ice_clone() const;
@@ -107,10 +107,10 @@ protected:
 
     virtual std::shared_ptr<Value> cloneImpl() const override;
 #else
-    virtual void __gcVisitMembers(IceInternal::GCVisitor&);
+    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);
 
-    virtual void __write(::Ice::OutputStream*) const;
-    virtual void __read(::Ice::InputStream*);
+    virtual void _iceWrite(::Ice::OutputStream*) const;
+    virtual void _iceRead(::Ice::InputStream*);
 #endif
 
 private:

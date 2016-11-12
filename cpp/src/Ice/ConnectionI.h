@@ -307,7 +307,7 @@ private:
     void reap();
 
 #ifndef ICE_CPP11_MAPPING
-    AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+    AsyncResultPtr _iceI_begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 #endif
 
     Ice::CommunicatorPtr _communicator;

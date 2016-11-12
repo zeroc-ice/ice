@@ -55,16 +55,16 @@ public:
     //
     // Override Object methods
     //
-    virtual bool __gcVisit(GCVisitor&);
+    virtual bool _iceGcVisit(GCVisitor&);
     virtual void ice_collectable(bool);
 
     //
     // This method is implemented by Slice classes to visit class
     // members.
     //
-    virtual void __gcVisitMembers(IceInternal::GCVisitor&) = 0;
+    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&) = 0;
 
-    int __getRefUnsafe()
+    int _iceGetRefUnsafe()
     {
         return _ref;
     }

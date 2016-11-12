@@ -554,8 +554,8 @@ public:
 
     virtual void ice_preMarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
 
 private:
 
@@ -578,8 +578,8 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
 
     virtual ClassInfoPtr getInfo() const;
 
@@ -610,15 +610,15 @@ public:
 #endif
     virtual void ice_throw() const;
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _write(Ice::OutputStream*) const;
+    virtual void _read(Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool _usesClasses() const;
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 
@@ -643,22 +643,19 @@ public:
 #endif
     virtual void ice_throw() const;
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _write(Ice::OutputStream*) const;
+    virtual void _read(Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool _usesClasses() const;
 
     PyObject* getException() const; // Borrowed reference.
 
     Ice::SlicedDataPtr getSlicedData() const;
 
-    using Ice::UserException::__read;
-    using Ice::UserException::__write;
-
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 

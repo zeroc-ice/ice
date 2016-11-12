@@ -45,20 +45,20 @@ public:
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream* os) const override
+    virtual void _writeImpl(Ice::OutputStream* os) const override
     {
         os->startSlice(T::ice_staticId(), -1, std::is_same<B, Ice::LocalException>::value ? true : false);
         Ice::StreamWriter<T, Ice::OutputStream>::write(os, static_cast<const T&>(*this));
         os->endSlice();
-        B::__writeImpl(os);
+        B::_writeImpl(os);
     }
 
-    virtual void __readImpl(Ice::InputStream* is) override
+    virtual void _readImpl(Ice::InputStream* is) override
     {
         is->startSlice();
         Ice::StreamReader<T, ::Ice::InputStream>::read(is, static_cast<T&>(*this));
         is->endSlice();
-        B::__readImpl(is);
+        B::_readImpl(is);
     }
 };
 

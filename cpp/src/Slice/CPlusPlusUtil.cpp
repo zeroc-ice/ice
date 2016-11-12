@@ -217,7 +217,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
             {
                 s = toOptional(s, typeCtx);
             }
-            out << nl << s << " ___" << fixedName << ";";
+            out << nl << s << ' ' << fixedName << "_tmp_;";
         }
     }
 }
@@ -228,7 +228,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 {
     string objPrefix = obj.empty() ? obj : obj + ".";
     string paramName = objPrefix + fixedName;
-    string escapedParamName = objPrefix + "___" + fixedName;
+    string escapedParamName = objPrefix + fixedName + "_tmp_";
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
@@ -317,12 +317,17 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& retP = "", const string& obj = "")
+                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "", const string& obj = "")
 {
     string prefix = prepend ? paramPrefix : "";
-    string returnValueS = retP.empty() ? string("__ret") : retP;
-
+    string returnValueS = retP.empty() ? string("ret") : retP;
     string objPrefix = obj.empty() ? obj : obj + ".";
+
+    string stream = customStream;
+    if(stream.empty())
+    {
+        stream = marshal ? "ostr" : "istr";
+    }
 
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
@@ -351,11 +356,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << nl;
             if(marshal)
             {
-                out << "__os->writeAll";
+                out << stream << "->writeAll";
             }
             else
             {
-                out << "__is->readAll";
+                out << stream << "->readAll";
             }
             out << spar;
             for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
@@ -373,7 +378,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
             {
                 writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal, (*p)->getMetaData(),
-                                          typeCtx, "", true, obj);
+                                          typeCtx, customStream, true, obj);
             }
 
             if(op && op->returnType())
@@ -381,7 +386,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 if(!op->returnIsOptional())
                 {
                     writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(), typeCtx,
-                                              "", true, obj);
+                                              customStream, true, obj);
                 }
             }
         }
@@ -407,11 +412,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << nl;
             if(marshal)
             {
-                out << "__os->writeAll";
+                out << stream << "->writeAll";
             }
             else
             {
-                out << "__is->readAll";
+                out << stream << "->readAll";
             }
             out << spar;
 
@@ -476,17 +481,17 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 if(checkReturnType && op->returnTag() < (*p)->tag())
                 {
                     writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
-                                              op->getMetaData(), typeCtx, "", true, obj);
+                                              op->getMetaData(), typeCtx, customStream, true, obj);
 
                     checkReturnType = false;
                 }
                 writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
-                                          (*p)->getMetaData(), typeCtx, "", true, obj);
+                                          (*p)->getMetaData(), typeCtx, customStream, true, obj);
             }
             if(checkReturnType)
             {
                 writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal, op->getMetaData(),
-                                          typeCtx, "", true, obj);
+                                          typeCtx, customStream, true, obj);
             }
         }
     }
@@ -494,7 +499,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 }
 
 Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
-string Slice::paramPrefix = "__p_";
+string Slice::paramPrefix = "iceP_";
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -1154,7 +1159,7 @@ Slice::opFormatTypeToString(const OperationPtr& op)
 }
 
 //
-// If the passed name is a keyword, return the name with a "_cxx_" prefix;
+// If the passed name is a keyword, return the name with a "_cpp_" prefix;
 // otherwise, return the name unchanged.
 //
 
@@ -1171,14 +1176,15 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] =
     {
-        "and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", "case", "catch", "char",
-        "class", "compl", "const", "const_cast", "continue", "default", "delete", "do", "double",
-        "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for",
-        "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "not", "not_eq",
-        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast",
-        "return", "short", "signed", "sizeof", "static", "static_cast", "struct", "switch", "template",
-        "this", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
-        "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
+        "alignas", "alignof", "and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", 
+        "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "const", "const_exptr", "const_cast", "continue", 
+        "decltype", "default", "delete", "do", "double", "dynamic_cast", 
+        "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", 
+        "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq",
+        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "return", 
+        "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", 
+        "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", 
+        "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
     };
     bool found =  binary_search(&keywordList[0],
                                 &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
@@ -1224,8 +1230,8 @@ splitScopedName(const string& scoped)
 //
 // If the passed name is a scoped name, return the identical scoped name,
 // but with all components that are C++ keywords replaced by
-// their "_cxx_"-prefixed version; otherwise, if the passed name is
-// not scoped, but a C++ keyword, return the "_cxx_"-prefixed name;
+// their "_cpp_"-prefixed version; otherwise, if the passed name is
+// not scoped, but a C++ keyword, return the "_cpp_"-prefixed name;
 // otherwise, return the name unchanged.
 //
 string
@@ -1247,19 +1253,19 @@ Slice::fixKwd(const string& name)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional, int tag, const string& param,
-                                 bool marshal, const StringList& metaData, int typeCtx, const string& str, bool pointer,
+                                 bool marshal, const StringList& metaData, int typeCtx, const string& customStream, bool pointer,
                                  const string& obj)
 {
     string objPrefix = obj.empty() ? obj : obj + ".";
 
     ostringstream os;
-    if(str.empty())
+    if(customStream.empty())
     {
-        os << (marshal ? "__os" : "__is");
+        os << (marshal ? "ostr" : "istr");
     }
     else
     {
-        os << str;
+        os << customStream;
     }
 
     string deref;
@@ -1302,13 +1308,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                     return;
                 }
 
-                out << nl << func << objPrefix << "___" << param << ");";
+                out << nl << func << objPrefix << param << "_tmp_);";
                 writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
             else if(seqType.find("%range") == 0)
             {
-                out << nl << func << objPrefix << "___" << param << ");";
+                out << nl << func << objPrefix << param << "_tmp_);";
                 writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
@@ -1319,23 +1325,29 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+                        const string& customStream, const string& retP)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx);
+    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx, customStream, retP);
 }
 
 void
 Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                          const string& retP, const string& obj)
+                          const string& customStream, const string& retP, const string& obj)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, retP, obj);
+    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, customStream, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
+Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
+                         const string& customRet)
 {
     string prefix = prepend ? paramPrefix : "";
-    string returnValueS = "__ret";
+    string returnValueS = customRet;
+    if(returnValueS.empty())
+    {
+        returnValueS = "ret";
+    }
 
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
@@ -1373,11 +1385,11 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
                builtin->kind() != Builtin::KindObject &&
                builtin->kind() != Builtin::KindObjectProxy)
             {
-                endArg = "___" + endArg;
+                endArg += "_tmp_";
             }
             else if(!builtin || builtin->kind() != Builtin::KindByte)
             {
-                endArg = "___" + endArg;
+                endArg += "_tmp_";
             }
         }
         else if(seqType.find("%range") == 0)
@@ -1387,7 +1399,7 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
             {
                 md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
             }
-            endArg = "___" + endArg;
+            endArg += "_tmp_";
         }
     }
     return endArg;
@@ -1403,7 +1415,7 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     }
     if(op && op->returnType())
     {
-        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "__ret", op->getMetaData());
+        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "ret", op->getMetaData());
     }
 }
 
@@ -1429,7 +1441,7 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
         return;
     }
 
-    string stream = marshal ? "__os" : "__is";
+    string stream = marshal ? "ostr" : "istr";
     string streamOp = marshal ? "writeAll" : "readAll";
 
     out << nl << stream << "->" << streamOp;
@@ -1525,7 +1537,7 @@ Slice::writeStreamHelpers(Output& out,
         }
         else
         {
-            out << nl << "static void write(S* __os, const " << fullName << "& v)";
+            out << nl << "static void write(S* ostr, const " << fullName << "& v)";
         }
 
         out << sb;
@@ -1564,7 +1576,7 @@ Slice::writeStreamHelpers(Output& out,
     }
     else
     {
-        out << nl << "static void read(S* __is, " << fullName << "& v)";
+        out << nl << "static void read(S* istr, " << fullName << "& v)";
     }
 
     out << sb;

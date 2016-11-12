@@ -21,7 +21,7 @@ public:
 
     virtual bool dispatch(Request&) = 0;
 
-    virtual bool __dispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
 };
 
 ICE_DEFINE_PTR(DispatchInterceptorPtr, DispatchInterceptor);

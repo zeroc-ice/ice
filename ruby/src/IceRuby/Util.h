@@ -467,19 +467,19 @@ VALUE convertLocalException(const Ice::LocalException&);
 // exceptions into Ruby exceptions and ensure that C++ objects are cleaned up properly.
 //
 #define ICE_RUBY_TRY \
-    volatile VALUE __ice_ex = Qnil; \
+    volatile VALUE ex_ = Qnil; \
     \
-    goto __ice_start; \
+    goto ice_start; \
     \
-    __ice_handle_exception: \
-        rb_exc_raise(__ice_ex); \
+    ice_handle_exception: \
+        rb_exc_raise(ex_); \
     \
-    __ice_start: \
+    ice_start: \
     try
 
 #define ICE_RUBY_RETHROW(ex) \
-    __ice_ex = ex; \
-    goto __ice_handle_exception;
+    ex_ = ex; \
+    goto ice_handle_exception;
 
 #define ICE_RUBY_CATCH \
     catch(const ::IceRuby::RubyException& ex) \
@@ -492,8 +492,8 @@ VALUE convertLocalException(const Ice::LocalException&);
     } \
     catch(const ::Ice::Exception& ex) \
     { \
-        string __ice_msg = "unknown Ice exception: " + ex.ice_id(); \
-        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, __ice_msg.c_str())); \
+        string msg_ = "unknown Ice exception: " + ex.ice_id(); \
+        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, msg_.c_str())); \
     } \
     catch(const std::bad_alloc& ex) \
     { \

@@ -51,20 +51,20 @@ public:
 
     virtual const std::string& getOperation() const = 0;
 
-    virtual bool __wait() = 0;
-    virtual Ice::InputStream* __startReadParams() = 0;
-    virtual void __endReadParams() = 0;
-    virtual void __readEmptyParams() = 0;
-    virtual void __readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&) = 0;
-    virtual void __throwUserException() = 0;
+    virtual bool waitForResponse() = 0;
+    virtual Ice::InputStream* startReadParams() = 0;
+    virtual void endReadParams() = 0;
+    virtual void readEmptyParams() = 0;
+    virtual void readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&) = 0;
+    virtual void throwUserException() = 0;
 
-    static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
-    static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
-    static void __check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
+    static void check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
+    static void check(const AsyncResultPtr&, const Connection*, const ::std::string&);
+    static void check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
 protected:
 
-    static void __check(const AsyncResultPtr&, const ::std::string&);
+    static void check(const AsyncResultPtr&, const ::std::string&);
 };
 
 }

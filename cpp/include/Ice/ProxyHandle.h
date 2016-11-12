@@ -247,7 +247,7 @@ public:
         return *this;
     }
 
-    ::IceProxy::Ice::Object* __upCast() const
+    ::IceProxy::Ice::Object* _upCast() const
     {
         return upCast(this->_ptr);
     }

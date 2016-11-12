@@ -2468,7 +2468,7 @@ IceRuby::ObjectWriter::ice_preMarshal()
 }
 
 void
-IceRuby::ObjectWriter::__write(Ice::OutputStream* os) const
+IceRuby::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -2502,7 +2502,7 @@ IceRuby::ObjectWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IceRuby::ObjectWriter::__read(Ice::InputStream*)
+IceRuby::ObjectWriter::_iceRead(Ice::InputStream*)
 {
     assert(false);
 }
@@ -2559,13 +2559,13 @@ IceRuby::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IceRuby::ObjectReader::__write(Ice::OutputStream*) const
+IceRuby::ObjectReader::_iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IceRuby::ObjectReader::__read(Ice::InputStream* is)
+IceRuby::ObjectReader::_iceRead(Ice::InputStream* is)
 {
     is->startValue();
 
@@ -2855,13 +2855,13 @@ IceRuby::ExceptionReader::ice_throw() const
 }
 
 void
-IceRuby::ExceptionReader::__write(Ice::OutputStream*) const
+IceRuby::ExceptionReader::_write(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IceRuby::ExceptionReader::__read(Ice::InputStream* is)
+IceRuby::ExceptionReader::_read(Ice::InputStream* is)
 {
     is->startException();
 
@@ -2871,7 +2871,7 @@ IceRuby::ExceptionReader::__read(Ice::InputStream* is)
 }
 
 bool
-IceRuby::ExceptionReader::__usesClasses() const
+IceRuby::ExceptionReader::_usesClasses() const
 {
     return _info->usesClasses;
 }

@@ -37,12 +37,12 @@ public:
 
     std::shared_ptr<OutputStream> getOutputStream() const
     {
-        return __os;
+        return ostr;
     }
 
 protected:
 
-    std::shared_ptr<OutputStream> __os;
+    std::shared_ptr<OutputStream> ostr;
 };
 
 }
