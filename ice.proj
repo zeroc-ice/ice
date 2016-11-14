@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj"></Projects>
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj"></Projects>
+  </ItemGroup>
+
+  <Target Name="Build">
+    <MSBuild Projects="@(Projects)"
+             BuildInParallel="false"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="Clean">
+    <MSBuild Projects="@(Projects)"
+             BuildInParallel="false"
+             Targets="Clean"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+  </Target>
+
+</Project>

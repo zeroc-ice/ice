@@ -32,8 +32,24 @@ var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
 var useBinDist = process.env.USE_BIN_DIST == "yes";
 
-var platform = process.env.CPP_PLATFORM;
-var configuration = process.env.CPP_CONFIGURATION;
+function parseArg(argv, key)
+{
+    for(var i = 0; i < argv.length; ++i)
+    {
+        var e = argv[i];
+        if(e == key)
+        {
+            return argv[i + 1];
+        }
+        else if(e.indexOf(key + "=") == 0)
+        {
+            return e.substr(key.length + 1);
+        }
+    }
+}
+
+var platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
+var configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
 
 function slice2js(options) {
     var defaults = {};
