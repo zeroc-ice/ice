@@ -1256,7 +1256,7 @@ Certificate::decode(const string& encoding)
 
     vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
     auto writer = ref new DataWriter();
-    writer->WriteBytes(Platform::ArrayReference<unsigned char>(&data[0], data.size()));
+    writer->WriteBytes(Platform::ArrayReference<unsigned char>(&data[0], static_cast<unsigned int>(data.size())));
     return make_shared<Certificate>(ref new Certificates::Certificate(writer->DetachBuffer()));
 #else
 #   error "Unknown platform"
