@@ -62,7 +62,7 @@ dist.dependsOn(project(":icediscovery").assemble)
 dist.dependsOn(project(":icelocatordiscovery").assemble)
 dist.dependsOn(project(":icepatch2").assemble)
 dist.dependsOn(project(":icestorm").assemble)
-//dist.dependsOn(project(":IceGridGUI").assemble)
+dist.dependsOn(project(":IceGridGUI").assemble)
 
 //
 // Used to build the gradle wrapper to automatically download and install

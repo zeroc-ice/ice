@@ -1,13 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets"/>
+
   <PropertyGroup>
     <Gradle Condition="'$(Gradle)' == ''">gradlew</Gradle>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
   </PropertyGroup>
 
-  <Target Name="Build">
+  <Target Name="slice2java">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
+             Targets="NugetRestore"
+             BuildInParallel="true"/>
+
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+             Targets="c++98\slice2java"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+  </Target>
+
+  <Target Name="BuildDist" DependsOnTargets="slice2java">
+    <Exec Command="$(Gradle) dist -PcppPlatform=$(Platform) -PcppConfiguration=$(Configuration)"
+          WorkingDirectory="$(MSBuildThisFileDirectory).."
+          StdOutEncoding="utf-8" 
+          StdErrEncoding="utf-8" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="slice2java">
     <Exec Command="$(Gradle) build -PcppPlatform=$(Platform) -PcppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8" 
