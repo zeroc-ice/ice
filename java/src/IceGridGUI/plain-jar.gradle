@@ -17,7 +17,7 @@ task copyTmpJars(type: Copy, dependsOn: jar) {
 task updateManifest(dependsOn: copyTmpJars) << {
     ant.jar(update: true, destfile: "${libDir}/${jarName}") {
         delegate.manifest {
-            attribute(name: "Main-Class", value: "IceGridGUI.Main")
+            attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
             attribute(name: "Built-By", value: "ZeroC, Inc.")
             attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
         }
@@ -42,7 +42,7 @@ task copyJars(type: Copy, dependsOn: jar) {
 task updateInstallManifest(dependsOn: copyJars) << {
     ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
         delegate.manifest {
-            attribute(name: "Main-Class", value: "IceGridGUI.Main")
+            attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
             attribute(name: "Built-By", value: "ZeroC, Inc.")
             attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
         }

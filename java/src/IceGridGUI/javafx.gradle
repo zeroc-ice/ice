@@ -55,7 +55,7 @@ jar {
         antfx.application(
                 id: 'IceGridGUI',
                 name: 'IceGrid Admin',
-                mainClass: 'IceGridGUI.Main',
+                mainClass: 'com.zeroc.IceGridGUI.Main',
                 fallbackClass: 'IceGridGUI.Fallback',
                 toolkit: 'swing')
 

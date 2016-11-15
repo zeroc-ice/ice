@@ -29,7 +29,7 @@ task updateManifest(dependsOn: proguardJar) << {
     if (hasJavaFx) {
         ant.jar(update: true, destfile: "${libDir}/${jarName}") {
             delegate.manifest {
-                attribute(name: 'Main-Class', value: 'IceGridGUI.MainProxy')
+                attribute(name: 'Main-Class', value: 'com.zeroc.IceGridGUI.MainProxy')
                 attribute(name: 'Built-By', value: 'Zeroc, Inc.')
             }
         }
