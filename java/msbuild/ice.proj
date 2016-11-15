@@ -8,6 +8,8 @@
     <Gradle Condition="'$(Gradle)' == ''">gradlew</Gradle>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <slice2java Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2java</slice2java>
+    <slice2java Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2java</slice2java>
   </PropertyGroup>
 
   <Target Name="slice2java">
@@ -16,7 +18,7 @@
              BuildInParallel="true"/>
 
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
-             Targets="c++98\slice2java"
+             Targets="$(slice2java)"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
   </Target>
