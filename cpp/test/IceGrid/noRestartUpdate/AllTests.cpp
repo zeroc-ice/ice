@@ -558,6 +558,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         service->name = "Service2";
         icebox->services[1].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
         service->name = "Service3";
+        // Test also with shared communicator because it uses different proxy name
+        // and thus different branches in code.
+        addProperty(icebox, "IceBox.UseSharedCommunicator.Service3", "1");
         icebox->services[2].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
 
         try
