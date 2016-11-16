@@ -37,6 +37,15 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
+# Changes in Ice 3.6.4
+
+These are the changes since Ice 3.6.4.
+
+## General Changes
+
+- Fixed IceGrid bug where updating properties of an IceBox service at runtime
+  would fail if the service used the IceBox shared communicator. Thanks to
+  Andreas Sommer for the bug report and fix.
 
 # Changes in Ice 3.6.3
 
