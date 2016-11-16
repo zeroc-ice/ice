@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v140'">
         <Link>
-            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(Ice_Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
         </Link>
     </ItemDefinitionGroup>
 </Project>

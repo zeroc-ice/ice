@@ -5,7 +5,7 @@
             <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
         </ClCompile>
         <Link>
-            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(Ice_Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
         </Link>
     </ItemDefinitionGroup>
 </Project>
