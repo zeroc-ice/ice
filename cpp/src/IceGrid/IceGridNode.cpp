@@ -452,7 +452,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string instanceName = properties->getProperty("IceGrid.InstanceName");
     if(instanceName.empty())
     {
-        instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+        instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if(instanceName.empty())
     {

@@ -473,14 +473,14 @@ class JavaCompatPropertyHandler(JavaPropertyHandler):
         JavaPropertyHandler.__init__(self, inputfile, c)
 
     def startFiles(self):
-        self.srcFile = file(self.className + ".java", "wb")
+        self.srcFile = file(self.className + "-compat.java", "wb")
         self.srcFile.write(javaCompatPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def moveFiles(self, location):
         dest = os.path.join(location, "java-compat", "src", "Ice", "src", "main", "java", "IceInternal")
         if os.path.exists(os.path.join(dest, self.className + ".java")):
             os.remove(os.path.join(dest, self.className + ".java"))
-        shutil.move(self.className + ".java", dest)
+        shutil.move(self.className + "-compat.java", os.path.join(dest, self.className + ".java"))
 
 
 class CSPropertyHandler(PropertyHandler):

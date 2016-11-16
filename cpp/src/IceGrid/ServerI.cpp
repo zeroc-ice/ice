@@ -328,15 +328,7 @@ private:
         {
             assert(_p->first.find("config_") == 0);
             const string service = _p->first.substr(7);
-            bool useSharedCommunicator = false;
-            for (PropertyDescriptorSeq::const_iterator d = _properties.at("config").begin(); d != _properties.at("config").end(); ++d)
-            {
-                if (d->name == "IceBox.UseSharedCommunicator." + service)
-                {
-                   useSharedCommunicator = (atoi(d->value.c_str()) > 0);
-                }
-            }
-            if (useSharedCommunicator)
+            if(getPropertyAsInt(_properties.at("config"), "IceBox.UseSharedCommunicator." + service) > 0)
             {
                 facet = "IceBox.SharedCommunicator.Properties";
             }
