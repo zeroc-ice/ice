@@ -3,12 +3,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <IceVersion>3.7a3</IceVersion>
-        <IceIntVersion>30753</IceIntVersion>
-        <IceVersionMM>3.7</IceVersionMM>
-        <IceSoVersion>37a3</IceSoVersion>
-        <IceNugetPackageVersion>3.7.53.0</IceNugetPackageVersion>
-        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceV140Package>$(MSBuildThisFileDirectory)zeroc.ice.props</IceV140Package>
     </PropertyGroup>
 

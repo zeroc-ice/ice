@@ -222,8 +222,6 @@
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
     <Copy SourceFiles="zeroc.ice.props"
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.props" />
-    <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
-          DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\native" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
   </Target>
@@ -311,8 +309,6 @@
           DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.props" />
     <Copy SourceFiles="zeroc.ice.uwp.props"
           DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.uwp.props" />
-    <Copy SourceFiles="zeroc.ice.uwp.targets"
-          DestinationFolder="zeroc.ice.uwp\build\native" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp"/>
   </Target>
