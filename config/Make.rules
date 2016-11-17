@@ -95,14 +95,14 @@ endif
 
 srcdir 			?= $(call mappingdir,$(or $1,$(currentdir)),src)
 
-usr_dir_install		:= $(filter /usr%,$(prefix))
+usr_dir_install		:= $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
 install_bindir	  	?= $(prefix)/bin
 install_libdir	  	?= $(prefix)/lib
-install_slicedir 	?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version))/slice
+install_slicedir 	?= $(prefix)$(if $(usr_dir_install),/share/ice)/slice
 install_includedir	?= $(prefix)/include
-install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version))
+install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/ice)
 install_mandir		?= $(prefix)$(if $(usr_dir_install),/share)/man
-install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version),/config)
+install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
 
 version     		= 3.7a3
 mmversion		= 3.7

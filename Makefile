@@ -39,12 +39,15 @@ $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir
 	install-doc,"Installing documentation files"))
 
 #
-# Create a symlink for the slice directory
+# Create a symlink for the slice directory. We skip this step on macOS
 #
 ifneq ($(usr_dir_install),)
+ifeq ($(filter Darwin,$(os)),)
+
 install-slice:: $(DESTDIR)$(prefix)/share/slice
 
 $(DESTDIR)$(prefix)/share/slice:
 	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/share
-	$(Q)ln -s Ice-$(version)/slice $(DESTDIR)$(prefix)/share/slice
+	$(Q)ln -s ice/slice $(DESTDIR)$(prefix)/share/slice
+endif
 endif
