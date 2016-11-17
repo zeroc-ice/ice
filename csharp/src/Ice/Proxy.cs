@@ -2401,7 +2401,7 @@ namespace Ice
 
         public void iceWrite(OutputStream os)
         {
-            _reference.getIdentity().iceWrite(os);
+            _reference.getIdentity().ice_writeMembers(os);
             _reference.streamWrite(os);
         }
 

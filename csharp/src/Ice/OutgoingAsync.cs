@@ -695,7 +695,7 @@ namespace IceInternal
 
             Reference rf = proxy_.iceReference();
 
-            rf.getIdentity().iceWrite(os_);
+            rf.getIdentity().ice_writeMembers(os_);
 
             //
             // For compatibility with the old FacetPath.
@@ -786,7 +786,7 @@ namespace IceInternal
                     case ReplyStatus.replyOperationNotExist:
                     {
                         Ice.Identity ident = new Ice.Identity();
-                        ident.iceRead(is_);
+                        ident.ice_readMembers(is_);
 
                         //
                         // For compatibility with the old FacetPath.

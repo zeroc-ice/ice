@@ -688,22 +688,22 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                out << nl << typeToString(st) << ".write(" << stream << ", " << param << ");";
+                out << nl << typeToString(st) << ".ice_write(" << stream << ", " << param << ");";
             }
             else
             {
-                out << nl << param << ".iceWrite(" << stream << ");";
+                out << nl << param << ".ice_writeMembers(" << stream << ");";
             }
         }
         else
         {
             if(!isValueType(st))
             {
-                out << nl << param << " = " << typeToString(type) << ".read(" << stream << ");";
+                out << nl << param << " = " << typeToString(type) << ".ice_read(" << stream << ");";
             }
             else
             {
-                out << nl << param << ".iceRead(" << stream << ");";
+                out << nl << param << ".ice_readMembers(" << stream << ");";
             }
         }
         return;
@@ -1542,7 +1542,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 }
             }
             call += ".";
-            call += "iceWrite";
+            call += "ice_writeMembers";
             call += "(" + stream + ");";
             out << nl << call;
             out << eb;
@@ -1587,12 +1587,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << v << "[ix] = new " << typeS << "();";
                 }
-                out << nl << v << "[ix].iceRead(" << stream << ");";
+                out << nl << v << "[ix].ice_readMembers(" << stream << ");";
             }
             else
             {
                 out << nl << typeS << " val = new " << typeS << "();";
-                out << nl << "val.iceRead(" << stream << ");";
+                out << nl << "val.ice_readMembers(" << stream << ");";
                 out << nl << param << "." << addMethod << "(val);";
             }
             out << eb;

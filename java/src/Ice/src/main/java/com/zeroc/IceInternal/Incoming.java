@@ -114,7 +114,7 @@ final public class Incoming implements com.zeroc.Ice.Request
         //
         // Read the current.
         //
-        _current.id.read(_is);
+        _current.id.ice_readMembers(_is);
 
         //
         // For compatibility with the old FacetPath.
@@ -617,7 +617,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 {
                     assert(false);
                 }
-                ex.id.write(_os);
+                ex.id.ice_writeMembers(_os);
 
                 //
                 // For compatibility with the old FacetPath.

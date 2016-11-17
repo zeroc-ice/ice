@@ -3320,7 +3320,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
+        out << sp << nl << "public void ice_writeMembers(com.zeroc.Ice.OutputStream ostr)";
         out << sb;
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -3331,7 +3331,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         DataMemberList classMembers = p->classDataMembers();
 
-        out << sp << nl << "public void read(com.zeroc.Ice.InputStream istr)";
+        out << sp << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
         out << sb;
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -3340,25 +3340,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "static public void write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
+        out << sp << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
-        out << nl << "_nullMarshalValue.write(ostr);";
+        out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "v.write(ostr);";
+        out << nl << "v.ice_writeMembers(ostr);";
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << " read(com.zeroc.Ice.InputStream istr, " << name << " v)";
+        out << sp << nl << "static public " << name << " ice_read(com.zeroc.Ice.InputStream istr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
         out << nl << " v = new " << name << "();";
         out << eb;
-        out << nl << "v.read(istr);";
+        out << nl << "v.ice_readMembers(istr);";
         out << nl << "return v;";
         out << eb;
 
@@ -3821,12 +3821,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
+        out << sp << nl << "public void ice_write(com.zeroc.Ice.OutputStream ostr)";
         out << sb;
         out << nl << "ostr.writeEnum(_value, " << p->maxValue() << ");";
         out << eb;
 
-        out << sp << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
+        out << sp << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
@@ -3839,7 +3839,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "public static " << name << " read(com.zeroc.Ice.InputStream istr)";
+        out << sp << nl << "public static " << name << " ice_read(com.zeroc.Ice.InputStream istr)";
         out << sb;
         out << nl << "int v = istr.readEnum(" << p->maxValue() << ");";
         out << nl << "return validate(v);";

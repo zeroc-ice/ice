@@ -57,7 +57,7 @@ namespace IceInternal
         public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
-            ident.iceRead(s);
+            ident.ice_readMembers(s);
 
             Reference r = _instance.referenceFactory().create(ident, s);
             return referenceToProxy(r);

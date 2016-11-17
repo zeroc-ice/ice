@@ -345,7 +345,7 @@ class IncomingBase
                 {
                     assert(false);
                 }
-                ex.id.write(_os);
+                ex.id.ice_writeMembers(_os);
 
                 //
                 // For compatibility with the old FacetPath.

@@ -438,7 +438,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     @Override
     public void _write(OutputStream os)
     {
-        _reference.getIdentity().write(os);
+        _reference.getIdentity().ice_writeMembers(os);
         _reference.streamWrite(os);
     }
 

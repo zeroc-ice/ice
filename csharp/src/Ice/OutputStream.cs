@@ -343,7 +343,7 @@ namespace Ice
             _encapsStack.start = _buf.b.position();
 
             writeInt(0); // Placeholder for the encapsulation length.
-            _encapsStack.encoding.iceWrite(this);
+            _encapsStack.encoding.ice_writeMembers(this);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Ice
         {
             Protocol.checkSupportedEncoding(encoding);
             writeInt(6); // Size
-            encoding.iceWrite(this);
+            encoding.ice_writeMembers(this);
         }
 
         /// <summary>
@@ -1972,7 +1972,7 @@ namespace Ice
             else
             {
                 Identity ident = new Identity();
-                ident.iceWrite(this);
+                ident.ice_writeMembers(this);
             }
         }
 

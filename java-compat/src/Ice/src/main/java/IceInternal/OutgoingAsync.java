@@ -72,7 +72,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
 
         Reference ref = _proxy._getReference();
 
-        ref.getIdentity().write(_os);
+        ref.getIdentity().ice_writeMembers(_os);
 
         //
         // For compatibility with the old FacetPath.
@@ -233,7 +233,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             case ReplyStatus.replyOperationNotExist:
             {
                 Ice.Identity id = new Ice.Identity();
-                id.read(_is);
+                id.ice_readMembers(_is);
 
                 //
                 // For compatibility with the old FacetPath.

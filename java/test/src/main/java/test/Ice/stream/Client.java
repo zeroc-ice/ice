@@ -230,10 +230,10 @@ public class Client extends test.Util.Application
 
         {
             out = new OutputStream(comm);
-            MyEnum.write(out, MyEnum.enum3);
+            MyEnum.ice_write(out, MyEnum.enum3);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            test(MyEnum.read(in) == MyEnum.enum3);
+            test(MyEnum.ice_read(in) == MyEnum.enum3);
         }
 
         {
@@ -249,10 +249,10 @@ public class Client extends test.Util.Application
             s.str = "7";
             s.e = MyEnum.enum2;
             s.p = comm.stringToProxy("test:default");
-            SmallStruct.write(out, s);
+            SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            SmallStruct s2 = SmallStruct.read(in, null);
+            SmallStruct s2 = SmallStruct.ice_read(in, null);
             test(s2.equals(s));
         }
 

@@ -269,9 +269,9 @@ public class AllTests : TestCommon.TestApp
             s.str = "7";
             s.e = MyEnum.enum2;
             s.p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            SmallStruct.write(outS, s);
+            SmallStruct.ice_write(outS, s);
             var data = outS.finished();
-            var s2 = SmallStruct.read(new Ice.InputStream(communicator, data));
+            var s2 = SmallStruct.ice_read(new Ice.InputStream(communicator, data));
             test(s2.Equals(s));
         }
 

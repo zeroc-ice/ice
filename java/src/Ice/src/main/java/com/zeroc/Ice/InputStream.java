@@ -585,7 +585,7 @@ public class InputStream
         }
         _encapsStack.sz = sz;
 
-        EncodingVersion encoding = EncodingVersion.read(this, null);
+        EncodingVersion encoding = EncodingVersion.ice_read(this, null);
         Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
         _encapsStack.setEncoding(encoding);
 
@@ -654,7 +654,7 @@ public class InputStream
             throw new UnmarshalOutOfBoundsException();
         }
 
-        EncodingVersion encoding = EncodingVersion.read(this, null);
+        EncodingVersion encoding = EncodingVersion.ice_read(this, null);
         if(encoding.equals(Util.Encoding_1_0))
         {
             if(sz != 6)
@@ -695,7 +695,7 @@ public class InputStream
 
         if(encoding != null)
         {
-            encoding.read(this);
+            encoding.ice_readMembers(this);
             _buf.b.position(_buf.b.position() - 6);
         }
         else
@@ -748,7 +748,7 @@ public class InputStream
         {
             throw new UnmarshalOutOfBoundsException();
         }
-        EncodingVersion encoding = EncodingVersion.read(this, null);
+        EncodingVersion encoding = EncodingVersion.ice_read(this, null);
         try
         {
             _buf.b.position(_buf.b.position() + sz - 6);

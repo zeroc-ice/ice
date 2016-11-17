@@ -183,7 +183,7 @@ namespace IceInternal
                 }
 
                 Ice.Identity identity = new Ice.Identity();
-                identity.iceRead(str);
+                identity.ice_readMembers(str);
                 s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
 
                 string[] facet = str.readStringSeq();

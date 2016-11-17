@@ -386,7 +386,7 @@ public class OutputStream
         _encapsStack.start = _buf.size();
 
         writeInt(0); // Placeholder for the encapsulation length.
-        _encapsStack.encoding.write(this);
+        _encapsStack.encoding.ice_writeMembers(this);
     }
 
     /**
@@ -417,7 +417,7 @@ public class OutputStream
     {
         IceInternal.Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
-        encoding.write(this);
+        encoding.ice_writeMembers(this);
     }
 
     /**
@@ -1578,7 +1578,7 @@ public class OutputStream
         else
         {
             Identity ident = new Identity();
-            ident.write(this);
+            ident.ice_writeMembers(this);
         }
     }
 

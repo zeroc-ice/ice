@@ -3689,7 +3689,7 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void" << nl << "write(Ice.OutputStream ostr)";
+        out << sp << nl << "public void" << nl << "ice_writeMembers(Ice.OutputStream ostr)";
         out << sb;
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -3705,7 +3705,7 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
             writePatcher(out, package, classMembers, DataMemberList());
         }
 
-        out << sp << nl << "public void" << nl << "read(Ice.InputStream istr)";
+        out << sp << nl << "public void" << nl << "ice_readMembers(Ice.InputStream istr)";
         out << sb;
         iter = 0;
         int patchIter = 0;
@@ -3716,25 +3716,25 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "static public void" << nl << "write(Ice.OutputStream ostr, " << name << " v)";
+        out << sp << nl << "static public void" << nl << "ice_write(Ice.OutputStream ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
-        out << nl << "_nullMarshalValue.write(ostr);";
+        out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "v.write(ostr);";
+        out << nl << "v.ice_writeMembers(ostr);";
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << nl << "read(Ice.InputStream istr, " << name << " v)";
+        out << sp << nl << "static public " << name << nl << "ice_read(Ice.InputStream istr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
         out << nl << " v = new " << name << "();";
         out << eb;
-        out << nl << "v.read(istr);";
+        out << nl << "v.ice_readMembers(istr);";
         out << nl << "return v;";
         out << eb;
 
@@ -4104,12 +4104,12 @@ Slice::GenCompat::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void write(Ice.OutputStream ostr)";
+        out << sp << nl << "public void ice_write(Ice.OutputStream ostr)";
         out << sb;
         out << nl << "ostr.writeEnum(_value, " << p->maxValue() << ");";
         out << eb;
 
-        out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << " v)";
+        out << sp << nl << "public static void ice_write(Ice.OutputStream ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
         out << sb;
@@ -4122,7 +4122,7 @@ Slice::GenCompat::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
+        out << sp << nl << "public static " << name << " ice_read(Ice.InputStream istr)";
         out << sb;
         out << nl << "int v = istr.readEnum(" << p->maxValue() << ");";
         out << nl << "return validate(v);";

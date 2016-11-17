@@ -1071,10 +1071,10 @@ namespace Ice
                                 }
 
                                 ProtocolVersion pv  = new ProtocolVersion();
-                                pv.iceRead(_readStream);
+                                pv.ice_readMembers(_readStream);
                                 IceInternal.Protocol.checkSupportedProtocol(pv);
                                 EncodingVersion ev = new EncodingVersion();
-                                ev.iceRead(_readStream);
+                                ev.ice_readMembers(_readStream);
                                 IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
 
                                 _readStream.readByte(); // messageType
@@ -1949,8 +1949,8 @@ namespace Ice
                 //
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
-                Ice.Util.currentProtocol.iceWrite(os);
-                Ice.Util.currentProtocolEncoding.iceWrite(os);
+                Ice.Util.currentProtocol.ice_writeMembers(os);
+                Ice.Util.currentProtocolEncoding.ice_writeMembers(os);
                 os.writeByte(IceInternal.Protocol.closeConnectionMsg);
                 os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1981,8 +1981,8 @@ namespace Ice
             {
                 OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
-                Ice.Util.currentProtocol.iceWrite(os);
-                Ice.Util.currentProtocolEncoding.iceWrite(os);
+                Ice.Util.currentProtocol.ice_writeMembers(os);
+                Ice.Util.currentProtocolEncoding.ice_writeMembers(os);
                 os.writeByte(IceInternal.Protocol.validateConnectionMsg);
                 os.writeByte((byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2027,8 +2027,8 @@ namespace Ice
                     if(_writeStream.size() == 0)
                     {
                         _writeStream.writeBlob(IceInternal.Protocol.magic);
-                        Ice.Util.currentProtocol.iceWrite(_writeStream);
-                        Ice.Util.currentProtocolEncoding.iceWrite(_writeStream);
+                        Ice.Util.currentProtocol.ice_writeMembers(_writeStream);
+                        Ice.Util.currentProtocolEncoding.ice_writeMembers(_writeStream);
                         _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                         _writeStream.writeByte((byte)0); // Compression status (always zero for validate connection).
                         _writeStream.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2098,11 +2098,11 @@ namespace Ice
                     }
 
                     ProtocolVersion pv  = new ProtocolVersion();
-                    pv.iceRead(_readStream);
+                    pv.ice_readMembers(_readStream);
                     IceInternal.Protocol.checkSupportedProtocol(pv);
 
                     EncodingVersion ev = new EncodingVersion();
-                    ev.iceRead(_readStream);
+                    ev.ice_readMembers(_readStream);
                     IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
 
                     byte messageType = _readStream.readByte();

@@ -558,7 +558,7 @@ namespace Ice
             _encapsStack.sz = sz;
 
             EncodingVersion encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.ice_readMembers(this);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
             _encapsStack.setEncoding(encoding);
 
@@ -627,7 +627,7 @@ namespace Ice
             }
 
             var encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.ice_readMembers(this);
             if(encoding.Equals(Util.Encoding_1_0))
             {
                 if(sz != 6)
@@ -664,7 +664,7 @@ namespace Ice
             }
 
             encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.ice_readMembers(this);
             _buf.b.position(_buf.b.position() - 6);
 
             byte[] v = new byte[sz];
@@ -710,7 +710,7 @@ namespace Ice
                 throw new UnmarshalOutOfBoundsException();
             }
             EncodingVersion encoding = new EncodingVersion();
-            encoding.iceRead(this);
+            encoding.ice_readMembers(this);
             try
             {
                 _buf.b.position(_buf.b.position() + sz - 6);

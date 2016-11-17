@@ -887,10 +887,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                             throw ex;
                         }
 
-                        _readProtocol.read(_readStream);
+                        _readProtocol.ice_readMembers(_readStream);
                         IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                        _readProtocolEncoding.read(_readStream);
+                        _readProtocolEncoding.ice_readMembers(_readStream);
                         IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                         _readStream.readByte(); // messageType
@@ -1885,8 +1885,8 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.write(os);
-            IceInternal.Protocol.currentProtocolEncoding.write(os);
+            IceInternal.Protocol.currentProtocol.ice_writeMembers(os);
+            IceInternal.Protocol.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(IceInternal.Protocol.closeConnectionMsg);
             os.writeByte((byte) 0); // compression status: always report 0 for
                                     // CloseConnection in Java.
@@ -1918,8 +1918,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.write(os);
-            IceInternal.Protocol.currentProtocolEncoding.write(os);
+            IceInternal.Protocol.currentProtocol.ice_writeMembers(os);
+            IceInternal.Protocol.currentProtocolEncoding.ice_writeMembers(os);
             os.writeByte(IceInternal.Protocol.validateConnectionMsg);
             os.writeByte((byte) 0);
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1969,8 +1969,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                 if(_writeStream.isEmpty())
                 {
                     _writeStream.writeBlob(IceInternal.Protocol.magic);
-                    IceInternal.Protocol.currentProtocol.write(_writeStream);
-                    IceInternal.Protocol.currentProtocolEncoding.write(_writeStream);
+                    IceInternal.Protocol.currentProtocol.ice_writeMembers(_writeStream);
+                    IceInternal.Protocol.currentProtocolEncoding.ice_writeMembers(_writeStream);
                     _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                     _writeStream.writeByte((byte) 0); // Compression status
                                                       // (always zero for
@@ -2043,10 +2043,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                     throw ex;
                 }
 
-                _readProtocol.read(_readStream);
+                _readProtocol.ice_readMembers(_readStream);
                 IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                _readProtocolEncoding.read(_readStream);
+                _readProtocolEncoding.ice_readMembers(_readStream);
                 IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                 byte messageType = _readStream.readByte();

@@ -1021,7 +1021,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(1);
-            p1.Value.iceWrite(os);
+            p1.Value.ice_writeMembers(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSmallStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1030,11 +1030,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.SmallStruct f = new Test.SmallStruct();
-            f.iceRead(@in);
+            f.ice_readMembers(@in);
             test(f.m == (byte)56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.iceRead(@in);
+            f.ice_readMembers(@in);
             test(f.m == (byte)56);
             @in.endEncapsulation();
 
@@ -1070,7 +1070,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(4);
-            p1.Value.iceWrite(os);
+            p1.Value.ice_writeMembers(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFixedStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1079,11 +1079,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.FixedStruct f = new Test.FixedStruct();
-            f.iceRead(@in);
+            f.ice_readMembers(@in);
             test(f.m == 56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.iceRead(@in);
+            f.ice_readMembers(@in);
             test(f.m == 56);
             @in.endEncapsulation();
 
@@ -1124,7 +1124,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
-            p1.Value.iceWrite(os);
+            p1.Value.ice_writeMembers(os);
             os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
@@ -1134,11 +1134,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
             Test.VarStruct v = new Test.VarStruct();
-            v.iceRead(@in);
+            v.ice_readMembers(@in);
             test(v.m.Equals("test"));
             test(@in.readOptional(3, Ice.OptionalFormat.FSize));
             @in.skip(4);
-            v.iceRead(@in);
+            v.ice_readMembers(@in);
             test(v.m.Equals("test"));
             @in.endEncapsulation();
 

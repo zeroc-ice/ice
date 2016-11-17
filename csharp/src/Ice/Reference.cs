@@ -269,8 +269,8 @@ namespace IceInternal
 
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                _protocol.iceWrite(s);
-                _encoding.iceWrite(s);
+                _protocol.ice_writeMembers(s);
+                _encoding.ice_writeMembers(s);
             }
 
             // Derived class writes the remainder of the reference.

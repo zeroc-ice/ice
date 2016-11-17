@@ -110,7 +110,7 @@ namespace IceInternal
             //
             // Read the current.
             //
-            _current.id.iceRead(_is);
+            _current.id.ice_readMembers(_is);
 
             //
             // For compatibility with the old FacetPath.
@@ -605,7 +605,7 @@ namespace IceInternal
                     {
                         Debug.Assert(false);
                     }
-                    ex.id.iceWrite(_os);
+                    ex.id.ice_writeMembers(_os);
 
                     //
                     // For compatibility with the old FacetPath.

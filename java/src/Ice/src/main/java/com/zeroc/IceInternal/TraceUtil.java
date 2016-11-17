@@ -174,7 +174,7 @@ public final class TraceUtil
                 toStringMode = stream.instance().toStringMode();
             }
 
-            com.zeroc.Ice.Identity identity = com.zeroc.Ice.Identity.read(stream, null);
+            com.zeroc.Ice.Identity identity = com.zeroc.Ice.Identity.ice_read(stream, null);
             out.write("\nidentity = " + com.zeroc.Ice.Util.identityToString(identity, toStringMode));
 
             String[] facet = stream.readStringSeq();

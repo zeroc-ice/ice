@@ -593,9 +593,9 @@ namespace IceInternal
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new Ice.ProtocolVersion();
-                protocol.iceRead(s);
+                protocol.ice_readMembers(s);
                 encoding = new Ice.EncodingVersion();
-                encoding.iceRead(s);
+                encoding.ice_readMembers(s);
             }
             else
             {

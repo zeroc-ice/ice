@@ -101,7 +101,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         //
         // Read the current.
         //
-        _current.id.read(_is);
+        _current.id.ice_readMembers(_is);
 
         //
         // For compatibility with the old FacetPath.

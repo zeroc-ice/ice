@@ -2545,7 +2545,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     public void _write(OutputStream os)
     {
-        _reference.getIdentity().write(os);
+        _reference.getIdentity().ice_writeMembers(os);
         _reference.streamWrite(os);
     }
 

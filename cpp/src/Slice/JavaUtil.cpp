@@ -1783,13 +1783,13 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(st->isVariableLength())
                 {
                     out << nl << "int pos = " <<  stream << ".startSize();";
-                    out << nl << typeS << ".write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                     out << nl << stream << ".endSize(pos);";
                 }
                 else
                 {
                     out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
-                    out << nl << typeS << ".write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                 }
                 if(optionalParam)
                 {
@@ -1798,7 +1798,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << typeS << ".write(" << stream << ", " << v << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
             }
         }
         else
@@ -1818,7 +1818,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
 
                 out << nl << typeS << " tmpOpt = new " << typeS << "();";
-                out << nl << "tmpOpt.read(" << stream << ");";
+                out << nl << "tmpOpt.ice_readMembers(" << stream << ");";
                 out << nl << v << ".set(tmpOpt);";
 
                 out << eb;
@@ -1841,11 +1841,11 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".skipSize();";
                 }
-                out << nl << v << " = " << typeS << ".read(" << stream << ", " << v << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
             }
             else
             {
-                out << nl << v << " = " << typeS << ".read(" << stream << ", " << v << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ", " << v << ");";
             }
         }
         return;
@@ -1864,20 +1864,20 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOptional("
                         << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".write(" << stream << ", " << v << ".get());";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ".get());";
                     out << eb;
                 }
                 else
                 {
                     out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".write(" << stream << ", " << v << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
                     out << eb;
                 }
             }
             else
             {
-                out << nl << typeS << ".write(" << stream << ", " << v << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
             }
         }
         else
@@ -1886,7 +1886,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
-                out << nl << v << ".set(" << typeS << ".read(" << stream << "));";
+                out << nl << v << ".set(" << typeS << ".ice_read(" << stream << "));";
                 out << eb;
                 if(mode == OptionalOutParam)
                 {
@@ -1898,7 +1898,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = " << typeS << ".read(" << stream << ");";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
             }
         }
         return;
@@ -4140,13 +4140,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(st->isVariableLength())
                 {
                     out << nl << "int pos = " <<  stream << ".startSize();";
-                    out << nl << typeS << ".write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                     out << nl << stream << ".endSize(pos);";
                 }
                 else
                 {
                     out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
-                    out << nl << typeS << ".write(" << stream << ", " << val << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << val << ");";
                 }
                 if(optionalParam)
                 {
@@ -4155,7 +4155,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << typeS << ".write(" << stream << ", " << param << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << param << ");";
             }
         }
         else
@@ -4174,7 +4174,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << stream << ".skipSize();";
                 }
 
-                out << nl << param << " = java.util.Optional.of(" << typeS << ".read(" << stream
+                out << nl << param << " = java.util.Optional.of(" << typeS << ".ice_read(" << stream
                     << ", null));";
 
                 out << eb;
@@ -4193,11 +4193,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".skipSize();";
                 }
-                out << nl << param << " = " << typeS << ".read(" << stream << ", " << param << ");";
+                out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << param << ");";
             }
             else
             {
-                out << nl << param << " = " << typeS << ".read(" << stream << ", " << param << ");";
+                out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << param << ");";
             }
         }
         return;
@@ -4216,20 +4216,20 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << "if(" << param << " != null && " << param << ".isPresent() && " << stream
                         << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".write(" << stream << ", " << param << ".get());";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << param << ".get());";
                     out << eb;
                 }
                 else
                 {
                     out << nl << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
-                    out << nl << typeS << ".write(" << stream << ", " << param << ");";
+                    out << nl << typeS << ".ice_write(" << stream << ", " << param << ");";
                     out << eb;
                 }
             }
             else
             {
-                out << nl << typeS << ".write(" << stream << ", " << param << ");";
+                out << nl << typeS << ".ice_write(" << stream << ", " << param << ");";
             }
         }
         else
@@ -4238,7 +4238,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
-                out << nl << param << " = java.util.Optional.of(" << typeS << ".read(" << stream << "));";
+                out << nl << param << " = java.util.Optional.of(" << typeS << ".ice_read(" << stream << "));";
                 out << eb;
                 out << nl << "else";
                 out << sb;
@@ -4247,7 +4247,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << param << " = " << typeS << ".read(" << stream << ");";
+                out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
             }
         }
         return;

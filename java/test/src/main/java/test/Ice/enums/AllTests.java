@@ -127,22 +127,22 @@ public class AllTests
             communicator.getProperties().getProperty("Ice.Default.EncodingVersion").equals("1.0");
 
         os = new com.zeroc.Ice.OutputStream(communicator);
-        ByteEnum.write(os, ByteEnum.benum11);
+        ByteEnum.ice_write(os, ByteEnum.benum11);
         bytes = os.finished();
         test(bytes.length == 1); // ByteEnum should require one byte
 
         os = new com.zeroc.Ice.OutputStream(communicator);
-        ShortEnum.write(os, ShortEnum.senum11);
+        ShortEnum.ice_write(os, ShortEnum.senum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 2 : 5));
 
         os = new com.zeroc.Ice.OutputStream(communicator);
-        IntEnum.write(os, IntEnum.ienum11);
+        IntEnum.ice_write(os, IntEnum.ienum11);
         bytes = os.finished();
         test(bytes.length == (encoding_1_0 ? 4 : 5));
 
         os = new com.zeroc.Ice.OutputStream(communicator);
-        SimpleEnum.write(os, SimpleEnum.blue);
+        SimpleEnum.ice_write(os, SimpleEnum.blue);
         bytes = os.finished();
         test(bytes.length == 1); // SimpleEnum should require one byte
 
@@ -252,7 +252,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeByte((byte)2); // Invalid enumerator
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            ByteEnum.read(in);
+            ByteEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -264,7 +264,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeByte((byte)128); // Invalid enumerator
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            ByteEnum.read(in);
+            ByteEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -276,7 +276,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)-1); // Negative enumerators are not supported
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            ShortEnum.read(in);
+            ShortEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -288,7 +288,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)0); // Invalid enumerator
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            ShortEnum.read(in);
+            ShortEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -300,7 +300,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeShort((short)32767); // Invalid enumerator
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            ShortEnum.read(in);
+            ShortEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -312,7 +312,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeInt(-1); // Negative enumerators are not supported
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            IntEnum.read(in);
+            IntEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
@@ -324,7 +324,7 @@ public class AllTests
             os = new com.zeroc.Ice.OutputStream(communicator);
             os.writeInt(2); // Invalid enumerator
             com.zeroc.Ice.InputStream in = new com.zeroc.Ice.InputStream(communicator, os.finished());
-            IntEnum.read(in);
+            IntEnum.ice_read(in);
             test(false);
         }
         catch(com.zeroc.Ice.MarshalException ex)
