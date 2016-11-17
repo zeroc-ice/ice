@@ -25,7 +25,7 @@ public final class LocatorInfo
             EndpointI[] endpoints = null;
             if(proxy != null)
             {
-                Reference r = ((com.zeroc.Ice._ObjectPrxI)proxy).__reference();
+                Reference r = ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference();
                 if(_ref.isWellKnown() && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding()))
                 {
                     //
@@ -644,7 +644,7 @@ public final class LocatorInfo
     finishRequest(Reference ref, java.util.List<Reference> wellKnownRefs, com.zeroc.Ice.ObjectPrx proxy,
                   boolean notRegistered)
     {
-        if(proxy == null || ((com.zeroc.Ice._ObjectPrxI)proxy).__reference().isIndirect())
+        if(proxy == null || ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
         {
             //
             // Remove the cached references of well-known objects for which we tried
@@ -658,11 +658,11 @@ public final class LocatorInfo
 
         if(!ref.isWellKnown())
         {
-            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy).__reference().isIndirect())
+            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isIndirect())
             {
                 // Cache the adapter endpoints.
                 _table.addAdapterEndpoints(ref.getAdapterId(),
-                                           ((com.zeroc.Ice._ObjectPrxI)proxy).__reference().getEndpoints());
+                                           ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getEndpoints());
             }
             else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
             {
@@ -677,10 +677,10 @@ public final class LocatorInfo
         }
         else
         {
-            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy).__reference().isWellKnown())
+            if(proxy != null && !((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().isWellKnown())
             {
                 // Cache the well-known object reference.
-                _table.addObjectReference(ref.getIdentity(), ((com.zeroc.Ice._ObjectPrxI)proxy).__reference());
+                _table.addObjectReference(ref.getIdentity(), ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference());
             }
             else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
             {

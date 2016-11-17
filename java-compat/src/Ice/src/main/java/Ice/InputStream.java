@@ -581,7 +581,7 @@ public class InputStream
         _encapsStack.sz = sz;
 
         EncodingVersion encoding = new EncodingVersion();
-        encoding.__read(this);
+        encoding.read(this);
         IceInternal.Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
         _encapsStack.setEncoding(encoding);
 
@@ -691,7 +691,7 @@ public class InputStream
 
         if(encoding != null)
         {
-            encoding.__read(this);
+            encoding.read(this);
             _buf.b.position(_buf.b.position() - 6);
         }
         else
@@ -745,7 +745,7 @@ public class InputStream
             throw new UnmarshalOutOfBoundsException();
         }
         EncodingVersion encoding = new EncodingVersion();
-        encoding.__read(this);
+        encoding.read(this);
         try
         {
             _buf.b.position(_buf.b.position() + sz - 6);
@@ -2321,7 +2321,7 @@ public class InputStream
             //
             // Read the instance.
             //
-            v.__read(_stream);
+            v._iceRead(_stream);
 
             if(_patchMap != null)
             {
@@ -2495,7 +2495,7 @@ public class InputStream
                 //
                 if(userEx != null)
                 {
-                    userEx.__read(_stream);
+                    userEx._read(_stream);
                     if(usesClasses)
                     {
                         readPendingValues();
@@ -2800,7 +2800,7 @@ public class InputStream
                 //
                 if(userEx != null)
                 {
-                    userEx.__read(_stream);
+                    userEx._read(_stream);
                     throw userEx;
 
                     // Never reached.

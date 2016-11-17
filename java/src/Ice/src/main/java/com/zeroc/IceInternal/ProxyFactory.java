@@ -26,7 +26,7 @@ public final class ProxyFactory
         if(proxy != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)proxy;
-            return h.__reference().toString();
+            return h._getReference().toString();
         }
         else
         {
@@ -48,7 +48,7 @@ public final class ProxyFactory
         if(proxy != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)proxy;
-            return h.__reference().toProperty(prefix);
+            return h._getReference().toProperty(prefix);
         }
         else
         {
@@ -71,7 +71,7 @@ public final class ProxyFactory
         if(ref != null)
         {
             com.zeroc.Ice._ObjectPrxI proxy = new com.zeroc.Ice._ObjectPrxI();
-            proxy.__setup(ref);
+            proxy._setup(ref);
             return proxy;
         }
         else

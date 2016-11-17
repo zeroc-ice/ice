@@ -18,15 +18,15 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
     }
 
     @Override
-    protected boolean __needCallback()
+    protected boolean needCallback()
     {
         return true;
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
-        super.__completed();
+        super.markCompleted();
 
         if(_exception != null)
         {
@@ -72,7 +72,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
         invokeImpl(true); // userThread = true
     }
 
-    public com.zeroc.Ice.Connection __wait()
+    public com.zeroc.Ice.Connection waitForResponse()
     {
         if(Thread.interrupted())
         {

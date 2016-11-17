@@ -27,18 +27,18 @@ public abstract class Functional_TwowayCallback extends IceInternal.Functional_C
     @Override
     public void exception(Ice.SystemException ex)
     {
-        if(__exceptionCb != null)
+        if(_exceptionCb != null)
         {
-            __exceptionCb.apply(ex);
+            _exceptionCb.apply(ex);
         }
     }
 
     @Override
     public final void exception(Ice.LocalException ex)
     {
-        if(__exceptionCb != null)
+        if(_exceptionCb != null)
         {
-            __exceptionCb.apply(ex);
+            _exceptionCb.apply(ex);
         }
     }
 }

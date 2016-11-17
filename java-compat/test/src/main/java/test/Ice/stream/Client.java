@@ -43,7 +43,7 @@ public class Client extends test.Util.Application
         public void
         write(Ice.OutputStream out)
         {
-            obj.__write(out);
+            obj._iceWrite(out);
             called = true;
         }
 
@@ -58,7 +58,7 @@ public class Client extends test.Util.Application
         read(Ice.InputStream in)
         {
             obj = new MyClass();
-            obj.__read(in);
+            obj._iceRead(in);
             called = true;
         }
 

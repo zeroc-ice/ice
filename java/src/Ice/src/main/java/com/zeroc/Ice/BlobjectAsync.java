@@ -44,7 +44,7 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
         throws UserException;
 
     @Override
-    default CompletionStage<OutputStream> __dispatch(com.zeroc.IceInternal.Incoming in, Current current)
+    default CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException
     {
         byte[] inEncaps = in.readParamEncaps();

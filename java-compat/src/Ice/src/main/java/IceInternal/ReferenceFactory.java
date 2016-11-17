@@ -587,9 +587,9 @@ public final class ReferenceFactory
         if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.__read(s);
+            protocol.read(s);
             encoding = new Ice.EncodingVersion();
-            encoding.__read(s);
+            encoding.read(s);
         }
         else
         {
@@ -743,7 +743,7 @@ public final class ReferenceFactory
         LocatorInfo locatorInfo = null;
         if(_defaultLocator != null)
         {
-            if(!((Ice.ObjectPrxHelperBase)_defaultLocator).__reference().getEncoding().equals(encoding))
+            if(!((Ice.ObjectPrxHelperBase)_defaultLocator)._getReference().getEncoding().equals(encoding))
             {
                 locatorInfo = _instance.locatorManager().get(
                     (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
@@ -783,7 +783,7 @@ public final class ReferenceFactory
             Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
             {
-                if(!((Ice.ObjectPrxHelperBase)locator).__reference().getEncoding().equals(encoding))
+                if(!((Ice.ObjectPrxHelperBase)locator)._getReference().getEncoding().equals(encoding))
                 {
                     locatorInfo = _instance.locatorManager().get((Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
                 }

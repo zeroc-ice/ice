@@ -45,7 +45,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     	return c;
     }
 
-    public final static String[] __ids =
+    private final static String[] _ids =
     {
         "::Ice::Object"
     };
@@ -61,7 +61,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public boolean
     ice_isA(String s)
     {
-        return s.equals(__ids[0]);
+        return s.equals(_ids[0]);
     }
 
     /**
@@ -76,19 +76,19 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public boolean
     ice_isA(String s, Current current)
     {
-        return s.equals(__ids[0]);
+        return s.equals(_ids[0]);
     }
 
     public static boolean
-    ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
+    _iceD_ice_isA(Ice.Object obj, IceInternal.Incoming inS, Current current)
     {
-        InputStream __is = __inS.startReadParams();
-        String __id = __is.readString();
-        __inS.endReadParams();
-        boolean __ret = __obj.ice_isA(__id, __current);
-        OutputStream __os = __inS.startWriteParams();
-        __os.writeBool(__ret);
-        __inS.endWriteParams();
+        InputStream istr = inS.startReadParams();
+        String id = istr.readString();
+        inS.endReadParams();
+        boolean ret = obj.ice_isA(id, current);
+        OutputStream ostr = inS.startWriteParams();
+        ostr.writeBool(ret);
+        inS.endWriteParams();
         return false;
     }
 
@@ -115,11 +115,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     }
 
     public static boolean
-    ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
+    _iceD_ice_ping(Ice.Object obj, IceInternal.Incoming inS, Current current)
     {
-        __inS.readEmptyParams();
-        __obj.ice_ping(__current);
-        __inS.writeEmptyParams();
+        inS.readEmptyParams();
+        obj.ice_ping(current);
+        inS.writeEmptyParams();
         return false;
     }
 
@@ -132,7 +132,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public String[]
     ice_ids()
     {
-        return __ids;
+        return _ids;
     }
 
     /**
@@ -145,17 +145,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public String[]
     ice_ids(Current current)
     {
-        return __ids;
+        return _ids;
     }
 
     public static boolean
-    ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
+    _iceD_ice_ids(Ice.Object obj, IceInternal.Incoming inS, Current current)
     {
-        __inS.readEmptyParams();
-        String[] __ret = __obj.ice_ids(__current);
-        OutputStream __os = __inS.startWriteParams();
-        __os.writeStringSeq(__ret);
-        __inS.endWriteParams();
+        inS.readEmptyParams();
+        String[] ret = obj.ice_ids(current);
+        OutputStream ostr = inS.startWriteParams();
+        ostr.writeStringSeq(ret);
+        inS.endWriteParams();
         return false;
     }
 
@@ -168,7 +168,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public String
     ice_id()
     {
-        return __ids[0];
+        return _ids[0];
     }
 
     /**
@@ -181,17 +181,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public String
     ice_id(Current current)
     {
-        return __ids[0];
+        return _ids[0];
     }
 
     public static boolean
-    ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
+    _iceD_ice_id(Ice.Object obj, IceInternal.Incoming inS, Current current)
     {
-        __inS.readEmptyParams();
-        String __ret = __obj.ice_id(__current);
-        OutputStream __os = __inS.startWriteParams();
-        __os.writeString(__ret);
-        __inS.endWriteParams();
+        inS.readEmptyParams();
+        String ret = obj.ice_id(current);
+        OutputStream ostr = inS.startWriteParams();
+        ostr.writeString(ret);
+        inS.endWriteParams();
         return false;
     }
 
@@ -203,7 +203,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static String
     ice_staticId()
     {
-        return __ids[0];
+        return _ids[0];
     }
 
     /**
@@ -258,7 +258,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
     }
 
-    private final static String[] __all =
+    private final static String[] _all =
     {
         "ice_id",
         "ice_ids",
@@ -290,7 +290,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
             in.push(cb);
             try
             {
-                return __dispatch(in, in.getCurrent());
+                return _iceDispatch(in, in.getCurrent());
             }
             finally
             {
@@ -299,7 +299,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         }
         else
         {
-            return __dispatch(in, in.getCurrent());
+            return _iceDispatch(in, in.getCurrent());
         }
     }
 
@@ -322,10 +322,10 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws Ice.UserException
     {
-        int pos = java.util.Arrays.binarySearch(__all, current.operation);
+        int pos = java.util.Arrays.binarySearch(_all, current.operation);
         if(pos < 0)
         {
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
@@ -335,19 +335,19 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         {
             case 0:
             {
-                return ___ice_id(this, in, current);
+                return _iceD_ice_id(this, in, current);
             }
             case 1:
             {
-                return ___ice_ids(this, in, current);
+                return _iceD_ice_ids(this, in, current);
             }
             case 2:
             {
-                return ___ice_isA(this, in, current);
+                return _iceD_ice_isA(this, in, current);
             }
             case 3:
             {
-                return ___ice_ping(this, in, current);
+                return _iceD_ice_ping(this, in, current);
             }
         }
 
@@ -357,29 +357,29 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
 
     @Override
     public void
-    __write(OutputStream os)
+    _iceWrite(OutputStream os)
     {
          os.startValue(null);
-         __writeImpl(os);
+         _iceWriteImpl(os);
          os.endValue();
     }
 
     @Override
     public void
-    __read(InputStream is)
+    _iceRead(InputStream is)
     {
          is.startValue();
-         __readImpl(is);
+         _iceReadImpl(is);
          is.endValue(false);
     }
 
     protected void
-    __writeImpl(OutputStream os)
+    _iceWriteImpl(OutputStream os)
     {
     }
 
     protected void
-    __readImpl(InputStream is)
+    _iceReadImpl(InputStream is)
     {
     }
 
@@ -404,7 +404,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     }
 
     protected static void
-    __checkMode(OperationMode expected, OperationMode received)
+    _iceCheckMode(OperationMode expected, OperationMode received)
     {
         if(expected != received)
         {

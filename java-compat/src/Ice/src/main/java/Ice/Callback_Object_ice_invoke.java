@@ -29,8 +29,8 @@ public abstract class Callback_Object_ice_invoke
     public abstract void response(boolean ret, byte[] outParams);
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
-        ObjectPrxHelperBase.__ice_invoke_completed(this, __result);
+        ObjectPrxHelperBase._iceI_ice_invoke_completed(this, result);
     }
 }

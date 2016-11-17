@@ -83,28 +83,28 @@ public abstract class UserException extends java.lang.Exception implements Clone
         return sw.toString();
     }
 
-    public void __write(OutputStream os)
+    public void _write(OutputStream os)
     {
         os.startException(null);
-        __writeImpl(os);
+        _writeImpl(os);
         os.endException();
     }
 
-    public void __read(InputStream is)
+    public void _read(InputStream is)
     {
         is.startException();
-        __readImpl(is);
+        _readImpl(is);
         is.endException(false);
     }
 
-    public boolean __usesClasses()
+    public boolean _usesClasses()
     {
         return false;
     }
 
-    protected abstract void __writeImpl(OutputStream os);
+    protected abstract void _writeImpl(OutputStream os);
 
-    protected abstract void __readImpl(InputStream is);
+    protected abstract void _readImpl(InputStream is);
 
     public static final long serialVersionUID = 0L;
 }

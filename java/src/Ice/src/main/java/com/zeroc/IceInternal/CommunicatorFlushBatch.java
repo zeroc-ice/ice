@@ -28,9 +28,9 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
     }
 
     @Override
-    protected void __sent()
+    protected void markSent()
     {
-        super.__sent();
+        super.markSent();
 
         assert((_state & StateOK) != 0);
         complete(null);
@@ -48,19 +48,19 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
             }
 
             @Override
-            protected void __sent()
+            protected void markSent()
             {
                 assert(false);
             }
 
             @Override
-            protected boolean __needCallback()
+            protected boolean needCallback()
             {
                 return false;
             }
 
             @Override
-            protected void __completed()
+            protected void markCompleted()
             {
                 assert(false);
             }
@@ -145,7 +145,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         doCheck(true);
     }
 
-    public void __wait()
+    public void waitForResponse()
     {
         if(Thread.interrupted())
         {

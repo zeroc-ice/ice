@@ -84,7 +84,7 @@ public final class ValueWriter
             {
                 writeName(name, out);
                 com.zeroc.Ice._ObjectPrxI proxy = (com.zeroc.Ice._ObjectPrxI)value;
-                out.print(proxy.__reference().toString());
+                out.print(proxy._getReference().toString());
             }
             else if(value instanceof com.zeroc.Ice.Value)
             {

@@ -256,8 +256,8 @@ final class UdpEndpointI extends IPEndpointI
         super.streamWriteImpl(s);
         if(s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            Ice.Util.Protocol_1_0.__write(s);
-            Ice.Util.Encoding_1_0.__write(s);
+            Ice.Util.Protocol_1_0.write(s);
+            Ice.Util.Encoding_1_0.write(s);
         }
         // Not transmitted.
         //s.writeBool(_connect);

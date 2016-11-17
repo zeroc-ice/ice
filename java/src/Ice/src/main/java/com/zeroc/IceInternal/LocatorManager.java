@@ -58,7 +58,7 @@ public final class LocatorManager
 
         LocatorKey set(com.zeroc.Ice.LocatorPrx locator)
         {
-            Reference r = ((com.zeroc.Ice._ObjectPrxI)locator).__reference();
+            Reference r = ((com.zeroc.Ice._ObjectPrxI)locator)._getReference();
             _id = r.getIdentity();
             _encoding = r.getEncoding();
             return this;

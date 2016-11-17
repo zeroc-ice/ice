@@ -197,7 +197,7 @@ public final class RouterInfo
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).__reference().getEndpoints();
+                _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router)._getReference().getEndpoints();
             }
             else
             {
@@ -213,7 +213,7 @@ public final class RouterInfo
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                 }
 
-                _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
+                _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy)._getReference().getEndpoints();
             }
         }
         return _clientEndpoints;
@@ -228,7 +228,7 @@ public final class RouterInfo
         }
 
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).__reference().getEndpoints();
+        _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy)._getReference().getEndpoints();
         return _serverEndpoints;
     }
 

@@ -27,21 +27,21 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb)
     {
         super((Ice.ObjectPrxHelperBase)prx, operation, cb);
-        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
         _is = null;
     }
 
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb, Ice.InputStream is, Ice.OutputStream os)
     {
         super((Ice.ObjectPrxHelperBase)prx, operation, cb, os);
-        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
         _is = is;
     }
 
     public void prepare(String operation, Ice.OperationMode mode, java.util.Map<String, String> ctx,
                         boolean explicitCtx, boolean synchronous)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
 
         _mode = mode;
         _synchronous = synchronous;
@@ -52,7 +52,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
         }
         _observer = ObserverHelper.get(_proxy, operation, ctx);
 
-        switch(_proxy.__reference().getMode())
+        switch(_proxy._getReference().getMode())
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -65,14 +65,14 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                _proxy.__getBatchRequestQueue().prepareBatchRequest(_os);
+                _proxy._getBatchRequestQueue().prepareBatchRequest(_os);
                 break;
             }
         }
 
-        Reference ref = _proxy.__reference();
+        Reference ref = _proxy._getReference();
 
-        ref.getIdentity().__write(_os);
+        ref.getIdentity().write(_os);
 
         //
         // For compatibility with the old FacetPath.
@@ -135,7 +135,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
+        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -146,7 +146,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     @Override
     public void abort(Ice.Exception ex)
     {
-        int mode = _proxy.__reference().getMode();
+        int mode = _proxy._getReference().getMode();
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
         {
             //
@@ -154,7 +154,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             // must notify the connection about that we give up ownership
             // of the batch stream.
             //
-            _proxy.__getBatchRequestQueue().abortBatchRequest(_os);
+            _proxy._getBatchRequestQueue().abortBatchRequest(_os);
         }
 
         super.abort(ex);
@@ -162,14 +162,14 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
 
     public void invoke()
     {
-        int mode = _proxy.__reference().getMode();
+        int mode = _proxy._getReference().getMode();
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
         {
             //
             // NOTE: we don't call sent/completed callbacks for batch AMI requests
             //
             _sentSynchronously = true;
-            _proxy.__getBatchRequestQueue().finishBatchRequest(_os, _proxy, getOperation());
+            _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, getOperation());
             finished(true);
         }
         else
@@ -233,7 +233,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             case ReplyStatus.replyOperationNotExist:
             {
                 Ice.Identity id = new Ice.Identity();
-                id.__read(_is);
+                id.read(_is);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -408,7 +408,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
     @Override
     public void cacheMessageBuffers()
     {
-        if(_proxy.__reference().getInstance().cacheMessageBuffers() > 0)
+        if(_proxy._getReference().getInstance().cacheMessageBuffers() > 0)
         {
             synchronized(this)
             {

@@ -17,7 +17,7 @@ public abstract class Functional_TwowayCallbackShort
                                           Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     protected Functional_TwowayCallbackShort(boolean userExceptionCb,
@@ -27,17 +27,17 @@ public abstract class Functional_TwowayCallbackShort
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
     public void response(short arg)
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply(arg);
+            _responseCb.apply(arg);
         }
     }
 
-    final private Functional_ShortCallback __responseCb;
+    final private Functional_ShortCallback _responseCb;
 }

@@ -517,7 +517,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
 
-        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
+        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy)._getReference();
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
@@ -673,7 +673,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // it can be called for AMI invocations if the proxy has no delegate set yet.
         //
 
-        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
+        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy)._getReference();
         if(ref.isWellKnown())
         {
             //

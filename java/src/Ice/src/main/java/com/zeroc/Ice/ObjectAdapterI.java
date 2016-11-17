@@ -517,7 +517,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
 
-        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy).__reference();
+        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy)._getReference();
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
@@ -673,7 +673,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // it can be called for AMI invocations if the proxy has no delegate set yet.
         //
 
-        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy).__reference();
+        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy)._getReference();
         if(ref.isWellKnown())
         {
             //

@@ -345,7 +345,7 @@ public class ConnectRequestHandler
             }
             for(Ice.ObjectPrxHelperBase proxy : _proxies)
             {
-                proxy.__updateRequestHandler(previous, _requestHandler);
+                proxy._updateRequestHandler(previous, _requestHandler);
             }
         }
 

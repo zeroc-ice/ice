@@ -394,7 +394,7 @@ public class RoutableReference extends Reference
         if(_routerInfo != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
-            java.util.Map<String, String> routerProperties = h.__reference().toProperty(prefix + ".Router");
+            java.util.Map<String, String> routerProperties = h._getReference().toProperty(prefix + ".Router");
             for(java.util.Map.Entry<String, String> p : routerProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());
@@ -404,7 +404,7 @@ public class RoutableReference extends Reference
         if(_locatorInfo != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
-            java.util.Map<String, String> locatorProperties = h.__reference().toProperty(prefix + ".Locator");
+            java.util.Map<String, String> locatorProperties = h._getReference().toProperty(prefix + ".Locator");
             for(java.util.Map.Entry<String, String> p : locatorProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());

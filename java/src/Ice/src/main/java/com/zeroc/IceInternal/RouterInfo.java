@@ -201,7 +201,7 @@ public final class RouterInfo
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)_router).__reference().getEndpoints();
+                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)_router)._getReference().getEndpoints();
             }
             else
             {
@@ -217,7 +217,7 @@ public final class RouterInfo
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                 }
 
-                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)clientProxy).__reference().getEndpoints();
+                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)clientProxy)._getReference().getEndpoints();
             }
         }
         return _clientEndpoints;
@@ -232,7 +232,7 @@ public final class RouterInfo
         }
 
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        _serverEndpoints = ((com.zeroc.Ice._ObjectPrxI)serverProxy).__reference().getEndpoints();
+        _serverEndpoints = ((com.zeroc.Ice._ObjectPrxI)serverProxy)._getReference().getEndpoints();
         return _serverEndpoints;
     }
 

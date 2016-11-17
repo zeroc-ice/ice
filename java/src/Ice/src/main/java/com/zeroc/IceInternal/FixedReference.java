@@ -278,7 +278,7 @@ public class FixedReference extends Reference
         {
             handler = new QueueRequestHandler(getInstance(), handler);
         }
-        return proxy.__setRequestHandler(handler);
+        return proxy._setRequestHandler(handler);
     }
 
     @Override

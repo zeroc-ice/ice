@@ -32,7 +32,7 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
     
     @Override
     synchronized public void
-    interrupt(Ice.Current __current)
+    interrupt(Ice.Current current)
         throws test.Ice.interrupt.Test.CannotInterruptException
     {
         if(_threads.isEmpty())

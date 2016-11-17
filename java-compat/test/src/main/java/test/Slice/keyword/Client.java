@@ -40,10 +40,10 @@ public class Client
         
         @Override
         public void
-        checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
+        checkedCast_async(AMD_catch_checkedCast cb, int _clone, Ice.Current current)
         {
             int _continue = 0;
-            __cb.ice_response(_continue);
+            cb.ice_response(_continue);
         }
     }
 
@@ -56,9 +56,9 @@ public class Client
 
         @Override
         public void
-        _do(Ice.Current __current)
+        _do(Ice.Current current)
         {
-            assert __current.operation.equals("do");
+            assert current.operation.equals("do");
         }
     }
 
@@ -71,7 +71,7 @@ public class Client
 
         @Override
         public void
-        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
+        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current current)
         {
         }
     }
@@ -103,21 +103,21 @@ public class Client
 
         @Override
         public void
-        checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
+        checkedCast_async(AMD_catch_checkedCast cb, int _clone, Ice.Current current)
         {
             int _continue = 0;
-            __cb.ice_response(_continue);
+            cb.ice_response(_continue);
         }
 
         @Override
         public void
-        _do(Ice.Current __current)
+        _do(Ice.Current current)
         {
         }
 
         @Override
         public void
-        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
+        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current current)
         {
         }
     }

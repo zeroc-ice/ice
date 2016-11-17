@@ -17,7 +17,7 @@ public abstract class Functional_TwowayCallbackArg1<T> extends Functional_Twoway
                                          Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     protected Functional_TwowayCallbackArg1(boolean userExceptionCb,
@@ -27,17 +27,17 @@ public abstract class Functional_TwowayCallbackArg1<T> extends Functional_Twoway
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
     public void response(T arg)
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply(arg);
+            _responseCb.apply(arg);
         }
     }
 
-    final private Functional_GenericCallback1<T> __responseCb;
+    final private Functional_GenericCallback1<T> _responseCb;
 }

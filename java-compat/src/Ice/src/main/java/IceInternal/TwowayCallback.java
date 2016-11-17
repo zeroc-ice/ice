@@ -16,19 +16,19 @@ public abstract class TwowayCallback extends CallbackBase implements Ice.TwowayC
     }
 
     @Override
-    public void exception(Ice.SystemException __ex)
+    public void exception(Ice.SystemException ex)
     {
-        exception(new Ice.UnknownException(__ex));
+        exception(new Ice.UnknownException(ex));
     }
 
     @Override
-    public final void __sent(Ice.AsyncResult __result)
+    public final void _iceSent(Ice.AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

@@ -211,7 +211,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         return r;
     }
 
-    protected synchronized void __sent()
+    protected synchronized void markSent()
     {
         if(_sentFuture != null && !_sentFuture.isDone())
         {
@@ -230,7 +230,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         
         try
         {
-            __sent();
+            markSent();
         }
         catch(java.lang.RuntimeException ex)
         {
@@ -265,12 +265,12 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         }
     }
 
-    protected boolean __needCallback()
+    protected boolean needCallback()
     {
         return true;
     }
 
-    protected void __completed()
+    protected void markCompleted()
     {
         if(_exception != null && _sentFuture != null)
         {
@@ -289,7 +289,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         
         try
         {
-            __completed();
+            markCompleted();
         }
         catch(RuntimeException ex)
         {
@@ -403,7 +403,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 _state |= StateOK;
             }
             _cancellationHandler = null;
-            if(!__needCallback())
+            if(!needCallback())
             {
                 if(_observer != null)
                 {
@@ -412,7 +412,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 }
             }
             this.notifyAll();
-            return __needCallback();
+            return needCallback();
         }
     }
 
@@ -427,7 +427,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             {
                 _observer.failed(ex.ice_id());
             }
-            if(!__needCallback())
+            if(!needCallback())
             {
                 if(_observer != null)
                 {
@@ -436,7 +436,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 }
             }
             this.notifyAll();
-            return __needCallback();
+            return needCallback();
         }
     }
 

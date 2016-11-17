@@ -34,11 +34,11 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         _mode = mode == null ? OperationMode.Normal : mode;
         _synchronous = synchronous;
         _userExceptions = userExceptions;
-        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
 
         if(_instance.cacheMessageBuffers() > 0)
         {
-            _ObjectPrxI.StreamPair p = _proxy.__getCachedMessageBuffers();
+            _ObjectPrxI.StreamPair p = _proxy._getCachedMessageBuffers();
             if(p != null)
             {
                 _is = p.is;
@@ -87,7 +87,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
                 //
                 _sentSynchronously = true;
-                _proxy.__getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
+                _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
                 finished(true);
             }
             else
@@ -106,7 +106,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         }
     }
 
-    public T __wait()
+    public T waitForResponse()
     {
         if(isBatch())
         {
@@ -115,7 +115,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
 
         try
         {
-            return __waitUserEx();
+            return waitForResponseOrUserEx();
         }
         catch(UserException ex)
         {
@@ -123,7 +123,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         }
     }
 
-    public T __waitUserEx()
+    public T waitForResponseOrUserEx()
         throws UserException
     {
         if(Thread.interrupted())
@@ -161,9 +161,9 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
     }
 
     @Override
-    protected void __sent()
+    protected void markSent()
     {
-        super.__sent();
+        super.markSent();
 
         if(!_proxy.ice_isTwoway())
         {
@@ -192,7 +192,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
+        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -210,16 +210,16 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
             // must notify the connection about that we give up ownership
             // of the batch stream.
             //
-            _proxy.__getBatchRequestQueue().abortBatchRequest(_os);
+            _proxy._getBatchRequestQueue().abortBatchRequest(_os);
         }
 
         super.abort(ex);
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
-        super.__completed();
+        super.markCompleted();
 
         try
         {
@@ -374,7 +374,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
             }
             _os.reset();
 
-            _proxy.__cacheMessageBuffers(_is, _os);
+            _proxy._cacheMessageBuffers(_is, _os);
 
             _is = null;
             _os = null;

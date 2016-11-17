@@ -423,7 +423,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         end_flushBatchRequests(begin_flushBatchRequests());
     }
 
-    private static final String __flushBatchRequests_name = "flushBatchRequests";
+    private static final String _flushBatchRequests_name = "flushBatchRequests";
 
     @Override
     public Ice.AsyncResult begin_flushBatchRequests()
@@ -444,22 +444,22 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public AsyncResult begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-            IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-            IceInternal.Functional_BoolCallback __sentCb)
+    public AsyncResult begin_flushBatchRequests(IceInternal.Functional_VoidCallback responseCb,
+            IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+            IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_flushBatchRequestsInternal(new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
+        return begin_flushBatchRequestsInternal(new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
         {
             @Override
-            public final void __completed(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
             {
                 try
                 {
-                    __result.getConnection().end_flushBatchRequests(__result);
+                    result.getConnection().end_flushBatchRequests(result);
                 }
-                catch(Exception __ex)
+                catch(Exception ex)
                 {
-                    __exceptionCb.apply(__ex);
+                    _exceptionCb.apply(ex);
                 }
             }
         });
@@ -468,7 +468,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     private Ice.AsyncResult begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
     {
         IceInternal.ConnectionFlushBatch result =
-            new IceInternal.ConnectionFlushBatch(this, _communicator, _instance, __flushBatchRequests_name, cb);
+            new IceInternal.ConnectionFlushBatch(this, _communicator, _instance, _flushBatchRequests_name, cb);
         result.invoke();
         return result;
     }
@@ -477,8 +477,8 @@ public final class ConnectionI extends IceInternal.EventHandler
     public void end_flushBatchRequests(AsyncResult ir)
     {
         IceInternal.ConnectionFlushBatch r =
-            IceInternal.ConnectionFlushBatch.check(ir, this, __flushBatchRequests_name);
-        r.__wait();
+            IceInternal.ConnectionFlushBatch.check(ir, this, _flushBatchRequests_name);
+        r.waitForResponseOrUserEx();
     }
 
     @Override
@@ -887,10 +887,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                             throw ex;
                         }
 
-                        _readProtocol.__read(_readStream);
+                        _readProtocol.read(_readStream);
                         IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                        _readProtocolEncoding.__read(_readStream);
+                        _readProtocolEncoding.read(_readStream);
                         IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                         _readStream.readByte(); // messageType
@@ -1885,8 +1885,8 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.__write(os);
-            IceInternal.Protocol.currentProtocolEncoding.__write(os);
+            IceInternal.Protocol.currentProtocol.write(os);
+            IceInternal.Protocol.currentProtocolEncoding.write(os);
             os.writeByte(IceInternal.Protocol.closeConnectionMsg);
             os.writeByte((byte) 0); // compression status: always report 0 for
                                     // CloseConnection in Java.
@@ -1918,8 +1918,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             OutputStream os = new OutputStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            IceInternal.Protocol.currentProtocol.__write(os);
-            IceInternal.Protocol.currentProtocolEncoding.__write(os);
+            IceInternal.Protocol.currentProtocol.write(os);
+            IceInternal.Protocol.currentProtocolEncoding.write(os);
             os.writeByte(IceInternal.Protocol.validateConnectionMsg);
             os.writeByte((byte) 0);
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1969,8 +1969,8 @@ public final class ConnectionI extends IceInternal.EventHandler
                 if(_writeStream.isEmpty())
                 {
                     _writeStream.writeBlob(IceInternal.Protocol.magic);
-                    IceInternal.Protocol.currentProtocol.__write(_writeStream);
-                    IceInternal.Protocol.currentProtocolEncoding.__write(_writeStream);
+                    IceInternal.Protocol.currentProtocol.write(_writeStream);
+                    IceInternal.Protocol.currentProtocolEncoding.write(_writeStream);
                     _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                     _writeStream.writeByte((byte) 0); // Compression status
                                                       // (always zero for
@@ -2043,10 +2043,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                     throw ex;
                 }
 
-                _readProtocol.__read(_readStream);
+                _readProtocol.read(_readStream);
                 IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                _readProtocolEncoding.__read(_readStream);
+                _readProtocolEncoding.read(_readStream);
                 IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                 byte messageType = _readStream.readByte();

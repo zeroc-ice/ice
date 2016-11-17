@@ -168,21 +168,22 @@ protected:
     };
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                   bool, int, const std::string&, bool, int&, bool = false,
-                                   const StringList& = StringList(), const std::string& patchParams = "");
+                                   bool, int, const std::string&, bool, int&, bool = false, const std::string& = "",
+                                   const StringList& = StringList(), const std::string& = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
     //
     void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
-                                           const std::string&, bool, int&, bool,
-                                           const StringList& = StringList());
+                                             const std::string&, bool, int&, bool,
+                                             const std::string& = "", const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool, const StringList& = StringList());
+                                           const std::string&, bool, int&, bool,
+                                           const std::string& = "", const StringList& = StringList());
 
     //
     // Search metadata for an entry with the given prefix and return the entire string.
@@ -334,21 +335,22 @@ protected:
     };
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                   bool, int, const std::string&, bool, int&, const StringList& = StringList(),
-                                   const std::string& patchParams = "");
+                                   bool, int, const std::string&, bool, int&, const std::string& = "",
+                                   const StringList& = StringList(), const std::string& = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
     //
     void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
                                              const std::string&, bool, int&, bool,
-                                             const StringList& = StringList());
+                                             const std::string& = "", const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool, const StringList& = StringList());
+                                           const std::string&, bool, int&, bool,
+                                           const std::string& = "", const StringList& = StringList());
 
     //
     // Search metadata for an entry with the given prefix and return the entire string.

@@ -139,7 +139,7 @@ public class AsyncResultI implements AsyncResult
         
         try
         {
-            _callback.__sent(this);
+            _callback._iceSent(this);
         }
         catch(java.lang.RuntimeException ex)
         {
@@ -183,7 +183,7 @@ public class AsyncResultI implements AsyncResult
         
         try
         {
-            _callback.__completed(this);
+            _callback._iceCompleted(this);
         }
         catch(RuntimeException ex)
         {
@@ -244,7 +244,7 @@ public class AsyncResultI implements AsyncResult
         _cancellationHandler = handler;
     }
 
-    public final boolean __wait()
+    public final boolean waitForResponseOrUserEx()
     {
         try 
         {
@@ -308,7 +308,7 @@ public class AsyncResultI implements AsyncResult
             {
                 _state |= StateDone | StateOK;
                 _cancellationHandler = null;
-                if(_observer != null && (_callback == null || !_callback.__hasSentCallback()))
+                if(_observer != null && (_callback == null || !_callback._iceHasSentCallback()))
                 {
                     _observer.detach();
                     _observer = null;
@@ -324,7 +324,7 @@ public class AsyncResultI implements AsyncResult
                 cacheMessageBuffers();
             }
             this.notifyAll();
-            return !alreadySent && _callback != null && _callback.__hasSentCallback();
+            return !alreadySent && _callback != null && _callback._iceHasSentCallback();
         }
     }
 

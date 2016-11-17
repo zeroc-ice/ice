@@ -17,14 +17,14 @@ public abstract class Callback_Object_ice_isA extends IceInternal.TwowayCallback
     /**
      * Called when the invocation completes successfully.
      *
-     * @param __ret True if the target object supports the given interface, false otherwise.
+     * @param ret True if the target object supports the given interface, false otherwise.
      **/
     @Override
-    public abstract void response(boolean __ret);
+    public abstract void response(boolean ret);
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
-        ObjectPrxHelperBase.__ice_isA_completed(this, __result);
+        ObjectPrxHelperBase._iceI_ice_isA_completed(this, result);
     }
 }

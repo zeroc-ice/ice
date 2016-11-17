@@ -22,13 +22,13 @@ public abstract class ValueWriter extends Value
     public abstract void write(OutputStream out);
 
     @Override
-    public void __write(OutputStream os)
+    public void _iceWrite(OutputStream os)
     {
         write(os);
     }
 
     @Override
-    public void __read(InputStream is)
+    public void _iceRead(InputStream is)
     {
         assert(false);
     }

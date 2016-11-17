@@ -52,8 +52,6 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
     {
     }
 
-    public static final String ice_staticId = "::Ice::Object";
-
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
@@ -61,28 +59,33 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      **/
     public String ice_id()
     {
-        return ice_staticId;
+        return ice_staticId();
     }
 
-    public void __write(OutputStream __os)
+    public static String ice_staticId()
     {
-        __os.startValue(null);
-        __writeImpl(__os);
-        __os.endValue();
+        return "::Ice::Object";
     }
 
-    public void __read(InputStream __is)
+    public void _iceWrite(OutputStream ostr)
     {
-        __is.startValue();
-        __readImpl(__is);
-        __is.endValue(false);
+        ostr.startValue(null);
+        _iceWriteImpl(ostr);
+        ostr.endValue();
     }
 
-    protected void __writeImpl(OutputStream __os)
+    public void _iceRead(InputStream istr)
+    {
+        istr.startValue();
+        _iceReadImpl(istr);
+        istr.endValue(false);
+    }
+
+    protected void _iceWriteImpl(OutputStream ostr)
     {
     }
 
-    protected void __readImpl(InputStream __is)
+    protected void _iceReadImpl(InputStream istr)
     {
     }
 

@@ -220,7 +220,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             // require could end up waiting for the flush of the
             // connection to be done.
             //
-            _proxy.__updateRequestHandler(_handler, null); // Clear request handler and always retry.
+            _proxy._updateRequestHandler(_handler, null); // Clear request handler and always retry.
             _instance.retryQueue().add(this, 0);
         }
         catch(com.zeroc.Ice.Exception exc)
@@ -240,7 +240,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
 
     public void cancelable(final CancellationHandler handler)
     {
-        if(_proxy.__reference().getInvocationTimeout() == -2 && _cachedConnection != null)
+        if(_proxy._getReference().getInvocationTimeout() == -2 && _cachedConnection != null)
         {
             final int timeout = _cachedConnection.timeout();
             if(timeout > 0)
@@ -280,26 +280,26 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
 
     protected ProxyOutgoingAsyncBaseI(com.zeroc.Ice._ObjectPrxI prx, String op)
     {
-        super(prx.ice_getCommunicator(), prx.__reference().getInstance(), op);
+        super(prx.ice_getCommunicator(), prx._getReference().getInstance(), op);
         _proxy = prx;
         _mode = com.zeroc.Ice.OperationMode.Normal;
         _cnt = 0;
         _sent = false;
-        _proxyMode = _proxy.__reference().getMode();
+        _proxyMode = _proxy._getReference().getMode();
     }
 
     protected ProxyOutgoingAsyncBaseI(com.zeroc.Ice._ObjectPrxI prx, String op, com.zeroc.Ice.OutputStream os)
     {
-        super(prx.ice_getCommunicator(), prx.__reference().getInstance(), op, os);
+        super(prx.ice_getCommunicator(), prx._getReference().getInstance(), op, os);
         _proxy = prx;
         _mode = com.zeroc.Ice.OperationMode.Normal;
         _cnt = 0;
         _sent = false;
-        _proxyMode = _proxy.__reference().getMode();
+        _proxyMode = _proxy._getReference().getMode();
     }
 
     @Override
-    protected boolean __needCallback()
+    protected boolean needCallback()
     {
         return !isBatch();
     }
@@ -310,7 +310,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         {
             if(userThread)
             {
-                int invocationTimeout = _proxy.__reference().getInvocationTimeout();
+                int invocationTimeout = _proxy._getReference().getInvocationTimeout();
                 if(invocationTimeout > 0)
                 {
                     _timerFuture = _instance.timer().schedule(
@@ -338,7 +338,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
                 {
                     _sent = false;
                     _handler = null;
-                    _handler = _proxy.__getRequestHandler();
+                    _handler = _proxy._getRequestHandler();
                     int status = _handler.sendAsyncRequest(this);
                     if((status & AsyncStatus.Sent) > 0)
                     {
@@ -362,7 +362,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
                 }
                 catch(RetryException ex)
                 {
-                    _proxy.__updateRequestHandler(_handler, null); // Clear request handler and always retry.
+                    _proxy._updateRequestHandler(_handler, null); // Clear request handler and always retry.
                 }
                 catch(com.zeroc.Ice.Exception ex)
                 {
@@ -442,13 +442,13 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
     protected int handleException(com.zeroc.Ice.Exception exc)
     {
         Holder<Integer> interval = new Holder<>();
-        _cnt = _proxy.__handleException(exc, _handler, _mode, _sent, interval, _cnt);
+        _cnt = _proxy._handleException(exc, _handler, _mode, _sent, interval, _cnt);
         return interval.value;
     }
 
     protected void prepare(java.util.Map<String, String> ctx)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
 
         _observer = ObserverHelper.get(_proxy, _operation, ctx == null ? _emptyContext : ctx);
 
@@ -465,14 +465,14 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                _proxy.__getBatchRequestQueue().prepareBatchRequest(_os);
+                _proxy._getBatchRequestQueue().prepareBatchRequest(_os);
                 break;
             }
         }
 
-        Reference ref = _proxy.__reference();
+        Reference ref = _proxy._getReference();
 
-        ref.getIdentity().ice_write(_os);
+        ref.getIdentity().write(_os);
 
         //
         // For compatibility with the old FacetPath.

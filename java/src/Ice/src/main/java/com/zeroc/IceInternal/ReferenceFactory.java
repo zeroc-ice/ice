@@ -744,7 +744,7 @@ public final class ReferenceFactory
         LocatorInfo locatorInfo = null;
         if(_defaultLocator != null)
         {
-            if(!((com.zeroc.Ice._ObjectPrxI)_defaultLocator).__reference().getEncoding().equals(encoding))
+            if(!((com.zeroc.Ice._ObjectPrxI)_defaultLocator)._getReference().getEncoding().equals(encoding))
             {
                 locatorInfo = _instance.locatorManager().get(_defaultLocator.ice_encodingVersion(encoding));
             }
@@ -784,7 +784,7 @@ public final class ReferenceFactory
                 com.zeroc.Ice.LocatorPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
             {
-                if(!((com.zeroc.Ice._ObjectPrxI)locator).__reference().getEncoding().equals(encoding))
+                if(!((com.zeroc.Ice._ObjectPrxI)locator)._getReference().getEncoding().equals(encoding))
                 {
                     locatorInfo = _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
                 }

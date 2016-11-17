@@ -22,13 +22,13 @@ public abstract class ObjectReader extends ObjectImpl
     public abstract void read(InputStream in);
 
     @Override
-    public void __write(OutputStream os)
+    public void _iceWrite(OutputStream os)
     {
         assert(false);
     }
 
     @Override
-    public void __read(InputStream is)
+    public void _iceRead(InputStream is)
     {
         read(is);
     }

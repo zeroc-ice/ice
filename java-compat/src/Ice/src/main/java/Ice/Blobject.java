@@ -38,7 +38,7 @@ public abstract class Blobject extends Ice.ObjectImpl
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws UserException
     {
         byte[] inEncaps;

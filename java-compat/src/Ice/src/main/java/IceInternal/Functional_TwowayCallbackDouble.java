@@ -17,7 +17,7 @@ public abstract class Functional_TwowayCallbackDouble
                                            Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     protected Functional_TwowayCallbackDouble(boolean userExceptionCb,
@@ -27,16 +27,16 @@ public abstract class Functional_TwowayCallbackDouble
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     public void response(double arg)
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply(arg);
+            _responseCb.apply(arg);
         }
     }
 
-    final private Functional_DoubleCallback __responseCb;
+    final private Functional_DoubleCallback _responseCb;
 }

@@ -31,26 +31,26 @@ public abstract class Callback_Communicator_flushBatchRequests extends IceIntern
     }
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
         try
         {
-            __result.getCommunicator().end_flushBatchRequests(__result);
+            result.getCommunicator().end_flushBatchRequests(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            exception(__ex);
+            exception(ex);
         }
     }
 
     @Override
-    public final void __sent(AsyncResult __result)
+    public final void _iceSent(AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

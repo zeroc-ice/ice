@@ -38,19 +38,19 @@ public abstract class Callback extends IceInternal.CallbackBase
     }
 
     @Override
-    public final void __completed(AsyncResult r)
+    public final void _iceCompleted(AsyncResult r)
     {
         completed(r);
     }
 
     @Override
-    public final void __sent(AsyncResult r)
+    public final void _iceSent(AsyncResult r)
     {
         sent(r);
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

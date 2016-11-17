@@ -40,7 +40,7 @@ public final class ObserverHelper
     get(com.zeroc.Ice.ObjectPrx proxy, String op, java.util.Map<String, String> context)
     {
         CommunicatorObserver obsv = 
-            ((com.zeroc.Ice._ObjectPrxI)proxy).__reference().getInstance().initializationData().observer;
+            ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getInstance().initializationData().observer;
         if(obsv != null)
         {
             InvocationObserver observer;

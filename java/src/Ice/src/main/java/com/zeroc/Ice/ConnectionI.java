@@ -431,16 +431,16 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     public void flushBatchRequests()
     {
-        ObjectPrx.__waitForCompletion(flushBatchRequestsAsync());
+        ObjectPrx.waitForResponseForCompletion(flushBatchRequestsAsync());
     }
 
     @Override
     public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync()
     {
-        com.zeroc.IceInternal.ConnectionFlushBatch __f =
+        com.zeroc.IceInternal.ConnectionFlushBatch f =
             new com.zeroc.IceInternal.ConnectionFlushBatch(this, _communicator, _instance);
-        __f.invoke();
-        return __f;
+        f.invoke();
+        return f;
     }
 
     @Override
@@ -850,10 +850,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                             throw ex;
                         }
 
-                        _readProtocol.ice_read(_readStream);
+                        _readProtocol.read(_readStream);
                         Protocol.checkSupportedProtocol(_readProtocol);
 
-                        _readProtocolEncoding.ice_read(_readStream);
+                        _readProtocolEncoding.read(_readStream);
                         Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                         _readStream.readByte(); // messageType
@@ -1849,8 +1849,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             //
             OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol.ice_write(os);
-            Protocol.currentProtocolEncoding.ice_write(os);
+            Protocol.currentProtocol.write(os);
+            Protocol.currentProtocolEncoding.write(os);
             os.writeByte(Protocol.closeConnectionMsg);
             os.writeByte((byte) 0); // compression status: always report 0 for
                                     // CloseConnection in Java.
@@ -1882,8 +1882,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         {
             OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol.ice_write(os);
-            Protocol.currentProtocolEncoding.ice_write(os);
+            Protocol.currentProtocol.write(os);
+            Protocol.currentProtocolEncoding.write(os);
             os.writeByte(Protocol.validateConnectionMsg);
             os.writeByte((byte) 0);
             os.writeInt(Protocol.headerSize); // Message size.
@@ -1933,8 +1933,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 if(_writeStream.isEmpty())
                 {
                     _writeStream.writeBlob(Protocol.magic);
-                    Protocol.currentProtocol.ice_write(_writeStream);
-                    Protocol.currentProtocolEncoding.ice_write(_writeStream);
+                    Protocol.currentProtocol.write(_writeStream);
+                    Protocol.currentProtocolEncoding.write(_writeStream);
                     _writeStream.writeByte(Protocol.validateConnectionMsg);
                     _writeStream.writeByte((byte) 0); // Compression status
                                                       // (always zero for
@@ -2006,10 +2006,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                     throw ex;
                 }
 
-                _readProtocol.ice_read(_readStream);
+                _readProtocol.read(_readStream);
                 Protocol.checkSupportedProtocol(_readProtocol);
 
-                _readProtocolEncoding.ice_read(_readStream);
+                _readProtocolEncoding.read(_readStream);
                 Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                 byte messageType = _readStream.readByte();

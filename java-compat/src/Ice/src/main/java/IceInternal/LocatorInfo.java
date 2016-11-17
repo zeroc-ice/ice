@@ -25,7 +25,7 @@ public final class LocatorInfo
             EndpointI[] endpoints = null;
             if(proxy != null)
             {
-                Reference r = ((Ice.ObjectPrxHelperBase)proxy).__reference();
+                Reference r = ((Ice.ObjectPrxHelperBase)proxy)._getReference();
                 if(_ref.isWellKnown() && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding()))
                 {
                     //
@@ -647,7 +647,7 @@ public final class LocatorInfo
     private void
     finishRequest(Reference ref, java.util.List<Reference> wellKnownRefs, Ice.ObjectPrx proxy, boolean notRegistered)
     {
-        if(proxy == null || ((Ice.ObjectPrxHelperBase)proxy).__reference().isIndirect())
+        if(proxy == null || ((Ice.ObjectPrxHelperBase)proxy)._getReference().isIndirect())
         {
             //
             // Remove the cached references of well-known objects for which we tried
@@ -661,11 +661,11 @@ public final class LocatorInfo
 
         if(!ref.isWellKnown())
         {
-            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).__reference().isIndirect())
+            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy)._getReference().isIndirect())
             {
                 // Cache the adapter endpoints.
                 _table.addAdapterEndpoints(ref.getAdapterId(),
-                                           ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints());
+                                           ((Ice.ObjectPrxHelperBase)proxy)._getReference().getEndpoints());
             }
             else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
             {
@@ -680,10 +680,10 @@ public final class LocatorInfo
         }
         else
         {
-            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).__reference().isWellKnown())
+            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy)._getReference().isWellKnown())
             {
                 // Cache the well-known object reference.
-                _table.addObjectReference(ref.getIdentity(), ((Ice.ObjectPrxHelperBase)proxy).__reference());
+                _table.addObjectReference(ref.getIdentity(), ((Ice.ObjectPrxHelperBase)proxy)._getReference());
             }
             else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
             {

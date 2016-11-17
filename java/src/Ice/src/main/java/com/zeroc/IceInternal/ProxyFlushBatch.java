@@ -15,7 +15,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     {
         super(prx, "ice_flushBatchRequests");
         _observer = ObserverHelper.get(prx, "ice_flushBatchRequests");
-        _batchRequestNum = prx.__getBatchRequestQueue().swap(_os);
+        _batchRequestNum = prx._getBatchRequestQueue().swap(_os);
     }
 
     @Override
@@ -26,24 +26,24 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     }
 
     @Override
-    protected synchronized void __sent()
+    protected synchronized void markSent()
     {
-        super.__sent();
+        super.markSent();
 
         assert((_state & StateOK) != 0);
         complete(null);
     }
 
     @Override
-    protected boolean __needCallback()
+    protected boolean needCallback()
     {
         return true;
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
-        super.__completed();
+        super.markCompleted();
         if(_exception != null)
         {
             completeExceptionally(_exception);
@@ -74,11 +74,11 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
 
     public void invoke()
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
         invokeImpl(true); // userThread = true
     }
 
-    public void __wait()
+    public void waitForResponse()
     {
         if(Thread.interrupted())
         {

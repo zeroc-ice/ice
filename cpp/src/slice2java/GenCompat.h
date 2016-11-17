@@ -35,8 +35,8 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool, bool);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool);
-    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool, bool = false);
+    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool, bool = false);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool, bool);
     std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool, bool);
 
@@ -46,20 +46,22 @@ protected:
     std::vector<std::string> getParamsAsyncLambda(const OperationPtr&, const std::string&,
                                                   bool context = false, bool sentCB = false,
                                                   bool optionalMapping = false,
-                                                  bool inParams = true);
+                                                  bool inParams = true,
+                                                  bool internal = false);
     std::vector<std::string> getArgsAsyncLambda(const OperationPtr&, const std::string&,
-                                                bool context = false, bool sentCB = false);
+                                                bool context = false,
+                                                bool sentCB = false);
 
     //
     // Compose the argument lists for an operation.
     //
     std::vector<std::string> getArgs(const OperationPtr&);
-    std::vector<std::string> getInOutArgs(const OperationPtr&, ParamDir);
+    std::vector<std::string> getInOutArgs(const OperationPtr&, ParamDir, bool = false);
     std::vector<std::string> getArgsAsync(const OperationPtr&);
     std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     void writeMarshalUnmarshalParams(::IceUtilInternal::Output&, const std::string&, const ParamDeclList&,
-                                     const OperationPtr&, int&, bool, bool, bool = false);
+                                     const OperationPtr&, int&, bool, bool, bool, const std::string& = "", bool = false);
 
     //
     // Generate a throws clause containing only non-local exceptions.
@@ -75,9 +77,9 @@ protected:
     //
     // Marshal/unmarshal a data member.
     //
-    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
     void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
-                                  bool, int&);
+                                  bool, int&, bool = false);
     void writeStreamMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
     void writeStreamUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
                                         bool, int&);

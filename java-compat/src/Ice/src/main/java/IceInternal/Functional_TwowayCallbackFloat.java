@@ -17,7 +17,7 @@ public abstract class Functional_TwowayCallbackFloat
                                           Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     protected Functional_TwowayCallbackFloat(boolean userExceptionCb,
@@ -27,17 +27,17 @@ public abstract class Functional_TwowayCallbackFloat
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
     public void response(float arg)
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply(arg);
+            _responseCb.apply(arg);
         }
     }
 
-    final private Functional_FloatCallback __responseCb;
+    final private Functional_FloatCallback _responseCb;
 }

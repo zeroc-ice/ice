@@ -157,11 +157,11 @@ public interface Object
     boolean ice_dispatch(Request request)
         throws Ice.UserException;
 
-    boolean __dispatch(IceInternal.Incoming in, Current current)
+    boolean _iceDispatch(IceInternal.Incoming in, Current current)
         throws Ice.UserException;
 
-    void __write(OutputStream __os);
-    void __read(InputStream __is);
+    void _iceWrite(OutputStream ostr);
+    void _iceRead(InputStream istr);
 
     public static final String ice_staticId = "::Ice::Object";
 }

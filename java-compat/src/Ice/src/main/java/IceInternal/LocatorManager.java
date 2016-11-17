@@ -58,7 +58,7 @@ public final class LocatorManager
 
         LocatorKey set(Ice.LocatorPrx locator)
         {
-            Reference r = ((Ice.ObjectPrxHelperBase)locator).__reference();
+            Reference r = ((Ice.ObjectPrxHelperBase)locator)._getReference();
             _id = r.getIdentity();
             _encoding = r.getEncoding();
             return this;

@@ -46,32 +46,32 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
     }
 
     @Override
-    public final void __sent(AsyncResult __result)
+    public final void _iceSent(AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
         try
         {
-            ((ObjectPrxHelperBase)__result.getProxy()).__end(__result, __result.getOperation());
+            ((ObjectPrxHelperBase)result.getProxy())._end(result, result.getOperation());
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            exception(__ex);
+            exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            exception(__ex);
+            exception(ex);
             return;
         }
         response();

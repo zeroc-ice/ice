@@ -206,16 +206,16 @@ public final class CommunicatorI implements Communicator
     @Override
     public void flushBatchRequests()
     {
-        __flushBatchRequestsAsync().__wait();
+        _iceI_flushBatchRequestsAsync().waitForResponse();
     }
 
     @Override
     public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync()
     {
-        return __flushBatchRequestsAsync();
+        return _iceI_flushBatchRequestsAsync();
     }
 
-    public com.zeroc.IceInternal.CommunicatorFlushBatch __flushBatchRequestsAsync()
+    public com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync()
     {
         com.zeroc.IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
         com.zeroc.IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
@@ -224,19 +224,19 @@ public final class CommunicatorI implements Communicator
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
-        com.zeroc.IceInternal.CommunicatorFlushBatch __f =
+        com.zeroc.IceInternal.CommunicatorFlushBatch f =
             new com.zeroc.IceInternal.CommunicatorFlushBatch(this, _instance);
 
-        connectionFactory.flushAsyncBatchRequests(__f);
-        adapterFactory.flushAsyncBatchRequests(__f);
+        connectionFactory.flushAsyncBatchRequests(f);
+        adapterFactory.flushAsyncBatchRequests(f);
 
         //
         // Inform the callback that we have finished initiating all of the
         // flush requests.
         //
-        __f.ready();
+        f.ready();
 
-        return __f;
+        return f;
     }
 
     @Override

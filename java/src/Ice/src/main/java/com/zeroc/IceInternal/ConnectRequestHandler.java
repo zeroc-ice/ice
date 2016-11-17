@@ -343,7 +343,7 @@ public class ConnectRequestHandler
             }
             for(com.zeroc.Ice._ObjectPrxI proxy : _proxies)
             {
-                proxy.__updateRequestHandler(previous, _requestHandler);
+                proxy._updateRequestHandler(previous, _requestHandler);
             }
         }
 

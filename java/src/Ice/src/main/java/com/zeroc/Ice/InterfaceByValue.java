@@ -35,17 +35,17 @@ public class InterfaceByValue extends Value
     }
 
     @Override
-    protected void __writeImpl(OutputStream __os)
+    protected void _iceWriteImpl(OutputStream ostr)
     {
-        __os.startSlice(ice_id(), -1, true);
-        __os.endSlice();
+        ostr.startSlice(ice_id(), -1, true);
+        ostr.endSlice();
     }
 
     @Override
-    protected void __readImpl(InputStream __is)
+    protected void _iceReadImpl(InputStream istr)
     {
-        __is.startSlice();
-        __is.endSlice();
+        istr.startSlice();
+        istr.endSlice();
     }
 
     public static final long serialVersionUID = 0L;

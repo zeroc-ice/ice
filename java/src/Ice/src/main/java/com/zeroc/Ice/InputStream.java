@@ -695,7 +695,7 @@ public class InputStream
 
         if(encoding != null)
         {
-            encoding.ice_read(this);
+            encoding.read(this);
             _buf.b.position(_buf.b.position() - 6);
         }
         else
@@ -2326,7 +2326,7 @@ public class InputStream
             //
             // Read the instance.
             //
-            v.__read(_stream);
+            v._iceRead(_stream);
 
             if(_patchMap != null)
             {
@@ -2501,7 +2501,7 @@ public class InputStream
                 //
                 if(userEx != null)
                 {
-                    userEx.__read(_stream);
+                    userEx._read(_stream);
                     if(usesClasses)
                     {
                         readPendingValues();
@@ -2662,7 +2662,7 @@ public class InputStream
                 // For the 1.0 encoding, the type ID for the base Object class
                 // marks the last slice.
                 //
-                if(_typeId.equals(Value.ice_staticId))
+                if(_typeId.equals(Value.ice_staticId()))
                 {
                     throw new NoValueFactoryException("", mostDerivedId);
                 }
@@ -2806,7 +2806,7 @@ public class InputStream
                 //
                 if(userEx != null)
                 {
-                    userEx.__read(_stream);
+                    userEx._read(_stream);
                     throw userEx;
 
                     // Never reached.
@@ -3225,7 +3225,7 @@ public class InputStream
                     // We pass the "::Ice::Object" ID to indicate that this is the
                     // last chance to preserve the instance.
                     //
-                    v = newInstance(Value.ice_staticId);
+                    v = newInstance(Value.ice_staticId());
                     if(v == null)
                     {
                         v = new UnknownSlicedValue(mostDerivedId);
@@ -3285,7 +3285,7 @@ public class InputStream
                 for(int j = 0; j < info.instances.length; ++j)
                 {
                     addPatchEntry(table[j],
-                                  new SequencePatcher<Value>(info.instances, Value.class, Value.ice_staticId, j));
+                                  new SequencePatcher<Value>(info.instances, Value.class, Value.ice_staticId(), j));
                 }
             }
 

@@ -387,7 +387,7 @@ public class OutputStream
         _encapsStack.start = _buf.size();
 
         writeInt(0); // Placeholder for the encapsulation length.
-        _encapsStack.encoding.ice_write(this);
+        _encapsStack.encoding.write(this);
     }
 
     /**
@@ -418,7 +418,7 @@ public class OutputStream
     {
         com.zeroc.IceInternal.Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
-        encoding.ice_write(this);
+        encoding.write(this);
     }
 
     /**
@@ -1574,12 +1574,12 @@ public class OutputStream
     {
         if(v != null)
         {
-            v.__write(this);
+            v._write(this);
         }
         else
         {
             Identity ident = new Identity();
-            ident.ice_write(this);
+            ident.write(this);
         }
     }
 
@@ -1867,9 +1867,9 @@ public class OutputStream
             // This allows reading the pending instances even if some part of
             // the exception was sliced.
             //
-            boolean usesClasses = v.__usesClasses();
+            boolean usesClasses = v._usesClasses();
             _stream.writeBool(usesClasses);
-            v.__write(_stream);
+            v._write(_stream);
             if(usesClasses)
             {
                 writePendingValues();
@@ -1890,7 +1890,7 @@ public class OutputStream
                 //
                 // Write the Object slice.
                 //
-                startSlice(Value.ice_staticId, -1, true);
+                startSlice(Value.ice_staticId(), -1, true);
                 _stream.writeSize(0); // For compatibility with the old AFM.
                 endSlice();
             }
@@ -1974,7 +1974,7 @@ public class OutputStream
                         _stream.instance().initializationData().logger.warning(s);
                     }
 
-                    p.getKey().__write(_stream);
+                    p.getKey()._iceWrite(_stream);
                 }
             }
             _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -2074,7 +2074,7 @@ public class OutputStream
         @Override
         void writeException(UserException v)
         {
-            v.__write(_stream);
+            v._write(_stream);
         }
 
         @Override
@@ -2321,7 +2321,7 @@ public class OutputStream
             }
 
             _stream.writeSize(1); // Class instance marker.
-            v.__write(_stream);
+            v._iceWrite(_stream);
         }
 
         private static final class InstanceData

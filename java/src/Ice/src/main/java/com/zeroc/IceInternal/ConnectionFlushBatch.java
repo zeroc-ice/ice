@@ -27,22 +27,22 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
     }
 
     @Override
-    protected void __sent()
+    protected void markSent()
     {
-        super.__sent();
+        super.markSent();
 
         assert((_state & StateOK) != 0);
         complete(null);
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
         if(_exception != null)
         {
             completeExceptionally(_exception);
         }
-        super.__completed();
+        super.markCompleted();
     }
 
     public void invoke()

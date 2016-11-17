@@ -87,30 +87,30 @@ public abstract class UserException extends java.lang.Exception implements Clone
     }
 
     public void
-    __write(OutputStream os)
+    _write(OutputStream os)
     {
         os.startException(null);
-        __writeImpl(os);
+        _writeImpl(os);
         os.endException();
     }
 
     public void
-    __read(InputStream is)
+    _read(InputStream is)
     {
         is.startException();
-        __readImpl(is);
+        _readImpl(is);
         is.endException(false);
     }
 
     public boolean
-    __usesClasses()
+    _usesClasses()
     {
         return false;
     }
 
     protected abstract void
-    __writeImpl(OutputStream os);
+    _writeImpl(OutputStream os);
 
     protected abstract void
-    __readImpl(InputStream is);
+    _readImpl(InputStream is);
 }

@@ -56,7 +56,7 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool = false);
 
     //
     // Compose the argument lists for an operation.
@@ -83,8 +83,8 @@ protected:
     //
     // Marshal/unmarshal a data member.
     //
-    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
-    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
     //
     // Generate dispatch methods for a class or interface.

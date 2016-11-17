@@ -11,9 +11,9 @@ package IceInternal;
 
 public abstract class CallbackBase
 {
-    public abstract void __completed(Ice.AsyncResult r);
-    public abstract void __sent(Ice.AsyncResult r);
-    public abstract boolean __hasSentCallback();
+    public abstract void _iceCompleted(Ice.AsyncResult r);
+    public abstract void _iceSent(Ice.AsyncResult r);
+    public abstract boolean _iceHasSentCallback();
 
     public static void check(boolean cb)
     {

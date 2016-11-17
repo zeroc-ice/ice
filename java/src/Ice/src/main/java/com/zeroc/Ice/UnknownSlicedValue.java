@@ -35,17 +35,17 @@ public final class UnknownSlicedValue extends Value
     }
 
     @Override
-    public void __write(OutputStream __os)
+    public void _iceWrite(OutputStream ostr)
     {
-        __os.startValue(_slicedData);
-        __os.endValue();
+        ostr.startValue(_slicedData);
+        ostr.endValue();
     }
 
     @Override
-    public void __read(InputStream __is)
+    public void _iceRead(InputStream istr)
     {
-        __is.startValue();
-        _slicedData = __is.endValue(true);
+        istr.startValue();
+        _slicedData = istr.endValue(true);
     }
 
     private final String _unknownTypeId;

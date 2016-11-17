@@ -18,14 +18,14 @@ public abstract class Callback_Object_ice_getConnection extends IceInternal.Twow
     /**
      * Called when the invocation completes successfully.
      *
-     * @param __ret The connection being used by the proxy.
+     * @param ret The connection being used by the proxy.
      **/
     @Override
-    public abstract void response(Ice.Connection __ret);
+    public abstract void response(Ice.Connection ret);
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
-        ObjectPrxHelperBase.__ice_getConnection_completed(this, __result);
+        ObjectPrxHelperBase._iceI_ice_getConnection_completed(this, result);
     }
 }

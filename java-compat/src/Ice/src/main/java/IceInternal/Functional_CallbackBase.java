@@ -16,35 +16,35 @@ public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
                                    Functional_BoolCallback sentCb)
     {
         CallbackBase.check(responseCb || exceptionCb != null);
-        __exceptionCb = exceptionCb;
-        __sentCb = sentCb;
+        _exceptionCb = exceptionCb;
+        _sentCb = sentCb;
     }
 
     protected Functional_CallbackBase(Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                       Functional_BoolCallback sentCb)
     {
-        __exceptionCb = exceptionCb;
-        __sentCb = sentCb;
+        _exceptionCb = exceptionCb;
+        _sentCb = sentCb;
     }
 
     @Override
-    public final void __sent(Ice.AsyncResult __result)
+    public final void _iceSent(Ice.AsyncResult result)
     {
-        if(__sentCb != null)
+        if(_sentCb != null)
         {
-            __sentCb.apply(__result.sentSynchronously());
+            _sentCb.apply(result.sentSynchronously());
         }
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
-        return __sentCb != null;
+        return _sentCb != null;
     }
 
     @Override
-    public abstract void __completed(Ice.AsyncResult __result);
+    public abstract void _iceCompleted(Ice.AsyncResult result);
 
-    protected final Functional_GenericCallback1<Ice.Exception> __exceptionCb;
-    protected final Functional_BoolCallback __sentCb;
+    protected final Functional_GenericCallback1<Ice.Exception> _exceptionCb;
+    protected final Functional_BoolCallback _sentCb;
 }

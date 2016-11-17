@@ -283,8 +283,8 @@ public abstract class Reference implements Cloneable
 
         if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            _protocol.__write(s);
-            _encoding.__write(s);
+            _protocol.write(s);
+            _encoding.write(s);
         }
 
         // Derived class writes the remainder of the reference.

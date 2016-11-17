@@ -283,8 +283,8 @@ public abstract class Reference implements Cloneable
 
         if(!s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
-            _protocol.ice_write(s);
-            _encoding.ice_write(s);
+            _protocol.write(s);
+            _encoding.write(s);
         }
 
         // Derived class writes the remainder of the reference.

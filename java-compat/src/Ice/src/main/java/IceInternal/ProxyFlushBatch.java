@@ -28,7 +28,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     {
         super(prx, operation, callback);
         _observer = ObserverHelper.get(prx, operation);
-        _batchRequestNum = prx.__getBatchRequestQueue().swap(_os);
+        _batchRequestNum = prx._getBatchRequestQueue().swap(_os);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
 
     public void invoke()
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy._getReference().getProtocol()));
         invokeImpl(true); // userThread = true
     }
 

@@ -37,7 +37,7 @@ public abstract class DispatchInterceptor extends ObjectImpl
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws Ice.UserException
     {
         try

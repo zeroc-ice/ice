@@ -17,7 +17,7 @@ public abstract class Functional_TwowayCallbackInt
                                         Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     protected Functional_TwowayCallbackInt(boolean userExceptionCb,
@@ -27,17 +27,17 @@ public abstract class Functional_TwowayCallbackInt
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
     public void response(int arg)
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply(arg);
+            _responseCb.apply(arg);
         }
     }
 
-    final private Functional_IntCallback __responseCb;
+    final private Functional_IntCallback _responseCb;
 }
