@@ -2806,7 +2806,8 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << "public abstract ";
                 }
 
-                out << retS << " end_" << opname << spar << outParams << "Ice.AsyncResult result" << epar << ';';
+                out << retS << " end_" << opname << spar << outParams
+                    << "Ice.AsyncResult " + getEscapedParamName(op, "result") << epar << ';';
             }
         }
     }
@@ -4444,14 +4445,15 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         const string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
 
         out << sp;
-        out << nl << "public " << retS << " end_" << op->name() << spar << outParams << "Ice.AsyncResult iresult"
-            << epar;
+        const string iresultParamName = getEscapedParamName(op, "iresult");
+        out << nl << "public " << retS << " end_" << op->name() << spar << outParams
+            << "Ice.AsyncResult " + iresultParamName << epar;
         writeThrowsClause(package, throws);
         out << sb;
         if(op->returnsData())
         {
-            out << nl << "IceInternal.OutgoingAsync result_ = IceInternal.OutgoingAsync.check(iresult, this, _"
-                << op->name() << "_name);";
+            out << nl << "IceInternal.OutgoingAsync result_ = IceInternal.OutgoingAsync.check("
+                << iresultParamName << ", this, _"  << op->name() << "_name);";
             out << nl << "try";
             out << sb;
 
@@ -4534,7 +4536,7 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            out << nl << "_end(iresult, _" << op->name() << "_name);";
+            out << nl << "_end(" << iresultParamName << ", _" << op->name() << "_name);";
         }
         out << eb;
 
@@ -5529,7 +5531,8 @@ Slice::GenCompat::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         out << sp;
         writeDocCommentAMI(out, p, OutParam);
-        out << nl << "public " << retS << " end_" << p->name() << spar << outParams << "Ice.AsyncResult result"
+        out << nl << "public " << retS << " end_" << p->name() << spar << outParams
+            << "Ice.AsyncResult " + getEscapedParamName(p, "result")
             << epar;
         writeThrowsClause(package, throws);
         out << ';';
