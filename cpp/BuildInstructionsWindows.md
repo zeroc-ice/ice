@@ -153,15 +153,15 @@ To create a Nuget package for the distribution use the following command:
 
     MSbuild msbuild\ice.proj /t:NugetPack /p:BuildAllConfigurations=yes
 
-This will create zeroc.ice.v120\zeroc.ice.v120.nuckpkg or zeroc.ice.v140\zeroc.ice.v140.nuckpkg
+This will create `zeroc.ice.v120\zeroc.ice.v120.nuckpkg` or `zeroc.ice.v140\zeroc.ice.v140.nuckpkg`
 depending of the compiler version you are using to build the package.
 
 To create UWP Nuget packages you must use the `UWPNugetPack` target instead:
 
     MSbuild msbuild\ice.proj /t:UWPNugetPack /p:BuildAllConfigurations=yes
 
-This will create zeroc.ice.uwp\zeroc.ice.uwp.nuckpkg, zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nuckpkg,
-zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nuckpkg and zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nuckpkg packages.
+This will create `zeroc.ice.uwp\zeroc.ice.uwp.nuckpkg`, `zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nuckpkg`,
+`zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nuckpkg` and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nuckpkg packages`.
 
 ## Running the Test Suite
 
