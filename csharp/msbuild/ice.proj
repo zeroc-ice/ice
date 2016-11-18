@@ -21,7 +21,7 @@
         </DistSolution>
 
         <TestSoution Include="ice.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties>Configuration=$(Configuration.Replace("-Managed", ""));Platform=Any CPU</Properties>
         </TestSoution>
     </ItemGroup>
 
