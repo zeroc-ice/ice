@@ -15,7 +15,7 @@ Ice was extensively tested using the operating systems and compiler versions
 listed for our [supported platforms][2].
 
 The build requires the [Ice Builder for Visual Studio][8], you must install
-version 4.2.0 or greater to build Ice.
+version 4.3.6 or greater to build Ice.
 
 ### Third-Party Libraries
 
@@ -29,11 +29,11 @@ Ice has dependencies on a number of third-party libraries:
 You do not need to build these packages yourself, as ZeroC supplies
 [Nuget][7] packages for all these third party dependencies.
 
-The Ice build system for Windows downloads and installs Nuget and these
-Nuget packages when you build Ice for C++. The third-party packages
-are installed in the ``ice/cpp/msbuild/packages`` folder.
+The Ice build system for Windows downloads and installs the Nuget command line
+executable and these Nuget packages when you build Ice for C++. The third-party
+packages are installed in the ``ice/cpp/msbuild/packages`` folder.
 
-## Building Ice
+## Building Ice for C++
 
 Open a command prompt for example, when using Visual Studio 2015, you have
 several alternatives:
@@ -54,38 +54,98 @@ Now you're ready to build Ice:
 
 This will build the Ice for C++ developer kit and the Ice for C++ test suite.
 
-When using Visual Studio 2015 it will also build Ice for UWP (Universal Windows
-Platform) and Ice for UWP test suite.
-
 The build will create debug libraries and binaries for the default platform. If you
 want to build release libraries and binaries you can do so by setting the Msbuild
 `Configuration` property to `Release`:
 
      MSbuild msbuild\ice.proj /p:Configuration=Release
 
- The supported values for the Configuration property are `Debug` and `Release`
+The supported values for the Configuration property are `Debug` and `Release`
 
 If you wan to build libraries and binaries for a different platform you need to
-set the MSbuild `Platform` property, Ice for C++ supports `Win32` and `x64` platforms,
-with Ice for UWP there is Additionally support for `ARM` platform.
+set the MSbuild `Platform` property, Ice for C++ supports `Win32` and `x64` platforms.
 
 For example to build release binaries and libraries for Windows `x64` platform use:
 
     MSbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64
 
-To build Ice for UWP debug libraries for `ARM` platform use:
-
-    MSbuild msbuild\ice.proj /p:Configuration=Debug /p:Platform=ARM
-
 If you want to skip building the test suite you can use the `BuildDist` MSbuild
 target:
 
-    MSbuild msbuild\ice.proj /t:BuildDist  /p:Configuration=Release /p:Platform=x64
+    MSbuild msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
 
 It is also possible to build all supported platforms and configurations at once,
 with the following command:
 
     MSbuild msbuild\ice.proj /p:BuildAllConfigurations=yes
+
+If you want to authenticode sign the Ice binaries you must set SIGN_CERTIFICATE and
+SIGN_PASSWORD environment variables to the authenticode certificate path and the 
+certificate password respectivelly before build.
+
+It is also possible to build the test suite using the binary Nuget packages, use:
+
+    MSbuild msbuild\ice.proj /p:UseNugetBinDist=yes
+
+Finally to build the test suite using the MSI binary distribution use:
+
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files (x86)\Ice-3.7.0"
+
+## Building Ice for UWP
+
+Open a command prompt for example, when using Visual Studio 2015, you have
+several alternatives:
+
+- VS2015 x86 Native Tools Command Prompt
+- VS2015 x64 Native Tools Command Prompt
+
+Using the first configurations produces 32-bit binaries, while the second
+configurations produce 64-bit binaries.
+
+In the command window, change to the `cpp` subdirectory:
+
+    cd cpp
+
+Now you're ready to build Ice:
+
+    Msbuild msbuild\ice.proj /t:UWPBuild
+
+This will build the Ice for UWP developer kit and the Ice for UWP test suite.
+
+The build will create debug libraries and binaries for the default platform. If you
+want to build release libraries and binaries you can do so by setting the Msbuild
+`Configuration` property to `Release`:
+
+     MSbuild msbuild\ice.proj /t:UWPBuild /p:Configuration=Release
+
+The supported values for the Configuration property are `Debug` and `Release`
+
+If you wan to build libraries and binaries for a different platform you need to
+set the MSbuild `Platform` property, Ice for UWP supports `ARM`, `Win32` and `x64`
+platforms.
+
+For example to build release binaries and libraries for Windows `x64` platform use:
+
+    MSbuild msbuild\ice.proj /t:UWPBuild /p:Configuration=Release /p:Platform=x64
+
+If you want to skip building the test suite you can use the `WPBuildDist` MSbuild
+target:
+
+    MSbuild msbuild\ice.proj /t:UWPBuildDist  /p:Configuration=Release /p:Platform=x64
+
+It is also possible to build all supported platforms and configurations at once,
+with the following command:
+
+    MSbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
+
+It is also possible to build the test suite using the binary Nuget packages, use:
+
+    MSbuild msbuild\ice.proj /t:UWPBuild /p:UseNugetBinDist=yes
+
+Finally to build the test suite using the MSI binary distribution use:
+
+    MSbuild msbuild\ice.proj /t:UWPBuild /p:UseBinDist=yes /p:"IceHome=C:\Program Files (x86)\Ice-3.7.0"
+
 
 ## Nuget packages
 
@@ -93,8 +153,15 @@ To create a Nuget package for the distribution use the following command:
 
     MSbuild msbuild\ice.proj /t:NugetPack /p:BuildAllConfigurations=yes
 
-This will create a ice.v120.nuckpkg or ice.v140.nuckpkg depending of the
-compiler version you are using to build the package.
+This will create zeroc.ice.v120\zeroc.ice.v120.nuckpkg or zeroc.ice.v140\zeroc.ice.v140.nuckpkg
+depending of the compiler version you are using to build the package.
+
+To create UWP Nuget packages you must use the `UWPNugetPack` target instead:
+
+    MSbuild msbuild\ice.proj /t:UWPNugetPack /p:BuildAllConfigurations=yes
+
+This will create zeroc.ice.uwp\zeroc.ice.uwp.nuckpkg, zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nuckpkg,
+zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nuckpkg and zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nuckpkg packages.
 
 ## Running the Test Suite
 
