@@ -66,6 +66,14 @@ configurations.
 
     MSBuild msbuild\ice.proj /p:Configuration=Release-Managed
 
+## Nuget packages
+
+To create a Nuget package for the distribution use the following command:
+
+    MSbuild msbuild\ice.proj /t:NugetPack
+
+This will create `zeroc.ice.net\zeroc.ice.net.nuckpkg`.
+
 [1]: https://zeroc.com/download.html
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
 [3]: https://github.com/zeroc-ice/ice-builder-visualstudio
