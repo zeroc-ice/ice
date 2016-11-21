@@ -498,7 +498,6 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 }
 }
 
-Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
 string Slice::paramPrefix = "iceP_";
 
 char

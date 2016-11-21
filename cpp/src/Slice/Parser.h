@@ -50,12 +50,6 @@ const IceUtil::Int64 Int16Min = -Int16Max - 1;
 const IceUtil::Int64 ByteMax = 0xff;
 const IceUtil::Int64 ByteMin = 0x00;
 
-enum FeatureProfile
-{
-    Ice,
-    IceE
-};
-
 enum NodeType
 {
     Dummy,
@@ -1053,8 +1047,6 @@ public:
     bool usesNonLocals() const;
     bool usesConsts() const;
 
-    FeatureProfile profile() const;
-
     //
     // Returns the path names of the files included directly by the top-level file.
     //
@@ -1065,7 +1057,7 @@ public:
     //
     StringList allFiles() const;
 
-    int parse(const std::string&, FILE*, bool, FeatureProfile profile = Ice);
+    int parse(const std::string&, FILE*, bool);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);
@@ -1097,7 +1089,6 @@ private:
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
     std::map<std::string, ContainedList> _contentMap;
-    FeatureProfile _featureProfile;
     std::map<std::string, DefinitionContextPtr> _definitionContextMap;
     std::map<int, std::string> _typeIds;
     std::map< std::string, std::set<std::string> > _fileTopLevelModules;

@@ -16,7 +16,6 @@
 namespace Slice
 {
 
-extern FeatureProfile featureProfile;
 extern std::string paramPrefix;
 
 struct ToIfdef

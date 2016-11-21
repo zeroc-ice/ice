@@ -6216,12 +6216,6 @@ Slice::Unit::usesConsts() const
     return false;
 }
 
-FeatureProfile
-Slice::Unit::profile() const
-{
-    return _featureProfile;
-}
-
 StringList
 Slice::Unit::includeFiles() const
 {
@@ -6241,7 +6235,7 @@ Slice::Unit::allFiles() const
 }
 
 int
-Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::FeatureProfile profile)
+Slice::Unit::parse(const string& filename, FILE* file, bool debug)
 {
     slice_debug = debug ? 1 : 0;
 
@@ -6251,7 +6245,6 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
-    _featureProfile = profile;
     _topLevelFile = fullPath(filename);
     pushContainer(this);
     pushDefinitionContext();
