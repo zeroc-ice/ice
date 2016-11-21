@@ -147,15 +147,15 @@ To install Ice for Java in the directory specified by the `prefix` variable in
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-    glacier2-3.7.0.jar
+    glacier2-3.7a3.jar
     ice-3.7a3.jar
-    icebox-3.7.0.jar
-    icediscovery-3.7.0.jar
-    icegrid-3.7.0.jar
+    icebox-3.7a3.jar
+    icediscovery-3.7a3.jar
+    icegrid-3.7a3.jar
     icegridgui.jar
-    icelocatordiscovery-3.7.0.jar
-    icepatch2-3.7.0.jar
-    icestorm-3.7.0.jar
+    icelocatordiscovery-3.7a3.jar
+    icepatch2-3.7a3.jar
+    icestorm-3.7a3.jar
 
 POM files are also installed for ease of deployment to a maven-based
 distribution system.

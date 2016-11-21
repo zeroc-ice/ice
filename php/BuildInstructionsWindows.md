@@ -12,59 +12,45 @@ Ice for PHP was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
 The build requires the [Ice Builder for Visual Studio][8], you must install
-version 4.2.0 or greater to build Ice.
+version 4.3.6 or greater to build Ice.
 
-### Ice Development Kit
+### Preparing to Build
 
-You will need the Ice development kit for C++, which you can install as a binary
-distribution or compile from source yourself.
+The build system requires the slice2php translator from Ice for C++. If you have not
+built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md)
 
 ## Building the PHP Extension
 
-The most common motivation for compiling the Ice extension yourself is to create
-an extension that is compatible with your existing environment, such as when
-your Web server or PHP interpreter is built with a different compiler.
+Open a command prompt for example, when using Visual Studio 2015, you have
+several alternatives:
 
-To build the Ice extension, first download the PHP binary archive or Windows
-installer and install the distribution.
+- VS2015 x86 Native Tools Command Prompt
+- VS2015 x64 Native Tools Command Prompt
 
-You will also need to download and extract the PHP sources (Ice for PHP
-requires the PHP header files). Change to the PHP source directory and run the
-following commands:
+Using the first configurations produces 32-bit binaries, while the second
+configurations produce 64-bit binaries.
 
-    > buildconf
-    > configure
+In the command window, change to the `php` subdirectory:
 
-You do not need to actually build PHP from source, but these two steps are
-necessary to generate header files that are required by the Ice extension.
+    cd php
 
-You must built Ice for C++ from the `cpp` subdirectory, if you have not done so
-review cpp\BuildInstructionsWindows.md first.
+Now you're ready to build Ice for PHP:
 
-Change to the Ice for PHP source directory:
-
-    > cd php
-
-Building the extension:
-
-There is a number of MSbuild properties that controls the building of the
-extension, review `ice.pros` to stablish your build configuration.
-
-    > MSbuild msbuild\ice.proj
+    Msbuild msbuild\ice.proj
 
 This will build the extension in `Release` configuration and using the command
 prompt default platform, for `x64` platform the extension will be placed in
 `lib\x64\Release\php_ice.dll` and for `Win32` platform the extension will be
 placed in `lib\Win32\Release\php_ice.dll`.
 
+The default configuration builds the extension agains the Thread Safe PHP runtime,
+you can build with the Non Thread Safe using the `Release-NTS` and `Debug-NTS` 
+configurations.
 
-If you want to build a debug version of the extension you can to so by setting
-the MSBuild `Configuration` property to `Debug`:
+        > MSbuild msbuild\ice.proj /p:Configuration=Release-NTS
 
-    > MSbuild msbuild\ice.proj /p:Configuration=Debug
-
-the extension will be placed in `lib\x64\Debug\php_ice.dll` directory and for
-`Win32` platform the extension will be placed in `lib\Win32\Release\php_ice.dll`.
+the extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
+and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
 
 ## Installing the PHP Extension
 
@@ -122,8 +108,6 @@ PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. On Windows, these DLLs are required:
 
     ice37.dll
-    iceutil37.dll
-    slice37.dll
     bzip2.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For

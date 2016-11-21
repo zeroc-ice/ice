@@ -18,8 +18,8 @@ version 4.3.6 or greater to build Ice.
 
 ### Preparing to Build
 
-The build system requires the Slice translator from Ice for C++. If you have not
-built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md)
+The build system requires the `slice2cs` compiler from Ice for C++. If you have
+not built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md).
 
 ### Building Ice for .NET
 
