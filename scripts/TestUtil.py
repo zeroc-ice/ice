@@ -750,10 +750,8 @@ def getSliceDir():
     #
     global iceHome
     if iceHome:
-        if isDarwin() and iceHome == "/usr/local":
-            return "/usr/local/share/slice"
-        elif isLinux() and iceHome == "/usr":
-            return "/usr/share/Ice-" + iceVersion + "/slice"
+        if iceHome == "/usr/local" or iceHome == "/usr":
+            return os.path.join(iceHome, "ice", "slice")
         else:
             return os.path.join(iceHome, "slice")
     else:
