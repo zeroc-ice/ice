@@ -31,6 +31,7 @@
     <Extension Category="windows.certificates">
       <Certificates>
         <Certificate StoreName="Root" Content="cacert.der" />
+        <TrustFlags ExclusiveTrust="true" />
       </Certificates>
     </Extension>
   </Extensions>
