@@ -29,6 +29,7 @@
     </Filter>
     <Filter Include="Slice Files">
       <UniqueIdentifier>{6f6474fa-6b0c-422c-8a32-f0c5c2e9d713}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\Win32">
       <UniqueIdentifier>{faa93517-f0d1-4e5f-b5f6-fdac0b5b2c28}</UniqueIdentifier>

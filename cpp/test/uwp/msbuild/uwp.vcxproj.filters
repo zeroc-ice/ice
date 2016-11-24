@@ -102,6 +102,9 @@
     <Filter Include="Header Files\x64\Release">
       <UniqueIdentifier>{199edc9c-ac6b-4501-b77a-ff1231d099f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="certs">
+      <UniqueIdentifier>{e1bfbab3-c887-463f-88b1-ac3aed2972ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="..\App.xaml" />
@@ -189,7 +192,6 @@
     </IceBuilder>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\certs\cacert.der" />
     <None Include="..\..\Ice\proxy\msbuild\uwp\client\x64\Debug\Ice_proxy_client.dll">
       <Filter>Tests\x64\Debug</Filter>
     </None>
@@ -1425,5 +1427,59 @@
     </None>
     <None Include="..\TestSuite_TemporaryKey.pfx" />
     <None Include="packages.config" />
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\Win32\Debug\IceSSL_configuration_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\Win32\Release\IceSSL_configuration_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\x64\Debug\IceSSL_configuration_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\x64\Release\IceSSL_configuration_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\ARM\Debug\IceSSL_configuration_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\ARM\Release\IceSSL_configuration_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\..\certs\cacert.der">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\cacert1.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\cacert2.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_ca1_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\s_rsa_ca1_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_ca1.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_ca2.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_cai2.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_ca1_exp.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\s_rsa_ca1_exp_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_ca1_exp_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\IceSSL\certs\cacerts.pem">
+      <Filter>certs</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -34,11 +34,12 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationType>Windows Store</ApplicationType>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
-    <IceBuilderCppProps Condition="!Exists('$(IceBuilderCppProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.props', SearchOption.AllDirectories))</IceBuilderCppProps>
-    <IceBuilderCppTargets Condition="!Exists('$(IceBuilderCppTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Cpp.targets', SearchOption.AllDirectories))</IceBuilderCppTargets>
+    <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
+    <IceBuilderCppProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.props</IceBuilderCppProps>
+    <IceBuilderCppTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.targets</IceBuilderCppTargets>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -262,5 +263,11 @@
     <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets'))" />
     <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props'))" />
     <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets'))" />
+  </Target>
+  <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(IceBuilderCppProps)')" Text="$(ErrorText)" />
   </Target>
 </Project>
