@@ -672,10 +672,8 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 throw IceUtilInternal::lastErrorToString();
             }
 
-            CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
-
             string trustError;
-            if(simpleChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
+            if(certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
             {
                 trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
             }
