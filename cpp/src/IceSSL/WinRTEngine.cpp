@@ -65,7 +65,7 @@ WinRTEngine::initialize()
             {
                 return password(false);
             }, 
-            getPasswordPrompt != nullptr, 
+            getPasswordPrompt() != nullptr, 
             passwordRetryMax));
     }
     else if(!findCert.empty())
