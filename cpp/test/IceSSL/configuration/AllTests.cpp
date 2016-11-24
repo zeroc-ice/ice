@@ -95,13 +95,15 @@ importPersonalCertificate(const string& friendlyName, const string& file, const 
 {
     std::promise<bool> p;
     auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
-    create_task(StorageFile::GetFileFromApplicationUriAsync(uri)).then(
-        [](StorageFile^ file)
+    create_task(StorageFile::GetFileFromApplicationUriAsync(uri))
+
+    .then([](StorageFile^ file)
         {
             return FileIO::ReadBufferAsync(file);
-        }
-    ).then(
-        [&password, &friendlyName](IBuffer^ buffer)
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&password, &friendlyName](IBuffer^ buffer)
         {
             return CertificateEnrollmentManager::ImportPfxDataAsync(CryptographicBuffer::EncodeToBase64String(buffer),
                                                                     ref new String(stringToWstring(password).c_str()),
@@ -109,59 +111,76 @@ importPersonalCertificate(const string& friendlyName, const string& file, const 
                                                                     KeyProtectionLevel::NoConsent,
                                                                     InstallOptions::None,
                                                                     ref new String(stringToWstring(friendlyName).c_str()));
-        }
-    ).then([&p](task<void> previous)
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&p]()
+        {
+            p.set_value(true);
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&p](task<void> t)
         {
             try
             {
-                previous.get();
-                p.set_value(true);
+                t.get();
             }
             catch(...)
             {
                 p.set_exception(current_exception());
             }
-        });
+        },
+        task_continuation_context::use_arbitrary());
+
     return p.get_future().get();
 }
 
 bool
-removeCertificate(String^ storeName, const string& friendlyName)
+removeCertificate(String^ storeName, const string& friendlyName = "")
 {
     promise<bool> p;
     CertificateQuery^ query = ref new CertificateQuery();
     query->IncludeDuplicates = true;
     query->IncludeExpiredCertificates = true;
-    query->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
+    if(!friendlyName.empty())
+    {
+        query->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
+    }
     query->StoreName = storeName;
-    create_task(CertificateStores::FindAllAsync(query)).then(
-        [](IVectorView<Certificate^>^ certs)
+
+    create_task(CertificateStores::FindAllAsync(query))
+
+    .then([&p](IVectorView<Certificate^>^ certs)
         {
             for(unsigned int i = 0; i < certs->Size; ++i)
             {
                 Certificate^ cert = certs->GetAt(i);
-                CertificateStore^ store = CertificateStores::GetStoreByName(cert->StoreName);
-                store->Delete(cert);
+                CertificateStores::GetStoreByName(cert->StoreName)->Delete(cert);
             }
-        }
-    ).then(
-        [&p](task<void> previous)
+            p.set_value(true);
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then(
+        [&p](task<void> t)
         {
             try
             {
-                previous.get();
-                p.set_value(true);
+                t.get();
             }
             catch(...)
             {
                 p.set_exception(current_exception());
             }
-        });
+        },
+        task_continuation_context::use_arbitrary());
+
     return p.get_future().get();
 }
 
 bool
-removePersonalCertificate(const string& friendlyName)
+removePersonalCertificate(const string& friendlyName = "")
 {
     return removeCertificate(StandardCertificateStoreNames::Personal, friendlyName);
 }
@@ -618,14 +637,9 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
         importCaCertificate(ca, "ms-appx:///" + ca + ".pem");
     }
 
-    removePersonalCertificate("c_rsa_ca1");
-    removePersonalCertificate("c_rsa_ca1_exp");
-    removePersonalCertificate("c_rsa_ca2");
-
     if(!cert.empty())
     {
-        importPersonalCertificate(cert, "ms-appx:///" + cert + ".p12", "password");
-        properties->setProperty("IceSSL.FindCert", "FRIENDLYNAME:'" + cert + "'");
+        properties->setProperty("IceSSL.CertFile", "ms-appx:///" + cert + ".p12");
     }
 #else
     if(!ca.empty())
@@ -2096,16 +2110,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
     //
-    // IceSSL.Password is not supported with WinRT
-    //
-#  ifndef ICE_OS_WINRT
-    //
     // SChannel doesn't support PEM Password protected certificates certificates
     //
-#  ifdef ICE_USE_SCHANNEL
+#ifdef ICE_USE_SCHANNEL
     if(p12)
     {
-#  endif
+#endif
     cout << "testing password prompt... " << flush;
     {
         //
@@ -2122,11 +2132,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(plugin);
         PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
 
-#  ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#  else
+#else
         plugin->setPasswordPrompt(prompt);
-#  endif
+#endif
         pm->initializePlugins();
         test(prompt->count() == 1);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -2148,7 +2158,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         // Use an incorrect password and check that retries are attempted.
         //
-        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_pass_ca1","cacert1");
+#ifdef  ICE_OS_WINRT
+        removePersonalCertificate();
+#endif
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_pass_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.Password", ""); // Clear password
         initData.properties->setProperty("IceSSL.PasswordRetryMax", "4");
         initData.properties->setProperty("Ice.InitPlugins", "0");
@@ -2158,11 +2171,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(plugin);
         prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
 
-#  ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#  else
+#else
         plugin->setPasswordPrompt(prompt);
-#  endif
+#endif
         try
         {
             pm->initializePlugins();
@@ -2181,9 +2194,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
     }
     cout << "ok" << endl;
-#  ifdef ICE_USE_SCHANNEL
+#ifdef ICE_USE_SCHANNEL
     }
-#  endif
 #endif
 
     //
@@ -3538,6 +3550,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             0
         };
 
+        removePersonalCertificate();
         importPersonalCertificate("c_rsa_ca1", "ms-appx:///c_rsa_ca1.p12", "password");
 
         for(int i = 0; clientFindCertProperties[i] != 0; i++)

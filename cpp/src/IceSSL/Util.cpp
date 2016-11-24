@@ -1693,6 +1693,195 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
     return certs;
 }
 #elif defined (ICE_OS_WINRT)
+
+namespace
+{
+
+//
+// Find a certificate in the Application Personal certificate store
+// with the given friendly name. Returns the matching certificate or
+// nullptr if none is found.
+//
+Certificates::Certificate^
+findPersonalCertificate(String^ friendlyName)
+{
+    std::promise<Certificates::Certificate^> p;
+
+    CertificateQuery^ query = ref new CertificateQuery();
+    query->IncludeDuplicates = true;
+    query->IncludeExpiredCertificates = true;
+    query->FriendlyName = friendlyName;
+    query->StoreName = StandardCertificateStoreNames::Personal;
+
+    create_task(CertificateStores::FindAllAsync(query))
+
+    .then([&p](IVectorView<Certificates::Certificate^>^ certificates)
+        {
+            if(certificates->Size > 0)
+            {
+                p.set_value(certificates->GetAt(0));
+            }
+            else
+            {
+                p.set_value(nullptr);
+            }
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&](task<void> t)
+        {
+            try
+            {
+                t.get();
+            }
+            catch(Platform::Exception^ ex)
+            {
+                p.set_exception(make_exception_ptr(
+                    PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" + 
+                                                                      wstringToString(ex->Message->Data()))));
+            }
+        },
+        task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
+
+//
+// Import a certificate in the Application Personal certificate store
+// with the given friendly name. Returns true if there was a password
+// error and false otherwise. If the import fails because a different
+// error PluginInitializationException exception is throw.
+//
+bool
+importPfxData(String^ friendlyName, String^ data, String^ password)
+{
+    promise<bool> p;
+
+    create_task(CertificateEnrollmentManager::ImportPfxDataAsync(
+        data,
+        password,
+        ExportOption::NotExportable,
+        KeyProtectionLevel::NoConsent,
+        InstallOptions::None,
+        friendlyName))
+
+    .then([&p]()
+        {
+            p.set_value(false); // The import succcess
+        },
+        task_continuation_context::use_arbitrary())
+    
+    .then([&p](task<void> t)
+        {
+            try
+            {
+                t.get();
+            }
+            catch(Platform::Exception^ ex)
+            {
+                if(HRESULT_CODE(ex->HResult) == ERROR_DECRYPTION_FAILED)
+                {
+                    p.set_value(true); // Password error
+                }
+                else
+                {
+                    p.set_exception(make_exception_ptr(
+                        PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" + 
+                                                      wstringToString(ex->Message->Data()))));
+                }
+            }
+        },
+        task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
+
+}
+
+Certificates::Certificate^
+IceSSL::importPersonalCertificate(const string& file, function<string ()> password, bool passwordPrompt,
+                                  int passwordRetryMax)
+{
+    std::promise<Certificates::Certificate^> p;
+    auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
+    create_task(StorageFile::GetFileFromApplicationUriAsync(uri))
+    
+    .then([](StorageFile^ file)
+        {
+            return FileIO::ReadBufferAsync(file);
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&file, &password, &p, passwordPrompt, passwordRetryMax](IBuffer^ buffer)
+        {
+            //
+            // Create a hash of the certificate to use as a friendly name, this will allow us
+            // to uniquely identify the certificate in the store.
+            //
+            auto hasher = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Sha1);
+            auto hash = hasher->CreateHash();
+
+            hash->Append(buffer);
+            String^ friendlyName = CryptographicBuffer::EncodeToBase64String(hash->GetValueAndReset());
+
+            //
+            // If the certificate is already in the store we avoid importing it.
+            //
+            Certificates::Certificate^ cert = findPersonalCertificate(friendlyName);
+            if(cert)
+            {
+                p.set_value(cert);
+            }
+            else
+            {
+                String^ data = CryptographicBuffer::EncodeToBase64String(buffer);
+                int count = 0;
+                bool passwordErr = false;
+                do
+                {
+                    passwordErr = importPfxData(friendlyName, data,
+                                                ref new String(stringToWstring(password()).c_str()));
+                }
+                while(passwordPrompt && passwordErr && ++count < passwordRetryMax);
+                if(passwordErr)
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding certificate");
+                }
+                p.set_value(findPersonalCertificate(friendlyName));
+            }
+        },
+        task_continuation_context::use_arbitrary())
+    
+    .then([&p, &file](task<void> t)
+        {
+            try
+            {
+                t.get();
+            }
+            catch(Platform::Exception^ ex)
+            {
+                if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
+                {
+                    p.set_exception(make_exception_ptr(
+                        PluginInitializationException(__FILE__, __LINE__, "certificate file not found:\n" + file)));
+                }
+                else
+                {
+                    p.set_exception(make_exception_ptr(
+                        PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" +
+                                                                          wstringToString(ex->Message->Data()))));
+                }
+            }
+            catch(...)
+            {
+                p.set_exception(current_exception());
+            }
+        },
+        task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
+
 IVectorView<Certificates::Certificate^>^
 IceSSL::findCertificates(const string& name, const string& value)
 {
@@ -1786,26 +1975,25 @@ IceSSL::findCertificates(const string& name, const string& value)
     }
 
     std::promise<IVectorView<Certificates::Certificate^>^> p;
-    HRESULT error = 0;
-    create_task(CertificateStores::FindAllAsync(query)).then(
-        [&](task<IVectorView<Certificates::Certificate^>^> previous)
+    create_task(CertificateStores::FindAllAsync(query))
+
+    .then([&p](IVectorView<Certificates::Certificate^>^ certificates)
+        {
+            p.set_value(certificates);
+        },
+        task_continuation_context::use_arbitrary())
+
+    .then([&p](task<void> t)
         {
             try
             {
-                p.set_value(previous.get());
+                t.get();
             }
-            catch(Platform::Exception^ err)
+            catch(Platform::Exception^ ex)
             {
-                try
-                {
-                    Ice::SyscallException ex(__FILE__, __LINE__);
-                    ex.error = err->HResult;
-                    throw ex;
-                }
-                catch(...)
-                {
-                    p.set_exception(current_exception());
-                }
+                p.set_exception(
+                    make_exception_ptr(PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" +
+                                                                     wstringToString(ex->Message->Data()))));
             }
         },
         task_continuation_context::use_arbitrary());

@@ -181,12 +181,12 @@ toCFString(const std::string& s)
 std::string errorToString(CFErrorRef);
 std::string errorToString(OSStatus);
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#  if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
 //
 // Retrieve a certificate property
 //
 CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
-#endif
+#  endif
 
 //
 // Read certificate from a file.
@@ -203,6 +203,9 @@ CFArrayRef findCertificateChain(const std::string&, const std::string&, const st
 std::vector<PCCERT_CONTEXT>
 findCertificates(const std::string&, const std::string&, const std::string&, std::vector<HCERTSTORE>&);
 #elif defined(ICE_OS_WINRT)
+Windows::Security::Cryptography::Certificates::Certificate^
+importPersonalCertificate(const std::string&, std::function<std::string()>, bool, int);
+
 Windows::Foundation::Collections::IVectorView<Windows::Security::Cryptography::Certificates::Certificate^>^
 findCertificates(const std::string&, const std::string&);
 #endif

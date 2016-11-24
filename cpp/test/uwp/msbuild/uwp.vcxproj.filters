@@ -1481,5 +1481,8 @@
     <None Include="..\..\IceSSL\certs\cacerts.pem">
       <Filter>certs</Filter>
     </None>
+    <None Include="..\..\IceSSL\certs\c_rsa_pass_ca1.p12">
+      <Filter>certs</Filter>
+    </None>
   </ItemGroup>
 </Project>

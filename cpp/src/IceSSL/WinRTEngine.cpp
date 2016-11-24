@@ -52,8 +52,23 @@ WinRTEngine::initialize()
     //
     // Load client certificate
     //
+    const int passwordRetryMax = properties->getPropertyAsIntWithDefault("IceSSL.PasswordRetryMax", 3);
+    setPassword(properties->getProperty("IceSSL.Password"));
+
+    string certFile = properties->getProperty("IceSSL.CertFile");
     string findCert = properties->getProperty("IceSSL.FindCert");
-    if(!findCert.empty())
+    if(!certFile.empty())
+    {
+        _certificate = make_shared<IceSSL::Certificate>(importPersonalCertificate(
+            certFile, 
+            [this]()
+            {
+                return password(false);
+            }, 
+            getPasswordPrompt != nullptr, 
+            passwordRetryMax));
+    }
+    else if(!findCert.empty())
     {
         auto certs = findCertificates(properties->getPropertyWithDefault("IceSSL.CertStore", "My"), findCert);
         if(certs->Size == 0)
