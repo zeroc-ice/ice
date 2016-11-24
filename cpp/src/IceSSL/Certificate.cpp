@@ -611,21 +611,24 @@ vector<pair<int, string> >
 certificateAltNames(Windows::Security::Cryptography::Certificates::SubjectAlternativeNameInfo^ subAltNames)
 {
     vector<pair<int, string> > altNames;
-    for(auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
+    if(subAltNames)
     {
-        altNames.push_back(make_pair(AltNameEmail, wstringToString(iter->Current->Data())));
-    }
-    for(auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
-    {
-        altNames.push_back(make_pair(AltNameDNS, wstringToString(iter->Current->Data())));
-    }
-    for(auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
-    {
-        altNames.push_back(make_pair(AltNameURL, wstringToString(iter->Current->Data())));
-    }
-    for(auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
-    {
-        altNames.push_back(make_pair(AltNAmeIP, wstringToString(iter->Current->Data())));
+        for(auto iter = subAltNames->EmailName->First(); iter->HasCurrent; iter->MoveNext())
+        {
+            altNames.push_back(make_pair(AltNameEmail, wstringToString(iter->Current->Data())));
+        }
+        for(auto iter = subAltNames->DnsName->First(); iter->HasCurrent; iter->MoveNext())
+        {
+            altNames.push_back(make_pair(AltNameDNS, wstringToString(iter->Current->Data())));
+        }
+        for(auto iter = subAltNames->Url->First(); iter->HasCurrent; iter->MoveNext())
+        {
+            altNames.push_back(make_pair(AltNameURL, wstringToString(iter->Current->Data())));
+        }
+        for(auto iter = subAltNames->IPAddress->First(); iter->HasCurrent; iter->MoveNext())
+        {
+            altNames.push_back(make_pair(AltNAmeIP, wstringToString(iter->Current->Data())));
+        }
     }
     return altNames;
 }
@@ -1139,13 +1142,13 @@ Certificate::load(const string& file)
     create_task(StorageFile::GetFileFromApplicationUriAsync(
             ref new Uri(ref new String(stringToWstring(file).c_str())))).then([](StorageFile^ file)
         {
-            return FileIO::ReadBufferAsync(file);
+            return FileIO::ReadTextAsync(file);
         },
-        task_continuation_context::use_arbitrary()).then([&result, &file](task<IBuffer^> previous)
+        task_continuation_context::use_arbitrary()).then([&result, &file](task<String^> previous)
         {
             try
             {
-                result.set_value(make_shared<Certificate>(ref new Certificates::Certificate(previous.get())));
+                result.set_value(Certificate::decode(wstringToString(previous.get()->Data())));
             }
             catch(Platform::Exception^ ex)
             {
@@ -1273,7 +1276,7 @@ Certificate::operator==(const Certificate& other) const
 #elif defined(ICE_USE_OPENSSL)
     return X509_cmp(_cert, other._cert) == 0;
 #elif defined(ICE_OS_WINRT)
-    return _cert->Equals(other._cert);
+    return CryptographicBuffer::Compare(_cert->GetCertificateBlob(), other._cert->GetCertificateBlob());
 #else
 #   error "Unknown platform"
 #endif
@@ -1669,7 +1672,9 @@ Certificate::getIssuerDN() const
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_issuer_name(_cert))));
 #elif defined(ICE_OS_WINRT)
-    return DistinguishedName(wstringToString(_cert->Issuer->Data()));
+    ostringstream os;
+    os << "CN=" << wstringToString(_cert->Issuer->Data());
+    return DistinguishedName(os.str());
 #else
 #   error "Unknown platform"
 #endif

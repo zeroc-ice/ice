@@ -12,9 +12,7 @@
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <Ice/Config.h>
-#if !defined(ICE_OS_WINRT)
-#   include <IceSSL/Plugin.h>
-#endif
+#include <IceSSL/Plugin.h>
 #include <IceSSL/EndpointInfo.h>
 #include <IceSSL/ConnectionInfo.h>
 #include <IceUtil/PopDisableWarnings.h>

@@ -35,7 +35,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         cerr << "testing with PKCS12 certificates..." << endl;
         Test::ServerFactoryPrxPtr factory = allTests(communicator, testdir, true);
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#if TARGET_OS_IPHONE == 0 && !defined(ICE_OS_WINRT)
         cerr << "testing with PEM certificates..." << endl;
         factory = allTests(communicator, testdir, false);
 #endif

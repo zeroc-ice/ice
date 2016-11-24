@@ -16,11 +16,22 @@
 #include <Test.h>
 #include <fstream>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #  include <sys/sysctl.h>
-#if TARGET_OS_IPHONE != 0
-#include <IceSSL/Util.h> // For loadCertificateChain
-#endif
+#  if TARGET_OS_IPHONE != 0
+#    include <IceSSL/Util.h> // For loadCertificateChain
+#  endif
+#elif defined(ICE_OS_WINRT)
+#  include <ppltasks.h>
+#  include <nserror.h>
+using namespace concurrency;
+using namespace Platform;
+using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Streams;
+using namespace Windows::Security::Cryptography;
+using namespace Windows::Security::Cryptography::Certificates;
 #endif
 
 #ifdef ICE_CPP11_MAPPING
@@ -63,6 +74,105 @@ readFile(const string& file, vector<char>& buffer)
         throw "error reading file " + file;
     }
 }
+
+#ifdef ICE_OS_WINRT
+
+//
+// Helper methods to install a remove certificates from the Application store.
+//
+
+bool
+importCaCertificate(const string& friendlyName, const string& file)
+{   
+    auto cert = IceSSL::Certificate::load(file)->getCert();
+    cert->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
+    CertificateStores::TrustedRootCertificationAuthorities->Add(cert);
+    return true;
+}
+
+bool
+importPersonalCertificate(const string& friendlyName, const string& file, const string& password)
+{
+    std::promise<bool> p;
+    auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
+    create_task(StorageFile::GetFileFromApplicationUriAsync(uri)).then(
+        [](StorageFile^ file)
+        {
+            return FileIO::ReadBufferAsync(file);
+        }
+    ).then(
+        [&password, &friendlyName](IBuffer^ buffer)
+        {
+            return CertificateEnrollmentManager::ImportPfxDataAsync(CryptographicBuffer::EncodeToBase64String(buffer),
+                                                                    ref new String(stringToWstring(password).c_str()),
+                                                                    ExportOption::NotExportable,
+                                                                    KeyProtectionLevel::NoConsent,
+                                                                    InstallOptions::None,
+                                                                    ref new String(stringToWstring(friendlyName).c_str()));
+        }
+    ).then([&p](task<void> previous)
+        {
+            try
+            {
+                previous.get();
+                p.set_value(true);
+            }
+            catch(...)
+            {
+                p.set_exception(current_exception());
+            }
+        });
+    return p.get_future().get();
+}
+
+bool
+removeCertificate(String^ storeName, const string& friendlyName)
+{
+    promise<bool> p;
+    CertificateQuery^ query = ref new CertificateQuery();
+    query->IncludeDuplicates = true;
+    query->IncludeExpiredCertificates = true;
+    query->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
+    query->StoreName = storeName;
+    create_task(CertificateStores::FindAllAsync(query)).then(
+        [](IVectorView<Certificate^>^ certs)
+        {
+            for(unsigned int i = 0; i < certs->Size; ++i)
+            {
+                Certificate^ cert = certs->GetAt(i);
+                CertificateStore^ store = CertificateStores::GetStoreByName(cert->StoreName);
+                store->Delete(cert);
+            }
+        }
+    ).then(
+        [&p](task<void> previous)
+        {
+            try
+            {
+                previous.get();
+                p.set_value(true);
+            }
+            catch(...)
+            {
+                p.set_exception(current_exception());
+            }
+        });
+    return p.get_future().get();
+}
+
+bool
+removePersonalCertificate(const string& friendlyName)
+{
+    return removeCertificate(StandardCertificateStoreNames::Personal, friendlyName);
+}
+
+bool
+removeCaCertificate(const string& friendlyName)
+{
+    return removeCertificate(CertificateStores::TrustedRootCertificationAuthorities->Name, friendlyName);
+}
+
+#endif
 
 #ifdef ICE_USE_SCHANNEL
 class ImportCerts
@@ -323,6 +433,10 @@ public:
             }
 
             //
+            // WinRT Certificate API doesn't provide the Issuer alternative name
+            //
+#  ifndef ICE_OS_WINRT
+            //
             // Issuer alternative name
             //
             {
@@ -344,6 +458,7 @@ public:
                 test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
                 test(find(emailAddresses.begin(), emailAddresses.end(), "issuer@zeroc.com") != emailAddresses.end());
             }
+#  endif
 #endif
         }
 
@@ -490,6 +605,29 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
     Ice::PropertiesPtr properties;
 
     properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+#ifdef ICE_OS_WINRT
+
+    //
+    // Remove any CA certificates previously used by this test
+    //
+    removeCaCertificate("cacert1");
+    removeCaCertificate("cacert2");
+
+    if(!ca.empty())
+    {
+        importCaCertificate(ca, "ms-appx:///" + ca + ".pem");
+    }
+
+    removePersonalCertificate("c_rsa_ca1");
+    removePersonalCertificate("c_rsa_ca1_exp");
+    removePersonalCertificate("c_rsa_ca2");
+
+    if(!cert.empty())
+    {
+        importPersonalCertificate(cert, "ms-appx:///" + cert + ".p12", "password");
+        properties->setProperty("IceSSL.FindCert", "FRIENDLYNAME:'" + cert + "'");
+    }
+#else
     if(!ca.empty())
     {
         properties->setProperty("IceSSL.CAs", ca + ".pem");
@@ -507,6 +645,7 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
             properties->setProperty("IceSSL.KeyFile", cert + "_priv.pem");
         }
     }
+#endif
     return properties;
 }
 
@@ -591,9 +730,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     }
 
 //
-// Anonymous cipher are not supported with SChannel
+// Anonymous cipher are not supported with SChannel or UWP
 //
-#if !defined(ICE_USE_SCHANNEL)
+#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_WINRT)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
@@ -634,20 +773,25 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
     cout << "testing certificate verification... " << flush;
     {
+        Test::Properties d;
+        Test::ServerPrxPtr server;
+        Test::ServerFactoryPrxPtr fact;
+        CommunicatorPtr comm;
+        InitializationData initData;
         //
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
         // and doesn't trust the server certificate.
         //
-        InitializationData initData;
+        
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
 
-        Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
+        d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "");
         d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrxPtr server = fact->createServer(d);
+        server = fact->createServer(d);
         try
         {
             server->noCert();
@@ -683,7 +827,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(false);
         }
         fact->destroyServer(server);
-
         //
         // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
         //
@@ -694,8 +837,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->noCert();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -735,6 +879,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         // able to provide the certificate chain).
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
+
         comm = initialize(initData);
         fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
@@ -744,8 +889,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
+#ifdef  ICE_OS_WINRT
+            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
+            Ice::Context ctx;
+            ctx["uwp"] = "1";
+            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN(), ctx);
+#else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+#endif
+
 
             //
             // Validate that we can get the connection info. Validate
@@ -753,7 +906,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             //
             // Validate some aspects of the Certificate class.
             //
+#ifdef  ICE_OS_WINRT
+            IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load("ms-appx:///s_rsa_ca1_pub.pem");
+#else
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+#endif
             test(ICE_TARGET_EQUAL_TO(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
             test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -766,8 +923,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #   endif
 #endif
 
+#ifdef  ICE_OS_WINRT
+            IceSSL::CertificatePtr caCert = IceSSL::Certificate::load("ms-appx:///cacert1.pem");
+            IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load("ms-appx:///cacert2.pem");
+#else
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
+#endif
             test(ICE_TARGET_EQUAL_TO(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
@@ -779,10 +941,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #   endif
 #endif
 
+            //
+            // IceSSL implementation for WinRT doesn't support to validate a certificate
+            // with a custom CA.
+            //
+#ifndef ICE_OS_WINRT
             test(!serverCert->verify(serverCert));
             test(serverCert->verify(caCert));
             test(!serverCert->verify(caCert2));
             test(caCert->verify(caCert));
+#endif
 
             info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->nativeCerts.size() == 2);
@@ -805,7 +973,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
                  !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
 #   endif
 #endif
+
+            //
+            // IceSSL implementation for WinRT doesn't support to validate a certificate
+            // with a custom CA.
+            //
+#ifndef  ICE_OS_WINRT
             test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
+#endif
             test(info->nativeCerts.size() == 2 &&
                  info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
                  info->nativeCerts[0]->getIssuerDN() == serverCert->getIssuerDN());
@@ -825,8 +1000,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
+#ifdef  ICE_OS_WINRT
+            IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
+            Ice::Context ctx;
+            ctx["uwp"] = "1";
+            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN(), ctx);
+#else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+#endif
         }
         catch(const LocalException&)
         {
@@ -1114,7 +1296,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             try
             {
                 info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_WINRT)
                 test(info->nativeCerts.size() == 1); // SChannel never sends the root certificate
 #else
                 test(info->nativeCerts.size() == 2);
@@ -1162,6 +1344,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
 
         //
+        // With WinRT the following tests that use an intermediate CA fails with 
+        // ChainValidationResult::IncompleteChain
+        //
+#ifndef  ICE_OS_WINRT
+        //
         // Try certificate with one intermediate and VerifyDepthMax=2
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "cacert1");
@@ -1206,7 +1393,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
         fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
-
         {
             Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_cai1", "");
             d["IceSSL.VerifyPeer"] = "0";
@@ -1217,8 +1403,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
                 test(info->nativeCerts.size() == 3);
                 test(info->verified);
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl; 
                 import.cleanup();
                 test(false);
             }
@@ -1264,8 +1451,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
                 test(info->nativeCerts.size() == 4);
                 test(info->verified);
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 import.cleanup();
                 test(false);
             }
@@ -1329,6 +1517,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
 
         comm->destroy();
+#endif
         import.cleanup();
     }
     cout << "ok" << endl;
@@ -1338,7 +1527,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 //
 // Anonymous ciphers are not supported with SChannel.
 //
-#ifndef ICE_USE_SCHANNEL
+#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_WINRT)
         //
         // ADH is allowed but will not have a certificate.
         //
@@ -1444,8 +1633,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         test(verifier->invoked());
@@ -1455,10 +1645,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     }
     cout << "ok" << endl;
 
-
+    //
+    // IceSSL.Protocols is not supported with WinRT
+    //
+#ifndef ICE_OS_WINRT
     cout << "testing protocols... " << flush;
     {
-#ifndef ICE_USE_SECURE_TRANSPORT
+#  ifndef ICE_USE_SECURE_TRANSPORT
         //
         // This should fail because the client and server have no protocol
         // in common.
@@ -1515,10 +1708,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             // OpenSSL < 1.0 doesn't support tls 1.1 so it will also fail, we ignore in this
             // case.
             //
-#if defined(ICE_USE_SCHANNEL) || (defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L)
+#    if defined(ICE_USE_SCHANNEL) || (defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L)
             cerr << ex << endl;
             test(false);
-#endif
+#    endif
         }
         fact->destroyServer(server);
         comm->destroy();
@@ -1589,7 +1782,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //     fact->destroyServer(server);
         //     comm->destroy();
         // }
-#else
+#  else
         //
         // In OS X we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
         // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
@@ -1728,9 +1921,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             fact->destroyServer(server);
             comm->destroy();
         }
-#endif
+#  endif
     }
     cout << "ok" << endl;
+#endif
 
     cout << "testing expired certificates... " << flush;
     {
@@ -1739,7 +1933,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
+#  ifdef ICE_OS_WINRT
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::load("ms-appx:///s_rsa_ca1_exp_pub.pem");
+#  else
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
+#  endif
             test(!cert->checkValidity());
         }
 #endif
@@ -1773,7 +1971,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
+#  ifdef ICE_OS_WINRT
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_exp_pub.pem");
+#  else
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
+#  endif
             test(!cert->checkValidity());
         }
 #endif
@@ -1834,6 +2036,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     cout << "ok" << endl;
 #endif
 
+    //
+    // IceSSL.CAs is not supported with WinRT
+    //
+#ifndef ICE_OS_WINRT
     cout << "testing multiple CA certificates... " << flush;
     {
         InitializationData initData;
@@ -1848,16 +2054,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
         comm->destroy();
     }
     cout << "ok" << endl;
+#endif
 
-#ifndef ICE_USE_OPENSSL
+    //
+    // OpenSSL must use PEM certificate, WinRT doesn't support IceSSL.CAs
+    //
+#if !defined(ICE_USE_OPENSSL) && !defined(ICE_OS_WINRT)
     cout << "testing DER CA certificate... " << flush;
     {
         InitializationData initData;
@@ -1885,12 +2096,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
     //
+    // IceSSL.Password is not supported with WinRT
+    //
+#  ifndef ICE_OS_WINRT
+    //
     // SChannel doesn't support PEM Password protected certificates certificates
     //
-#ifdef ICE_USE_SCHANNEL
+#  ifdef ICE_USE_SCHANNEL
     if(p12)
     {
-#endif
+#  endif
     cout << "testing password prompt... " << flush;
     {
         //
@@ -1907,11 +2122,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(plugin);
         PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
 
-#ifdef ICE_CPP11_MAPPING
+#  ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#else
+#  else
         plugin->setPasswordPrompt(prompt);
-#endif
+#  endif
         pm->initializePlugins();
         test(prompt->count() == 1);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -1943,11 +2158,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(plugin);
         prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
 
-#ifdef ICE_CPP11_MAPPING
+#  ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#else
+#  else
         plugin->setPasswordPrompt(prompt);
-#endif
+#  endif
         try
         {
             pm->initializePlugins();
@@ -1966,11 +2181,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
     }
     cout << "ok" << endl;
-#ifdef ICE_USE_SCHANNEL
+#  ifdef ICE_USE_SCHANNEL
     }
+#  endif
 #endif
+
+    //
+    // IceSSL.Ciphers is not implemented with WinRT
+    //
+#ifndef ICE_OS_WINRT
     cout << "testing ciphers... " << flush;
-#ifndef ICE_USE_SCHANNEL
+#  ifndef ICE_USE_SCHANNEL
     {
         //
         // The server has a certificate but the client doesn't. They should
@@ -1978,25 +2199,25 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-#  ifdef ICE_USE_OPENSSL
+#    ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
-#  else
+#    else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
-#  endif
+#    endif
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
-#  ifdef ICE_USE_OPENSSL
+#    ifdef ICE_USE_OPENSSL
         //
         // With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
         //
         string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "RSA:" + anonCiphers;
-#  else
+#    else
         string cipherSub = "DH_";
         d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)";
-#  endif
+#    endif
         d["IceSSL.VerifyPeer"] = "1";
         Test::ServerPrxPtr server = fact->createServer(d);
         try
@@ -2007,14 +2228,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
         catch(const LocalException& ex)
         {
-#  ifndef ICE_USE_SECURE_TRANSPORT
+#    ifndef ICE_USE_SECURE_TRANSPORT
             //
             // OS X 10.10 bug the handshake fails attempting client auth
             // with anon cipher.
             //
             cerr << ex << endl;
             test(false);
-#  endif
+#    endif
         }
         fact->destroyServer(server);
         comm->destroy();
@@ -2031,11 +2252,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-#  ifdef ICE_USE_OPENSSL
+#    ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
-#  else
+#    else
         initData.properties->setProperty("IceSSL.Ciphers", "ALL !(DH_anon*)");
-#  endif
+#    endif
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
@@ -2063,7 +2284,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
-#  ifdef ICE_USE_SECURE_TRANSPORT
+#    ifdef ICE_USE_SECURE_TRANSPORT
     {
         //
         // This should fail because the client disabled all ciphers.
@@ -2144,8 +2365,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
-#  endif
-#else // SChannel ciphers
+#    endif
+#  else // SChannel ciphers
     {
         //
         // Client and server should negotiate to use 3DES as it is enabled in both.
@@ -2208,21 +2429,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
-#endif
+#  endif
 
     //
     // No DSA support in Secure Transport / AIX 7.1
     //
-#if !defined(ICE_USE_SECURE_TRANSPORT) && !defined(_AIX)
+#  if !defined(ICE_USE_SECURE_TRANSPORT) && !defined(_AIX)
     {
 
     //
     // DSA PEM certificates are not supported with SChannel.
     //
-#   ifdef ICE_USE_SCHANNEL
+#    ifdef ICE_USE_SCHANNEL
     if(p12)
     {
-#   endif
+#    endif
         //
         // Configure a server with RSA and DSA certificates.
         //
@@ -2280,11 +2501,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
         fact->destroyServer(server);
         comm->destroy();
-#   ifdef ICE_USE_SCHANNEL
+#    ifdef ICE_USE_SCHANNEL
     }
-#   endif
+#    endif
 
-#   ifndef ICE_USE_SCHANNEL
+#    ifndef ICE_USE_SCHANNEL
         //
         // Next try a client with ADH. This should fail.
         //
@@ -2314,9 +2535,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
         fact->destroyServer(server);
         comm->destroy();
-#   endif
+#    endif
     }
-#   ifndef ICE_USE_SCHANNEL
+#    ifndef ICE_USE_SCHANNEL
     {
         //
         // Configure a server with RSA and a client with DSA. This should fail.
@@ -2353,11 +2574,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
-#   endif
-#endif
+#    endif
+#  endif
     cout << "ok" << endl;
+#endif
 
     cout << "testing IceSSL.TrustOnly... " << flush;
+    //
+    // WinRT only provides the Subject and Issuer CN and not the full Subject and Issuer DNs, 
+    // this implies that we can only do a limited range of checks with IceSSL.TrustOnly
+#ifndef ICE_OS_WINRT
     //
     // iOS support only provides access to the CN of the certificate so we
     // can't check for other attributes
@@ -2365,7 +2591,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
         initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
                                          "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
@@ -2386,6 +2611,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -2430,6 +2656,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+#endif
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -2439,6 +2666,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com,CN=Client";
+
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
@@ -2460,6 +2688,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
@@ -2598,6 +2827,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+
+#ifndef  ICE_OS_WINRT
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -2682,6 +2913,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+#endif
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -2777,6 +3009,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+
+#ifndef ICE_OS_WINRT
     {
         //
         // Rejection takes precedence (client).
@@ -2801,6 +3035,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+#endif
     {
         //
         // Rejection takes precedence (server).
@@ -2813,6 +3048,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.TrustOnly"] = "C=US;!CN=Client;ST=Florida";
+
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
@@ -2828,6 +3064,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly.Client... " << flush;
+#ifndef ICE_OS_WINRT
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -2876,6 +3113,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+#endif
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -3282,6 +3520,118 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             }
         }
         cout << "ok" << endl;
+#elif defined(ICE_OS_WINRT)
+        cout << "testing IceSSL.FindCert... " << flush;
+        const char* clientFindCertProperties[] =
+        {
+            "ISSUER:'ZeroC Test CA 1'",
+            "THUMBPRINT:'82 30 1E 35 9E 39 C1 D0 63 0D 67 3D 12 DD D4 96 90 1E EF 54'",
+            "FRIENDLYNAME:'c_rsa_ca1'",
+            0
+        };
+
+        const char* failFindCertProperties[] =
+        {
+            "ISSUER:'ZeroC, Inc.'",
+            "THUMBPRINT:'82 30 1E 35 9E 39 C1 D0 63 0D 67 3D 12 DD D4 96 90 1E EF XX'",
+            "FRIENDLYNAME:'c_rsa_ca2'",
+            0
+        };
+
+        importPersonalCertificate("c_rsa_ca1", "ms-appx:///c_rsa_ca1.p12", "password");
+
+        for(int i = 0; clientFindCertProperties[i] != 0; i++)
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CertStore", "My");
+            initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
+            //
+            // Use TrustOnly to ensure the peer has pick the expected certificate.
+            //
+            initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
+
+            CommunicatorPtr comm = initialize(initData);
+
+            Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
+            d["IceSSL.CAs"] = "cacert1.pem";
+            //
+            // Use TrustOnly to ensure the peer has pick the expected certificate.
+            //
+            d["IceSSL.TrustOnly"] = "CN=Client";
+
+            Test::ServerPrxPtr server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const LocalException& ex)
+            {
+                cerr << ex << endl;
+                removePersonalCertificate("c_rsa_ca1");
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
+
+        //
+        // These must fail because the search criteria does not match any certificates.
+        //
+        for(int i = 0; failFindCertProperties[i] != 0; i++)
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.FindCert", failFindCertProperties[i]);
+            try
+            {
+                CommunicatorPtr comm = initialize(initData);
+                cerr << failFindCertProperties[i] << endl;
+                removePersonalCertificate("c_rsa_ca1");
+                test(false);
+            }
+            catch(const PluginInitializationException&)
+            {
+                // expected
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                removePersonalCertificate("c_rsa_ca1");
+                test(false);
+            }
+        }
+        removePersonalCertificate("c_rsa_ca1");
+
+        //
+        // These must fail because we have already remove the certificates.
+        //
+        for(int i = 0; clientFindCertProperties[i] != 0; i++)
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+            initData.properties->setProperty("IceSSL.CAs", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
+            try
+            {
+                CommunicatorPtr comm = initialize(initData);
+                test(false);
+            }
+            catch(const PluginInitializationException&)
+            {
+                //expected
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+        cout << "ok" << endl;
 #elif defined(ICE_USE_SECURE_TRANSPORT)
         cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] =
@@ -3395,50 +3745,58 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
     }
 
-#ifndef _AIX
+#if !defined(_AIX) && !defined(ICE_OS_WINRT)
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com
-
+    // WinRT application manifest is not configure to use system CAs and IceSSL.UsePlatformCAs
+    // is not supported with WinRT
     cout << "testing system CAs... " << flush;
     {
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, "", defaultHost, false);
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
-        initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-        CommunicatorPtr comm = initialize(initData);
-        Ice::ObjectPrxPtr p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-        try
         {
-            p->ice_ping();
-            test(false);
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProps, "", defaultHost, false);
+            initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties->setProperty("Ice.Trace.Network", "3");
+            initData.properties->setProperty("Ice.Trace.Protocol", "1");
+            initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+            CommunicatorPtr comm = initialize(initData);
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
+            try
+            {
+                p->ice_ping();
+                test(false);
+            }
+            catch(const Ice::SecurityException&)
+            {
+                // Expected, by default we don't check for system CAs.
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
+            }
+            comm->destroy();
         }
-        catch(const Ice::SecurityException&)
-        {
-            // Expected, by default we don't check for system CAs.
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
-        }
-        comm->destroy();
 
-        initData.properties = createClientProps(defaultProps, "", defaultHost, false);
-        initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
-        initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-        initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
-        comm = initialize(initData);
-        p = comm->stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProps, "", defaultHost, false);
+            initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+            initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
+            CommunicatorPtr comm = initialize(initData);
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
 
-        try
-        {
-            Ice::WSConnectionInfoPtr info = ICE_DYNAMIC_CAST(Ice::WSConnectionInfo, p->ice_getConnection()->getInfo());
-            IceSSL::ConnectionInfoPtr sslInfo = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, info->underlying);
-            test(sslInfo->verified);
+            try
+            {
+                Ice::WSConnectionInfoPtr info = ICE_DYNAMIC_CAST(Ice::WSConnectionInfo, p->ice_getConnection()->getInfo());
+                IceSSL::ConnectionInfoPtr sslInfo = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, info->underlying);
+                test(sslInfo->verified);
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
+            }
+            comm->destroy();
         }
-        catch(const Ice::LocalException& ex)
-        {
-            cerr << "warning: unable to connect to demo.zeroc.com to check system CA:\n" << ex << endl;
-        }
-        comm->destroy();
     }
     cout << "ok" << endl;
 #endif

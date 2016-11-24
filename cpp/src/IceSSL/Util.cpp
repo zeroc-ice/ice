@@ -1699,6 +1699,7 @@ IceSSL::findCertificates(const string& name, const string& value)
     CertificateQuery^ query = ref new CertificateQuery();
     query->StoreName = ref new String(stringToWstring(name).c_str());
     query->IncludeDuplicates = true;
+    query->IncludeExpiredCertificates = true;
 
     if(value != "*")
     {

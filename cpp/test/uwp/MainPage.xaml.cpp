@@ -105,8 +105,9 @@ addConfiguration(const TestCasePtr& test, const string& desc, const string& conf
     test->configurations.push_back(configuration);
 }
 
-vector<TestCasePtr> allTest(bool remoteserver)
+vector<TestCasePtr> allTest(string server)
 {
+    bool remoteserver = server != "winrt";
     vector<TestCasePtr> all;
 
     TestCasePtr test;
@@ -211,6 +212,15 @@ vector<TestCasePtr> allTest(bool remoteserver)
     if(!remoteserver)
     {
         test.reset(new TestCase("Ice", "udp", "client.dll", "server.dll"));
+        all.push_back(test);
+    }
+
+    if(server == "cpp")
+    {
+        test.reset (new TestCase ("IceSSL", "configuration", "client.dll", "server.dll"));
+        string file(TESTSUITE_DIR);
+        file += "/cpp/test/IceSSL/configuration";
+        addConfiguration(test, "regular server", "", false, {file});
         all.push_back(test);
     }
 
@@ -325,6 +335,7 @@ Runnable::run()
     }
 
     vector<string> args;
+    args.push_back (_test);
     args.push_back("--Ice.NullHandleAbort=1");
     args.push_back("--Ice.Warn.Connections=1");
     args.push_back("--Ice.ProgramName=" + _test);
@@ -939,7 +950,7 @@ MainPage::runSelectedTest()
 void
 TestSuite::MainPage::initializeSupportedTests()
 {
-    _allTests = allTest(selectedLanguage() != "winrt");
+    _allTests = allTest(selectedLanguage());
     _names->Clear();
     for(vector<TestCasePtr>::const_iterator i = _allTests.begin(); i != _allTests.end(); ++i)
     {

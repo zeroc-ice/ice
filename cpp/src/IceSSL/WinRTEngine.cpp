@@ -41,16 +41,26 @@ WinRTEngine::initialize()
     const auto properties = communicator()->getProperties();
 
     //
+    // Load CAs
+    //
+    //string ca = properties->getProperty("IceSSL.CAs");
+    //if(!ca.empty())
+    //{
+    //  _ca = Certificate::load(ca);
+    //}
+
+    //
     // Load client certificate
     //
     string findCert = properties->getProperty("IceSSL.FindCert");
     if(!findCert.empty())
     {
         auto certs = findCertificates(properties->getPropertyWithDefault("IceSSL.CertStore", "My"), findCert);
-        if(certs->Size > 0)
+        if(certs->Size == 0)
         {
-            _certificate = make_shared<IceSSL::Certificate>(certs->GetAt(0));
+            throw Ice::PluginInitializationException(__FILE__, __LINE__, "IceSSL: no certificates found");
         }
+        _certificate = make_shared<IceSSL::Certificate>(certs->GetAt(0));
     }
     _initialized = true;
 }
@@ -60,6 +70,12 @@ WinRTEngine::initialized() const
 {
     return _initialized;
 }
+
+//shared_ptr<Certificate>
+//WinRTEngine::ca()
+//{
+//    return _ca;
+//}
 
 shared_ptr<Certificate>
 WinRTEngine::certificate()

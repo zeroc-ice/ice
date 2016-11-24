@@ -133,7 +133,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         try
         {
             auto fd = safe_cast<StreamSocket^>(_delegate->getNativeInfo()->fd());
-            if (fd->Information->ServerCertificate)
+            if(fd->Information->ServerCertificate)
             {
                 //
                 // Build the certificate chain
@@ -143,9 +143,17 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 params->CurrentTimeValidationEnabled = true;
                 params->NetworkRetrievalEnabled = false;
                 params->RevocationCheckEnabled = false;
+                
+                //
+                // BUGFIX: It is currently not possible to set ExclusiveTrustRoots programatically
+                // it is causing a read access exception see:https://goo.gl/B6OaNx
+                //
+                //if(_engine->ca())
+                //{
+                // params->ExclusiveTrustRoots->Append(_engine->ca()->getCert());
+                //}
 
                 promise<CertificateChain^> p;
-                
                 create_task(fd->Information->ServerCertificate->BuildChainAsync(
                                 fd->Information->ServerIntermediateCertificates, params)).then(
                         [&](task<CertificateChain^> previous)
@@ -154,7 +162,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                             {
                                 p.set_value(previous.get());
                             }
-                            catch (Platform::Exception^ ex)
+                            catch(Platform::Exception^ ex)
                             {
                                 try
                                 {
@@ -250,10 +258,16 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
         HostName^ host = ref new HostName(ref new String(IceUtil::stringToWstring(_host).c_str()));
 
         //
-        // We ignre SSL invalid name errors at this point, the certificate name will be later verify
-        // by SSLEngine veryPeer implementation.
+        // We ignore SSL Certificate errors at this point, the certificate chain will be validated
+        // when the chain is constructed in IceSSL::Transceiver::initialize
         //
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Expired);
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::IncompleteChain);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::InvalidName);
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::RevocationFailure);
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::RevocationInformationMissing);
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Untrusted);
+        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::WrongUsage);
 
         if(_engine->certificate())
         {
@@ -324,13 +338,14 @@ IceSSL::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
     StreamSocket^ stream = safe_cast<StreamSocket^>(_delegate->getNativeInfo()->fd());
-    info->nativeCerts.push_back(ICE_MAKE_SHARED(Certificate, stream->Information->ServerCertificate));
-    info->certs.push_back(info->nativeCerts.back()->encode());
-    auto certs = _chain ? _chain->GetCertificates(true) : stream->Information->ServerIntermediateCertificates;
-    for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
+    if(_chain)
     {
-        info->nativeCerts.push_back(ICE_MAKE_SHARED(Certificate, iter->Current));
-        info->certs.push_back(info->nativeCerts.back()->encode());
+        auto certs = _chain->GetCertificates(true);
+        for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
+        {
+            info->nativeCerts.push_back(ICE_MAKE_SHARED(Certificate, iter->Current));
+            info->certs.push_back(info->nativeCerts.back()->encode());
+        }
     }
     info->verified = _verified;
     info->adapterName = _adapterName;

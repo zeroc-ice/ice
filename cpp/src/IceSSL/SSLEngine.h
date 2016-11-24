@@ -236,10 +236,12 @@ public:
     virtual void initialize();
     virtual bool initialized() const;
     virtual void destroy();
+    //virtual std::shared_ptr<Certificate> ca();
     virtual std::shared_ptr<Certificate> certificate();
 
 private:
 
+    //std::shared_ptr<Certificate> _ca;
     std::shared_ptr<Certificate> _certificate;
     bool _initialized;
     std::mutex _mutex;

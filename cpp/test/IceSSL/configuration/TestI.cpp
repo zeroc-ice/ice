@@ -43,10 +43,22 @@ ServerI::checkCert(ICE_IN(string) subjectDN, ICE_IN(string) issuerDN, const Ice:
     {
         IceSSL::NativeConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, c.con->getInfo());
         test(info->verified);
-        test(info->nativeCerts.size() == 2 &&
-             info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
-             info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN)
-        );
+        test(info->nativeCerts.size() == 2);
+        if(c.ctx.find("uwp") != c.ctx.end())
+        {
+            //
+            // UWP client just provide the subject and issuer CN, and not the full Subject and Issuer DN
+            //
+            string subject(info->nativeCerts[0]->getSubjectDN());
+            test(subject.find(subjectDN) != string::npos);
+            string issuer(info->nativeCerts[0]->getIssuerDN());
+            test(issuer.find(issuerDN) != string::npos);
+        }
+        else
+        {
+            test(info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN));
+            test(info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+        }
     }
     catch(const Ice::LocalException&)
     {
