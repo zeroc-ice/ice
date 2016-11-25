@@ -1741,12 +1741,14 @@ class CppMapping(Mapping):
 class JavaMapping(Mapping):
 
     def getCommandLine(self, current, process, exe):
+        javaHome = os.getenv("JAVA_HOME", "")
+        java = os.path.join(javaHome, "bin", "java") if javaHome else "java"
         if process.isFromBinDir():
-            return "java {0}".format(exe)
+            return "{0} {1}".format(java, exe)
 
         assert(current.testcase.getPath().startswith(self.getTestsPath()))
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
-        return "java {0}.{1}".format(package, exe)
+        return "{0} {1}.{2}".format(java, package, exe)
 
     def getSSLProps(self, process, protocol="ssl"):
         props = Mapping.getSSLProps(self, process, protocol)
