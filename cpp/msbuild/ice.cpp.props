@@ -154,7 +154,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration);
                                     $(Ice_SrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Ice_LanguageMapping)' == 'cpp'">ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)</AdditionalLibraryDirectories>
