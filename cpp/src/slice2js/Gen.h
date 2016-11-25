@@ -143,6 +143,7 @@ private:
 
         bool _icejs;
         bool _es6modules;
+        std::vector<std::string> _exported;
     };
 };
 

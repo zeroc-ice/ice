@@ -2066,24 +2066,28 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
     {
         const string localScope = getLocalScope(p->scope());
         const string name = localScope.empty() ? fixId(p->name()) : localScope + "." + p->name();
-        if(_es6modules)
+        if(find(_exported.begin(), _exported.end(), name) == _exported.end())
         {
-            _out << nl << "export { " << name << " };";
-        }
-        else
-        {
-            if(_icejs)
+            _exported.push_back(name);
+            if(_es6modules)
             {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip */";
-                _out.restoreIndent();
+                _out << nl << "export { " << name << " };";
             }
-            _out << nl << "exports." << name << " = " << name << ";";
-            if(_icejs)
+            else
             {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip-end */";
-                _out.restoreIndent();
+                if(_icejs)
+                {
+                    _out.zeroIndent();
+                    _out << nl << "/* slice2js browser-bundle-skip */";
+                    _out.restoreIndent();
+                }
+                _out << nl << "exports." << name << " = " << name << ";";
+                if(_icejs)
+                {
+                    _out.zeroIndent();
+                    _out << nl << "/* slice2js browser-bundle-skip-end */";
+                    _out.restoreIndent();
+                }
             }
         }
     }
