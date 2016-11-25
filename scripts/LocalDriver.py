@@ -57,7 +57,6 @@ class Executor:
             except KeyboardInterrupt:
                 raise
             except:
-                print(traceback.format_exc())
                 pass
             results.put((result, mainThread))
             if not result.isSuccess() and not self.continueOnFailure:

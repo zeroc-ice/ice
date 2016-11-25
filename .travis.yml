@@ -59,7 +59,7 @@ install:
 
 script:
 - cd ${WORK_DIR}
-- python allTests.py -d --workers=3 --protocol=ssl
+- python allTests.py -d --protocol=ssl
 
 notifications:
   email: travis-ci@zeroc.com
