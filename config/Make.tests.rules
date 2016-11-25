@@ -89,7 +89,7 @@ endef
 #
 # Returns the tests which don't have a Makefile.mk fragment specified
 #
-tests-without-project-makefile = $(foreach d,$(patsubst %/run.py,%,$(shell find $(lang_srcdir)/test -name run.py)),\
+tests-without-project-makefile = $(foreach d,$(patsubst %/Client.$1,%,$(shell find $(lang_srcdir)/test -name Client.$1)),\
 			 	     $(if $(wildcard $d/Makefile.mk),,$(call test,$d)))
 
 #

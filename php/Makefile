@@ -58,6 +58,6 @@ $(eval $(call make-php-package,$(slicedir),lib,IceStorm))
 #
 # Translate the Slice files from test directories
 #
-tests := $(tests-without-project-makefile)
+tests := $(call tests-without-project-makefile,php)
 include $(shell find test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call make-php-test-project,$(t))))

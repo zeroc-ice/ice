@@ -30,7 +30,7 @@ $(call make-projects,$(projects),make-objc-src-project)
 # Now, create and load test projects.
 #
 projects :=
-tests := $(tests-without-project-makefile)
+tests := $(call tests-without-project-makefile,m)
 include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-objc-test-project,$(t))))
 $(call make-projects,$(projects),make-objc-test-project)

@@ -25,7 +25,7 @@ $(call make-projects,$(projects),make-cpp-src-project)
 # Now, create and load test projects.
 #
 projects :=
-tests := $(tests-without-project-makefile)
+tests := $(call tests-without-project-makefile,cpp)
 include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-cpp-test-project,$(t))))
 $(call make-projects,$(projects),make-cpp-test-project)
