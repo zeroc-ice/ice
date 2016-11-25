@@ -83,7 +83,7 @@ readFile(const string& file, vector<char>& buffer)
 
 bool
 importCaCertificate(const string& friendlyName, const string& file)
-{   
+{
     auto cert = IceSSL::Certificate::load(file)->getCert();
     cert->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
     CertificateStores::TrustedRootCertificationAuthorities->Add(cert);
@@ -699,7 +699,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
     }
 #endif
-    string factoryRef = "factory:" + getTestEndpoint(communicator, 0);
+    string factoryRef = "factory:" + getTestEndpoint(communicator, 0, "tcp");
     ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);
@@ -796,7 +796,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
         // and doesn't trust the server certificate.
         //
-        
+
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "", "");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
@@ -1358,7 +1358,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
 
         //
-        // With WinRT the following tests that use an intermediate CA fails with 
+        // With WinRT the following tests that use an intermediate CA fails with
         // ChainValidationResult::IncompleteChain
         //
 #ifndef  ICE_OS_WINRT
@@ -1419,7 +1419,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             }
             catch(const Ice::LocalException& ex)
             {
-                cerr << ex << endl; 
+                cerr << ex << endl;
                 import.cleanup();
                 test(false);
             }
@@ -2593,7 +2593,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
-    // WinRT only provides the Subject and Issuer CN and not the full Subject and Issuer DNs, 
+    // WinRT only provides the Subject and Issuer CN and not the full Subject and Issuer DNs,
     // this implies that we can only do a limited range of checks with IceSSL.TrustOnly
 #ifndef ICE_OS_WINRT
     //
@@ -3768,8 +3768,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, "", defaultHost, false);
             initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
-            initData.properties->setProperty("Ice.Trace.Network", "3");
-            initData.properties->setProperty("Ice.Trace.Protocol", "1");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
