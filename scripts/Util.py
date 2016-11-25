@@ -2103,7 +2103,7 @@ def runTests(mappings=None, drivers=None):
         # Finally, run the test suites with the driver.
         #
         try:
-            driver.run(mappings)
+            sys.exit(driver.run(mappings))
         except KeyboardInterrupt:
             pass
         finally:

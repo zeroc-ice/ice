@@ -407,7 +407,7 @@ class LocalDriver(Driver):
                 print("{0} suceeded".format(len(results)))
 
             if not self.loop:
-                break
+                return 1 if len(failures) > 0 else 0
 
     def destroy(self):
         self.runner.destroy()
