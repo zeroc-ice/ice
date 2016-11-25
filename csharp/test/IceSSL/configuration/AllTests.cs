@@ -31,15 +31,7 @@ public class AllTests
     {
         Ice.InitializationData result = new Ice.InitializationData();
         result.properties = Ice.Util.createProperties();
-        //
-        // TODO:
-        //
-        // When an application loads IceSSL.dll directly, as this one does, we
-        // must ensure that it uses the same DLL as the one loaded dynamically
-        // by Ice.
-        //
-        // When Mono supports .NET 2.0, we'll need to fix this.
-        //
+
         result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
@@ -1164,8 +1156,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.Out.Write(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1190,8 +1183,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.Out.Write(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
