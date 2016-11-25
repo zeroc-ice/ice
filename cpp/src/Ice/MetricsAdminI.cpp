@@ -23,7 +23,7 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace IceMX;
 
-namespace 
+namespace
 {
 
 const string suffixes[] =
@@ -102,7 +102,7 @@ MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _at
 #elif !defined(ICE_CPP11_COMPILER_REGEXP)
     if(regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__); 
+        throw SyscallException(__FILE__, __LINE__);
     }
 #else
 #   if _MSC_VER < 1600
@@ -169,7 +169,7 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
         {
             groupByAttributes.push_back("");
         }
-        
+
         for(string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)
         {
             bool isAlphaNum = IceUtilInternal::isAlpha(*p) || IceUtilInternal::isDigit(*p) || *p == '.';
@@ -233,7 +233,7 @@ MetricsMapFactory::update()
     assert(_updater);
     _updater->update();
 }
-    
+
 MetricsViewI::MetricsViewI(const string& name) : _name(name)
 {
 }
@@ -248,7 +248,7 @@ MetricsViewI::destroy()
 }
 
 bool
-MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName, 
+MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName,
                              const MetricsMapFactoryPtr& factory, const ::Ice::LoggerPtr& logger)
 {
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
@@ -391,7 +391,7 @@ MetricsViewI::getMap(const string& mapName) const
     return ICE_NULLPTR;
 }
 
-MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) : 
+MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) :
     _logger(logger), _properties(properties)
 {
     updateViews();
@@ -465,7 +465,7 @@ MetricsAdminI::updateViews()
             }
         }
         _views.swap(views);
-        
+
         //
         // Go through removed views to collect maps to update.
         //
@@ -482,7 +482,7 @@ MetricsAdminI::updateViews()
             }
         }
     }
-    
+
     //
     // Call the updaters to update the maps.
     //
@@ -533,7 +533,7 @@ MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&
 
 #else
     disabledViews.insert(disabledViews.end(), _disabledViews.begin(), _disabledViews.end());
-#endif    
+#endif
 
     return enabledViews;
 }
@@ -617,7 +617,7 @@ MetricsAdminI::getMetricsFailures(const string& viewName, const string& map, con
     return MetricsFailures();
 }
 
-vector<MetricsMapIPtr> 
+vector<MetricsMapIPtr>
 MetricsAdminI::getMaps(const string& mapName) const
 {
     Lock sync(*this);
@@ -654,7 +654,7 @@ MetricsAdminI::getMetricsView(const std::string& name)
     return p->second;
 }
 
-void 
+void
 MetricsAdminI::updated(const PropertyDict& props)
 {
     for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)

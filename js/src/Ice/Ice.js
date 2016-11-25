@@ -39,7 +39,8 @@ module.exports.Ice = __M.require(module,
         "../Ice/ArrayUtil",
         "../Ice/UnknownSlicedValue",
         "../Ice/Process",
-        "../Ice/MapUtil"
+        "../Ice/MapUtil",
+        "../Ice/ToStringMode"
     ]).Ice;
 
 module.exports.IceMX = require("../Ice/Metrics").IceMX;

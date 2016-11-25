@@ -57,5 +57,12 @@ interface H extends G
     string callH();
 };
 
+interface Echo
+{
+    void startBatch();
+    void flushBatch();
+    void shutdown();
+};
+
 };
 

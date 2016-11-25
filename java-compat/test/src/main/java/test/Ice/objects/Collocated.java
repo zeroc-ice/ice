@@ -87,13 +87,13 @@ public class Collocated extends test.Util.Application
 
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Initial initial = new InitialI(adapter);
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
         adapter.add(object, Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
         // We must call shutdown even in the collocated case for cyclic
         // dependency cleanup
         initial.shutdown();
@@ -103,8 +103,7 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         return initData;
     }

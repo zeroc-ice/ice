@@ -27,9 +27,9 @@ function Init()
     };
 
     var TestData =
-        {
-            languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
-        };
+    {
+        languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
+    };
     if(process.platform == "win32")
     {
         TestData.languages.push({value: "csharp", name: "C#"});
@@ -40,9 +40,9 @@ function Init()
                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
                     "/lib/IceGrid.js", "/lib/IceGrid.min.js",];
 
-    TestData.TestCases = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestCases.json"), "utf8");
-    var TestCases = JSON.parse(TestData.TestCases);
-    TestData.tests = Object.keys(TestCases);
+    TestData.TestSuites = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestSuites.json"), "utf8");
+    var TestSuites = JSON.parse(TestData.TestSuites);
+    TestData.tests = Object.keys(TestSuites);
     var template = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "index.html"), "utf8"));
     var libraryMaps = libraries.map(
         function(f)
@@ -60,12 +60,12 @@ function Init()
         var match = req.url.pathname.match("^\/test/(.*)/index\.html");
         if(match)
         {
-            var es5 = match[1].indexOf("/es5/") !== -1;
-            var m = es5 ? match[1].replace("/es5/", "/") : match[1];
+            var es5 = match[1].indexOf("es5/") !== -1;
+            var m = es5 ? match[1].replace("es5/", "") : match[1];
 
             // That is a test case
-            var testCase = TestCases[m];
-            if(testCase === undefined)
+            var testSuite = TestSuites[m];
+            if(testSuite === undefined)
             {
                 res.writeHead(404);
                 res.end("404 Page Not Found");
@@ -76,7 +76,7 @@ function Init()
                 TestData.current = m;
                 if(req.url.query.next == "true")
                 {
-                    var testCase = TestData.tests[0];
+                    var testSuite = TestData.tests[0];
                     var language = req.url.query.language !== undefined ? req.url.query.language : "cpp";
                     var protocol = req.url.protocol;
                     var i = TestData.tests.indexOf(TestData.current);
@@ -84,7 +84,7 @@ function Init()
 
                     if(i < TestData.tests.length - 1)
                     {
-                        testCase = TestData.tests[i + 1];
+                        testSuite = TestData.tests[i + 1];
                     }
                     else if(!worker)
                     {
@@ -105,7 +105,7 @@ function Init()
 
                     if(es5)
                     {
-                        testCase = testCase.replace("Ice/", "Ice/es5/");
+                        testSuite = "es5/" + testSuite;
                     }
 
                     var location = url.format(
@@ -113,7 +113,7 @@ function Init()
                             protocol: protocol,
                             hostname: req.headers.host.split(":")[0],
                             port: (protocol == "http" ? 8080 : 9090),
-                            pathname: ("/test/" + testCase + "/index.html"),
+                            pathname: ("/test/" + testSuite + "/index.html"),
                             query:{loop: "true", language: language, worker: worker}
                         });
 
@@ -126,7 +126,7 @@ function Init()
                     if(req.url.query.worker != "true")
                     {
                         TestData.scripts = [];
-                        
+
                         if(es5)
                         {
                             TestData.scripts =
@@ -136,8 +136,8 @@ function Init()
                                 "/lib/es5/Ice.js",
                                 "/test/Common/TestRunner.js",
                                 "/test/Common/TestSuite.js",
-                                "/test/Common/es5/Controller.js"
-                            ].concat(testCase.files);
+                                "/test/es5/Common/Controller.js"
+                            ].concat(testSuite.files);
                         }
                         else
                         {
@@ -147,7 +147,7 @@ function Init()
                                     "/test/Common/TestRunner.js",
                                     "/test/Common/TestSuite.js",
                                     "/test/Common/Controller.js"
-                                ].concat(testCase.files);
+                                ].concat(testSuite.files);
                         }
                     }
                     else
@@ -172,6 +172,10 @@ function Init()
                 path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
 
             var filePath = path.resolve(path.join(basePath, req.url.pathname));
+            if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != "js")
+            {
+                filePath = filePath.replace("es5/", "")
+            }
 
             //
             // If OPTIMIZE is set resolve Ice libraries to the corresponding minified

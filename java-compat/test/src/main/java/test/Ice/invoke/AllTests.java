@@ -233,9 +233,11 @@ public class AllTests
     }
 
     public static MyClassPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
-        String ref = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());

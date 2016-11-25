@@ -177,7 +177,7 @@ public:
         //
         // We can't do the callbacks below in connection serialization mode.
         //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
         {
             r->opVoid();
             c1->opVoid();
@@ -204,7 +204,7 @@ public:
         //
         // We can't do the callbacks below in connection serialization mode.
         //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
         {
             so.p->opVoid();
         }

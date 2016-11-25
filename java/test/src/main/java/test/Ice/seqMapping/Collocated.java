@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         adapter.add(new MyClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        AllTests.allTests(communicator(), true, out);
+        AllTests.allTests(this, true);
 
         return 0;
     }
@@ -29,7 +29,7 @@ public class Collocated extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
         return r;
     }
 

@@ -16,8 +16,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        ChecksumPrx checksum = AllTests.allTests(communicator, false, getWriter());
+        ChecksumPrx checksum = AllTests.allTests(this, false);
         checksum.shutdown();
         return 0;
     }
@@ -34,7 +33,7 @@ public class Client extends test.Util.Application
     {
         Client c = new Client();
         int status = c.main("Client", args);
-        
+
         System.gc();
         System.exit(status);
     }

@@ -109,11 +109,14 @@ public class AllTests
         public T v;
     }
 
-    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app, boolean collocated)
     {
+        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "Test:default -p 12010 -t 10000";
+        String ref = "Test:" + app.getTestEndpoint(0) + " -t 10000";
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");

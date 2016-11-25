@@ -16,51 +16,31 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated
+public class Collocated : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object obj = new ThrowerI();
         adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-            initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Collocated app = new Collocated();
+        return app.runmain(args);
     }
 }

@@ -43,7 +43,7 @@ public class AllTests
         PrintWriter out = app.getWriter();
 
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-            communicator.stringToProxy("ServerManager :default -p 12010"));
+            communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
         test(manager != null);
 
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());

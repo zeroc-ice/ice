@@ -19,7 +19,7 @@ public final class TestI extends _TestIntfDisp
         Ice.Communicator communicator = current.adapter.getCommunicator();
 
         Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         adapter.activate();
         adapter.destroy();
     }

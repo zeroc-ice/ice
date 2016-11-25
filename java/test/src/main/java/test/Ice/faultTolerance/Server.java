@@ -61,7 +61,7 @@ public class Server extends test.Util.Application
         }
 
         // Don't move this, it needs the port.
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port) + ":udp");
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         com.zeroc.Ice.Object object = new TestI(port);
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("test"));

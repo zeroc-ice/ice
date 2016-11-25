@@ -102,7 +102,7 @@ endif
 
 .PRECIOUS: $3/%.d
 
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+ifeq ($(filter %clean print,$(MAKECMDGOALS)),)
     # Include the dependencies
     -include $(addprefix $3/,$(call source-to-dependency,$4))
 endif
@@ -158,7 +158,7 @@ define make-slices
 
 .PRECIOUS: $2/%.ice.d
 
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+ifeq ($(filter %clean print,$(MAKECMDGOALS)),)
     # Include the dependencies
     -include $(addprefix $2/,$(call source-to-dependency,$4))
 endif
@@ -698,7 +698,7 @@ $1_objdirs	:= $$(call unique,$$($1_objdirs))
 #
 # Create object directories and generated directory if we're not cleaning.
 #
-ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+ifeq ($(filter %clean print,$(MAKECMDGOALS)),)
 
 ifneq ($$($1_objdirs),)
 $$($1_objdirs):

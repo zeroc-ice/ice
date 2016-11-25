@@ -68,7 +68,7 @@ public class Client extends test.Util.Application
 
         try
         {
-            AllTests.allTests(communicator(), arr, out);
+            AllTests.allTests(this, arr);
         }
         catch(com.zeroc.Ice.LocalException ex)
         {

@@ -16,33 +16,30 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated
+public class Collocated : TestCommon.Application
 {
-    internal class App : Ice.Application
+    public override int run(string[] args)
     {
-        public override int run(string[] args)
-        {
-            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
-            //
-            // 2 threads are necessary to dispatch the collocated transient() call with AMI
-            //
-            communicator().getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
+        //
+        // 2 threads are necessary to dispatch the collocated transient() call with AMI
+        //
+        communicator().getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
 
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            Ice.ServantLocator locator = new ServantLocatorI();
-            adapter.addServantLocator(locator, "");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        Ice.ServantLocator locator = new ServantLocatorI();
+        adapter.addServantLocator(locator, "");
 
-            AllTests.allTests(communicator());
+        AllTests.allTests(this);
 
-            adapter.waitForDeactivate();
-            return 0;
-        }
+        adapter.waitForDeactivate();
+        return 0;
     }
 
     public static int Main(string[] args)
     {
-        App app = new App();
-        return app.main(args);
+        Collocated app = new Collocated();
+        return app.runmain(args);
     }
 }

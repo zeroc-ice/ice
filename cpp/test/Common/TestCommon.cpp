@@ -13,14 +13,22 @@
 #include <Ice/Communicator.h>
 
 std::string
-getTestEndpoint(const Ice::CommunicatorPtr& communicator, int num, const std::string prot)
+getTestEndpoint(const Ice::CommunicatorPtr& communicator, int num, const std::string& protocol)
+{
+    return getTestEndpoint(communicator->getProperties(), num, protocol);
+}
+
+std::string
+getTestEndpoint(const Ice::PropertiesPtr& properties, int num, const std::string& prot)
 {
     std::ostringstream ostr;
     std::string protocol = prot;
     if(protocol.empty())
     {
-        protocol = communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "default");
+        protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "default");
     }
+
+    int basePort = properties->getPropertyAsIntWithDefault("Test.BasePort", 12010);
 
     if(protocol == "bt")
     {
@@ -45,9 +53,38 @@ getTestEndpoint(const Ice::CommunicatorPtr& communicator, int num, const std::st
     }
     else
     {
-        ostr << protocol << " -p " << (12010 + num);
+        ostr << protocol << " -p " << (basePort + num);
     }
     return ostr.str();
+}
+
+std::string
+getTestHost(const Ice::PropertiesPtr& properties)
+{
+    return properties->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+}
+
+std::string
+getTestProtocol(const Ice::PropertiesPtr& properties)
+{
+    return properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+}
+
+int
+getTestPort(const Ice::PropertiesPtr& properties, int num)
+{
+    return properties->getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
+}
+
+Ice::InitializationData
+getTestInitData(int& argc, char* argv[])
+{
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = initData.properties->parseCommandLineOptions("Test", args);
+    Ice::stringSeqToArgs(args, argc, argv);
+    return initData;
 }
 
 RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const Ice::CommunicatorPtr& communicator) :

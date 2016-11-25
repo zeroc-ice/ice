@@ -14,14 +14,13 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
 
         //
         // Shutdown the IceBox server.
         //
         com.zeroc.Ice.ProcessPrx.uncheckedCast(
-            communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
+            communicator().stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
         return 0;
     }
 

@@ -116,7 +116,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     ref << "test";
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
-        ref << ":default -p " << *p;
+        ref << ":" << getTestEndpoint(communicator, *p);
     }
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref.str());
     test(base);
@@ -282,7 +282,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 #else
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
                 CallbackPtr cb = new Callback;
-                obj->begin_idempotentAbort(newCallback_TestIntf_idempotentAbort(cb, &Callback::response, 
+                obj->begin_idempotentAbort(newCallback_TestIntf_idempotentAbort(cb, &Callback::response,
                                                                                 &Callback::exceptAbortI));
                 cb->check();
                 cout << "ok" << endl;

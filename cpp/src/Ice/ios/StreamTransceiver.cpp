@@ -16,7 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
-#include <IceSSL/ConnectionInfo.h>
 
 #include <CoreFoundation/CoreFoundation.h>
 

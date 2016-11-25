@@ -17,7 +17,7 @@ public class Collocated extends test.Util.Application
         com.zeroc.Ice.ServantLocator locator = new ServantLocatorI();
         adapter.addServantLocator(locator, "");
 
-        AllTests.allTests(this, getWriter());
+        AllTests.allTests(this);
 
         adapter.waitForDeactivate();
         return 0;
@@ -33,7 +33,7 @@ public class Collocated extends test.Util.Application
         r.initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
 
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
         return r;
     }
 

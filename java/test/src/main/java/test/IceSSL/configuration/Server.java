@@ -15,7 +15,7 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         com.zeroc.Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("factory");
         adapter.add(new ServerFactoryI(), id);

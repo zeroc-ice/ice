@@ -38,8 +38,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         //
         // Its possible to have batch oneway requests dispatched after
         // the adapter is deactivated due to thread scheduling so we

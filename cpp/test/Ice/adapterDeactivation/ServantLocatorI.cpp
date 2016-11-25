@@ -44,11 +44,9 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 
 void
 #ifdef ICE_CPP11_MAPPING
-ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
-                          const std::shared_ptr<void>& cookie)
+ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>& cookie)
 #else
-ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
-                          const Ice::LocalObjectPtr& cookie)
+ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
 #endif
 {
     test(!_deactivated);

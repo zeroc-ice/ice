@@ -55,10 +55,18 @@ private:
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
-Ice::PropertyDict
-getClientProps(const Ice::PropertiesAdminPrxPtr& p, const Ice::PropertyDict& orig, const string& m = string())
+string
+getPort(const Ice::PropertiesAdminPrxPtr& p)
 {
-    Ice::PropertyDict props = p->getPropertiesForPrefix("IceMX.Metrics");
+    ostringstream os;
+    os << getTestPort(p->ice_getCommunicator()->getProperties(), 0);
+    return os.str();
+}
+
+Ice::PropertyDict
+getClientProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
+{
+    Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
     for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
     {
         p->second = "";
@@ -73,15 +81,15 @@ getClientProps(const Ice::PropertiesAdminPrxPtr& p, const Ice::PropertyDict& ori
         map += "Map." + m + '.';
     }
     props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin";
-    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = "12010";
+    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
     props["IceMX.Metrics.View." + map + "Reject.identity"] = ".*/admin|controller";
     return props;
 }
 
 Ice::PropertyDict
-getServerProps(const Ice::PropertiesAdminPrxPtr& p, const Ice::PropertyDict& orig, const string& m = string())
+getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
 {
-    Ice::PropertyDict props = p->getPropertiesForPrefix("IceMX.Metrics");
+    Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
     for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
     {
         p->second = "";
@@ -96,7 +104,7 @@ getServerProps(const Ice::PropertiesAdminPrxPtr& p, const Ice::PropertyDict& ori
         map += "Map." + m + '.';
     }
     props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = "12010";
+    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
     return props;
 }
 
@@ -408,7 +416,24 @@ toMap(const IceMX::MetricsMap& mmap)
 MetricsPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& obsv)
 {
-    MetricsPrxPtr metrics = ICE_CHECKED_CAST(MetricsPrx, communicator->stringToProxy("metrics:default -p 12010"));
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    string host = getTestHost(properties);
+    string port;
+    {
+        ostringstream os;
+        os << getTestPort(properties, 0);
+        port = os.str();
+    }
+    string hostAndPort = host + ":" + port;
+    string protocol = getTestProtocol(properties);
+    string endpoint;
+    {
+        ostringstream os;
+        os << protocol << " -h " << host << " -p " << port;
+        endpoint = os.str();
+    }
+
+    MetricsPrxPtr metrics = ICE_CHECKED_CAST(MetricsPrx, communicator->stringToProxy("metrics:" + endpoint));
     bool collocated = !metrics->ice_getConnection();
 
     cout << "testing metrics admin facet checkedCast... " << flush;
@@ -522,12 +547,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
     map<string, IceMX::MetricsPtr> map;
 
-    string endpoint;
-    {
-        ostringstream os;
-        os << communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp") << " -h 127.0.0.1 -p 12010";
-        endpoint = os.str();
-    }
     string type;
     string isSecure;
     if(!collocated)
@@ -617,7 +636,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        ControllerPrxPtr controller = ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:default -p 12011"));
+        Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + getTestEndpoint(communicator, 1));
+        ControllerPrxPtr controller = ICE_CHECKED_CAST(ControllerPrx, cprx);
         controller->hold();
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
@@ -684,16 +704,16 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsSecure", isSecure);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointTimeout", "500");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointCompress", "false");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointHost", "127.0.0.1");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointPort", "12010");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointHost", host);
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointPort", port);
 
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "incoming", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "adapterName", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "connectionId", "Con1");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localHost", "127.0.0.1");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localHost", host);
         //testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localPort", "");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remoteHost", "127.0.0.1");
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remotePort", "12010");
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remoteHost", host);
+        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remotePort", port);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastPort", "");
 
@@ -714,13 +734,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
         test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 1);
         IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
-        test(m1->current == 0 && m1->total == 1 && m1->id == "127.0.0.1:12010");
+        test(m1->current == 0 && m1->total == 1 && m1->id == hostAndPort);
 
         metrics->ice_getConnection()->close(false);
         controller->hold();
         try
         {
-            communicator->stringToProxy("test:tcp -p 12010 -h 127.0.0.1")->ice_timeout(10)->ice_ping();
+            communicator->stringToProxy("test:" + endpoint)->ice_timeout(10)->ice_ping();
             test(false);
         }
         catch(const Ice::ConnectTimeoutException&)
@@ -733,13 +753,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         controller->resume();
         test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 1);
         m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
-        test(m1->id == "127.0.0.1:12010" && m1->total == 3 && m1->failures == 2);
+        test(m1->id == hostAndPort && m1->total == 3 && m1->failures == 2);
 
         checkFailure(clientMetrics, "ConnectionEstablishment", m1->id, "::Ice::ConnectTimeoutException", 2);
 
         Connect c(metrics);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "parent", "Communicator", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "id", hostAndPort, c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpoint",
                       endpoint + " -t 60000", c);
 
@@ -748,8 +768,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsSecure", isSecure, c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointTimeout", "60000", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointCompress", "false", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointHost", "127.0.0.1", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointPort", "12010", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointHost", host, c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointPort", port, c);
 
         cout << "ok" << endl;
 
@@ -760,24 +780,28 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 #if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
         cout << "testing endpoint lookup metrics... " << flush;
 
-        props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
+        props["IceMX.Metrics.View.Map.EndpointLookup.GroupBy"] = "id";
         updateProps(clientProps, serverProps, update.get(), props, "EndpointLookup");
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].empty());
 
-        Ice::ObjectPrxPtr prx = communicator->stringToProxy("metrics:default -p 12010 -h localhost -t infinite");
-        prx->ice_ping();
+        Ice::ObjectPrxPtr prx = communicator->stringToProxy("metrics:" + protocol + " -h localhost -t 500 -p " + port);
+        try
+        {
+            prx->ice_ping();
+            prx->ice_getConnection()->close(false);
+        }
+        catch(const Ice::LocalException&)
+        {
+        }
 
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 1);
         m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][0];
-
-        test(m1->current <= 1 && m1->total == 1 && m1->id == prx->ice_getConnection()->getEndpoint()->toString());
-
-        prx->ice_getConnection()->close(false);
+        test(m1->current <= 1 && (m1->total == 1 || m1->total == 2));
 
         bool dnsException = false;
         try
         {
-            communicator->stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com")->ice_ping();
+            communicator->stringToProxy("test:tcp -t 500 -h unknownfoo.zeroc.com -p " + port)->ice_ping();
             test(false);
         }
         catch(const Ice::DNSException&)
@@ -790,7 +814,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         }
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 2);
         m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][1];
-        test(m1->id == "tcp -h unknownfoo.zeroc.com -p 12010 -t 500" && m1->total == 2 &&
+        test(m1->id == "tcp -h unknownfoo.zeroc.com -p " + port + " -t 500" && m1->total == 2 &&
              (!dnsException || m1->failures == 2));
         if(dnsException)
         {
@@ -808,10 +832,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsDatagram", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", isSecure, c);
-        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointTimeout", "-1", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointTimeout", "500", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointCompress", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointHost", "localhost", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointPort", "12010", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointPort", port, c);
 
         cout << "ok" << endl;
 #endif
@@ -915,16 +939,16 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsSecure", isSecure, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointTimeout", "60000", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointCompress", "false", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointHost", "127.0.0.1", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointPort", "12010", op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointHost", host, op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointPort", port, op);
 
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "incoming", "true", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "adapterName", "TestAdapter", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "connectionId", "", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localHost", "127.0.0.1", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localPort", "12010", op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remoteHost", "127.0.0.1", op);
-        //testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remotePort", "12010", op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localHost", host, op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localPort", port, op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remoteHost", host, op);
+        //testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remotePort", port, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "mcastHost", "", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "mcastPort", "", op);
     }

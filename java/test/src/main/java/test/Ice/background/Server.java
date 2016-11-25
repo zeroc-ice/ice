@@ -83,10 +83,8 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Configuration configuration = new Configuration();
         PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        plugin.setConfiguration(configuration);
-        communicator().getPluginManager().initializePlugins();
+        Configuration configuration = plugin.getConfiguration();
 
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
@@ -128,12 +126,10 @@ public class Server extends test.Util.Application
 
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
+        r.initData.properties.setProperty("ControllerAdapter.Endpoints",
+                                          getTestEndpoint(r.initData.properties, 1, "tcp"));
         r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-
-        // Don't initialize the plugin until I've set the configuration.
-        r.initData.properties.setProperty("Ice.InitPlugins", "0");
 
         return r;
     }

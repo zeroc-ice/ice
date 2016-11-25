@@ -16,7 +16,7 @@ IceRuby_installdir	:= $(install_rubylibdir)
 IceRuby_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated \
 			   -I$(top_srcdir)/cpp/src $(ruby_cppflags)
 IceRuby_ldflags		:= $(ruby_ldflags)
-IceRuby_dependencies	:= IceSSL Ice
+IceRuby_dependencies	:= IceDiscovery IceLocatorDiscovery IceSSL Ice
 IceRuby_libs            := mcpp
 IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp,\
 			   $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \

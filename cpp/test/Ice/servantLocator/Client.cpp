@@ -37,8 +37,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         RemoteConfig rc("Ice/servantLocator", argc, argv, ich.communicator());
         int status = run(argc, argv, ich.communicator());

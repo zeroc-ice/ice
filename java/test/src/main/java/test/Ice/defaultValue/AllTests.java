@@ -22,8 +22,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app)
     {
+        PrintWriter out = app.getWriter();
+
         out.print("testing default values... ");
         out.flush();
 

@@ -22,14 +22,14 @@ public class Collocated extends test.Util.Application
         adapter.add(new MetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
         //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
         try
         {
-            MetricsPrx metrics = AllTests.allTests(communicator, getWriter(), _observer);
+            MetricsPrx metrics = AllTests.allTests(this, _observer);
             metrics.shutdown();
         }
         catch(com.zeroc.Ice.UserException ex)
@@ -56,7 +56,7 @@ public class Collocated extends test.Util.Application
         r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         r.initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         r.initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
         r.initData.properties.setProperty("Ice.Warn.Connections", "0");
         r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");

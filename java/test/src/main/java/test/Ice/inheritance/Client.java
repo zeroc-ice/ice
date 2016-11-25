@@ -16,8 +16,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        InitialPrx initial = AllTests.allTests(communicator, getWriter());
+        InitialPrx initial = AllTests.allTests(this);
         initial.shutdown();
         return 0;
     }

@@ -17,7 +17,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
-        InitialPrx initial = AllTests.allTests(communicator(), false, out);
+        InitialPrx initial = AllTests.allTests(this, false);
         initial.shutdown();
         return 0;
     }

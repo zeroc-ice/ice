@@ -16,19 +16,18 @@ public class Server extends test.Util.Application
     run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ChecksumI();
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();
         return WAIT;
     }
-    
+
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.checksum.server");
         return initData;
     }
@@ -38,7 +37,7 @@ public class Server extends test.Util.Application
     {
         Server c = new Server();
         int status = c.main("Server", args);
-        
+
         System.gc();
         System.exit(status);
     }

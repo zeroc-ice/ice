@@ -20,12 +20,11 @@ public class Server extends test.Util.Application
         adapter.activate();
         return WAIT;
     }
-    
+
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Demo", "test.Ice.throughput");
         initData.properties.setProperty("Throughput.Endpoints", "default -p 10000 -h 127.0.0.1");
         return initData;

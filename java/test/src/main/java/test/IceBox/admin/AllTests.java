@@ -21,8 +21,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(com.zeroc.Ice.Communicator communicator)
+    public static void allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         String ref = "DemoIceBox/admin:default -p 9996 -t 10000";
         com.zeroc.Ice.ObjectPrx admin = communicator.stringToProxy(ref);
 
@@ -96,7 +98,7 @@ public class AllTests
         System.out.print("testing metrics admin facet... ");
         System.out.flush();
         {
-            com.zeroc.IceMX.MetricsAdminPrx ma = 
+            com.zeroc.IceMX.MetricsAdminPrx ma =
                 com.zeroc.IceMX.MetricsAdminPrx.checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
             com.zeroc.Ice.PropertiesAdminPrx pa =
@@ -114,7 +116,7 @@ public class AllTests
 
             r = ma.getMetricsViewNames();
             test(r.returnValue.length == 3);
-        
+
             // Make sure that the IceBox communicator metrics admin is a separate instance.
             test(com.zeroc.IceMX.MetricsAdminPrx.checkedCast(admin, "Metrics").
                  getMetricsViewNames().returnValue.length == 0);

@@ -33,8 +33,8 @@ public class Client extends test.Util.Application
 
         try
         {
-            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, 
-                                               "retry:default -p 12010");
+            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation,
+                                               "retry:" + getTestEndpoint(0));
             retry.shutdown();
             return 0;
         }
@@ -47,8 +47,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.observer = instrumentation.getObserver();
 
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");

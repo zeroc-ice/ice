@@ -46,8 +46,7 @@ main(int argc, char* argv[])
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.observer = getObserver();
 
         initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");

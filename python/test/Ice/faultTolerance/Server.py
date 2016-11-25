@@ -43,7 +43,7 @@ def run(args, communicator):
             usage(args[0])
             return False
 
-        port = int(arg)
+        port = 12010 + int(arg)
 
     if port <= 0:
         sys.stderr.write(args[0] + ": no port specified\n")

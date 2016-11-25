@@ -17,11 +17,11 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(String[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+        Test.MyClassPrx myClass = AllTests.allTests(this, false);
 
         Console.Out.Write("shutting down server... ");
         Console.Out.Flush();
@@ -32,33 +32,7 @@ public class Client
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData data = new Ice.InitializationData();
-            communicator = Ice.Util.initialize(ref args, data);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

@@ -231,6 +231,7 @@ public class Client extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.interceptor");
+        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         return r;
     }
 

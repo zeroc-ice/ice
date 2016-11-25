@@ -16,29 +16,29 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
 
-        int port = 12010;
+        int num = 0;
         try
         {
-            port += args.Length == 1 ? Int32.Parse(args[0]) : 0;
+            num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
         }
         catch(FormatException)
         {
         }
-        properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
+        properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
         adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
         adapter.activate();
 
-        if(port == 12010)
+        if(num == 0)
         {
-            properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
-            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
+            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
+            Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
             adapter2.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
             adapter2.activate();
         }
@@ -60,49 +60,25 @@ public class Server
             endpoint = "udp -h 239.255.1.1 -p 12020";
         }
         properties.setProperty("McastTestAdapter.Endpoints", endpoint);
-        Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
+        Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
         mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         mcastAdapter.activate();
 
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

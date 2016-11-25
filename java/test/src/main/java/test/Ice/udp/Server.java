@@ -16,22 +16,23 @@ public class Server extends test.Util.Application
     {
         com.zeroc.Ice.Properties properties = communicator().getProperties();
 
-        int port = 12010;
+        int num = 0;
         try
         {
-            port += args.length == 1 ? Integer.parseInt(args[0]) : 0;
+            num = args.length == 1 ? Integer.parseInt(args[0]) : 0;
         }
         catch(NumberFormatException ex)
         {
+            assert(false);
         }
-        properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
+        properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
         adapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("control"));
         adapter.activate();
 
-        if(port == 12010)
+        if(num == 0)
         {
-            properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
+            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
             com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
             adapter2.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
             adapter2.activate();

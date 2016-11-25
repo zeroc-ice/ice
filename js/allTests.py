@@ -8,53 +8,9 @@
 #
 # **********************************************************************
 
-import os, sys, re, getopt
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-path = [ ".", "..", "../..", "../../..", "../../../.." ]
-head = os.path.dirname(sys.argv[0])
-if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
-path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
-if len(path) == 0:
-    raise RuntimeError("can't find toplevel directory!")
+from Util import runTestsWithPath
 
-sys.path.append(os.path.join(path[0], "scripts"))
-import TestUtil
-
-#
-# List of all basic tests.
-#
-tests = [
-    ("Ice/acm", ["core"]),
-    ("Ice/ami", ["core"]),
-    ("Ice/binding", ["core"]),
-    ("Ice/defaultValue", ["once"]),
-    ("Ice/enums", ["once"]),
-    ("Ice/exceptions", ["core"]),
-    ("Ice/exceptionsBidir", ["once"]),
-    ("Ice/facets", ["core"]),
-    ("Ice/facetsBidir", ["core"]),
-    ("Ice/hashmap", ["once"]),
-    ("Ice/hold", ["core"]),
-    ("Ice/info", ["core"]),
-    ("Ice/inheritance", ["once"]),
-    ("Ice/inheritanceBidir", ["once"]),
-    ("Ice/location", ["once"]),
-    ("Ice/objects", ["core"]),
-    ("Ice/operations", ["core"]),
-    ("Ice/operationsBidir", ["once"]),
-    ("Ice/optional", ["core"]),
-    ("Ice/optionalBidir", ["once"]),
-    ("Ice/properties", ["once"]),
-    ("Ice/proxy", ["core"]),
-    ("Ice/retry", ["core"]),
-    ("Ice/slicing/exceptions", ["core"]),
-    ("Ice/slicing/objects", ["core"]),
-    ("Ice/timeout", ["core"]),
-    ("Ice/number", ["once"]),
-    ("Ice/import", ["once", "noes5"]),
-    ("Glacier2/router", ["service"]),
-    ]
-
-if __name__ == "__main__":
-    TestUtil.run(tests)
+runTestsWithPath(__file__)

@@ -34,6 +34,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\TestCommon\TestApp.cs">
+      <Link>TestApp.cs</Link>
+    </Compile>
     <Compile Include="..\..\PriorityI.cs">
       <Link>PriorityI.cs</Link>
     </Compile>

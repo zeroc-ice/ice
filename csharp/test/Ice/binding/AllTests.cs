@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private static string getAdapterNameWithAMI(TestIntfPrx testIntf)
     {
@@ -89,9 +89,10 @@ public class AllTests : TestCommon.TestApp
         }
     };
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
-        string @ref = "communicator:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string @ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         System.Random rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
@@ -840,19 +841,21 @@ public class AllTests : TestCommon.TestApp
             clientProps.Add(bothPreferIPv4);
             clientProps.Add(bothPreferIPv6);
 
+            string endpoint = "tcp -p " + app.getTestPort(2).ToString();
+
             Ice.Properties anyipv4 = ipv4.ice_clone_();
-            anyipv4.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv4.setProperty("Adapter.PublishedEndpoints", "tcp -h 127.0.0.1 -p 12012");
+            anyipv4.setProperty("Adapter.Endpoints", endpoint);
+            anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
             Ice.Properties anyipv6 = ipv6.ice_clone_();
-            anyipv6.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv6.setProperty("Adapter.PublishedEndpoints", "tcp -h \".1\" -p 12012");
+            anyipv6.setProperty("Adapter.Endpoints", endpoint);
+            anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
             Ice.Properties anyboth = Ice.Util.createProperties();
             anyboth.setProperty("Ice.IPv4", "1");
             anyboth.setProperty("Ice.IPv6", "1");
-            anyboth.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyboth.setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012:tcp -h 127.0.0.1 -p 12012");
+            anyboth.setProperty("Adapter.Endpoints", endpoint);
+            anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
             Ice.Properties localipv4 = ipv4.ice_clone_();
             localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");

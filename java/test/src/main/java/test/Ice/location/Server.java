@@ -17,7 +17,7 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         com.zeroc.Ice.Communicator communicator = communicator();
-        
+
         //
         // Register the server manager. The server manager creates a new
         // 'server' (a server isn't a different process, it's just a new
@@ -54,7 +54,8 @@ public class Server extends test.Util.Application
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
         r.initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         r.initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        r.initData.properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("ServerManagerAdapter.Endpoints",
+                                          getTestEndpoint(r.initData.properties, 0) + ":udp");
 
         _initData = r.initData;
         return r;

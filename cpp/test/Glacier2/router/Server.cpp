@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <TestCommon.h>
 #include <CallbackI.h>
 
 using namespace std;
@@ -28,8 +29,7 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
 
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
 
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
 int
 CallbackServer::run(int, char**)
 {
-    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12010");
+    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
     adapter->add(new CallbackI(), Ice::stringToIdentity("c1/callback")); // The test allows "c1" as category.
     adapter->add(new CallbackI(), Ice::stringToIdentity("c2/callback")); // The test allows "c2" as category.

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
     internal class LocatorI : Ice.LocatorDisp_
     {
@@ -77,25 +77,29 @@ public class Server
         private BackgroundControllerI _controller;
     }
 
-    public static int run(string[] args, Ice.Communicator communicator, TextWriter @out)
+    public override int run(string[] args)
     {
+        PluginI plugin = new PluginI(communicator());
+        plugin.initialize();
+        communicator().getPluginManager().addPlugin("Test", plugin);
+
         //
         // When running as a MIDlet the properties for the server may be
         // overridden by configuration. If it isn't then we assume
         // defaults.
         //
-        if(communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
+        if(communicator().getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         }
-        if(communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
+        if(communicator().getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
         {
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
-            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+            communicator().getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator().getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
         }
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
         BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
 
@@ -107,63 +111,36 @@ public class Server
         adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
         adapter2.activate();
 
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+
+        // This test relies on filling the TCP send/recv buffer, so
+        // we rely on a fixed value for these buffers.
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+
+        //
+        // Setup the test transport plug-in.
+        //
+        string defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-
-            //
-            // This test kills connections, so we don't want warnings.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-
-            // This test relies on filling the TCP send/recv buffer, so
-            // we rely on a fixed value for these buffers.
-            initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-
-            //
-            // Setup the test transport plug-in.
-            //
-            string defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-            initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            PluginI plugin = new PluginI(communicator);
-            plugin.initialize();
-            communicator.getPluginManager().addPlugin("Test", plugin);
-
-            status = run(args, communicator, Console.Out);
-        }
-        catch(System.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

@@ -29,7 +29,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

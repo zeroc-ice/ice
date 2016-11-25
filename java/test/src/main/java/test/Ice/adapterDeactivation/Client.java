@@ -13,7 +13,7 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        AllTests.allTests(this, getWriter());
+        AllTests.allTests(this);
         return 0;
     }
 

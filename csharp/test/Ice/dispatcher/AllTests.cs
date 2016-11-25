@@ -11,8 +11,7 @@
 using System.Diagnostics;
 using Test;
 
-
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -75,15 +74,16 @@ public class AllTests : TestCommon.TestApp
         private bool _called;
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
-        string sref = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string sref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:tcp -p 12011";
+        sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 

@@ -18,6 +18,7 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/Initialize.h>
 
 #if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE)
 #   include <Ice/Initialize.h>
@@ -49,7 +50,12 @@ inline println(const std::string& msg)
     std::cout << msg << std::endl;
 }
 
-TEST_API std::string getTestEndpoint(const Ice::CommunicatorPtr&, int, const std::string = std::string());
+TEST_API std::string getTestEndpoint(const Ice::CommunicatorPtr&, int, const std::string& = std::string());
+TEST_API std::string getTestEndpoint(const Ice::PropertiesPtr&, int, const std::string& = std::string());
+TEST_API std::string getTestProtocol(const Ice::PropertiesPtr&);
+TEST_API std::string getTestHost(const Ice::PropertiesPtr&);
+TEST_API int getTestPort(const Ice::PropertiesPtr&, int);
+TEST_API Ice::InitializationData getTestInitData(int&, char*[]);
 
 class TEST_API RemoteConfig
 {

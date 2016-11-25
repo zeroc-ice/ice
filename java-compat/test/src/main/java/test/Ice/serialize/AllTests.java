@@ -23,9 +23,12 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    allTests(test.Util.Application app, boolean collocated)
     {
-        String ref = "initial:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
 

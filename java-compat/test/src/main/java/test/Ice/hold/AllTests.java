@@ -32,7 +32,7 @@ public class AllTests
         {
             _value = value;
         }
-        
+
         synchronized public void
         set(boolean value)
         {
@@ -44,7 +44,7 @@ public class AllTests
         {
             return _value;
         }
-    
+
         private boolean _value;
     };
 
@@ -84,19 +84,21 @@ public class AllTests
     };
 
     public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "hold:default -p 12010";
+        String ref = "hold:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        String refSerialized = "hold:default -p 12011";
+        String refSerialized = "hold:" + app.getTestEndpoint(1);
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         out.println("ok");
-        
+
         out.print("testing checked cast... ");
         out.flush();
         HoldPrx hold = HoldPrxHelper.checkedCast(base);
@@ -108,7 +110,7 @@ public class AllTests
         test(holdSerialized != null);
         test(holdSerialized.equals(baseSerialized));
         out.println("ok");
-        
+
         out.print("changing state between active and hold rapidly... ");
         out.flush();
         for(int i = 0; i < 100; ++i)
@@ -128,7 +130,7 @@ public class AllTests
             holdSerializedOneway.putOnHold(0);
         }
         out.println("ok");
-        
+
         out.print("testing without serialize mode... ");
         out.flush();
         java.util.Random random = new java.util.Random();
@@ -227,7 +229,7 @@ public class AllTests
             hold.putOnHold(-1);
             hold.ice_ping();
             hold.putOnHold(-1);
-            hold.ice_ping();            
+            hold.ice_ping();
         }
         out.println("ok");
 

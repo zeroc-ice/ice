@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     ostringstream endpts;
-    endpts << "default  -p " << port << ":udp";
+    endpts << getTestEndpoint(communicator, port) << ":udp";
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
@@ -73,8 +74,7 @@ main(int argc, char* argv[])
         // our test servers may time out before they are used in the
         // test.
         //
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);

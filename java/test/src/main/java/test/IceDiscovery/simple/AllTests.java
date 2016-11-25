@@ -27,8 +27,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(com.zeroc.Ice.Communicator communicator, int num)
+    public static void allTests(test.Util.Application app, int num)
     {
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         List<ControllerPrx> proxies = new ArrayList<>();
         List<ControllerPrx> indirectProxies = new ArrayList<>();
         for(int i = 0; i < num; ++i)
@@ -90,7 +92,7 @@ public class AllTests
             }
         }
         System.out.println("ok");
-    
+
         System.out.print("testing object adapter migration...");
         System.out.flush();
         {

@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("factory");
         adapter.add(new ServerFactoryI(), id);
@@ -29,8 +29,7 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
         return initData;
     }

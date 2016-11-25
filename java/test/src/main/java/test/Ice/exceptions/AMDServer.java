@@ -42,11 +42,11 @@ public class AMDServer extends test.Util.Application
         r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         r.initData.properties.setProperty("Ice.Warn.Connections", "0");
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions.AMD");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
         r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        r.initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
+        r.initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(r.initData.properties, 1));
         r.initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
-        r.initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
+        r.initData.properties.setProperty("TestAdapter3.Endpoints", getTestEndpoint(r.initData.properties, 2));
         r.initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
 
         return r;

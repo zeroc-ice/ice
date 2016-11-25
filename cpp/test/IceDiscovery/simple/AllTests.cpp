@@ -83,7 +83,7 @@ allTests(const CommunicatorPtr& communicator, int num)
         }
     }
     cout << "ok" << endl;
-    
+
     cout << "testing object adapter migration..." << flush;
     {
         proxies[0]->activateObjectAdapter("oa", "oa1", "");

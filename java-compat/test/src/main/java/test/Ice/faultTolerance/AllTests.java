@@ -47,10 +47,10 @@ public class AllTests
                 {
                 }
             }
-            
+
             _called = false;
         }
-        
+
         public synchronized void
         called()
         {
@@ -71,20 +71,20 @@ public class AllTests
             _pid = pid;
             callback.called();
         }
-        
+
         @Override
         public void
         exception(Ice.LocalException ex)
         {
             test(false);
         }
-        
+
         public int
         pid()
         {
             return _pid;
         }
-        
+
         public void
         check()
         {
@@ -92,10 +92,10 @@ public class AllTests
         }
 
         private int _pid;
-        
+
         private Callback callback = new Callback();
     }
-    
+
     private static class Callback_TestIntf_shutdownI extends Callback_TestIntf_shutdown
     {
         @Override
@@ -104,14 +104,14 @@ public class AllTests
         {
             callback.called();
         }
-        
+
         @Override
         public void
         exception(Ice.LocalException ex)
         {
             test(false);
         }
-        
+
         public void
         check()
         {
@@ -120,7 +120,7 @@ public class AllTests
 
         private Callback callback = new Callback();
     }
-    
+
     private static class AbortCallback extends Ice.Callback
     {
         @Override
@@ -155,7 +155,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void
         check()
         {
@@ -164,16 +164,19 @@ public class AllTests
 
         private Callback callback = new Callback();
     }
-    
+
     public static void
-    allTests(Ice.Communicator communicator, int[] ports, PrintWriter out)
+    allTests(test.Util.Application app, int[] ports)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test";
         for(int port : ports)
         {
-            ref += ":default -p " + port;
+            ref += ":" + app.getTestEndpoint(port);
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);

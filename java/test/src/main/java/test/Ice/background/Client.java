@@ -17,12 +17,8 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Configuration configuration = new Configuration();
         PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        plugin.setConfiguration(configuration);
-        communicator().getPluginManager().initializePlugins();
-
-        BackgroundPrx background = AllTests.allTests(configuration, communicator(), getWriter());
+        BackgroundPrx background = AllTests.allTests(plugin.getConfiguration(), this);
         background.shutdown();
         return 0;
     }
@@ -54,9 +50,6 @@ public class Client extends test.Util.Application
         r.initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
-
-        // Don't initialize the plugin until I've set the configuration.
-        r.initData.properties.setProperty("Ice.InitPlugins", "0");
 
         return r;
     }

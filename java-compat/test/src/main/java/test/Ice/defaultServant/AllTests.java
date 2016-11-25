@@ -24,9 +24,10 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 

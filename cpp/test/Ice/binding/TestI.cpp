@@ -9,12 +9,13 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(10001)
+RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(1)
 {
 }
 
@@ -34,18 +35,14 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpt
     {
         if(endpoints.find("-p") == string::npos)
         {
-            // Use a fixed port if none is specified (bug 2896)
-            ostringstream os;
-            os << endpoints << " -h \""
-               << (com->getProperties()->getPropertyWithDefault("Ice.Default.Host", "127.0.0.1"))
-               << "\" -p " << _nextPort++;
-            endpoints = os.str();
+            endpoints = getTestEndpoint(com, _nextPort++, endpoints);
         }
     }
-    
+
     com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
-    return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
+    return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx,
+                              current.adapter->addWithUUID(ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -65,10 +62,10 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) : 
-    _adapter(adapter), 
-    _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx, 
-                    _adapter->add(ICE_MAKE_SHARED(TestI), 
+RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter),
+    _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx,
+                    _adapter->add(ICE_MAKE_SHARED(TestI),
                                   stringToIdentity("test"))))
 {
     _adapter->activate();

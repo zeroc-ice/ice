@@ -39,13 +39,13 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        r.initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("TestAdapter1.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
         r.initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
         r.initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
         r.initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
         r.initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
-        r.initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
+        r.initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(r.initData.properties, 1) + ":udp");
         r.initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
         r.initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
         r.initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");

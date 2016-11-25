@@ -33,7 +33,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for router... ");
             out.flush();
-            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347");
+            routerBase = communicator().stringToProxy("Glacier2/router:" + getTestEndpoint(10));
             out.println("ok");
         }
 
@@ -51,7 +51,7 @@ public class Client extends test.Util.Application
             out.print("testing router finder... ");
             out.flush();
             com.zeroc.Ice.RouterFinderPrx finder = com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                communicator().stringToProxy("Ice/RouterFinder:default -p 12347"));
+                communicator().stringToProxy("Ice/RouterFinder:" + getTestEndpoint(10)));
             test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
             out.println("ok");
         }
@@ -76,7 +76,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            base = communicator().stringToProxy("c1/callback:tcp -p 12010");
+            base = communicator().stringToProxy("c1/callback:" + getTestEndpoint(0));
             out.println("ok");
         }
 
@@ -335,6 +335,7 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        if(args.length >= 1 && args[0].equals("--shutdown"))
         {
             out.print("testing server shutdown... ");
             out.flush();
@@ -418,7 +419,7 @@ public class Client extends test.Util.Application
 
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11, "tcp"));
                 out.println("ok");
             }
 

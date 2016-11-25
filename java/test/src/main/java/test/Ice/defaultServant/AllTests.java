@@ -22,9 +22,11 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         com.zeroc.Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 

@@ -31,7 +31,7 @@ class EndpointHostResolver
         }
     }
 
-    synchronized void resolve(final String host, final int port, final com.zeroc.Ice.EndpointSelectionType selType, 
+    synchronized void resolve(final String host, final int port, final com.zeroc.Ice.EndpointSelectionType selType,
                               final IPEndpointI endpoint, final EndpointI_connectors callback)
     {
         //
@@ -88,6 +88,7 @@ class EndpointHostResolver
                                                     com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                     }
 
+                    com.zeroc.Ice.Instrumentation.Observer obsv = observer;
                     try
                     {
                         int protocol = _protocol;
@@ -101,19 +102,23 @@ class EndpointHostResolver
                             }
                         }
 
-                        callback.connectors(endpoint.connectors(Network.getAddresses(host,
-                                                                                     port,
-                                                                                     protocol,
-                                                                                     selType,
-                                                                                     _preferIPv6,
-                                                                                     true),
-                                                                networkProxy));                        
+                        java.util.List<java.net.InetSocketAddress> addresses =
+                            Network.getAddresses(host, port, _protocol, selType, _preferIPv6, true);
+
+                        if(obsv != null)
+                        {
+                            obsv.detach();
+                            obsv = null;
+                        }
+
+                        callback.connectors(endpoint.connectors(addresses, networkProxy));
                     }
                     catch(com.zeroc.Ice.LocalException ex)
                     {
-                        if(observer != null)
+                        if(obsv != null)
                         {
-                            observer.failed(ex.ice_id());
+                            obsv.failed(ex.ice_id());
+                            obsv.detach();
                         }
                         callback.exception(ex);
                     }
@@ -124,10 +129,6 @@ class EndpointHostResolver
                             threadObserver.stateChanged(
                                 com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                 com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                        }
-                        if(observer != null)
-                        {
-                            observer.detach();
                         }
                     }
                 }

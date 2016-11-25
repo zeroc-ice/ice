@@ -23,7 +23,7 @@ public class AllTests
             throw new RuntimeException();
         }
     }
-    
+
     private static class CallbackBase
     {
         CallbackBase()
@@ -62,11 +62,12 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
 
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
 
         InitialPrx initial = InitialPrxHelper.uncheckedCast(base);
@@ -74,7 +75,7 @@ public class AllTests
         out.print("testing optional parameters with async lambda callbacks... ");
         out.flush();
         final boolean reqParams = initial.supportsRequiredParams();
-        
+
         final boolean supportsJavaSerializable = initial.supportsJavaSerializable();
 
         {
@@ -82,16 +83,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opByte(p1.get(),
-                    (Ice.ByteOptional ret, Ice.ByteOptional p2) -> 
+                    (Ice.ByteOptional ret, Ice.ByteOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opByte(p1,
-                    (Ice.ByteOptional ret, Ice.ByteOptional p2) -> 
+                    (Ice.ByteOptional ret, Ice.ByteOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -103,16 +104,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opBool(p1.get(),
-                    (Ice.BooleanOptional ret, Ice.BooleanOptional p2) -> 
+                    (Ice.BooleanOptional ret, Ice.BooleanOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opBool(p1,
-                    (Ice.BooleanOptional ret, Ice.BooleanOptional p2) -> 
+                    (Ice.BooleanOptional ret, Ice.BooleanOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -124,7 +125,7 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opShort(p1.get(),
-                    (Ice.ShortOptional ret, Ice.ShortOptional p2) -> 
+                    (Ice.ShortOptional ret, Ice.ShortOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -132,7 +133,7 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opShort(p1,
-                    (Ice.ShortOptional ret, Ice.ShortOptional p2) -> 
+                    (Ice.ShortOptional ret, Ice.ShortOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -144,16 +145,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opInt(p1.get(),
-                    (Ice.IntOptional ret, Ice.IntOptional p2) -> 
+                    (Ice.IntOptional ret, Ice.IntOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opInt(p1,
-                    (Ice.IntOptional ret, Ice.IntOptional p2) -> 
+                    (Ice.IntOptional ret, Ice.IntOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -165,16 +166,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opLong(p1.get(),
-                    (Ice.LongOptional ret, Ice.LongOptional p2) -> 
+                    (Ice.LongOptional ret, Ice.LongOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opLong(p1,
-                    (Ice.LongOptional ret, Ice.LongOptional p2) -> 
+                    (Ice.LongOptional ret, Ice.LongOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -186,16 +187,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFloat(p1.get(),
-                    (Ice.FloatOptional ret, Ice.FloatOptional p2) -> 
+                    (Ice.FloatOptional ret, Ice.FloatOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFloat(p1,
-                    (Ice.FloatOptional ret, Ice.FloatOptional p2) -> 
+                    (Ice.FloatOptional ret, Ice.FloatOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -207,16 +208,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opDouble(p1.get(),
-                    (Ice.DoubleOptional ret, Ice.DoubleOptional p2) -> 
+                    (Ice.DoubleOptional ret, Ice.DoubleOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opDouble(p1,
-                    (Ice.DoubleOptional ret, Ice.DoubleOptional p2) -> 
+                    (Ice.DoubleOptional ret, Ice.DoubleOptional p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -228,16 +229,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opString(p1.get(),
-                    (Ice.Optional<String> ret, Ice.Optional<String> p2) -> 
+                    (Ice.Optional<String> ret, Ice.Optional<String> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opString(p1,
-                    (Ice.Optional<String> ret, Ice.Optional<String> p2) -> 
+                    (Ice.Optional<String> ret, Ice.Optional<String> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -249,16 +250,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opMyEnum(p1.get(),
-                    (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) -> 
+                    (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opMyEnum(p1,
-                    (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) -> 
+                    (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -270,16 +271,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStruct(p1.get(),
-                    (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) -> 
+                    (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStruct(p1,
-                    (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) -> 
+                    (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -291,16 +292,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStruct(p1.get(),
-                    (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) -> 
+                    (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStruct(p1,
-                    (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) -> 
+                    (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -312,16 +313,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opVarStruct(p1.get(),
-                    (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) -> 
+                    (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opVarStruct(p1,
-                    (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) -> 
+                    (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -333,18 +334,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opOneOptional(p1.get(),
-                    (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() && 
+                    (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() &&
                                 ret.get().getA() == p1.get().getA()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opOneOptional(p1,
-                    (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() && 
+                    (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() &&
                                 ret.get().getA() == p1.get().getA()),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -357,16 +358,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opOneOptionalProxy(p1.get(),
-                    (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) -> 
+                    (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opOneOptionalProxy(p1,
-                    (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) -> 
+                    (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -376,22 +377,22 @@ public class AllTests
         {
             Ice.Optional<byte[]> p1 = new Ice.Optional<byte[]>(new byte[100]);
             java.util.Arrays.fill(p1.get(), (byte)56);
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opByteSeq(p1.get(),
-                    (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opByteSeq(p1,
-                    (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -404,18 +405,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opBoolSeq(p1.get(),
-                    (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) -> 
+                    (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opBoolSeq(p1,
-                    (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -428,18 +429,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opShortSeq(p1.get(),
-                    (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) -> 
+                    (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opShortSeq(p1,
-                    (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -452,18 +453,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opIntSeq(p1.get(),
-                    (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) -> 
+                    (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opIntSeq(p1,
-                    (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -476,18 +477,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opLongSeq(p1.get(),
-                    (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) -> 
+                    (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opLongSeq(p1,
-                    (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -500,18 +501,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFloatSeq(p1.get(),
-                    (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) -> 
+                    (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 CallbackBase cb = new CallbackBase();
                 initial.begin_opFloatSeq(p1,
-                    (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -524,18 +525,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opDoubleSeq(p1.get(),
-                    (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) -> 
+                    (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 CallbackBase cb = new CallbackBase();
                 initial.begin_opDoubleSeq(p1,
-                    (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -548,18 +549,18 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opStringSeq(p1.get(),
-                    (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) -> 
+                    (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opStringSeq(p1,
-                    (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -573,28 +574,28 @@ public class AllTests
             {
                 p1.get()[i] = new SmallStruct();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStructSeq(p1.get(),
-                    (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) -> 
+                    (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStructSeq(p1,
-                    (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
-        
+
         {
             Ice.Optional<java.util.List<SmallStruct>> p1 = new Ice.Optional<java.util.List<SmallStruct>>();
             p1.set(new java.util.ArrayList<SmallStruct>());
@@ -602,20 +603,20 @@ public class AllTests
             {
                 p1.get().add(new SmallStruct());
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStructList(p1.get(),
-                    (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) -> 
+                    (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 CallbackBase cb = new CallbackBase();
                 initial.begin_opSmallStructList(p1,
-                    (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) -> 
+                    (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -629,28 +630,28 @@ public class AllTests
             {
                 p1.get()[i] = new FixedStruct();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStructSeq(p1.get(),
-                    (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) -> 
+                    (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStructSeq(p1,
-                    (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
-        
+
         {
             Ice.Optional<java.util.List<FixedStruct>> p1 = new Ice.Optional<java.util.List<FixedStruct>>();
             p1.set(new java.util.ArrayList<FixedStruct>());
@@ -658,20 +659,20 @@ public class AllTests
             {
                 p1.get().add(new FixedStruct());
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStructList(p1.get(),
-                    (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) -> 
+                    (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opFixedStructList(p1,
-                    (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) -> 
+                    (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -685,22 +686,22 @@ public class AllTests
             {
                 p1.get()[i] = new VarStruct("");
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opVarStructSeq(p1.get(),
-                    (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) -> 
+                    (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opVarStructSeq(p1,
-                    (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) -> 
-                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
+                    (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) ->
+                        cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -713,16 +714,16 @@ public class AllTests
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSerializable(p1.get(),
-                    (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) -> 
+                    (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opSerializable(p1,
-                    (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) -> 
+                    (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -734,22 +735,22 @@ public class AllTests
             p1.set(new java.util.HashMap<Integer, Integer>());
             p1.get().put(1, 2);
             p1.get().put(2, 3);
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opIntIntDict(p1.get(),
-                    (Ice.Optional<java.util.Map<Integer, Integer>> ret, 
-                    Ice.Optional<java.util.Map<Integer, Integer>> p2) -> 
+                    (Ice.Optional<java.util.Map<Integer, Integer>> ret,
+                    Ice.Optional<java.util.Map<Integer, Integer>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opIntIntDict(p1,
-                    (Ice.Optional<java.util.Map<Integer, Integer>> ret, 
-                    Ice.Optional<java.util.Map<Integer, Integer>> p2) -> 
+                    (Ice.Optional<java.util.Map<Integer, Integer>> ret,
+                    Ice.Optional<java.util.Map<Integer, Integer>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
@@ -761,22 +762,22 @@ public class AllTests
             p1.set(new java.util.HashMap<String, Integer>());
             p1.get().put("1", 1);
             p1.get().put("2", 2);
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opStringIntDict(p1.get(),
-                    (Ice.Optional<java.util.Map<String, Integer>> ret, 
-                    Ice.Optional<java.util.Map<String, Integer>> p2) -> 
+                    (Ice.Optional<java.util.Map<String, Integer>> ret,
+                    Ice.Optional<java.util.Map<String, Integer>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
-            
+
             {
                 final CallbackBase cb = new CallbackBase();
                 initial.begin_opStringIntDict(p1,
-                    (Ice.Optional<java.util.Map<String, Integer>> ret, 
-                    Ice.Optional<java.util.Map<String, Integer>> p2) -> 
+                    (Ice.Optional<java.util.Map<String, Integer>> ret,
+                    Ice.Optional<java.util.Map<String, Integer>> p2) ->
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
                     (Ice.Exception ex) -> cb.called(false));
                 cb.check();

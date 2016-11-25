@@ -36,9 +36,15 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "test:default -p 12010";
+    string sref = "test:" + getTestEndpoint(communicator, 0);
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
+
+    int proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.HTTPProxyPort");
+    if(proxyPort == 0)
+    {
+        proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.SOCKSProxyPort");
+    }
 
     TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
     test(test);
@@ -52,7 +58,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing connection information... " << flush;
     {
         Ice::IPConnectionInfoPtr info = getIPConnectionInfo(test->ice_getConnection()->getInfo());
-        test(info->remotePort == 12030 || info->remotePort == 12031); // make sure we are connected to the proxy port.
+        test(info->remotePort == proxyPort); // make sure we are connected to the proxy port.
     }
     cout << "ok" << endl;
 

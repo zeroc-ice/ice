@@ -18,7 +18,7 @@ public class Server extends test.Util.Application
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("communicator");
-        adapter.add(new RemoteCommunicatorI(), id);
+        adapter.add(new RemoteCommunicatorI(this), id);
         adapter.activate();
 
         return WAIT;
@@ -27,10 +27,9 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
         return initData;
     }
 

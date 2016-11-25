@@ -136,10 +136,10 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
 {
     tprintf("testing stringToProxy... ");
     NSString* ref = @"test";
-    for(NSString* p in ports)
+    for(NSNumber* p in ports)
     {
         ref = [ref stringByAppendingString:@":default -p "];
-        ref = [ref stringByAppendingString:p];
+        ref = [ref stringByAppendingString:[p stringValue]];
     }
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);

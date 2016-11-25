@@ -18,7 +18,7 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "tcp -p 12010");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("factory");
     adapter->add(ICE_MAKE_SHARED(ServerFactoryI), id);
@@ -36,7 +36,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

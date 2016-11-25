@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         Ice.Object test = new TestI(communicator);
         adapter.add(test, Ice.Util.stringToIdentity("test"));
 
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -27,10 +27,9 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
 	initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
         return initData;
     }

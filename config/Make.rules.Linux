@@ -51,6 +51,7 @@ $1_cc		= $$($1_gnu_type)-$(CC)
 $1_cxx		= $$($1_gnu_type)-$(CXX)
 $1_libtool	= $$($1_gnu_type)-$(AR)
 $1_targetdir 	= /$$($1_multiarch)
+$1_objdir	= /$$($1_multiarch)
 $1_installdir 	= $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
 
 $1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)

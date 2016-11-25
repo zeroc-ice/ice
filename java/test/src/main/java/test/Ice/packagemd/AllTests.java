@@ -28,11 +28,13 @@ public class AllTests
         }
     }
 
-    public static InitialPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static InitialPrx allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");

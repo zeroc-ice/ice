@@ -13,7 +13,7 @@ using System.Threading;
 
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     static IceMX.ConnectionMetrics
     getServerConnectionMetrics(IceMX.MetricsAdminPrx metrics, long expected)
@@ -78,6 +78,12 @@ public class AllTests : TestCommon.TestApp
         private bool _wait;
     };
 
+    static string
+    getPort(Ice.PropertiesAdminPrx p)
+    {
+        return TestCommon.Application.getTestPort(p.ice_getCommunicator().getProperties(), 0).ToString();
+    }
+
     static private Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
@@ -96,7 +102,7 @@ public class AllTests : TestCommon.TestApp
             map += "Map." + m + '.';
         }
         props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin";
-        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = "12010";
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(p);
         props["IceMX.Metrics.View." + map + "Reject.identity"] = ".*/admin|controller";
         return props;
     }
@@ -119,7 +125,7 @@ public class AllTests : TestCommon.TestApp
             map += "Map." + m + '.';
         }
         props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = "12010";
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(p);
         return props;
     }
 
@@ -383,9 +389,17 @@ public class AllTests : TestCommon.TestApp
         return m;
     }
 
-    public static MetricsPrx allTests(Ice.Communicator communicator, CommunicatorObserverI obsv)
+    public static MetricsPrx allTests(TestCommon.Application app, CommunicatorObserverI obsv)
     {
-        MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:default -p 12010"));
+        Ice.Communicator communicator = app.communicator();
+
+        string host = app.getTestHost();
+        string port = app.getTestPort(0).ToString();
+        string hostAndPort = host + ":" + port;
+        string protocol = app.getTestProtocol();
+        string endpoint = protocol + " -h " + host + " -p " + port;
+
+        MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
         bool collocated = metrics.ice_getConnection() == null;
 
         Write("testing metrics admin facet checkedCast... ");
@@ -483,9 +497,6 @@ public class AllTests : TestCommon.TestApp
 
         WriteLine("ok");
 
-
-        string endpoint = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp") +
-            " -h 127.0.0.1 -p 12010";
         string type = "";
         string isSecure = "";
         if(!collocated)
@@ -571,7 +582,7 @@ public class AllTests : TestCommon.TestApp
             test(map["active"].current == 1);
 
             ControllerPrx controller = ControllerPrxHelper.checkedCast(
-                communicator.stringToProxy("controller:default -p 12011"));
+                communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
@@ -637,16 +648,16 @@ public class AllTests : TestCommon.TestApp
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure);
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500");
             testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", "127.0.0.1");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", "12010");
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", host);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", port);
 
             testAttribute(clientMetrics, clientProps, update, "Connection", "incoming", "False");
             testAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "");
             testAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "localHost", "127.0.0.1");
+            testAttribute(clientMetrics, clientProps, update, "Connection", "localHost", host);
             //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", "127.0.0.1");
-            testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010");
+            testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", host);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", port);
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "");
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "");
 
@@ -668,13 +679,13 @@ public class AllTests : TestCommon.TestApp
 
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
-            test(m1.current == 0 && m1.total == 1 && m1.id.Equals("127.0.0.1:12010"));
+            test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
 
             metrics.ice_getConnection().close(false);
             controller.hold();
             try
             {
-                communicator.stringToProxy("test:tcp -p 12010 -h 127.0.0.1").ice_timeout(10).ice_ping();
+                communicator.stringToProxy("test:tcp -h 127.0.0.1 -p " + port).ice_timeout(10).ice_ping();
                 test(false);
             }
             catch(Ice.ConnectTimeoutException)
@@ -687,13 +698,13 @@ public class AllTests : TestCommon.TestApp
             controller.resume();
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
-            test(m1.id.Equals("127.0.0.1:12010") && m1.total == 3 && m1.failures == 2);
+            test(m1.id.Equals(hostAndPort) && m1.total == 3 && m1.failures == 2);
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "::Ice::ConnectTimeoutException", 2);
 
             System.Action c = () => { connect(metrics); };
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
                           endpoint + " -t 60000", c);
 
@@ -705,9 +716,8 @@ public class AllTests : TestCommon.TestApp
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                           c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1",
-                          c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", port, c);
 
             WriteLine("ok");
 
@@ -718,19 +728,27 @@ public class AllTests : TestCommon.TestApp
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 0);
 
-            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost -t infinite");
-            prx.ice_ping();
+            Ice.ObjectPrx prx =
+                communicator.stringToProxy("metrics:" + protocol + " -p " + port + " -h localhost -t 500");
+            try
+            {
+                prx.ice_ping();
+                prx.ice_getConnection().close(false);
+            }
+            catch(Ice.LocalException)
+            {
+            }
 
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            test(m1.current <= 1 && m1.total == 1 && m1.id.Equals(prx.ice_getConnection().getEndpoint().ToString()));
+            test(m1.current <= 1 && m1.total == 1);
 
             prx.ice_getConnection().close(false);
 
             bool dnsException = false;
             try
             {
-                communicator.stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com").ice_ping();
+                communicator.stringToProxy("test:tcp -t 500 -h unknownfoo.zeroc.com -p " + port).ice_ping();
                 test(false);
             }
             catch(Ice.DNSException)
@@ -743,11 +761,11 @@ public class AllTests : TestCommon.TestApp
             }
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            if(!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500"))
+            if(!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
             {
                 m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
             }
-            test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 &&
+            test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
             if(dnsException)
             {
@@ -765,10 +783,10 @@ public class AllTests : TestCommon.TestApp
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "-1", c);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", "12010", c);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c);
 
             WriteLine("ok");
         }
@@ -866,16 +884,16 @@ public class AllTests : TestCommon.TestApp
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", "12010", op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", host, op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", port, op);
 
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", "127.0.0.1", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", "12010", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", "127.0.0.1", op);
-            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", "12010", op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", host, op);
+            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op);
         }

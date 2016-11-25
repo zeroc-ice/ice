@@ -253,7 +253,7 @@ abstract class TestCase
     protected bool _closed;
 };
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     class InvocationHeartbeatTest : TestCase
     {
@@ -515,9 +515,10 @@ public class AllTests : TestCommon.TestApp
         }
     };
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
-        string @ref = "communicator:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string @ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         List<TestCase> tests = new List<TestCase>();

@@ -42,26 +42,20 @@ allTests(const CommunicatorPtr& communicator)
         if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
         {
-            string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
-                "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
             cout << "creating/destroying/recreating object adapter... " << flush;
-            ObjectAdapterPtr adapter =
-                communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -h " + host);
+            ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             try
             {
-                communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -h " + host);
+                communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
             }
             catch(const AlreadyRegisteredException&)
             {
             }
-            adapter->destroy();
+            adpt->destroy();
 
-            //
-            // Use a different port than the first adapter to avoid an "address already in use" error.
-            //
-            adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -h " + host);
-            adapter->destroy();
+            adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+            adpt->destroy();
             cout << "ok" << endl;
         }
     }

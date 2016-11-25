@@ -27,7 +27,7 @@ def run(args, communicator):
             usage(args[0])
             return False
 
-        ports.append(int(arg))
+        ports.append(12010 + int(arg))
 
     if len(ports) == 0:
         sys.stderr.write(args[0] + ": no ports specified\n")
@@ -45,7 +45,7 @@ def run(args, communicator):
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    
+
     #
     # This test aborts servers, so we don't want warnings.
     #

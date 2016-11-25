@@ -89,7 +89,7 @@ public class Client extends test.Util.Application
 
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        InitialPrx initial = AllTests.allTests(communicator, getWriter());
+        InitialPrx initial = AllTests.allTests(this);
         initial.shutdown();
         return 0;
     }

@@ -138,7 +138,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String sref = "timeout:default -p 12010";
+        String sref = "timeout:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 

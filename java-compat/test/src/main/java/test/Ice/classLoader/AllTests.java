@@ -140,7 +140,7 @@ public class AllTests
             initData.classLoader = classLoader;
             Ice.Communicator ic = app.initialize(initData);
 
-            String ref = "initial:default -p 12010";
+            String ref = "initial:" + app.getTestEndpoint(0);
             Ice.ObjectPrx base = ic.stringToProxy(ref);
             test(base != null);
 

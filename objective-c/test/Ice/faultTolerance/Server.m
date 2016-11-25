@@ -39,7 +39,7 @@ run(int argc, char** argv, id<ICECommunicator> communicator)
             return EXIT_FAILURE;
         }
 
-        port = atoi(argv[i]);
+        port = 12010 + atoi(argv[i]);
     }
 
     if(port <= 0)
@@ -49,7 +49,7 @@ run(int argc, char** argv, id<ICECommunicator> communicator)
         return EXIT_FAILURE;
     }
 
-    NSString* endpts = [NSString stringWithFormat:@"default  -p %d:udp", port];
+    NSString* endpts = [NSString stringWithFormat:@"default -p %d:udp", port];
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:endpts];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 

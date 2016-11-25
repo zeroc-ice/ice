@@ -30,8 +30,8 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
+        r.initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(r.initData.properties, 1));
         r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         //
         // Limit the recv buffer size, this test relies on the socket

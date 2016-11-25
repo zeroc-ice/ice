@@ -479,7 +479,7 @@ class Expect (object):
            raises a TIMEOUT exception. If timeout is None, the wait is
            indefinite.
 
-           The exit status is returned. A negative exit status means
+           The exit tus is returned. A negative exit status means
            the application was killed by a signal.
         """
         if self.p is None:
@@ -493,6 +493,10 @@ class Expect (object):
                 time.sleep(0.1)
             if self.p and self.p.poll() is None:
                 raise TIMEOUT ('timedwait exceeded timeout')
+        elif win32:
+            # We poll on Windows or othewise KeyboardInterrupt isn't delivered
+            while self.p.poll() is None:
+                time.sleep(0.5)
 
         if self.p is None:
             return self.exitstatus
@@ -503,7 +507,8 @@ class Expect (object):
         if win32 and self.exitstatus != 0 and self.killed is not None:
             self.exitstatus = -self.killed
         global processes
-        del processes[self.p.pid]
+        if self.p.pid in processes:
+            del processes[self.p.pid]
         self.p = None
         self.r.join()
         # Simulate a match on EOF
@@ -519,6 +524,10 @@ class Expect (object):
         # First try to break the app. Don't bother if this is win32
         # and we're using java. It won't break (BREAK causes a stack
         # trace).
+
+        if self.p is None:
+            return
+
         if self.hasInterruptSupport():
             try:
                 if win32:
@@ -632,6 +641,32 @@ class Expect (object):
 
     def trace(self, suppress = None):
         self.r.enabletrace(suppress)
+
+    def waitSuccess(self, exitstatus = 0, timeout = None):
+        """Wait for the process to terminate for up to timeout seconds, and
+           validate the exit status is as expected."""
+
+        def test(result, expected):
+            if expected != result:
+                raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (expected, result))
+
+        self.wait(timeout)
+        if self.mapping == "java":
+            if self.killed is not None:
+                if win32:
+                    test(self.exitstatus, -self.killed)
+                else:
+                    if self.killed == signal.SIGINT:
+                        test(130, self.exitstatus)
+                    else:
+                        test(self.exitstatus, exitstatus)
+            else:
+                test(self.exitstatus, exitstatus)
+        else:
+            test(self.exitstatus, exitstatus)
+
+    def getOutput(self):
+        return self.buf
 
     def hasInterruptSupport(self):
         """Return True if the application gracefully terminated, False otherwise."""

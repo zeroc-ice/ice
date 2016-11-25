@@ -11,6 +11,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/IceUtil.h>
 #include <IceStorm/IceStorm.h>
+#include <TestCommon.h>
 #include <Single.h>
 
 using namespace std;
@@ -120,10 +121,10 @@ main(int argc, char* argv[])
 {
     int status;
     CommunicatorPtr communicator;
-
+    InitializationData initData = getTestInitData(argc, argv);
     try
     {
-        communicator = initialize(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)

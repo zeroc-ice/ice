@@ -94,6 +94,7 @@
         "TcpEndpointFactory.js",
         "TcpEndpointI.js",
         "Timer.js",
+        "ToStringMode.js",
         "TraceLevels.js",
         "TraceUtil.js",
         "UnknownSlicedValue.js",

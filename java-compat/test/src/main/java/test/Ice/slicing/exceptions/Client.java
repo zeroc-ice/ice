@@ -16,8 +16,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions.client");
         return initData;
     }
@@ -25,7 +24,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        TestIntfPrx test = AllTests.allTests(communicator(), false, getWriter());
+        TestIntfPrx test = AllTests.allTests(this, false);
         test.shutdown();
         return 0;
     }

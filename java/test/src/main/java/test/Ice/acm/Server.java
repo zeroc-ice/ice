@@ -29,7 +29,7 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.acm");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
         r.initData.properties.setProperty("Ice.Warn.Connections", "0");
         r.initData.properties.setProperty("Ice.ACM.Timeout", "1");
         return r;

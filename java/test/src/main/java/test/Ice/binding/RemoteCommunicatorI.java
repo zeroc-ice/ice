@@ -14,17 +14,19 @@ import test.Ice.binding.Test.RemoteCommunicator;
 
 public class RemoteCommunicatorI implements RemoteCommunicator
 {
+    public
+    RemoteCommunicatorI(test.Util.Application app)
+    {
+        _app = app;
+    }
+
     @Override
     public RemoteObjectAdapterPrx createObjectAdapter(String name, String endpts, com.zeroc.Ice.Current current)
     {
         String endpoints = endpts;
         if(endpoints.indexOf("-p") < 0)
         {
-            // Use a fixed port if none is specified (bug 2896)
-            endpoints += " -h \"" + 
-                (current.adapter.getCommunicator().getProperties().getPropertyWithDefault(
-                                                                                    "Ice.Default.Host", "127.0.0.1")) +
-                "\" -p " + _nextPort++;
+            endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
         }
 
         com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
@@ -45,5 +47,6 @@ public class RemoteCommunicatorI implements RemoteCommunicator
         current.adapter.getCommunicator().shutdown();
     }
 
-    private int _nextPort = 10001;
+    private final test.Util.Application _app;
+    private int _nextPort = 10;
 }

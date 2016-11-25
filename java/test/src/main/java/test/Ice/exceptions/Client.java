@@ -16,8 +16,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        ThrowerPrx thrower = AllTests.allTests(communicator, getWriter());
+        ThrowerPrx thrower = AllTests.allTests(this);
         thrower.shutdown();
         return 0;
     }

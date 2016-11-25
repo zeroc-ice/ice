@@ -28,6 +28,7 @@
 #include <Types.h>
 #include <ValueFactoryManager.h>
 #include <Ice/Initialize.h>
+#include <Ice/RegisterPlugins.h>
 
 using namespace std;
 using namespace IcePy;
@@ -124,15 +125,6 @@ PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
 
 #endif
 
-#ifdef ICE_STATIC_LIBS
-extern "C"
-{
-Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
-Ice::Plugin* createIceDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-Ice::Plugin* createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
-}
-#endif
-
 #if defined(__GNUC__) && PY_VERSION_HEX >= 0x03000000
 extern "C" __attribute__((visibility ("default"))) PyObject *
 #elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport
@@ -148,12 +140,9 @@ initIcePy(void)
 {
     PyObject* module;
 
-#ifdef ICE_STATIC_LIBS
-    // Register the plugins manually if we're building with static libraries.
-    Ice::registerPluginFactory("IceSSL", createIceSSL, false);
-    Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, false);
-    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, false);
-#endif
+    Ice::registerIceSSL(false);
+    Ice::registerIceDiscovery(false);
+    Ice::registerIceLocatorDiscovery(false);
 
     //
     // Notify Python that we are a multi-threaded extension.

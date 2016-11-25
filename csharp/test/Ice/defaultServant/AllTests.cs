@@ -20,8 +20,9 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 

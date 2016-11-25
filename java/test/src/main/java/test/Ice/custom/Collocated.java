@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         com.zeroc.Ice.Object test = new TestI(communicator);
         adapter.add(test, com.zeroc.Ice.Util.stringToIdentity("test"));
 
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -29,7 +29,7 @@ public class Collocated extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
 	r.initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
         return r;
     }

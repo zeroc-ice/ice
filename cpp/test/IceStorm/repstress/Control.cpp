@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Controller.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,10 +35,10 @@ main(int argc, char* argv[])
 {
     int status;
     CommunicatorPtr communicator;
-
+    InitializationData initData = getTestInitData(argc, argv);
     try
     {
-        communicator = initialize(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)

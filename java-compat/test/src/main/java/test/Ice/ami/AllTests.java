@@ -34,13 +34,13 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:default -p 12011";
+        sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -61,9 +61,9 @@ public class AllTests
                     "run",
                     new Class<?>[]
                     {
-                        test.Util.Application.class, 
-                        Ice.Communicator.class, 
-                        boolean.class, 
+                        test.Util.Application.class,
+                        Ice.Communicator.class,
+                        boolean.class,
                         TestIntfPrx.class,
                         TestIntfControllerPrx.class
                     });

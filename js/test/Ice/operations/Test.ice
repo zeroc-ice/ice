@@ -280,6 +280,13 @@ class MyDerivedClass extends MyClass
     MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
 };
 
+interface Echo
+{
+    void startBatch();
+    void flushBatch();
+    void shutdown();
+};
+
 //
 // String literals
 //

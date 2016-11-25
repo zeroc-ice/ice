@@ -18,10 +18,10 @@ public class ServerManagerI implements ServerManager
     {
         _registry = registry;
         _communicators = new java.util.ArrayList<com.zeroc.Ice.Communicator>();
-        
+
         _app = app;
         _initData = initData;
-        
+
         _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
         _initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
         _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
@@ -52,13 +52,13 @@ public class ServerManagerI implements ServerManager
         // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
         // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
         //
-        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + _nextPort++);
-        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default -p " + _nextPort++);
+        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", _app.getTestEndpoint(_nextPort++));
+        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", _app.getTestEndpoint(_nextPort++));
 
         com.zeroc.Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
         com.zeroc.Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-        com.zeroc.Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12010");
+        com.zeroc.Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:"  + _app.getTestEndpoint(0));
         adapter.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
         adapter2.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
 
@@ -85,5 +85,5 @@ public class ServerManagerI implements ServerManager
     private java.util.List<com.zeroc.Ice.Communicator> _communicators;
     private com.zeroc.Ice.InitializationData _initData;
     private test.Util.Application _app;
-    private int _nextPort = 12011;
+    private int _nextPort = 1;
 }

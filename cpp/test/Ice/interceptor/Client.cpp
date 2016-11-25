@@ -57,8 +57,7 @@ public:
 
     virtual int _main(int argc, char** argv)
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         _communicator = Ice::initialize(initData);
         return run(argc, argv);

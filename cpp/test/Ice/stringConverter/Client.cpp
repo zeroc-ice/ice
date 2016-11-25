@@ -27,8 +27,7 @@ main(int argc, char* argv[])
     Ice::registerIceStringConverter();
 #endif
 
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
 
     string narrowEncoding;
     string wideEncoding;

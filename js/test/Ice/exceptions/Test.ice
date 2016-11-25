@@ -73,4 +73,11 @@ interface WrongOperation
     void noSuchOperation();
 };
 
+interface Echo
+{
+    void startBatch();
+    void flushBatch();
+    void shutdown();
+};
+
 };

@@ -69,13 +69,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
+            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                             "IceLocatorDiscovery:createIceLocatorDiscovery");
 #ifdef __APPLE__
             if(initData.properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0)
             {
                 initData.properties->setProperty("IceLocatorDiscovery.Interface", "::1");
             }
 #endif
+            {
+                ostringstream port;
+                port << getTestPort(initData.properties, 99);
+                initData.properties->setProperty("IceLocatorDiscovery.Port", port.str());
+            }
             initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 

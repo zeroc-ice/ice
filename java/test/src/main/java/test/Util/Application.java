@@ -205,7 +205,7 @@ public abstract class Application
         r.initData = createInitializationData();
         com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
         r.initData.properties = cpr.properties;
-        r.args = cpr.args;
+        r.args = r.initData.properties.parseCommandLineOptions("Test", cpr.args);
         return r;
     }
 
@@ -280,6 +280,62 @@ public abstract class Application
     public ClassLoader classLoader()
     {
         return _classLoader;
+    }
+
+    public String getTestEndpoint(int num)
+    {
+        return getTestEndpoint(num, "");
+    }
+
+    public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num)
+    {
+        return getTestEndpoint(properties, num, "");
+    }
+
+    public String getTestEndpoint(int num, String prot)
+    {
+        return getTestEndpoint(_communicator.getProperties(), num, prot);
+    }
+
+    static public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num, String prot)
+    {
+        String protocol = prot;
+        if(protocol.isEmpty())
+        {
+            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+        }
+        int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
+        return protocol + " -p " + Integer.toString(basePort + num);
+    }
+
+    public String getTestHost()
+    {
+        return getTestHost(_communicator.getProperties());
+    }
+
+    static public String getTestHost(com.zeroc.Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    }
+
+    public String getTestProtocol()
+    {
+        return getTestProtocol(_communicator.getProperties());
+    }
+
+    static public String getTestProtocol(com.zeroc.Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    }
+
+    public int getTestPort(int num)
+    {
+        return getTestPort(_communicator.getProperties(), num);
+    }
+
+    static public int getTestPort(com.zeroc.Ice.Properties properties, int num)
+    {
+        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
     private ClassLoader _classLoader;

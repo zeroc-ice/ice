@@ -20,7 +20,7 @@ public class Collocated extends test.Util.Application
         Ice.Object object = new ThrowerI();
         adapter.add(object, Ice.Util.stringToIdentity("thrower"));
 
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -28,19 +28,17 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        //
+        Ice.InitializationData initData = super.getInitData(argsH);
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
         //
         initData.logger = new DummyLogger();
 
-        initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
 
         return initData;
     }

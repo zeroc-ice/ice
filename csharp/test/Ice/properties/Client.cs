@@ -66,7 +66,7 @@ public class Client
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         //
         // Try to load multiple config files.
         //
@@ -116,10 +116,10 @@ public class Client
                                           "AServer", "\\\\server\\dir",
                                           "BServer", "\\server\\dir",
                                           ""};
-            
+
             for(int i = 0; props[i].Length > 0; i += 2)
             {
-                test(properties.getProperty(props[i]).Equals(props[i + 1])); 
+                test(properties.getProperty(props[i]).Equals(props[i + 1]));
             }
             Console.Out.WriteLine("ok");
         }

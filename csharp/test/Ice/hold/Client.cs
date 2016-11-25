@@ -16,43 +16,17 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
         return 0;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

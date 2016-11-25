@@ -15,7 +15,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         int num;
-        try 
+        try
         {
             num = args.length == 1 ? Integer.parseInt(args[0]) : 0;
         }
@@ -23,7 +23,7 @@ public class Client extends test.Util.Application
         {
             num = 0;
         }
-        AllTests.allTests(communicator(), num);
+        AllTests.allTests(this, num);
         return 0;
     }
 

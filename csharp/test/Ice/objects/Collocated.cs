@@ -17,17 +17,17 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Collocated : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         var initial = new InitialI(adapter);
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI uet = new UnexpectedObjectExceptionTestI();
         adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
         // We must call shutdown even in the collocated case for cyclic dependency cleanup
         initial.shutdown();
         return 0;
@@ -35,34 +35,7 @@ public class Client
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            var data = new Ice.InitializationData();
-            communicator = Ice.Util.initialize(ref args, data);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Collocated app = new Collocated();
+        return app.runmain(args);
     }
 }

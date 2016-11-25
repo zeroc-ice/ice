@@ -16,61 +16,39 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
         //
         // We don't want connection warnings because of the timeout test.
         //
-        communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
+        communicator().getProperties().setProperty("Ice.Warn.Connections", "0");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
 
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        //
+        // Its possible to have batch oneway requests dispatched
+        // after the adapter is deactivated due to thread
+        // scheduling so we supress this warning.
+        //
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            //
-            // Its possible to have batch oneway requests dispatched
-            // after the adapter is deactivated due to thread
-            // scheduling so we supress this warning.
-            //
-            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

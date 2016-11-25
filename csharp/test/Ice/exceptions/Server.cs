@@ -35,23 +35,23 @@ public sealed class DummyLogger : Ice.Logger
     }
 
     public string getPrefix()
-    {   
+    {
         return "";
-    }   
-    
+    }
+
     public Ice.Logger cloneWithPrefix(string prefix)
     {
         return new DummyLogger();
     }
 }
 
-public class Server
+public class Server : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-        Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter2");
+        Ice.ObjectAdapter adapter3 = communicator().createObjectAdapter("TestAdapter3");
         Ice.Object obj = new ThrowerI();
         adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
         adapter2.add(obj, Ice.Util.stringToIdentity("thrower"));
@@ -59,50 +59,27 @@ public class Server
         adapter.activate();
         adapter2.activate();
         adapter3.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(initData.properties, 1));
+        initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
+        initData.properties.setProperty("TestAdapter3.Endpoints", getTestEndpoint(initData.properties, 2));
+        initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-            initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-            initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
-            initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
-            initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
-            initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            System.Console.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.Console.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

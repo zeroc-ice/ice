@@ -77,12 +77,16 @@ registerConnectionInfoClass(Class cl)
         return [[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()];
     }
 
-    for(std::vector<Class>::const_iterator p = connectionInfoClasses->begin(); p != connectionInfoClasses->end(); ++p)
+    if(connectionInfoClasses)
     {
-        ICEConnectionInfo* r = [*p checkedConnectionInfoWithConnectionInfo:info];
-        if(r)
+        for(std::vector<Class>::const_iterator p = connectionInfoClasses->begin(); p != connectionInfoClasses->end();
+            ++p)
         {
-            return r;
+            ICEConnectionInfo* r = [*p checkedConnectionInfoWithConnectionInfo:info];
+            if(r)
+            {
+                return r;
+            }
         }
     }
 

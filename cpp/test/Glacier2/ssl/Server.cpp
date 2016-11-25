@@ -18,18 +18,22 @@ using namespace std;
 namespace
 {
 
-void testContext(bool ssl, const Ice::Context& context)
+void testContext(bool ssl, const Ice::CommunicatorPtr& communicator, const Ice::Context& context)
 {
     Ice::Context ctx = context;
     if(!ssl)
     {
         test(ctx["_con.type"] == "tcp");
-        test(ctx["_con.localPort"] == "12347");
+        ostringstream port;
+        port << getTestPort(communicator->getProperties(), 0);
+        test(ctx["_con.localPort"] == port.str());
     }
     else
     {
         test(ctx["_con.type"] == "ssl");
-        test(ctx["_con.localPort"] == "12348");
+        ostringstream port;
+        port << getTestPort(communicator->getProperties(), 1);
+        test(ctx["_con.localPort"] == port.str());
     }
     test(ctx["_con.localAddress"] == "127.0.0.1");
     test(ctx["_con.remotePort"] != "");
@@ -45,7 +49,7 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string&, string&, const Ice::Current& current) const
     {
-        testContext(userId == "ssl", current.ctx);
+        testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
         return true;
     }
 };
@@ -57,7 +61,7 @@ public:
     virtual bool
     authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
     {
-        testContext(true, current.ctx);
+        testContext(true, current.adapter->getCommunicator(), current.ctx);
 
         IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
@@ -81,7 +85,7 @@ public:
     virtual void
     destroy(const Ice::Current& current)
     {
-        testContext(_ssl, current.ctx);
+        testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
 
         current.adapter->remove(current.id);
         if(_shutdown)
@@ -93,7 +97,7 @@ public:
     virtual void
     ice_ping(const Ice::Current& current) const
     {
-        testContext(_ssl, current.ctx);
+        testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
     }
 
 private:
@@ -109,7 +113,7 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-        testContext(userId == "ssl", current.ctx);
+        testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
 
         Glacier2::SessionPtr session = new SessionI(false, userId == "ssl");
         return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
@@ -123,11 +127,11 @@ public:
     virtual Glacier2::SessionPrx
     create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-        testContext(true, current.ctx);
+        testContext(true, current.adapter->getCommunicator(), current.ctx);
 
         test(info.remoteHost == "127.0.0.1");
         test(info.localHost == "127.0.0.1");
-        test(info.localPort == 12348);
+        test(info.localPort == getTestPort(current.adapter->getCommunicator()->getProperties(), 1));
 
         try
         {
@@ -163,14 +167,15 @@ main(int argc, char* argv[])
 #endif
 
     SessionServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
 SessionServer::run(int, char**)
 {
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
-        "SessionServer", "tcp -h 127.0.0.1 -p 12350");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("SessionServer",
+                                                             getTestEndpoint(communicator(), 3, "tcp"));
     adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("verifier"));
     adapter->add(new SSLPermissionsVerifierI, Ice::stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));

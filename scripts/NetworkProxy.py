@@ -77,19 +77,29 @@ class BaseProxy(threading.Thread):
         threading.Thread.__init__(self)
         self.port = port
         self.closed = False
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.cond = threading.Condition()
+        self.socket = None
         self.connections = []
         atexit.register(self.terminate)
         self.setDaemon(True)
         self.start()
+        with self.cond:
+            while not self.socket:
+                self.cond.wait()
 
     def createConnection(self):
         return None
 
     def run(self):
-        self.socket.bind(("127.0.0.1", self.port))
-        self.socket.listen(1)
+        with self.cond:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            if hasattr(socket, "SO_REUSEPORT"):
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            self.socket.bind(("127.0.0.1", self.port))
+            self.socket.listen(1)
+            self.cond.notify()
+
         try:
             while not self.closed:
                 incoming, peer = self.socket.accept()
@@ -110,6 +120,7 @@ class BaseProxy(threading.Thread):
                 c.close()
             except Exception as ex:
                 print(ex)
+
         connectToSelf = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             connectToSelf.connect(("127.0.0.1", self.port))
@@ -152,7 +163,7 @@ class SocksConnection(BaseConnection):
         return packet if sys.version_info[0] == 2 else bytes(packet,"ascii")
 
 class SocksProxy(BaseProxy):
-    
+
     def createConnection(self, socket, peer):
         return SocksConnection(socket, peer)
 
@@ -172,12 +183,12 @@ class HttpConnection(BaseConnection):
         sep = data.find(":")
         if sep < len("CONNECT ") + 1:
             raise InvalidRequest
-            
+
         host = data[len("CONNECT "):sep]
         space = data.find(" ", sep)
         if space < sep + 1:
             raise InvalidRequest
-            
+
         port = int(data[sep + 1:space])
         return (host, port)
 
@@ -189,6 +200,6 @@ class HttpConnection(BaseConnection):
         return s if sys.version_info[0] == 2 else bytes(s,"ascii")
 
 class HttpProxy(BaseProxy):
-    
+
     def createConnection(self, socket, peer):
         return HttpConnection(socket, peer)

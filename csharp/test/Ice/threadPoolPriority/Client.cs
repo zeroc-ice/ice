@@ -16,21 +16,13 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
         Console.Out.Write("testing server priority... ");
         Console.Out.Flush();
-        Ice.ObjectPrx obj = communicator.stringToProxy("test:default -p 12010 -t 10000");
+        Ice.ObjectPrx obj = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
         Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
 
         try
@@ -50,34 +42,8 @@ public class Client
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }
 

@@ -43,7 +43,7 @@ public class Collocated extends test.Util.Application
 
         try
         {
-            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, "retry");
+            RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation, "retry");
             retry.shutdown();
             return 0;
         }

@@ -28,8 +28,10 @@ public class AllTests
         }
     }
 
-    public static ThrowerPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static ThrowerPrx allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         {
             out.print("testing object adapter registration exceptions... ");
             com.zeroc.Ice.ObjectAdapter first;
@@ -149,7 +151,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "thrower:default -p 12010";
+        String ref = "thrower:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -446,7 +448,8 @@ public class AllTests
                 test(false);
             }
 
-            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:default -p 12011"));
+            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
+                                                                                      app.getTestEndpoint(1)));
             try
             {
                 thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
@@ -454,7 +457,8 @@ public class AllTests
             catch(com.zeroc.Ice.MemoryLimitException ex)
             {
             }
-            ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:default -p 12012"));
+            ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
+                                                                                      app.getTestEndpoint(2)));
             try
             {
                 thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit

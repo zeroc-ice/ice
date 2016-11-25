@@ -15,7 +15,7 @@ public abstract class Application
 {
     public final int WAIT = 2;
 
-    
+
 
     public interface ServerReadyListener
     {
@@ -198,7 +198,10 @@ public abstract class Application
     //
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        return createInitializationData();
+        Ice.InitializationData initData = createInitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        argsH.value = initData.properties.parseCommandLineOptions("Test", argsH.value);
+        return initData;
     }
 
     public java.io.PrintWriter getWriter()
@@ -272,6 +275,62 @@ public abstract class Application
     public ClassLoader classLoader()
     {
         return _classLoader;
+    }
+
+    public String getTestEndpoint(int num)
+    {
+        return getTestEndpoint(num, "");
+    }
+
+    public String getTestEndpoint(Ice.Properties properties, int num)
+    {
+        return getTestEndpoint(properties, num, "");
+    }
+
+    public String getTestEndpoint(int num, String prot)
+    {
+        return getTestEndpoint(_communicator.getProperties(), num, prot);
+    }
+
+    static public String getTestEndpoint(Ice.Properties properties, int num, String prot)
+    {
+        String protocol = prot;
+        if(protocol.isEmpty())
+        {
+            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+        }
+        int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
+        return protocol + " -p " + Integer.toString(basePort + num);
+    }
+
+    public String getTestHost()
+    {
+        return getTestHost(_communicator.getProperties());
+    }
+
+    static public String getTestHost(Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    }
+
+    public String getTestProtocol()
+    {
+        return getTestProtocol(_communicator.getProperties());
+    }
+
+    static public String getTestProtocol(Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    }
+
+    public int getTestPort(int num)
+    {
+        return getTestPort(_communicator.getProperties(), num);
+    }
+
+    static public int getTestPort(Ice.Properties properties, int num)
+    {
+        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
     private ClassLoader _classLoader;

@@ -15,7 +15,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     //
     // There does not appear to be any way to compare collections
@@ -63,8 +63,10 @@ public class AllTests : TestCommon.TestApp
         return true;
     }
 
-    static public int run(Ice.Communicator communicator)
+    static public int run(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+
         Write("testing serialization... ");
         Flush();
 
@@ -164,7 +166,7 @@ public class AllTests : TestCommon.TestApp
 
     private static T inOut<T>(T o, Ice.Communicator communicator)
     {
-        BinaryFormatter bin = new BinaryFormatter(null, 
+        BinaryFormatter bin = new BinaryFormatter(null,
             new StreamingContext(StreamingContextStates.All, communicator));
         using (MemoryStream mem = new MemoryStream())
         {

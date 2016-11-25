@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <TestCommon.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <SessionI.h>
 
@@ -30,13 +31,14 @@ main(int argc, char* argv[])
 #endif
 
     SessionControlServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
 SessionControlServer::run(int, char**)
 {
-    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
+    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
     adapter->add(new SessionManagerI, Ice::stringToIdentity("SessionManager"));
     adapter->activate();

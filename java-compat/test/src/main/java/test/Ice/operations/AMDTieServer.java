@@ -16,7 +16,7 @@ public class AMDTieServer extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new _MyDerivedClassTie(new AMDTieMyDerivedClassI()), Ice.Util.stringToIdentity("test"));
         adapter.activate();
@@ -26,8 +26,7 @@ public class AMDTieServer extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         //
         // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread

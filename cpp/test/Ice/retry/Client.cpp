@@ -36,8 +36,7 @@ main(int argc, char* argv[])
     {
         initCounts();
 
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.observer = getObserver();
         //
         // This test kills connections, so we don't want warnings.

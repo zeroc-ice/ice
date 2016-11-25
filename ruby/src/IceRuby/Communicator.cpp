@@ -173,6 +173,17 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
                 communicator = Ice::initialize(data);
             }
         }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            for(i = 0; i < ac + 1; ++i)
+            {
+                free(av[i]);
+            }
+            delete[] av;
+
+            throw;
+        }
         catch(...)
         {
             for(i = 0; i < ac + 1; ++i)

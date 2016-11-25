@@ -116,7 +116,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         cout << "test object adapter endpoint information... " << flush;
         {
-            communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
+            communicator->getProperties()->setProperty("TestAdapter.Endpoints",
+                                                       "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
 
             Ice::EndpointSeq endpoints = adapter->getEndpoints();
@@ -140,8 +141,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             adapter->destroy();
 
-            communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
-            communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
+            int port = getTestPort(communicator->getProperties(), 1);
+            ostringstream portStr;
+            portStr << port;
+            communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p " + portStr.str());
+            communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", getTestEndpoint(communicator, 1));
             adapter = communicator->createObjectAdapter("TestAdapter");
 
             endpoints = adapter->getEndpoints();
@@ -152,26 +156,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
             for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 ipEndpoint = getTCPEndpointInfo((*p)->getInfo());
-                test(ipEndpoint->port == 12020);
+                test(ipEndpoint->port == port);
             }
 
             ipEndpoint = getTCPEndpointInfo(publishedEndpoints[0]->getInfo());
             test(ipEndpoint->host == "127.0.0.1");
-            test(ipEndpoint->port == 12020);
+            test(ipEndpoint->port == port);
 
             adapter->destroy();
         }
         cout << "ok" << endl;
     }
-    
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010:udp -p 12010 -c");
+
+    string endpoints = getTestEndpoint(communicator, 0) + ":" + getTestEndpoint(communicator, 0, "udp") + " -c";
+    int port = getTestPort(communicator->getProperties(), 0);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + endpoints);
     TestIntfPrxPtr testIntf = ICE_CHECKED_CAST(TestIntfPrx, base);
 
     cout << "test connection endpoint information... " << flush;
     {
         Ice::EndpointInfoPtr info = base->ice_getConnection()->getEndpoint()->getInfo();
         Ice::TCPEndpointInfoPtr tcpinfo = getTCPEndpointInfo(info);
-        test(tcpinfo->port == 12010);
+        test(tcpinfo->port == port);
         test(!tcpinfo->compress);
         test(tcpinfo->host == defaultHost);
 
@@ -188,7 +194,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         info = base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
         Ice::UDPEndpointInfoPtr udp = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, info);
         test(udp);
-        test(udp->port == 12010);
+        test(udp->port == port);
         test(udp->host == defaultHost);
     }
     cout << "ok" << endl;
@@ -203,7 +209,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!info->incoming);
         test(info->adapterName.empty());
         test(info->localPort > 0);
-        test(info->remotePort == 12010);
+        test(info->remotePort == port);
         if(defaultHost == "127.0.0.1")
         {
             test(info->remoteAddress == defaultHost);
@@ -264,7 +270,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!udpinfo->incoming);
         test(udpinfo->adapterName.empty());
         test(udpinfo->localPort > 0);
-        test(udpinfo->remotePort == 12010);
+        test(udpinfo->remotePort == port);
         if(defaultHost == "127.0.0.1")
         {
             test(udpinfo->remoteAddress == defaultHost);

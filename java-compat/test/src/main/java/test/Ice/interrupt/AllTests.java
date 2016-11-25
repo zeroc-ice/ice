@@ -62,7 +62,7 @@ public class AllTests
 
         private boolean _called = false;
     }
-    
+
     private static void
     test(boolean b)
     {
@@ -71,7 +71,7 @@ public class AllTests
             throw new RuntimeException();
         }
     }
-    
+
     private static void failIfNotInterrupted()
     {
         if(Thread.currentThread().isInterrupted())
@@ -90,13 +90,13 @@ public class AllTests
     {
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         final TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:tcp -p 12011";
+        sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -144,7 +144,7 @@ public class AllTests
                 {
                     cb.called();
                 }
-                
+
                 @Override
                 public void exception(Ice.LocalException ex)
                 {
@@ -282,7 +282,7 @@ public class AllTests
                 {
                     // Expected
                 }
-    
+
                 // end_ should still work.
                 p.end_op(r);
             }
@@ -305,7 +305,7 @@ public class AllTests
                 {
                     // Expected
                 }
-    
+
                 // end_ should still work.
                 p.end_op(r);
             }
@@ -361,7 +361,7 @@ public class AllTests
                 r.waitForCompleted();
                 p.end_opWithPayload(r);
             }
-            
+
             //
             // The executor is all done.
             //
@@ -372,16 +372,16 @@ public class AllTests
             }
         }
         out.println("ok");
-        
+
         if(p.ice_getCachedConnection() != null)
         {
             out.print("testing getConnection interrupt... ");
             out.flush();
             {
                 final Thread mainThread = Thread.currentThread();
-    
+
                 p.ice_getConnection().close(false);
-    
+
                 AsyncResult r = p.begin_ice_getConnection();
                 mainThread.interrupt();
                 try
@@ -393,9 +393,9 @@ public class AllTests
                 {
                     // Expected
                 }
-                
+
                 p.ice_getConnection().close(false);
-                
+
                 final CallbackBase cb = new CallbackBase();
                 mainThread.interrupt();
                 p.begin_ice_getConnection(new Callback_Object_ice_getConnection()
@@ -405,7 +405,7 @@ public class AllTests
                     {
                         test(false);
                     }
-                    
+
                     @Override
                     public void response(Connection con)
                     {
@@ -427,7 +427,7 @@ public class AllTests
             p2.op();
             p2.op();
             p2.op();
-            
+
             AsyncResult r = p2.begin_ice_flushBatchRequests();
             mainThread.interrupt();
             try
@@ -439,10 +439,10 @@ public class AllTests
             {
                 // Expected
             }
-            
+
             p2.op();
             p2.op();
-            p2.op();            
+            p2.op();
 
             final CallbackBase cb = new CallbackBase();
             mainThread.interrupt();
@@ -461,7 +461,7 @@ public class AllTests
                 }
             });
             test(Thread.interrupted());
-            cb.check();            
+            cb.check();
         }
         out.println("ok");
 
@@ -472,11 +472,11 @@ public class AllTests
             {
                 final TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(p.ice_batchOneway());
                 final Thread mainThread = Thread.currentThread();
-    
+
                 p2.op();
                 p2.op();
                 p2.op();
-                
+
                 AsyncResult r = p2.ice_getConnection().begin_flushBatchRequests();
                 mainThread.interrupt();
                 try
@@ -488,11 +488,11 @@ public class AllTests
                 {
                     // Expected
                 }
-                
+
                 p2.op();
                 p2.op();
-                p2.op();            
-    
+                p2.op();
+
                 final CallbackBase cb = new CallbackBase();
                 Ice.Connection con = p2.ice_getConnection();
                 mainThread.interrupt();
@@ -503,7 +503,7 @@ public class AllTests
                     {
                         cb.called();
                     }
-    
+
                     @Override
                     public void exception(LocalException ex)
                     {
@@ -515,7 +515,7 @@ public class AllTests
             }
             out.println("ok");
         }
-        
+
         out.print("testing batch communicator flush interrupt... ");
         out.flush();
         {
@@ -525,7 +525,7 @@ public class AllTests
             p2.op();
             p2.op();
             p2.op();
-            
+
             AsyncResult r = communicator.begin_flushBatchRequests();
             mainThread.interrupt();
             try
@@ -537,11 +537,11 @@ public class AllTests
             {
                 // Expected
             }
-            
+
             p2.op();
             p2.op();
-            p2.op();            
-            
+            p2.op();
+
             final CallbackBase cb = new CallbackBase();
             mainThread.interrupt();
             communicator.begin_flushBatchRequests(new Callback_Communicator_flushBatchRequests()
@@ -573,8 +573,8 @@ public class AllTests
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             Ice.Communicator ic = app.initialize(initData);
-            
-            Thread.currentThread().interrupt();            
+
+            Thread.currentThread().interrupt();
             try
             {
                 ic.destroy();
@@ -587,17 +587,17 @@ public class AllTests
             ic.destroy();
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
-            
+
             ic = app.initialize(initData);
             Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-            
+
             final Thread[] thread = new Thread[1];
 
             final CallbackBase cb = new CallbackBase();
             final TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
             final CountDownLatch waitSignal = new CountDownLatch(1);
             p2.begin_op(new Callback_TestIntf_op()
-            {            
+            {
                 @Override
                 public void response()
                 {
@@ -622,12 +622,12 @@ public class AllTests
                     }
                     cb.called();
                 }
-                
+
                 @Override
                 public void exception(Ice.LocalException ex)
                 {
                     test(false);
-                    
+
                 }
             });
             executor.submit(new Runnable() {
@@ -645,7 +645,7 @@ public class AllTests
                     thread[0].interrupt();
                 }
             });
-            
+
             try
             {
                 waitSignal.await();
@@ -657,7 +657,7 @@ public class AllTests
             ic.destroy();
 
             cb.check();
-            
+
             executor.shutdown();
             while(!executor.isTerminated())
             {
@@ -677,10 +677,10 @@ public class AllTests
                 {
                     test(false);
                 }
-                
+
                 @Override
                 public void exception(Ice.LocalException ex)
-                {        
+                {
                     test(false);
                 }
 
@@ -718,7 +718,7 @@ public class AllTests
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default -p 12030");
+            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default");
             Ice.Communicator ic = app.initialize(initData);
             final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();
@@ -769,7 +769,7 @@ public class AllTests
                         test(false);
                     }
                     mainThread.interrupt();
-                }                
+                }
             };
 
             executor.execute(interruptMainThread);
@@ -806,7 +806,7 @@ public class AllTests
             }
 
             ic.destroy();
-            
+
             executor.shutdown();
             while(!executor.isTerminated())
             {
@@ -814,7 +814,7 @@ public class AllTests
             }
         }
         out.println("ok");
-        
+
         p.shutdown();
     }
 }

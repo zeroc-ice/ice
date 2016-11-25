@@ -34,8 +34,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 
         //
         // For this test, we want to disable retries.

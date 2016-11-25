@@ -100,8 +100,10 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        PrintWriter out = app.getWriter();
+
         out.print("testing communicator operations... ");
         out.flush();
         {
@@ -180,7 +182,7 @@ public class AllTests
         }
         out.println("ok");
 
-        String ref = "factory:default -p 12010 -t 10000";
+        String ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
             RemoteCommunicatorFactoryPrxHelper.uncheckedCast(app.communicator().stringToProxy(ref));
 
@@ -272,30 +274,30 @@ public class AllTests
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("NullLogger", "1");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
-            
+
             com.trace("testCat", "trace");
             com.warning("warning");
             com.error("error");
             com.print("print");
-       
+
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.LoggerAdminPrx logger = Ice.LoggerAdminPrxHelper.checkedCast(obj, "Logger");
             test(logger != null);
 
-            Ice.StringHolder prefix = new Ice.StringHolder(); 
-            
+            Ice.StringHolder prefix = new Ice.StringHolder();
+
             //
             // Get all
             //
             Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, prefix);
-            
+
             test(logMessages.length == 4);
             test(prefix.value.equals("NullLogger"));
-            test(logMessages[0].traceCategory.equals("testCat") && logMessages[0].message.equals("trace")); 
+            test(logMessages[0].traceCategory.equals("testCat") && logMessages[0].message.equals("trace"));
             test(logMessages[1].message.equals("warning"));
             test(logMessages[2].message.equals("error"));
             test(logMessages[3].message.equals("print"));
-       
+
             //
             // Get only errors and warnings
             //
@@ -303,34 +305,34 @@ public class AllTests
             com.print("print2");
             com.trace("testCat", "trace2");
             com.warning("warning2");
-            
+
             Ice.LogMessageType[] messageTypes = {Ice.LogMessageType.ErrorMessage, Ice.LogMessageType.WarningMessage};
-          
+
             logMessages = logger.getLog(messageTypes, null, -1, prefix);
             test(logMessages.length == 4);
             test(prefix.value.equals("NullLogger"));
-            
+
             for(Ice.LogMessage msg : java.util.Arrays.asList(logMessages))
             {
                 test(msg.type == Ice.LogMessageType.ErrorMessage || msg.type == Ice.LogMessageType.WarningMessage);
             }
-       
+
             //
             // Get only errors and traces with Cat = "testCat"
             //
             com.trace("testCat2", "A");
             com.trace("testCat", "trace3");
             com.trace("testCat2", "B");
-            
+
             messageTypes = new Ice.LogMessageType[]{Ice.LogMessageType.ErrorMessage, Ice.LogMessageType.TraceMessage};
             String[] categories = {"testCat"};
             logMessages = logger.getLog(messageTypes, categories, -1, prefix);
             test(logMessages.length == 5);
             test(prefix.value.equals("NullLogger"));
-            
+
             for(Ice.LogMessage msg : java.util.Arrays.asList(logMessages))
-            { 
-                test(msg.type == Ice.LogMessageType.ErrorMessage || 
+            {
+                test(msg.type == Ice.LogMessageType.ErrorMessage ||
                      (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory.equals("testCat")));
             }
 
@@ -342,20 +344,20 @@ public class AllTests
             logMessages = logger.getLog(messageTypes, categories, 2, prefix);
             test(logMessages.length == 2);
             test(prefix.value.equals("NullLogger"));
-            
+
             test(logMessages[0].message.equals("trace3"));
             test(logMessages[1].message.equals("error3"));
-              
+
             //
             // Now, test RemoteLogger
             //
-            Ice.ObjectAdapter adapter = 
+            Ice.ObjectAdapter adapter =
                 app.communicator().createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
-   
+
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
-        
+
             Ice.RemoteLoggerPrx myProxy = Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.addWithUUID(remoteLogger));
-        
+
             adapter.activate();
 
             //
@@ -363,7 +365,7 @@ public class AllTests
             //
             logMessages = logger.getLog(null, null, -1, prefix);
             remoteLogger.checkNextInit(prefix.value, logMessages);
-            
+
             try
             {
                 logger.attachRemoteLogger(myProxy, null, null, -1);
@@ -374,22 +376,22 @@ public class AllTests
             }
 
             remoteLogger.wait(1);
-            
+
             remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
             remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
             remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
             remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
-            
+
             com.trace("testCat", "rtrace");
             com.warning("rwarning");
             com.error("rerror");
             com.print("rprint");
 
             remoteLogger.wait(4);
-            
+
             test(logger.detachRemoteLogger(myProxy));
             test(!logger.detachRemoteLogger(myProxy));
-           
+
             //
             // Use Error + Trace with "traceCat" filter with 4 limit
             //
@@ -407,10 +409,10 @@ public class AllTests
             }
 
             remoteLogger.wait(1);
-            
+
             remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
             remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
-            
+
             com.warning("rwarning2");
             com.trace("testCat", "rtrace2");
             com.warning("rwarning3");
@@ -418,13 +420,13 @@ public class AllTests
             com.print("rprint2");
 
             remoteLogger.wait(2);
-            
+
             //
             // Attempt reconnection with slightly different proxy
             //
             try
             {
-                logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()), 
+                logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
                                           messageTypes, categories, 4);
                 test(false);
             }
@@ -432,11 +434,11 @@ public class AllTests
             {
                 // expected
             }
-            
+
             com.destroy();
         }
         out.println("ok");
-     
+
         out.print("testing custom facet... ");
         out.flush();
         {

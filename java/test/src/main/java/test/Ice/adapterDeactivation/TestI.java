@@ -18,7 +18,7 @@ public final class TestI implements TestIntf
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
 
         com.zeroc.Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         adapter.activate();
         adapter.destroy();
     }

@@ -21,12 +21,14 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(test.Util.Application app, java.io.PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
+        java.io.PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010";
+        String ref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -74,7 +76,7 @@ public class AllTests
                 com.zeroc.Ice.InitializationData initData = app.createInitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 com.zeroc.Ice.Communicator comm = app.initialize(initData);
-                comm.stringToProxy("test:default -p 12010").ice_pingAsync();
+                comm.stringToProxy("test:" + app.getTestEndpoint(0)).ice_pingAsync();
                 comm.destroy();
             }
             out.println("ok");

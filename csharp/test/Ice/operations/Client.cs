@@ -16,11 +16,11 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator);
+        Test.MyClassPrx myClass = AllTests.allTests(this);
 
         Console.Out.Write("testing server shutdown... ");
         Console.Out.Flush();
@@ -38,45 +38,18 @@ public class Client
         return 0;
     }
 
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+        initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        return initData;
+    }
+
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-            initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

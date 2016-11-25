@@ -623,23 +623,20 @@ IceInternal::EndpointHostResolver::run()
                 }
             }
 
-            r.callback->connectors(r.endpoint->connectors(getAddresses(r.host,
-                                                                       r.port,
-                                                                       protocol,
-                                                                       r.selType,
-                                                                       _preferIPv6,
-                                                                       true),
-                                                          networkProxy));
+            vector<Address> addresses = getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
+            if(r.observer)
+            {
+                r.observer->detach();
+                r.observer = 0;
+            }
+
+            r.callback->connectors(r.endpoint->connectors(addresses, networkProxy));
 
             if(threadObserver)
             {
                 threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
             }
 
-            if(r.observer)
-            {
-                r.observer->detach();
-            }
         }
         catch(const Ice::LocalException& ex)
         {

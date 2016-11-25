@@ -27,11 +27,14 @@ public class AllTests
     }
 
     public static MyClassPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010";
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
 
@@ -353,7 +356,7 @@ public class AllTests
         out.flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.length() == 0 &&
              b1.ice_getAdapterId().length() == 0 && b1.ice_getFacet().length() == 0);
@@ -397,7 +400,7 @@ public class AllTests
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);
@@ -761,7 +764,7 @@ public class AllTests
 
         out.print("testing encoding versioning... ");
         out.flush();
-        String ref20 = "test -e 2.0:default -p 12010";
+        String ref20 = "test -e 2.0:" + app.getTestEndpoint(0);
         MyClassPrx cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -773,7 +776,7 @@ public class AllTests
             // Server 2.0 endpoint doesn't support 1.1 version.
         }
 
-        String ref10 = "test -e 1.0:default -p 12010";
+        String ref10 = "test -e 1.0:" + app.getTestEndpoint(0);
         MyClassPrx cl10 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
@@ -781,7 +784,7 @@ public class AllTests
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        String ref13 = "test -e 1.3:default -p 12010";
+        String ref13 = "test -e 1.3:" + app.getTestEndpoint(0);
         MyClassPrx cl13 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -830,7 +833,7 @@ public class AllTests
 
         out.print("testing protocol versioning... ");
         out.flush();
-        ref20 = "test -p 2.0:default -p 12010";
+        ref20 = "test -p 2.0:" + app.getTestEndpoint(0);
         cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -842,13 +845,13 @@ public class AllTests
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
-        ref10 = "test -p 1.0:default -p 12010";
+        ref10 = "test -p 1.0:" + app.getTestEndpoint(0);
         cl10 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:default -p 12010";
+        ref13 = "test -p 1.3:" + app.getTestEndpoint(0);
         cl13 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -981,10 +984,6 @@ public class AllTests
             // Working?
             boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
             boolean tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("tcp");
-            if(tcp)
-            {
-                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-            }
 
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -1004,23 +1003,6 @@ public class AllTests
             else if(tcp)
             {
                 test(pstr.equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
-            }
-
-            //
-            // Try to invoke on the SSL endpoint to verify that we get a
-            // NoEndpointException (or ConnectFailedException when
-            // running with SSL).
-            //
-            if(ssl)
-            {
-                try
-                {
-                    p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-                    test(false);
-                }
-                catch(Ice.ConnectFailedException ex)
-                {
-                }
             }
 
             //

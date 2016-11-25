@@ -25,7 +25,7 @@ public class Server extends test.Util.Application
         {
         }
 
-        properties.setProperty("ControlAdapter.Endpoints", "default -p " + (12010 + num));
+        properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
         properties.setProperty("ControlAdapter.AdapterId", "control" + num);
         properties.setProperty("ControlAdapter.ThreadPool.Size", "1");
 

@@ -89,13 +89,13 @@ public class Collocated extends test.Util.Application
 
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         _InitialDisp initial = new InitialI(adapter);
         adapter.add(initial, com.zeroc.Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
         //
         // We must call shutdown even in the collocated case for cyclic dependency cleanup.
         //

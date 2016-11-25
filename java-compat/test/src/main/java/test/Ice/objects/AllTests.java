@@ -46,11 +46,13 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -262,7 +264,7 @@ public class AllTests
 
         out.print("testing UnexpectedObjectException...");
         out.flush();
-        ref = "uoet:default -p 12010";
+        ref = "uoet:" + app.getTestEndpoint(0);
         base = communicator.stringToProxy(ref);
         test(base != null);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(base);

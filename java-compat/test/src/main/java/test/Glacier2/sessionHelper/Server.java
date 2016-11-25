@@ -14,10 +14,10 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
-        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
         communicator().createObjectAdapter("DeactivatedAdapter");
 
-        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
+        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
         adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
         adapter.activate();
@@ -28,8 +28,7 @@ public class Server extends test.Util.Application
 
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
 
         return initData;

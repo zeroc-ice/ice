@@ -37,7 +37,7 @@ public class Client
         catchI()
         {
         }
-        
+
         @Override
         public void
         checkedCast_async(AMD_catch_checkedCast cb, int _clone, Ice.Current current)
@@ -192,7 +192,7 @@ public class Client
             initData.properties.setProperty("Ice.Package._abstract", "test.Slice.keyword");
             initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
             initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+            initData.properties.setProperty("TestAdapter.Endpoints", "default");
 
             //
             // We must set MessageSizeMax to an explicit values,

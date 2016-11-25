@@ -38,8 +38,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);

@@ -26,7 +26,9 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints",
+                                          getTestEndpoint(r.initData.properties, 0) + ":" +
+                                          getTestEndpoint(r.initData.properties, 0, "udp"));
         return r;
     }
 

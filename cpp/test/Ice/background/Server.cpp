@@ -149,8 +149,7 @@ main(int argc, char* argv[])
 {
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 
         //
         // This test kills connections, so we don't want warnings.

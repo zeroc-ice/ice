@@ -17,7 +17,7 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        
+
         //
         // Register the server manager. The server manager creates a new
         // 'server' (a server isn't a different process, it's just a new
@@ -49,12 +49,11 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        initData.properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010:udp");
+        initData.properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
 
         _initData = initData;
         return initData;

@@ -34,14 +34,12 @@ main(int argc, char* argv[])
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Admin.Endpoints", "default");
         initData.properties->setProperty("Ice.Admin.InstanceName", "client");
         initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
-        initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
         CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
         initData.observer = observer;
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);

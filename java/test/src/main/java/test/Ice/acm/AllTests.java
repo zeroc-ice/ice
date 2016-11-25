@@ -605,10 +605,12 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
-        String ref = "communicator:default -p 12010";
+        PrintWriter out = app.getWriter();
+
+        String ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
         java.util.List<TestCase> tests = new java.util.ArrayList<>();

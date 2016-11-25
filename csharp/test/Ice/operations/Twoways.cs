@@ -52,8 +52,9 @@ class Twoways
         private Thread _thread;
     }
 
-    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twoways(TestCommon.Application app, Test.MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
         string[] literals = p.opStringLiterals();
 
         test(Test.s0.value.Equals("\\") &&
@@ -1452,7 +1453,7 @@ class Twoways
                 ctx["three"] = "THREE";
 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                    ic.stringToProxy("test:default -p 12010"));
+                    ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));

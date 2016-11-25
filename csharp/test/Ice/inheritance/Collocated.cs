@@ -17,47 +17,21 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated
+public class Collocated : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object obj = new InitialI(adapter);
         adapter.add(obj, Ice.Util.stringToIdentity("initial"));
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
         return 0;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            System.Console.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.Console.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Collocated app = new Collocated();
+        return app.runmain(args);
     }
 }

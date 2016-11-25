@@ -143,7 +143,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010");
+        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0));
         IceGrid::RegistryPrxPtr registry = ICE_UNCHECKED_CAST(IceGrid::RegistryPrx, base);
         IceGrid::AdminSessionPrxPtr session;
         IceGrid::AdminPrxPtr admin;

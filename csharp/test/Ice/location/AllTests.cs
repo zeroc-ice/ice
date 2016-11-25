@@ -11,18 +11,19 @@ using System;
 using Test;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-                                        communicator.stringToProxy("ServerManager :default -p 12010"));
+                                        communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
         test(manager != null);
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);
         TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
         test(registry != null);
-        
+
         Write("testing stringToProxy... ");
         Flush();
         Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
@@ -32,10 +33,10 @@ public class AllTests : TestCommon.TestApp
         Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
         Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
         WriteLine("ok");
-        
+
         Write("testing ice_locator and ice_getLocator... ");
         test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-        Ice.LocatorPrx anotherLocator = 
+        Ice.LocatorPrx anotherLocator =
             Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         @base = @base.ice_locator(anotherLocator);
         test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
@@ -46,8 +47,8 @@ public class AllTests : TestCommon.TestApp
         test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
         communicator.setDefaultLocator(locator);
         @base = communicator.stringToProxy("test @ TestAdapter");
-        test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0); 
-        
+        test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a
         // test/Ice/router test?)
@@ -69,7 +70,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         manager.startServer();
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
@@ -85,7 +86,7 @@ public class AllTests : TestCommon.TestApp
         TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
         test(obj6 != null);
         WriteLine("ok");
-        
+
         Write("testing id@AdapterId indirect proxy... ");
         Flush();
         obj.shutdown();
@@ -105,7 +106,7 @@ public class AllTests : TestCommon.TestApp
         obj.shutdown();
         manager.startServer();
         try
-        {       
+        {
             obj6.ice_ping();
         }
         catch(Ice.LocalException)
@@ -113,7 +114,7 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         WriteLine("ok");
-        
+
         Write("testing identity indirect proxy... ");
         Flush();
         obj.shutdown();
@@ -199,7 +200,7 @@ public class AllTests : TestCommon.TestApp
             test(ex.id.Equals("unknown/unknown"));
         }
         WriteLine("ok");
-        
+
         Write("testing proxy with unknown adapter... ");
         Flush();
         try
@@ -214,10 +215,10 @@ public class AllTests : TestCommon.TestApp
             test(ex.id.Equals("TestAdapterUnknown"));
         }
         WriteLine("ok");
-        
+
         Write("testing locator cache timeout... ");
         Flush();
-        
+
         int count = locator.getRequestCount();
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
@@ -228,7 +229,7 @@ public class AllTests : TestCommon.TestApp
         System.Threading.Thread.Sleep(1200); // 1200ms
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
-        
+
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
@@ -238,12 +239,12 @@ public class AllTests : TestCommon.TestApp
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());
-        
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping(); 
+
+        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_ping(); 
+        communicator.stringToProxy("test@TestAdapter").ice_ping();
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_ping();
         test(count == locator.getRequestCount());
@@ -262,7 +263,7 @@ public class AllTests : TestCommon.TestApp
         test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
         hello.sayHello();
         WriteLine("ok");
-        
+
         Write("testing locator request queuing... ");
         Flush();
         hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
@@ -347,7 +348,7 @@ public class AllTests : TestCommon.TestApp
         {
             test(false);
         }
-    
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
@@ -362,7 +363,7 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         catch(Ice.LocalException)
-        {   
+        {
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try
@@ -432,7 +433,7 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         catch(Ice.LocalException)
-        {   
+        {
         }
         try
         {
@@ -451,7 +452,7 @@ public class AllTests : TestCommon.TestApp
         {
             test(false);
         }
-        
+
         registry.addObject(communicator.stringToProxy("test4"));
         try
         {
@@ -462,7 +463,7 @@ public class AllTests : TestCommon.TestApp
         {
         }
         WriteLine("ok");
-        
+
         Write("testing locator cache background updates... ");
         Flush();
         {

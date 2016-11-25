@@ -11,17 +11,19 @@ using Test;
 
 public class RemoteCommunicatorI : RemoteCommunicatorDisp_
 {
+
+    public RemoteCommunicatorI(TestCommon.Application app)
+    {
+        _app = app;
+    }
+
     public override RemoteObjectAdapterPrx
     createObjectAdapter(string name, string endpts, Ice.Current current)
     {
         string endpoints = endpts;
         if(endpoints.IndexOf("-p") < 0)
         {
-            // Use a fixed port if none is specified (bug 2896)
-            endpoints += " -h \"" + 
-                (current.adapter.getCommunicator().getProperties().getPropertyWithDefault(
-                                                                                    "Ice.Default.Host", "127.0.0.1")) +
-                "\" -p " + _nextPort++;
+            endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
         }
 
         Ice.Communicator com = current.adapter.getCommunicator();
@@ -43,5 +45,6 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private int _nextPort = 10001;
+    private TestCommon.Application _app;
+    private int _nextPort = 10;
 };

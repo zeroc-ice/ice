@@ -13,13 +13,13 @@
     Test : false,
     URI : false,
     current : false,
-    TestCases : false,
+    TestSuites : false,
     runTest: false
 */
 
 $(document).foundation();
 $(document).ready(
-    function(){
+    function() {
         $("#console").height(120);
 
         var out =
@@ -58,10 +58,9 @@ $(document).ready(
         function nextTest()
         {
             var path = $("#test").val();
-            if(document.location.pathname.indexOf("/es5/") !== -1 &&
-               path.indexOf("/es5/") === -1)
+            if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
-                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+                path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
@@ -115,10 +114,9 @@ $(document).ready(
         function updateLocation()
         {
             var path = $("#test").val();
-            if(document.location.pathname.indexOf("/es5/") !== -1 &&
-               path.indexOf("/es5/") === -1)
+            if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
-                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+                path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
@@ -166,8 +164,8 @@ $(document).ready(
                                 language: $("#language").val(),
                                 defaultHost: document.location.hostname || "127.0.0.1",
                                 protocol: $("#protocol").val(),
-                                configurations: TestCases[current].configurations,
-                                files: TestCases[current].files,
+                                testcases: TestSuites[current].testcases,
+                                files: TestSuites[current].files,
                                 es5: document.location.pathname.indexOf("/es5/") !== -1
                             }
                         });
@@ -179,8 +177,12 @@ $(document).ready(
                 }
                 else
                 {
-                    runTest(current, $("#language").val(), document.location.hostname || "127.0.0.1",
-                            $("#protocol").val(), TestCases[current].configurations, out
+                    runTest(current,
+                            $("#language").val(),
+                            document.location.hostname || "127.0.0.1",
+                            $("#protocol").val(),
+                            TestSuites[current].testcases,
+                            out
                     ).finally(
                         function()
                         {

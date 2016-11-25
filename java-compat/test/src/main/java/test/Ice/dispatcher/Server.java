@@ -32,11 +32,10 @@ public class Server extends test.Util.Application
     {
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1, "tcp"));
         initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         //
         // Limit the recv buffer size, this test relies on the socket

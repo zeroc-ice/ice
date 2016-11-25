@@ -32,7 +32,7 @@ run(int argc, char* argv[], id<ICECommunicator> communicator)
             return EXIT_FAILURE;
         }
 
-        [ports addObject:[NSString stringWithUTF8String:argv[i]]];
+        [ports addObject:[NSNumber numberWithInt:(atoi(argv[i]) + 12010)]];
     }
 
     if([ports count] == 0)

@@ -15,7 +15,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         //
         // Shutdown the IceBox server.
@@ -28,8 +28,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
         return initData;

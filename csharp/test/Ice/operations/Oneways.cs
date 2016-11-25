@@ -17,8 +17,9 @@ class Oneways
         }
     }
 
-    internal static void oneways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void oneways(TestCommon.Application app, Test.MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
         p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {

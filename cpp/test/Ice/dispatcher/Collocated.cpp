@@ -48,8 +48,7 @@ main(int argc, char* argv[])
     int status;
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 #ifdef ICE_CPP11_MAPPING
         IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
         initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)

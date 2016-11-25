@@ -22,16 +22,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     int num = argc == 2 ? atoi(argv[1]) : 0;
 
-    ostringstream os;
-    os << "tcp -p " << (12010 + num);
-    properties->setProperty("ControlAdapter.Endpoints", os.str());
+    properties->setProperty("ControlAdapter.Endpoints", getTestEndpoint(communicator, num, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("control"));
     adapter->activate();
 
     if(num == 0)
     {
-        properties->setProperty("TestAdapter.Endpoints", "udp -p 12010");
+        properties->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, num, "udp"));
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
         adapter2->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
         adapter2->activate();
@@ -70,8 +68,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.UDP.SndSize", "16384");
         initData.properties->setProperty("Ice.UDP.RcvSize", "16384");

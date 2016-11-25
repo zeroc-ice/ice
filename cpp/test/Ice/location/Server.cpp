@@ -17,8 +17,7 @@ DEFINE_TEST("server")
 using namespace std;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData& initData)
+run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
     //
     // Register the server manager. The server manager creates a new
@@ -63,8 +62,7 @@ main(int argc, char* argv[])
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         assert(initData.properties != ich->getProperties());
         return run(argc, argv, ich.communicator(), initData);

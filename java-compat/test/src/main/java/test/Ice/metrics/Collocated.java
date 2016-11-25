@@ -22,14 +22,14 @@ public class Collocated extends test.Util.Application
         adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
         //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
         try
         {
-            MetricsPrx metrics = AllTests.allTests(communicator, getWriter(), _observer);
+            MetricsPrx metrics = AllTests.allTests(this, _observer);
             metrics.shutdown();
         }
         catch(Ice.UserException ex)
@@ -44,8 +44,7 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             // With background IO, collocated invocations are
@@ -57,7 +56,7 @@ public class Collocated extends test.Util.Application
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");

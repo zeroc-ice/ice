@@ -116,10 +116,12 @@ public class AllTests
     }
 
     public static ServerFactoryPrx
-    allTests(test.Util.Application app, String testDir, PrintWriter out)
+    allTests(test.Util.Application app, String testDir)
     {
         Ice.Communicator communicator = app.communicator();
-        final String factoryRef = "factory:tcp -p 12010";
+        PrintWriter out = app.getWriter();
+
+        final String factoryRef = "factory:" + app.getTestEndpoint(0);
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrxHelper.checkedCast(b);

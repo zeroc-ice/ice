@@ -12,6 +12,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
@@ -60,7 +61,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
         return EXIT_FAILURE;
-        
+
     }
 
     EventPrx eventFed1 = EventPrx::uncheckedCast(fed1->getPublisher()->ice_oneway());
@@ -71,7 +72,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         count = atoi(arg.c_str());
     }
-    
+
     while(true)
     {
         for(int i = 0; i < 10; ++i)
@@ -100,10 +101,10 @@ main(int argc, char* argv[])
 {
     int status;
     CommunicatorPtr communicator;
-
+    InitializationData initData = getTestInitData(argc, argv);
     try
     {
-        communicator = initialize(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)

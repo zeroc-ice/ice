@@ -14,7 +14,7 @@ public class Collocated extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
         java.io.PrintWriter out = getWriter();
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         com.zeroc.Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
@@ -25,7 +25,7 @@ public class Collocated extends test.Util.Application
             throw new RuntimeException();
         }
 
-        AllTests.allTests(this, out);
+        AllTests.allTests(this);
 
         return 0;
     }

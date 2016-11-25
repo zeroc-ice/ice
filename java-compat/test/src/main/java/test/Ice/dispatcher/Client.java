@@ -14,7 +14,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        AllTests.allTests(communicator(), getWriter(), _dispatcher);
+        AllTests.allTests(this, _dispatcher);
         return 0;
     }
 
@@ -23,8 +23,7 @@ public class Client extends test.Util.Application
     {
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
 
         //

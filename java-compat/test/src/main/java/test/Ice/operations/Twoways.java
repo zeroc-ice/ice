@@ -55,9 +55,9 @@ class Twoways
     twoways(Application app, MyClassPrx p)
     {
         Communicator communicator = app.communicator();
-        
+
         String[] literals = p.opStringLiterals();
-        
+
         test(s0.value.equals("\\") &&
              s0.value.equals(sw0.value) &&
              s0.value.equals(literals[0]) &&
@@ -72,8 +72,8 @@ class Twoways
              s2.value.equals(sw2.value) &&
              s2.value.equals(literals[2]) &&
              s2.value.equals(literals[13]));
-        
-        test(s3.value.equals("A21") && 
+
+        test(s3.value.equals("A21") &&
              s3.value.equals(sw3.value) &&
              s3.value.equals(literals[3]) &&
              s3.value.equals(literals[14]));
@@ -102,7 +102,7 @@ class Twoways
              s8.value.equals(sw8.value) &&
              s8.value.equals(literals[8]) &&
              s8.value.equals(literals[19]));
-        
+
         test(s9.value.equals("\uD83C\uDF4C") &&
              s9.value.equals(sw9.value) &&
              s9.value.equals(literals[9]) &&
@@ -112,14 +112,14 @@ class Twoways
              s10.value.equals(sw10.value) &&
              s10.value.equals(literals[10]) &&
              s10.value.equals(literals[21]));
-    
+
         test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") &&
              ss0.value.equals(ss1.value) &&
              ss0.value.equals(ss2.value) &&
              ss0.value.equals(literals[22]) &&
              ss0.value.equals(literals[23]) &&
              ss0.value.equals(literals[24]));
-        
+
         test(ss3.value.equals("\\\\U\\u\\") &&
              ss3.value.equals(literals[25]));
 
@@ -128,7 +128,7 @@ class Twoways
 
         test(ss5.value.equals("\\u0041\\") &&
              ss5.value.equals(literals[27]));
-             
+
         test(su0.value.equals(su1.value) &&
              su0.value.equals(su2.value) &&
              su0.value.equals(literals[28]) &&
@@ -1507,7 +1507,7 @@ class Twoways
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
 
-                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
@@ -1571,7 +1571,7 @@ class Twoways
         p.opIdempotent();
 
         p.opNonmutating();
-        
+
         test(p.opByte1((byte)0xFF) == (byte)0xFF);
         test(p.opShort1((short)0x7FFF) == (short)0x7FFF);
         test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
@@ -1583,8 +1583,8 @@ class Twoways
         test(p.opByteBoolD1(null).size() == 0);
         test(p.opStringS2(null).length == 0);
         test(p.opByteBoolD2(null).size() == 0);
-        
-        
+
+
         MyDerivedClassPrx d = MyDerivedClassPrxHelper.uncheckedCast(p);
         MyStruct1 s = new MyStruct1();
         s.tesT = "Test.MyStruct1.s";

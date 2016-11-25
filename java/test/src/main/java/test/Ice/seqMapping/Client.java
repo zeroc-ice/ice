@@ -18,7 +18,7 @@ public class Client extends test.Util.Application
     {
         java.io.PrintWriter out = getWriter();
 
-        MyClassPrx myClass = AllTests.allTests(communicator(), false, out);
+        MyClassPrx myClass = AllTests.allTests(this, false);
 
         out.print("shutting down server... ");
         out.flush();

@@ -50,7 +50,7 @@ extern "C"
 {
 
 //
-// OpenSSL 1.1.0 introduces a new thread API and removes 
+// OpenSSL 1.1.0 introduces a new thread API and removes
 // the need to use a custom thread callback.
 //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -151,7 +151,7 @@ public:
     ~Init()
     {
         //
-        // OpenSSL 1.1.0 introduces a new thread API and removes 
+        // OpenSSL 1.1.0 introduces a new thread API and removes
         // the need to use a custom thread callback.
         //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -162,7 +162,7 @@ public:
             delete[] locks;
             locks = 0;
         }
-        
+
         if(CRYPTO_get_id_callback() == IceSSL_opensslThreadIdCallback)
         {
             CRYPTO_set_id_callback(0);

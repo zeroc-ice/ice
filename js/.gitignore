@@ -16,6 +16,4 @@ src/es5/IceGrid
 src/es5/IceMX
 src/es5/IceSSL
 src/es5/IceStorm
-test/Glacier2/es5/
-test/Ice/es5/
-test/Common/es5
+test/es5

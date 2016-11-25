@@ -138,7 +138,7 @@ public class AllTests
             initData.classLoader = classLoader;
             com.zeroc.Ice.Communicator ic = app.initialize(initData);
 
-            String ref = "initial:default -p 12010";
+            String ref = "initial:" + app.getTestEndpoint(0);
             com.zeroc.Ice.ObjectPrx base = ic.stringToProxy(ref);
             test(base != null);
 

@@ -19,9 +19,10 @@ using System.Collections.Generic;
 
 public class Client
 {
-    private static void test(bool b)
+    private static void
+    test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new Exception();
         }
@@ -50,8 +51,8 @@ public class Client
             communicator = Ice.Util.initialize(ref args, initData);
             {
                 Random rand = new Random();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     System.IO.StringWriter sw = new System.IO.StringWriter();
@@ -67,7 +68,7 @@ public class Client
 
                     Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
                     List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>(obj.ice_getEndpoints());
-                    
+
 
                     if(seenProxy.ContainsKey(obj.GetHashCode()))
                     {
@@ -81,7 +82,7 @@ public class Client
                     {
                         seenProxy[obj.GetHashCode()] = obj;
                     }
-                    
+
                     foreach(Ice.Endpoint endpoint in endpoints)
                     {
                         if(seenEndpoint.ContainsKey(endpoint.GetHashCode()))
@@ -244,7 +245,7 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations && 
+                for(i = 0; i < maxIterations &&
                         exceptionCollisions < maxCollisions; ++i)
                 {
                     Test.OtherException ex = new Test.OtherException(rand.Next(100), rand.Next(100), 0, false);
@@ -276,7 +277,7 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations && 
+                for(i = 0; i < maxIterations &&
                         exceptionCollisions < maxCollisions; ++i)
                 {
                     Test.OtherException ex = new Test.OtherException(rand.Next(100) * 2^30, rand.Next(100) * 2^30, rand.Next(100) * 2^30, false);
@@ -305,7 +306,7 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations && 
+                for(i = 0; i < maxIterations &&
                         exceptionCollisions < maxCollisions; ++i)
                 {
                     int v = rand.Next(1000);
@@ -358,7 +359,7 @@ public class Client
                 int structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointF pf = new Test.PointF((float)rand.NextDouble(), (float)rand.NextDouble(), 
+                    Test.PointF pf = new Test.PointF((float)rand.NextDouble(), (float)rand.NextDouble(),
                                                      (float)rand.NextDouble());
                     if(seenPointF.ContainsKey(pf.GetHashCode()))
                     {
@@ -383,7 +384,7 @@ public class Client
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointD pd = new Test.PointD(rand.NextDouble(), rand.NextDouble(), 
+                    Test.PointD pd = new Test.PointD(rand.NextDouble(), rand.NextDouble(),
                                                      rand.NextDouble());
                     if(seenPointD.ContainsKey(pd.GetHashCode()))
                     {
@@ -496,7 +497,7 @@ public class Client
                 {
                     Test.Draw draw =  new Test.Draw(
                         new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255)),
-                        new Test.Pen(rand.Next(10), 
+                        new Test.Pen(rand.Next(10),
                                      new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),
                         false);
 

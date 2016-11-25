@@ -25,7 +25,7 @@ public class Client extends test.Util.Application
             return 1;
         }
 
-        ServerFactoryPrx factory = AllTests.allTests(this, args[0], out);
+        ServerFactoryPrx factory = AllTests.allTests(this, args[0]);
         factory.shutdown();
 
         return 0;
@@ -34,8 +34,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
         return initData;
     }

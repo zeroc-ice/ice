@@ -144,7 +144,7 @@ public class Client
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
         adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));

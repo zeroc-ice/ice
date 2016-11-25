@@ -19,7 +19,7 @@ public class Client extends test.Util.Application
         Ice.Communicator communicator = communicator();
         try
         {
-            MetricsPrx metrics = AllTests.allTests(communicator, getWriter(), _observer);
+            MetricsPrx metrics = AllTests.allTests(this, _observer);
             metrics.shutdown();
         }
         catch(Ice.UserException ex)
@@ -34,8 +34,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");

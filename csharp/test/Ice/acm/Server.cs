@@ -17,56 +17,34 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
-    public static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-        communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        communicator().getProperties().setProperty("TestAdapter.ACM.Timeout", "0");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("communicator");
         adapter.add(new RemoteCommunicatorI(), id);
         adapter.activate();
 
-        communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+        communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
 
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.ACM.Timeout", "1");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.ACM.Timeout", "1");
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

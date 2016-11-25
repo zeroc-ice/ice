@@ -34,9 +34,9 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        _initData = createInitializationData();
-        _initData.properties = Ice.Util.createProperties(argsH);
-        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
+        _initData = super.getInitData(argsH);
+        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
+                                         getTestEndpoint(_initData.properties, 10));
         _initData.dispatcher = new Ice.Dispatcher()
             {
                 @Override
@@ -53,8 +53,8 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        String protocol = communicator().getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        String host = communicator().getProperties().getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+        String protocol = getTestProtocol();
+        String host = getTestHost();
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
@@ -178,7 +178,7 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper connect interrupt... ");
             out.flush();
             _factory.setRouterHost(host);
-            _factory.setPort(12011);
+            _factory.setPort(getTestPort(1));
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
 
@@ -253,7 +253,7 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper connect... ");
             out.flush();
             _factory.setRouterHost(host);
-            _factory.setPort(12347);
+            _factory.setPort(getTestPort(10));
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
             while(true)
@@ -296,7 +296,7 @@ public class Client extends test.Util.Application
 
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:default -p 12010");
+            Ice.ObjectPrx base = _session.communicator().stringToProxy("callback:" + getTestEndpoint(0));
             out.println("ok");
 
             out.print("pinging server after session creation... ");
@@ -381,7 +381,7 @@ public class Client extends test.Util.Application
             Ice.ObjectPrx processBase;
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:default -h \"" + host + "\" -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11, "tcp"));
                 out.println("ok");
             }
 
@@ -475,7 +475,7 @@ public class Client extends test.Util.Application
             out.flush();
 
             _factory.setRouterHost(host);
-            _factory.setPort(12347);
+            _factory.setPort(getTestPort(10));
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
             while(true)

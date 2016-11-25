@@ -28,9 +28,15 @@ public class AllTests
         com.zeroc.Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
+
+        int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
+        if(proxyPort == 0)
+        {
+            proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
+        }
 
         TestIntfPrx test = TestIntfPrx.checkedCast(obj);
         test(test != null);
@@ -53,7 +59,7 @@ public class AllTests
                     info = (com.zeroc.Ice.IPConnectionInfo)p;
                 }
             }
-            test(info.remotePort == 12030 || info.remotePort == 12031); // make sure we are connected to the proxy port.
+            test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         out.println("ok");
 

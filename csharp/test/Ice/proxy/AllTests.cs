@@ -10,13 +10,14 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
+    public static Test.MyClassPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string rf = "test:default -p 12010";
+        string rf = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
@@ -337,7 +338,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
@@ -387,7 +388,7 @@ public class AllTests : TestCommon.TestApp
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);
@@ -748,7 +749,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing encoding versioning... ");
         Flush();
-        string ref20 = "test -e 2.0:default -p 12010";
+        string ref20 = "test -e 2.0:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -760,7 +761,7 @@ public class AllTests : TestCommon.TestApp
             // Server 2.0 endpoint doesn't support 1.1 version.
         }
 
-        string ref10 = "test -e 1.0:default -p 12010";
+        string ref10 = "test -e 1.0:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
@@ -768,7 +769,7 @@ public class AllTests : TestCommon.TestApp
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        string ref13 = "test -e 1.3:default -p 12010";
+        string ref13 = "test -e 1.3:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -819,7 +820,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing protocol versioning... ");
         Flush();
-        ref20 = "test -p 2.0:default -p 12010";
+        ref20 = "test -p 2.0:" + app.getTestEndpoint(0);
         cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -831,13 +832,13 @@ public class AllTests : TestCommon.TestApp
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
-        ref10 = "test -p 1.0:default -p 12010";
+        ref10 = "test -p 1.0:" + app.getTestEndpoint(0);
         cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:default -p 12010";
+        ref13 = "test -p 1.3:" + app.getTestEndpoint(0);
         cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -970,10 +971,6 @@ public class AllTests : TestCommon.TestApp
             // Working?
             bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
             bool tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("tcp");
-            if(tcp)
-            {
-                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-            }
 
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");

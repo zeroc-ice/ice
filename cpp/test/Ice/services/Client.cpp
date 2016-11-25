@@ -33,8 +33,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.NullHandleAbort", "0");
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator(), initData);

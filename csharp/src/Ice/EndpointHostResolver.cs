@@ -131,7 +131,7 @@ namespace IceInternal
 
                 if(threadObserver != null)
                 {
-                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                 Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                 }
 
@@ -149,19 +149,21 @@ namespace IceInternal
                         }
                     }
 
-                    r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, 
-                                                                                     r.port, 
-                                                                                     protocol, 
-                                                                                     r.selType, 
-                                                                                     _preferIPv6, 
-                                                                                     true),
-                                                                networkProxy));
+                    List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
+                    if(r.observer != null)
+                    {
+                        r.observer.detach();
+                        r.observer = null;
+                    }
+
+                    r.callback.connectors(r.endpoint.connectors(addrs, networkProxy));
                 }
                 catch(Ice.LocalException ex)
                 {
                     if(r.observer != null)
                     {
                         r.observer.failed(ex.ice_id());
+                        r.observer.detach();
                     }
                     r.callback.exception(ex);
                 }
@@ -169,12 +171,8 @@ namespace IceInternal
                 {
                     if(threadObserver != null)
                     {
-                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther, 
+                        threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                     Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                    }
-                    if(r.observer != null)
-                    {
-                        r.observer.detach();
                     }
                 }
             }
@@ -205,16 +203,16 @@ namespace IceInternal
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
-                    _observer = obsv.getThreadObserver("Communicator", 
-                                                       _thread.getName(), 
-                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                    _observer = obsv.getThreadObserver("Communicator",
+                                                       _thread.getName(),
+                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
                     if(_observer != null)
                     {
                         _observer.attach();
                     }
                 }
-            } 
+            }
         }
 
         private class ResolveEntry

@@ -14,7 +14,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        AllTests.allTests(communicator(), getWriter());
+        AllTests.allTests(this);
         return 0;
     }
 

@@ -10,13 +10,14 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static TestIntfPrx allTests(Ice.Communicator communicator)
+    public static TestIntfPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "test:default -p 12010";
+        string @ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -65,7 +66,7 @@ public class AllTests : TestCommon.TestApp
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
                 Ice.Communicator comm = Ice.Util.initialize(initData);
-                comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+                comm.stringToProxy("test:" + app.getTestEndpoint(0)).begin_ice_ping();
                 comm.destroy();
             }
             WriteLine("ok");

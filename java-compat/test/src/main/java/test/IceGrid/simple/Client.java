@@ -31,7 +31,7 @@ public class Client extends test.Util.Application
         }
         else
         {
-            AllTests.allTestsWithDeploy(communicator, getWriter());
+            AllTests.allTestsWithDeploy(this);
         }
 
         return 0;
@@ -40,8 +40,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
         return initData;
     }

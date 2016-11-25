@@ -103,7 +103,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String ref = "communicator:default -p 12010";
+        String ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
         out.print("testing binding with single endpoint... ");
@@ -880,19 +880,21 @@ public class AllTests
             clientProps.add(bothPreferIPv4);
             clientProps.add(bothPreferIPv6);
 
+            String endpoint = "tcp -p " + app.getTestPort(2);
+
             Ice.Properties anyipv4 = ipv4._clone();
-            anyipv4.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv4.setProperty("Adapter.PublishedEndpoints", "tcp -h 127.0.0.1 -p 12012");
+            anyipv4.setProperty("Adapter.Endpoints", endpoint);
+            anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
             Ice.Properties anyipv6 = ipv6._clone();
-            anyipv6.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv6.setProperty("Adapter.PublishedEndpoints", "tcp -h \".1\" -p 12012");
+            anyipv6.setProperty("Adapter.Endpoints", endpoint);
+            anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
             Ice.Properties anyboth = Ice.Util.createProperties();
             anyboth.setProperty("Ice.IPv4", "1");
             anyboth.setProperty("Ice.IPv6", "1");
-            anyboth.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyboth.setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012:tcp -h 127.0.0.1 -p 12012");
+            anyboth.setProperty("Adapter.Endpoints", endpoint);
+            anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
             Ice.Properties localipv4 = ipv4._clone();
             localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
@@ -973,7 +975,7 @@ public class AllTests
                 }
                 serverCommunicator.destroy();
             }
-            
+
             out.println("ok");
         }
 

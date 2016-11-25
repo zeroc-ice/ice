@@ -16,52 +16,30 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
 
         //
         // Shutdown the IceBox server.
         //
         Ice.ProcessPrxHelper.uncheckedCast(
-            communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
+            communicator().stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch (Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

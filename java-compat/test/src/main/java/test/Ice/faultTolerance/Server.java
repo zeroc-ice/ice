@@ -62,7 +62,7 @@ public class Server extends test.Util.Application
         }
 
         // Don't move this, it needs the port.
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(port);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
@@ -73,8 +73,7 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
         // Two minutes.
         initData.properties.setProperty("Ice.ServerIdleTime", "120");

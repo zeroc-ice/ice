@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     {
         Ice.Properties properties = communicator().getProperties();
 
-        int port = 12010;
+        int port = 0;
         try
         {
             port += args.length == 1 ? Integer.parseInt(args[0]) : 0;
@@ -24,14 +24,14 @@ public class Server extends test.Util.Application
         catch(NumberFormatException ex)
         {
         }
-        properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
+        properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(port, "tcp"));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
         adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
         adapter.activate();
 
-        if(port == 12010)
+        if(port == 0)
         {
-            properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
+            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(port, "udp"));
             Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
             adapter2.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
             adapter2.activate();
@@ -50,8 +50,7 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.UDP.RcvSize", "16384");

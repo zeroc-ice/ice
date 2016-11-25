@@ -29,6 +29,16 @@ ifneq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
     ruby_cppflags += -I$(ruby_config_dir)
 endif
 
+# OS X & macOS with LLVM-Clang > 7.3 and the system version of Ruby require '-Wno-shift-negative-value'. This issue
+# has been patched in more recent 2.x Ruby versions.
+ifeq ($(shell uname),Darwin)
+    ifeq ($(shell which $(RUBY)),/usr/bin/ruby)
+        ifeq ($(shell expr $$($(CXX) -v 2>&1 | head -1 | sed -E 's/.*clang-([0-9][0-9][0-9]).*/\1/') \>= 703),1)
+            ruby_cppflags += -Wno-shift-negative-value $(RUBY_FLAGS)
+        endif
+    endif
+endif
+
 # Ruby linker flags
 ruby_ldflags	:= $(call ruby-call,$$(LIBRUBYARG))
 ruby_libdir 	:= $(call ruby-call,$(if $(findstring MINGW,$(shell uname)),$$(bindir),$$(libdir)))

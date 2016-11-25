@@ -29,7 +29,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         communicator->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
         status = run(argc, argv, communicator);
     }

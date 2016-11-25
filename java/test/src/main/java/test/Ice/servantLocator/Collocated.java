@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         adapter.addServantLocator(new ServantLocatorI(""), "");
         adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("asm"));
         adapter.add(new TestActivationI(), com.zeroc.Ice.Util.stringToIdentity("test/activation"));
-        AllTests.allTests(communicator(), getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -29,7 +29,7 @@ public class Collocated extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
         r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
         return r;

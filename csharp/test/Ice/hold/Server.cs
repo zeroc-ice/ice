@@ -16,32 +16,32 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
         Timer timer = new Timer();
 
-        communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
-        communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
-        communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
-        communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-        communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
-        Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
+        communicator().getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
+        communicator().getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
+        communicator().getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
+        communicator().getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
+        Ice.ObjectAdapter adapter1 = communicator().createObjectAdapter("TestAdapter1");
         adapter1.add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
 
-        communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
-        communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
-        communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
-        communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-        communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
-        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+        communicator().getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
+        communicator().getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
+        communicator().getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
+        communicator().getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter2");
         adapter2.add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
 
         adapter1.activate();
         adapter2.activate();
 
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
 
         timer.shutdown();
         timer.waitForShutdown();
@@ -51,33 +51,7 @@ public class Server
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

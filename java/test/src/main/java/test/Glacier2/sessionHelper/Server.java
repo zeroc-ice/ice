@@ -13,10 +13,10 @@ public class Server extends test.Util.Application
 {
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
         communicator().createObjectAdapter("DeactivatedAdapter");
 
-        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010");
+        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
         adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("callback"));
         adapter.activate();

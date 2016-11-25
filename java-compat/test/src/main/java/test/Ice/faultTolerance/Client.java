@@ -25,7 +25,7 @@ public class Client extends test.Util.Application
     run(String[] args)
     {
         PrintWriter out = getWriter();
-        
+
         Ice.Communicator communicator = communicator();
         java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
         for(String arg : args)
@@ -70,7 +70,7 @@ public class Client extends test.Util.Application
 
         try
         {
-            AllTests.allTests(communicator, arr, out);
+            AllTests.allTests(this, arr);
         }
         catch(Ice.LocalException ex)
         {
@@ -84,8 +84,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
         //
         // This test aborts servers, so we don't want warnings.

@@ -62,14 +62,14 @@ ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
 void
 allTests(const CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
+    communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
     PingReplyIPtr replyI = ICE_MAKE_SHARED(PingReplyI);
     PingReplyPrxPtr reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrxPtr base = communicator->stringToProxy("test -d:udp -p 12010");
+    ObjectPrxPtr base = communicator->stringToProxy("test -d:" + getTestEndpoint(communicator, 0, "udp"));
     TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 
     int nRetry = 5;
@@ -87,7 +87,7 @@ allTests(const CommunicatorPtr& communicator)
         }
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
-        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = ICE_MAKE_SHARED(PingReplyI);
         reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
@@ -175,7 +175,7 @@ allTests(const CommunicatorPtr& communicator)
     }
 #endif
 
-    cout << "testing udp bi-dir connection... " << flush;    
+    cout << "testing udp bi-dir connection... " << flush;
     obj->ice_getConnection()->setAdapter(adapter);
     objMcast->ice_getConnection()->setAdapter(adapter);
     nRetry = 5;
@@ -192,7 +192,7 @@ allTests(const CommunicatorPtr& communicator)
         }
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
-        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = ICE_MAKE_SHARED(PingReplyI);
         reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
@@ -204,8 +204,8 @@ allTests(const CommunicatorPtr& communicator)
     // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
     // Windows...). For Windows, see UdpTransceiver constructor for the details. So
     // we don't run this test.
-    // 
-//     cout << "testing udp bi-dir connection... " << flush;    
+    //
+//     cout << "testing udp bi-dir connection... " << flush;
 //     nRetry = 5;
 //     while(nRetry-- > 0)
 //     {
@@ -215,7 +215,7 @@ allTests(const CommunicatorPtr& communicator)
 //         if(ret)
 //         {
 //             break; // Success
-//         }        
+//         }
 //         replyI = new PingReplyI;
 //         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
 //     }

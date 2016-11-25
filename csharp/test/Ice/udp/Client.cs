@@ -17,11 +17,11 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        AllTests.allTests(communicator);
+        AllTests.allTests(this);
 
         int num;
         try
@@ -34,46 +34,23 @@ public class Client
         }
         for(int i = 0; i < num; ++i)
         {
-            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("control:tcp -p " + (12010 + i))).shutdown();
+            string endpoint = getTestEndpoint(i, "tcp");
+            TestIntfPrxHelper.uncheckedCast(communicator().stringToProxy("control:" + endpoint)).shutdown();
         }
         return 0;
     }
 
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+        return initData;
+    }
+
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

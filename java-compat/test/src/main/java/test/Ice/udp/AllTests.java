@@ -74,7 +74,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
+        communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
 
@@ -84,7 +84,7 @@ public class AllTests
 
         out.print("testing udp... ");
         out.flush();
-        Ice.ObjectPrx base = communicator.stringToProxy("test -d:udp -p 12010");
+        Ice.ObjectPrx base = communicator.stringToProxy("test -d:" + app.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
 
         int nRetry = 5;

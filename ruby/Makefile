@@ -15,7 +15,7 @@ include $(top_srcdir)/config/Make.rules
 #
 # Load C++ dependencies
 #
-$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL)))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceLocatorDiscovery IceDiscovery)))
 $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2rb))
 
 #

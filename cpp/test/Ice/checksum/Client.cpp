@@ -31,8 +31,9 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
     try
-    {        
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+    {
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)

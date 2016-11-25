@@ -26,7 +26,7 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.admin");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
         r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         return r;
     }

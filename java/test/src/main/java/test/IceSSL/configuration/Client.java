@@ -24,10 +24,8 @@ public class Client extends test.Util.Application
             out.println("Usage: client testdir");
             return 1;
         }
-
-        ServerFactoryPrx factory = AllTests.allTests(this, args[0], out);
+        ServerFactoryPrx factory = AllTests.allTests(this, args[0]);
         factory.shutdown();
-
         return 0;
     }
 

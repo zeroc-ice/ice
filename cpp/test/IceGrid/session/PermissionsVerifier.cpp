@@ -11,6 +11,7 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
 #include <Test.h>
+#include <TestCommon.h>
 
 using namespace std;
 
@@ -25,11 +26,6 @@ public:
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
-        if(userId == "shutdown")
-        {
-            c.adapter->getCommunicator()->shutdown();
-            return true;
-        }
         return (userId == "admin1" && passwd == "test1") || (userId == "admin2" && passwd == "test2") ||
                 (userId == "admin3" && passwd == "test3");
     }
@@ -41,8 +37,7 @@ public:
 
     virtual int run(int, char*[])
     {
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
-            "PermissionsVerifier", "tcp -p 12002");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
         adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
         adapter->activate();
         communicator()->waitForShutdown();
@@ -54,5 +49,7 @@ int
 main(int argc, char* argv[])
 {
     PermissionsVerifierServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    initData.properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
+    return app.main(argc, argv, initData);
 }

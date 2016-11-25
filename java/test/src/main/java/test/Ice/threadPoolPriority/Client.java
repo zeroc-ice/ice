@@ -25,7 +25,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
-        com.zeroc.Ice.ObjectPrx object = communicator().stringToProxy("test:default -p 12010 -t 10000");
+        com.zeroc.Ice.ObjectPrx object = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
         PriorityPrx priority = PriorityPrx.checkedCast(object);
         out.print("testing thread priority... ");
         out.flush();

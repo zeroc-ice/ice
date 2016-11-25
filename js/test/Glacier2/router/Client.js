@@ -69,8 +69,7 @@
 
         var failCB = function () { test(false); };
 
-        var router, base, session, twoway, oneway, category, processBase, process,
-            adapter,callbackReceiverImpl,
+        var router, base, session, twoway, oneway, category, processBase, processPrx, adapter,callbackReceiverImpl,
             callbackReceiver,
             twowayR, onewayR,
             fakeTwowayR;
@@ -79,7 +78,7 @@
             function()
             {
                 out.write("testing stringToProxy for router... ");
-                var routerBase = communicator.stringToProxy("Glacier2/router:default -p 12347");
+                var routerBase = communicator.stringToProxy("Glacier2/router:default -p 12020");
                 test(routerBase !== null);
                 out.writeLine("ok");
 
@@ -317,11 +316,14 @@
         ).then(
             function()
             {
-                out.writeLine("ok");
-                out.write("testing server shutdown... ");
-                return twoway.shutdown();
-                // No ping, otherwise the router prints a warning message if it's
-                // started with --Ice.Warn.Connections.
+                if(process.argv.indexOf("--shutdown") > -1)
+                {
+                    out.writeLine("ok");
+                    out.write("testing server shutdown... ");
+                    return twoway.shutdown();
+                    // No ping, otherwise the router prints a warning message if it's
+                    // started with --Ice.Warn.Connections.
+                }
             }
         ).then(
             function()
@@ -346,38 +348,41 @@
                 test(ex instanceof Ice.ConnectionLostException);
                 out.writeLine("ok");
 
-                out.write("uninstalling router with communicator... ");
-                communicator.setDefaultRouter(null);
-                out.writeLine("ok");
+                if(process.argv.indexOf("--shutdown") > -1)
+                {
+                    out.write("uninstalling router with communicator... ");
+                    communicator.setDefaultRouter(null);
+                    out.writeLine("ok");
 
-                out.write("testing stringToProxy for process object... ");
-                processBase = communicator.stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
-                out.writeLine("ok");
+                    out.write("testing stringToProxy for process object... ");
+                    processBase = communicator.stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12021");
+                    out.writeLine("ok");
 
-                out.write("testing checked cast for admin object... ");
-                return Ice.ProcessPrx.checkedCast(processBase);
-            }
-        ).then(
-            function(o)
-            {
-                process = o;
-                test(process !== null);
-                out.writeLine("ok");
+                    out.write("testing checked cast for admin object... ");
+                    return Ice.ProcessPrx.checkedCast(processBase).then(
+                        function(o)
+                        {
+                            processPrx = o;
+                            test(processPrx !== null);
+                            out.writeLine("ok");
 
-                out.write("testing Glacier2 shutdown... ");
-                return process.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return process.ice_ping();
-            }
-        ).then(
-            failCB,
-            function(ex)
-            {
-                test(ex instanceof Ice.LocalException);
-                out.writeLine("ok");
+                            out.write("testing Glacier2 shutdown... ");
+                            return processPrx.shutdown();
+                        }
+                    ).then(
+                        function()
+                        {
+                            return processPrx.ice_ping();
+                        }
+                    ).then(
+                        failCB,
+                        function(ex)
+                        {
+                            test(ex instanceof Ice.LocalException);
+                            out.writeLine("ok");
+                        }
+                    );
+                }
             }
         ).catch(e => console.log(e));
     };

@@ -9,8 +9,8 @@
 
 
  /* global
-    __runEchoServerOptions__ : false,
     __test__ : false,
+    __testBidir__ : false,
     Test : false,
 */
 
@@ -38,7 +38,7 @@ function isWindows()
     return navigator.userAgent.indexOf("Windows") != -1;
 }
 
-function runTest(name, language, defaultHost, protocol, configurations, out)
+function runTest(testsuite, language, host, protocol, testcases, out)
 {
     //
     // This logger is setup to work with Web Workers and normal scripts using
@@ -102,12 +102,14 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
             return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
         }
     };
-    
-    var server, communicator;
+
+    var communicator;
     var id = new Ice.InitializationData();
+    var port = protocol == "ws" ? 15002 : 15003;
+    var serverTestCase;
     id.logger = Logger;
     id.properties = Ice.createProperties();
-    id.properties.setProperty("Ice.Default.Host", defaultHost);
+    id.properties.setProperty("Ice.Default.Host", host);
     id.properties.setProperty("Ice.Default.Protocol", protocol);
     //id.properties.setProperty("Ice.Trace.Protocol", "1");
     //id.properties.setProperty("Ice.Trace.Network", "3");
@@ -115,100 +117,92 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
     return Ice.Promise.try(
         function()
         {
-            if(typeof(__runServer__) !== "undefined" || typeof(__runEchoServer__) !== "undefined")
-            {
-                communicator = Ice.initialize();
-                var str = protocol == "ws" ? "controller:ws -h " + defaultHost + " -p 15002" :
-                                             "controller:wss -h " + defaultHost + " -p 15003";
-
-                var controller = Test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
-
-                var options = [];
-                var srv = typeof(__runEchoServer__) !== "undefined" ? "Ice/echo" : name;
-                if(typeof(__runEchoServerOptions__) !== "undefined")
-                {
-                    options = options.concat(__runEchoServerOptions__);
-                }
-
-                if(configurations === undefined)
-                {
-                    configurations = [ { configName: "", desc: "default configuration" } ];
-                }
-
-                var prev = Ice.Promise.resolve();
-                configurations.forEach(
-                    function(config)
-                    {
-                        if(config.langs && config.langs.indexOf(language) == -1)
-                        {
-                            return prev;
-                        }
-                        prev = prev.then(
-                            function()
-                            {
-                                out.write("starting " + srv + " server... ");
-                                return controller.runServer(language, srv, protocol, defaultHost, false,
-                                                            config.configName, options).then(
-                                    function(proxy)
-                                    {
-                                        var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " +
-                                            defaultHost + " -p " + (protocol == "ws" ? "15002" : "15003");
-                                        out.writeLine("ok");
-                                        server = Test.Common.ServerPrx.uncheckedCast(communicator.stringToProxy(ref));
-                                        out.writeLine("Running test with " + config.desc + ".");
-                                        return server.waitForServer().then(
-                                            function()
-                                            {
-                                                var initData = id.clone();
-                                                if(config.args !== undefined)
-                                                {
-                                                    initData.properties =
-                                                        Ice.createProperties(config.args, id.properties);
-                                                }
-                                                return __test__(out, initData);
-                                            });
-                                    },
-                                    function(ex)
-                                    {
-                                        out.writeLine("failed! (" + ex + ")");
-                                        throw ex;
-                                    }
-                                ).then(
-                                    function()
-                                    {
-                                        if(server)
-                                        {
-                                            return server.waitTestSuccess();
-                                        }
-                                    }
-                                ).catch(
-                                    function(ex)
-                                    {
-                                        if(server)
-                                        {
-                                            return server.terminate().then(
-                                                function()
-                                                {
-                                                    throw ex;
-                                                },
-                                                function()
-                                                {
-                                                    throw ex;
-                                                });
-                                        }
-                                        else
-                                        {
-                                            throw ex;
-                                        }
-                                    });
-                            });
-                    });
-                return prev;
-            }
-            else
+            if(typeof(__runServer__) === "undefined" && typeof(__testBidir__) === "undefined")
             {
                 return __test__(out, id);
             }
+
+            communicator = Ice.initialize();
+            var str = "controller:" + protocol + " -h " + host + " -p " + port;
+            var controller = Test.Common.ControllerPrx.uncheckedCast(communicator.stringToProxy(str));
+            if(testcases === undefined)
+            {
+                testcases = [ { name: "client/server" } ];
+            }
+
+            run = function(testsuite, testcase, client)
+            {
+                if(testcase.langs && testcase.langs.indexOf(language) == -1)
+                {
+                    return;
+                }
+
+                if(typeof(__testBidir__) !== "undefined" && client == __testBidir__)
+                {
+                    out.writeLine("[ running bidir " + testcase.name + " test]");
+                }
+                else
+                {
+                    out.writeLine("[ running " + testcase.name + " test]");
+                }
+                out.write("starting server side... ");
+                return controller.runTestCase(language, testsuite, testcase.name).then(
+                    function(proxy)
+                    {
+                        proxy = controller.ice_getCachedConnection().createProxy(proxy.ice_getIdentity())
+                        serverTestCase = Test.Common.TestCasePrx.uncheckedCast(proxy);
+                        var config = new Test.Common.Config();
+                        config.protocol = protocol;
+                        return serverTestCase.startServerSide(config);
+                    }
+                ).then(
+                    function()
+                    {
+                        out.writeLine("ok")
+                        var initData = id.clone();
+                        if(testcase.args !== undefined)
+                        {
+                            initData.properties = Ice.createProperties(testcase.args, id.properties);
+                        }
+                        return client(out, initData);
+                    }
+                ).then(
+                    function()
+                    {
+                        return serverTestCase.stopServerSide(true);
+                    }
+                ).catch(
+                    function(ex)
+                    {
+                        out.writeLine("failed! (" + ex + ")");
+                        throw ex
+                    }
+                ).finally(
+                    function()
+                    {
+                        if(serverTestCase)
+                        {
+                            return serverTestCase.destroy();
+                        }
+                    }
+                );
+            }
+
+            var p = Ice.Promise.resolve();
+            if(typeof(__runServer__) !== "undefined")
+            {
+                testcases.forEach(function(testcase) {
+                    p = p.then(function() { return run(testsuite, testcase, __test__); })
+                });
+            }
+            if(typeof(__testBidir__) !== "undefined" && language === "cpp")
+            {
+                testcases.forEach(function(testcase) {
+                    options = typeof(__runEchoServerOptions__) !== "undefined" ? __runEchoServerOptions__ : []
+                    p = p.then(function() { return run("Ice/echo", testcase, __testBidir__); })
+                });
+            }
+            return p;
         }
     ).finally(
         function()
@@ -226,10 +220,10 @@ function runTest(name, language, defaultHost, protocol, configurations, out)
         function(ex)
         {
             out.writeLine("");
-            if(ex instanceof Test.Common.ServerFailedException)
+            if(ex instanceof Test.Common.TestCaseFailedException)
             {
-                out.writeLine("Server failed to start:\n");
-                out.writeLine(ex.reason);
+                out.writeLine("Server test case failed to start:\n");
+                out.writeLine(ex.output);
             }
             else
             {

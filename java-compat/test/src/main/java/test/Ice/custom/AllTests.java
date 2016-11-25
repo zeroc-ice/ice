@@ -56,11 +56,13 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010";
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");

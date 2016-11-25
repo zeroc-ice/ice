@@ -9,51 +9,24 @@
 
 using System;
 
-public class Server
+public class Server : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object @object = new TestI();
         adapter.add(@object, Ice.Util.stringToIdentity("Test"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData data = new Ice.InitializationData();
-            communicator = Ice.Util.initialize(ref args, data);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

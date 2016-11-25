@@ -15,12 +15,12 @@ public class Collocated extends test.Util.Application
     public int run(String[] args)
     {
         com.zeroc.Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }

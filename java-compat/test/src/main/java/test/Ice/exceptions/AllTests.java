@@ -721,8 +721,10 @@ public class AllTests
     }
 
     public static ThrowerPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         {
             out.print("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
@@ -842,7 +844,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "thrower:default -p 12010";
+        String ref = "thrower:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -1140,7 +1142,7 @@ public class AllTests
             }
 
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12011"));
+                communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
             try
             {
                 thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
@@ -1149,7 +1151,7 @@ public class AllTests
             {
             }
             ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12012"));
+                communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
             try
             {
                 thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit

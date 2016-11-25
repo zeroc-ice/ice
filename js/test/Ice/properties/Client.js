@@ -56,7 +56,7 @@
                     //
                     // We are runing with NodeJS we load the properties file from the file system.
                     //
-                    properties.parse(require("fs").readFileSync("escapes.cfg", {encoding: "utf8"}));
+                    properties.parse(require("fs").readFileSync("config/escapes.cfg", {encoding: "utf8"}));
                     for(var key in props)
                     {
                         test(props[key] == properties.getProperty(key));
@@ -77,7 +77,7 @@
                         /*jshint jquery: true */
                         $.ajax(
                             {
-                                url: "escapes.cfg",
+                                url: "config/escapes.cfg",
                                 //
                                 // Use text data type to avoid problems interpreting the data.
                                 //

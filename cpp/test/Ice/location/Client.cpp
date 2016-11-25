@@ -31,9 +31,8 @@ main(int argc, char* argv[])
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.Default.Locator", "locator:default -p 12010");
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        initData.properties->setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(initData.properties, 0));
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }

@@ -10,7 +10,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -45,9 +45,10 @@ public class AllTests : TestCommon.TestApp
         private bool _called;
     }
 
-    public static Test.TimeoutPrx allTests(Ice.Communicator communicator)
+    public static Test.TimeoutPrx allTests(TestCommon.Application app)
     {
-        string sref = "timeout:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string sref = "timeout:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 

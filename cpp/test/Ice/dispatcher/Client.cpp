@@ -33,8 +33,7 @@ main(int argc, char* argv[])
     int status;
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 
         //
         // Limit the send buffer size, this test relies on the socket

@@ -17,8 +17,7 @@ using namespace std;
 using namespace Test;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
-{
+run(int, char**, const Ice::CommunicatorPtr& communicator){
     void allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);
     return EXIT_SUCCESS;
@@ -33,7 +32,8 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)

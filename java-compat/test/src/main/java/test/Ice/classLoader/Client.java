@@ -21,8 +21,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        _initData = createInitializationData();
-        _initData.properties = Ice.Util.createProperties(argsH);
+        _initData = super.getInitData(argsH);
         _initData.properties.setProperty("Ice.Package.Test", "test.Ice.classLoader");
         return _initData;
     }

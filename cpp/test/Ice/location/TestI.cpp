@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -17,10 +18,10 @@ ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
                                const Ice::InitializationData& initData) :
     _registry(registry),
     _initData(initData),
-    _nextPort(12011)
+    _nextPort(1)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");    
+    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
     _initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     _initData.properties->setProperty("Ice.PrintAdapterReady", "0");
 }
@@ -50,21 +51,14 @@ ServerManagerI::startServer(const Ice::Current&)
     // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
     // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
     //
-    {
-        std::ostringstream os;
-        os << "default -p " << _nextPort++;
-        serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", os.str());
-    }
-    {
-        std::ostringstream os;
-        os << "default -p " << _nextPort++;
-        serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", os.str());
-    }
+    Ice::PropertiesPtr props = _initData.properties;
+    serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(props, _nextPort++));
+    serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(props, _nextPort++));
 
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-    Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:default -p 12010");
+    Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:" + getTestEndpoint(props, 0));
     adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
     adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 
@@ -88,8 +82,8 @@ ServerManagerI::shutdown(const Ice::Current& current)
 }
 
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, 
-             const Ice::ObjectAdapterPtr& adapter2, 
+TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
+             const Ice::ObjectAdapterPtr& adapter2,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {

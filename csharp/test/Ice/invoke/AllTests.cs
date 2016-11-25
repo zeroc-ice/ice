@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private static string testString = "This is a test string";
 
@@ -182,9 +182,10 @@ public class AllTests : TestCommon.TestApp
         private CallbackBase callback = new CallbackBase();
     }
 
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
+    public static Test.MyClassPrx allTests(TestCommon.Application app)
     {
-        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
+        Ice.Communicator communicator = app.communicator();
+        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + app.getTestEndpoint(0));
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
         Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());

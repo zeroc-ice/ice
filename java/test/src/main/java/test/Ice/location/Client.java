@@ -42,7 +42,7 @@ public class Client extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        r.initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+        r.initData.properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(r.initData.properties, 0));
         return r;
     }
 

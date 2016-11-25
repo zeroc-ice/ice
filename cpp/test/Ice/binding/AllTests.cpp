@@ -916,19 +916,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         clientProps.push_back(bothPreferIPv4);
         clientProps.push_back(bothPreferIPv6);
 
+        string endpoint;
+        {
+            ostringstream str;
+            str << "tcp -p " << getTestPort(communicator->getProperties(), 2);
+            endpoint = str.str();
+        }
+
         Ice::PropertiesPtr anyipv4 = ipv4->clone();
-        anyipv4->setProperty("Adapter.Endpoints", "tcp -p 12012");
-        anyipv4->setProperty("Adapter.PublishedEndpoints", "tcp -h 127.0.0.1 -p 12012");
+        anyipv4->setProperty("Adapter.Endpoints", endpoint);
+        anyipv4->setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
         Ice::PropertiesPtr anyipv6 = ipv6->clone();
-        anyipv6->setProperty("Adapter.Endpoints", "tcp -p 12012");
-        anyipv6->setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012");
+        anyipv6->setProperty("Adapter.Endpoints", endpoint);
+        anyipv6->setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\"");
 
         Ice::PropertiesPtr anyboth = Ice::createProperties();
         anyboth->setProperty("Ice.IPv4", "1");
         anyboth->setProperty("Ice.IPv6", "1");
-        anyboth->setProperty("Adapter.Endpoints", "tcp -p 12012");
-        anyboth->setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012:tcp -h 127.0.0.1 -p 12012");
+        anyboth->setProperty("Adapter.Endpoints", endpoint);
+        anyboth->setProperty("Adapter.PublishedEndpoints", endpoint + " -p 12012:" + endpoint + " -p 12012");
 
         Ice::PropertiesPtr localipv4 = ipv4->clone();
         localipv4->setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");

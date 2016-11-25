@@ -37,8 +37,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
 

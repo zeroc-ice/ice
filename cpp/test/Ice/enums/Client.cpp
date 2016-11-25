@@ -37,7 +37,8 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         RemoteConfig rc("Ice/enums", argc, argv, ich.communicator());
         int status = run(argc, argv, ich.communicator());
         rc.finished(status);

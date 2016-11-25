@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         com.zeroc.Ice.Object object = new ThrowerI();
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("thrower"));
 
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -38,7 +38,7 @@ public class Collocated extends test.Util.Application
         r.initData.properties.setProperty("Ice.Warn.Connections", "0");
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
 
         return r;
     }

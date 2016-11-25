@@ -14,7 +14,7 @@ using System.Threading;
 
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     static void
     testFacets(Ice.Communicator com, bool builtInFacets)
@@ -92,8 +92,9 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing communicator operations... ");
         Flush();
         {
@@ -172,7 +173,7 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-        string @ref = "factory:default -p 12010 -t 10000";
+        string @ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
             RemoteCommunicatorFactoryPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
@@ -264,30 +265,30 @@ public class AllTests : TestCommon.TestApp
             props.Add("Ice.Admin.InstanceName", "Test");
             props.Add("NullLogger", "1");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
-            
+
             com.trace("testCat", "trace");
             com.warning("warning");
             com.error("error");
             com.print("print");
-       
+
             Ice.ObjectPrx obj = com.getAdmin();
             Ice.LoggerAdminPrx logger = Ice.LoggerAdminPrxHelper.checkedCast(obj, "Logger");
             test(logger != null);
 
             string prefix = null;
-            
+
             //
             // Get all
             //
             Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
-            
+
             test(logMessages.Length == 4);
             test(prefix.Equals("NullLogger"));
-            test(logMessages[0].traceCategory.Equals("testCat") && logMessages[0].message.Equals("trace")); 
+            test(logMessages[0].traceCategory.Equals("testCat") && logMessages[0].message.Equals("trace"));
             test(logMessages[1].message.Equals("warning"));
             test(logMessages[2].message.Equals("error"));
             test(logMessages[3].message.Equals("print"));
-       
+
             //
             // Get only errors and warnings
             //
@@ -295,35 +296,35 @@ public class AllTests : TestCommon.TestApp
             com.print("print2");
             com.trace("testCat", "trace2");
             com.warning("warning2");
-            
+
             Ice.LogMessageType[] messageTypes = {Ice.LogMessageType.ErrorMessage, Ice.LogMessageType.WarningMessage};
-          
+
             logMessages = logger.getLog(messageTypes, null, -1, out prefix);
-            
+
             test(logMessages.Length == 4);
             test(prefix.Equals("NullLogger"));
-            
+
             foreach(var msg in logMessages)
             {
                 test(msg.type == Ice.LogMessageType.ErrorMessage || msg.type == Ice.LogMessageType.WarningMessage);
             }
-       
+
             //
             // Get only errors and traces with Cat = "testCat"
             //
             com.trace("testCat2", "A");
             com.trace("testCat", "trace3");
             com.trace("testCat2", "B");
-            
+
             messageTypes = new Ice.LogMessageType[]{Ice.LogMessageType.ErrorMessage, Ice.LogMessageType.TraceMessage};
             string[] categories = {"testCat"};
             logMessages = logger.getLog(messageTypes, categories, -1, out prefix);
             test(logMessages.Length == 5);
             test(prefix.Equals("NullLogger"));
-            
+
             foreach(var msg in logMessages)
-            { 
-                test(msg.type == Ice.LogMessageType.ErrorMessage || 
+            {
+                test(msg.type == Ice.LogMessageType.ErrorMessage ||
                      (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
             }
 
@@ -335,20 +336,20 @@ public class AllTests : TestCommon.TestApp
             logMessages = logger.getLog(messageTypes, categories, 2, out prefix);
             test(logMessages.Length == 2);
             test(prefix.Equals("NullLogger"));
-            
+
             test(logMessages[0].message.Equals("trace3"));
             test(logMessages[1].message.Equals("error3"));
-          
+
             //
             // Now, test RemoteLogger
             //
-            Ice.ObjectAdapter adapter = 
+            Ice.ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
-   
+
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
-        
+
             Ice.RemoteLoggerPrx myProxy = Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.addWithUUID(remoteLogger));
-        
+
             adapter.activate();
 
             //
@@ -356,25 +357,25 @@ public class AllTests : TestCommon.TestApp
             //
             logMessages = logger.getLog(null, null, -1, out prefix);
             remoteLogger.checkNextInit(prefix, logMessages);
-            
+
             logger.attachRemoteLogger(myProxy, null, null, -1);
             remoteLogger.wait(1);
-            
+
             remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
             remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
             remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
             remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
-            
+
             com.trace("testCat", "rtrace");
             com.warning("rwarning");
             com.error("rerror");
             com.print("rprint");
 
             remoteLogger.wait(4);
-            
+
             test(logger.detachRemoteLogger(myProxy));
             test(!logger.detachRemoteLogger(myProxy));
-           
+
             //
             // Use Error + Trace with "traceCat" filter with 4 limit
             //
@@ -384,10 +385,10 @@ public class AllTests : TestCommon.TestApp
 
             logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
             remoteLogger.wait(1);
-            
+
             remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
             remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
-            
+
             com.warning("rwarning2");
             com.trace("testCat", "rtrace2");
             com.warning("rwarning3");
@@ -395,13 +396,13 @@ public class AllTests : TestCommon.TestApp
             com.print("rprint2");
 
             remoteLogger.wait(2);
-            
+
             //
             // Attempt reconnection with slightly different proxy
             //
             try
             {
-                logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()), 
+                logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
                                           messageTypes, categories, 4);
                 test(false);
             }
@@ -409,7 +410,7 @@ public class AllTests : TestCommon.TestApp
             {
                 // expected
             }
-            
+
             com.destroy();
         }
         WriteLine("ok");
@@ -541,7 +542,7 @@ public class AllTests : TestCommon.TestApp
                 Monitor.PulseAll(this);
             }
         }
-        
+
         override public void log(Ice.LogMessage logMessage, Ice.Current current)
         {
             lock(this)
@@ -549,12 +550,12 @@ public class AllTests : TestCommon.TestApp
                 Ice.LogMessage front = _expectedLogMessages.Dequeue();
                 test(front.type == logMessage.type && front.message.Equals(logMessage.message) &&
                      front.traceCategory.Equals(logMessage.traceCategory));
-                
+
                 _receivedCalls++;
                 Monitor.PulseAll(this);
             }
         }
-        
+
         internal void checkNextInit(string prefix, Ice.LogMessage[] logMessages)
         {
             lock(this)
@@ -563,7 +564,7 @@ public class AllTests : TestCommon.TestApp
                 _expectedInitMessages = logMessages;
             }
         }
-        
+
         internal void checkNextLog(Ice.LogMessageType messageType,string message, string category)
         {
             lock(this)
@@ -572,20 +573,20 @@ public class AllTests : TestCommon.TestApp
                 _expectedLogMessages.Enqueue(logMessage);
             }
         }
-        
+
         internal void wait(int calls)
         {
             lock(this)
             {
                 _receivedCalls -= calls;
-                
+
                 while(_receivedCalls < 0)
                 {
                     Monitor.Wait(this);
                 }
             }
         }
-        
+
         private int _receivedCalls = 0;
         private string _expectedPrefix;
         private Ice.LogMessage[] _expectedInitMessages;

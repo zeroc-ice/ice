@@ -24,7 +24,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     {
         ostringstream os;
-        os << "default -p " << (12010 + num);
+        os << getTestEndpoint(communicator, num);
+        cerr << os.str() << endl;
         properties->setProperty("ControlAdapter.Endpoints", os.str());
     }
     {
@@ -60,7 +61,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

@@ -17,7 +17,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         com.zeroc.Ice.Communicator communicator = communicator();
-        TestIntfPrx test = AllTests.allTests(communicator, false, getWriter());
+        TestIntfPrx test = AllTests.allTests(this, false);
         test.shutdown();
         return 0;
     }

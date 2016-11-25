@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-
+#include <TestCommon.h>
 #include <Callback.h>
 
 using namespace std;
@@ -54,10 +54,10 @@ public:
 int
 SessionHelperServer::run(int, char**)
 {
-    communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+    communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(communicator(), 1));
     communicator()->createObjectAdapter("DeactivatedAdapter");
 
-    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "default -p 12010");
+    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
     adapter->add(new CallbackI(), Ice::stringToIdentity("callback"));
     adapter->activate();
@@ -74,6 +74,7 @@ main(int argc, char* argv[])
 #endif
 
     SessionHelperServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
 

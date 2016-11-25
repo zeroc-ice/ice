@@ -54,7 +54,7 @@ struct TestCase
     std::string proxy;
     bool expectedResult;
 
-    TestCase(const char* s, const bool b) : proxy(s), expectedResult(b) {}
+    TestCase(const std::string& s, const bool b) : proxy(s), expectedResult(b) {}
 };
 
 struct TestConfiguration
@@ -74,7 +74,7 @@ struct TestConfiguration
 class TestControllerI : public Test::TestController
 {
 public:
-    TestControllerI();
+    TestControllerI(const std::string&);
     //
     // Slice to C++ mapping.
     //
@@ -93,7 +93,7 @@ public:
 private:
     std::vector<SessionTuple> _sessions;
     std::vector<TestConfiguration> _configurations;
-    
+
 };
 
 typedef IceUtil::Handle<TestControllerI> TestControllerIPtr;

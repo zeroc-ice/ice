@@ -38,8 +38,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);

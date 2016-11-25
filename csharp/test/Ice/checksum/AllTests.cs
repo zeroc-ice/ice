@@ -10,21 +10,13 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests
+public class AllTests : TestCommon.AllTests
 {
-    private static void
-    test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     public static Test.ChecksumPrx
-    allTests(Ice.Communicator communicator, bool collocated)
+    allTests(TestCommon.Application app, bool collocated)
     {
-        string rf = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string rf = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 

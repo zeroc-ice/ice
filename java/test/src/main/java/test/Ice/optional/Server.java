@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new InitialI(), com.zeroc.Ice.Util.stringToIdentity("initial"));
         adapter.activate();

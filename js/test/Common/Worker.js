@@ -34,7 +34,7 @@ self.onmessage = function(e)
             self.importScripts("/node_modules/babel-polyfill/dist/polyfill.js");
             self.importScripts("/node_modules/regenerator-runtime/runtime.js");
             self.importScripts("/lib/es5/Ice.js");
-            self.importScripts("/test/Common/es5/Controller.js");
+            self.importScripts("/test/es5/Common/Controller.js");
         }
         else
         {

@@ -40,7 +40,8 @@ main(int argc, char** argv)
         setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
         setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
 
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

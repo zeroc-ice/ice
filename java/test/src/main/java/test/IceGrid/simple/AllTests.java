@@ -67,7 +67,7 @@ public class AllTests
             com.zeroc.IceGrid.RegistryPrx registry = com.zeroc.IceGrid.RegistryPrx.checkedCast(
                 communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
             test(registry != null);
-            
+
             try
             {
                 com.zeroc.IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
@@ -86,16 +86,17 @@ public class AllTests
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery", 
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
-            if(System.getProperty("os.name").contains("OS X") && 
+            if(System.getProperty("os.name").contains("OS X") &&
                initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
             {
                 initData.properties.setProperty("IceLocatorDiscovery.Interface", "::1");
             }
+            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(app.getTestPort(99)));
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
-        
+
             com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
             comm.stringToProxy("test @ TestAdapter").ice_ping();
@@ -113,7 +114,7 @@ public class AllTests
             //
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
-            // 
+            //
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");

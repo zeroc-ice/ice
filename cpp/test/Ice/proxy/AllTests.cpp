@@ -1260,10 +1260,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
-        if(tcp)
-        {
-            p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-        }
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -1285,23 +1281,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(pstr ==
                  "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
-
-        //
-        // Try to invoke on the endpoint to verify that we get a
-        // NoEndpointException (or ConnectionRefusedException when
-        // running with SSL).
-        //
-        if(ssl)
-        {
-            try
-            {
-                p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-                test(false);
-            }
-            catch(const Ice::ConnectFailedException&)
-            {
-            }
         }
 
         //

@@ -16,91 +16,47 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated
+public class Collocated : TestCommon.Application
 {
-    private static void setupObjectAdapter(Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-        adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
-    }
+        //
+        // Configure a second communicator for the invocation timeout
+        // + retry test, we need to configure a large retry interval
+        // to avoid time-sensitive failures.
+        //
+        Ice.InitializationData initData2 = new Ice.InitializationData();
+        initData2.properties = communicator().getProperties().ice_clone_();
+        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+        initData2.observer = Instrumentation.getObserver();
+        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
 
-    public static int run(string[] args, Ice.Communicator communicator, Ice.Communicator communicator2)
-    {
-        setupObjectAdapter(communicator);
-        setupObjectAdapter(communicator2);
+        communicator().createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
+        communicator2.createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
 
-        Test.RetryPrx retry = AllTests.allTests(communicator, communicator2, "retry");
+        Test.RetryPrx retry = AllTests.allTests(this, communicator2, "retry");
         retry.shutdown();
         return 0;
     }
 
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.observer = Instrumentation.getObserver();
+
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
+
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        Ice.Communicator communicator2 = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.observer = Instrumentation.getObserver();
-
-            initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
-
-            //
-            // This test kills connections, so we don't want warnings.
-            //
-            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            communicator = Ice.Util.initialize(ref args, initData);
-
-            //
-            // Configure a second communicator for the invocation timeout
-            // + retry test, we need to configure a large retry interval
-            // to avoid time-sensitive failures.
-            //
-            Ice.InitializationData initData2 = new Ice.InitializationData();
-            initData2.properties = initData.properties.ice_clone_();
-            initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-            initData2.observer = Instrumentation.getObserver();
-            communicator2 = Ice.Util.initialize(initData2);
-
-            status = run(args, communicator, communicator2);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        if(communicator2 != null)
-        {
-            try
-            {
-                communicator2.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Collocated app = new Collocated();
+        return app.runmain(args);
     }
 }

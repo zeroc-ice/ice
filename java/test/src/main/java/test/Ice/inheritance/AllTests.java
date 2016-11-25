@@ -31,11 +31,13 @@ public class AllTests
         }
     }
 
-    public static InitialPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static InitialPrx allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -79,7 +81,7 @@ public class AllTests
         CAPrx cao;
         CBPrx cbo;
         CCPrx cco;
-        
+
         cao = ca.caop(ca);
         test(cao.equals(ca));
         cao = ca.caop(cb);
@@ -98,7 +100,7 @@ public class AllTests
         test(cao.equals(cb));
         cao = cc.caop(cc);
         test(cao.equals(cc));
-        
+
         cao = cb.cbop(cb);
         test(cao.equals(cb));
         cbo = cb.cbop(cb);

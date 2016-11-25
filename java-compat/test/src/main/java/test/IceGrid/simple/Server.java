@@ -34,12 +34,11 @@ public class Server extends test.Util.Application
         //defaultInterrupt();
         return 0;
     }
-    
+
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
@@ -55,7 +54,7 @@ public class Server extends test.Util.Application
     {
         Server c = new Server();
         int status = c.main("test.IceGrid.simple.Server", args);
-        
+
         System.gc();
         System.exit(status);
     }

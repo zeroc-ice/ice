@@ -19,7 +19,7 @@ public class Client extends test.Util.Application
         AllTests.allTests(this);
 
         int num;
-        try 
+        try
         {
             num = args.length == 1 ? Integer.parseInt(args[0]) : 1;
         }
@@ -29,7 +29,7 @@ public class Client extends test.Util.Application
         }
         for(int i = 0; i < num; ++i)
         {
-            TestIntfPrx.uncheckedCast(communicator().stringToProxy("control:tcp -p " + (12010 + i))).shutdown();
+            TestIntfPrx.uncheckedCast(communicator().stringToProxy("control:" + getTestEndpoint(i, "tcp"))).shutdown();
         }
         return 0;
     }

@@ -27,10 +27,10 @@ public class Server extends test.Util.Application
     {
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
         return r;
     }
-    
+
     public static void main(String[] args)
     {
         Server app = new Server();

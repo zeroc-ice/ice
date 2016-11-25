@@ -120,38 +120,38 @@ class TwowaysAMI
 
         private boolean _called;
     }
-    
+
     private static class GenericCallback<T> extends Callback
     {
         public GenericCallback(T value)
         {
             _value = value;
         }
-        
+
         public void response(T value)
         {
             _value = value;
             _succeeded = true;
             called();
         }
-        
+
         public void exception(Ice.LocalException ex)
         {
             _succeeded = false;
             called();
         }
-        
+
         public boolean succeeded()
         {
             check();
             return _succeeded;
         }
-        
+
         public T value()
         {
             return _value;
         }
-        
+
         private T _value;
         private boolean _succeeded = false;
     }
@@ -2692,7 +2692,7 @@ class TwowaysAMI
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
 
-                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
@@ -2770,7 +2770,7 @@ class TwowaysAMI
             derived.begin_opDerived(cb);
             cb.check();
         }
-        
+
         {
             final GenericCallback<Byte> cb = new GenericCallback<Byte>((byte)0);
             p.begin_opByte1((byte)0xFF,
@@ -2780,7 +2780,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2788,7 +2788,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == (byte)0xFF);
         }
-        
+
         {
             final GenericCallback<Short> cb = new GenericCallback<Short>((short)0);
             p.begin_opShort1((short)0x7FFF,
@@ -2798,7 +2798,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2806,7 +2806,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == 0x7FFF);
         }
-        
+
         {
             final GenericCallback<Integer> cb = new GenericCallback<Integer>(0);
             p.begin_opInt1(0x7FFFFFFF,
@@ -2816,7 +2816,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2824,7 +2824,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
         }
-        
+
         {
             final GenericCallback<Long> cb = new GenericCallback<Long>((long)0);
             p.begin_opLong1(0x7FFFFFFF,
@@ -2834,7 +2834,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2842,7 +2842,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
         }
-        
+
         {
             final GenericCallback<Float> cb = new GenericCallback<Float>(0.0f);
             p.begin_opFloat1(1.0f,
@@ -2852,7 +2852,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2860,7 +2860,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == 1.0f);
         }
-        
+
         {
             final GenericCallback<Double> cb = new GenericCallback<Double>(0.0);
             p.begin_opDouble1(1.0,
@@ -2870,7 +2870,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2878,7 +2878,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value() == 1.0);
         }
-        
+
         {
             final GenericCallback<String> cb = new GenericCallback<String>("");
             p.begin_opString1("opString1",
@@ -2888,7 +2888,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2896,7 +2896,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value().equals("opString1"));
         }
-        
+
         {
             final GenericCallback<String[]> cb = new GenericCallback<String[]>(null);
             p.begin_opStringS1(null,
@@ -2906,7 +2906,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);
@@ -2914,7 +2914,7 @@ class TwowaysAMI
                     });
             test(cb.succeeded() && cb.value().length == 0);
         }
-        
+
         {
             final GenericCallback<Map<Byte, Boolean>> cb = new GenericCallback<Map<Byte, Boolean>>(null);
             p.begin_opByteBoolD1(null,
@@ -2924,7 +2924,7 @@ class TwowaysAMI
                         {
                             cb.response(value);
                         }
-                        
+
                         public void exception(Ice.LocalException ex)
                         {
                             cb.exception(ex);

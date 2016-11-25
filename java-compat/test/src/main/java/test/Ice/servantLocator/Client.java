@@ -16,7 +16,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(communicator(), getWriter());
+        TestIntfPrx obj = AllTests.allTests(this);
         obj.shutdown();
         return 0;
     }
@@ -24,8 +24,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
         return initData;
     }

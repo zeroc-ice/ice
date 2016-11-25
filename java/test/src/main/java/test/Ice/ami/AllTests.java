@@ -30,13 +30,13 @@ public class AllTests
         com.zeroc.Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
 
-        sref = "testController:default -p 12011";
+        sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 

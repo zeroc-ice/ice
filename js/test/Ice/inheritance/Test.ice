@@ -231,4 +231,11 @@ class D extends C
 
 };
 
+interface Echo
+{
+    void startBatch();
+    void flushBatch();
+    void shutdown();
+};
+
 };

@@ -32,7 +32,7 @@ public class AllTests
         {
             _value = value;
         }
-        
+
         synchronized public void set(boolean value)
         {
             _value = value;
@@ -42,7 +42,7 @@ public class AllTests
         {
             return _value;
         }
-    
+
         private boolean _value;
     }
 
@@ -66,19 +66,20 @@ public class AllTests
         private int _expected;
     }
 
-    public static void allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app)
     {
+        PrintWriter out = app.getWriter();
         com.zeroc.Ice.Communicator communicator = app.communicator();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "hold:default -p 12010";
+        String ref = "hold:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        String refSerialized = "hold:default -p 12011";
+        String refSerialized = "hold:" + app.getTestEndpoint(1);
         com.zeroc.Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         out.println("ok");
-        
+
         out.print("testing checked cast... ");
         out.flush();
         HoldPrx hold = HoldPrx.checkedCast(base);
@@ -90,7 +91,7 @@ public class AllTests
         test(holdSerialized != null);
         test(holdSerialized.equals(baseSerialized));
         out.println("ok");
-        
+
         out.print("changing state between active and hold rapidly... ");
         out.flush();
         for(int i = 0; i < 100; ++i)
@@ -110,7 +111,7 @@ public class AllTests
             holdSerializedOneway.putOnHold(0);
         }
         out.println("ok");
-        
+
         out.print("testing without serialize mode... ");
         out.flush();
         java.util.Random random = new java.util.Random();
@@ -227,7 +228,7 @@ public class AllTests
             hold.putOnHold(-1);
             hold.ice_ping();
             hold.putOnHold(-1);
-            hold.ice_ping();            
+            hold.ice_ping();
         }
         out.println("ok");
 

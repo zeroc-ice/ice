@@ -33,8 +33,8 @@ public class Client extends test.Util.Application
 
         try
         {
-            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, 
-                                               "retry:default -p 12010");
+            RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation,
+                                               "retry:" + getTestEndpoint(0));
             retry.shutdown();
             return 0;
         }

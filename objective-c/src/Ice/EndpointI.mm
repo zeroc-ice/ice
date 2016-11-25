@@ -83,12 +83,15 @@ registerEndpointInfoClass(Class cl)
         return [[ICEOpaqueEndpointInfo alloc] initWithOpaqueEndpointInfo:opaqueInfo.get()];
     }
 
-    for(std::vector<Class>::const_iterator p = endpointInfoClasses->begin(); p != endpointInfoClasses->end(); ++p)
+    if(endpointInfoClasses)
     {
-        ICEEndpointInfo* r = [*p checkedEndpointInfoWithEndpointInfo:info];
-        if(r)
+        for(std::vector<Class>::const_iterator p = endpointInfoClasses->begin(); p != endpointInfoClasses->end(); ++p)
         {
-            return r;
+            ICEEndpointInfo* r = [*p checkedEndpointInfoWithEndpointInfo:info];
+            if(r)
+            {
+                return r;
+            }
         }
     }
 

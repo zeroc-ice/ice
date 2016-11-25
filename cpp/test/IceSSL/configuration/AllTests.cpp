@@ -699,7 +699,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
     }
 #endif
-    string factoryRef = "factory:tcp -p 12010";
+    string factoryRef = "factory:" + getTestEndpoint(communicator, 0);
     ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);
