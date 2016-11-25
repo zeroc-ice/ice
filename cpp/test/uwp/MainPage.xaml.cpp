@@ -365,6 +365,12 @@ Runnable::run()
         args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
     }
 
+    if(configUseSSL(_config))
+    {
+        args.push_back("--IceSSL.CertFile=ms-appx:///client.p12");
+        args.push_back("--IceSSL.Password=password");
+    }
+
     args.push_back("--Ice.Default.Host=" + _config.host);
     args.push_back("--Ice.Default.Protocol=" + _config.protocol);
 
@@ -534,14 +540,13 @@ TestRunner::run()
         {
             if(!_test->server.empty())
             {
+                printLineToConsoleOutput("**** running test " + _test->name);
                 if(_config.server == "winrt")
                 {
-                    printLineToConsoleOutput("**** running test " + _test->name);
                     runClientServerTest(_test->server, _test->client);
                 }
                 else
-                {
-                    printLineToConsoleOutput("**** running test " + _test->name);
+                {                    
                     runClientServerTestWithRemoteServer(_test->client);
                 }
             }

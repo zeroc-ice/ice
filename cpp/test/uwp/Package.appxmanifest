@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="f4c6cdff-3ef9-43fb-8094-d50c547e70f6" Publisher="CN=ZeroC UWP Test Suite" Version="1.0.0.0" />
+  <Identity Name="ice-uwp-test-suite" Publisher="CN=ZeroC UWP Test Suite" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="f4c6cdff-3ef9-43fb-8094-d50c547e70f6" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Ice Test Suite</DisplayName>

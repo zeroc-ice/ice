@@ -278,6 +278,14 @@
     <None Include="..\..\..\..\certs\cacert.der">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="..\..\..\..\certs\client.p12">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
     <None Include="..\..\IceSSL\certs\cacert1.pem">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
@@ -390,6 +398,61 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </None>
     <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\x64\Release\IceSSL_configuration_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\ARM\Debug\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\ARM\Release\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\Win32\Debug\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\Win32\Release\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\x64\Debug\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\x64\Release\Ice_optional_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Debug\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Release\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Debug\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Release\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\x64\Debug\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\x64\Release\Ice_optional_serveramd.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\ARM\Debug\Ice_optional_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\ARM\Release\Ice_optional_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\Win32\Debug\Ice_optional_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\Win32\Release\Ice_optional_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\x64\Debug\Ice_optional_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\x64\Release\Ice_optional_server.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
     <None Include="..\TestSuite_TemporaryKey.pfx" />

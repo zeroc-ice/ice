@@ -1484,5 +1484,62 @@
     <None Include="..\..\IceSSL\certs\c_rsa_pass_ca1.p12">
       <Filter>certs</Filter>
     </None>
+    <None Include="..\..\..\..\certs\client.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\Win32\Debug\Ice_optional_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\Win32\Debug\Ice_optional_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\Win32\Release\Ice_optional_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\Win32\Release\Ice_optional_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\x64\Release\Ice_optional_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\x64\Debug\Ice_optional_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\ARM\Release\Ice_optional_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\client\ARM\Debug\Ice_optional_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\ARM\Debug\Ice_optional_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\x64\Release\Ice_optional_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\x64\Debug\Ice_optional_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\server\ARM\Release\Ice_optional_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\x64\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\x64\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
   </ItemGroup>
 </Project>
