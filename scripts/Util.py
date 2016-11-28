@@ -74,10 +74,10 @@ class Platform:
                     setattr(self, varname, valuefn(value) if valuefn else value)
 
     def getDefaultBuildPlatform(self):
-        return os.environ.get("PLATFORMS", "").split(" ")[0] or self.supportedPlatforms[0]
+        return self.supportedPlatforms[0]
 
     def getDefaultBuildConfig(self):
-        return os.environ.get("CONFIGS", "").split(" ")[0] or self.supportedConfigs[0]
+        return self.supportedConfigs[0]
 
     def getBinSubDir(self, mapping, current):
         # Return the bin sub-directory for the given mapping,platform,config,
@@ -266,7 +266,8 @@ def parseOptions(obj, options, mapped={}):
     # Transform configuration options provided on the command line to
     # object data members. The data members must be already set on the
     # object and with the correct type.
-    obj.parsedOptions=[]
+    if not hasattr(obj, "parsedOptions"):
+        obj.parsedOptions=[]
     remaining = []
     for (o, a) in options:
         if o.startswith("--"): o = o[2:]
@@ -339,8 +340,20 @@ class Mapping:
             print("--platform=<platform> Build plaform for native executables.")
 
         def __init__(self, options=[]):
-            self.buildConfig = platform.getDefaultBuildConfig()
-            self.buildPlatform = platform.getDefaultBuildPlatform()
+            # Build configuration
+            self.parsedOptions = []
+            self.buildConfig = os.environ.get("CONFIGS", "").split(" ")[0]
+            if self.buildConfig:
+                self.parsedOptions.append("buildConfig")
+            else:
+                self.buildConfig = platform.getDefaultBuildConfig()
+
+            self.buildPlatform = os.environ.get("PLATFORMS", "").split(" ")[0]
+            if self.buildPlatform:
+                self.parsedOptions.append("buildPlatform")
+            else:
+                self.buildPlatform = platform.getDefaultBuildPlatform()
+
             self.protocol = "tcp"
             self.compress = False
             self.serialize = False

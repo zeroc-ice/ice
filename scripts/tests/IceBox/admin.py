@@ -24,6 +24,10 @@ class IceBoxAdminTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 TestSuite(__name__, [
-    ClientServerTestCase(server=IceBox(args=['--Ice.Config="{testdir}/config.icebox"'])),
-    IceBoxAdminTestCase("iceboxadmin", server=IceBox(args=['--Ice.Config="{testdir}/config.icebox"'])),
-], libDirs=["testservice"], runOnMainThread=True, options={ "ipv6" : [False], "mx" : [False] }, multihost=False)
+        ClientServerTestCase(server=IceBox(args=['--Ice.Config="{testdir}/config.icebox"'])),
+        IceBoxAdminTestCase("iceboxadmin", server=IceBox(args=['--Ice.Config="{testdir}/config.icebox"'])),
+    ],
+    libDirs=["testservice"],
+    runOnMainThread=True,
+    options={ "ipv6" : [False], "mx" : [False], "cpp11" : [False] },
+    multihost=False)
