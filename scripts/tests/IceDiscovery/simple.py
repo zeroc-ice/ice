@@ -13,12 +13,12 @@ props = lambda process, current: {
     "IceDiscovery.Timeout": 50,
     "IceDiscovery.RetryCount": 5,
     "IceDiscovery.Interface": "127.0.0.1" if not current.config.ipv6 else "\"::1\"" if isinstance(platform, Darwin) else "",
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery")
+    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
 }
 
 # Server properties (client properties + plugin configuration)
 serverProps = lambda process, current: dict(itertools.chain({
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery")
+    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
 }.items(), props(process, current).items()))
 
 TestSuite(__name__, [

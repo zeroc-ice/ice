@@ -151,8 +151,7 @@ class IceGridAdminTestCase(IceGridTestCase):
             current.writeln("ok")
         except Exception as e:
             admin.stop(current, False)
-            print("error: " + str(e))
-            print("failed!")
+            raise RuntimeError("failed!\n" + str(e))
 
 routerProps= lambda process, current: {
     'Glacier2.SessionTimeout' : 5,

@@ -700,14 +700,14 @@ class Mapping:
         props = {}
         if isinstance(process, IceProcess):
             if current.config.protocol in ["bt", "bts"]:
-                props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint("IceBT")
+                props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint("IceBT", process, current)
             if current.config.protocol in ["ssl", "wss", "bts", "iaps"]:
                 props.update(self.getSSLProps(process, current))
         return props
 
     def getSSLProps(self, process, current):
         sslProps = {
-            "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL"),
+            "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL", process, current),
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
         }
@@ -917,6 +917,7 @@ class Process(Runnable):
             "process": self,
             "testcase": current.testcase,
             "testdir": current.testcase.getPath(),
+            "builddir": current.getBuildDir(self.getExe(current)),
             "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
         }
         cmd = cmd.format(**kargs)
@@ -1544,8 +1545,8 @@ class Driver:
         def getBuildDir(self, name):
             return self.testcase.getMapping().getBuildDir(name, self)
 
-        def getPluginEntryPoint(self, plugin):
-            return self.testcase.getMapping().getPluginEntryPoint(plugin)
+        def getPluginEntryPoint(self, plugin, process):
+            return self.testcase.getMapping().getPluginEntryPoint(plugin, process, self)
 
         def write(self, *args, **kargs):
             self.result.write(*args, **kargs)
@@ -1727,7 +1728,7 @@ class CppMapping(Mapping):
              })
         return props
 
-    def getPluginEntryPoint(self, plugin):
+    def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "IceSSL:createIceSSL",
             "IceBT" : "IceBT:createIceBT",
@@ -1784,7 +1785,7 @@ class JavaMapping(Mapping):
         })
         return props
 
-    def getPluginEntryPoint(self, plugin):
+    def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "com.zeroc.IceSSL.PluginFactory",
             "IceBT" : "com.zeroc.IceBT.PluginFactory",
@@ -1812,7 +1813,7 @@ class JavaMapping(Mapping):
 
 class JavaCompatMapping(JavaMapping):
 
-    def getPluginEntryPoint(self, plugin):
+    def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "IceSSL.PluginFactory",
             "IceBT" : "IceBT.PluginFactory",
@@ -1846,7 +1847,7 @@ class CSharpMapping(Mapping):
         })
         return props
 
-    def getPluginEntryPoint(self, plugin):
+    def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "{icedir}/Assemblies/IceSSL.dll:IceSSL.PluginFactory",
             "IceDiscovery" : "{icedir}/Assemblies/IceDiscovery.dll:IceDiscovery.PluginFactory"
@@ -1878,8 +1879,8 @@ class CppBasedMapping(Mapping):
     def getSSLProps(self, process, current):
         return Mapping.getByName("cpp").getSSLProps(process, current)
 
-    def getPluginEntryPoint(self, plugin):
-        return Mapping.getByName("cpp").getPluginEntryPoint(plugin)
+    def getPluginEntryPoint(self, plugin, process, current):
+        return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)

@@ -79,26 +79,34 @@ class BaseProxy(threading.Thread):
         self.closed = False
         self.cond = threading.Condition()
         self.socket = None
+        self.failed = None
         self.connections = []
         atexit.register(self.terminate)
         self.setDaemon(True)
         self.start()
         with self.cond:
-            while not self.socket:
-                self.cond.wait()
+            while not self.socket and not self.failed:
+                self.cond.wait(60)
+        if self.failed:
+            raise self.failed
 
     def createConnection(self):
         return None
 
     def run(self):
-        with self.cond:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            if hasattr(socket, "SO_REUSEPORT"):
-                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-            self.socket.bind(("127.0.0.1", self.port))
-            self.socket.listen(1)
+        try:
+            with self.cond:
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                if hasattr(socket, "SO_REUSEPORT"):
+                    self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                self.socket.bind(("127.0.0.1", self.port))
+                self.socket.listen(1)
+                self.cond.notify()
+        except Exception as ex:
+            self.failed = ex
             self.cond.notify()
+            return
 
         try:
             while not self.closed:
