@@ -625,7 +625,7 @@ class Mapping:
     def getCommonTestsPath(self):
         return os.path.join(self.path, "..", "scripts", "tests")
 
-    def getTestCwd(self, current):
+    def getTestCwd(self, process, current):
         return current.testcase.getPath()
 
     def getDefaultSource(self, processType):
@@ -765,14 +765,14 @@ class Process(Runnable):
 
     processType = None
 
-    def __init__(self, exe=None, outfilters=[], quiet=False, args=[], props={}, envs={}, desc=None, mapping=None):
+    def __init__(self, exe=None, outfilters=None, quiet=False, args=None, props=None, envs=None, desc=None, mapping=None):
         Runnable.__init__(self, desc)
         self.exe = exe
-        self.outfilters = outfilters[:]
+        self.outfilters = outfilters or []
         self.quiet = quiet
-        self.args = args[:]
-        self.props = props.copy()
-        self.envs = envs.copy()
+        self.args = args or []
+        self.props = props or {}
+        self.envs = envs or {}
         self.process = None
         self.mapping = mapping
 
@@ -917,7 +917,7 @@ class Process(Runnable):
         env = os.environ.copy()
         env.update(allEnvs)
 
-        cwd = self.getMapping(current).getTestCwd(current)
+        cwd = self.getMapping(current).getTestCwd(self, current)
 
         self.process = Expect.Expect(cmd, startReader=False, env=env, cwd=cwd, desc=self.desc)
         self.process.startReader(watchDog)
@@ -2005,10 +2005,10 @@ class JavaScriptMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        env["NODE_PATH"] = self.getTestCwd(current)
+        env["NODE_PATH"] = self.getTestCwd(process, current)
         return env
 
-    def getTestCwd(self, current):
+    def getTestCwd(self, process, current):
         if current.config.es5:
             # Change to the ES5 test directory if testing ES5
             return os.path.join(self.path, "test", "es5", current.testcase.getTestSuite().getId())
