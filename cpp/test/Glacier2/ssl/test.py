@@ -22,7 +22,7 @@ routerProps = lambda process, current : {
 #
 # Always enable SSL for the Glacier2 router and client
 #
-sslProps = lambda process, current: current.testcase.getMapping().getSSLProps(process)
+sslProps = lambda process, current: current.testcase.getMapping().getSSLProps(process, current)
 
 Glacier2TestSuite(__name__, routerProps=routerProps, options={ "ipv6" : [ False ] }, multihost=False,
                   testcases=[ClientServerTestCase(servers=[Glacier2Router(props=sslProps), Server()],

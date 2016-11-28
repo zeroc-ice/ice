@@ -768,11 +768,11 @@ class Process(Runnable):
     def __init__(self, exe=None, outfilters=[], quiet=False, args=[], props={}, envs={}, desc=None, mapping=None):
         Runnable.__init__(self, desc)
         self.exe = exe
-        self.outfilters = outfilters
+        self.outfilters = outfilters[:]
         self.quiet = quiet
-        self.args = args
-        self.props = props
-        self.envs = envs
+        self.args = args[:]
+        self.props = props.copy()
+        self.envs = envs.copy()
         self.process = None
         self.mapping = mapping
 
@@ -834,7 +834,6 @@ class Process(Runnable):
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             self.process.trace(self.outfilters)
-
         try:
             while True:
                 try:
