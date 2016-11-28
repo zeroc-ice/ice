@@ -464,8 +464,9 @@ class Mapping:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
                     props["Ice.ThreadPool.Server.Serialize"] = "1"
+                props["Ice.IPv6"] = self.ipv6
                 if self.ipv6:
-                    props.update({"Ice.IPv6": True, "Ice.PreferIPv6Address": True})
+                    props["Ice.PreferIPv6Address"] = True
                 if self.mx:
                     props["Ice.Admin.Endpoints"] = "default -h localhost"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"

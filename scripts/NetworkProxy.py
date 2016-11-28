@@ -7,14 +7,13 @@
 #
 # **********************************************************************
 
-import sys, os, threading, socket, select, atexit
+import sys, os, threading, socket, select
 
 class InvalidRequest(Exception): pass
 
 class BaseConnection(threading.Thread):
     def __init__(self, socket, remote):
         threading.Thread.__init__(self)
-        self.setDaemon(True)
         self.socket = socket
         self.remote = remote
         self.remoteSocket = None
@@ -27,6 +26,8 @@ class BaseConnection(threading.Thread):
         pass
 
     def close(self):
+        if self.closed:
+            return
         self.closed = True
         try:
             if self.socket:
@@ -81,8 +82,6 @@ class BaseProxy(threading.Thread):
         self.socket = None
         self.failed = None
         self.connections = []
-        atexit.register(self.terminate)
-        self.setDaemon(True)
         self.start()
         with self.cond:
             while not self.socket and not self.failed:
@@ -126,6 +125,7 @@ class BaseProxy(threading.Thread):
         for c in self.connections:
             try:
                 c.close()
+                c.join()
             except Exception as ex:
                 print(ex)
 
@@ -136,6 +136,8 @@ class BaseProxy(threading.Thread):
             print(ex)
         finally:
             connectToSelf.close()
+
+        self.join()
 
 class SocksConnection(BaseConnection):
 
