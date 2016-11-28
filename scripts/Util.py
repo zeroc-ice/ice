@@ -2000,7 +2000,7 @@ class JavaScriptMapping(Mapping):
 
     def loadTestSuites(self, tests, filters, rfilters):
         Mapping.loadTestSuites(self, tests, filters, rfilters)
-        self.getServerMapping().loadTestSuites(self.testsuites.keys() + ["Ice/echo"])
+        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"])
 
     def getServerMapping(self):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
@@ -2123,7 +2123,7 @@ def runTests(mappings=None, drivers=None):
         # Provide the configurations to the driver and load the test suites for each mapping.
         #
         driver.setConfigs(configs)
-        for mapping in mappings + driver.getMappings():
+        for mapping in list(mappings) + driver.getMappings():
             mapping.loadTestSuites(args, driver.filters, driver.rfilters)
 
         #
