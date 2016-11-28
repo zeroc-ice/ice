@@ -481,7 +481,7 @@ class Mapping:
     def getByPath(self, path):
         path = os.path.abspath(path)
         for m in self.mappings.values():
-            if path.startswith(m.getPath()):
+            if path.startswith(m.getPath() + os.sep):
                 return m
 
     @classmethod
