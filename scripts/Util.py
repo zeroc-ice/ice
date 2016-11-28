@@ -229,7 +229,10 @@ class Windows(Platform):
         return "lib"
 
     def getBuildSubDir(self, name, current):
-        return os.path.join("msbuild", name, current.config.buildPlatform, current.config.buildConfig)
+        if os.path.exists(os.path.join(current.testcase.getPath(), "msbuild", name)):
+            return os.path.join("msbuild", name, current.config.buildPlatform, current.config.buildConfig)
+        else:
+            return os.path.join("msbuild", current.config.buildPlatform, current.config.buildConfig)
 
     def getLdPathEnvName(self):
         return "PATH"
