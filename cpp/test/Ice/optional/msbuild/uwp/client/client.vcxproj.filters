@@ -10,62 +10,86 @@
     <ClCompile Include="Win32\Debug\Test.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="ARM\Debug\Test.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Debug\Test.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Test.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ARM\Release\Test.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Release\Test.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{305b0a76-7e51-4e13-b308-a1c53593f1e5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{37345a31-4fed-49e4-9ede-0f342c11b473}</UniqueIdentifier>
+      <UniqueIdentifier>{7e812c17-5440-4eb0-9f94-950d25c9422b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{cafef398-3eb7-477e-9ae3-dc35cbeee8c5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Slice Files">
-      <UniqueIdentifier>{0d4ffefc-13f3-4c53-a437-a35927d441c2}</UniqueIdentifier>
+      <UniqueIdentifier>{f8fd1e3d-1828-4515-b4a6-52bb0cbbe0c5}</UniqueIdentifier>
       <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{2ad0797f-cf63-45f9-bee8-6be18fbba7e2}</UniqueIdentifier>
+      <UniqueIdentifier>{17ca4fff-aa93-45c0-b1dc-69231695c3c8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Debug">
-      <UniqueIdentifier>{0cd1f057-56c7-4204-868d-4642ff5cb61f}</UniqueIdentifier>
+      <UniqueIdentifier>{1cd3eeac-77ae-426a-9046-5913dcd43733}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32">
-      <UniqueIdentifier>{710d2749-c967-4ed2-90b3-9bb3601133b5}</UniqueIdentifier>
+      <UniqueIdentifier>{69e07aaf-03d1-41de-96dd-6c50f21cd8f9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Debug">
-      <UniqueIdentifier>{a0eee328-b27d-45de-bd1d-0bae7fce8c24}</UniqueIdentifier>
+      <UniqueIdentifier>{fb0f6cb8-9cae-48ec-af54-16d66726ff16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM">
+      <UniqueIdentifier>{3515000f-a498-4f9d-8f0a-74fc86a80744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Debug">
+      <UniqueIdentifier>{a077e73d-8746-4eae-957a-7a5546ba606a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM">
+      <UniqueIdentifier>{560e51a6-2869-41e5-970e-bdd615844b3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Debug">
+      <UniqueIdentifier>{b414d89d-1a25-4774-a963-cfdb770e3884}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{527a11ce-6183-4a0b-b7e5-1d9cac13076b}</UniqueIdentifier>
+      <UniqueIdentifier>{39f3bb7d-630c-404a-ab4a-129645aed69e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{23fb5f37-233e-480e-8c3f-ded8316a4531}</UniqueIdentifier>
+      <UniqueIdentifier>{486e8831-f458-4192-9e76-fa486606f86e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64">
-      <UniqueIdentifier>{465339d9-d8e3-4f08-9ff8-cbc5cfac2096}</UniqueIdentifier>
+      <UniqueIdentifier>{ac26cba5-779c-4414-b7e9-7ccf8404fdab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Debug">
-      <UniqueIdentifier>{40c0db22-6861-4af8-bca2-78eb5f83d8de}</UniqueIdentifier>
+      <UniqueIdentifier>{76d24ea0-1704-48f6-bb2b-73f75761faa7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Release">
-      <UniqueIdentifier>{6c4cf914-9b68-49b9-928d-0679b85057c6}</UniqueIdentifier>
+      <UniqueIdentifier>{e5f86692-92fe-490e-abea-81d34caea245}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Release">
-      <UniqueIdentifier>{d97df58c-6f14-4e9d-b676-09463a7f4a58}</UniqueIdentifier>
+      <UniqueIdentifier>{c84c6c38-8ed7-4e5f-9ea5-cc737fa826ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Release">
+      <UniqueIdentifier>{7885c071-a437-4f8a-81a9-c6ea146f9902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Release">
+      <UniqueIdentifier>{1d0adbee-60cb-495c-bc7e-86902e1e8e51}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{cce7e096-d73e-46d5-897e-32899a1e84e1}</UniqueIdentifier>
+      <UniqueIdentifier>{49fe1c46-273a-4298-b331-07ef57f2306c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Release">
-      <UniqueIdentifier>{a1d1c32d-2526-4bdd-baf0-e6ce5dddbe24}</UniqueIdentifier>
+      <UniqueIdentifier>{72e3d97a-24e1-4c6d-9fd5-649313c57059}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,14 +101,23 @@
     <ClInclude Include="Win32\Debug\Test.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Debug\Test.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Release\Test.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Release\Test.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Release\Test.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
