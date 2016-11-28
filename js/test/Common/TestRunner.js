@@ -146,7 +146,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                     out.writeLine("[ running " + testcase.name + " test]");
                 }
                 out.write("starting server side... ");
-                return controller.runTestCase(language, testsuite, testcase.name).then(
+                return controller.runTestCase("js", testsuite, testcase.name, language).then(
                     function(proxy)
                     {
                         proxy = controller.ice_getCachedConnection().createProxy(proxy.ice_getIdentity())

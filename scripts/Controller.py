@@ -15,9 +15,12 @@ class ControllerDriver(Driver):
 
     class Current(Driver.Current):
 
-        def __init__(self, driver, testsuite, testcase, protocol, host, args):
+        def __init__(self, driver, testsuite, testcase, cross, protocol, host, args):
             Driver.Current.__init__(self, driver, testsuite, Result(testsuite, driver.debug))
             self.testcase = testcase
+            self.serverTestCase = self.testcase.getServerTestCase(cross)
+            self.clientTestCase = self.testcase.getClientTestCase()
+            self.cross = cross
             self.host = host
             self.args = args
             self.config.protocol = protocol
@@ -87,19 +90,19 @@ class ControllerDriver(Driver):
                     raise Test.Common.ServerFailedException("couldn't find test suite")
 
                 try:
-                    self.current.testcase.getServerTestCase()._startServerSide(self.current)
+                    self.current.serverTestCase._startServerSide(self.current)
                 except Exception as ex:
                     raise Test.Common.ServerFailedException(str(ex))
 
             def waitTestSuccess(self, c):
                 c.adapter.remove(c.id)
                 if self.current:
-                    self.current.testcase.getServerTestCase()._stopServerSide(self.current, True)
+                    self.current.serverTestCase._stopServerSide(self.current, True)
 
             def terminate(self, c):
                 c.adapter.remove(c.id)
                 if self.current:
-                    self.current.testcase.getServerTestCase()._stopServerSide(self.current, False)
+                    self.current.serverTestCase._stopServerSide(self.current, False)
 
         class TestCaseI(Test.Common.TestCase):
             def __init__(self, driver, current):
@@ -123,7 +126,7 @@ class ControllerDriver(Driver):
                     self.current.host = self.driver.host if self.driver.host else self.driver.interface
 
                 try:
-                    self.current.testcase.getServerTestCase()._startServerSide(self.current)
+                    self.current.serverTestCase._startServerSide(self.current)
                     self.serverSideRunning = True
                     return self.current.host
                 except Exception as ex:
@@ -132,7 +135,7 @@ class ControllerDriver(Driver):
             def stopServerSide(self, success, c):
                 if self.serverSideRunning:
                     try:
-                        self.current.testcase.getServerTestCase()._stopServerSide(self.current, success)
+                        self.current.serverTestCase._stopServerSide(self.current, success)
                         return self.current.result.getOutput()
                     except Exception as ex:
                         raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
@@ -142,7 +145,7 @@ class ControllerDriver(Driver):
                 if host:
                     current.host = host
                 try:
-                    self.current.testcase.getClientTestCase()._runClientSide(self.current)
+                    self.current.clientTestCase._runClientSide(self.current)
                     return self.current.result.getOutput()
                 except Exception as ex:
                     raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
@@ -150,7 +153,7 @@ class ControllerDriver(Driver):
             def destroy(self, c):
                 if self.serverSideRunning:
                     try:
-                        self.current.testcase.getServerTestCase()._stopServerSide(self.current, False)
+                        self.current.serverTestCase._stopServerSide(self.current, False)
                     except:
                         pass
                 c.adapter.remove(c.id)
@@ -171,15 +174,15 @@ class ControllerDriver(Driver):
             def runServer(self, mapping, testsuite, protocol, host, winrt, testcase, args, c):
                 self.terminate()
                 try:
-                    current = self.driver.getCurrent(mapping, testsuite, testcase, protocol, host, args)
+                    current = self.driver.getCurrent(mapping, testsuite, testcase, "", protocol, host, args)
                 except Test.Common.TestCaseNotExistException:
                     current = None
                 self.server = Test.Common.ServerPrx.uncheckedCast(c.adapter.addWithUUID(ServerI(self.driver, current)))
                 return self.server
 
-            def runTestCase(self, mapping, testsuite, testcase, c):
+            def runTestCase(self, mapping, testsuite, testcase, cross, c):
                 self.terminate()
-                current = self.driver.getCurrent(mapping, testsuite, testcase)
+                current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
                 self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
                 return self.testcase
 
@@ -230,11 +233,16 @@ class ControllerDriver(Driver):
         finally:
             communicator.destroy()
 
-    def getCurrent(self, mapping, testsuite, testcase, protocol=None, host=None, args=[]):
+    def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         import Test
         mapping = Mapping.getByName(mapping)
         if not mapping:
             raise Test.Common.TestCaseNotExistException("unknown mapping {0}".format(mapping))
+
+        if cross:
+            cross = Mapping.getByName(cross)
+            if not cross:
+                raise Test.Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(cross))
 
         ts = mapping.findTestSuite(testsuite)
         if not ts:
@@ -244,7 +252,7 @@ class ControllerDriver(Driver):
         if not tc or not tc.getServerTestCase():
             raise Test.Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
 
-        return ControllerDriver.Current(self, ts, tc, protocol, host, args)
+        return ControllerDriver.Current(self, ts, tc, cross, protocol, host, args)
 
     def getProps(self, process, current):
         props = Driver.getProps(self, process, current)

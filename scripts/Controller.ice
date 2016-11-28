@@ -75,7 +75,7 @@ interface Controller
     Server* runServer(string lang, string testsuite, string protocol, string host, bool winrt, string testcase,
                       StringSeq options);
 
-    TestCase* runTestCase(string lang, string testsuite, string testcase)
+    TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
         throws TestCaseNotExistException;
 
     OptionOverrides getOptionOverrides();

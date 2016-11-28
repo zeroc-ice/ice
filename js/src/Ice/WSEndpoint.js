@@ -19,7 +19,6 @@ Ice.__M.require(module,
         "../Ice/EndpointInfo"
     ]);
 
-const IceSSL = Ice.__M.module("IceSSL");
 const HashUtil = Ice.HashUtil;
 const StringUtil = Ice.StringUtil;
 const EndpointI = Ice.EndpointI;

@@ -224,7 +224,8 @@ class RemoteTestCaseRunner(TestCaseRunner):
         import Test
         current.serverTestCase = self.serverController.runTestCase(str(testcase.getMapping()),
                                                                    testcase.getTestSuite().getId(),
-                                                                   testcase.getName())
+                                                                   testcase.getName(),
+                                                                   str(current.driver.cross))
         try:
             try:
                 current.host = current.serverTestCase.startServerSide(self.getConfig(current))
@@ -259,9 +260,10 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
         clientTestCase = self.clientController.runTestCase(str(testcase.getMapping()),
                                                            testcase.getTestSuite().getId(),
-                                                           testcase.getName())
+                                                           testcase.getName(),
+                                                           str(current.driver.cross))
         try:
-            current.result.write(clientTestCase.runClientSide(self.getConfig(current)))
+            current.result.write(clientTestCase.runClientSide(current.host, self.getConfig(current)))
         except Test.Common.TestCaseFailedException as ex:
             current.result.writeln(ex.output)
             raise RuntimeError("test failed")

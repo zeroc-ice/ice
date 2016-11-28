@@ -1074,13 +1074,9 @@
                 {
                     test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
                 }
-                else if(defaultProtocol === "ws")
+                else if(defaultProtocol === "ws" || defaultProtocol === "wss")
                 {
                     test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.WSEndpointInfo);
-                }
-                else if(defaultProtocol === "wss")
-                {
-                    test(p.ice_getEndpoints()[0].getInfo() instanceof IceSSL.WSSEndpointInfo);
                 }
                 return p.ice_getConnection();
             }
@@ -1090,13 +1086,9 @@
                 {
                     test(con.getInfo() instanceof Ice.TCPConnectionInfo);
                 }
-                else if(defaultProtocol === "ws")
+                else if(defaultProtocol === "ws" || defaultProtocol === "wss")
                 {
                     test(con.getInfo() instanceof Ice.WSConnectionInfo);
-                }
-                else if(defaultProtocol === "wss")
-                {
-                    test(con.getInfo() instanceof IceSSL.WSSConnectionInfo);
                 }
             }
         ).then(() =>

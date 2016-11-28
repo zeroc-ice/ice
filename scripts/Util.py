@@ -156,6 +156,11 @@ class Linux(Platform):
         return "bin"
 
     def getLibSubDir(self, mapping, current):
+
+        # PHP module is always installed in the lib directory for the default build platform
+        if isinstance(mapping, PhpMapping) and current.config.buildPlatform == self.getDefaultBuildPlatform():
+            return "lib"
+
         if self.linuxId in ["centos", "rhel", "fedora"]:
             return "lib64" if current.config.buildPlatform == "x64" else "lib"
         elif self.linuxId in ["ubuntu", "debian"]:
@@ -684,11 +689,24 @@ class Mapping:
             if current.config.protocol in ["bt", "bts"]:
                 props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint("IceBT")
             if current.config.protocol in ["ssl", "wss", "bts", "iaps"]:
-                props.update(self.getSSLProps(process, current.config.protocol))
+                props.update(self.getSSLProps(process, current))
         return props
 
-    def getSSLProps(self, process, protocol="ssl"):
-        return { "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL") }
+    def getSSLProps(self, process, current):
+        sslProps = {
+            "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL"),
+            "IceSSL.Password": "password",
+            "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
+        }
+
+        #
+        # If the client doesn't support client certificates, set IceSSL.VerifyPeer to 0
+        #
+        if isinstance(process, Server):
+            if isinstance(current.testsuite.getMapping(), JavaScriptMapping):
+                sslProps["IceSSL.VerifyPeer"] = 0
+
+        return sslProps
 
     def getArgs(self, process, current):
         return []
@@ -1684,13 +1702,10 @@ class CppMapping(Mapping):
             props["Ice.NullHandleAbort"] = True
         return props
 
-    def getSSLProps(self, process, protocol="ssl"):
-        props = Mapping.getSSLProps(self, process, protocol)
+    def getSSLProps(self, process, current):
+        props = Mapping.getSSLProps(self, process, current)
         props.update({
-            "IceSSL.Password": "password",
-            "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
             "IceSSL.CAs": "cacert.pem",
-            "IceSSL.VerifyPeer": "0" if protocol == "wss" else "2",
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
         if isinstance(platform, Darwin):
@@ -1750,12 +1765,9 @@ class JavaMapping(Mapping):
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
         return "{0} {1}.{2}".format(java, package, exe)
 
-    def getSSLProps(self, process, protocol="ssl"):
-        props = Mapping.getSSLProps(self, process, protocol)
+    def getSSLProps(self, process, current):
+        props = Mapping.getSSLProps(self, process, current)
         props.update({
-            "IceSSL.Password": "password",
-            "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
-            "IceSSL.VerifyPeer": "0" if protocol == "wss" else "2",
             "IceSSL.Keystore": "server.jks" if isinstance(process, Server) else "client.jks",
         })
         return props
@@ -1811,13 +1823,13 @@ class CSharpMapping(Mapping):
         # Executables are not produced in build sub-directory with the C# mapping.
         return ""
 
-    def getSSLProps(self, process, protocol="ssl"):
-        props = Mapping.getSSLProps(self, process, protocol)
+    def getSSLProps(self, process, current):
+        props = Mapping.getSSLProps(self, process, current)
         props.update({
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
             "IceSSL.CAs": "cacert.pem",
-            "IceSSL.VerifyPeer": "0" if protocol == "wss" else "2",
+            "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
         return props
@@ -1851,8 +1863,8 @@ class CSharpMapping(Mapping):
 
 class CppBasedMapping(Mapping):
 
-    def getSSLProps(self, process, protocol="ssl"):
-        return Mapping.getByName("cpp").getSSLProps(process, protocol)
+    def getSSLProps(self, process, current):
+        return Mapping.getByName("cpp").getSSLProps(process, current)
 
     def getPluginEntryPoint(self, plugin):
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin)
@@ -1943,7 +1955,7 @@ class PhpMapping(CppBasedClientMapping):
         else:
             args += ["-d", "extension_dir='{0}'".format(self.getLibDir(current))]
             args += ["-d", "extension='{0}'".format("php_ice.dll" if isinstance(platform, Windows) else "IcePHP.so")]
-            args += ["-d", "include_path='{0}'".format(self.getLibDir(current))]
+            args += ["-d", "include_path='{0}/lib'".format(self.getPath())]
         if hasattr(process, "getPhpArgs"):
             args += process.getPhpArgs(current)
         return "php {0} -f {1} -- ".format(" ".join(args), exe)
