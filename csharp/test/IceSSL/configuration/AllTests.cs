@@ -106,7 +106,8 @@ public class AllTests
     public static Test.ServerFactoryPrx allTests(TestCommon.Application app, string testDir)
     {
         Ice.Communicator communicator = app.communicator();
-        string factoryRef = "factory:" + app.getTestEndpoint(0);
+        string factoryRef = "factory:" + app.getTestEndpoint(0, "tcp");
+
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         Test.ServerFactoryPrx factory = Test.ServerFactoryPrxHelper.checkedCast(b);

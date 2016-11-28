@@ -20,7 +20,7 @@ public class Server : TestCommon.Application
 {
     public override int run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("factory");
         adapter.add(new ServerFactoryI(), id);

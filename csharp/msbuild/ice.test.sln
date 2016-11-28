@@ -369,7 +369,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "checksum", "checksum", "{3D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\test\Ice\checksum\msbuild\client\client.csproj", "{BC907ED2-6883-4DFB-BDAB-957AFB986073}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\checksum\server\msbuild\server\server.csproj", "{AE7C3036-ADC3-44AB-B6DA-5C40E6E00527}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\checksum\msbuild\server\server.csproj", "{AE7C3036-ADC3-44AB-B6DA-5C40E6E00527}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

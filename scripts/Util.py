@@ -1837,8 +1837,7 @@ class JavaCompatMapping(JavaMapping):
 class CSharpMapping(Mapping):
 
     def getBuildDir(self, name, current):
-        # Executables are not produced in build sub-directory with the C# mapping.
-        return ""
+        return os.path.join("msbuild", name)
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -1852,9 +1851,10 @@ class CSharpMapping(Mapping):
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
+        plugindir = "{icedir}/Assemblies"
         return {
-            "IceSSL" : "{icedir}/Assemblies/IceSSL.dll:IceSSL.PluginFactory",
-            "IceDiscovery" : "{icedir}/Assemblies/IceDiscovery.dll:IceDiscovery.PluginFactory"
+            "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
+            "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory"
         }[plugin]
 
     def getEnv(self, process, current):

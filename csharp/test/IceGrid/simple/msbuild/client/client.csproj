@@ -19,7 +19,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputPath>..\..\</OutputPath>
+    <OutputPath>$(MSBuildThisFileDirectory)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Glacier2, Version=3.7.53.0, Culture=neutral, processorArchitecture=MSIL">
@@ -29,7 +29,7 @@
     </Reference>
     <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="IceGrid, Version=3.7.53.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -56,9 +56,7 @@
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\client.exe.config">
-      <Link>client.exe.config</Link>
-    </None>
+    <None Include="client.exe.config" />
     <None Include="..\..\Test.ice">
       <Link>Test.ice</Link>
     </None>

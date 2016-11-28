@@ -8,9 +8,9 @@ ServerProp=1
 OverrideMe=1
 UnsetMe=1
 
-IceBox.Service.Service1=testservice.dll:TestServiceI --Ice.Config=config.service1-2 --Service1.ArgProp=2
+IceBox.Service.Service1=msbuild\testservice\testservice.dll:TestServiceI --Ice.Config=config.service1-2 --Service1.ArgProp=2
 
 IceBox.UseSharedCommunicator.Service2=1
-IceBox.Service.Service2=testservice.dll:TestServiceI --Ice.Config=config.service2-2
+IceBox.Service.Service2=msbuild\testservice\testservice.dll:TestServiceI --Ice.Config=config.service2-2
 
 IceBox.LoadOrder=Service1 Service2
