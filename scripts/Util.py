@@ -79,12 +79,12 @@ class Platform:
     def getDefaultBuildConfig(self):
         return self.supportedConfigs[0]
 
-    def getBinSubDir(self, mapping, current):
+    def getBinSubDir(self, mapping, process, current):
         # Return the bin sub-directory for the given mapping,platform,config,
         # to be overriden by specializations
         return "bin"
 
-    def getLibSubDir(self, mapping, current):
+    def getLibSubDir(self, mapping, process, current):
         # Return the bin sub-directory for the given mapping,platform,config,
         # to be overriden by specializations
         return "lib"
@@ -150,12 +150,12 @@ class Linux(Platform):
     def hasOpenSSL(self):
         return True
 
-    def getBinSubDir(self, mapping, current):
+    def getBinSubDir(self, mapping, process, current):
         if self.linuxId in ["ubuntu", "debian"] and current.config.buildPlatform in self.foreignPlatforms:
             return os.path.join("bin", self.multiArch[current.config.buildPlatform])
         return "bin"
 
-    def getLibSubDir(self, mapping, current):
+    def getLibSubDir(self, mapping, process, current):
 
         # PHP module is always installed in the lib directory for the default build platform
         if isinstance(mapping, PhpMapping) and current.config.buildPlatform == self.getDefaultBuildPlatform():
@@ -214,13 +214,13 @@ class Windows(Platform):
         elif out.find("Version 19.") != -1:
             return "v140"
 
-    def getBinSubDir(self, mapping, current):
+    def getBinSubDir(self, mapping, process, current):
         c = current.config
         if isinstance(mapping, CppMapping) or isinstance(mapping, PhpMapping):
             return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
         return "bin"
 
-    def getLibSubDir(self, mapping, current):
+    def getLibSubDir(self, mapping, process, current):
         c = current.config
         if isinstance(mapping, CppMapping):
             return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
@@ -447,7 +447,6 @@ class Mapping:
             options.update(current.testcase.getOptions())
             for (k, v) in options.items():
                 if not hasattr(self, k):
-                    print("warning: unknown option `{0}' specified in `{1}'".format(k, current.testcase))
                     continue
                 if not getattr(self, k) in v:
                     return False
@@ -679,11 +678,11 @@ class Mapping:
         # Can be overriden for client-only mapping that relies on another mapping for servers
         return self
 
-    def getBinDir(self, current):
-        return os.path.join(current.driver.getIceDir(self), platform.getBinSubDir(self, current))
+    def getBinDir(self, process, current):
+        return os.path.join(current.driver.getIceDir(self), platform.getBinSubDir(self, process, current))
 
-    def getLibDir(self, current):
-        return os.path.join(current.driver.getIceDir(self), platform.getLibSubDir(self, current))
+    def getLibDir(self, process, current):
+        return os.path.join(current.driver.getIceDir(self), platform.getLibSubDir(self, process, current))
 
     def getBuildDir(self, name, current):
         return platform.getBuildSubDir(name, current)
@@ -695,7 +694,7 @@ class Mapping:
         if process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
             # so we check with the platform.
-            return os.path.join(self.getBinDir(current), exe)
+            return os.path.join(self.getBinDir(process, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
             return os.path.join(current.testcase.getPath(), current.getBuildDir(name), exe)
@@ -1767,7 +1766,7 @@ class CppMapping(Mapping):
         #
         libPaths = []
         if isinstance(platform, Windows):
-            libPaths.append(self.getLibDir(current))
+            libPaths.append(self.getLibDir(process, current))
             testcommon = os.path.join(self.path, "test", "Common")
             libPaths.append(os.path.join(testcommon, self.getBuildDir("testcommon", current)))
 
@@ -1880,7 +1879,7 @@ class CSharpMapping(Mapping):
 
     def getEnv(self, process, current):
         if current.driver.useBinDist():
-            bzip2 = Mapping.getByName("cpp").getLibDir(current)
+            bzip2 = Mapping.getByName("cpp").getLibDir(process, current)
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                  "bzip2.{0}.1.0.6.4".format(platform.getCompiler()),
@@ -1912,7 +1911,7 @@ class CppBasedMapping(Mapping):
         if current.driver.getIceDir() != platform.getIceDir():
             # If not installed in the default platform installation directory, add
             # the Ice C++ library directory to the library path
-            env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(current)
+            env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(process, current)
         return env
 
 class ObjCMapping(CppBasedMapping):
@@ -1991,7 +1990,7 @@ class PhpMapping(CppBasedClientMapping):
                 args += ["-d", "include_path=/usr/local/share/php"]
                 args += ["-d", "extension=IcePHP.so"]
         else:
-            args += ["-d", "extension_dir='{0}'".format(self.getLibDir(current))]
+            args += ["-d", "extension_dir='{0}'".format(self.getLibDir(process, current))]
             args += ["-d", "extension='{0}'".format("php_ice.dll" if isinstance(platform, Windows) else "IcePHP.so")]
             args += ["-d", "include_path='{0}/lib'".format(self.getPath())]
         if hasattr(process, "getPhpArgs"):

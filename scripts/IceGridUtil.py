@@ -220,7 +220,7 @@ class IceGridTestCase(TestCase):
             serverProps = Server().getProps(current)
             variables = {
                 "test.dir" : self.getPath(),
-                "ice.bindir" : self.mapping.getBinDir(current),
+                "ice.bindir" : self.mapping.getBinDir(None, current),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),

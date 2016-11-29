@@ -17,7 +17,7 @@ class IceGridUpdateTestCase(IceGridTestCase):
 
 clientProps = lambda process, current: {
     "NodePropertiesOverride" : current.testcase.icegridnode[0].getPropertiesOverride(current),
-    "IceBinDir" : current.testcase.getMapping().getBinDir(current),
+    "IceBinDir" : current.testcase.getMapping().getBinDir(None, current),
     "ServerDir" : current.getBuildDir("server"),
     "TestDir" : "{testdir}"
 }

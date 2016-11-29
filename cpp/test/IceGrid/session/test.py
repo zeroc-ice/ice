@@ -38,13 +38,13 @@ registryProps = {
 }
 
 clientProps = lambda process, current: {
-    "IceBinDir" : current.testcase.getMapping().getBinDir(current),
+    "IceBinDir" : current.testcase.getMapping().getBinDir(None, current),
     "ServerDir" : current.getBuildDir("server"),
     "TestDir" : "{testdir}",
 }
 
 clientProps10 = lambda process, current: {
-    "IceBinDir" : current.testcase.getMapping().getBinDir(current),
+    "IceBinDir" : current.testcase.getMapping().getBinDir(None, current),
     "ServerDir" : current.getBuildDir("server"),
     "TestDir" : "{testdir}",
     "Ice.Default.EncodingVersion" : "1.0"
