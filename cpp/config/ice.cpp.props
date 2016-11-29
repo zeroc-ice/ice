@@ -35,6 +35,5 @@
         <Path>$(IceBinPath);$(Path)</Path>
         <LibraryPath>$(IceLibraryPath);$(LibraryPath)</LibraryPath>
         <IncludePath>$(IceIncludePath);$(IncludePath)</IncludePath>
-
     </PropertyGroup>
 </Project>
