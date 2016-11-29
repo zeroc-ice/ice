@@ -35,7 +35,7 @@ static_ldflags		+= $(if $(filter program,$($1_target)),-ObjC)
 #
 # Build only the tests with the ARC configuration
 #
-arc_projects		= test/Ice/%
+arc_projects		= test/Slice/% test/Ice/%
 
 #
 # Define the arc configuration to build the tests with ARC support.

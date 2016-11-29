@@ -391,7 +391,7 @@ class LocalDriver(Driver):
                 print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
             else:
                 print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
-            if(len(failures) > 0):
+            if len(failures) > 0:
                 print("{0} suceeded and {1} failed:".format(len(results) - len(failures), len(failures)))
                 for r in failures:
                     print("- {0}".format(r.testsuite))
@@ -403,7 +403,6 @@ class LocalDriver(Driver):
                             print("  [...]")
                             for i in range(max(4, len(lines) - 8), len(lines)):
                                 print("  " + lines[i])
-
             else:
                 print("{0} suceeded".format(len(results)))
 
