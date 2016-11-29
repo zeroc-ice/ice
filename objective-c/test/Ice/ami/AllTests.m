@@ -79,7 +79,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
     id<TestAMITestIntfPrx> p = [TestAMITestIntfPrx checkedCast:base];
     test(p);
 
-    ref = @"testController:tcp -p 12011";
+    ref = @"testController:default -p 12011";
     base = [communicator stringToProxy:ref];
     TestAMITestIntfControllerPrx* testController = [TestAMITestIntfControllerPrx uncheckedCast:base];
     test(testController);

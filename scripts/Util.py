@@ -513,7 +513,7 @@ class Mapping:
     @classmethod
     def getAll(self):
         languages = os.environ.get("LANGUAGES", None)
-        return [self.getByName(l) for l in languages.split(" ")] if languages else self.mappings.values()
+        return [self.getByName(l) for l in languages.split(" ")] if languages else list(self.mappings.values())
 
     def __init__(self, path=None):
         self.platform = None
@@ -1014,7 +1014,7 @@ class IceProcess(Process):
 #
 class Server(IceProcess):
 
-    def __init__(self, exe=None, waitForShutdown=True, readyCount=1, ready=None, startTimeout=60, *args, **kargs):
+    def __init__(self, exe=None, waitForShutdown=True, readyCount=1, ready=None, startTimeout=120, *args, **kargs):
         IceProcess.__init__(self, exe, *args, **kargs)
         self.waitForShutdown = waitForShutdown
         self.readyCount = readyCount
@@ -1423,14 +1423,33 @@ class Result:
 
     def write(self, msg, stdout=True):
         if self._writeToStdout and stdout:
-            sys.stdout.write(msg)
+            try:
+                sys.stdout.write(msg)
+            except UnicodeEncodeError:
+                #
+                # The console doesn't support the encoding of the message, we convert the message
+                # to an UTF-8 byte sequence and print out the byte sequence. We replace all the
+                # double backslash from the byte sequence string representation to single back
+                # slash.
+                #
+                sys.stdout.write(str(msg.encode("utf-8")).replace("\\\\", "\\"))
             sys.stdout.flush()
         self._stdout.write(msg)
 
     def writeln(self, msg, stdout=True):
         if self._writeToStdout and stdout:
-            print(msg)
-        self._stdout.write(msg + "\n")
+            try:
+                print(msg)
+            except UnicodeEncodeError:
+                #
+                # The console doesn't support the encoding of the message, we convert the message
+                # to an UTF-8 byte sequence and print out the byte sequence. We replace all the
+                # double backslash from the byte sequence string representation to single back
+                # slash.
+                #
+                print(str(msg.encode("utf-8")).replace("\\\\", "\\"))
+        self._stdout.write(msg)
+        self._stdout.write("\n")
 
 class TestSuite:
 
@@ -1588,7 +1607,7 @@ class Driver:
 
     @classmethod
     def getAll(self):
-        return self.drivers.values()
+        return list(self.drivers.values())
 
     @classmethod
     def create(self, options):
@@ -2127,7 +2146,7 @@ def runTests(mappings=None, drivers=None):
         # Provide the configurations to the driver and load the test suites for each mapping.
         #
         driver.setConfigs(configs)
-        for mapping in list(mappings) + driver.getMappings():
+        for mapping in mappings + driver.getMappings():
             mapping.loadTestSuites(args, driver.filters, driver.rfilters)
 
         #

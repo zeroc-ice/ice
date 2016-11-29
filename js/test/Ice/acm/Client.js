@@ -28,17 +28,17 @@
             this._messages = [];
             this._out = out;
         }
-    
+
         print(msg)
         {
             this._messages.push(msg);
         }
-    
+
         trace(category, message)
         {
             this._messages.push("[" + category + "] " + message);
         }
-    
+
         warning(message)
         {
             this._messages.push("warning: " + message);
@@ -140,15 +140,31 @@
                     return prx.ice_getConnection().then(con =>
                         {
                             con.setCloseCallback(connection => this._closed = true);
-                            
+
                             con.setHeartbeatCallback(connection => ++this._heartbeat);
-                            
+
                             return this.runTestCase(this._adapter, prx);
                         }).catch(ex =>
                             {
                                 this._msg = "unexpected exception:\n" + ex.toString() + "\n" + ex.stack;
                             });
                 });
+        }
+
+        waitForClosed()
+        {
+            if(!this._closed)
+            {
+                var now = Date.now();
+                return Ice.Promise.delay(1000).then(() => {
+                    if(Data.now() - now > 1000)
+                    {
+                        test(false);
+                    }
+                    return Promise.resolve();
+                })
+            }
+            return Promise.resolve();
         }
 
         runTestCase(adapter, proxy)
@@ -180,7 +196,7 @@
 
         runTestCase(adapter, proxy)
         {
-            return proxy.sleep(2).then(() => 
+            return proxy.sleep(2).then(() =>
                 {
                     test(this._heartbeat >= 2);
                 });
@@ -202,9 +218,9 @@
             // fail.
             return proxy.sleepAndHold(10).then(
                 () => test(false),
-                ex => test(this._closed))
-                    .then(() => adapter.activate())
-                    .then(() => proxy.interruptSleep());
+                ex => adapter.activate())
+                    .then(() => proxy.interruptSleep())
+                    .then(() => this.waitForClosed());
         }
     }
 
@@ -225,10 +241,11 @@
                 () => test(false),
                 ex =>
                 {
-                    test(this._heartbeat === 0);
-                    test(this._closed);
                     return proxy.interruptSleep();
-                });
+                }).then(() => this.waitForClosed())
+            .then(() => {
+                test(this._heartbeat === 0);
+            });
         }
     }
 
@@ -263,7 +280,7 @@
 
         runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(2000).then(() =>
+            return Ice.Promise.delay(2000).then(() => this.waitForClosed()).then(() =>
                                                 {
                                                     test(this._heartbeat === 0);
                                                     test(this._closed);
@@ -310,7 +327,7 @@
                     test(this._heartbeat === 0);
                     test(!this._closed); // Not closed yet because of graceful close.
                     return adapter.activate();
-                }).delay(500).then(() => test(this._closed)); // Connection should be closed this time.
+                }).delay(500).then(() => this.waitForClosed()); // Connection should be closed this time.
         }
     }
 
@@ -324,7 +341,7 @@
 
         runTestCase(adapter, proxy)
         {
-            return adapter.hold().delay(1500).then(
+            return adapter.hold().delay(1500).then(() => this.waitForClosed()).then(
                 () =>
                 {
                     test(this._heartbeat === 0);
