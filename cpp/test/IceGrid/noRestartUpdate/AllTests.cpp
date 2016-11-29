@@ -324,8 +324,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const DeploymentException&)
+        catch(const DeploymentException& ex)
         {
+            cerr << ex.reason << endl;
             test(false);
         }
         catch(const Ice::Exception& ex)
