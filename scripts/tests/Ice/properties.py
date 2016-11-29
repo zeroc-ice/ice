@@ -20,4 +20,4 @@ class PropertiesTestSuite(TestSuite):
                          "Config.Path=./config/" + name],
                          "utf-8")
 
-PropertiesTestSuite(__name__)
+PropertiesTestSuite(__name__, [ ClientTestCase(client=Client(args=["{testdir}"])) ])

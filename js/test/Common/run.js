@@ -7,9 +7,13 @@
 //
 // **********************************************************************
 
+var es5 = process.argv[2] === "--es5"
+if(es5)
+{
+    process.argv.splice(2, 1)
+}
 
-
-var Ice = require(process.argv[2] === "--es5" ? "ice/src/es5" : "ice").Ice;
+var Ice = require(es5 ? "ice/src/es5" : "ice").Ice;
 
 var write = function(msg)
 {
@@ -23,7 +27,7 @@ var writeLine = function(msg)
 
 var id = new Ice.InitializationData();
 id.properties = Ice.createProperties(process.argv);
-exe = process.argv[2] === "--es5" ? process.argv[3] : process.argv[2]
+exe = process.argv[2]
 var test = module.require(exe)
 test = exe === "ClientBidir" ? test.__testBidir__ : test.__test__;
 

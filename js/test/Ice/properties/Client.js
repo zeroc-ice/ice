@@ -50,13 +50,13 @@
                         "BServer": "\\server\\dir"
                     };
 
-                var properties = Ice.createProperties();
+                var properties = Ice.createProperties(process.argv);
                 if(typeof(require("fs").readFileSync) == "function")
                 {
                     //
                     // We are runing with NodeJS we load the properties file from the file system.
                     //
-                    properties.parse(require("fs").readFileSync("config/escapes.cfg", {encoding: "utf8"}));
+                    properties.parse(require("fs").readFileSync(process.argv[3] + "/config/escapes.cfg", {encoding: "utf8"}));
                     for(var key in props)
                     {
                         test(props[key] == properties.getProperty(key));

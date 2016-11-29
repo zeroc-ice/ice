@@ -585,8 +585,10 @@ class Mapping:
                 if testcases:
                     TestSuite(root, testcases)
 
-    def getTestSuites(self):
-        return self.testsuites.values()
+    def getTestSuites(self, ids=[]):
+        if not ids:
+            return self.testsuites.values()
+        return [self.testsuites[testSuiteId] for testSuiteId in ids if testSuiteId in self.testsuites]
 
     def addTestSuite(self, testsuite):
         assert len(testsuite.path) > len(self.getTestsPath()) + 1
@@ -2153,7 +2155,7 @@ def runTests(mappings=None, drivers=None):
         # Finally, run the test suites with the driver.
         #
         try:
-            sys.exit(driver.run(mappings))
+            sys.exit(driver.run(mappings, args))
         except KeyboardInterrupt:
             pass
         finally:

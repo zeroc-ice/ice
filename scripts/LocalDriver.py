@@ -344,11 +344,11 @@ class LocalDriver(Driver):
         else:
             self.runner = TestCaseRunner()
 
-    def run(self, mappings):
+    def run(self, mappings, testSuiteIds):
         while True:
             executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
             for mapping in mappings:
-                testsuites = mapping.getTestSuites()
+                testsuites = mapping.getTestSuites(testSuiteIds)
 
                 #
                 # Sort the test suites to run tests in the following order.
