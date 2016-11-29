@@ -1774,7 +1774,7 @@ class CppMapping(Mapping):
         #
         if current.testcase:
             for d in set([current.getBuildDir(d) for d in current.testcase.getTestSuite().getLibDirs()]):
-                libPaths.append(current.getBuildDir(d))
+                libPaths.append(d)
 
         env = {}
         if len(libPaths) > 0:
