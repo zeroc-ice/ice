@@ -54,6 +54,10 @@ def getIceSoVersion():
     else:
         return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
+def getIceJSONVersion():
+    config = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
+    return re.search("<IceJSONVersion>(.*)</IceJSONVersion>", config.read()).group(1)
+
 class Platform:
 
     def __init__(self):
@@ -214,19 +218,52 @@ class Windows(Platform):
         elif out.find("Version 19.") != -1:
             return "v140"
 
+    def getNugetPackage(self, mapping):
+        if isinstance(mapping, PhpMapping):
+            return os.path.join("php", "msbuild", "packages","zeroc.ice.php.{0}".format(getIceJSONVersion()))
+        elif isinstance(mapping, JavaMapping) and isinstance(process, SliceTranslator):
+            return os.path.join("java", "msbuild", "packages","zeroc.ice.java.{0}".format(getIceJSONVersion()))
+        elif isinstance(mapping, CSharpMapping):
+            return os.path.join("csharp", "msbuild", "packages","zeroc.ice.net.{0}".format(getIceJSONVersion()))
+        elif isinstance(mapping, CppMapping):
+            return os.path.join("cpp", "msbuild", "packages","zeroc.ice.{0}.{1}".format(self.getCompiler(), 
+                                                                                        getIceJSONVersion()))
+        assert False
+
+
     def getBinSubDir(self, mapping, process, current):
         c = current.config
-        if isinstance(mapping, CppMapping) or isinstance(mapping, PhpMapping):
-            return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
-        return "bin"
+
+        if current.driver.useBinDist():
+            if isinstance(process, SliceTranslator):
+                return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", "Win32", "Release")
+            elif isinstance(mapping, CSharpMapping) and isinstance(process, IceBox):
+                return os.path.join(self.getNugetPackage(mapping), "tools")
+            
+            #
+            # Fallback to binaries from default C++ package
+            #
+
+            #
+            # With Windows binary distribution glacier2router binaries are only include for 
+            # Release configuration.
+            #
+            if isinstance(process, Glacier2Router):
+                config = "Release"
+            else:
+                config = "Debug" if c.buildConfig.find("Debug") >= 0 else "Release"
+
+            return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", c.buildPlatform, config)
+        else:
+            if isinstance(mapping, CppMapping) or isinstance(mapping, PhpMapping):
+                return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
+            return "bin"
 
     def getLibSubDir(self, mapping, process, current):
-        c = current.config
-        if isinstance(mapping, CppMapping):
-            return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
-        elif isinstance(mapping, PhpMapping):
-            return os.path.join("lib", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
-        return "lib"
+        bdir = self.getBinSubDir(mapping, process, current)
+        if isinstance(mapping, PhpMapping) and not current.driver.useBinDist():
+            bdir.replace("bin", "lib")
+        return bdir
 
     def getBuildSubDir(self, name, current):
         if os.path.exists(os.path.join(current.testcase.getPath(), "msbuild", name)):
@@ -247,7 +284,7 @@ class Windows(Platform):
         #
         if current.driver.useBinDist():
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
-            if parent in ["Glacier2", "IceStorm"] and current.config.buildConfiguration.find("Debug") >= 0:
+            if parent in ["Glacier2", "IceStorm"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
         return True
 
@@ -1880,12 +1917,15 @@ class CSharpMapping(Mapping):
     def getEnv(self, process, current):
         if current.driver.useBinDist():
             bzip2 = Mapping.getByName("cpp").getLibDir(process, current)
+            assembliesDir = os.path.join(toplevel, platform.getNugetPackage(self), "lib")
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                  "bzip2.{0}.1.0.6.4".format(platform.getCompiler()),
                                  "build", "native", "bin", "x64", "Release")
+            assembliesDir = os.path.join(current.driver.getIceDir(self), "Assemblies")
 
-        return { "DEVPATH" : os.path.join(current.driver.getIceDir(self), "Assemblies"), "PATH" : bzip2 };
+
+        return { "DEVPATH" : assembliesDir, "PATH" : bzip2 };
 
     def getDefaultSource(self, processType):
         return {
