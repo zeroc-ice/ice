@@ -18,6 +18,12 @@
       <Libraries Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion).dll;
                           $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion).pdb" />
 
+      <Libraries Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion).dll;
+                          $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion).pdb" />
+
+      <Libraries Include="$(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion).dll;
+                          $(Ice_SrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion).pdb" />
+
       <Libraries Include="$(Ice_SrcRootDir)..\cpp\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bin\$(Platform)\$(Configuration)\bzip2.dll" />
   </ItemGroup>
 
