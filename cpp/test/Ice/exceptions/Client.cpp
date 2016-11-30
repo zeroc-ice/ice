@@ -42,10 +42,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        RemoteConfig rc("Ice/exceptions", argc, argv, ich.communicator());
-        int status = run(argc, argv, ich.communicator());
-        rc.finished(status);
-        return status;
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {

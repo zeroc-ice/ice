@@ -57,22 +57,6 @@ TEST_API std::string getTestHost(const Ice::PropertiesPtr&);
 TEST_API int getTestPort(const Ice::PropertiesPtr&, int);
 TEST_API Ice::InitializationData getTestInitData(int&, char*[]);
 
-class TEST_API RemoteConfig
-{
-public:
-
-    RemoteConfig(const std::string&, int, char**, const Ice::CommunicatorPtr&);
-    ~RemoteConfig() ICE_NOEXCEPT_FALSE;
-
-    bool isRemote() const;
-    void finished(int);
-
-private:
-
-    Ice::ObjectPrxPtr _server;
-    int _status;
-};
-
 #if !defined(ICE_OS_WINRT) && (TARGET_OS_IPHONE == 0)
 
 void

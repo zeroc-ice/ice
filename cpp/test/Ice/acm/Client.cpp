@@ -1,7 +1,6 @@
 // **********************************************************************
 //
 // Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
-//
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
@@ -39,10 +38,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        RemoteConfig rc("Ice/acm", argc, argv, ich.communicator());
-        int status = run(argc, argv, ich.communicator());
-        rc.finished(status);
-        return status;
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {

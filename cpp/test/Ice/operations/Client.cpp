@@ -16,25 +16,22 @@ DEFINE_TEST("client")
 using namespace std;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator, bool remote)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrxPtr myClass = allTests(communicator);
 
 #ifndef ICE_OS_WINRT
     myClass->shutdown();
-    if(!remote)
+    cout << "testing server shutdown... " << flush;
+    try
     {
-        cout << "testing server shutdown... " << flush;
-        try
-        {
-            myClass->opVoid();
-            test(false);
-        }
-        catch(const Ice::LocalException&)
-        {
-            cout << "ok" << endl;
-        }
+        myClass->opVoid();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+        cout << "ok" << endl;
     }
 #else
     //
@@ -69,10 +66,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.BatchAutoFlushSize", "100");
 
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
-        RemoteConfig rc("Ice/operations", argc, argv, ich.communicator());
-        int status = run(argc, argv, ich.communicator(), rc.isRemote());
-        rc.finished(status);
-        return status;
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {

@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <TestCommon.h>
-#include <Controller.h>
 
 #include <Ice/Communicator.h>
 
@@ -85,98 +84,4 @@ getTestInitData(int& argc, char* argv[])
     args = initData.properties->parseCommandLineOptions("Test", args);
     Ice::stringSeqToArgs(args, argc, argv);
     return initData;
-}
-
-RemoteConfig::RemoteConfig(const std::string& name, int argc, char** argv, const Ice::CommunicatorPtr& communicator) :
-    _status(1)
-{
-    //
-    // If ControllerHost is defined, we are using a server on a remote host. We expect a
-    // test controller will already be active. We let exceptions propagate out to
-    // the caller.
-    //
-    // Also look for a ConfigName property, which specifies the name of the configuration
-    // we are currently testing.
-    //
-    std::string controllerHost;
-    std::string configName;
-    for(int i = 1; i < argc; ++i)
-    {
-        std::string opt = argv[i];
-        if(opt.find("--ControllerHost") == 0)
-        {
-            std::string::size_type pos = opt.find('=');
-            if(pos != std::string::npos && opt.size() > pos + 1)
-            {
-                controllerHost = opt.substr(pos + 1);
-            }
-        }
-        else if(opt.find("--ConfigName") == 0)
-        {
-            std::string::size_type pos = opt.find('=');
-            if(pos != std::string::npos && opt.size() > pos + 1)
-            {
-                configName = opt.substr(pos + 1);
-            }
-        }
-    }
-
-    Test::Common::ServerPrxPtr server;
-
-    if(!controllerHost.empty())
-    {
-        std::string prot = communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        std::string host;
-        if(prot != "bt")
-        {
-            host = communicator->getProperties()->getProperty("Ice.Default.Host");
-        }
-
-        Test::Common::StringSeq options;
-
-        Test::Common::ControllerPrxPtr controller = ICE_CHECKED_CAST(Test::Common::ControllerPrx,
-            communicator->stringToProxy("controller:tcp -h " + controllerHost + " -p 15000"));
-        server = controller->runServer("cpp", name, prot, host, false, configName, options);
-        server->waitForServer();
-    }
-
-    _server = server;
-}
-
-RemoteConfig::~RemoteConfig() ICE_NOEXCEPT_FALSE
-{
-    if(_server)
-    {
-        try
-        {
-            Test::Common::ServerPrxPtr server = ICE_UNCHECKED_CAST(Test::Common::ServerPrx, _server);
-            if(_status == 0)
-            {
-                server->waitTestSuccess();
-            }
-            else
-            {
-                server->terminate();
-            }
-        }
-        catch(const Ice::LocalException&)
-        {
-            if(_status == 0)
-            {
-                throw;
-            }
-        }
-    }
-}
-
-bool
-RemoteConfig::isRemote() const
-{
-    return _server != 0;
-}
-
-void
-RemoteConfig::finished(int status)
-{
-    _status = status;
 }
