@@ -9,30 +9,35 @@
 
 import NetworkProxy
 
+class NetworkProxyTestSuite(TestSuite):
+
+    def setup(self, current):
+        self.portNum = 30
+
 class NetworkProxyTestCase(ClientServerTestCase):
 
-    def __init__(self, proxyName, proxyType, proxyPortNum):
+    def __init__(self, proxyName, proxyType):
         ClientServerTestCase.__init__(self, proxyName + " client/server", client = Client(props = lambda p, c: {
             "Ice.{0}ProxyHost".format(proxyName): "localhost",
-            "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(proxyPortNum))
+            "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(c.testsuite.portNum))
         }))
         self.proxyName = proxyName
         self.proxyType = proxyType
-        self.proxyPortNum = proxyPortNum
         self.proxy = None
 
     def setupClientSide(self, current):
         current.write("starting {0} proxy... ".format(self.proxyName))
-        self.proxy = self.proxyType(current.driver.getTestPort(self.proxyPortNum))
+        self.proxy = self.proxyType(current.driver.getTestPort(current.testsuite.portNum))
         current.writeln("ok")
 
     def teardownClientSide(self, current, success):
         current.write("terminating {0} proxy... ".format(self.proxyName))
         self.proxy.terminate()
         self.proxy = None
+        current.testsuite.portNum += 1
         current.writeln("ok")
 
-TestSuite(__name__, [
-    NetworkProxyTestCase("SOCKS", NetworkProxy.SocksProxy, 30),
-    NetworkProxyTestCase("HTTP", NetworkProxy.HttpProxy, 31),
+NetworkProxyTestSuite(__name__, [
+    NetworkProxyTestCase("SOCKS", NetworkProxy.SocksProxy),
+    NetworkProxyTestCase("HTTP", NetworkProxy.HttpProxy),
 ], options = { "ipv6" : [False] })

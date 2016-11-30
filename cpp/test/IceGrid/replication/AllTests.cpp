@@ -25,7 +25,6 @@ namespace
 const int sleepTime = 100; // 100ms
 const int maxRetry = 240000 / sleepTime; // 4 minutes
 
-
 void
 addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
 {
@@ -965,6 +964,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         catch(const Ice::LocalException& ex)
         {
             cerr << ex << endl;
+
+            ApplicationInfo app = admin->getApplicationInfo("Test");
+            cerr << "properties-override = " << app.descriptor.variables["properties-override"] << endl;
+
+            PropertyDescriptorSeq& seq = admin->getServerInfo("Node1").descriptor->propertySet.properties;
+            for(PropertyDescriptorSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+            {
+                cerr << p->name << " = " << p->value << endl;
+            }
             test(false);
         }
 

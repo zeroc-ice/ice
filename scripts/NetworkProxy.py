@@ -93,8 +93,8 @@ class BaseProxy(threading.Thread):
         return None
 
     def run(self):
-        try:
-            with self.cond:
+        with self.cond:
+            try:
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 if hasattr(socket, "SO_REUSEPORT"):
@@ -102,32 +102,34 @@ class BaseProxy(threading.Thread):
                 self.socket.bind(("127.0.0.1", self.port))
                 self.socket.listen(1)
                 self.cond.notify()
-        except Exception as ex:
-            self.failed = ex
-            self.cond.notify()
-            return
+            except Exception as ex:
+                self.failed = ex
+                self.cond.notify()
+                return
 
         try:
             while not self.closed:
                 incoming, peer = self.socket.accept()
                 connection = self.createConnection(incoming, peer)
                 connection.start()
-                self.connections.append(connection)
+                with self.cond:
+                    self.connections.append(connection)
         except:
             pass
         finally:
             self.socket.close()
 
     def terminate(self):
-        if self.closed:
-            return
-        self.closed = True
-        for c in self.connections:
-            try:
-                c.close()
-                c.join()
-            except Exception as ex:
-                print(ex)
+        with self.cond:
+            if self.closed:
+                return
+            self.closed = True
+            for c in self.connections:
+                try:
+                    c.close()
+                    c.join()
+                except Exception as ex:
+                    print(ex)
 
         connectToSelf = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:

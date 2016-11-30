@@ -658,7 +658,7 @@ public class AllTests
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default -p 12030");
+            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default");
             com.zeroc.Ice.Communicator ic = app.initialize(initData);
             final com.zeroc.Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();

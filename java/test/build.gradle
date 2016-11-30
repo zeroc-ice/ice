@@ -14,8 +14,6 @@ sourceSets {
     main {
         java {
             exclude 'plugins'
-            exclude 'controller'
-            exclude 'ejb'
         }
     }
 }
@@ -29,7 +27,6 @@ dependencies {
     compile localDependency('icestorm')
     compile localDependency('icegrid')
     compile project(':testPlugins')
-    compile project(':testController')
 }
 
 if(!gradle.startParameter.isOffline()) {

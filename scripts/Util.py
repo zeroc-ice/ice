@@ -226,18 +226,24 @@ class Windows(Platform):
         elif isinstance(mapping, CSharpMapping):
             return os.path.join("csharp", "msbuild", "packages","zeroc.ice.net.{0}".format(getIceJSONVersion()))
         elif isinstance(mapping, CppMapping):
-            return os.path.join("cpp", "msbuild", "packages","zeroc.ice.{0}.{1}".format(self.getCompiler(), 
+            return os.path.join("cpp", "msbuild", "packages","zeroc.ice.{0}.{1}".format(self.getCompiler(),
                                                                                         getIceJSONVersion()))
         assert False
 
     def getBinSubDir(self, mapping, process, current):
-        c = current.config
+
+        #
+        # Platform/Config taget bin directories.
+        #
+        platform = current.config.buildPlatform
+        config = "Debug" if c.buildConfig.find("Debug") >= 0 else "Release"
+
         if current.driver.useBinDist():
             if isinstance(process, SliceTranslator):
                 return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", "Win32", "Release")
             elif isinstance(mapping, CSharpMapping) and isinstance(process, IceBox):
                 return os.path.join(self.getNugetPackage(mapping), "tools")
-            
+
             #
             # Fallback to binaries from default C++ package
             #
@@ -249,13 +255,11 @@ class Windows(Platform):
             if (isinstance(process, Glacier2Router) or isinstance(process, IcePatch2Calc) or
                 isinstance(process, IcePatch2Client) or isinstance(process, IcePatch2Server)):
                 config = "Release"
-            else:
-                config = "Debug" if c.buildConfig.find("Debug") >= 0 else "Release"
 
-            return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", c.buildPlatform, config)
+            return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CppMapping) or isinstance(mapping, PhpMapping):
-                return os.path.join("bin", c.buildPlatform, "Debug" if c.buildConfig.find("Debug") >= 0 else "Release")
+                return os.path.join("bin", platform, config)
             return "bin"
 
     def getLibSubDir(self, mapping, process, current):
@@ -1432,7 +1436,7 @@ class Result:
         self._start = self._stdout.tell()
 
     def failed(self, testcase, exception):
-        self.writeln("test in {0} failed:\n{1}".format(self.testsuite, exception))
+        self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
         self._testcases[testcase] = (self._start, self._stdout.tell())
         self._failed[testcase] = exception
 

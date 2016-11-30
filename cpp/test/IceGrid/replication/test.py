@@ -8,9 +8,6 @@
 #
 # **********************************************************************
 
-clientProps = lambda process, current: {
-    "IceDir" : toplevel,
-    "ServerDir" : current.getBuildDir("server"),
-}
+clientProps = lambda process, current: { "ServerDir" : current.getBuildDir("server") }
 
 TestSuite(__file__, [ IceGridTestCase(client=IceGridClient(props=clientProps)) ], runOnMainThread=True, multihost=False)
