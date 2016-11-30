@@ -220,10 +220,11 @@ class IceGridTestCase(TestCase):
             serverProps = Server().getProps(current)
             variables = {
                 "test.dir" : self.getPath(),
-                "ice.bindir" : self.mapping.getBinDir(None, current),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
+                "glacier2router.exe" : Glacier2Router().getCommandLine(current),
+                "icepatch2server.exe" : IcePatch2Server().getCommandLine(current),
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
                 "properties-override" : self.icegridnode[0].getPropertiesOverride(current)
             }

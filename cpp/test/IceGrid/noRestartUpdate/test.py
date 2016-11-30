@@ -16,7 +16,7 @@ class IceGridNoRestartUpdateTestCase(IceGridTestCase):
         self.mkdirs("db/node2")
 
 clientProps = lambda process, current: {
-    "IceBinDir" : current.testcase.getMapping().getBinDir(None, current),
+    "IceBoxExe" : IceBox().getCommandLine(current),
     "ServerDir" : current.getBuildDir("server"),
     "ServiceDir" : current.getBuildDir("testservice")
 }

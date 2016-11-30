@@ -230,10 +230,8 @@ class Windows(Platform):
                                                                                         getIceJSONVersion()))
         assert False
 
-
     def getBinSubDir(self, mapping, process, current):
         c = current.config
-
         if current.driver.useBinDist():
             if isinstance(process, SliceTranslator):
                 return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", "Win32", "Release")
@@ -245,10 +243,11 @@ class Windows(Platform):
             #
 
             #
-            # With Windows binary distribution glacier2router binaries are only include for 
-            # Release configuration.
+            # With Windows binary distribution Glacier2 and IcePatch binaries are only included
+            # for Release configuration.
             #
-            if isinstance(process, Glacier2Router):
+            if (isinstance(process, Glacier2Router) or isinstance(process, IcePatch2Calc) or
+                isinstance(process, IcePatch2Client) or isinstance(process, IcePatch2Server)):
                 config = "Release"
             else:
                 config = "Debug" if c.buildConfig.find("Debug") >= 0 else "Release"
@@ -2104,9 +2103,9 @@ class JavaScriptMapping(Mapping):
 
 from Glacier2Util import *
 from IceBoxUtil import *
+from IcePatch2Util import *
 from IceGridUtil import *
 from IceStormUtil import *
-from IcePatch2Util import *
 from LocalDriver import *
 
 #

@@ -1678,7 +1678,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 //      nodeApp.name = "NodeApp";
 //      ServerDescriptorPtr server = new ServerDescriptor();
 //      server->id = "node-1";
-//      server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+//      server->exe = properties->getProperty("IceGridNodeExe");
 //      server->options.push_back("--nowarn");
 //      server->pwd = ".";
 //      addProperty(server, "IceGrid.Node.Name", "node-1");
@@ -1803,7 +1803,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         nodeApp.name = "NodeApp";
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-1";
-        server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+        server->exe = properties->getProperty("IceGridNodeExe");
         server->options.push_back("--nowarn");
         server->pwd = ".";
         server->applicationDistrib = false;

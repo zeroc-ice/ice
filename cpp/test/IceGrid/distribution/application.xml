@@ -10,7 +10,7 @@
        <parameter name="directory"/>
 
        <server id="${instance-name}"
-               exe="${ice.bindir}/icepatch2server"
+               exe="${icepatch2server.exe}"
                application-distrib="false" activation="manual">
          <adapter name="IcePatch2" endpoints="${endpoints}">
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>

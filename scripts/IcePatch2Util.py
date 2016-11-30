@@ -13,3 +13,13 @@ class IcePatch2Calc(ProcessFromBinDir, Process):
 
     def __init__(self, *args, **kargs):
         Process.__init__(self, exe="icepatch2calc", mapping=Mapping.getByName("cpp"), *args, **kargs)
+
+class IcePatch2Client(ProcessFromBinDir, Process):
+
+    def __init__(self, *args, **kargs):
+        Process.__init__(self, exe="icepatch2client", mapping=Mapping.getByName("cpp"), *args, **kargs)
+
+class IcePatch2Server(ProcessFromBinDir, Process):
+
+    def __init__(self, *args, **kargs):
+        Process.__init__(self, exe="icepatch2server", mapping=Mapping.getByName("cpp"), *args, **kargs)

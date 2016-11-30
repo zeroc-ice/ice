@@ -554,21 +554,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         IceBoxDescriptorPtr server = new IceBoxDescriptor();
         server->id = "IceBox";
-
-        string iceboxExe = "/icebox";
-#if defined(__linux)
-#  if defined(__i386)
-        iceboxExe += "32";
-#  endif
-#  if defined(ICE_CPP11_COMPILER)
-        iceboxExe += "++11";
-#  endif
-#endif
-
-#if defined(_WIN32) && !defined(NDEBUG)
-        iceboxExe += "d";
-#endif
-        server->exe = properties->getProperty("IceBinDir") + iceboxExe;
+        server->exe = properties->getProperty("IceBoxExe");
 
         server->applicationDistrib = false;
         server->allocatable = false;
@@ -1115,7 +1101,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-${index}";
-        server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+        server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;

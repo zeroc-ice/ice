@@ -8,7 +8,7 @@
       <parameter name="verifier"/>
       <parameter name="manager"/>
 
-      <server id="${id}" exe="${ice.bindir}/glacier2router">
+      <server id="${id}" exe="${glacier2router.exe}">
         <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
         <property name="Glacier2.Server.Endpoints" value="tcp"/>
         <property name="Glacier2.SessionManager" value="${manager}"/>
