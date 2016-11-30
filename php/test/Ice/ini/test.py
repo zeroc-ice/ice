@@ -29,9 +29,9 @@ class IniClient(Client):
 
     def getPhpArgs(self, current):
         if self.iceProfile:
-            return ["-d", "ice.profiles='ice.profiles'"]
+            return ["-d", "ice.profiles=\"ice.profiles\""]
         else:
-            return ["-d", "ice.options='{0}'".format(self.iceOptions), "-d", "ice.config='config.client'"]
+            return ["-d", "ice.options=\"{0}\"".format(self.iceOptions), "-d", "ice.config=\"config.client\""]
 
 TestSuite(__name__, [
     ClientTestCase("php INI settings",

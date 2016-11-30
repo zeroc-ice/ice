@@ -24,9 +24,10 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def run(cmd, cwd=None):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+    out = p.stdout.read().decode('UTF-8').strip()
     if(p.wait() != 0):
         raise RuntimeError(cmd + " failed:\n" + p.stdout.read().strip())
-    return p.stdout.read().decode('UTF-8').strip()
+    return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
     if type(v) == bool:
@@ -231,19 +232,17 @@ class Windows(Platform):
         assert False
 
     def getBinSubDir(self, mapping, process, current):
-
         #
         # Platform/Config taget bin directories.
         #
         platform = current.config.buildPlatform
-        config = "Debug" if c.buildConfig.find("Debug") >= 0 else "Release"
+        config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useBinDist():
             if isinstance(process, SliceTranslator):
                 return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", "Win32", "Release")
             elif isinstance(mapping, CSharpMapping) and isinstance(process, IceBox):
                 return os.path.join(self.getNugetPackage(mapping), "tools")
-
             #
             # Fallback to binaries from default C++ package
             #
@@ -258,15 +257,20 @@ class Windows(Platform):
 
             return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", platform, config)
         else:
-            if isinstance(mapping, CppMapping) or isinstance(mapping, PhpMapping):
+            if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
+            elif isinstance(mapping, PhpMapping):
+                return os.path.join("lib", platform, config)
             return "bin"
 
     def getLibSubDir(self, mapping, process, current):
-        bdir = self.getBinSubDir(mapping, process, current)
-        if isinstance(mapping, PhpMapping) and not current.driver.useBinDist():
-            bdir.replace("bin", "lib")
-        return bdir
+
+        platform = current.config.buildPlatform
+        config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
+
+        if isinstance(mapping, PhpMapping):
+            return os.path.join(self.getNugetPackage(mapping), "php") if current.driver.useBinDist() else "lib"
+        return self.getBinSubDir(mapping, process, current)
 
     def getBuildSubDir(self, name, current):
         if os.path.exists(os.path.join(current.testcase.getPath(), "msbuild", name)):
@@ -1360,7 +1364,7 @@ class TestCase(Runnable):
 
     def createFile(self, path, lines, encoding=None):
         path = os.path.join(self.getPath(), path.decode("utf-8") if isPython2 else path)
-        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "wb") as file:
+        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
             for l in lines:
                 file.write("%s\n" % l)
         self.files.append(path)
@@ -1574,7 +1578,7 @@ class TestSuite:
 
     def createFile(self, path, lines, encoding=None):
         path = os.path.join(self.path, path.decode("utf-8") if isPython2 else path)
-        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "wb") as file:
+        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
             for l in lines:
                 file.write("%s\n" % l)
         self.files.append(path)
@@ -2019,6 +2023,11 @@ class RubyMapping(CppBasedClientMapping):
         return { "client" : "Client.rb" }[processType]
 
 class PhpMapping(CppBasedClientMapping):
+    def getEnv(self, process, current):
+        env = CppBasedMapping.getEnv(self, process, current)
+        if isinstance(platform, Windows) and current.driver.useBinDist():
+            env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
+        return env
 
     def getCommandLine(self, current, process, exe):
         args = []
@@ -2033,9 +2042,19 @@ class PhpMapping(CppBasedClientMapping):
                 args += ["-d", "include_path=/usr/local/share/php"]
                 args += ["-d", "extension=IcePHP.so"]
         else:
-            args += ["-d", "extension_dir='{0}'".format(self.getLibDir(process, current))]
-            args += ["-d", "extension='{0}'".format("php_ice.dll" if isinstance(platform, Windows) else "IcePHP.so")]
-            args += ["-d", "include_path='{0}/lib'".format(self.getPath())]
+            useBinDist = current.driver.useBinDist()
+            if isinstance(platform, Windows):
+                extension = "php_ice_nts.dll" if "Thread Safety => disabled" in run("php -i") else "php_ice.dll"
+                extensionDir = self.getBinDir(process, current)
+                includePath = self.getLibDir(process, current)
+            else:
+                extension = "IcePHP.so"
+                extensionDir = self.getLibDir(process, current)
+                includePath = "{0}/{1}".format(current.driver.getIceDir(self), "php" if useBinDist else "lib")
+
+            args += ["-d", "extension_dir='{0}'".format(extensionDir)]
+            args += ["-d", "extension='{0}'".format(extension)]
+            args += ["-d", "include_path='{0}'".format(includePath)]
         if hasattr(process, "getPhpArgs"):
             args += process.getPhpArgs(current)
         return "php {0} -f {1} -- ".format(" ".join(args), exe)
