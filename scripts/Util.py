@@ -1700,8 +1700,8 @@ class Driver:
         else:
             return toplevel
 
-    def getSliceDir(self):
-        return platform.getSliceDir(self.getIceDir())
+    def getSliceDir(self, mapping):
+        return platform.getSliceDir(self.getIceDir(mapping))
 
     def isWorkerThread(self):
         return False
@@ -1939,7 +1939,7 @@ class CppBasedMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        if current.driver.getIceDir() != platform.getIceDir():
+        if current.driver.getIceDir(self) != platform.getIceDir(self):
             # If not installed in the default platform installation directory, add
             # the Ice C++ library directory to the library path
             env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(process, current)
@@ -1961,7 +1961,7 @@ class PythonMapping(CppBasedMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir() != platform.getIceDir():
+        if current.driver.getIceDir(self) != platform.getIceDir(self):
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
             env["PYTHONPATH"] = os.path.join(current.driver.getIceDir(self), "python")
@@ -1997,7 +1997,7 @@ class RubyMapping(CppBasedClientMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir() != platform.getIceDir():
+        if current.driver.getIceDir(self) != platform.getIceDir(self):
             # If not installed in the default platform installation directory, add
             # the Ice ruby directory to RUBYLIB
             env["RUBYLIB"] = os.path.join(self.path, "ruby")
@@ -2015,7 +2015,7 @@ class PhpMapping(CppBasedClientMapping):
 
     def getCommandLine(self, current, process, exe):
         args = []
-        if current.driver.getIceDir() == platform.getIceDir():
+        if current.driver.getIceDir(self) == platform.getIceDir(self):
             #
             # If installed in the platform system directory and on Linux, we rely
             # on ice.ini to find the extension. On OS X, we still need to setup

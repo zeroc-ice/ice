@@ -23,7 +23,7 @@ class SliceHeadersTestCase(ClientTestCase):
         os.symlink("dir2", os.path.join("slices", "linktodir2"))
 
         basedir = self.testsuite.getPath()
-        slicedir = current.driver.getSliceDir()
+        slicedir = current.driver.getSliceDir(self.mapping)
         os.symlink(slicedir, "iceslices")
 
         def runTest(args):
