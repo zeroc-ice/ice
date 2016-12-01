@@ -21,4 +21,7 @@ if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
         ClientAMDServerTestCase("client/amd server with 1.0 encoding", props={ "Ice.Default.EncodingVersion" : "1.0" }),
     ]
 
+if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "collocated"):
+    testcases += [ CollocatedTestCase() ]
+
 TestSuite(__name__, testcases)

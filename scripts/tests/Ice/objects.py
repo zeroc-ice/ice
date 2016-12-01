@@ -7,8 +7,14 @@
 #
 # **********************************************************************
 
-TestSuite(__name__, [
+testcases = [
     ClientServerTestCase("client/server with compact format"),
     ClientServerTestCase("client/server with sliced format", props={ "Ice.Default.SlicedFormat" : True }),
     ClientServerTestCase("client/server with 1.0 encoding", props={ "Ice.Default.EncodingVersion" : "1.0" }),
-])
+]
+
+if Mapping.getByPath(__name__).hasSource("Ice/objects", "collocated"):
+    testcases += [ CollocatedTestCase() ]
+
+TestSuite(__name__, testcases)
+
