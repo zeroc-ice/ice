@@ -55,10 +55,6 @@ def getIceSoVersion():
     else:
         return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
-def getIceJSONVersion():
-    config = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
-    return re.search("<IceJSONVersion>(.*)</IceJSONVersion>", config.read()).group(1)
-
 class Platform:
 
     def __init__(self):
@@ -101,8 +97,8 @@ class Platform:
     def getLdPathEnvName(self):
         return "LD_LIBRARY_PATH"
 
-    def getIceDir(self):
-        return "/usr"
+    def getIceDir(self, mapping):
+        return os.environ.get("ICE_HOME", "/usr")
 
     def getSliceDir(self, iceDir):
         if iceDir.startswith("/usr"):
@@ -130,8 +126,8 @@ class Darwin(Platform):
     def getLdPathEnvName(self):
         return "DYLD_LIBRARY_PATH"
 
-    def getIceDir(self):
-        return "/usr/local"
+    def getIceDir(self, mapping):
+        return os.environ.get("ICE_HOME", "/usr/local")
 
 class AIX(Platform):
 
@@ -219,18 +215,6 @@ class Windows(Platform):
         elif out.find("Version 19.") != -1:
             return "v140"
 
-    def getNugetPackage(self, mapping):
-        if isinstance(mapping, PhpMapping):
-            return os.path.join("php", "msbuild", "packages","zeroc.ice.php.{0}".format(getIceJSONVersion()))
-        elif isinstance(mapping, JavaMapping) and isinstance(process, SliceTranslator):
-            return os.path.join("java", "msbuild", "packages","zeroc.ice.java.{0}".format(getIceJSONVersion()))
-        elif isinstance(mapping, CSharpMapping):
-            return os.path.join("csharp", "msbuild", "packages","zeroc.ice.net.{0}".format(getIceJSONVersion()))
-        elif isinstance(mapping, CppMapping):
-            return os.path.join("cpp", "msbuild", "packages","zeroc.ice.{0}.{1}".format(self.getCompiler(),
-                                                                                        getIceJSONVersion()))
-        assert False
-
     def getBinSubDir(self, mapping, process, current):
         #
         # Platform/Config taget bin directories.
@@ -240,22 +224,18 @@ class Windows(Platform):
 
         if current.driver.useBinDist():
             if isinstance(process, SliceTranslator):
-                return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", "Win32", "Release")
-            elif isinstance(mapping, CSharpMapping) and isinstance(process, IceBox):
-                return os.path.join(self.getNugetPackage(mapping), "tools")
-            #
-            # Fallback to binaries from default C++ package
-            #
+                return os.path.join("build", "native", "bin", "Win32", "Release")
+            elif isinstance(mapping, CSharpMapping):
+                return os.path.join("tools")
 
             #
             # With Windows binary distribution Glacier2 and IcePatch binaries are only included
             # for Release configuration.
             #
-            if (isinstance(process, Glacier2Router) or isinstance(process, IcePatch2Calc) or
-                isinstance(process, IcePatch2Client) or isinstance(process, IcePatch2Server)):
-                config = "Release"
+            config = next(("Release" for p in 
+                [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server] if isinstance(process, p)), config)
 
-            return os.path.join(self.getNugetPackage(mapping), "build", "native", "bin", platform, config)
+            return os.path.join("build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
@@ -264,12 +244,8 @@ class Windows(Platform):
             return "bin"
 
     def getLibSubDir(self, mapping, process, current):
-
-        platform = current.config.buildPlatform
-        config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
-
         if isinstance(mapping, PhpMapping):
-            return os.path.join(self.getNugetPackage(mapping), "php") if current.driver.useBinDist() else "lib"
+            return "php" if current.driver.useBinDist() else "lib"
         return self.getBinSubDir(mapping, process, current)
 
     def getBuildSubDir(self, name, current):
@@ -281,8 +257,17 @@ class Windows(Platform):
     def getLdPathEnvName(self):
         return "PATH"
 
-    def getIceDir(self):
-        return None
+    def getIceDir(self, mapping):
+
+        config = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
+        version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", config.read()).group(1)
+
+        name = self.getCompiler() if isinstance(mapping, CppMapping) else mapping.name
+        iceHome = os.environ.get("ICE_HOME", "")
+        if iceHome:
+            return os.path.join(iceHome, "zeroc.ice.{0}".format(name))
+        else:
+            return os.path.join(toplevel, mapping.name, "msbuild", "packages", "zeroc.ice.{0}.{1}".format(name, version))
 
     def canRun(self, current):
         #
@@ -1709,8 +1694,7 @@ class Driver:
 
     def getIceDir(self, mapping=None):
         if self.useBinDist():
-            iceHome = os.environ.get("ICE_HOME", "")
-            return iceHome if iceHome else platform.getIceDir()
+            return platform.getIceDir(mapping)
         elif mapping:
             return mapping.getPath()
         else:
