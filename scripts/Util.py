@@ -1692,7 +1692,7 @@ class Driver:
     def useBinDist(self):
         return os.environ.get("USE_BIN_DIST", "no") == "yes"
 
-    def getIceDir(self, mapping=None):
+    def getIceDir(self, mapping):
         if self.useBinDist():
             return platform.getIceDir(mapping)
         elif mapping:
@@ -1701,7 +1701,7 @@ class Driver:
             return toplevel
 
     def getSliceDir(self, mapping):
-        return platform.getSliceDir(self.getIceDir(mapping))
+        return platform.getSliceDir(self.getIceDir(mapping) if self.useBinDist() else toplevel)
 
     def isWorkerThread(self):
         return False
