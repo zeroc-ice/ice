@@ -8,7 +8,7 @@
   <Target Name="SignPackage" AfterTargets="Build" 
           Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(OutDir)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
     <Message Text="Signing $(TargetName)$(TargetExt)" />
-    <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" />
+    <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
 
     <WriteLinesToFile File                = "$(IntDir)sign.log"
                       Encoding            = "Unicode"
