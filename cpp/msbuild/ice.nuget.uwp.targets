@@ -3,14 +3,13 @@
     <PropertyGroup>
         <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
     </PropertyGroup>
-
-    <!-- For UWP we use Slice compiler from Win32 Release builds -->
+    
     <ItemGroup>
-        <Executables Include="$(Ice_SrcRootDir)bin\Win32\Release\slice2cpp.*"/>
-    </ItemGroup>
+        <!-- Slice compiler from Win32 Release builds -->
+        <Tools Include="$(Ice_SrcRootDir)bin\Win32\Release\slice2cpp.exe;
+                        $(Ice_SrcRootDir)bin\Win32\Release\slice2html.exe" />
 
-    <!-- public header files and sources -->
-    <ItemGroup>
+        <!-- public header files and sources -->
         <Headers Include="$(Ice_SrcRootDir)include\**\*.h"
                  Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
                           $(Ice_SrcRootDir)include\IceBT\*.h"/>
@@ -21,7 +20,7 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\Win32\Release" />
+        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
         <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
     </Target>

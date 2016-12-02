@@ -5,8 +5,9 @@
 
     <!-- For CSharp we use Slice compiler from Win32 Release builds -->
     <ItemGroup>
-        <NativeExecutables Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2cs.exe"/>
-        <Executables Include="$(Ice_SrcRootDir)bin\iceboxnet.exe;$(Ice_SrcRootDir)bin\iceboxnet.pdb" />
+        <Tools Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2cs.exe;
+                        $(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2html.exe;
+                        $(Ice_SrcRootDir)bin\iceboxnet.exe" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml" />
         <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
@@ -14,9 +15,8 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(NativeExecutables)" DestinationFolder="$(PackageDirectory)\build\native\bin\Win32\Release" />
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib" />
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
-        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\tools" />
+        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
     </Target>
 </Project>

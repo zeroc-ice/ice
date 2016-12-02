@@ -16,11 +16,11 @@
 
     <!-- Win32 Release binaries -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe" 
-                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
+        <Executables Include="$(Ice_SrcRootDir)bin\Win32\Release\*.exe" 
+                     Exclude="$(Ice_SrcRootDir)bin\Win32\Release\slice2*.exe" />
 
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe;
-                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.pdb" />
+        <Tools Include="$(Ice_SrcRootDir)bin\Win32\Release\slice2cpp.exe;
+                        $(Ice_SrcRootDir)bin\Win32\Release\slice2html.exe" />
     </ItemGroup>
 
     <!-- x64 Release binaries -->
@@ -39,7 +39,7 @@
                               $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe"/>
     </ItemGroup>
 
-    <!-- public header files and sources -->
+    <!-- public C++ header and Slice files -->
     <ItemGroup>
         <Headers Include="$(Ice_SrcRootDir)include\**\*.h"
                  Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
@@ -49,19 +49,14 @@
         <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
 
-    <!-- Copy header files in Win32 Release, the files are identical in all configurations -->
-    <Target Name="CopyHeaders" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
-    </Target>
-
-    <!-- Copy slice files -->
-    <Target Name="CopySlices" Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
-    </Target>
-
-
     <!-- Copy required files to the package specific directories -->
-    <Target Name="NugetPack" DependsOnTargets="CopyHeaders;CopySlices">
+    <Target Name="NugetPack">
+        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'" 
+              SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
+        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
+              SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
+              SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />

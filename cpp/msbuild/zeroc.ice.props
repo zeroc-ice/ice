@@ -14,7 +14,7 @@
         <Ice_Configuration Condition="'$(UseDebugLibraries)' == 'true'">Debug</Ice_Configuration>
         <Ice_Configuration Condition="'$(UseDebugLibraries)' != 'true'">Release</Ice_Configuration>
 
-        <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>
+        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <IceBinPath>$(IceHome)\build\native\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
 
         <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
