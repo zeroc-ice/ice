@@ -19,39 +19,20 @@
 namespace TestSuite
 {
 
-struct TestConfiguration
+struct TestCaseDesc
 {
-    TestConfiguration(const std::string& desc = "",
-                      const std::string& configName = "",
-                      bool localOnly = false,
-                      const std::vector<std::string>& options = std::vector<std::string>(),
-                      const std::vector<std::string>& languages = std::vector<std::string>());
-
-    const std::string desc;
-    const std::string configName;
-    const bool localOnly;
-    const std::vector<std::string> options;
-    const std::vector<std::string> languages;
-};
-typedef std::shared_ptr<TestConfiguration> TestConfigurationPtr;
-
-struct TestCase
-{
-    TestCase(const std::string&, const std::string&, const std::string&, const std::string& = "",
-             const std::string& = "", const std::string& = "");
-
     const std::string name;
-    const std::string prefix;
-    const std::string client;
-    const std::string server;
-    const std::string serverAMD;
-    const std::string collocated;
-    bool sslSupport;
-    bool ipv6Support;
-    bool wsSupport;
-    std::vector<TestConfigurationPtr> configurations;
+    std::string client;
+    std::string server;
+    const std::vector<std::string> args;
 };
-typedef std::shared_ptr<TestCase> TestCasePtr;
+
+struct TestSuiteDesc
+{
+    const std::string id;
+    std::vector<TestCaseDesc> testCases;
+};
+
 
 template<typename T> T^
 findChild(Windows::UI::Xaml::DependencyObject^ parent, Platform::String^ name)
@@ -130,10 +111,10 @@ private:
     Platform::Collections::Vector<Platform::String^>^ _protocols;
     Platform::Collections::Vector<Platform::String^>^ _messages;
 
-    std::vector<TestCasePtr> _allTests;
+    std::vector<TestSuiteDesc> _allTests;
     DllCache _dlls;
 
-    Windows::UI::Xaml::Controls::ListBox^ _tests;
+    Windows::UI::Xaml::Controls::ListBox^ _testSuites;
     Windows::UI::Xaml::Controls::ComboBox^ _language;
     Windows::UI::Xaml::Controls::TextBox^ _host;
     Windows::UI::Xaml::Controls::ComboBox^ _protocol;

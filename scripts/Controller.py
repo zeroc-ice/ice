@@ -46,7 +46,7 @@ class ControllerDriver(Driver):
         self.clean = False
         parseOptions(self, options, { "clean" : "clean" })
 
-    def run(self, mappings):
+    def run(self, mappings, testSuiteIds):
 
         if isinstance(platform, Darwin):
             #
@@ -225,6 +225,8 @@ class ControllerDriver(Driver):
         initData.properties.setProperty("ControllerAdapter.AdapterId", Ice.generateUUID())
 
         communicator = Ice.initialize(initData)
+        ctrlCHandler = Ice.CtrlCHandler()
+        ctrlCHandler.setCallback(lambda sig: communicator.shutdown())
         try:
             adapter = communicator.createObjectAdapter("ControllerAdapter")
             adapter.add(ControllerI(self), communicator.stringToIdentity(self.id))
@@ -232,6 +234,7 @@ class ControllerDriver(Driver):
             communicator.waitForShutdown()
         finally:
             communicator.destroy()
+            ctrlCHandler.destroy()
 
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         import Test

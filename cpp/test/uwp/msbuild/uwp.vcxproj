@@ -272,7 +272,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\Controller.ice" />
+    <IceBuilder Include="..\..\..\..\scripts\Controller.ice" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\certs\cacert.der">
@@ -400,7 +400,6 @@
     <None Include="..\..\IceSSL\configuration\msbuild\uwp\client\x64\Release\IceSSL_configuration_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
-
     <None Include="..\..\Ice\optional\msbuild\uwp\client\ARM\Debug\Ice_optional_client.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
     </None>

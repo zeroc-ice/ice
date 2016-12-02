@@ -232,7 +232,7 @@ class Windows(Platform):
             # With Windows binary distribution Glacier2 and IcePatch binaries are only included
             # for Release configuration.
             #
-            config = next(("Release" for p in 
+            config = next(("Release" for p in
                 [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server] if isinstance(process, p)), config)
 
             return os.path.join("build", "native", "bin", platform, config)
@@ -620,7 +620,7 @@ class Mapping:
 
     def addTestSuite(self, testsuite):
         assert len(testsuite.path) > len(self.getTestsPath()) + 1
-        testSuiteId = testsuite.path[len(self.getTestsPath()) + 1:]
+        testSuiteId = testsuite.path[len(self.getTestsPath()) + 1:].replace('\\', '/')
         self.testsuites[testSuiteId] = testsuite
         return testSuiteId
 

@@ -187,11 +187,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\Controller.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Ice\proxy\msbuild\uwp\client\x64\Debug\Ice_proxy_client.dll">
       <Filter>Tests\x64\Debug</Filter>
     </None>
@@ -1541,5 +1536,10 @@
     <None Include="..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Debug\Ice_optional_serveramd.dll">
       <Filter>Tests\ARM\Debug</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <IceBuilder Include="..\..\..\..\scripts\Controller.ice">
+      <Filter>Slice Files</Filter>
+    </IceBuilder>
   </ItemGroup>
 </Project>
