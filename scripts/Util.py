@@ -1575,10 +1575,6 @@ class TestSuite:
         # Only run the tests that support cross testing --all-cross or --cross
         return self.id in self.mapping.getCrossTestSuites()
 
-    def isAllCross(self):
-        # Only run the Ice/operations test suite with --all-cross
-        return self.id == "Ice/operations"
-
 class Driver:
 
     class Current:

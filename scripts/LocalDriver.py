@@ -371,8 +371,6 @@ class LocalDriver(Driver):
                         continue
                     elif (self.cross or self.allCross) and not testsuite.isCross():
                         continue
-                    elif self.allCross and not testsuite.isAllCross():
-                        continue
                     elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                         continue
                     executor.submit(testsuite)
