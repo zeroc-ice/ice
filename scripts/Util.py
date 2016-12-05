@@ -1956,11 +1956,18 @@ class PythonMapping(CppBasedMapping):
         return sys.executable + " " + exe
 
     def getEnv(self, process, current):
+        c = current.config
         env = CppBasedMapping.getEnv(self, process, current)
         if current.driver.getIceDir(self) != platform.getIceDir(self):
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
-            env["PYTHONPATH"] = os.path.join(current.driver.getIceDir(self), "python")
+
+            pythondirs = []
+            if isinstance(platform, Windows):
+                pythondirs.append(os.path.join(current.driver.getIceDir(self), "python", c.buildPlatform, c.buildConfig))
+            pythondirs.append(os.path.join(current.driver.getIceDir(self), "python"))
+
+            env["PYTHONPATH"] = os.pathsep.join(pythondirs)
         return env
 
     def getDefaultExe(self, processType, config):
