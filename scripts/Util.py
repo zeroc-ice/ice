@@ -36,9 +36,7 @@ def val(v, escapeQuotes=False, quoteValue=True):
         if not quoteValue or v.find(" ") < 0:
             return v
         elif escapeQuotes:
-            # Work-around for IceGrid bug (ICE-7458) where some characters are escaped when within double-quotes.
-            #return "\\\"{0}\\\"".format(v.replace("\\\"", "\\\\\\\""))
-            return "\\\"{0}\\\"".format(v.replace("\\\"", "\\'"))
+            return "\\\"{0}\\\"".format(v.replace("\\\"", "\\\\\\\""))
         else:
             return "\"{0}\"".format(v)
     else:
