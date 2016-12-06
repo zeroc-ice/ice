@@ -69,14 +69,15 @@ class IceGridNode(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        os.mkdir(os.path.join(current.testcase.getPath(), "node-{0}".format(self.name)))
+        self.dbdir = os.path.join(current.testcase.getPath(), "node-{0}".format(self.name))
+        if os.path.exists(self.dbdir):
+            shutil.rmtree(self.dbdir)
+        os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
         # Remove the database directory tree
-        try:
-            shutil.rmtree(os.path.join(current.testcase.getPath(), "node-{0}".format(self.name)))
-        except:
-            pass
+        if success:
+            shutil.rmtree(self.dbdir)
 
     def getProps(self, current):
         props = {
@@ -120,14 +121,15 @@ class IceGridRegistry(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        os.mkdir(os.path.join(current.testcase.getPath(), "registry-{0}".format(self.name)))
+        self.dbdir = os.path.join(current.testcase.getPath(), "registry-{0}".format(self.name))
+        if os.path.exists(self.dbdir):
+            shutil.rmtree(self.dbdir)
+        os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
         # Remove the database directory tree
-        try:
-            shutil.rmtree(os.path.join(current.testcase.getPath(), "registry-{0}".format(self.name)))
-        except:
-            pass
+        if success:
+            shutil.rmtree(self.dbdir)
 
     def getProps(self, current):
         props = {

@@ -36,7 +36,9 @@ def val(v, escapeQuotes=False, quoteValue=True):
         if not quoteValue or v.find(" ") < 0:
             return v
         elif escapeQuotes:
-            return "\\\"{0}\\\"".format(v.replace("\\\"", "\\\\\\\""))
+            # Work-around for IceGrid bug (ICE-7458) where some characters are escaped when within double-quotes.
+            #return "\\\"{0}\\\"".format(v.replace("\\\"", "\\\\\\\""))
+            return "\\\"{0}\\\"".format(v.replace("\\\"", "\\'"))
         else:
             return "\"{0}\"".format(v)
     else:
@@ -1770,9 +1772,10 @@ class CppMapping(Mapping):
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
         if isinstance(platform, Darwin):
+            keychainFile = "server.keychain" if isinstance(process, Server) else "client.keychain"
             props.update({
                 "IceSSL.KeychainPassword" : "password",
-                "IceSSL.Keychain": "server.keychain" if isinstance(process, Server) else "client.keychain"
+                "IceSSL.Keychain": keychainFile
              })
         return props
 
