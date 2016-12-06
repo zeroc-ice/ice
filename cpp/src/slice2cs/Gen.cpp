@@ -824,7 +824,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 
         _out << nl << "public override void iceWrite(Ice.OutputStream ostr_)";
         _out << sb;
-        _out << nl << "ostr_.startValue(iceSlicedData);";
+        _out << nl << "ostr_.startValue(iceSlicedData_);";
         _out << nl << "iceWriteImpl(ostr_);";
         _out << nl << "ostr_.endValue();";
         _out << eb;
@@ -838,7 +838,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "istr_.startValue();";
         _out << nl << "iceReadImpl(istr_);";
-        _out << nl << "iceSlicedData = istr_.endValue(true);";
+        _out << nl << "iceSlicedData_ = istr_.endValue(true);";
         _out << eb;
     }
 
@@ -1034,7 +1034,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 
     if(preserved && !basePreserved)
     {
-        _out << sp << nl << "protected Ice.SlicedData iceSlicedData;";
+        _out << sp << nl << "protected Ice.SlicedData iceSlicedData_;";
     }
 
     _out << sp << nl << "#endregion"; // Marshalling support
@@ -2940,7 +2940,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             emitGeneratedCodeAttribute();
             _out << nl << "public override void iceWrite(Ice.OutputStream ostr_)";
             _out << sb;
-            _out << nl << "ostr_.startException(iceSlicedData);";
+            _out << nl << "ostr_.startException(slicedData_);";
             _out << nl << "iceWriteImpl(ostr_);";
             _out << nl << "ostr_.endException();";
             _out << eb;
@@ -2951,7 +2951,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             _out << nl << "istr_.startException();";
             _out << nl << "iceReadImpl(istr_);";
-            _out << nl << "iceSlicedData = istr_.endException(true);";
+            _out << nl << "slicedData_ = istr_.endException(true);";
             _out << eb;
         }
 
@@ -3148,7 +3148,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            _out << sp << nl << "protected Ice.SlicedData iceSlicedData;";
+            _out << sp << nl << "protected Ice.SlicedData slicedData_;";
         }
 
         _out << sp << nl << "#endregion"; // Marshalling support

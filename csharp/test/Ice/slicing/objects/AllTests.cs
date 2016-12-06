@@ -3088,7 +3088,7 @@ public class AllTests : TestCommon.AllTests
             // type is unknown. A data member in the preserved slice refers to the
             // outer object, so the chain of references looks like this:
             //
-            // outer.slicedData.outer
+            // outer.iceSlicedData_.outer
             //
             {
                 PreservedI.counter = 0;
@@ -3107,7 +3107,7 @@ public class AllTests : TestCommon.AllTests
             //
             // The chain of references looks like this:
             //
-            // ex.slicedData.obj.slicedData.obj
+            // ex.slicedData_.obj.iceSlicedData_.obj
             //
             try
             {
