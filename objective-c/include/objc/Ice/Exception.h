@@ -40,9 +40,9 @@ ICE_API @interface ICELocalException : ICEException
 @end
 
 ICE_API @interface ICEUserException : ICEException
--(BOOL)usesClasses__;
--(void)write__:(id<ICEOutputStream>)stream;
--(void) writeImpl__:(id<ICEOutputStream>)os;
--(void)read__:(id<ICEInputStream>)stream;
--(void) readImpl__:(id<ICEInputStream>)is;
+-(BOOL)iceUsesClasses;
+-(void)iceWrite:(id<ICEOutputStream>)stream;
+-(void) iceWriteImpl:(id<ICEOutputStream>)os;
+-(void)iceRead:(id<ICEInputStream>)stream;
+-(void) iceReadImpl:(id<ICEInputStream>)is;
 @end

@@ -51,6 +51,7 @@ protected:
     static std::string fixName(const ContainedPtr&, int = 0, bool = false);
     static std::string fixScoped(const ContainedPtr&, int = 0, bool = false);
     static std::string getParamId(const ContainedPtr&);
+    static std::string getParamName(const ContainedPtr&, bool = false);
     static std::string getFactoryMethod(const ContainedPtr&, bool);
     static std::string typeToString(const TypePtr&);
     static std::string inTypeToString(const TypePtr&, bool, bool = false, bool = false);

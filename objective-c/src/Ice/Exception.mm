@@ -171,33 +171,33 @@ localExceptionToString(const Ice::LocalException& ex)
 @end
 
 @implementation ICEUserException
--(BOOL)usesClasses__
+-(BOOL)iceUsesClasses
 {
     return NO;
 }
 
--(void)write__:(id<ICEOutputStream>)os
+-(void)iceWrite:(id<ICEOutputStream>)os
 {
     [os startException:nil];
-    [self writeImpl__:os];
+    [self iceWriteImpl:os];
     [os endException];
 }
 
--(void) writeImpl__:(id<ICEOutputStream>)os
+-(void) iceWriteImpl:(id<ICEOutputStream>)os
 {
-    NSAssert(NO, @"writeImpl__ requires override");
+    NSAssert(NO, @"iceWriteImpl requires override");
 }
 
--(void)read__:(id<ICEInputStream>)is
+-(void)iceRead:(id<ICEInputStream>)is
 {
     [is startException];
-    [self readImpl__:is];
+    [self iceReadImpl:is];
     [is endException:NO];
 }
 
--(void) readImpl__:(id<ICEInputStream>)is
+-(void) iceReadImpl:(id<ICEInputStream>)is
 {
-    NSAssert(NO, @"readImpl__ requires override");
+    NSAssert(NO, @"iceReadImpl requires override");
 }
 
 -(id) copyWithZone:(NSZone *)zone

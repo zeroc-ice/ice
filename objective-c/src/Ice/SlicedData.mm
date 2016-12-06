@@ -21,20 +21,20 @@
     {
         return nil;
     }
-    self->slicedData__ = slicedData;
-    self->slicedData__->__incRef();
+    self->slicedData_ = slicedData;
+    self->slicedData_->__incRef();
     return self;
 }
 
 -(void) dealloc
 {
-    self->slicedData__->__decRef();
+    self->slicedData_->__decRef();
     [super dealloc];
 }
 
 -(Ice::SlicedData*) slicedData
 {
-    return slicedData__;
+    return slicedData_;
 }
 
 @end
@@ -70,13 +70,13 @@
     return [[slicedData_ retain] autorelease];
 }
 
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
     [os startValue:slicedData_];
     [os endValue];
 }
 
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     slicedData_ = [is endValue:YES];

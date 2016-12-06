@@ -187,7 +187,7 @@ private:
 @synthesize logger;
 @synthesize dispatcher;
 @synthesize batchRequestInterceptor;
-@synthesize prefixTable__;
+@synthesize prefixTable_;
 
 -(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>,
                                                                                   id<ICEConnection>))d;
@@ -222,7 +222,7 @@ private:
     copy->properties = [properties retain];
     copy->logger = [logger retain];
     copy->dispatcher = [dispatcher copy];
-    copy->prefixTable__ = [prefixTable__ retain];
+    copy->prefixTable_ = [prefixTable_ retain];
     return copy;
 }
 
@@ -231,7 +231,7 @@ private:
     NSUInteger h = 0;
     h = (h << 5 ^ [properties hash]);
     h = (h << 5 ^ [logger hash]);
-    h = (h << 5 ^ [prefixTable__ hash]);
+    h = (h << 5 ^ [prefixTable_ hash]);
     return h;
 }
 
@@ -288,16 +288,16 @@ private:
             return NO;
         }
     }
-    if(!prefixTable__)
+    if(!prefixTable_)
     {
-        if(obj->prefixTable__)
+        if(obj->prefixTable_)
         {
             return NO;
         }
     }
     else
     {
-        if(![prefixTable__ isEqual:obj->prefixTable__])
+        if(![prefixTable_ isEqual:obj->prefixTable_])
         {
             return NO;
         }
@@ -310,7 +310,7 @@ private:
     [properties release];
     [logger release];
     [dispatcher release];
-    [prefixTable__ release];
+    [prefixTable_ release];
     [super dealloc];
 }
 @end

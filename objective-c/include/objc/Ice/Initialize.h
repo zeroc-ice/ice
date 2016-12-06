@@ -38,13 +38,13 @@ ICE_API @interface ICEInitializationData : NSObject
     id<ICELogger> logger;
     void(^dispatcher)(id<ICEDispatcherCall>, id<ICEConnection>);
     void(^batchRequestInterceptor)(id<ICEBatchRequest>, int, int);
-    NSDictionary* prefixTable__;
+    NSDictionary* prefixTable_;
 }
 @property(retain, nonatomic) id<ICEProperties> properties;
 @property(retain, nonatomic) id<ICELogger> logger;
 @property(copy, nonatomic) void(^dispatcher)(id<ICEDispatcherCall>, id<ICEConnection>);
 @property(copy, nonatomic) void(^batchRequestInterceptor)(id<ICEBatchRequest>, int, int);
-@property(retain, nonatomic) NSDictionary* prefixTable__;
+@property(retain, nonatomic) NSDictionary* prefixTable_;
 
 -(id) init:(id<ICEProperties>)properties logger:(id<ICELogger>)logger
      dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;

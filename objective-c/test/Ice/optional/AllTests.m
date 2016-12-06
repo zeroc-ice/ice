@@ -19,7 +19,7 @@
 @end
 
 @implementation TestObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     [is startSlice];
@@ -34,7 +34,7 @@
 @end
 
 @implementation BObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::B
@@ -55,7 +55,7 @@
 @end
 
 @implementation CObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::C
@@ -79,7 +79,7 @@
 @end
 
 @implementation DObjectWriter
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
     [os startValue:0];
     // ::Test::D
@@ -127,7 +127,7 @@
     [super dealloc];
 }
 #endif
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::D
@@ -178,7 +178,7 @@
     return self;
 }
 
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     if(f_ != nil)
     {

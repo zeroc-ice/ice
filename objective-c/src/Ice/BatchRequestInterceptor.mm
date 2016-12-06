@@ -100,6 +100,6 @@ batchRequestInterceptorWithBatchRequestInterceptor:(void(^)(id<ICEBatchRequest>,
 }
 -(id<ICEObjectPrx>) getProxy
 {
-    return [ICEObjectPrx objectPrxWithObjectPrx__:cxxRequest_->getProxy()];
+    return [ICEObjectPrx iceObjectPrxWithObjectPrx:cxxRequest_->getProxy()];
 }
 @end

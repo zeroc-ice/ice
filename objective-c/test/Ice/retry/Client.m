@@ -52,7 +52,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.RetryIntervals" value:@"0 1 10 1"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestRetry", @"::Test",
                                       nil];
 #endif

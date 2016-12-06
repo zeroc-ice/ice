@@ -59,7 +59,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"100"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestAMI", @"::Test",
                                       nil];
 #endif

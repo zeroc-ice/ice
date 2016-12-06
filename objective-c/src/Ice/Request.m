@@ -46,7 +46,7 @@
         [is rewind];
         [os reset:NO];
     }
-    [servant dispatch__:current is:is os:os];
+    [servant iceDispatch:current is:is os:os];
 }
 
 -(void) dealloc

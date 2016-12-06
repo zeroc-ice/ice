@@ -50,7 +50,7 @@ public:
     {
         @try
         {
-            [_obj write__:static_cast<ICEOutputStream*>(stream->getClosure())];
+            [_obj iceWrite:static_cast<ICEOutputStream*>(stream->getClosure())];
         }
         @catch(id ex)
         {
@@ -63,7 +63,7 @@ public:
     {
         @try
         {
-            [_obj read__:static_cast<ICEInputStream*>(stream->getClosure())];
+            [_obj iceRead:static_cast<ICEInputStream*>(stream->getClosure())];
         }
         @catch(id ex)
         {
@@ -270,7 +270,7 @@ public:
     virtual bool
     _usesClasses() const
     {
-        return [_ex usesClasses__];
+        return [_ex iceUsesClasses];
     }
 
     virtual std::string
@@ -294,13 +294,13 @@ public:
     virtual void
     _write(Ice::OutputStream* s) const
     {
-        [_ex write__:static_cast<ICEOutputStream*>(s->getClosure())];
+        [_ex iceWrite:static_cast<ICEOutputStream*>(s->getClosure())];
     }
 
     virtual void
     _read(Ice::InputStream* s)
     {
-        [_ex read__:static_cast<ICEInputStream*>(s->getClosure())];
+        [_ex iceRead:static_cast<ICEInputStream*>(s->getClosure())];
     }
 
     ICEUserException*
@@ -917,7 +917,7 @@ private:
     {
         Ice::ObjectPrx p;
         is_->read(p);
-        return p ? [[type alloc] initWithObjectPrx__:p] : nil;
+        return p ? [[type alloc] iceInitWithObjectPrx:p] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -1922,7 +1922,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        os_->write(Ice::ObjectPrx([(ICEObjectPrx*)v objectPrx__]));
+        os_->write(Ice::ObjectPrx([(ICEObjectPrx*)v iceObjectPrx]));
     }
     catch(const std::exception& ex)
     {
@@ -2779,7 +2779,7 @@ private:
 
     @try
     {
-        [p read__:stream];
+        [p iceRead:stream];
     }
     @catch(NSException *ex)
     {
@@ -2799,7 +2799,7 @@ private:
         obj = [[self getType] new];
         @try
         {
-            [obj write__:stream];
+            [obj iceWrite:stream];
         }
         @finally
         {
@@ -2808,7 +2808,7 @@ private:
     }
     else
     {
-        [obj write__:stream];
+        [obj iceWrite:stream];
     }
 }
 +(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag

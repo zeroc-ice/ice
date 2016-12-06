@@ -15,7 +15,7 @@
 {
 @private
 
-    Ice::ImplicitContext* implicitContext__;
+    Ice::ImplicitContext* implicitContext_;
 }
 -(id) init:(Ice::ImplicitContext*)implicitContext;
 +(id) implicitContextWithImplicitContext:(Ice::ImplicitContext*)implicitContext;

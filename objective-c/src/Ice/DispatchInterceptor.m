@@ -15,7 +15,7 @@
 #import <Foundation/NSInvocation.h>
 
 @implementation ICEDispatchInterceptor
--(void) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
+-(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICERequest* request = [ICERequest request:current is:is os:os];
     id<ICEDispatchInterceptor> dispatchInterceptor = (id<ICEDispatchInterceptor>)self;

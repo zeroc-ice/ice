@@ -287,7 +287,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:CONNECTION->createProxy([identity identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:CONNECTION->createProxy([identity identity])];
     }
     catch(const std::exception& ex)
     {

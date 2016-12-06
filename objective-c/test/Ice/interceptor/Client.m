@@ -128,7 +128,7 @@ main(int argc, char* argv[])
             initData.properties = defaultClientProperties(&argc, argv);
             [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestInterceptor", @"::Test",
                                       nil];
 #endif

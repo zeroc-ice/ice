@@ -157,7 +157,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&), ICEObjectPrx* prx
     {
         Ice::AsyncResultPtr r;
         fn(r);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -179,7 +179,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Callbac
         Ice::AsyncResultPtr r;
         Ice::CallbackPtr callback = Ice::newCallback(cb, &AsyncCallback::completed, &AsyncCallback::sent);
         fn(r, callback);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -199,7 +199,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         fromNSDictionary(context, ctx);
         Ice::AsyncResultPtr r;
         fn(r, ctx);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -224,7 +224,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         Ice::AsyncResultPtr r;
         Ice::CallbackPtr callback = Ice::newCallback(cb, &AsyncCallback::completed, &AsyncCallback::sent);
         fn(r, ctx, callback);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -238,7 +238,7 @@ void endCppCall(void (^fn)(const Ice::AsyncResultPtr&), ICEAsyncResult* r)
     NSException* nsex = nil;
     try
     {
-        fn([r asyncResult__]);
+        fn([r asyncResult]);
         return;
     }
     catch(const std::exception& ex)

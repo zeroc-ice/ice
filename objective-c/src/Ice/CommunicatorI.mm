@@ -62,9 +62,9 @@
 @implementation ICECommunicator
 -(void)setup:(ICEInitializationData*)initData
 {
-    if(initData.prefixTable__)
+    if(initData.prefixTable_)
     {
-        prefixTable_ = [initData.prefixTable__ retain];
+        prefixTable_ = [initData.prefixTable_ retain];
     }
     else
     {
@@ -179,7 +179,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->stringToProxy(fromNSString(str))];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->stringToProxy(fromNSString(str))];
     }
     catch(const std::exception& ex)
     {
@@ -194,7 +194,7 @@
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(COMMUNICATOR->proxyToString([(ICEObjectPrx*)obj objectPrx__])) autorelease];
+        return [toNSMutableString(COMMUNICATOR->proxyToString([(ICEObjectPrx*)obj iceObjectPrx])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -209,7 +209,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->propertyToProxy(fromNSString(property))];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->propertyToProxy(fromNSString(property))];
     }
     catch(const std::exception& ex)
     {
@@ -224,7 +224,7 @@
     NSException* nsex = nil;
     try
     {
-        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx objectPrx__],
+        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx iceObjectPrx],
                                                              fromNSString(property))) autorelease];
     }
     catch(const std::exception& ex)
@@ -296,7 +296,7 @@
     NSException* nsex = nil;
     try
     {
-        Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr objectPrx__]));
+        Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr iceObjectPrx]));
         ICEObjectAdapter* adapter = [ICEObjectAdapter localObjectWithCxxObject:
                                                           COMMUNICATOR->createObjectAdapterWithRouter(
                                                               fromNSString(name), router).get()];
@@ -382,7 +382,7 @@
     NSException* nsex = nil;
     try
     {
-        return (id<ICERouterPrx>)[ICERouterPrx objectPrxWithObjectPrx__:COMMUNICATOR->getDefaultRouter()];
+        return (id<ICERouterPrx>)[ICERouterPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getDefaultRouter()];
     }
     catch(const std::exception& ex)
     {
@@ -397,7 +397,7 @@
     NSException* nsex = nil;
     try
     {
-        COMMUNICATOR->setDefaultRouter(Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr objectPrx__])));
+        COMMUNICATOR->setDefaultRouter(Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr iceObjectPrx])));
     }
     catch(const std::exception& ex)
     {
@@ -414,7 +414,7 @@
     NSException* nsex = nil;
     try
     {
-        return (id<ICELocatorPrx>)[ICELocatorPrx objectPrxWithObjectPrx__:COMMUNICATOR->getDefaultLocator()];
+        return (id<ICELocatorPrx>)[ICELocatorPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getDefaultLocator()];
     }
     catch(const std::exception& ex)
     {
@@ -430,7 +430,7 @@
     try
     {
         COMMUNICATOR->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(
-                                            Ice::ObjectPrx([(ICEObjectPrx*)loc objectPrx__])));
+                                            Ice::ObjectPrx([(ICEObjectPrx*)loc iceObjectPrx])));
     }
     catch(const std::exception& ex)
     {
@@ -496,7 +496,7 @@
     try
     {
         Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
     }
     catch(const std::exception& ex)
     {
@@ -509,7 +509,7 @@
     NSException* nsex;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->getAdmin()];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getAdmin()];
     }
     catch(const std::exception& ex)
     {
@@ -522,7 +522,7 @@
     NSException* nsex;
     try
     {
-        COMMUNICATOR->addAdminFacet([servant object__], fromNSString(facet));
+        COMMUNICATOR->addAdminFacet([servant iceObject], fromNSString(facet));
         @synchronized(adminFacets_)
         {
             [adminFacets_ setObject:servant forKey:facet];

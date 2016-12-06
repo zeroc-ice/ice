@@ -33,12 +33,12 @@ typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 };
 
 @interface ICEObject (ICEInternal)
--(Ice::Object*) object__;
+-(Ice::Object*) iceObject;
 @end
 
 @interface ICEServantWrapper : ICEObject
 {
-    Ice::Object* object__;
+    Ice::Object* object_;
 }
 +(id) servantWrapperWithCxxObject:(Ice::Object*)arg;
 @end

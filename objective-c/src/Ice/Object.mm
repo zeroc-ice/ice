@@ -131,7 +131,7 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
         ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
         @try
         {
-            [_object dispatch__:c is:is os:os];
+            [_object iceDispatch:c is:is os:os];
         }
         @catch(ICEUserException* ex)
         {
@@ -161,7 +161,7 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     [os release];
 }
 
-BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject target__])
+BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject iceTarget])
 {
 }
 
@@ -284,15 +284,15 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
 }
 
 @implementation ICEObject (ICEInternal)
--(Ice::Object*) object__
+-(Ice::Object*) iceObject
 {
-    NSAssert(NO, @"object__ requires override");
+    NSAssert(NO, @"iceObject requires override");
     return 0;
 }
 @end
 
 @implementation ICEObject
-static NSString* ICEObject_ids__[1] =
+static NSString* ICEObject_ids[1] =
 {
     @"::Ice::Object"
 };
@@ -359,22 +359,22 @@ static NSString* ICEObject_ids__[1] =
 +(NSString*) ice_staticId
 {
     int count, index;
-    NSString*const* staticIds = [self staticIds__:&count idIndex:&index];
+    NSString*const* staticIds = [self iceStaticIds:&count idIndex:&index];
     return staticIds[index];
 }
-+(NSString*const*) staticIds__:(int*)count idIndex:(int*)idx
++(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx
 {
-    *count = sizeof(ICEObject_ids__) / sizeof(NSString*);
+    *count = sizeof(ICEObject_ids) / sizeof(NSString*);
     *idx = 0;
-    return ICEObject_ids__;
+    return ICEObject_ids;
 }
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
-    NSAssert(NO, @"write__ requires override");
+    NSAssert(NO, @"iceWrite requires override");
 }
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
-    NSAssert(NO, @"read__ requires override");
+    NSAssert(NO, @"iceRead requires override");
 }
 -(id) copyWithZone:(NSZone*)zone
 {
@@ -383,7 +383,7 @@ static NSString* ICEObject_ids__[1] =
 @end
 
 @implementation ICEServant
-static NSString* ICEObject_all__[4] =
+static NSString* ICEObject_all[4] =
 {
     @"ice_id",
     @"ice_ids",
@@ -398,8 +398,8 @@ static NSString* ICEObject_all__[4] =
     {
         return nil;
     }
-    object__ = 0;
-    delegate__ = 0;
+    iceObject_ = 0;
+    iceDelegate_ = 0;
     return self;
 }
 
@@ -410,19 +410,19 @@ static NSString* ICEObject_all__[4] =
     {
         return nil;
     }
-    object__ = 0;
-    delegate__ = [delegate retain];
+    iceObject_ = 0;
+    iceDelegate_ = [delegate retain];
     return self;
 }
 
 -(void) dealloc
 {
-    if(object__)
+    if(iceObject_)
     {
-        delete static_cast<IceObjC::ServantWrapper*>(object__);
-        object__ = 0;
+        delete static_cast<IceObjC::ServantWrapper*>(iceObject_);
+        iceObject_ = 0;
     }
-    [delegate__ release];
+    [iceDelegate_ release];
     [super dealloc];
 }
 
@@ -434,7 +434,7 @@ static NSString* ICEObject_all__[4] =
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
 {
     int count, index;
-    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
+    NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
     return ICEInternalLookupString(staticIds, count, typeId) >= 0;
 }
 
@@ -451,7 +451,7 @@ static NSString* ICEObject_all__[4] =
 -(NSArray*) ice_ids:(ICECurrent*)current
 {
     int count, index;
-    NSString*const* staticIds = [[self class] staticIds__:&count idIndex:&index];
+    NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
     return [NSArray arrayWithObjects:staticIds count:count];
 }
 
@@ -460,18 +460,18 @@ static NSString* ICEObject_all__[4] =
     [(ICERequest*)request callDispatch:self];
 }
 
-+(void) ice_isA___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
++(void) iceD_ice_isA:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICEEncodingVersion* encoding = [is startEncapsulation];
-    NSString* id__ = [is readString];
+    NSString* ident = [is readString];
     [is endEncapsulation];
     [os startEncapsulation:encoding format:ICEDefaultFormat];
-    BOOL ret__ = [servant ice_isA:id__ current:current];
-    [os writeBool:ret__];
+    BOOL ret = [servant ice_isA:ident current:current];
+    [os writeBool:ret];
     [os endEncapsulation];
 }
 
-+(void) ice_ping___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
++(void) iceD_ice_ping:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICEEncodingVersion* encoding = [is startEncapsulation];
     [is endEncapsulation];
@@ -480,85 +480,85 @@ static NSString* ICEObject_all__[4] =
     [os endEncapsulation];
 }
 
-+(void) ice_id___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
++(void) iceD_ice_id:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICEEncodingVersion* encoding = [is startEncapsulation];
     [is endEncapsulation];
     [os startEncapsulation:encoding format:ICEDefaultFormat];
-    NSString* ret__ = [servant ice_id:current];
-    [os writeString:ret__];
+    NSString* ret = [servant ice_id:current];
+    [os writeString:ret];
     [os endEncapsulation];
 }
 
-+(void) ice_ids___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
++(void) iceD_ice_ids:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
     ICEEncodingVersion* encoding = [is startEncapsulation];
     [is endEncapsulation];
     [os startEncapsulation:encoding format:ICEDefaultFormat];
-    NSArray* ret__ = [servant ice_ids:current];
-    [os writeStringSeq:ret__];
+    NSArray* ret = [servant ice_ids:current];
+    [os writeStringSeq:ret];
     [os endEncapsulation];
 }
 
--(void) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
+-(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os
 {
-    switch(ICEInternalLookupString(ICEObject_all__, sizeof(ICEObject_all__) / sizeof(NSString*), current.operation))
+    switch(ICEInternalLookupString(ICEObject_all, sizeof(ICEObject_all) / sizeof(NSString*), current.operation))
     {
     case 0:
-        [ICEServant ice_id___:self current:current is:is os:os];
+        [ICEServant iceD_ice_id:self current:current is:is os:os];
         return;
     case 1:
-        [ICEServant ice_ids___:self current:current is:is os:os];
+        [ICEServant iceD_ice_ids:self current:current is:is os:os];
         return;
     case 2:
-        [ICEServant ice_isA___:self current:current is:is os:os];
+        [ICEServant iceD_ice_isA:self current:current is:is os:os];
         return;
     case 3:
-        [ICEServant ice_ping___:self current:current is:is os:os];
+        [ICEServant iceD_ice_ping:self current:current is:is os:os];
         return;
     default:
         @throw [ICEOperationNotExistException requestFailedException:__FILE__
-                                              line:__LINE__
-                                              id:current.id_
-                                              facet:current.facet
-                                              operation:current.operation];
+                                                                line:__LINE__
+                                                                  id:current.id_
+                                                               facet:current.facet
+                                                           operation:current.operation];
     }
 }
 
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
     [os startValue:nil];
-    [self writeImpl__:os];
+    [self iceWriteImpl:os];
     [os endValue];
 }
 
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
-    [self readImpl__:is];
+    [self iceReadImpl:is];
     [is endValue:NO];
 }
 
--(void) writeImpl__:(id<ICEOutputStream>)os
+-(void) iceWriteImpl:(id<ICEOutputStream>)os
 {
-    NSAssert(NO, @"writeImpl__ requires override");
+    NSAssert(NO, @"iceWriteImpl requires override");
 }
 
--(void) readImpl__:(id<ICEInputStream>)is
+-(void) iceReadImpl:(id<ICEInputStream>)is
 {
-    NSAssert(NO, @"readImpl__ requires override");
+    NSAssert(NO, @"iceReadImpl requires override");
 }
 
--(id)target__
+-(id)iceTarget
 {
-    return (delegate__ == 0) ? self : delegate__;
+    return (iceDelegate_ == 0) ? self : iceDelegate_;
 }
 
--(Ice::Object*) object__
+-(Ice::Object*) iceObject
 {
     @synchronized([self class])
     {
-        if(object__ == 0)
+        if(iceObject_ == 0)
         {
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
@@ -568,19 +568,19 @@ static NSString* ICEObject_all__[4] =
             // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
-            object__ = static_cast<IceObjC::ServantWrapper*>(new ObjectI(self));
+            iceObject_ = static_cast<IceObjC::ServantWrapper*>(new ObjectI(self));
         }
     }
-    return static_cast<IceObjC::ServantWrapper*>(object__);
+    return static_cast<IceObjC::ServantWrapper*>(iceObject_);
 }
 @end
 
 @implementation ICEBlobject
--(Ice::Object*) object__
+-(Ice::Object*) iceObject
 {
     @synchronized([self class])
     {
-        if(object__ == 0)
+        if(iceObject_ == 0)
         {
             //
             // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
@@ -590,10 +590,10 @@ static NSString* ICEObject_all__[4] =
             // reference to the object (without this, servants added to the object adapter
             // couldn't be retained or released easily).
             //
-            object__ = static_cast<IceObjC::ServantWrapper*>(new BlobjectI(self));
+            iceObject_ = static_cast<IceObjC::ServantWrapper*>(new BlobjectI(self));
         }
     }
-    return static_cast<IceObjC::ServantWrapper*>(object__);
+    return static_cast<IceObjC::ServantWrapper*>(iceObject_);
 }
 @end
 
@@ -606,16 +606,16 @@ static NSString* ICEObject_all__[4] =
         return nil;
     }
 
-    object__ = arg;
-    object__->__incRef();
-    assert(cachedObjects.find(object__) == cachedObjects.end());
-    cachedObjects.insert(std::make_pair(object__, self));
+    object_ = arg;
+    object_->__incRef();
+    assert(cachedObjects.find(object_) == cachedObjects.end());
+    cachedObjects.insert(std::make_pair(object_, self));
     return self;
 }
 -(void) dealloc
 {
-    cachedObjects.erase(object__);
-    object__->__decRef();
+    cachedObjects.erase(object_);
+    object_->__decRef();
     [super dealloc];
 }
 +(id) servantWrapperWithCxxObject:(Ice::Object*)arg
@@ -653,7 +653,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        return object__->ice_isA(fromNSString(typeId), Ice::Current());
+        return object_->ice_isA(fromNSString(typeId), Ice::Current());
     }
     catch(const std::exception& ex)
     {
@@ -666,7 +666,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        return object__->ice_ping(Ice::Current());
+        return object_->ice_ping(Ice::Current());
     }
     catch(const std::exception& ex)
     {
@@ -679,7 +679,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        return toNSString(object__->ice_id(Ice::Current()));
+        return toNSString(object_->ice_id(Ice::Current()));
     }
     catch(const std::exception& ex)
     {
@@ -692,7 +692,7 @@ static NSString* ICEObject_all__[4] =
     NSException* nsex = nil;
     try
     {
-        return toNSArray(object__->ice_ids(Ice::Current()));
+        return toNSArray(object_->ice_ids(Ice::Current()));
     }
     catch(const std::exception& ex)
     {
@@ -704,12 +704,12 @@ static NSString* ICEObject_all__[4] =
 {
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
     NSException* nsex = nil;
     try
     {
-        object__->_iceWrite([(ICEOutputStream*)os os]);
+        object_->_iceWrite([(ICEOutputStream*)os os]);
     }
     catch(const std::exception& ex)
     {
@@ -717,12 +717,12 @@ static NSString* ICEObject_all__[4] =
     }
     @throw nsex;
 }
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     NSException* nsex = nil;
     try
     {
-        object__->_iceRead([(ICEInputStream*)is is]);
+        object_->_iceRead([(ICEInputStream*)is is]);
     }
     catch(const std::exception& ex)
     {
@@ -730,8 +730,8 @@ static NSString* ICEObject_all__[4] =
     }
     @throw nsex;
 }
--(Ice::Object*) object__
+-(Ice::Object*) iceObject
 {
-    return object__;
+    return object_;
 }
 @end

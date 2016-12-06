@@ -44,7 +44,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestACM", @"::Test",
                                       nil];
 #endif

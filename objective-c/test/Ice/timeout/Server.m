@@ -67,7 +67,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.TCP.RcvSize" value:@"50000"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestTimeout", @"::Test",
                                       nil];
 #endif

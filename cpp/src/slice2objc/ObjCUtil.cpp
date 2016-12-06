@@ -208,6 +208,19 @@ Slice::ObjCGenerator::getParamId(const ContainedPtr& param)
 }
 
 string
+Slice::ObjCGenerator::getParamName(const ContainedPtr& param, bool internal)
+{
+    if(internal)
+    {
+        return "iceP_" + param->name();
+    }
+    else
+    {
+        return fixId(param->name());
+    }
+}
+
+string
 Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
 {
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
@@ -692,7 +705,7 @@ void
 Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                 bool marshal, bool autoreleased) const
 {
-    string stream = marshal ? "os_" : "is_";
+    string stream = marshal ? "ostr" : "istr";
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
 
     if(builtin)
@@ -883,7 +896,7 @@ void
 Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                          bool marshal) const
 {
-    string stream = marshal ? "os_" : "is_";
+    string stream = marshal ? "ostr" : "istr";
     string optionalHelper;
     string helper;
 
@@ -1009,11 +1022,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
         out << nl;
         if(marshal)
         {
-            out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
+            out << "[" << helper << " writeOptional:" << param << " stream:ostr tag:" << tag << "];";
         }
         else
         {
-            out << "[" << helper << " readOptional:&" << param << " stream:is_ tag:" << tag << "];";
+            out << "[" << helper << " readOptional:&" << param << " stream:istr tag:" << tag << "];";
         }
         return;
     }
@@ -1021,11 +1034,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
     out << nl;
     if(marshal)
     {
-        out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
+        out << "[" << helper << " writeOptional:" << param << " stream:ostr tag:" << tag << "];";
     }
     else
     {
-        out << param << " = [" << helper << " readOptional:is_ tag:" << tag << "];";
+        out << param << " = [" << helper << " readOptional:istr tag:" << tag << "];";
     }
 }
 

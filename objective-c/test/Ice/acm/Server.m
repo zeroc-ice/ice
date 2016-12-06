@@ -57,7 +57,7 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.ACM.Timeout" value:@"1"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestACM", @"::Test",
                                       nil];
 #endif

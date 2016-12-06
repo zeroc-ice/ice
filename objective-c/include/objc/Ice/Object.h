@@ -49,26 +49,26 @@ ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 -(NSArray*) ice_ids;
 -(void) ice_dispatch:(id<ICERequest>)request;
 +(NSString*) ice_staticId;
-+(NSString*const*) staticIds__:(int*)count idIndex:(int*)idx;
--(void) write__:(id<ICEOutputStream>)os;
--(void) read__:(id<ICEInputStream>)is;
++(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx;
+-(void) iceWrite:(id<ICEOutputStream>)os;
+-(void) iceRead:(id<ICEInputStream>)is;
 @end
 
 ICE_API @interface ICEServant : ICEObject
 {
-    void* object__;
-    id delegate__;
+    void* iceObject_;
+    id iceDelegate_;
 }
 -(id) initWithDelegate:(id)delegate;
 +(id) objectWithDelegate:(id)delegate;
-+(void) ice_isA___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_ping___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_id___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_ids___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(void) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(void) writeImpl__:(id<ICEOutputStream>)os;
--(void) readImpl__:(id<ICEInputStream>)is;
--(id) target__;
++(void) iceD_ice_isA:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_ping:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_id:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_ids:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
+-(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
+-(void) iceWriteImpl:(id<ICEOutputStream>)os;
+-(void) iceReadImpl:(id<ICEInputStream>)is;
+-(id) iceTarget;
 @end
 
 ICE_API @protocol ICEBlobject<ICEObject>

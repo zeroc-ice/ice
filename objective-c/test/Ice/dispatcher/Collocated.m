@@ -66,7 +66,7 @@ main(int argc, char* argv[])
                 dispatch_sync(queue, ^ { [call run]; });
             };
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestDispatcher", @"::Test",
                                       nil];
 #endif

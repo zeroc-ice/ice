@@ -44,7 +44,7 @@ main(int argc, char* argv[])
             initData.properties = defaultClientProperties(&argc, argv);
             [initData.properties setProperty:@"Ice.Default.Locator" value:@"locator:default -p 12010"];
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestLocation", @"::Test",
                                       nil];
 #endif

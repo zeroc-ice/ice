@@ -29,10 +29,10 @@ protected:
     virtual void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false);
     virtual std::string getName(const OperationPtr&) const;
     virtual std::string getSelector(const OperationPtr&) const;
-    virtual std::string getParams(const OperationPtr&) const;
+    virtual std::string getParams(const OperationPtr&, bool = false) const;
     virtual std::string getBlockParams(const OperationPtr&) const;
-    virtual std::string getMarshalParams(const OperationPtr&) const;
-    virtual std::string getUnmarshalParams(const OperationPtr&) const;
+    virtual std::string getMarshalParams(const OperationPtr&, bool = false) const;
+    virtual std::string getUnmarshalParams(const OperationPtr&, bool = false) const;
     virtual std::string getServerParams(const OperationPtr&) const;
     virtual std::string getResponseCBSig(const OperationPtr&) const;
     virtual std::string getArgs(const OperationPtr&) const;
@@ -147,7 +147,7 @@ private:
         void writeOptionalDataMemberSelectors(const DataMemberList&, int) const;
         void writeMemberHashCode(const DataMemberList&, int) const;
         void writeMemberEquals(const DataMemberList&, int) const;
-        void writeMemberDealloc(const DataMemberList&, int, bool slicedData = false) const;
+        void writeMemberDealloc(const DataMemberList&, int, const std::string& = "") const;
         void writeMemberMarshal(const DataMemberList&, const DataMemberList&, int) const;
         void writeMemberUnmarshal(const DataMemberList&, const DataMemberList&, int) const;
     };
