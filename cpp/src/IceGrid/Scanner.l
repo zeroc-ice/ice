@@ -279,36 +279,6 @@ parseDoubleQuotedString()
 		    break;
 		}
 	    
-		case 'n':
-		{
-		    s += '\n';
-		    break;
-		}
-	    
-		case 'r':
-		{
-		    s += '\r';
-		    break;
-		}
-
-		case 't':
-		{
-		    s += '\t';
-		    break;
-		}
-	    
-		case 'v':
-		{
-		    s += '\v';
-		    break;
-		}
-	    
-		case 'f':
-		{
-		    s += '\f';
-		    break;
-		}
-	    
 		default:
 		{
 		    s += c;
