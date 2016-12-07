@@ -13,7 +13,7 @@ versions listed for our [supported platforms][2].
 
 ## Building the PHP Extension
 
-The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+The build of Ice for PHP requires to first build Ice for C++ in the `cpp`
 subdirectory.
 
 Edit `config/Make.rules` to establish your build configuration. The comments in

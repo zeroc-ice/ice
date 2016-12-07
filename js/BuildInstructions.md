@@ -14,15 +14,6 @@ To build Ice for JavaScript you must have the following:
 
 ## Building the JavaScript libraries and NodeJS packages
 
-If you have not built Ice for C++ in the `cpp` subdirectory, set `ICE_HOME` to
-the directory of your Ice for C++ installation. For example, on Unix:
-
-    $ export ICE_HOME=/opt/Ice
-
-On Windows:
-
-    > set ICE_HOME=C:\Ice
-
 Change to the Ice for JavaScript source subdirectory:
 
     > cd js

@@ -44,10 +44,10 @@ prompt default platform, for `x64` platform the extension will be placed in
 placed in `lib\Win32\Release\php_ice.dll`.
 
 The default configuration builds the extension agains the Thread Safe PHP runtime,
-you can build with the Non Thread Safe using the `Release-NTS` and `Debug-NTS` 
+you can build with the Non Thread Safe using the `NTS-Release` and `NTS-Debug` 
 configurations.
 
-        > MSbuild msbuild\ice.proj /p:Configuration=Release-NTS
+        > MSbuild msbuild\ice.proj /p:Configuration=NTS-Release
 
 the extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
 and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
@@ -63,41 +63,18 @@ directive by running the command-line version of PHP with the `-i` option:
 
 Review the output for a line like this:
 
-    extension_dir => C:\php => C:\php
-
-The directive may also be set to a relative path, such as:
-
-    extension_dir => ./ => ./
-
-In the case of a relative path, the value is relative to the current working
-directory of the process. As a result, the working directory when running the
-command-line version of PHP will likely differ from the working directory when
-PHP is running as a Web server module. Using a typical installation of Apache
-as an example, the working directory is Apache's installation directory,
-therefore the extension must be copied to
-
-    \Program Files\Apache Software Foundation\Apache2.2
+    extension_dir => C:\Program Files\iis express\PHP\v7.0\ext\ => C:\Program Files\iis express\PHP\v7.0\ext\
 
 Once you've copied the extension to the appropriate directory, you will need
 to enable the extension in your PHP configuration. First you must discover the
 location of PHP's configuration file (`php.ini`), which is also displayed by
 the `-i` option. Look for the following line:
 
-    Loaded Configuration File => C:\Program Files\PHP\php.ini
+    Loaded Configuration File => C:\Program Files\iis express\PHP\v7.0\php.ini
 
-If you used the Windows installer for PHP, your Web server's configuration may
-have already been modified to load PHP. You can also review your Web server's
-settings to discover the location of `php.ini`. For example, PHP's Windows
-installer modifies Apache's configuration to add the following directives:
+Open `php.ini` and append the following directive:
 
-    PHPIniDir "C:/Program Files/PHP/"
-    LoadModule php5_module "C:/Program Files/PHP/php5apache2_2.dll"
-
-The `PHPIniDir` directive specifies the directory containing the `php.ini` file.
-
-Open `php.ini` and append this directive:
-
-    extension = php_ice.dll
+    extension=php_ice_nts.dll
 
 Read the PHP Dependencies and PHP Source Files sections below for more
 information about installing the Ice extension.
@@ -107,13 +84,15 @@ information about installing the Ice extension.
 PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. On Windows, these DLLs are required:
 
-    ice37.dll
     bzip2.dll
-
+    ice37a3.dll
+    icediscovery37a3.dll
+    icelocatordiscovery37a3.dll
+    icessl37a3.dll
+    
 In general, these libraries must reside in a directory of the user's PATH. For
-Web servers, the libraries may need to reside in a system directory. For
-example, on Windows you can copy the DLLs to the `C:\WINDOWS\system32`
-directory, or to the Apache installation directory.
+ISS configured to run PHP as FastCGI the simple is to copy the libraries next to
+the php-cgi.exe in C:\Program Files\iis express\PHP\v7.0
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a
@@ -128,9 +107,6 @@ Then start a browser window and open the URL corresponding to this script. If
 the Ice extension is successfully installed, you will see an `ice` section
 among the configuration information.
 
-Note that if you want to use IceSSL from the Ice extension, then PHP will also
-need access to the shared libraries for IceSSL and OpenSSL.
-
 ## PHP Source Files
 
 In addition to the binary Ice extension module and its library dependencies,
@@ -140,18 +116,13 @@ Ice run time definitions (`Ice.php` or `Ice_ns.php`) along with PHP source
 files generated from the Slice files included in the Ice distribution.
 
 The Ice extension makes no assumptions about the location of these files, so
-you can install them anywhere you like. For example, you can simply include
-them in the same directory as your application scripts. Alternatively, if you
-prefer to install them in a common directory, you may need to modify PHP's
-`include_path` directive so that the PHP interpreter is able to locate these
-files. Another option is to modify the include path from within your script
-prior to including any Ice run-time file. Here is an example that assumes
-Ice is installed in `C:\IcePHP`:
+you can install them anywhere you like. 
 
-    // PHP
-    ini_set('include_path',
-    ini_get('include_path') . PATH_SEPARATOR . 'C:/IcePHP');
-    require 'Ice.php'; // Load the core Ice run time definitions.
+An easy way to do that is to update the PHP include path in php.ini to include
+the directory with Ice for PHP sources, to do that open `php.ini` and append 
+the following directive:
+
+    include_path=${include_path}";C\ice\php\lib"
 
 ## Running the PHP Tests
 
@@ -168,26 +139,6 @@ After a successful build, you can run the tests as follows:
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
-
-## Web Server Permissions
-
-The Web server normally runs in a special user account that may not necessarily
-have access to the Ice extension, its dependent libraries and PHP source files,
-and other resources such as Ice configuration and your application scripts. It
-is very important that you review the permissions of these files and verify
-that the Web server has sufficient access.
-
-For example, on Windows the Apache server typically runs as a service in the
-"Local System" account. You will need to modify the access rights of the
-aforementioned files to grant access to this account. In a command window,
-you can use the `cacls` utility to establish the appropriate access rights.
-Assuming that you have copied the Ice extension and dependent DLLs to Apache's
-installation directory, you can modify the access rights as shown below:
-
-    cd \Program Files\Apache Software Foundation\Apache2.2
-    cacls php_ice.dll /G SYSTEM:F Administrators:F
-    cacls bzip2.dll /G SYSTEM:F Administrators:F
-    ...
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
