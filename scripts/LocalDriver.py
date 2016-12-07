@@ -470,7 +470,7 @@ class LocalDriver(Driver):
                 current.writeln("- Config: {0}".format(confStr))
             if cross:
                 current.writeln("- Mappings: {0}/{1}".format(client.getMapping(), server.getMapping()))
-            if self.all and not current.config.canRun(current):
+            if not current.config.canRun(current):
                 current.writeln("skipped, not supported with this configuration")
                 return
 
@@ -491,7 +491,7 @@ class LocalDriver(Driver):
                 confStr = str(current.config)
                 if confStr:
                     current.writeln("- Config: {0}".format(confStr))
-                if self.all and not current.config.canRun(current):
+                if not current.config.canRun(current):
                     current.writeln("skipped, not supported with this configuration")
                     return
 

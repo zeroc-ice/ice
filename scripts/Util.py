@@ -2164,8 +2164,6 @@ def runTestsWithPath(path):
 def runTests(mappings=None, drivers=None):
     if not mappings:
         mappings = Mapping.getAll()
-    else:
-        mappings = list(set([m.getClientMapping() for m in mappings] + [m.getServerMapping() for m in mappings]))
     if not drivers:
         drivers = Driver.getAll()
 
@@ -2211,7 +2209,7 @@ def runTests(mappings=None, drivers=None):
         # Create the configurations for each mapping
         #
         configs = {}
-        for mapping in mappings:
+        for mapping in list(set([m.getClientMapping() for m in mappings] + [m.getServerMapping() for m in mappings])):
             configs[mapping] = mapping.createConfig(opts[:])
 
         #
