@@ -132,9 +132,6 @@ Then start a browser window and open the URL corresponding to this script. If
 the Ice extension is successfully installed, you will see an `ice` section
 among the configuration information.
 
-Note that if you want to use IceSSL from the Ice extension, then PHP will also
-need access to the shared libraries for IceSSL and OpenSSL.
-
 ## PHP Source Files
 
 In addition to the binary Ice extension module and its library dependencies,
