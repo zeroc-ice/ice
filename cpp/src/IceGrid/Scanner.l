@@ -26,6 +26,10 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;

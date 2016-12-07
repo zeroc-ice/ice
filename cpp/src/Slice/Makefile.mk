@@ -17,5 +17,6 @@ Slice_libs		:= mcpp
 Slice_always_enable_configs 	:= static
 Slice_always_enable_platforms	:= $(build-platform)
 Slice_install_configs	    	:= none
+Slice_bisonflags		:= --name-prefix "slice_"
 
 projects += $(project)

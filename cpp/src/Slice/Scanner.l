@@ -38,6 +38,10 @@
 #   pragma warning( 4 : 4018 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 #ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap
