@@ -367,7 +367,7 @@ class Mapping:
             print("--cprops=<properties> Specifies a list of additional client properties.")
             print("--sprops=<properties> Specifies a list of additional server properties.")
             print("--config=<config>     Build configuration for native executables.")
-            print("--platform=<platform> Build plaform for native executables.")
+            print("--platform=<platform> Build platform for native executables.")
 
         def __init__(self, options=[]):
             # Build configuration
@@ -432,7 +432,7 @@ class Mapping:
                 for (k, v) in supportedOptions.items():
                     supportedOptions[k] = itertools.cycle(random.sample(v, len(v)) if rand else v)
 
-                # Now, for the length of the longuest array of values, we return
+                # Now, for the length of the longest array of values, we return
                 # an array with the supported option combinations
                 for i in range(0, length):
                     options = []
@@ -703,7 +703,7 @@ class Mapping:
 
     def getDefaultProcess(self, processType, testsuite):
         #
-        # If no server or client is explictily set with a testcase, getDefaultProcess is called
+        # If no server or client is explicitly set with a testcase, getDefaultProcess is called
         # to figure out which process class to instantiate. Based on the processType and the testsuite
         # we instantiate the right default process class.
         #
@@ -727,7 +727,7 @@ class Mapping:
         return self
 
     def getServerMapping(self):
-        # Can be overriden for client-only mapping that relies on another mapping for servers
+        # Can be overridden for client-only mapping that relies on another mapping for servers
         return self
 
     def getBinDir(self, process, current):
@@ -999,7 +999,7 @@ class Process(Runnable):
             raise
 
     def waitForStart(self, current):
-        # To be overriden in specialization to wait for a token indiciating the process readyness.
+        # To be overridden in specialization to wait for a token indicating the process readiness.
         pass
 
     def stop(self, current, waitSuccess=False):
@@ -1214,19 +1214,19 @@ class TestCase(Runnable):
         return self.options
 
     def setupServerSide(self, current):
-        # Can be overriden to perform setup activities before the server side is started
+        # Can be overridden to perform setup activities before the server side is started
         pass
 
     def teardownServerSide(self, current, success):
-        # Can be overriden to perform terddown after the server side is stopped
+        # Can be overridden to perform terddown after the server side is stopped
         pass
 
     def setupClientSide(self, current):
-        # Can be overriden to perform setup activities before the client side is started
+        # Can be overridden to perform setup activities before the client side is started
         pass
 
     def teardownClientSide(self, current, success):
-        # Can be overriden to perform terddown after the client side is stopped
+        # Can be overridden to perform terddown after the client side is stopped
         pass
 
     def startServerSide(self, current):
@@ -1276,13 +1276,13 @@ class TestCase(Runnable):
             return self.getClientType()
 
     def getClientType(self):
-        # Overriden by test case specialization to specify the type of client to instantiate
-        # if no client is explictly provided
+        # Overridden by test case specialization to specify the type of client to instantiate
+        # if no client is explicitly provided
         return None
 
     def getServerType(self):
-        # Overriden by test case specialization to specify the type of client to instantiate
-        # if no server is explictly provided
+        # Overridden by test case specialization to specify the type of client to instantiate
+        # if no server is explicitly provided
         return None
 
     def getServerTestCase(self, cross=None):

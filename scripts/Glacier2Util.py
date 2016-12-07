@@ -26,7 +26,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
                                      os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
 
                 #
-                # For Linux ARM default rounds makes test slower (Usually runs on embbeded boards)
+                # For Linux ARM default rounds makes test slower (Usually runs on embedded boards)
                 #
                 if current.config.buildPlatform.find("arm") >= 0:
                     command += " --rounds 100000"

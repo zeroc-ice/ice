@@ -51,7 +51,7 @@ class ControllerDriver(Driver):
         if isinstance(platform, Darwin):
             #
             # On OS X, we set the trust settings on the certificate to prevent
-            # the Web browsers from prompting the user about the unstrusted
+            # the Web browsers from prompting the user about the untrusted
             # certificate. Some browsers such as Chrome don't provide the
             # option to set this trust settings.
             #

@@ -75,7 +75,7 @@ class Executor:
                 self.queueLength -= 1
 
         #
-        # Worker threads dequeue and run testsuites. They push resuts to the results
+        # Worker threads dequeue and run testsuites. They push results to the results
         # queue. The thread stops when there are no more testsuite to dequeue.
         #
         resultList = []
@@ -390,7 +390,7 @@ class LocalDriver(Driver):
             else:
                 print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
             if len(failures) > 0:
-                print("{0} suceeded and {1} failed:".format(len(results) - len(failures), len(failures)))
+                print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
                 for r in failures:
                     print("- {0}".format(r.testsuite))
                     for (c, ex) in r.getFailed().items():
@@ -402,7 +402,7 @@ class LocalDriver(Driver):
                             for i in range(max(4, len(lines) - 8), len(lines)):
                                 print("  " + lines[i])
             else:
-                print("{0} suceeded".format(len(results)))
+                print("{0} succeeded".format(len(results)))
 
             if not self.loop:
                 return 1 if len(failures) > 0 else 0

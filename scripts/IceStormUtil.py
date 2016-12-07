@@ -63,7 +63,7 @@ class IceStorm(ProcessFromBinDir, Server):
         # icebox admin endpoint).
         #
 
-        # Manager, publish, node and admin ndpoints for given replica number
+        # Manager, publish, node and admin endpoints for given replica number
         manager = lambda replica: current.getTestEndpoint(self.portnum + replica * 4 + 0)
         publish = lambda replica: "{0}:{1}".format(current.getTestEndpoint(self.portnum + replica * 4 + 1),
                                                    current.getTestEndpoint(self.portnum + replica * 4 + 1, "udp"))
@@ -176,7 +176,7 @@ class IceStormTestCase(TestCase):
         TestCase.init(self, mapping, testsuite)
 
         #
-        # Add icestorm servers at the begining of the server list, IceStorm needs to be
+        # Add icestorm servers at the beginning of the server list, IceStorm needs to be
         # started first!
         #
         self.servers = self.icestorm + self.servers

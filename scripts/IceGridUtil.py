@@ -211,7 +211,7 @@ class IceGridTestCase(TestCase):
         TestCase.init(self, mapping, testsuite)
 
         #
-        # Add IceGrid servers at the begining of the server list, IceGrid needs to be
+        # Add IceGrid servers at the beginning of the server list, IceGrid needs to be
         # started first!
         #
         self.servers = self.icegridregistry + self.icegridnode + self.servers

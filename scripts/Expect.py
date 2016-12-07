@@ -260,7 +260,7 @@ class reader(threading.Thread):
                     if len(pattern) != olen:
                         continue
 
-                    # If no match and we have finished processing output rasise a TIMEOUT
+                    # If no match and we have finished processing output raise a TIMEOUT
                     if self._finish:
                       raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
                                            (escape(s), escape(buf, False)))
@@ -374,8 +374,8 @@ class Expect (object):
 
         if win32:
             # Don't rely on win32api
-            #import win32process
-            #creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
+            # import win32process
+            # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
             #
             # universal_newlines = True is necessary for Python 3 on Windows
             #
@@ -397,7 +397,7 @@ class Expect (object):
 
         # The thread is marked as a daemon thread. This is done so that if
         # an expect script runs off the end of main without kill/wait on each
-        # spawned process the script will not hang tring to join with the
+        # spawned process the script will not hang trying to join with the
         # reader thread.
         self.r.setDaemon(True)
 
@@ -479,7 +479,7 @@ class Expect (object):
            raises a TIMEOUT exception. If timeout is None, the wait is
            indefinite.
 
-           The exit tus is returned. A negative exit status means
+           The exit status is returned. A negative exit status means
            the application was killed by a signal.
         """
         if self.p is None:
@@ -492,9 +492,9 @@ class Expect (object):
             while time.time() < end and self.p and self.p.poll() is None:
                 time.sleep(0.1)
             if self.p and self.p.poll() is None:
-                raise TIMEOUT ('timedwait exceeded timeout')
+                raise TIMEOUT ('timed wait exceeded timeout')
         elif win32:
-            # We poll on Windows or othewise KeyboardInterrupt isn't delivered
+            # We poll on Windows or otherwise KeyboardInterrupt isn't delivered
             while self.p.poll() is None:
                 time.sleep(0.5)
 
