@@ -425,6 +425,9 @@ class LocalDriver(Driver):
                     for conf in current.config.getAll(current, testcase) if self.all else [current.config]:
                         current.config = conf
                         testcase.run(current)
+                except:
+                    print(traceback.format_exc())
+                    raise
                 finally:
                     current.config = config
             success = True

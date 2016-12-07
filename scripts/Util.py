@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil
+import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil, copy
 
 isPython2 = sys.version_info[0] == 2
 if isPython2:
@@ -329,8 +329,6 @@ class Mapping:
 
     class Config:
 
-        supportedOptions = ["protocol", "compress", "ipv6", "serialize", "mx"]
-
         # All option values for Ice/IceBox tests.
         coreOptions = {
             "protocol" : ["tcp", "ssl", "wss", "ws"],
@@ -481,6 +479,16 @@ class Mapping:
                     return False
             else:
                 return True
+
+        def cloneAndOverrideWith(self, config):
+            #
+            # Clone this configuration and override options with options from the given configuration.
+            #
+            clone = copy.copy(self)
+            for o in config.parsedOptions:
+                setattr(clone, o, getattr(config, o))
+            clone.parsedOptions = config.parsedOptions
+            return clone
 
         def getArgs(self, process, current):
             return []
@@ -1609,13 +1617,14 @@ class Driver:
                 testcase.mapping = self.testcase.getMapping()
                 testcase.testsuite = self.testcase.getTestSuite()
                 testcase.parent = self.testcase
-            self.testcases.append(self.testcase)
+            self.testcases.append((self.testcase, self.config))
             self.testcase = testcase
+            self.config = self.driver.configs[self.testcase.getMapping()].cloneAndOverrideWith(self.config)
 
         def pop(self):
             assert(self.testcase)
             testcase = self.testcase
-            self.testcase = self.testcases.pop()
+            (self.testcase, self.config) = self.testcases.pop()
             if testcase.parent and self.testcase != testcase:
                 testcase.mapping = None
                 testcase.testsuite = None
