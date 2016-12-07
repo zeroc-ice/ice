@@ -121,7 +121,7 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        final String factoryRef = "factory:" + app.getTestEndpoint(0);
+        final String factoryRef = "factory:" + app.getTestEndpoint(0, "tcp");
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrxHelper.checkedCast(b);

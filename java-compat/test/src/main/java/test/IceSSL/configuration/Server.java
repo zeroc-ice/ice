@@ -16,7 +16,7 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("factory");
         adapter.add(new ServerFactoryI(), id);
