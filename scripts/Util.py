@@ -470,6 +470,7 @@ class Mapping:
                 return False
 
             options = {}
+            options.update(current.testcase.getMapping().getOptions())
             options.update(current.testcase.getTestSuite().getOptions())
             options.update(current.testcase.getOptions())
             for (k, v) in options.items():
@@ -480,14 +481,28 @@ class Mapping:
             else:
                 return True
 
-        def cloneAndOverrideWith(self, config):
+        def cloneRunnable(self, current):
+            #
+            # Clone this configuration and make sure all the options are supported
+            #
+            options = {}
+            options.update(current.testcase.getMapping().getOptions())
+            options.update(current.testcase.getTestSuite().getOptions())
+            options.update(current.testcase.getOptions())
+            clone = copy.copy(self)
+            for o in self.parsedOptions:
+                if o in options and getattr(self, o) not in options[o]:
+                    setattr(clone, o, options[o][0] if len(options[o]) > 0 else None)
+            return clone
+
+        def cloneAndOverrideWith(self, current):
             #
             # Clone this configuration and override options with options from the given configuration.
             #
             clone = copy.copy(self)
-            for o in config.parsedOptions:
-                setattr(clone, o, getattr(config, o))
-            clone.parsedOptions = config.parsedOptions
+            for o in current.config.parsedOptions:
+                setattr(clone, o, getattr(current.config, o))
+            clone.parsedOptions = current.config.parsedOptions
             return clone
 
         def getArgs(self, process, current):
@@ -1619,7 +1634,7 @@ class Driver:
                 testcase.parent = self.testcase
             self.testcases.append((self.testcase, self.config))
             self.testcase = testcase
-            self.config = self.driver.configs[self.testcase.getMapping()].cloneAndOverrideWith(self.config)
+            self.config = self.driver.configs[self.testcase.getMapping()].cloneAndOverrideWith(self)
 
         def pop(self):
             assert(self.testcase)

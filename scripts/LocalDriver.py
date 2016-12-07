@@ -463,13 +463,14 @@ class LocalDriver(Driver):
                 continue
 
             current.writeln("[ running {0} test ]".format(current.testcase))
+            if not self.all:
+                current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
             if confStr:
                 current.writeln("- Config: {0}".format(confStr))
             if cross:
                 current.writeln("- Mappings: {0}/{1}".format(client.getMapping(), server.getMapping()))
-
-            if not current.config.canRun(current):
+            if self.all and not current.config.canRun(current):
                 current.writeln("skipped, not supported with this configuration")
                 return
 
@@ -485,12 +486,15 @@ class LocalDriver(Driver):
         if not self.cross and not self.allCross:
             if not current.testcase.getParent():
                 current.writeln("[ running {0} test ]".format(current.testcase))
+                if not self.all:
+                    current.config = current.config.cloneRunnable(current)
                 confStr = str(current.config)
                 if confStr:
                     current.writeln("- Config: {0}".format(confStr))
-                if not current.config.canRun(current):
+                if self.all and not current.config.canRun(current):
                     current.writeln("skipped, not supported with this configuration")
                     return
+
             current.testcase._runClientSide(current)
 
     def isWorkerThread(self):
