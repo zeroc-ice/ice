@@ -85,11 +85,7 @@ certificate password respectivelly before build.
 
 It is also possible to build the test suite using the binary Nuget packages, use:
 
-    MSbuild msbuild\ice.proj /p:UseNugetBinDist=yes
-
-Finally to build the test suite using the MSI binary distribution use:
-
-    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files (x86)\Ice-3.7.0"
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes
 
 ## Building Ice for UWP
 
@@ -128,10 +124,10 @@ For example to build release binaries and libraries for Windows `x64` platform u
 
     MSbuild msbuild\ice.proj /t:UWPBuild /p:Configuration=Release /p:Platform=x64
 
-If you want to skip building the test suite you can use the `WPBuildDist` MSbuild
+If you want to skip building the test suite you can use the `UWPBuildDist` MSbuild
 target:
 
-    MSbuild msbuild\ice.proj /t:UWPBuildDist  /p:Configuration=Release /p:Platform=x64
+    MSbuild msbuild\ice.proj /t:UWPBuildDist /p:Configuration=Release /p:Platform=x64
 
 It is also possible to build all supported platforms and configurations at once,
 with the following command:
@@ -142,26 +138,21 @@ It is also possible to build the test suite using the binary Nuget packages, use
 
     MSbuild msbuild\ice.proj /t:UWPBuild /p:UseNugetBinDist=yes
 
-Finally to build the test suite using the MSI binary distribution use:
-
-    MSbuild msbuild\ice.proj /t:UWPBuild /p:UseBinDist=yes /p:"IceHome=C:\Program Files (x86)\Ice-3.7.0"
-
-
 ## Nuget packages
 
 To create a Nuget package for the distribution use the following command:
 
     MSbuild msbuild\ice.proj /t:NugetPack /p:BuildAllConfigurations=yes
 
-This will create `zeroc.ice.v120\zeroc.ice.v120.nuckpkg` or `zeroc.ice.v140\zeroc.ice.v140.nuckpkg`
+This will create `zeroc.ice.v120\zeroc.ice.v120.nupkg` or `zeroc.ice.v140\zeroc.ice.v140.nupkg`
 depending of the compiler version you are using to build the package.
 
 To create UWP Nuget packages you must use the `UWPNugetPack` target instead:
 
     MSbuild msbuild\ice.proj /t:UWPNugetPack /p:BuildAllConfigurations=yes
 
-This will create `zeroc.ice.uwp\zeroc.ice.uwp.nuckpkg`, `zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nuckpkg`,
-`zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nuckpkg` and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nuckpkg packages`.
+This will create `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nupkg`,
+`zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nupkg` packages.
 
 ## Running the Test Suite
 
@@ -172,11 +163,11 @@ require the Python module `passlib`, which you can install with the command:
 
 After a successful source build, you can run the tests as follows:
 
-    python allTests.py --mode=debug --x86
+    python allTests.py
 
-For C++11 mapping you need to use the `--c++11` argument:
+For C++11 mapping you need to use the `Cpp11-Debug` or `Cpp11-Release` configuration:
 
-    $ python allTests.py --mode=debug --x86 --c++11
+    $ python allTests.py --config Cpp11-Debug
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.

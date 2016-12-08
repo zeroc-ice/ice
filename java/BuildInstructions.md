@@ -107,13 +107,11 @@ on Unix:
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.7a3
+    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.7a3 (MSI installation)
 
-You will also need to set `CPP_PLATFORM` and `CPP_CONFIGURATION` to much your C++
-build configuration in order for gradle o locate the slice2java compiler
-
-For example if you build C++ sources for `x64` platform in `Release` mode set
-this properties as:
+On Windows if you are using Ice for C++ from a source distribution, you must
+set `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
+platform and configuration used in your C++ builds:
 
     > set CPP_PLATFORM=x64
     > set CPP_CONFIGURATION=Debug
@@ -172,17 +170,12 @@ Ice installation. On Unix:
 
 On Windows:
 
-    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.7a3
+    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7a3
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
 
     > python allTests.py
-
-You can also run tests individually by changing to the test directory and
-running this command:
-
-    > python run.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
@@ -199,14 +192,6 @@ You can start the tool with the following command:
 
 In OS X there is also an application bundle named IceGrid Admin. You can start
 the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
-
-## Test Controller
-
-The test Controller is an Ice server that starts servers for languages that
-don't provide a full server side implementation. This is currently used by
-the JavaScript and WinRT test suites to start the required servers.
-
-    > gradlew :testController:assemble
 
 
 [1]: https://zeroc.com/download.html
