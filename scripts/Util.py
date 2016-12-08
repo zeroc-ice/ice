@@ -26,7 +26,7 @@ def run(cmd, cwd=None):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     out = p.stdout.read().decode('UTF-8').strip()
     if(p.wait() != 0):
-        raise RuntimeError(cmd + " failed:\n" + p.stdout.read().strip())
+        raise RuntimeError(cmd + " failed:\n" + p.stdout.read().decode('UTF-8').strip())
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -497,11 +497,15 @@ class Mapping:
 
         def cloneAndOverrideWith(self, current):
             #
-            # Clone this configuration and override options with options from the given configuration.
+            # Clone this configuration and override options with options from the given configuration
+            # (the parent configuraton). This is usefull when running cross-testing. For example, JS
+            # tests don't support all the options so we clone the C++ configuration and override the
+            # options that are set on the JS configuration.
             #
             clone = copy.copy(self)
             for o in current.config.parsedOptions:
-                setattr(clone, o, getattr(current.config, o))
+                if o not in ["buildConfig", "buildPlatform"]:
+                    setattr(clone, o, getattr(current.config, o))
             clone.parsedOptions = current.config.parsedOptions
             return clone
 
@@ -596,7 +600,7 @@ class Mapping:
 
     def loadTestSuites(self, tests, filters=[], rfilters=[]):
         for test in tests or [""]:
-            for root, dirs, files in os.walk(os.path.join(self.getTestsPath(), test)):
+            for root, dirs, files in os.walk(os.path.join(self.getTestsPath(), test.replace('/', os.sep))):
 
                 testId = root[len(self.getTestsPath()) + 1:]
                 if os.sep != "/":
@@ -1757,12 +1761,25 @@ class CppMapping(Mapping):
 
     class Config(Mapping.Config):
 
-        def __init__(self, options):
+        @classmethod
+        def getOptions(self):
+            return ("", ["cpp-config=", "cpp-platform="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("C++ Mapping options:")
+            print("--cpp-config=<config>     C++ build configuration for native executables (overrides --config).")
+            print("--cpp-platform=<platform> C++ build platform for native executables (overrides --platform).")
+
+        def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
             # tests on the cpp11 value in the testcase options specification
             self.cpp11 = self.buildConfig.lower().find("cpp11") >= 0
+
+            parseOptions(self, options, { "cpp-config" : "buildConfig", "cpp-platform" : "buildPlatform" })
 
         def canRun(self, current):
             if not Mapping.Config.canRun(self, current):
@@ -1952,6 +1969,27 @@ class CSharpMapping(Mapping):
 
 class CppBasedMapping(Mapping):
 
+    class Config(Mapping.Config):
+
+        @classmethod
+        def getOptions(self):
+            return ("", [self.mappingName + "-config=", self.mappingName + "-platform="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print(self.mappingDesc + " mapping options:")
+            print("--{0}-config=<config>     {1} build configuration for native executables (overrides --config)."
+                .format(self.mappingName, self.mappingDesc))
+            print("--{0}-platform=<platform> {1} build platform for native executables (overrides --platform)."
+                .format(self.mappingName, self.mappingDesc))
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+            parseOptions(self, options,
+                { self.mappingName + "-config" : "buildConfig",
+                  self.mappingName + "-platform" : "buildPlatform" })
+
     def getSSLProps(self, process, current):
         return Mapping.getByName("cpp").getSSLProps(process, current)
 
@@ -1968,6 +2006,10 @@ class CppBasedMapping(Mapping):
 
 class ObjCMapping(CppBasedMapping):
 
+    class Config(CppBasedMapping.Config):
+        mappingName = "objc"
+        mappingDesc = "Objective-C"
+
     def getDefaultSource(self, processType):
         return {
             "client" : "Client.m",
@@ -1976,6 +2018,10 @@ class ObjCMapping(CppBasedMapping):
         }[processType]
 
 class PythonMapping(CppBasedMapping):
+
+    class Config(CppBasedMapping.Config):
+        mappingName = "python"
+        mappingDesc = "Python"
 
     def getCommandLine(self, current, process, exe):
         return sys.executable + " " + exe
@@ -2020,6 +2066,10 @@ class CppBasedClientMapping(CppBasedMapping):
 
 class RubyMapping(CppBasedClientMapping):
 
+    class Config(CppBasedClientMapping.Config):
+        mappingName = "ruby"
+        mappingDesc = "Ruby"
+
     def getCommandLine(self, current, process, exe):
         return "ruby " + exe
 
@@ -2035,6 +2085,11 @@ class RubyMapping(CppBasedClientMapping):
         return { "client" : "Client.rb" }[processType]
 
 class PhpMapping(CppBasedClientMapping):
+
+    class Config(CppBasedClientMapping.Config):
+        mappingName = "php"
+        mappingDesc = "PHP"
+
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
         if isinstance(platform, Windows) and current.driver.useBinDist():
@@ -2167,6 +2222,12 @@ def runTests(mappings=None, drivers=None):
     if not drivers:
         drivers = Driver.getAll()
 
+    #
+    # All mappings contains all the mappings necessary to run the tests from the given mappings. Some
+    # mappings depend on other mappings for running (e.g.: Ruby needs the C++ mapping).
+    #
+    allMappings = list(set([m.getClientMapping() for m in mappings] + [m.getServerMapping() for m in mappings]))
+
     def usage():
         print("Usage: " + sys.argv[0] + " [options] [tests]")
         print("")
@@ -2178,7 +2239,7 @@ def runTests(mappings=None, drivers=None):
             driver.usage()
 
         Mapping.Config.commonUsage()
-        for mapping in mappings:
+        for mapping in allMappings:
             mapping.Config.usage()
 
         print("")
@@ -2187,7 +2248,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getOptions(), Mapping.Config.getOptions()]
         options += [driver.getOptions() for driver in drivers]
-        options += [mapping.Config.getOptions() for mapping in mappings]
+        options += [mapping.Config.getOptions() for mapping in allMappings]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:
@@ -2209,7 +2270,7 @@ def runTests(mappings=None, drivers=None):
         # Create the configurations for each mapping
         #
         configs = {}
-        for mapping in list(set([m.getClientMapping() for m in mappings] + [m.getServerMapping() for m in mappings])):
+        for mapping in allMappings:
             configs[mapping] = mapping.createConfig(opts[:])
 
         #
