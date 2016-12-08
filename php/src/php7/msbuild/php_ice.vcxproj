@@ -121,6 +121,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <PhpThreadSafe>yes</PhpThreadSafe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NTS-Debug|Win32'">
     <TargetName>$(ProjectName)_nts</TargetName>
@@ -140,6 +141,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <PhpThreadSafe>yes</PhpThreadSafe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NTS-Release|Win32'">
     <TargetName>$(ProjectName)_nts</TargetName>
@@ -149,6 +151,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <PhpThreadSafe>yes</PhpThreadSafe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NTS-Release|x64'">
     <TargetName>$(ProjectName)_nts</TargetName>
