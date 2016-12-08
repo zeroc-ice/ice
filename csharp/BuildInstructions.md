@@ -31,6 +31,10 @@ To build the Ice assemblies, services and tests, run
 
     MSBuild msbuild\ice.proj
 
+It is also possible to build the test suite using the binary Nuget packages, use:
+
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes
+
 Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
 
 ## Running the .NET Tests
