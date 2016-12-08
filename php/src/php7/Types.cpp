@@ -1166,26 +1166,7 @@ IcePHP::DataMember::setMember(zval* target, zval* zv)
 {
     assert(Z_TYPE_P(target) == IS_OBJECT);
 
-    //
-    // The add_property_zval function fails if the data member has protected visibility.
-    // As a workaround, before calling the function we change the current scope to be that
-    // of the object.
-    //
-    zend_class_entry *oldScope = EG(scope);
-    EG(scope) = Z_OBJCE_P(target);
-
-    //
-    // add_property_zval increments the refcount of zv.
-    //
-    int status = add_property_zval(target, STRCAST(name.c_str()), zv);
-
-    EG(scope) = oldScope; // Restore the previous scope.
-
-    if(status == FAILURE)
-    {
-        runtimeError("unable to set member `%s'", name.c_str());
-        throw AbortMarshaling();
-    }
+    zend_update_property(Z_OBJCE_P(target), target, STRCAST(name.c_str()), strlen(name.c_str()), zv);
 }
 
 static void
