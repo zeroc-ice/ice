@@ -9,26 +9,51 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj" />
-    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" />
-    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj" />
-    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" />
-    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'" />
-    <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj" />
-    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'" />
+    <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <!-- For PHP build both thread safe and non thread safe configurations -->
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>NTS-$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
   </ItemGroup>
 
   <Target Name="Build">
     <MSBuild Projects="@(Projects)"
              BuildInParallel="false"
-             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+             Properties="Platform=$(Platform);Configuration=%(Configuration)" />
   </Target>
 
   <Target Name="Clean">
     <MSBuild Projects="@(Projects)"
              BuildInParallel="false"
              Targets="Clean"
-             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+             Properties="Platform=$(Platform);Configuration=%(Configuration)" />
   </Target>
 
 </Project>
