@@ -12,10 +12,6 @@
     <Platform>Win32</Platform>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UseNugetBinDist)' == 'yes'">
-    <UseBinDist>yes</UseBinDist>
-  </PropertyGroup>
-
   <!--
       Restore Nuget packages.
   -->
@@ -23,11 +19,11 @@
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
   </Target>
 
-  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
   </Target>
 
-  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.testuwp.sln"/>
   </Target>
 

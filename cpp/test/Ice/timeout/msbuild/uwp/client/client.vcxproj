@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props') and '$(UseNugetBinDist)' == 'yes'" />
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.props') and '$(UseBinDist)' == 'yes'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -78,10 +78,10 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
-    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.arm.3.7.0-alpha3\build\native\zeroc.ice.uwp.arm.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.arm.3.7.0-alpha3\build\native\zeroc.ice.uwp.arm.targets') and '$(UseNugetBinDist)' == 'yes'" />
-    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x64.3.7.0-alpha3\build\native\zeroc.ice.uwp.x64.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x64.3.7.0-alpha3\build\native\zeroc.ice.uwp.x64.targets') and '$(UseNugetBinDist)' == 'yes'" />
-    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets') and '$(UseNugetBinDist)' == 'yes'" />
-    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets') and '$(UseNugetBinDist)' == 'yes'" />
+    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.arm.3.7.0-alpha3\build\native\zeroc.ice.uwp.arm.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.arm.3.7.0-alpha3\build\native\zeroc.ice.uwp.arm.targets') and '$(UseBinDist)' == 'yes'" />
+    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x64.3.7.0-alpha3\build\native\zeroc.ice.uwp.x64.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x64.3.7.0-alpha3\build\native\zeroc.ice.uwp.x64.targets') and '$(UseBinDist)' == 'yes'" />
+    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.x86.3.7.0-alpha3\build\native\zeroc.ice.uwp.x86.targets') and '$(UseBinDist)' == 'yes'" />
+    <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.3.7.0-alpha3\build\native\zeroc.ice.uwp.targets') and '$(UseBinDist)' == 'yes'" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -249,7 +249,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(UseNugetBinDist)' == 'yes'">
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(UseBinDist)' == 'yes'">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>

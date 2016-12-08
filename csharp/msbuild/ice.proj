@@ -7,11 +7,7 @@
       <Configuration>Debug</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(UseNugetBinDist)' == 'yes'">
-      <UseBinDist>yes</UseBinDist>
-    </PropertyGroup>
-
-    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseNugetBinDist)' == 'yes'">
+    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
       <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
     </Target>
 

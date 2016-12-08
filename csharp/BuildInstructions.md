@@ -45,11 +45,6 @@ At the command prompt, execute:
 
     > python allTests.py
 
-You can also run tests individually by changing to the test directory and
-running this command:
-
-    > python run.py
-
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
@@ -72,7 +67,7 @@ To create a Nuget package for the distribution use the following command:
 
     MSbuild msbuild\ice.proj /t:NugetPack
 
-This will create `zeroc.ice.net\zeroc.ice.net.nuckpkg`.
+This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
 [1]: https://zeroc.com/download.html
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
