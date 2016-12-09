@@ -368,10 +368,11 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     // First make it a single line.
     //
     string::size_type pos;
-    while((pos = unprocessed.find("\\\n")) != string::npos)
+    while((pos = unprocessed.find("\\")) != string::npos)
     {
-        unprocessed.replace(pos, 2, "");
+        unprocessed.replace(pos, 1, "");
     }
+    pos = unprocessed.find("\n", pos) + 1;
 
     //
     // Get the main output file name.
@@ -403,9 +404,9 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     vector<string> dependencies;
 
     string::size_type end;
-    while((end = unprocessed.find(".ice", pos)) != string::npos)
+    while((end = unprocessed.find("\n", pos)) != string::npos)
     {
-        end += 4;
+        end += 1;
         string file = IceUtilInternal::trim(unprocessed.substr(pos, end - pos));
         if(IceUtilInternal::isAbsolutePath(file))
         {
