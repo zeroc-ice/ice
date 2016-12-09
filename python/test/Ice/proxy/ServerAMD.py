@@ -23,15 +23,14 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.ctx = None
 
-    def shutdown_async(self, cb, current=None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-        cb.ice_response()
 
-    def getContext_async(self, cb, current):
-        return cb.ice_response(self.ctx)
+    def getContext(self, current):
+        return Ice.Future.completed(self.ctx)
 
-    def echo_async(self, cb, obj, current):
-        return cb.ice_response(obj)
+    def echo(self, obj, current):
+        return Ice.Future.completed(obj)
 
     def ice_isA(self, s, current):
         self.ctx = current.ctx

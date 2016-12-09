@@ -87,7 +87,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, set<string>&);
+    CodeVisitor(IceUtilInternal::Output&, set<string>&, bool);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -181,12 +181,13 @@ private:
     };
     bool parseOpComment(const string&, OpComment&);
 
-    enum DocstringMode { DocSync, DocAsyncBegin, DocAsyncEnd, DocDispatch, DocAsyncDispatch };
+    enum DocstringMode { DocSync, DocAsync, DocAsyncBegin, DocAsyncEnd, DocDispatch, DocAsyncDispatch };
 
     void writeDocstring(const OperationPtr&, DocstringMode, bool);
 
     Output& _out;
     set<string>& _moduleHistory;
+    const bool _python3;
     list<string> _moduleStack;
     set<string> _classHistory;
 };
@@ -315,8 +316,8 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 //
 // CodeVisitor implementation.
 //
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
-    _out(out), _moduleHistory(moduleHistory)
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory, bool python3) :
+    _out(out), _moduleHistory(moduleHistory), _python3(python3)
 {
 }
 
@@ -563,9 +564,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
-            if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
+            if(!p->isLocal())
             {
-                _out << sp << nl << "def " << (*oli)->name() << "_async(self, _cb";
+                _out << sp << nl << "def " << fixedOpName << "(self";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -694,6 +695,23 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Async operations.
             //
+            _out << sp;
+            writeDocstring(*oli, DocAsync, false);
+            _out << nl << "def " << (*oli)->name() << "Async(self";
+            if(!inParams.empty())
+            {
+                _out << ", " << inParams;
+            }
+            _out << ", _ctx=None):";
+            _out.inc();
+            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, ((" << inParams;
+            if(!inParams.empty() && inParams.find(',') == string::npos)
+            {
+                _out << ", ";
+            }
+            _out << "), _ctx))";
+            _out.dec();
+
             _out << sp;
             writeDocstring(*oli, DocAsyncBegin, false);
             _out << nl << "def begin_" << (*oli)->name() << "(self";
@@ -2486,7 +2504,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             return;
         }
-        else if(mode == DocAsyncBegin && inParams.empty())
+        else if((mode == DocAsync || mode == DocAsyncBegin) && inParams.empty())
         {
             return;
         }
@@ -2519,6 +2537,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     switch(mode)
     {
     case DocSync:
+    case DocAsync:
     case DocAsyncBegin:
     case DocDispatch:
         needArgs = !local || !inParams.empty();
@@ -2532,10 +2551,6 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     if(needArgs)
     {
         _out << nl << "Arguments:";
-        if(mode == DocAsyncDispatch)
-        {
-            _out << nl << "_cb -- The asynchronous callback object.";
-        }
         for(vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             string fixed = fixIdent(*q);
@@ -2556,7 +2571,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
                  << nl << "_ex -- The asynchronous exception callback."
                  << nl << "_sent -- The asynchronous sent callback.";
         }
-        if(!local && (mode == DocSync || mode == DocAsyncBegin))
+        if(!local && (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin))
         {
             _out << nl << "_ctx -- The request context for the invocation.";
         }
@@ -2574,6 +2589,10 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit return value(s).
     //
+    if(mode == DocAsync || mode == DocAsyncDispatch)
+    {
+        _out << nl << "Returns: A future object for the invocation.";
+    }
     if(mode == DocAsyncBegin)
     {
         _out << nl << "Returns: An asynchronous result object for the invocation.";
@@ -2641,7 +2660,8 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 }
 
 void
-Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
+Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, bool python3, const vector<string>& includePaths,
+                        Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
@@ -2671,7 +2691,7 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
     ModuleVisitor moduleVisitor(out, moduleHistory);
     un->visit(&moduleVisitor, true);
 
-    CodeVisitor codeVisitor(out, moduleHistory);
+    CodeVisitor codeVisitor(out, moduleHistory, python3);
     un->visit(&codeVisitor, false);
 
     if(checksum)

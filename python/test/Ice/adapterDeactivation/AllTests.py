@@ -57,7 +57,7 @@ def allTests(communicator):
         initData = Ice.InitializationData();
         initData.properties = communicator.getProperties().clone();
         comm = Ice.initialize(initData);
-        comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+        comm.stringToProxy("test:default -p 12010").ice_pingAsync();
         comm.destroy();
     print("ok");
 

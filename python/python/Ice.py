@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, string, imp, os, threading, warnings, datetime
+import sys, string, imp, os, threading, warnings, datetime, logging, time, inspect
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -76,6 +76,208 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
+if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
+    from IceFuture import FutureBase, wrap_future
+else:
+    FutureBase = object
+
+class Future(FutureBase):
+    def __init__(self):
+        self._result = None
+        self._exception = None
+        self._condition = threading.Condition()
+        self._doneCallbacks = []
+        self._state = Future.StateRunning
+
+    def cancel(self):
+        callbacks = []
+        with self._condition:
+            if self._state == Future.StateDone:
+                return False
+
+            if self._state == Future.StateCancelled:
+                return True
+
+            self._state = Future.StateCancelled
+            callbacks = self._doneCallbacks
+            self._doneCallbacks = []
+            self._condition.notify_all()
+
+        self._callCallbacks(callbacks)
+
+        return True
+
+    def cancelled(self):
+        with self._condition:
+            return self._state == Future.StateCancelled
+
+    def running(self):
+        with self._condition:
+            return self._state == Future.StateRunning
+
+    def done(self):
+        with self._condition:
+            return self._state in [Future.StateCancelled, Future.StateDone]
+
+    def add_done_callback(self, fn):
+        with self._condition:
+            if self._state == Future.StateRunning:
+                self._doneCallbacks.append(fn)
+                return
+        fn(self)
+
+    def result(self, timeout=None):
+        with self._condition:
+            if not self._wait(timeout, lambda: self._state == Future.StateRunning):
+                raise TimeoutException()
+            if self._state == Future.StateCancelled:
+                raise InvocationCanceledException()
+            elif self._exception:
+                raise self._exception
+            else:
+                return self._result
+
+    def exception(self, timeout=None):
+        with self._condition:
+            if not self._wait(timeout, lambda: self._state == Future.StateRunning):
+                raise TimeoutException()
+            if self._state == Future.StateCancelled:
+                raise InvocationCanceledException()
+            else:
+                return self._exception
+
+    def set_result(self, result):
+        callbacks = []
+        with self._condition:
+            if self._state != Future.StateRunning:
+                return
+            self._result = result
+            self._state = Future.StateDone
+            callbacks = self._doneCallbacks
+            self._doneCallbacks = []
+            self._condition.notify_all()
+
+        self._callCallbacks(callbacks)
+
+    def set_exception(self, ex):
+        callbacks = []
+        with self._condition:
+            if self._state != Future.StateRunning:
+                return
+            self._exception = ex
+            self._state = Future.StateDone
+            callbacks = self._doneCallbacks
+            self._doneCallbacks = []
+            self._condition.notify_all()
+
+        self._callCallbacks(callbacks)
+
+    def completed(result):
+        f = Future()
+        f.set_result(result)
+        return f
+    completed = staticmethod(completed)
+
+    def _wait(self, timeout, testFn=None):
+        # Must be called with _condition acquired
+
+        while testFn():
+            if timeout:
+                start = time.time()
+                self._condition.wait(timeout)
+                # Subtract the elapsed time so far from the timeout
+                timeout -= (time.time() - start)
+                if timeout <= 0:
+                    return False
+            else:
+                self._condition.wait()
+
+        return True
+
+    def _callCallbacks(self, callbacks):
+        for callback in callbacks:
+            try:
+                callback(self)
+            except:
+                logging.getLogger("Ice.Future").exception('callback raised exception')
+
+    StateRunning = 'running'
+    StateCancelled = 'cancelled'
+    StateDone = 'done'
+
+class InvocationFuture(Future):
+    def __init__(self, operation, asyncResult):
+        Future.__init__(self)
+        self._operation = operation
+        self._asyncResult = asyncResult # May be None for a batch invocation.
+        self._sent = False
+        self._sentSynchronously = False
+        self._sentCallbacks = []
+
+    def cancel(self):
+        if self._asyncResult:
+            self._asyncResult.cancel()
+        return Future.cancel(self)
+
+    def is_sent(self):
+        with self._condition:
+            return self._sent
+
+    def sent_synchronously(self):
+        with self._condition:
+            return self._sentSynchronously
+
+    def add_sent_callback(self, fn):
+        with self._condition:
+            if not self._sent:
+                self._sentCallbacks.append(fn)
+                return
+        if self._sentSynchronously or not self._asyncResult:
+            fn(self, self._sentSynchronously)
+        else:
+            self._asyncResult.callLater(lambda: fn(self, self._sentSynchronously))
+
+    def sent(self, timeout=None):
+        with self._condition:
+            if not self._wait(timeout, lambda: not self._sent):
+                raise TimeoutException()
+            if self._state == Future.StateCancelled:
+                raise InvocationCanceledException()
+            elif self._exception:
+                raise self._exception
+            else:
+                return self._sentSynchronously
+
+    def set_sent(self, sentSynchronously):
+        callbacks = []
+        with self._condition:
+            if self._sent:
+                return
+
+            self._sent = True
+            self._sentSynchronously = sentSynchronously
+            callbacks = self._sentCallbacks
+            self._sentCallbacks = []
+            self._condition.notify_all()
+
+        for callback in callbacks:
+            try:
+                callback(self, sentSynchronously)
+            except Exception:
+                logging.getLogger("Ice.Future").exception('callback raised exception')
+
+    def operation(self):
+        return self._operation
+
+    def proxy(self):
+        return None if not self._asyncResult else self._asyncResult.getProxy()
+
+    def connection(self):
+        return None if not self._asyncResult else self._asyncResult.getConnection()
+
+    def communicator(self):
+        return None if not self._asyncResult else self._asyncResult.getCommunicator()
+
 #
 # This value is used as the default value for struct types in the constructors
 # of user-defined types. It allows us to determine whether the application has
@@ -134,11 +336,52 @@ Returns:
     #def ice_postUnmarshal(self):
     #    pass
 
-#
-# LocalObject is deprecated; use the Python base 'object' type instead.
-#
-class LocalObject(object):
-    pass
+    def _dispatch(self, cb, method, args):
+        # Invoke the given servant method. Exceptions can propagate to the caller.
+        result = method(*args)
+
+        # Check for a future.
+        if isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
+            def handler(future):
+                try:
+                    cb.response(future.result())
+                except:
+                    cb.exception(sys.exc_info()[1])
+            result.add_done_callback(handler)
+        elif self._isCoroutine(result):
+            self._dispatchCoroutine(cb, result)
+        else:
+            cb.response(result)
+
+    def _isCoroutine(self, coro):
+        # The inspect.iscoroutine() function was added in Python 3.5.
+        if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
+            return inspect.iscoroutine(coro)
+        else:
+            return False
+
+    def _dispatchCoroutine(self, cb, coro, value=None, exception=None):
+        try:
+            if exception:
+                result = coro.throw(exception)
+            else:
+                result = coro.send(value)
+
+            # Calling 'await <future>' will return the future. Check if we've received a future.
+            if isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
+                def handler(future):
+                    try:
+                        self._dispatchCoroutine(cb, coro, value=future.result())
+                    except:
+                        self._dispatchCoroutine(cb, coro, exception=sys.exc_info()[1])
+                result.add_done_callback(handler)
+            else:
+                raise RuntimeError('unexpected value of type ' + str(type(result)) + ' provided by coroutine')
+        except StopIteration as ex:
+            # StopIteration is raised when the coroutine completes.
+            cb.response(ex.value)
+        except:
+            cb.exception(sys.exc_info()[1])
 
 class Blobject(Object):
     '''Special-purpose servant base class that allows a subclass to
@@ -669,6 +912,9 @@ class CommunicatorI(Communicator):
 
     def flushBatchRequests(self):
         self._impl.flushBatchRequests()
+
+    def flushBatchRequestsAsync(self):
+        return self._impl.flushBatchRequestsAsync()
 
     def begin_flushBatchRequests(self, _ex=None, _sent=None):
         return self._impl.begin_flushBatchRequests(_ex, _sent)

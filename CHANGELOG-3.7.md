@@ -123,3 +123,22 @@ These are the changes since Ice 3.6.3.
 
 - The --dll-export option of slice2objc is now deprecated, and replaced by the global
   Slice metadata objc:dll-export:SYMBOL.
+
+## Python Changes
+
+- Added a new AMI mapping that returns Ice.Future. The Future class provides an API
+  that is compatible with concurrent.futures.Future, with some additional Ice-specific
+  methods. Programs can use the new mapping by adding the suffix `Async` to operation
+  names, such as `sayHelloAsync`. The existing `begin_/end_` mapping is still supported.
+
+- Changed the AMD mapping. AMD servant methods must no longer append the `_async` suffix to
+  their names. Additionally, an AMD callback is no longer passed to a servant method.
+  Now a servant method always uses the mapped name, and it can either return the results
+  (for a synchronous implementation) or return an Ice.Future (for an asynchronous
+  implementation).
+
+  With Python 3, a servant method can also be implemented as a coroutine. Ice will start
+  the coroutine, and coroutines can `await` on Ice.Future objects. Note that because Ice
+  is multithreaded, users who also want to use the asyncio package must make sure it's
+  done in a thread-safe manner. To assist with this, the Ice.wrap_future() function accepts
+  an Ice.Future and returns an asyncio.Future.

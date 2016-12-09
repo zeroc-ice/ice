@@ -124,8 +124,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
     };
 
     //
-    // CommunicatorDestroyedCompleted is the only exception that can propagate directly
-    // from this method.
+    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
     _instance->clientThreadPool()->dispatch(new AsynchronousException(_cachedConnection, ICE_SHARED_FROM_THIS));
 }
@@ -154,8 +153,7 @@ OutgoingAsyncBase::invokeResponseAsync()
     };
 
     //
-    // CommunicatorDestroyedCompleted is the only exception that can propagate directly
-    // from this method.
+    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
     _instance->clientThreadPool()->dispatch(new AsynchronousResponse(_cachedConnection, ICE_SHARED_FROM_THIS));
 }
@@ -532,6 +530,37 @@ OutgoingAsyncBase::throwUserException()
         _is.endEncapsulation();
         throw;
     }
+}
+
+void
+OutgoingAsyncBase::scheduleCallback(const CallbackPtr& cb)
+{
+    class WorkItem : public DispatchWorkItem
+    {
+    public:
+
+        WorkItem(const CallbackPtr& cb) : _cb(cb) {}
+
+        virtual void run()
+        {
+            try
+            {
+                _cb->run();
+            }
+            catch(...)
+            {
+            }
+        }
+
+    private:
+
+        CallbackPtr _cb;
+    };
+
+    //
+    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
+    //
+    _instance->clientThreadPool()->dispatch(new WorkItem(cb));
 }
 
 #endif

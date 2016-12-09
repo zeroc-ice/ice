@@ -723,6 +723,48 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+{
+    assert(self->communicator);
+    const string op = "flushBatchRequests";
+
+    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
+    Ice::Callback_Communicator_flushBatchRequestsPtr cb =
+        Ice::newCallback_Communicator_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
+
+    Ice::AsyncResultPtr result;
+
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+
+        result = (*self->communicator)->begin_flushBatchRequests(cb);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle asyncResultObj = createAsyncResult(result, 0, 0, self->wrapper);
+    if(!asyncResultObj.get())
+    {
+        return 0;
+    }
+
+    PyObjectHandle future = createFuture(op, asyncResultObj.get());
+    if(!future.get())
+    {
+        return 0;
+    }
+    d->setFuture(future.get());
+    return future.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, PyObject* kwds)
 {
     assert(self->communicator);
@@ -1608,6 +1650,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None")) },
     { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests), METH_NOARGS,
         PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("flushBatchRequestsAsync"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequestsAsync),
+        METH_NOARGS, PyDoc_STR(STRCAST("flushBatchRequestsAsync() -> Ice.Future")) },
     { STRCAST("begin_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorBeginFlushBatchRequests),
         METH_VARARGS | METH_KEYWORDS,
         PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
@@ -1734,8 +1778,19 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
     assert(p != _communicatorMap.end());
     CommunicatorObject* obj = reinterpret_cast<CommunicatorObject*>(p->second);
-    Py_INCREF(obj->wrapper);
-    return obj->wrapper;
+    if(obj->wrapper)
+    {
+        Py_INCREF(obj->wrapper);
+        return obj->wrapper;
+    }
+    else
+    {
+        //
+        // Communicator must have been destroyed already.
+        //
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 extern "C"

@@ -379,6 +379,50 @@ connectionFlushBatchRequests(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
+connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+{
+    assert(self->connection);
+    const string op = "flushBatchRequests";
+
+    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
+    Ice::Callback_Connection_flushBatchRequestsPtr cb =
+        Ice::newCallback_Connection_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
+
+    Ice::AsyncResultPtr result;
+
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+
+        result = (*self->connection)->begin_flushBatchRequests(cb);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
+    PyObjectHandle asyncResultObj =
+        createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicatorObj.get());
+    if(!asyncResultObj.get())
+    {
+        return 0;
+    }
+
+    PyObjectHandle future = createFuture(op, asyncResultObj.get());
+    if(!future.get())
+    {
+        return 0;
+    }
+    d->setFuture(future.get());
+    return future.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObject* kwds)
 {
     assert(self->connection);
@@ -821,6 +865,8 @@ static PyMethodDef ConnectionMethods[] =
         PyDoc_STR(STRCAST("getAdapter() -> Ice.ObjectAdapter")) },
     { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(connectionFlushBatchRequests), METH_NOARGS,
         PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("flushBatchRequestsAsync"), reinterpret_cast<PyCFunction>(connectionFlushBatchRequestsAsync),
+        METH_NOARGS, PyDoc_STR(STRCAST("flushBatchRequestsAsync() -> Ice.Future")) },
     { STRCAST("begin_flushBatchRequests"), reinterpret_cast<PyCFunction>(connectionBeginFlushBatchRequests),
         METH_VARARGS | METH_KEYWORDS, PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
     { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(connectionEndFlushBatchRequests), METH_VARARGS,

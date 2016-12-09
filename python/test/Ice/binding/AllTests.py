@@ -18,30 +18,23 @@ class GetAdapterNameCB:
         self._name = ""
         self._cond = threading.Condition()
 
-    def response(self, name):
-        self._cond.acquire()
-        self._name = name
-        self._cond.notify()
-        self._cond.release()
-
-    def exception(self, ex):
-        test(False)
+    def response(self, f):
+        with self._cond:
+            self._name = f.result()
+            self._cond.notify()
 
     def getResult(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while self._name == "":
                 self._cond.wait(5.0)
             if self._name != "":
                 return self._name
             else:
                 return ""
-        finally:
-            self._cond.release()
 
 def getAdapterNameWithAMI(proxy):
     cb = GetAdapterNameCB()
-    proxy.begin_getAdapterName(cb.response, cb.exception)
+    proxy.getAdapterNameAsync().add_done_callback(cb.response)
     return cb.getResult()
     
 def createTestIntfPrx(adapters):

@@ -401,10 +401,7 @@ usage(const string& n)
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
-        "--ice                Allow reserved Ice prefix in Slice identifiers\n"
-        "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore         Allow underscores in Slice identifiers\n"
-        "                     deprecated: use instead [[\"underscore\"]] metadata.\n"
+        "--python3            Generate code for the Python 3 mapping.\n"
         ;
 }
 
@@ -432,6 +429,7 @@ Slice::Python::compile(const vector<string>& argv)
     opts.addOpt("", "build-package");
     opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "python3");
 
     vector<string> args;
     try
@@ -501,6 +499,8 @@ Slice::Python::compile(const vector<string>& argv)
     bool checksum = opts.isSet("checksum");
 
     string prefix = opts.optArg("prefix");
+
+    bool python3 = opts.isSet("python3");
 
     if(args.empty())
     {
@@ -661,15 +661,17 @@ Slice::Python::compile(const vector<string>& argv)
                             FileTracker::instance()->addFile(file);
 
                             //
-                            // Python magic comment to set the file encoding, it must be first or second line
+                            // Emit a Python magic comment to set the file encoding.
+                            // It must be the first or second line.
                             //
                             out << "# -*- coding: utf-8 -*-\n";
                             printHeader(out);
                             printGeneratedHeader(out, base + ".ice", "#");
+
                             //
-                            // Generate the Python mapping.
+                            // Generate Python code.
                             //
-                            generate(u, all, checksum, includePaths, out);
+                            generate(u, all, checksum, python3, includePaths, out);
 
                             out.close();
                         }

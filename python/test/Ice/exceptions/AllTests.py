@@ -35,19 +35,15 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def check(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
-        finally:
-            self._cond.release()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
 class Callback(CallbackBase):
     def __init__(self, communicator=None):
@@ -591,6 +587,230 @@ def allTests(communicator):
         thrower.throwAfterException()
         test(False)
     except Test.A:
+        pass
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching exact types with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower.throwAasAAsync(1).result()
+        test(False)
+    except Test.A as ex:
+        test(ex.aMem == 1)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwAorDasAorDAsync(1).result()
+        test(False)
+    except Test.A as ex:
+        test(ex.aMem == 1)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwAorDasAorDAsync(-1).result()
+        test(False)
+    except Test.D as ex:
+        test(ex.dMem == -1)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwBasBAsync(1, 2).result()
+        test(False)
+    except Test.B as ex:
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwCasCAsync(1, 2, 3).result()
+        test(False)
+    except Test.C as ex:
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwModAAsync(1, 2).result()
+        test(False)
+    except Test.Mod.A as ex:
+        test(ex.aMem == 1)
+        test(ex.a2Mem == 2)
+    except Ice.OperationNotExistException:
+        #
+        # This operation is not supported in Java.
+        #
+        pass
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching derived types with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower.throwBasAAsync(1, 2).result()
+        test(False)
+    except Test.B as ex:
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwCasAAsync(1, 2, 3).result()
+        test(False)
+    except Test.C as ex:
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwCasBAsync(1, 2, 3).result()
+        test(False)
+    except Test.C as ex:
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    if thrower.supportsUndeclaredExceptions():
+        sys.stdout.write("catching unknown user exception with futures... ")
+        sys.stdout.flush()
+
+        try:
+            thrower.throwUndeclaredAAsync(1).result()
+            test(False)
+        except Ice.UnknownUserException:
+            pass
+        except:
+            print(sys.exc_info())
+            test(False)
+
+        try:
+            thrower.throwUndeclaredBAsync(1, 2).result()
+            test(False)
+        except Ice.UnknownUserException:
+            pass
+        except:
+            print(sys.exc_info())
+            test(False)
+
+        try:
+            thrower.throwUndeclaredCAsync(1, 2, 3).result()
+            test(False)
+        except Ice.UnknownUserException:
+            pass
+        except:
+            print(sys.exc_info())
+            test(False)
+
+        print("ok")
+
+    sys.stdout.write("catching object not exist exception with futures... ")
+    sys.stdout.flush()
+
+    id = Ice.stringToIdentity("does not exist")
+    try:
+        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
+        thrower2.throwAasAAsync(1).result()
+#        thrower2.ice_ping()
+        test(False)
+    except Ice.ObjectNotExistException as ex:
+        test(ex.id == id)
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching facet not exist exception with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
+        try:
+            thrower2.ice_pingAsync().result()
+            test(False)
+        except Ice.FacetNotExistException as ex:
+            test(ex.facet == "no such facet")
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching operation not exist exception with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower)
+        thrower2.noSuchOperationAsync().result()
+        test(False)
+    except Ice.OperationNotExistException as ex:
+        test(ex.operation == "noSuchOperation")
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching unknown local exception with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower.throwLocalExceptionAsync().result()
+        test(False)
+    except Ice.UnknownLocalException:
+        pass
+    except:
+        print(sys.exc_info())
+        test(False)
+    try:
+        thrower.throwLocalExceptionIdempotentAsync().result()
+        test(False)
+    except Ice.UnknownLocalException:
+        pass
+    except Ice.OperationNotExistException:
+        pass
+    except:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
+    sys.stdout.write("catching unknown non-Ice exception with futures... ")
+    sys.stdout.flush()
+
+    try:
+        thrower.throwNonIceExceptionAsync().result()
+        test(False)
+    except Ice.UnknownException:
         pass
     except:
         print(sys.exc_info())

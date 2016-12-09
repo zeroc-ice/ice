@@ -124,10 +124,10 @@ class InitialI(Test.Initial):
         return self._f
 
     def getMB(self, current):
-        return self._b1;
+        return self._b1
 
-    def getAMDMB_async(self, cb, current):
-        cb.ice_response(self._b1);
+    def getAMDMB(self, current):
+        return Ice.Future.completed(self._b1)
 
     def getAll(self, current=None):
         self._b1.preMarshalInvoked = False

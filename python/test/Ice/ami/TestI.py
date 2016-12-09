@@ -27,30 +27,21 @@ class TestIntfI(Test.TestIntf):
         pass
 
     def opBatch(self, current=None):
-        self._cond.acquire()
-        try:
+        with self._cond:
             self._batchCount += 1
             self._cond.notify()
-        finally:
-            self._cond.release()
 
     def opBatchCount(self, current=None):
-        self._cond.acquire()
-        try:
+        with self._cond:
             return self._batchCount
-        finally:
-            self._cond.release()
 
     def waitForBatch(self, count, current=None):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while self._batchCount < count:
                 self._cond.wait(5)
             result = count == self._batchCount
             self._batchCount = 0
             return result
-        finally:
-            self._cond.release()
 
     def close(self, force, current=None):
         current.con.close(force)

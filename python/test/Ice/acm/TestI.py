@@ -56,26 +56,17 @@ class TestIntfI(Test.TestIntf):
         self.m = threading.Condition()
 
     def sleep(self, delay, current=None):
-        self.m.acquire()
-        try:
+        with self.m:
             self.m.wait(delay)
-        finally:
-            self.m.release()
 
     def sleepAndHold(self, delay, current=None):
-        self.m.acquire()
-        try:
+        with self.m:
             current.adapter.hold()
             self.m.wait(delay)
-        finally:
-            self.m.release()
 
     def interruptSleep(self, delay, current=None):
-        self.m.acquire()
-        try:
+        with self.m:
             self.m.notifyAll()
-        finally:
-            self.m.release()
 
     def waitForHeartbeat(self, count, current=None):
 
@@ -86,21 +77,15 @@ class TestIntfI(Test.TestIntf):
                 self.count = 0
 
             def heartbeat(self, con):
-                self.m.acquire()
-                try:
+                with self.m:
                     self.count -= 1
                     self.m.notifyAll()
-                finally:
-                    self.m.release()
 
             def waitForCount(self, count):
-                self.m.acquire()
-                self.count = count
-                try:
+                with self.m:
+                    self.count = count
                     while self.count > 0:
                         self.m.wait()
-                finally:
-                    self.m.release()
 
         callback = ConnectionCallbackI()
         current.con.setHeartbeatCallback(lambda con: callback.heartbeat(con))

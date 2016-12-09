@@ -24,24 +24,24 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy_async(self, cb, adapter, obj, current=None):
+    def setAdapterDirectProxy(self, adapter, obj, current=None):
         if obj:
             self._adapters[adapter] = obj
         else:
             self._adapters.pop(adapter)
-        cb.ice_response()
+        return None
 
-    def setReplicatedAdapterDirectProxy_async(self, cb, adapter, replica, obj, current=None):
+    def setReplicatedAdapterDirectProxy(self, adapter, replica, obj, current=None):
         if obj:
             self._adapters[adapter] = obj
             self._adapters[replica] = obj
         else:
             self._adapters.pop(adapter)
             self._adapters.pop(replica)
-        cb.ice_response()
+        return None
 
-    def setServerProcessProxy_async(self, id, proxy, current=None):
-        cb.ice_response()
+    def setServerProcessProxy(self, id, proxy, current=None):
+        return None
 
     def addObject(self, obj, current=None):
         self._objects[obj.ice_getIdentity()] = obj
@@ -63,13 +63,13 @@ class ServerLocator(Test.TestLocator):
         self._registryPrx = registryPrx
         self._requestCount = 0
 
-    def findObjectById_async(self, response, id, current=None):
+    def findObjectById(self, id, current=None):
         self._requestCount += 1
-        response.ice_response(self._registry.getObject(id))
+        return Ice.Future.completed(self._registry.getObject(id))
 
-    def findAdapterById_async(self, response, id, current=None):
+    def findAdapterById(self, id, current=None):
         self._requestCount += 1
-        response.ice_response(self._registry.getAdapter(id))
+        return Ice.Future.completed(self._registry.getAdapter(id))
 
     def getRegistry(self, current=None):
         return self._registryPrx

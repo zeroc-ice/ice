@@ -113,7 +113,7 @@ def allTests(communicator):
 
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
-    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")));
+    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
     test(d1.a1.name == "a1")
     test(d1.a2.name == "a2")
     test(d1.a3.name == "a3")
@@ -225,9 +225,9 @@ def allTests(communicator):
     sys.stdout.write("testing marshaled results...")
     sys.stdout.flush()
     b1 = initial.getMB()
-    test(b1 != None and b1.theB == b1);
-    b1 = initial.end_getAMDMB(initial.begin_getAMDMB());
-    test(b1 != None and b1.theB == b1);
+    test(b1 != None and b1.theB == b1)
+    b1 = initial.getAMDMBAsync().result()
+    test(b1 != None and b1.theB == b1)
     print("ok")
 
     # Don't run this test with collocation, this should work with collocation

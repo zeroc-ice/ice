@@ -16,61 +16,74 @@ def test(b):
 
 class TestI(Test.TestIntf):
 
-    def requestFailedException_async(self, cb, current=None):
-        cb.ice_response()
+    def requestFailedException(self, current=None):
+        return None
 
-    def unknownUserException_async(self, cb, current=None):
-        cb.ice_response()
+    def unknownUserException(self, current=None):
+        return None
 
-    def unknownLocalException_async(self, cb, current=None):
-        cb.ice_response()
+    def unknownLocalException(self, current=None):
+        return None
 
-    def unknownException_async(self, cb, current=None):
-        cb.ice_response()
+    def unknownException(self, current=None):
+        return None
 
-    def localException_async(self, cb, current=None):
-        cb.ice_response()
+    def localException(self, current=None):
+        return None
 
-    def userException_async(self, cb, current=None):
-        cb.ice_response()
+    def userException(self, current=None):
+        return None
 
-    def pythonException_async(self, cb, current=None):
-        cb.ice_response()
+    def pythonException(self, current=None):
+        return None
 
-    def unknownExceptionWithServantException_async(self, cb, current=None):
-        cb.ice_exception(Ice.ObjectNotExistException())
+    def unknownExceptionWithServantException(self, current=None):
+        f = Ice.Future()
+        f.set_exception(Ice.ObjectNotExistException())
+        return f
 
-    def impossibleException_async(self, cb, throw, current=None):
+    def impossibleException(self, throw, current=None):
+        f = Ice.Future()
         if throw:
-            cb.ice_exception(Test.TestImpossibleException())
+            f.set_exception(Test.TestImpossibleException())
         else:
             #
             # Return a value so we can be sure that the stream position
             # is reset correctly if finished() throws.
             #
-            cb.ice_response("Hello")
+            f.set_result("Hello")
+        return f
 
-    def intfUserException_async(self, cb, throw, current=None):
+    def intfUserException(self, throw, current=None):
+        f = Ice.Future()
         if throw:
-            cb.ice_exception(Test.TestIntfUserException())
+            f.set_exception(Test.TestIntfUserException())
         else:
             #
             # Return a value so we can be sure that the stream position
             # is reset correctly if finished() throws.
             #
-            cb.ice_response("Hello")
+            f.set_result("Hello")
+        return f
 
-    def asyncResponse_async(self, cb, current=None):
-        cb.ice_response()
+    def asyncResponse(self, current=None):
+        #
+        # We can't do this with futures.
+        #
+        #return Ice.Future.completed(None)
         raise Ice.ObjectNotExistException()
 
-    def asyncException_async(self, cb, current=None):
-        cb.ice_exception(Test.TestIntfUserException())
+    def asyncException(self, current=None):
+        #
+        # We can't do this with futures.
+        #
+        #f = Ice.Future()
+        #f.set_exception(Test.TestIntfUserException())
+        #return f
         raise Ice.ObjectNotExistException()
 
-    def shutdown_async(self, cb, current=None):
+    def shutdown(self, current=None):
         current.adapter.deactivate()
-        cb.ice_response()
 
 class CookieI(Test.Cookie):
     def message(self):

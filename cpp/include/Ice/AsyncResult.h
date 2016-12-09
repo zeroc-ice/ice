@@ -62,6 +62,16 @@ public:
     static void check(const AsyncResultPtr&, const Connection*, const ::std::string&);
     static void check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
+    class Callback : public IceUtil::Shared
+    {
+    public:
+
+        virtual void run() = 0;
+    };
+    typedef IceUtil::Handle<Callback> CallbackPtr;
+
+    virtual void scheduleCallback(const CallbackPtr&) = 0;
+
 protected:
 
     static void check(const AsyncResultPtr&, const ::std::string&);

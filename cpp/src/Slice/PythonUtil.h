@@ -21,7 +21,7 @@ namespace Python
 //
 // Generate Python code for a translation unit.
 //
-void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
+void generate(const Slice::UnitPtr&, bool, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
 
 //
 // Convert a scoped name into a Python name.

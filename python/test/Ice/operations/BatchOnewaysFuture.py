@@ -40,13 +40,15 @@ def batchOneways(p):
         bs1 = bytes([0 for x in range(0, 10 * 1024)])
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
-    batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests()) # Empty flush
-    test(batch.begin_ice_flushBatchRequests().isSent()) # Empty flush
-    test(batch.begin_ice_flushBatchRequests().isCompleted()) # Empty flush
-    test(batch.begin_ice_flushBatchRequests().sentSynchronously()) # Empty flush
+    f = batch.ice_flushBatchRequestsAsync() # Empty flush
+    f.result()
+
+    test(batch.ice_flushBatchRequestsAsync().is_sent()) # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().done()) # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().sent_synchronously()) # Empty flush
 
     for i in range(30):
-        batch.begin_opByteSOneway(bs1, lambda: 0, lambda ex: test(False) )
+        batch.opByteSOnewayAsync(bs1)
 
     count = 0
     while count < 27: # 3 * 9 requests auto-flushed.
@@ -58,29 +60,29 @@ def batchOneways(p):
         batch1 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
         batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
-        batch1.end_ice_ping(batch1.begin_ice_ping())
-        batch2.end_ice_ping(batch2.begin_ice_ping())
-        batch1.end_ice_flushBatchRequests(batch1.begin_ice_flushBatchRequests())
+        batch1.ice_pingAsync()
+        batch2.ice_pingAsync()
+        batch1.ice_flushBatchRequestsAsync().result()
         batch1.ice_getConnection().close(False)
-        batch1.end_ice_ping(batch1.begin_ice_ping())
-        batch2.end_ice_ping(batch2.begin_ice_ping())
+        batch1.ice_pingAsync()
+        batch2.ice_pingAsync()
 
         batch1.ice_getConnection()
         batch2.ice_getConnection()
 
         batch1.ice_getConnection().close(False)
 
-        batch1.end_ice_ping(batch1.begin_ice_ping())
-        batch2.end_ice_ping(batch2.begin_ice_ping())
+        test(not batch1.ice_pingAsync().done())
+        test(not batch2.ice_pingAsync().done())
 
     identity = Ice.Identity()
     identity.name = "invalid";
     batch3 = batch.ice_identity(identity)
     batch3.ice_ping()
-    batch3.end_ice_flushBatchRequests(batch3.begin_ice_flushBatchRequests())
+    batch3.ice_flushBatchRequestsAsync().result()
 
     # Make sure that a bogus batch request doesn't cause troubles to other ones.
     batch3.ice_ping()
     batch.ice_ping()
-    batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests())
+    batch.ice_flushBatchRequestsAsync().result()
     batch.ice_ping()

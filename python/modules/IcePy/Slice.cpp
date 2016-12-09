@@ -72,6 +72,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum");
     opts.addOpt("", "all");
+    opts.addOpt("", "python3");
 
     vector<string> files;
     try
@@ -102,6 +103,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     bool underscore = opts.isSet("underscore");
     bool all = false;
     bool checksum = false;
+    bool python3 = false;
     if(opts.isSet("D"))
     {
         vector<string> optargs = opts.argVec("D");
@@ -129,6 +131,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     debug = opts.isSet("d") || opts.isSet("debug");
     all = opts.isSet("all");
     checksum = opts.isSet("checksum");
+    python3 = opts.isSet("python3");
 
     bool ignoreRedefs = false;
     bool keepComments = true;
@@ -161,11 +164,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         ostringstream codeStream;
         IceUtilInternal::Output out(codeStream);
         out.setUseTab(false);
+
         //
-        // Python magic comment to set the file encoding, it must be first or second line
+        // Emit a Python magic comment to set the file encoding.
+        // It must be the first or second line.
         //
         out << "# -*- coding: utf-8 -*-\n";
-        generate(u, all, checksum, includePaths, out);
+        generate(u, all, checksum, python3, includePaths, out);
         u->destroy();
 
         string code = codeStream.str();

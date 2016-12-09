@@ -19,17 +19,16 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
     def check(self):
-        self._cond.acquire()
-        while not self._called:
-            self._cond.wait()
-        self._called = False
-        return True
+        with self._cond:
+            while not self._called:
+                self._cond.wait()
+            self._called = False
+            return True
 
 class Callback(CallbackBase):
     def response(self):

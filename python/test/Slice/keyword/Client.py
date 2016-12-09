@@ -23,7 +23,7 @@ Ice.loadSlice('Key.ice')
 import _and
 
 class delI(_and._del):
-    def _elif_async(self, _cb, _else, current=None):
+    def _elifAsync(self, _else, current=None):
         pass
 
 class execI(_and._exec):
@@ -35,7 +35,7 @@ class forI(_and._for):
         pass
 
 class ifI(_and._if):
-    def _elif_async(self, _cb, _else, current=None):
+    def _elifAsync(self, _else, current=None):
         pass
     def _finally(self, current=None):
         pass

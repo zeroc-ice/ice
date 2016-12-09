@@ -26,6 +26,7 @@ def test(b):
 
 def run(args, communicator):
     AllTests.allTests(communicator, False)
+    AllTests.allTestsFuture(communicator, False)
     return True
 
 try:

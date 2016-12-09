@@ -22,37 +22,32 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def check(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
-        finally:
-            self._cond.release()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
 class Callback(CallbackBase):
-    def response(self):
-        test(False)
-
-    def exception(self, ex):
-        test(False)
-
-    def opPidI(self, pid):
-        self._pid = pid
-        self.called()
-
-    def opShutdownI(self):
-        self.called()
-
-    def exceptAbortI(self, ex):
+    def opPidI(self, f):
         try:
-            raise ex
+            self._pid = f.result()
+            self.called()
+        except:
+            test(False)
+
+    def opShutdownI(self, f):
+        test(f.exception() is None)
+        self.called()
+
+    def exceptAbortI(self, f):
+        test(f.exception() is not None)
+        try:
+            f.result()
         except Ice.ConnectionLostException:
             pass
         except Ice.ConnectFailedException:
@@ -102,7 +97,7 @@ def allTests(communicator, ports):
             sys.stdout.write("testing server #%d with AMI... " % i)
             sys.stdout.flush()
             cb = Callback()
-            obj.begin_pid(cb.opPidI, cb.exception)
+            obj.pidAsync().add_done_callback(cb.opPidI)
             cb.check()
             pid = cb.pid()
             test(pid != oldPid)
@@ -119,7 +114,7 @@ def allTests(communicator, ports):
                 sys.stdout.write("shutting down server #%d with AMI... " % i)
                 sys.stdout.flush()
                 cb = Callback()
-                obj.begin_shutdown(cb.opShutdownI, cb.exception)
+                obj.shutdownAsync().add_done_callback(cb.opShutdownI)
                 cb.check()
                 print("ok")
         elif j == 1 or i + 1 > len(ports):
@@ -137,7 +132,7 @@ def allTests(communicator, ports):
                 sys.stdout.write("aborting server #%d with AMI... " % i)
                 sys.stdout.flush()
                 cb = Callback()
-                obj.begin_abort(cb.response, cb.exceptAbortI)
+                obj.abortAsync().add_done_callback(cb.exceptAbortI)
                 cb.check()
                 print("ok")
         elif j == 2 or j == 3:
@@ -155,7 +150,7 @@ def allTests(communicator, ports):
                 sys.stdout.write("aborting server #%d and #%d with idempotent AMI call... " % (i, i + 1))
                 sys.stdout.flush()
                 cb = Callback()
-                obj.begin_idempotentAbort(cb.response, cb.exceptAbortI)
+                obj.idempotentAbortAsync().add_done_callback(cb.exceptAbortI)
                 cb.check()
                 print("ok")
 

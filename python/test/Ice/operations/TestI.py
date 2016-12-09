@@ -294,15 +294,13 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return [-x for x in s]
 
     def opByteSOneway(self, s, current=None):
-        self.lock.acquire()
-        self.opByteSOnewayCount += 1
-        self.lock.release()
+        with self.lock:
+            self.opByteSOnewayCount += 1
 
     def opByteSOnewayCallCount(self, current=None):
-        self.lock.acquire()
-        count = self.opByteSOnewayCount
-        self.opByteSOnewayCount = 0
-        self.lock.release()
+        with self.lock:
+            count = self.opByteSOnewayCount
+            self.opByteSOnewayCount = 0
         return count
 
     def opContext(self, current=None):

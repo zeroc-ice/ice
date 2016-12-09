@@ -468,11 +468,12 @@ IcePy::PyException::getTraceback()
     PyObjectHandle str = createString("traceback");
     PyObjectHandle mod = PyImport_Import(str.get());
     assert(mod.get()); // Unable to import traceback module - Python installation error?
-    PyObject* d = PyModule_GetDict(mod.get());
-    PyObject* func = PyDict_GetItemString(d, "format_exception");
+    PyObject* func = PyDict_GetItemString(PyModule_GetDict(mod.get()), "format_exception");
     assert(func); // traceback.format_exception must be present.
     PyObjectHandle args = Py_BuildValue("(OOO)", _type.get(), ex.get(), _tb.get());
+    assert(args.get());
     PyObjectHandle list = PyObject_CallObject(func, args.get());
+    assert(list.get());
 
     string result;
     for(Py_ssize_t i = 0; i < PyList_GET_SIZE(list.get()); ++i)
@@ -1088,6 +1089,60 @@ IcePy::getEncodingVersion(PyObject* args, Ice::EncodingVersion& v)
     }
 
     return true;
+}
+
+PyObject*
+IcePy::callMethod(PyObject* obj, const string& name, PyObject* arg1, PyObject* arg2)
+{
+    PyObjectHandle method = PyObject_GetAttrString(obj, const_cast<char*>(name.c_str()));
+    if(!method.get())
+    {
+        return 0;
+    }
+    return callMethod(method.get(), arg1, arg2);
+}
+
+PyObject*
+IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
+{
+    PyObjectHandle args;
+    if(arg1 && arg2)
+    {
+        args = PyTuple_New(2);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
+        PyTuple_SET_ITEM(args.get(), 1, incRef(arg2));
+    }
+    else if(arg1)
+    {
+        args = PyTuple_New(1);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
+    }
+    else if(arg2)
+    {
+        args = PyTuple_New(1);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg2));
+    }
+    else
+    {
+        args = PyTuple_New(0);
+        if(!args.get())
+        {
+            return 0;
+        }
+    }
+    return PyObject_Call(method, args.get(), 0);
 }
 
 extern "C"

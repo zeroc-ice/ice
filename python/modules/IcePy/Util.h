@@ -28,6 +28,12 @@
 namespace IcePy
 {
 
+inline PyObject* incRef(PyObject* obj)
+{
+    Py_XINCREF(obj);
+    return obj;
+}
+
 //
 // This should be used instead of Py_False to avoid GCC compiler warnings.
 //
@@ -58,16 +64,12 @@ inline PyObject* getTrue()
 
 inline PyObject* incFalse()
 {
-    PyObject* f = getFalse();
-    Py_INCREF(f);
-    return f;
+    return incRef(getFalse());
 }
 
 inline PyObject* incTrue()
 {
-    PyObject* t = getTrue();
-    Py_INCREF(t);
-    return t;
+    return incRef(getTrue());
 }
 
 //
@@ -261,6 +263,12 @@ PyObject* createEncodingVersion(const Ice::EncodingVersion&);
 // Extracts the members of an encoding version.
 //
 bool getEncodingVersion(PyObject*, Ice::EncodingVersion&);
+
+//
+// Call a Python method.
+//
+PyObject* callMethod(PyObject*, const std::string&, PyObject* = 0, PyObject* = 0);
+PyObject* callMethod(PyObject*, PyObject* = 0, PyObject* = 0);
 
 }
 
