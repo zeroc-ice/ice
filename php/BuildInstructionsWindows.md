@@ -52,6 +52,10 @@ configurations.
 the extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
 and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
 
+It is also possible to build the test suite using the binary Ice distribution, use:
+
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\3.7a3"
+
 ## Installing the PHP Extension
 
 To install the Ice extension, you must move the extension's shared library into
@@ -89,7 +93,7 @@ and its third-party dependencies. On Windows, these DLLs are required:
     icediscovery37a3.dll
     icelocatordiscovery37a3.dll
     icessl37a3.dll
-    
+
 In general, these libraries must reside in a directory of the user's PATH. For
 ISS configured to run PHP as FastCGI the simple is to copy the libraries next to
 the php-cgi.exe in C:\Program Files\iis express\PHP\v7.0

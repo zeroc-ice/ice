@@ -223,19 +223,21 @@ class Windows(Platform):
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useBinDist():
-            if isinstance(process, SliceTranslator):
-                return os.path.join("build", "native", "bin", "Win32", "Release")
-            elif isinstance(mapping, CSharpMapping):
+            iceHome = os.environ.get("ICE_HOME")
+            if iceHome:
+                return "bin"
+            if isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
+            else:
 
-            #
-            # With Windows binary distribution Glacier2 and IcePatch binaries are only included
-            # for Release configuration.
-            #
-            config = next(("Release" for p in
-                [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server] if isinstance(process, p)), config)
+                #
+                # With Windows binary distribution Glacier2 and IcePatch binaries are only included
+                # for Release configuration.
+                #
+                config = next(("Release" for p in
+                    [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server] if isinstance(process, p)), config)
 
-            return os.path.join("build", "native", "bin", platform, config)
+                return os.path.join("build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
@@ -258,14 +260,13 @@ class Windows(Platform):
         return "PATH"
 
     def getIceDir(self, mapping):
-
         config = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
         version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", config.read()).group(1)
+        name = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
+        iceHome = os.environ.get("ICE_HOME")
 
-        name = self.getCompiler() if isinstance(mapping, CppMapping) else mapping.name
-        iceHome = os.environ.get("ICE_HOME", "")
         if iceHome:
-            return os.path.join(iceHome, "zeroc.ice.{0}".format(name))
+            return iceHome
         else:
             return os.path.join(toplevel, mapping.name, "msbuild", "packages", "zeroc.ice.{0}.{1}".format(name, version))
 
@@ -2111,7 +2112,7 @@ class PhpMapping(CppBasedClientMapping):
         else:
             useBinDist = current.driver.useBinDist()
             if isinstance(platform, Windows):
-                extension = "php_ice_nts.dll" if "Thread Safety => disabled" in run("php -i") else "php_ice.dll"
+                extension = "php_ice_nts.dll" if "NTS" in run("php -v") else "php_ice.dll"
                 extensionDir = self.getBinDir(process, current)
                 includePath = self.getLibDir(process, current)
             else:

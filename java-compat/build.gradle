@@ -26,6 +26,12 @@ subprojects {
             }
         }
 
+        if(this.devRepo) {
+            maven {
+                url this.devRepo
+            }
+        }
+
         if(new File("/usr/share/maven-repo").exists()) {
             maven {
                 url "/usr/share/maven-repo"

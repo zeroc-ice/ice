@@ -8,12 +8,6 @@
 // **********************************************************************
 
 buildscript {
-    def env = System.getenv()
-    ext.iceMavenRepo = env['ICE_MAVEN_REPOSITORY']
-    if (ext.iceMavenRepo == null) {
-        ext.iceMavenRepo = "repo.zeroc.com"
-    }
-
     //
     // If iceBuilderHome is set add its lib directory it to the local maven repositories
     // so we can build using a local plugin version
@@ -39,7 +33,7 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "https://${iceMavenRepo}/nexus/content/repositories/releases"
+            url "https://repo.zeroc.com/nexus/content/repositories/releases"
         }
     }
     dependencies {
