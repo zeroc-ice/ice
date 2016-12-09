@@ -1090,8 +1090,8 @@ class Server(IceProcess):
         if not self.quiet and not current.driver.isWorkerThread():
             self.process.trace(self.outfilters)
 
-    def stop(self, current, waitSuccess=False):
-        IceProcess.stop(self, current, waitSuccess and self.waitForShutdown)
+    def stop(self, current, waitSuccess=False, exitstatus=0, watchDog=None):
+        IceProcess.stop(self, current, waitSuccess and self.waitForShutdown, exitstatus, watchDog)
 
 #
 # An Ice client process.
