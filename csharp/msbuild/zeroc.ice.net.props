@@ -8,7 +8,7 @@
         <IceSoVersion>37a3</IceSoVersion>
         <IceNugetPackageVersion>3.7.53.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
-        <IceToolsPath>$(IceHome)\build\native\bin\Win32\Release</IceToolsPath>
+        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
     </PropertyGroup>
 </Project>

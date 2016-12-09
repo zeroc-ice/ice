@@ -18,9 +18,6 @@
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
         <Executables Include="$(Ice_SrcRootDir)bin\Win32\Release\*.exe" 
                      Exclude="$(Ice_SrcRootDir)bin\Win32\Release\slice2*.exe" />
-
-        <Tools Include="$(Ice_SrcRootDir)bin\Win32\Release\slice2cpp.exe;
-                        $(Ice_SrcRootDir)bin\Win32\Release\slice2html.exe" />
     </ItemGroup>
 
     <!-- x64 Release binaries -->
@@ -28,6 +25,7 @@
         <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
                      Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe;
                               $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe"/>
+        <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2*.exe" />
     </ItemGroup>
 
     <!-- Win32/x64 Debug binaries -->
@@ -55,7 +53,7 @@
               SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
         <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
               SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
-        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
+        <Copy Condition="'$(Platform)|$(Configuration)' == 'x64|Release'"
               SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />

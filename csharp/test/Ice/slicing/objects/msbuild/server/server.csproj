@@ -24,6 +24,7 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.7.53.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -65,16 +66,16 @@
     <IceBuilderIncludeDirectories>$(IceHome)\slice;$(MSBuildProjectDirectory)\..\..</IceBuilderIncludeDirectories>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(UseBinDist)' == 'yes'">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props'))" />
-  </Target>
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(IceBuilderCSharpProps)')" Text="$(ErrorText)" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props') and '$(UseBinDist)' == 'yes'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha3\build\zeroc.ice.net.props'))" />
   </Target>
 </Project>

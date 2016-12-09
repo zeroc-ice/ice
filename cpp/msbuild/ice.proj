@@ -301,8 +301,6 @@
              Properties="PackageDirectory=zeroc.ice.uwp" />
     <Copy SourceFiles="zeroc.ice.uwp.nuspec"
           DestinationFolder="zeroc.ice.uwp" />
-    <Copy SourceFiles="zeroc.ice.props"
-          DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.props" />
     <Copy SourceFiles="zeroc.ice.uwp.props"
           DestinationFiles="zeroc.ice.uwp\build\native\zeroc.ice.uwp.props" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
