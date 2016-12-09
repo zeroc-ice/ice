@@ -220,13 +220,14 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(this, 2000);
                     break;
                 }
                 catch(ThreadInterruptedException)
                 {
                 }
             }
+            test(!_session.isConnected());
         }
 
         _initData.properties.setProperty("Ice.Default.Router", "");
@@ -247,13 +248,14 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(this, 2000);
                     break;
                 }
                 catch(ThreadInterruptedException)
                 {
                 }
             }
+            test(!_session.isConnected());
         }
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCallback2(this));
@@ -269,7 +271,7 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(this, 2000);
                     break;
                 }
                 catch(ThreadInterruptedException)

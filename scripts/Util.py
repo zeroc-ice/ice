@@ -1805,7 +1805,7 @@ class Driver:
 
             def waitReady(self, ready, readyCount, startTimeout):
                 if ready:
-                    self.expect("%s ready\n" % self.ready, timeout = startTimeout)
+                    self.expect("%s ready\n" % ready, timeout = startTimeout)
                 else:
                     while readyCount > 0:
                         self.expect("[^\n]+ ready\n", timeout = startTimeout)
