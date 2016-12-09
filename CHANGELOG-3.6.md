@@ -47,6 +47,10 @@ These are the changes since Ice 3.6.4.
   would fail if the service used the IceBox shared communicator. Thanks to
   Andreas Sommer for the bug report and fix.
 
+- Fixed a bug in Slice compilers which generates bogus dependencies when the
+  Slice files are located in a directory that contains the string ".ice" in 
+  the path.
+
 # Changes in Ice 3.6.3
 
 These are the changes since Ice 3.6.2.
