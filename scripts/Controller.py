@@ -80,30 +80,6 @@ class ControllerDriver(Driver):
         Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
         import Test
 
-        class ServerI(Test.Common.Server):
-            def __init__(self, driver, current):
-                self.driver = driver
-                self.current = current
-
-            def waitForServer(self, c):
-                if not self.current:
-                    raise Test.Common.ServerFailedException("couldn't find test suite")
-
-                try:
-                    self.current.serverTestCase._startServerSide(self.current)
-                except Exception as ex:
-                    raise Test.Common.ServerFailedException(str(ex))
-
-            def waitTestSuccess(self, c):
-                c.adapter.remove(c.id)
-                if self.current:
-                    self.current.serverTestCase._stopServerSide(self.current, True)
-
-            def terminate(self, c):
-                c.adapter.remove(c.id)
-                if self.current:
-                    self.current.serverTestCase._stopServerSide(self.current, False)
-
         class TestCaseI(Test.Common.TestCase):
             def __init__(self, driver, current):
                 self.driver = driver
@@ -168,35 +144,9 @@ class ControllerDriver(Driver):
         class ControllerI(Test.Common.Controller):
             def __init__(self, driver):
                 self.driver = driver
-                self.server = None
                 self.testcase = None
 
-            def runServer(self, mapping, testsuite, protocol, host, winrt, testcase, args, c):
-                self.terminate()
-                try:
-                    current = self.driver.getCurrent(mapping, testsuite, testcase, "", protocol, host, args)
-                except Test.Common.TestCaseNotExistException:
-                    current = None
-                self.server = Test.Common.ServerPrx.uncheckedCast(c.adapter.addWithUUID(ServerI(self.driver, current)))
-                return self.server
-
             def runTestCase(self, mapping, testsuite, testcase, cross, c):
-                self.terminate()
-                current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
-                self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
-                return self.testcase
-
-            def getOptionOverrides(self, c):
-                return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
-
-            def terminate(self):
-                if self.server:
-                    try:
-                        self.server.terminate()
-                    except:
-                        pass
-                    self.server = None
-
                 if self.testcase:
                     try:
                         self.testcase.destroy()
@@ -204,37 +154,21 @@ class ControllerDriver(Driver):
                         pass
                     self.testcase = None
 
-        initData = Ice.InitializationData()
-        initData.properties = Ice.createProperties();
-        initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        initData.properties.setProperty("IceSSL.DefaultDir", os.path.join(toplevel, "certs"))
-        initData.properties.setProperty("IceSSL.CertFile", "server.p12")
-        initData.properties.setProperty("IceSSL.Password", "password")
-        initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
-        initData.properties.setProperty("IceSSL.KeychainPassword", "password")
-        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10")
-        initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
-        initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
-        if self.interface:
-            initData.properties.setProperty("IceDiscovery.Interface", self.interface)
-            initData.properties.setProperty("Ice.Default.Host", self.interface)
-        #initData.properties.setProperty("Ice.Trace.Network", "3")
-        #initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        initData.properties.setProperty("ControllerAdapter.Endpoints", self.endpoints)
-        initData.properties.setProperty("ControllerAdapter.AdapterId", Ice.generateUUID())
+                current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
+                self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
+                return self.testcase
 
-        communicator = Ice.initialize(initData)
-        ctrlCHandler = Ice.CtrlCHandler()
-        ctrlCHandler.setCallback(lambda sig: communicator.shutdown())
-        try:
-            adapter = communicator.createObjectAdapter("ControllerAdapter")
-            adapter.add(ControllerI(self), communicator.stringToIdentity(self.id))
-            adapter.activate()
-            communicator.waitForShutdown()
-        finally:
-            communicator.destroy()
-            ctrlCHandler.destroy()
+            def getOptionOverrides(self, c):
+                return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
+
+
+        self.initCommunicator()
+        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
+        self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", Ice.generateUUID())
+        adapter = self.communicator.createObjectAdapter("ControllerAdapter")
+        adapter.add(ControllerI(self), self.communicator.stringToIdentity(self.id))
+        adapter.activate()
+        self.communicator.waitForShutdown()
 
     def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         import Test

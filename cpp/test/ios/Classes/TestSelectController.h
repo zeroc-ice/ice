@@ -17,7 +17,7 @@
     IBOutlet UIPickerView* pickerView;
     IBOutlet UISegmentedControl* protocol;
     IBOutlet UISwitch* loopSwitch;
-    NSArray* tests;
+    NSArray* testSuites;
     TestViewController *testViewController;
 }
 

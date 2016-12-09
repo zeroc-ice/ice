@@ -74,6 +74,9 @@ class Platform:
                     value = match.group(2).strip() or ""
                     setattr(self, varname, valuefn(value) if valuefn else value)
 
+    def getFilters(self, config):
+        return ([], [])
+
     def getDefaultBuildPlatform(self):
         return self.supportedPlatforms[0]
 
@@ -119,6 +122,20 @@ class Platform:
         return True
 
 class Darwin(Platform):
+
+    def getFilters(self, config):
+        if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
+            return (["Ice/.*", "IceDiscovery/simple", "IceSSL/configuration"],
+                    ["Ice/background",
+                     "Ice/faultTolerance",
+                     "Ice/gc",
+                     "Ice/logger",
+                     "Ice/networkProxy",
+                     "Ice/properties",
+                     "Ice/plugin",
+                     "Ice/stringConverter",
+                     "Ice/threadPoolPriority", "Ice/udp"])
+        return Platform.getFilters(self, config)
 
     def getDefaultBuildPlatform(self):
         return "macosx"
@@ -589,17 +606,25 @@ class Mapping:
     def createConfig(self, options):
         return Mapping.Config(options)
 
-    def filterTestSuite(self, testId, filters, rfilters):
-        for f in filters:
-            if not f.search(self.name + "/" + testId):
+    def filterTestSuite(self, testId, config, filters, rfilters):
+        (pfilters, prfilters) = platform.getFilters(config)
+        if (len(filters) + len(pfilters)) > 0:
+            for f in filters + [re.compile(pf) for pf in pfilters]:
+                if f.search(self.name + "/" + testId):
+                    break
+            else:
                 return True
-        else:
-            for f in rfilters:
+
+        if (len(rfilters) + len(prfilters)) > 0:
+            for f in rfilters + [re.compile(pf) for pf in prfilters]:
                 if f.search(self.name + "/" + testId):
                     return True
+            else:
+                return False
+
         return False
 
-    def loadTestSuites(self, tests, filters=[], rfilters=[]):
+    def loadTestSuites(self, tests, config, filters=[], rfilters=[]):
         for test in tests or [""]:
             for root, dirs, files in os.walk(os.path.join(self.getTestsPath(), test.replace('/', os.sep))):
 
@@ -607,7 +632,7 @@ class Mapping:
                 if os.sep != "/":
                     testId = testId.replace(os.sep, "/")
 
-                if self.filterTestSuite(testId, filters, rfilters):
+                if self.filterTestSuite(testId, config, filters, rfilters):
                     continue
 
                 #
@@ -894,34 +919,24 @@ class Process(Runnable):
     def run(self, current, args=[], props={}, exitstatus=0, timeout=120):
         class WatchDog:
 
-            def __init__(self):
+            def __init__(self, timeout):
                 self.lastProgressTime = time.time()
+                self.timeout = timeout
                 self.lock = threading.Lock()
 
             def reset(self):
                 with self.lock: self.lastProgressTime = time.time()
 
-            def lastProgress(self):
-                with self.lock: return self.lastProgressTime
+            def timedOut(self):
+                with self.lock:
+                    return (time.time() - self.lastProgressTime) >= self.timeout
 
-        watchDog = WatchDog()
+        watchDog = WatchDog(timeout)
         self.start(current, args, props, watchDog=watchDog)
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             self.process.trace(self.outfilters)
-        try:
-            while True:
-                try:
-                    self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
-                    break
-                except Expect.TIMEOUT:
-                    if time.time() - watchDog.lastProgress() >= timeout: # If no progress, raise
-                        raise
-        finally:
-            self.process.terminate()
-            # Write the output to the test case (but not on stdout)
-            if not self.quiet:
-                current.write(self.getOutput(), stdout=False)
+        self.stop(current, True, exitstatus, watchDog)
 
     def getEffectiveArgs(self, current, args):
         allArgs = []
@@ -966,37 +981,7 @@ class Process(Runnable):
         for k, v in allEnvs.items():
             allEnvs[k] = val(v, quoteValue=False)
 
-        # Get command line from the mapping
-        cmd = self.getCommandLine(current)
-        if len(allArgs) > 0:
-            cmd += " " + " ".join(allArgs)
-
-        #
-        # Props and arguments can use the format parameters set below in the kargs
-        # dictionary. It's time to convert them to their values.
-        #
-        kargs = {
-            "process": self,
-            "testcase": current.testcase,
-            "testdir": current.testcase.getPath(),
-            "builddir": current.getBuildDir(self.getExe(current)),
-            "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
-        }
-        cmd = cmd.format(**kargs)
-
-        if current.driver.debug:
-            if len(allEnvs) > 0:
-                current.writeln("({0} env={1})".format(cmd, allEnvs))
-            else:
-                current.writeln("({0})".format(cmd))
-
-        env = os.environ.copy()
-        env.update(allEnvs)
-
-        cwd = self.getMapping(current).getTestCwd(self, current)
-
-        self.process = Expect.Expect(cmd, startReader=False, env=env, cwd=cwd, desc=self.desc)
-        self.process.startReader(watchDog)
+        self.process = current.driver.createProcess(self, current, allArgs, allEnvs, watchDog)
         try:
             self.waitForStart(current)
         except:
@@ -1007,16 +992,21 @@ class Process(Runnable):
         # To be overridden in specialization to wait for a token indicating the process readiness.
         pass
 
-    def stop(self, current, waitSuccess=False):
+    def stop(self, current, waitSuccess=False, exitstatus=0, watchDog=None):
         if self.process:
             try:
                 if waitSuccess: # Wait for the process to exit successfully by itself.
-                    self.process.waitSuccess(timeout=60)
+                    while True:
+                        try:
+                            self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
+                            break
+                        except Expect.TIMEOUT:
+                            if watchDog and watchDog.timedOut():
+                                raise
             finally:
                 self.process.terminate()
                 if not self.quiet: # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(), stdout=False)
-                self.process = None
 
     def expect(self, pattern, timeout=60):
         assert(self.process)
@@ -1086,18 +1076,12 @@ class Server(IceProcess):
             "Ice.ThreadPool.Server.SizeMax": 3,
             "Ice.ThreadPool.Server.SizeWarn": 0,
         })
-        if self.ready or (self.readyCount + (1 if current.config.mx else 0)) > 0:
-            props["Ice.PrintAdapterReady"] = 1
+        props.update(current.driver.getProcessProps(current, self.ready, self.readyCount + (1 if current.config.mx else 0)))
         return props
 
     def waitForStart(self, current):
-        if self.ready:
-            self.process.expect("%s ready\n" % self.ready, timeout = self.startTimeout)
-        else:
-            count = self.readyCount + (1 if current.config.mx else 0)
-            while count > 0:
-                self.process.expect("[^\n]+ ready\n", timeout = self.startTimeout)
-                count -= 1
+        # Wait for the process to be ready
+        self.process.waitReady(self.ready, self.readyCount + (1 if current.config.mx else 0), self.startTimeout)
 
         # Filter out remaining ready messages
         self.outfilters.append(re.compile("[^\n]+ ready"))
@@ -1674,7 +1658,7 @@ class Driver:
 
     @classmethod
     def getOptions(self):
-        return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt="])
+        return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface="])
 
     @classmethod
     def usage(self):
@@ -1691,6 +1675,7 @@ class Driver:
         print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
+        print("--interface=<IP>      The multicast interface to use to discover controllers.")
 
     def __init__(self, options):
         self.debug = False
@@ -1708,8 +1693,12 @@ class Driver:
                                       "host-ipv6" : "hostIPv6",
                                       "host-bt" : "hostBT" })
 
-        self.filters = [re.compile(re.escape(a)) for a in self.filters]
-        self.rfilters = [re.compile(re.escape(a)) for a in self.rfilters]
+        self.filters = [re.compile(a) for a in self.filters]
+        self.rfilters = [re.compile(a) for a in self.rfilters]
+
+        self.communicator = None
+        self.processController = None
+        self.interface = ""
 
     def setConfigs(self, configs):
         self.configs = configs
@@ -1754,9 +1743,122 @@ class Driver:
         ### Return additional mappings to load required by the driver
         return []
 
-    def destroy(self):
-        pass
+    def initCommunicator(self):
+        if self.communicator:
+            return
 
+        import Ice
+        Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
+
+        initData = Ice.InitializationData()
+        initData.properties = Ice.createProperties()
+        initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
+        initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
+        initData.properties.setProperty("IceDiscovery.Interface", self.interface or "127.0.0.1")
+        initData.properties.setProperty("Ice.Default.Host", self.interface or "127.0.0.1")
+        #initData.properties.setProperty("Ice.Trace.Protocol", "1")
+        #initData.properties.setProperty("Ice.Trace.Network", "2")
+        initData.properties.setProperty("Ice.Override.Timeout", "10000")
+        self.communicator = Ice.initialize(initData)
+
+        self.ctrlCHandler = Ice.CtrlCHandler()
+        self.ctrlCHandler.setCallback(lambda sig: self.communicator.destroy())
+
+    def initProcessController(self, platform):
+        if platform in ["iphonesimulator", "iphoneos"]:
+            ident = "iOSProcessController"
+        else:
+            return None
+
+        self.initCommunicator()
+        import Test
+        self.processController = Test.Common.ProcessControllerPrx.uncheckedCast(self.communicator.stringToProxy(ident))
+
+    def createProcess(self, process, current, args, envs, watchDog):
+
+        class RemoteProcess:
+            def __init__(self, exe, proxy):
+                self.exe = exe
+                self.proxy = proxy
+                self.stdout = False
+
+            def waitReady(self, ready, readyCount, startTimeout):
+                self.proxy.waitReady(startTimeout)
+
+            def waitSuccess(self, exitstatus=0, timeout=60):
+                result = self.proxy.waitSuccess(timeout)
+                if exitstatus != result:
+                    raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
+
+            def getOutput(self):
+                return self.output
+
+            def trace(self, outfilters):
+                self.stdout = True
+
+            def terminate(self):
+                self.output = self.proxy.terminate().strip()
+                if self.stdout and self.output:
+                    print(self.output)
+
+        class LocalProcess(Expect.Expect):
+
+            def waitReady(self, ready, readyCount, startTimeout):
+                if ready:
+                    self.expect("%s ready\n" % self.ready, timeout = startTimeout)
+                else:
+                    while readyCount > 0:
+                        self.expect("[^\n]+ ready\n", timeout = startTimeout)
+                        readyCount -= 1
+
+        #
+        # Props and arguments can use the format parameters set below in the kargs
+        # dictionary. It's time to convert them to their values.
+        #
+        kargs = {
+            "process": process,
+            "testcase": current.testcase,
+            "testdir": current.testcase.getPath(),
+            "builddir": current.getBuildDir(process.getExe(current)),
+            "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
+        }
+
+        if current.config.buildPlatform in ["iphonesimulator", "iphoneos"]:
+            #
+            # Use the iOS process controller to start/stop iOS processes
+            #
+            if not self.processController:
+                self.initProcessController(current.config.buildPlatform)
+            exe = process.getExe(current)
+            if self.debug:
+                current.writeln("({0})".format("executing on iOS controller " + exe + " " + str(args)))
+            return RemoteProcess(exe, self.processController.start(str(current.testsuite), exe, args))
+        else:
+            cmd = (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+            if self.debug:
+                if len(envs) > 0:
+                    current.writeln("({0} env={1})".format(cmd, envs))
+                else:
+                    current.writeln("({0})".format(cmd))
+
+            env = os.environ.copy()
+            env.update(envs)
+            cwd = process.getMapping(current).getTestCwd(process, current)
+            process = LocalProcess(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
+            process.startReader(watchDog)
+            return process
+
+    def getProcessProps(self, current, ready, readyCount):
+        props = {}
+        if ready or readyCount > 0:
+            if current.config.buildPlatform not in ["iphonesimulator", "iphoneos"]:
+                props["Ice.PrintAdapterReady"] = 1
+        return props
+
+    def destroy(self):
+        if self.communicator:
+            self.communicator.destroy()
+            self.ctrlCHandler.destroy()
 
 class CppMapping(Mapping):
 
@@ -2055,9 +2157,9 @@ class PythonMapping(CppBasedMapping):
 
 class CppBasedClientMapping(CppBasedMapping):
 
-    def loadTestSuites(self, tests, filters, rfilters):
-        Mapping.loadTestSuites(self, tests, filters, rfilters)
-        self.getServerMapping().loadTestSuites(self.testsuites.keys())
+    def loadTestSuites(self, tests, config, filters, rfilters):
+        Mapping.loadTestSuites(self, tests, config, filters, rfilters)
+        self.getServerMapping().loadTestSuites(self.testsuites.keys(), config)
 
     def getServerMapping(self):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
@@ -2152,9 +2254,9 @@ class JavaScriptMapping(Mapping):
     def createConfig(self, options):
         return JavaScriptMapping.Config(options)
 
-    def loadTestSuites(self, tests, filters, rfilters):
-        Mapping.loadTestSuites(self, tests, filters, rfilters)
-        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"])
+    def loadTestSuites(self, tests, config, filters, rfilters):
+        Mapping.loadTestSuites(self, tests, config, filters, rfilters)
+        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
     def getServerMapping(self):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
@@ -2279,7 +2381,7 @@ def runTests(mappings=None, drivers=None):
         #
         driver.setConfigs(configs)
         for mapping in mappings + driver.getMappings():
-            mapping.loadTestSuites(args, driver.filters, driver.rfilters)
+            mapping.loadTestSuites(args, configs[mapping], driver.filters, driver.rfilters)
 
         #
         # Finally, run the test suites with the driver.

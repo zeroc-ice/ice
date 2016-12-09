@@ -166,46 +166,28 @@ class TestCaseRunner:
     def runClientSide(self, testcase, current):
         testcase._runClientSide(current)
 
-    def destroy(self):
-        pass
-
 #
 # Runner to run the test cases remotely with the controller (requires IcePy)
 #
 class RemoteTestCaseRunner(TestCaseRunner):
 
-    def __init__(self, clientPrx, serverPrx, interface):
-        import Ice
-        Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
+    def __init__(self, communicator, clientPrx, serverPrx):
         import Test
+        if clientPrx:
+            self.clientController = communicator.stringToProxy(clientPrx)
+            self.clientController = Test.Common.ControllerPrx.checkedCast(self.clientController)
+            self.clientOptions = self.clientController.getOptionOverrides()
+        else:
+            self.clientController = None
+            self.clientOptions = {}
 
-        initData = Ice.InitializationData()
-        initData.properties = Ice.createProperties()
-        initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
-        initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
-        if interface:
-            initData.properties.setProperty("IceDiscovery.Interface", interface)
-            initData.properties.setProperty("Ice.Default.Host", interface)
-        self.communicator = Ice.initialize(initData)
-        try:
-            if clientPrx:
-                self.clientController = self.communicator.stringToProxy(clientPrx)
-                self.clientController = Test.Common.ControllerPrx.checkedCast(self.clientController)
-                self.clientOptions = self.clientController.getOptionOverrides()
-            else:
-                self.clientController = None
-                self.clientOptions = {}
-
-            if serverPrx:
-                self.serverController = self.communicator.stringToProxy(serverPrx)
-                self.serverController = Test.Common.ControllerPrx.checkedCast(self.serverController)
-                self.serverOptions = self.serverController.getOptionOverrides()
-            else:
-                self.serverController = None
-                self.serverOptions = {}
-        except:
-            self.communicator.destroy()
-            raise
+        if serverPrx:
+            self.serverController = communicator.stringToProxy(serverPrx)
+            self.serverController = Test.Common.ControllerPrx.checkedCast(self.serverController)
+            self.serverOptions = self.serverController.getOptionOverrides()
+        else:
+            self.serverController = None
+            self.serverOptions = {}
 
     def filterOptions(self, options):
         import Ice
@@ -270,9 +252,6 @@ class RemoteTestCaseRunner(TestCaseRunner):
         finally:
             clientTestCase.destroy()
 
-    def destroy(self):
-        self.communicator.destroy()
-
     def getConfig(self, current):
         import Test
         return Test.Common.Config(current.config.protocol,
@@ -293,7 +272,7 @@ class LocalDriver(Driver):
     @classmethod
     def getOptions(self):
         return ("", ["cross=", "workers=", "continue", "loop", "start=", "all", "all-cross", "host=",
-                     "client=", "server=", "interface="])
+                     "client=", "server="])
 
     @classmethod
     def usage(self):
@@ -308,7 +287,6 @@ class LocalDriver(Driver):
         print("--all-cross           Run all sensible permutations of cross language tests.")
         print("--client=<proxy>      The endpoint of the controller to run the client side.")
         print("--server=<proxy>      The endpoint of the controller to run the server side.")
-        print("--interface=<IP>      The multicast interface to use to discover client/server controllers.")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
@@ -323,7 +301,6 @@ class LocalDriver(Driver):
 
         self.clientCtlPrx = ""
         self.serverCtlPrx = ""
-        self.interface = ""
 
         parseOptions(self, options, { "continue" : "continueOnFailure",
                                       "l" : "loop",
@@ -340,11 +317,13 @@ class LocalDriver(Driver):
         self.threadlocal = threading.local()
 
         if self.clientCtlPrx or self.serverCtlPrx:
-            self.runner = RemoteTestCaseRunner(self.clientCtlPrx, self.serverCtlPrx, self.interface)
+            self.initCommunicator()
+            self.runner = RemoteTestCaseRunner(self.communicator, self.clientCtlPrx, self.serverCtlPrx)
         else:
             self.runner = TestCaseRunner()
 
     def run(self, mappings, testSuiteIds):
+
         while True:
             executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
             for mapping in mappings:
@@ -365,7 +344,7 @@ class LocalDriver(Driver):
                 # Create the executor to run the test suites on multiple workers thread is requested.
                 #
                 for testsuite in testsuites:
-                    if mapping.filterTestSuite(testsuite.getId(), self.filters, self.rfilters):
+                    if mapping.filterTestSuite(testsuite.getId(), self.configs[mapping], self.filters, self.rfilters):
                         continue
                     if testsuite.getId() == "Ice/echo":
                         continue
@@ -406,10 +385,6 @@ class LocalDriver(Driver):
 
             if not self.loop:
                 return 1 if len(failures) > 0 else 0
-
-    def destroy(self):
-        self.runner.destroy()
-        self.runner = None
 
     def runTestSuite(self, current):
         current.result.writeln("*** [{0}/{1}] Running {2}/{3} tests ***".format(current.index,

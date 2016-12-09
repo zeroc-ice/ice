@@ -8,82 +8,115 @@
 // **********************************************************************
 
 #import <AppDelegate.h>
-#import <TestViewController.h>
 #import <TestUtil.h>
 
-struct TestData
-{
-    NSString* name;
-    NSString* prefix;
-    NSString* client;
-    NSString* server;
-    NSString* serverAMD;
-    NSString* collocated;
-    bool sslSupport;
-    bool wsSupport;
-    bool runWithSlicedFormat;
-    bool runWith10Encoding;
-    bool cpp11Support;
-};
+static NSArray* protocols = @[ @"tcp", @"ssl", @"ws", @"wss" ];
 
-static NSString* protocols[] = { @"tcp", @"ssl", @"ws", @"wss" };
-const int nProtocols = sizeof(protocols) / sizeof(NSString*);
+static NSArray* clientServer = @[ [TestCase testCase:@"client/server" client:nil server:nil args:nil] ];
 
-static const struct TestData alltests[] =
-{
-//
-// | Name | lib base name | client | server | amdserver | collocated | ssl support | ws support | sliced | encoding 1.0 | cpp11 |
-//
-{ @"proxy", @"Ice_proxy", @"client.bundle", @"server.bundle", @"serveramd.bundle", @"collocated.bundle", true, true, false, false, true },
-{ @"operations", @"Ice_operations", @"client.bundle", @"server.bundle", @"serveramd.bundle", @"collocated.bundle", true, true, false, false, true },
-{ @"exceptions", @"Ice_exceptions", @"client.bundle", @"server.bundle", @"serveramd.bundle", @"collocated.bundle", true, true, true, true, true },
-{ @"ami", @"Ice_ami", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"info", @"Ice_info", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"inheritance", @"Ice_inheritance", @"client.bundle", @"server.bundle", 0, @"collocated.bundle", true, true, false, false, true},
-{ @"facets", @"Ice_facets", @"client.bundle", @"server.bundle", 0, @"collocated.bundle", true, true, false, false, true },
-{ @"objects", @"Ice_objects", @"client.bundle", @"server.bundle", 0, @"collocated.bundle", true, true, true, true, true },
-{ @"optional", @"Ice_optional", @"client.bundle", @"server.bundle", 0, 0, true, true, true, false, false },
-{ @"binding", @"Ice_binding", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"location", @"Ice_location", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"adapterDeactivation", @"Ice_adapterDeactivation", @"client.bundle", @"server.bundle", 0, @"collocated.bundle", true, true, false, false, true },
-{ @"slicing/exceptions", @"Ice_slicing_exceptions", @"client.bundle", @"server.bundle", @"serveramd.bundle", 0, true, true, false, true, true },
-{ @"slicing/objects", @"Ice_slicing_objects", @"client.bundle", @"server.bundle", @"serveramd.bundle", 0, true, true, false, true, true },
-{ @"dispatcher", @"Ice_dispatcher", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"stream", @"Ice_stream", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"hold", @"Ice_hold", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"custom", @"Ice_custom", @"client.bundle", @"server.bundle", @"serveramd.bundle", @"collocated.bundle", true, true, false, false, false },
-{ @"retry", @"Ice_retry", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"timeout", @"Ice_timeout", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"interceptor", @"Ice_interceptor", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"udp", @"Ice_udp", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"defaultServant", @"Ice_defaultServant", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"defaultValue", @"Ice_defaultValue", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"servantLocator", @"Ice_servantLocator", @"client.bundle", @"server.bundle", @"serveramd.bundle", @"collocated.bundle", true, true, false, false, true },
-{ @"invoke", @"Ice_invoke", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"hash", @"Ice_hash", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"admin", @"Ice_admin", @"client.bundle", @"server.bundle", 0, 0, true, true, false, false, true },
-{ @"metrics", @"Ice_metrics", @"client.bundle", @"server.bundle", 0, 0, false, false, false, false, true },
-{ @"enums", @"Ice_enums", @"client.bundle", @"server.bundle", 0, 0, true, true, false, true, true },
-{ @"services", @"Ice_services", @"client.bundle", 0, 0, 0, true, true, false, false, true },
-{ @"configuration", @"IceSSL_configuration", @"client.bundle", @"server.bundle", 0, 0, false, false, false, false, true },
-};
+static NSArray* clientServerAndCollocated = @[
+    [TestCase testCase:@"client/server" client:nil server:nil args:nil],
+    [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+];
+
+static NSArray* clientOnly = @[ [TestCase testCase:@"client" client:nil server:nil args:nil] ];
+
+static NSArray* slicedArgs = @[@"--Ice.Default.SlicedFormat"];
+static NSArray* encoding10Args = @[@"--Ice.Default.EncodingVersion=1.0"];
+
+static NSArray* allTests = @[
+    [TestSuite testSuite:@"Ice/proxy" testCases:clientServerAndCollocated],
+    [TestSuite testSuite:@"Ice/operations" testCases:@[
+        [TestCase testCase:@"client/server" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/amd server" client:nil server:nil args:nil],
+        [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+    ]],
+    [TestSuite testSuite:@"Ice/exceptions" testCases:@[
+        [TestCase testCase:@"client/server with compact format" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+        [TestCase testCase:@"client/amd server with compact format" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/amd server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/amd server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+        [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+    ]],
+    [TestSuite testSuite:@"Ice/ami" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/info" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/inheritance" testCases:clientServerAndCollocated],
+    [TestSuite testSuite:@"Ice/facets" testCases:clientServerAndCollocated],
+    [TestSuite testSuite:@"Ice/objects" testCases:@[
+        [TestCase testCase:@"client/server with compact format" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+        [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+    ]],
+    [TestSuite testSuite:@"Ice/optional" testCases:@[
+        [TestCase testCase:@"client/server with compact format" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/amd server with compact format" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/amd server with sliced format" client:nil server:nil args:slicedArgs],
+    ]],
+    [TestSuite testSuite:@"Ice/binding" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/location" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/adapterDeactivation" testCases:clientServerAndCollocated],
+    [TestSuite testSuite:@"Ice/slicing/objects" testCases:@[
+        [TestCase testCase:@"client/server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+        [TestCase testCase:@"client/amd server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/amd server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+    ]],
+    [TestSuite testSuite:@"Ice/slicing/exceptions" testCases:@[
+        [TestCase testCase:@"client/server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+        [TestCase testCase:@"client/amd server with sliced format" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/amd server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+    ]],
+    [TestSuite testSuite:@"Ice/dispatcher" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/stream" testCases:clientOnly],
+    [TestSuite testSuite:@"Ice/hold" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/custom" testCases:@[
+        [TestCase testCase:@"client/server" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/amd server" client:nil server:nil args:nil],
+        [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+    ]],
+    [TestSuite testSuite:@"Ice/retry" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/timeout" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/interceptor" testCases:clientOnly],
+    [TestSuite testSuite:@"Ice/udp" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/defaultServant" testCases:clientOnly],
+    [TestSuite testSuite:@"Ice/defaultValue" testCases:clientOnly],
+    [TestSuite testSuite:@"Ice/servantLocator" testCases:@[
+        [TestCase testCase:@"client/server" client:nil server:nil args:nil],
+        [TestCase testCase:@"client/amd server" client:nil server:nil args:nil],
+        [TestCase testCase:@"collocated" client:nil server:nil args:nil],
+    ]],
+    [TestSuite testSuite:@"Ice/invoke" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/hash" testCases:clientOnly],
+    [TestSuite testSuite:@"Ice/admin" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/metrics" testCases:clientServer],
+    [TestSuite testSuite:@"Ice/enums" testCases:@[
+        [TestCase testCase:@"client/server with default encoding" client:nil server:nil args:slicedArgs],
+        [TestCase testCase:@"client/server with 1.0 encoding" client:nil server:nil args:encoding10Args],
+    ]],
+    [TestSuite testSuite:@"Ice/services" testCases:clientOnly],
+    [TestSuite testSuite:@"IceSSL/configuration" testCases:clientServer],
+];
 
 @implementation AppDelegate
 
 @synthesize window;
 @synthesize navigationController;
-@synthesize tests;
-@synthesize currentTest;
+@synthesize testSuites;
+@synthesize currentTestSuite;
 @synthesize loop;
-@synthesize runAll;
 
-static NSString* currentTestKey = @"currentTestKey";
+static NSString* currentTestSuiteKey = @"currentTestSuiteKey";
 static NSString* protocolKey = @"protocolKey";
 
 +(void)initialize
 {
     NSDictionary* appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 @"0", currentTestKey,
+                                 @"0", currentTestSuiteKey,
                                  @"tcp", protocolKey,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -93,47 +126,51 @@ static NSString* protocolKey = @"protocolKey";
 {
     if(self = [super init])
     {
-        self->runAll = getenv("RUNALL") != NULL;
-
-        NSMutableArray* theTests = [NSMutableArray array];
-        for(int i = 0; i < sizeof(alltests)/sizeof(alltests[0]); ++i)
+        testSuites = [allTests retain];
+        for(TestSuite* testSuite in allTests)
         {
-            TestCase* test = [TestCase testWithName:alltests[i].name
-                                             prefix:alltests[i].prefix
-                                             client:alltests[i].client
-                                             server:alltests[i].server
-                                          serveramd:alltests[i].serverAMD
-                                         collocated:alltests[i].collocated
-                                         sslSupport:alltests[i].sslSupport
-                                          wsSupport:alltests[i].wsSupport
-                                runWithSlicedFormat:alltests[i].runWithSlicedFormat
-                                  runWith10Encoding:alltests[i].runWith10Encoding
-                                       cpp11Support:alltests[i].cpp11Support];
-            [theTests addObject:test];
-        }
-        tests = [[theTests copy] retain];
-
-        // Initialize the application defaults.
-        currentTest = [[NSUserDefaults standardUserDefaults] integerForKey:currentTestKey];
-        if(runAll || currentTest < 0 || currentTest > tests.count)
-        {
-            currentTest = 0;
-        }
-
-        protocol = [[NSUserDefaults standardUserDefaults] stringForKey:protocolKey];
-        int i = 0;
-        for(; i < nProtocols; ++i)
-        {
-            if([protocols[i] isEqualToString:protocol])
+            for(TestCase* testCase in testSuite.testCases)
             {
-                break;
+                if(testCase.client == nil)
+                {
+                    if([testCase.name rangeOfString:@"client/server"].location == 0)
+                    {
+                        testCase.client = @"client.bundle";
+                        testCase.server = @"server.bundle";
+                    }
+                    else if([testCase.name rangeOfString:@"client/amd server"].location == 0)
+                    {
+                        testCase.client = @"client.bundle";
+                        testCase.server = @"serveramd.bundle";
+                    }
+                    else if([testCase.name isEqualToString:@"collocated"])
+                    {
+                        testCase.client = @"collocated.bundle";
+                    }
+                    else
+                    {
+                        testCase.client = @"client.bundle";
+                    }
+                }
             }
         }
-        if(i == nProtocols)
+
+        // Initialize the application defaults.
+        currentTestSuite = [[NSUserDefaults standardUserDefaults] integerForKey:currentTestSuiteKey];
+        if(currentTestSuite < 0 || currentTestSuite > testSuites.count)
         {
-            protocol = @"tcp";
+            currentTestSuite = 0;
         }
 
+        protocol = @"tcp";
+        NSString* confProt = [[NSUserDefaults standardUserDefaults] stringForKey:protocolKey];
+        for(id p in protocols)
+        {
+            if([p isEqualToString:confProt])
+            {
+                protocol = confProt;
+            }
+        }
         loop = NO;
     }
     return self;
@@ -149,23 +186,23 @@ static NSString* protocolKey = @"protocolKey";
 
 - (void)dealloc
 {
-    [tests release];
+    [testSuites release];
     [protocol release];
     [navigationController release];
     [window release];
     [super dealloc];
 }
 
--(NSInteger)currentTest
+-(NSInteger)currentTestSuite
 {
-    return currentTest;
+    return currentTestSuite;
 }
 
--(void)setCurrentTest:(NSInteger)test
+-(void)setCurrentTestSuite:(NSInteger)test
 {
-    currentTest = test;
+    currentTestSuite = test;
 
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:currentTest] forKey:currentTestKey];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:currentTestSuite] forKey:currentTestSuiteKey];
 }
 
 -(NSString*)protocol
@@ -183,31 +220,9 @@ static NSString* protocolKey = @"protocolKey";
 {
     if(success)
     {
-        self.currentTest = (currentTest+1) % tests.count;
-        if(runAll || loop)
+        self.currentTestSuite = (currentTestSuite + 1) % testSuites.count;
+        if(loop)
         {
-            if(self.currentTest == 0)
-            {
-                int i = 0;
-                for(; i < nProtocols; ++i)
-                {
-                    if([protocols[i] isEqualToString:protocol])
-                    {
-                        break;
-                    }
-                }
-
-                if(++i == nProtocols && !loop)
-                {
-                    std::cout << "\n*** Finished running all tests" << std::endl;
-                    return NO;
-                }
-                else
-                {
-                    protocol = protocols[i % nProtocols];
-                    return YES;
-                }
-            }
             return YES;
         }
     }

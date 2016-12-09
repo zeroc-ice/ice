@@ -19,90 +19,69 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSThread.h>
 
-@implementation TestCase
+using namespace std;
 
-@synthesize name;
-@synthesize prefix;
-@synthesize server;
-@synthesize client;
-@synthesize serveramd;
-@synthesize collocated;
-@synthesize sslSupport;
-@synthesize wsSupport;
-@synthesize runWithSlicedFormat;
-@synthesize runWith10Encoding;
-@synthesize cpp11Support;
+@implementation TestSuite
+@synthesize testSuiteId;
+@synthesize testCases;
 
-+(id)testWithName:(NSString*)name
-              prefix:(NSString*) prefix
-              client:(NSString*) client
-              server:(NSString*) server
-           serveramd:(NSString*) serveramd
-          collocated:(NSString*) collocated
-          sslSupport:(BOOL) sslSupport
-           wsSupport:(BOOL) wsSupport
- runWithSlicedFormat:(BOOL)runWithSlicedFormat
-   runWith10Encoding:(BOOL)runWith10Encoding
-        cpp11Support:(BOOL)cpp11Support
++(id) testSuite:(NSString*)testSuiteId testCases:(NSArray*)testCases
 {
-    TestCase* t = [[TestCase alloc] init];
-    if(t != nil)
+    TestSuite* testSuite = [[TestSuite alloc] init];
+    if(testSuite != nil)
     {
-        t->name = name;
-        t->prefix = prefix;
-        t->client = client;
-        t->server = server;
-        t->serveramd = serveramd;
-        t->collocated = collocated;
-        t->sslSupport = sslSupport;
-        t->wsSupport = wsSupport;
-        t->runWithSlicedFormat = runWithSlicedFormat;
-        t->runWith10Encoding = runWith10Encoding;
-        t->cpp11Support = cpp11Support;
+        testSuite->testSuiteId = testSuiteId;
+        testSuite->testCases = testCases;
     }
-    return [t autorelease];
+    return [testSuite autorelease];
 }
 
--(BOOL) hasServer
+-(BOOL) isIn:(NSArray*)tests
 {
-    return server != 0;
-}
-
--(BOOL) hasAMDServer
-{
-    return serveramd != 0;
-}
-
--(BOOL) hasCollocated
-{
-    return collocated != 0;
-}
-
--(BOOL)isProtocolSupported:(NSString*)protocol
-{
-    BOOL supported = YES;
-    if(!sslSupport)
+    for(NSString* t in tests)
     {
-        supported &= [protocol isEqualToString:@"tcp"] || [protocol isEqualToString:@"ws"];
+        if([t isEqualToString:testSuiteId])
+        {
+            return TRUE;
+        }
     }
-    if(!wsSupport)
-    {
-        supported &= [protocol isEqualToString:@"tcp"] || [protocol isEqualToString:@"ssl"];
-    }
-    return supported;
+    return FALSE;
 }
--(void)dealloc
-{
-    [name release];
-    [prefix release];
-    [client release];
-    [server release];
-    [serveramd release];
-    [collocated release];
-    [super dealloc];
-}
-
 @end
+
+@implementation TestCase
+@synthesize name;
+@synthesize client;
+@synthesize server;
+@synthesize args;
+
++(id) testCase:(NSString*)name client:(NSString*)client server:(NSString*)server args:(NSArray*)args
+{
+    TestCase* testCase = [[TestCase alloc] init];
+    if(testCase != nil)
+    {
+        testCase->name = name;
+        testCase->client = client;
+        testCase->server = server;
+        testCase->args = args;
+    }
+    return [testCase autorelease];
+}
+@end
+
+MainHelperI::MainHelperI(const string& test, const string& libName, TestType type, TestConfig config,
+                         id target, SEL out, SEL ready) :
+    _name(test),
+    _libName(libName),
+    _type(type),
+    _config(config),
+    _completed(false),
+    _status(0),
+    _target(target),
+    _output(out),
+    _ready(ready)
+{
+}
 
 MainHelperI::~MainHelperI()
 {
@@ -160,7 +139,7 @@ MainHelperI::run()
     MAIN_ENTRY_POINT dllMain = (MAIN_ENTRY_POINT)sym;
 
     std::vector<std::string> args;
-    if(_config.type == TestConfigTypeServer)
+    if(_type == TestTypeServer)
     {
         args.push_back("server");
     }
@@ -174,7 +153,7 @@ MainHelperI::run()
     args.push_back("--Ice.Trace.Network=0");
     args.push_back("--Ice.Trace.Protocol=0");
 
-    if(_config.type == TestConfigTypeServer)
+    if(_type == TestTypeServer)
     {
         args.push_back("--Ice.ThreadPool.Server.Size=1");
         args.push_back("--Ice.ThreadPool.Server.SizeMax=3");
@@ -188,7 +167,7 @@ MainHelperI::run()
     {
         args.push_back("--IceSSL.CAs=cacert.der");
         args.push_back("--IceSSL.CheckCertName=0");
-        if(_config.type == TestConfigTypeServer)
+        if(_type == TestTypeServer)
         {
             args.push_back("--IceSSL.CertFile=server.p12");
         }
@@ -199,51 +178,7 @@ MainHelperI::run()
         args.push_back("--IceSSL.Password=password");
         args.push_back("--Ice.Override.ConnectTimeout=10000"); // COMPILERFIX: Workaround for SSL hang on iOS devices
     }
-
-    if(_config.option == TestConfigOptionSliced)
-    {
-        args.push_back("--Ice.Default.SlicedFormat");
-    }
-    else if(_config.option == TestConfigOptionEncoding10)
-    {
-        args.push_back("--Ice.Default.EncodingVersion=1.0");
-    }
-
-    if(_config.type == TestConfigTypeServer)
-    {
-        if(_libName.find("serveramd") != std::string::npos)
-        {
-            print("Running test with AMD server & ");
-        }
-        else
-        {
-            print("Running test with ");
-        }
-    }
-    else if(_config.type == TestConfigTypeClient || _config.type == TestConfigTypeColloc)
-    {
-        if(_config.type == TestConfigTypeColloc)
-        {
-            print("Running collocated test with ");
-        }
-        else if(!_config.hasServer)
-        {
-            print("Running test with ");
-        }
-        print(_config.protocol + " and ");
-        if(_config.option == TestConfigOptionDefault)
-        {
-            print("default format.\n");
-        }
-        else if(_config.option == TestConfigOptionSliced)
-        {
-            print("sliced format.\n");
-        }
-        else if(_config.option == TestConfigOptionEncoding10)
-        {
-            print("1.0 encoding.\n");
-        }
-    }
+    copy(_config.args.begin(), _config.args.end(), back_inserter(args));
 
     char** argv = new char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)
@@ -257,11 +192,11 @@ MainHelperI::run()
     }
     catch(const std::exception& ex)
     {
-        print("unexpected exception while running `" + _test + "':\n" + ex.what());
+        print("unexpected exception while running `" + args[0] + "':\n" + ex.what());
     }
     catch(...)
     {
-        print("unexpected unknown exception while running `" + _test + "'");
+        print("unexpected unknown exception while running `" + args[0] + "'");
     }
     completed(status);
     delete[] argv;
@@ -285,12 +220,13 @@ MainHelperI::shutdown()
 bool
 MainHelperI::redirect()
 {
-    return _config.type == TestConfigTypeClient || _config.type == TestConfigTypeColloc;
+    return _type == TestTypeClient;
 }
 
 void
 MainHelperI::print(const std::string& msg)
 {
-    [_target performSelectorOnMainThread:_output withObject:[NSString stringWithUTF8String: msg.c_str()]
+    [_target performSelectorOnMainThread:_output
+             withObject:[NSString stringWithUTF8String: msg.c_str()]
              waitUntilDone:NO];
 }

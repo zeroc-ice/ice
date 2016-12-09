@@ -31,6 +31,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceSSL();
+#endif
+
     int status;
     Ice::CommunicatorPtr communicator;
 

@@ -14,97 +14,58 @@
 #include <UIKit/UIKit.h>
 #include <Foundation/NSString.h>
 
+#include <vector>
+
+@interface TestSuite : NSObject
+{
+@private
+    NSString* testSuiteId;
+    NSArray* testCases;
+}
+@property (nonatomic, retain) NSString* testSuiteId;
+@property (nonatomic, retain) NSArray* testCases;
++(id) testSuite:(NSString*)testSuiteId testCases:(NSArray*)testCases;
+-(BOOL) isIn:(NSArray*)tests;
+@end
+
 @interface TestCase : NSObject
 {
 @private
-
     NSString* name;
-    NSString* prefix;
     NSString* client;
     NSString* server;
-    NSString* serveramd;
-    NSString* collocated;
-    BOOL sslSupport;
-    BOOL wsSupport;
-    BOOL runWithSlicedFormat;
-    BOOL runWith10Encoding;
-    BOOL cpp11Support;
+    NSArray* args;
 }
-
-+(id) testWithName:(NSString*)name
-                 prefix:(NSString*) prefix
-                 client:(NSString*) client
-                 server:(NSString*) server
-              serveramd:(NSString*) serveramd
-             collocated:(NSString*) collocated
-             sslSupport:(BOOL) sslSupport
-              wsSupport:(BOOL) wsSupport
-    runWithSlicedFormat:(BOOL)runWithSlicedFormat
-      runWith10Encoding:(BOOL)runWith10Encoding
-           cpp11Support:(BOOL)cpp11Support;
-
--(BOOL)hasServer;
--(BOOL)hasAMDServer;
--(BOOL)hasCollocated;
--(BOOL)isProtocolSupported:(NSString*)protocol;
-
-@property (readonly) NSString* name;
-@property (readonly) NSString* prefix;
-@property (readonly) NSString* client;
-@property (readonly) NSString* server;
-@property (readonly) NSString* serveramd;
-@property (readonly) NSString* collocated;
-@property (readonly) BOOL sslSupport;
-@property (readonly) BOOL wsSupport;
-@property (readonly) BOOL runWithSlicedFormat;
-@property (readonly) BOOL runWith10Encoding;
-@property (readonly) BOOL cpp11Support;
-
++(id) testCase:(NSString*)name client:(NSString*)client server:(NSString*)server args:(NSArray*)args;
+@property (nonatomic, retain) NSString* name;
+@property (nonatomic, retain) NSString* client;
+@property (nonatomic, retain) NSString* server;
+@property (nonatomic, retain) NSArray* args;
 @end
 
 typedef int (*MAIN_ENTRY_POINT)(int argc, char** argv, Test::MainHelper* helper);
 typedef int (*SHUTDOWN_ENTRY_POINT)();
 
-enum TestConfigType { TestConfigTypeClient, TestConfigTypeServer, TestConfigTypeColloc };
-enum TestConfigOption {TestConfigOptionDefault, TestConfigOptionSliced, TestConfigOptionEncoding10 };
+enum TestType { TestTypeClient, TestTypeServer };
 
 struct TestConfig
 {
-    TestConfigType type;
-    TestConfigOption option;
     std::string protocol;
-    bool hasServer;
+    std::vector<std::string> args;
 };
 
 class MainHelperI : public Test::MainHelper
 {
 public:
 
-    MainHelperI(const std::string& test, const std::string& libName, TestConfig config,
-                id target, SEL output, SEL ready) :
-        _test(test),
-        _libName(libName),
-        _config(config),
-        _completed(false),
-        _status(0),
-        _target(target),
-        _output(output),
-        _ready(ready)
-    {
-    }
-
+    MainHelperI(const std::string&, const std::string&, TestType, TestConfig, id, SEL, SEL);
     virtual ~MainHelperI();
 
     virtual void run();
-
     virtual void serverReady();
-
     virtual void shutdown();
-
-    virtual void waitForCompleted(){};
-
+    virtual void waitForCompleted() { };
     virtual bool redirect();
-
     virtual void print(const std::string&);
 
     int
@@ -122,8 +83,9 @@ private:
         _status = status;
     }
 
-    std::string _test;
+    std::string _name;
     std::string _libName;
+    TestType _type;
     TestConfig _config;
     CFBundleRef _handle;
     SHUTDOWN_ENTRY_POINT _dllTestShutdown;

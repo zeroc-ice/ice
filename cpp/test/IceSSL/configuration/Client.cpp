@@ -47,13 +47,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     catch(const IceSSL::CertificateReadException& ex)
     {
         cout << "couldn't read certificate: " << ex.reason << endl;
+        return EXIT_FAILURE;
     }
     catch(const std::exception& ex)
     {
         cout << "unexpected exception: " << ex.what() << endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
-
 }
 
 int

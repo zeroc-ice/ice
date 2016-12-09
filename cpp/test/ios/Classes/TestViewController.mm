@@ -10,6 +10,12 @@
 #import <TestViewController.h>
 #import <TestUtil.h>
 #import <AppDelegate.h>
+
+NSArray* noSSL = @[ @"Ice/metrics" ];
+NSArray* noWS = @[ @"Ice/metrics" ];
+NSArray* noCpp11 = @[ @"Ice/custom" ];
+
+static NSArray* protocols = @[ @"tcp", @"ssl", @"ws", @"wss" ];
 //
 // Avoid warning for undocumented method.
 //
@@ -90,7 +96,7 @@
 @property (nonatomic, retain) NSMutableString* currentMessage;
 @property (nonatomic, retain) NSMutableArray* messages;
 @property (nonatomic, retain) NSOperationQueue* queue;
-@property (retain) TestCase* test;
+@property (retain) TestSuite* testSuite;
 
 -(void)add:(NSString*)d;
 -(void)startTest;
@@ -98,12 +104,9 @@
 
 @interface TestRun : NSObject
 {
-    TestConfigOption option;
-    TestCase* test;
-    NSString* server;
-    NSString* client;
-    BOOL collocated;
-
+    NSString* testSuiteId;
+    TestCase* testCase;
+    NSString* protocol;
     int completed;
     int running;
     int error;
@@ -112,12 +115,7 @@
     TestViewController* viewController;
 }
 
-+(id) testRunClient:(TestCase*)test;
-+(id) testRunCollocated:(TestCase*)test;
-+(id) testRunClientAMDServer:(TestCase*)test;
-+(id) testRunClientServer:(TestCase*)test;
-+(id) testRunClientServerWithConfigOption:(TestCase*)test option:(TestConfigOption)option;
-+(id) testRunClientAMDServerWithConfigOption:(TestCase*)test option:(TestConfigOption)option;
++(id) testRun:(NSString*)testSuiteId testCase:(TestCase*)testCase protocol:(NSString*)protocol;
 
 -(NSInvocationOperation*) runInvocation:(TestViewController*)callback;
 @end
@@ -130,7 +128,7 @@
 @synthesize currentMessage;
 @synthesize messages;
 @synthesize queue;
-@synthesize test;
+@synthesize testSuite;
 
 - (void)viewDidLoad
 {
@@ -145,7 +143,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    self.test = (TestCase*)[appDelegate.tests objectAtIndex:appDelegate.currentTest];
+    self.testSuite = (TestSuite*)[appDelegate.testSuites objectAtIndex:appDelegate.currentTestSuite];
     [self startTest];
 }
 
@@ -178,7 +176,7 @@
     [currentMessage release];
     [messages release];
     [queue release];
-    [test release];
+    [testSuite release];
 
     [super dealloc];
 }
@@ -187,7 +185,7 @@
 
 -(void)startTest
 {
-    self.title = test.name;
+    self.title = testSuite.testSuiteId;
     [self.navigationItem setHidesBackButton:YES animated:YES];
 
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -207,54 +205,34 @@
     [output reloadData];
 
     [activity startAnimating];
-    if(![test isProtocolSupported:appDelegate.protocol])
-    {
-        [self testComplete:YES];
-        return;
-    }
 #ifdef ICE_CPP11_MAPPING
-    if(!test.cpp11Support)
+    if([testSuite isIn:noCpp11])
     {
         [self add:@"C++11 not supported by this test\n"];
         [self testComplete:YES];
         return;
     }
 #endif
+    if(([appDelegate.protocol isEqualToString:@"ws"] || [appDelegate.protocol isEqualToString:@"wss"]) &&
+       [testSuite isIn:noWS])
+    {
+        [self add:@"WS not supported by this test\n"];
+        [self testComplete:YES];
+        return;
+    }
+    if([appDelegate.protocol isEqualToString:@"ssl"] &&
+       [testSuite isIn:noSSL])
+    {
+        [self add:@"SSL not supported by this test\n"];
+        [self testComplete:YES];
+        return;
+    }
 
     NSMutableArray* testRuns = [NSMutableArray array];
-    if([test hasServer])
+    for(id testCase in testSuite.testCases)
     {
-        [testRuns addObject:[TestRun testRunClientServer:test]];
-        if([test hasAMDServer])
-        {
-            [testRuns addObject:[TestRun testRunClientAMDServer:test]];
-        }
-        if(test.runWithSlicedFormat)
-        {
-            [testRuns addObject:[TestRun testRunClientServerWithConfigOption:test option:TestConfigOptionSliced]];
-            if([test hasAMDServer])
-            {
-                [testRuns addObject:[TestRun testRunClientAMDServerWithConfigOption:test option:TestConfigOptionSliced]];
-            }
-        }
-        if(test.runWith10Encoding)
-        {
-            [testRuns addObject:[TestRun testRunClientServerWithConfigOption:test option:TestConfigOptionEncoding10]];
-            if([test hasAMDServer])
-            {
-                [testRuns addObject:[TestRun testRunClientAMDServerWithConfigOption:test option:TestConfigOptionEncoding10]];
-            }
-        }
+        [testRuns addObject:[TestRun testRun:testSuite.testSuiteId testCase:testCase protocol:appDelegate.protocol]];
     }
-    else
-    {
-        [testRuns addObject:[TestRun testRunClient:test]];
-    }
-    if([test hasCollocated])
-    {
-        [testRuns addObject:[TestRun testRunCollocated:test]];
-    }
-
     testRunEnumator = [[testRuns objectEnumerator] retain];
     id testRun = [testRunEnumator nextObject];
     [queue addOperation:[testRun runInvocation:self]];
@@ -287,17 +265,18 @@
     [self.navigationItem setHidesBackButton:NO animated:YES];
 
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    TestCase* nextTest = (TestCase*)[appDelegate.tests objectAtIndex:(appDelegate.currentTest+1)%(appDelegate.tests.count)];
-    NSString* buttonTitle = [NSString stringWithFormat:@"Run %@", nextTest.name];
+    NSInteger next = (appDelegate.currentTestSuite + 1) % (appDelegate.testSuites.count);
+    TestSuite* nextTestSuite = (TestSuite*)[appDelegate.testSuites objectAtIndex:next];
+    NSString* buttonTitle = [NSString stringWithFormat:@"Run %@", nextTestSuite.testSuiteId];
     [nextButton setTitle:buttonTitle forState:UIControlStateNormal];
-    self.test = nil;
+    self.testSuite = nil;
     [testRunEnumator release];
     testRunEnumator = nil;
 
     if([appDelegate testCompleted:success])
     {
-        NSAssert(test == nil, @"test == nil");
-        self.test = (TestCase*)[appDelegate.tests objectAtIndex:appDelegate.currentTest];
+        NSAssert(self.testSuite == nil, @"testSuite == nil");
+        self.testSuite = (TestSuite*)[appDelegate.testSuites objectAtIndex:appDelegate.currentTestSuite];
         [self startTest];
     }
 }
@@ -314,9 +293,9 @@
     }
     else
     {
-        NSAssert(test == nil, @"test == nil");
+        NSAssert(self.testSuite == nil, @"testSuite == nil");
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        self.test = (TestCase*)[appDelegate.tests objectAtIndex:appDelegate.currentTest];
+        self.testSuite = (TestSuite*)[appDelegate.testSuites objectAtIndex:appDelegate.currentTestSuite];
         [self startTest];
     }
 }
@@ -326,12 +305,6 @@
 }
 -(void)add:(NSString*)s
 {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    if(appDelegate.runAll)
-    {
-        printf("%s", [s UTF8String]);
-    }
-
     [currentMessage appendString:s];
     NSRange range = [currentMessage rangeOfString:@"\n" options:NSBackwardsSearch];
     if(range.location != NSNotFound)
@@ -340,7 +313,8 @@
         [currentMessage deleteCharactersInRange:NSMakeRange(0, currentMessage.length)];
 
         // reloadData hangs if called too rapidly... we call at most every 100ms.
-        if(!reloadScheduled) {
+        if(!reloadScheduled)
+        {
             reloadScheduled = TRUE;
             [self performSelector:@selector(reloadOutput) withObject:nil afterDelay:0.1];
         }
@@ -403,54 +377,25 @@
 @end
 
 @implementation TestRun
--(id) init:(TestCase*)t client:(NSString*)cl server:(NSString*)srv option:(TestConfigOption)opt
+-(id) init:(NSString*)ts testCase:(TestCase*)tc protocol:(NSString*)p
 {
     self = [super init];
     if(!self)
     {
         return nil;
     }
-    self->test = t;
-    self->client = cl;
-    self->server = srv;
-    self->option = opt;
-    self->clientHelper = 0;
-    self->serverHelper = 0;
+    self->testSuiteId = ts;
+    self->testCase = tc;
+    self->protocol = p;
     self->completed = 0;
     self->error = 0;
     self->running = 0;
-    self->collocated = NO;
     return self;
 }
-
-+(id) testRunCollocated:(TestCase*)test
++(id) testRun:(NSString*)ts testCase:(TestCase*)tc protocol:(NSString*)p
 {
-    TestRun* r;
-    r = [[[TestRun alloc] init:test client:test.collocated server:nil option:TestConfigOptionDefault] autorelease];
-    r->collocated = YES;
-    return r;
+    return [[[TestRun alloc] init:ts testCase:tc protocol:p] autorelease];
 }
-+(id) testRunClient:(TestCase*)test
-{
-    return [[[TestRun alloc] init:test client:test.client server:nil option:TestConfigOptionDefault] autorelease];
-}
-+(id) testRunClientServer:(TestCase*)test
-{
-    return [[[TestRun alloc] init:test client:test.client server:test.server option:TestConfigOptionDefault] autorelease];
-}
-+(id) testRunClientAMDServer:(TestCase*)test
-{
-    return [[[TestRun alloc] init:test client:test.client server:test.serveramd option:TestConfigOptionDefault] autorelease];
-}
-+(id) testRunClientServerWithConfigOption:(TestCase*)test option:(TestConfigOption)option
-{
-    return [[[TestRun alloc] init:test client:test.client server:test.server option:option] autorelease];
-}
-+(id) testRunClientAMDServerWithConfigOption:(TestCase*)test option:(TestConfigOption)option
-{
-    return [[[TestRun alloc] init:test client:test.client server:test.serveramd option:option] autorelease];
-}
-
 -(NSInvocationOperation*) runInvocation:(TestViewController*)ctl
 {
     viewController = ctl;
@@ -458,15 +403,8 @@
 }
 -(void)run
 {
-    AppDelegate* appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-    if(appDelegate.runAll)
-    {
-        printf("\n*** running %s test %ld/%lu ...\n", [test.name UTF8String], (long)appDelegate.currentTest + 1,
-               (unsigned long)[appDelegate.tests count]);
-        printf("*** protocol: %s\n", [appDelegate.protocol UTF8String]);
-        fflush(stdout);
-    }
-    if(server)
+//    [self add:[NSString stringWithFormat:@"[ running %@ ]\n", testCase.name]];
+    if(testCase.server)
     {
         [self runServer];
     }
@@ -499,7 +437,7 @@
     }
 
     completed++;
-    if(!server || completed == 2)
+    if(!testCase.server || completed == 2)
     {
         [viewController testRunComplete:error == 0];
     }
@@ -508,20 +446,22 @@
 // Run in a separate thread.
 -(void)runClient
 {
-    AppDelegate* appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     running++;
 
-    std::string name = [[test name] UTF8String];
-    std::string prefix = std::string("test_") + [[test prefix] UTF8String];
-    std::string clt = [client UTF8String];
+    std::string name = [testCase.name UTF8String];
+    std::string prefix = std::string("test/") + [testSuiteId UTF8String];
+    replace(prefix.begin(), prefix.end(), '/', '_');
+    std::string clt = [testCase.client UTF8String];
 
     TestConfig config;
-    config.protocol = [[appDelegate protocol] UTF8String];
-    config.type = collocated ?  TestConfigTypeColloc : TestConfigTypeClient;
-    config.option = option;
-    config.hasServer = [test hasServer];
+    config.protocol = [protocol UTF8String];
+    for(id arg in testCase.args)
+    {
+        config.args.push_back([arg UTF8String]);
+    }
 
-    clientHelper = new MainHelperI(name, prefix + "/" + clt, config, self, @selector(add:), @selector(serverReady));
+    clientHelper = new MainHelperI(name, prefix + "/" + clt, TestTypeClient, config,
+                                   self, @selector(add:), @selector(serverReady));
     clientHelper->run();
     int rc = clientHelper->status();
     [self performSelectorOnMainThread:@selector(clientComplete:) withObject:[NSNumber numberWithInt:rc] waitUntilDone:NO];
@@ -550,19 +490,22 @@
 // Run in a separate thread.
 -(void)runServer
 {
-    AppDelegate* appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
     running++;
-    std::string name = [[test name] UTF8String];
-    std::string prefix = std::string("test_") + [[test prefix] UTF8String];
-    std::string srv = [server UTF8String];
+
+    std::string name = [testCase.name UTF8String];
+    std::string prefix = std::string("test/") + [testSuiteId UTF8String];
+    replace(prefix.begin(), prefix.end(), '/', '_');
+    std::string srv = [testCase.server UTF8String];
 
     TestConfig config;
-    config.protocol = [[appDelegate protocol] UTF8String];
-    config.type = TestConfigTypeServer;
-    config.option = option;
-    config.hasServer = true;
+    config.protocol = [protocol UTF8String];
+    for(id arg in testCase.args)
+    {
+        config.args.push_back([arg UTF8String]);
+    }
 
-    serverHelper = new MainHelperI(name, prefix + "/" + srv, config, self, @selector(add:), @selector(serverReady));
+    serverHelper = new MainHelperI(name, prefix + "/" + srv, TestTypeServer, config,
+                                   self, @selector(add:), @selector(serverReady));
     serverHelper->run();
     int rc = serverHelper->status();
     [self performSelectorOnMainThread:@selector(serverComplete:) withObject:[NSNumber numberWithInt:rc] waitUntilDone:NO];

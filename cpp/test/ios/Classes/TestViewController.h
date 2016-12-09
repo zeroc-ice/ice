@@ -20,7 +20,7 @@
     NSMutableString* currentMessage;
     NSMutableArray* messages;
     NSOperationQueue* queue;
-    TestCase* test;
+    TestSuite* testSuite;
     NSEnumerator* testRunEnumator;
     bool reloadScheduled;
 }

@@ -13,16 +13,19 @@ module Test
 module Common
 {
 
-exception ServerFailedException
+exception ProcessFailedException
 {
     string reason;
 };
 
-interface Server
+interface Process
 {
-    void waitTestSuccess();
-    void waitForServer() throws ServerFailedException;
-    void terminate();
+    void waitReady(int timeout)
+        throws ProcessFailedException;
+
+    int waitSuccess(int timeout);
+
+    string terminate();
 };
 
 class Config
@@ -70,11 +73,14 @@ interface TestCase
     void destroy();
 };
 
+interface ProcessController
+{
+    Process* start(string testsuite, string exe, StringSeq args)
+        throws ProcessFailedException;
+};
+
 interface Controller
 {
-    Server* runServer(string lang, string testsuite, string protocol, string host, bool winrt, string testcase,
-                      StringSeq options);
-
     TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
         throws TestCaseNotExistException;
 

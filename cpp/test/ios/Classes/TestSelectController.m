@@ -14,7 +14,7 @@
 
 @interface TestSelectController()
 
-@property (nonatomic, retain) NSArray* tests;
+@property (nonatomic, retain) NSArray* testSuites;
 @property (nonatomic, retain) UIPickerView* pickerView;
 @property (nonatomic, retain) UISegmentedControl* protocol;
 @property (nonatomic, retain) TestViewController* testViewController;
@@ -23,7 +23,7 @@
 
 @implementation TestSelectController
 
-@synthesize tests;
+@synthesize testSuites;
 @synthesize pickerView;
 @synthesize protocol;
 @synthesize testViewController;
@@ -31,26 +31,23 @@
 - (void)viewDidLoad
 {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    self.tests = appDelegate.tests;
+    self.testSuites = appDelegate.testSuites;
     [super viewDidLoad];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [pickerView selectRow:appDelegate.currentTest inComponent:0 animated:NO];
-    for (int i = 0; i != [self.protocol numberOfSegments]; ++i) {
+    [pickerView selectRow:appDelegate.currentTestSuite inComponent:0 animated:NO];
+    for (int i = 0; i != [self.protocol numberOfSegments]; ++i)
+    {
         if([[self.protocol titleForSegmentAtIndex:i] isEqualToString:[appDelegate.protocol uppercaseString]])
         {
             self.protocol.selectedSegmentIndex = i;
             break;
         }
     }
-    if(appDelegate.runAll)
-    {
-        [self.navigationController pushViewController:self.testViewController animated:YES];
-    }
- }
+}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
@@ -66,7 +63,7 @@
 
 - (void)dealloc
 {
-    [tests release];
+    [testSuites release];
     [pickerView release];
     [protocol release];
     [loopSwitch release];
@@ -78,10 +75,10 @@
 -(TestViewController*)testViewController
 {
     // Instantiate the test view controller if necessary.
-    if (testViewController == nil)
+    if(testViewController == nil)
     {
 		NSString* nib;
-		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+		if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 		{
 			nib = @"TestView-iPad";
 		}
@@ -100,20 +97,18 @@
 {
     NSInteger row = [pickerView selectedRowInComponent:0];
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    appDelegate.currentTest = row;
+    appDelegate.currentTestSuite = row;
     appDelegate.protocol = [[protocol titleForSegmentAtIndex:[protocol selectedSegmentIndex]] lowercaseString];
     appDelegate.loop = loopSwitch.isOn;
-
-    TestViewController* controller = self.testViewController;
-    [self.navigationController pushViewController:controller animated:YES];
+    [self.navigationController pushViewController:self.testViewController animated:YES];
 }
 
 #pragma mark UIPickerViewDelegate
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    TestCase* test = (TestCase*)[tests objectAtIndex:row];
-    return test.name;
+    TestSuite* test = (TestSuite*)[testSuites objectAtIndex:row];
+    return test.testSuiteId;
 }
 
 #pragma mark UIPickerViewDataSource
@@ -125,6 +120,6 @@
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)componen
 {
-    return tests.count;
+    return testSuites.count;
 }
 @end

@@ -1071,8 +1071,8 @@ Certificate::Certificate(X509CertificateRef cert) : _cert(cert)
         throw;
     }
 #elif defined(ICE_USE_SECURE_TRANSPORT_IOS)
-    _subject = NULL;
-    _issuer = NULL;
+    _subject = 0;
+    _issuer = 0;
 #endif
 }
 
@@ -1860,7 +1860,7 @@ Certificate::initializeAttributes() const
     {
         _subject = 0;
         _issuer = 0;
-        return;
+        throw CertificateEncodingException(__FILE__, __LINE__, errorToString(err));
     }
 
     _subject = (CFDataRef)CFDictionaryGetValue(attributes, kSecAttrSubject);
