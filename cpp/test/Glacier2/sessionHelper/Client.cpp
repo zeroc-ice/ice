@@ -299,7 +299,9 @@ public:
             //
             // Wait for connectFailed callback
             //
-            _monitor.wait();
+            _monitor.timedWait(IceUtil::Time::seconds(2));
+
+            test(!_session->isConnected());
         }
         _factory->destroy();
 
@@ -324,7 +326,8 @@ public:
             //
             // Wait for connectFailed callback
             //
-            _monitor.wait();
+            _monitor.timedWait(IceUtil::Time::seconds(2));
+            test(!_session->isConnected());
         }
         _factory->destroy();
 
@@ -341,7 +344,7 @@ public:
             //
             // Wait for connect callback
             //
-            _monitor.wait();
+            _monitor.timedWait(IceUtil::Time::seconds(2));
 
             cout << "testing SessionHelper isConnected after connect... " << flush;
             test(_session->isConnected());
