@@ -386,7 +386,6 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     {
         unprocessed.replace(pos, 1, "");
     }
-    pos = unprocessed.find("\n", pos) + 1;
 
     //
     // Get the main output file name.
@@ -402,6 +401,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     {
         result = unprocessed.substr(0, pos);
     }
+    pos = unprocessed.find("\n", pos) + 1;
 
     vector<string> fullIncludePaths;
 
