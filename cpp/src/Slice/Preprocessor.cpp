@@ -365,12 +365,12 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
 
     //
     // We now need to massage the result to get the desired output.
-    // First make it a single line.
+    // First remove the backslash used to escape new lines.
     //
     string::size_type pos;
-    while((pos = unprocessed.find("\\")) != string::npos)
+    while((pos = unprocessed.find("\\\n")) != string::npos)
     {
-        unprocessed.replace(pos, 1, "");
+        unprocessed.replace(pos, 2, "\n");
     }
 
     //
@@ -387,10 +387,8 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     {
         result = unprocessed.substr(0, pos);
     }
-    pos = unprocessed.find("\n", pos) + 1;
 
     vector<string> fullIncludePaths;
-
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         fullIncludePaths.push_back(fullPath(*p));
@@ -399,7 +397,6 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     //
     // Process each dependency.
     //
-
     string sourceFile;
     vector<string> dependencies;
 
