@@ -120,7 +120,8 @@ def main():
             usage()
             return 2
 
-    encryptfn = passScheme.encrypt
+    # passlib 1.7 renamed encrypt to hash
+    encryptfn = passScheme.hash if hasattr(passScheme, "hash") else passScheme.encrypt
 
     args = []
     if sys.stdout.isatty():

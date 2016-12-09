@@ -116,13 +116,14 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait();
+                    wait(2000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
                 {
                 }
             }
+            test(!_session.isConnected());
         }
 
         _initData.properties.setProperty("Ice.Default.Router", "");
@@ -199,13 +200,14 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait();
+                    wait(2000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
                 {
                 }
             }
+            test(!_session.isConnected());
         };
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
@@ -260,7 +262,7 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait();
+                    wait(2000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)

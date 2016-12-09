@@ -228,12 +228,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(this, 2000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(this, 2000);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -241,6 +241,7 @@ public class Client
                     }
 #endif
                 }
+                test(!_session.isConnected());
             }
 
             _initData.properties.setProperty("Ice.Default.Router", "");
@@ -260,12 +261,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(this, 2000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(this, 2000);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -273,6 +274,7 @@ public class Client
                     }
 #endif
                 }
+                test(!_session.isConnected());
             }
 
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback2());
@@ -287,12 +289,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(this, 2000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(this, 2000);
                         break;
                     }
                     catch(ThreadInterruptedException)
