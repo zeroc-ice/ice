@@ -110,7 +110,7 @@ namespace
 {
 
 #  ifndef OPENSSL_NO_DH
-#    if OPENSSL_VERSION_NUMBER < 0x10100000L
+#    if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 
 // The following arrays are predefined Diffie Hellman group parameters.
 // These are known strong primes, distributed with the OpenSSL library
@@ -228,7 +228,7 @@ unsigned char dh4096_g[] = { 0x02 };
 //
 // With OpenSSL 1.1.0 is no longer possible to acess the DH p and g
 // data members to set the DH params. We still use the same default
-// parameters but they were converted to DER format using 
+// parameters but they were converted to DER format using
 // i2d_DHparams and can be restored using d2i_DHparams
 
 unsigned char dh512[] =
@@ -338,7 +338,7 @@ unsigned char dh4096[] =
 //
 // Convert a predefined parameter set into a DH value.
 //
-#    if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#    if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 static DH*
 convertDH(const unsigned char* buf, int len)
 {
@@ -428,7 +428,7 @@ IceSSL::DHParams::get(int keyLength)
     // No match found. Use one of the predefined parameter sets instead.
     //
     IceUtil::Mutex::Lock sync(*this);
-#    if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#    if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     if(keyLength >= 4096)
     {
         if(!_dh4096)

@@ -43,7 +43,7 @@ IceUtil::Mutex* staticMutex = 0;
 int instanceCount = 0;
 bool initOpenSSL = false;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 IceUtil::Mutex* locks = 0;
 #endif
 
@@ -59,10 +59,10 @@ public:
     ~Init()
     {
         //
-        // OpenSSL 1.1.0 introduces a new thread API and removes 
+        // OpenSSL 1.1.0 introduces a new thread API and removes
         // the need to use a custom thread callback.
         //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
         CRYPTO_set_locking_callback(0);
         CRYPTO_set_id_callback(0);
 
@@ -84,10 +84,10 @@ extern "C"
 {
 
 //
-// OpenSSL 1.1.0 introduces a new thread API and removes 
+// OpenSSL 1.1.0 introduces a new thread API and removes
 // the need to use a custom thread callback.
 //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 //
 // OpenSSL mutex callback.
 //
@@ -158,7 +158,7 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 DH*
 IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
-#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#  if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
 #  else
     SSL_CTX* ctx = ssl->ctx;
@@ -219,7 +219,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
             //
             // OpenSSL 1.1.0 remove the need for library initialization and cleanup.
             //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
             //
             // Create the mutexes and set the callbacks.
             //
@@ -326,7 +326,7 @@ OpenSSLEngine::~OpenSSLEngine()
 //
 // OpenSSL 1.1.0 remove the need for library initialization and cleanup.
 //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     //
     // Clean up OpenSSL resources.
     //
@@ -399,7 +399,7 @@ OpenSSLEngine::initialize()
                                                     "IceSSL: unable to create SSL context:\n" + sslErrors());
             }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
             int securityLevel = properties->getPropertyAsIntWithDefault(propPrefix + "SecurityLevel", -1);
             if(securityLevel != -1)
             {
@@ -954,7 +954,7 @@ OpenSSLEngine::parseProtocols(const StringSeq& protocols) const
 SSL_METHOD*
 OpenSSLEngine::getMethod(int /*protocols*/)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
 #else
     //

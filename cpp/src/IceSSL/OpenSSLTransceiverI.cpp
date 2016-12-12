@@ -36,7 +36,7 @@ using namespace IceSSL;
 //
 // See: http://cvs.openssl.org/chngview?cn=22569
 //
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
 namespace
 {
 
@@ -156,13 +156,13 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         //
         // See: http://cvs.openssl.org/chngview?cn=22569
         //
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(sslMutex);
 #endif
 
         int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
 
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
         sync.release();
 #endif
         if(ret <= 0)
