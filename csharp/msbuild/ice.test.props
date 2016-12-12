@@ -5,6 +5,9 @@
 
   <PropertyGroup Condition="'$(UseBinDist)' != 'yes'">
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>

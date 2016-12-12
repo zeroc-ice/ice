@@ -2048,8 +2048,8 @@ class CSharpMapping(Mapping):
 
     def getEnv(self, process, current):
         if current.driver.useBinDist():
-            bzip2 = os.path.join(toplevel, platform.getNugetPackage(self), "tools")
-            assembliesDir = os.path.join(toplevel, platform.getNugetPackage(self), "lib")
+            bzip2 = os.path.join(platform.getIceDir(self), "tools")
+            assembliesDir = os.path.join(platform.getIceDir(self), "lib")
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                  "bzip2.{0}.1.0.6.4".format(platform.getCompiler()),
