@@ -76,7 +76,10 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
-if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
+def Python35():
+    return sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5)
+
+if Python35():
     from IceFuture import FutureBase, wrap_future
 else:
     FutureBase = object
@@ -336,7 +339,7 @@ Returns:
     #def ice_postUnmarshal(self):
     #    pass
 
-    def _dispatch(self, cb, method, args):
+    def _iceDispatch(self, cb, method, args):
         # Invoke the given servant method. Exceptions can propagate to the caller.
         result = method(*args)
 
@@ -348,19 +351,12 @@ Returns:
                 except:
                     cb.exception(sys.exc_info()[1])
             result.add_done_callback(handler)
-        elif self._isCoroutine(result):
-            self._dispatchCoroutine(cb, result)
+        elif Python35() and inspect.iscoroutine(result): # The iscoroutine() function was added in Python 3.5.
+            self._iceDispatchCoroutine(cb, result)
         else:
             cb.response(result)
 
-    def _isCoroutine(self, coro):
-        # The inspect.iscoroutine() function was added in Python 3.5.
-        if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5):
-            return inspect.iscoroutine(coro)
-        else:
-            return False
-
-    def _dispatchCoroutine(self, cb, coro, value=None, exception=None):
+    def _iceDispatchCoroutine(self, cb, coro, value=None, exception=None):
         try:
             if exception:
                 result = coro.throw(exception)
@@ -370,7 +366,10 @@ Returns:
             # Calling 'await <future>' will return the future. Check if we've received a future.
             if isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
                 def handler(future):
-                    self._dispatchCoroutine(cb, coro, value=future.result())
+                    try:
+                        self._iceDispatchCoroutine(cb, coro, value=future.result())
+                    except:
+                        self._iceDispatchCoroutine(cb, coro, exception=sys.exc_info()[1])
                 result.add_done_callback(handler)
             else:
                 raise RuntimeError('unexpected value of type ' + str(type(result)) + ' provided by coroutine')

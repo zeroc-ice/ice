@@ -3537,13 +3537,13 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     }
 
     //
-    // Get the _dispatch method. The _dispatch method will invoke the servant method and pass it the arguments.
+    // Get the _iceDispatch method. The _iceDispatch method will invoke the servant method and pass it the arguments.
     //
-    PyObjectHandle dispatchMethod = PyObject_GetAttrString(servant, STRCAST("_dispatch"));
+    PyObjectHandle dispatchMethod = PyObject_GetAttrString(servant, STRCAST("_iceDispatch"));
     if(!dispatchMethod.get())
     {
         ostringstream ostr;
-        ostr << "_dispatch method not found for identity " << communicator->identityToString(current.id)
+        ostr << "_iceDispatch method not found for identity " << communicator->identityToString(current.id)
              << " and operation `" << dispatchName << "'";
         string str = ostr.str();
         PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
@@ -3569,7 +3569,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     PyTuple_SET_ITEM(dispatchArgs.get(), 2, incRef(args)); // Steals a reference.
 
     //
-    // Ignore the return value of _dispatch -- it will use the dispatch callback.
+    // Ignore the return value of _iceDispatch -- it will use the dispatch callback.
     //
     PyObjectHandle ignore = PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0);
 
