@@ -372,15 +372,11 @@ class BlobjectServantWrapper : public ServantWrapper
 {
 public:
 
-    BlobjectServantWrapper(PyObject*, bool);
+    BlobjectServantWrapper(PyObject*);
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
-
-private:
-
-    bool _amd;
 };
 
 struct OperationObject
@@ -4572,8 +4568,8 @@ IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr
 //
 // BlobjectServantWrapper implementation.
 //
-IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant, bool amd) :
-    ServantWrapper(servant), _amd(amd)
+IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant) :
+    ServantWrapper(servant)
 {
 }
 
@@ -4604,11 +4600,11 @@ IcePy::createServantWrapper(PyObject* servant)
     PyObject* blobjectAsyncType = lookupType("Ice.BlobjectAsync");
     if(PyObject_IsInstance(servant, blobjectType))
     {
-        return new BlobjectServantWrapper(servant, false);
+        return new BlobjectServantWrapper(servant);
     }
     else if(PyObject_IsInstance(servant, blobjectAsyncType))
     {
-        return new BlobjectServantWrapper(servant, true);
+        return new BlobjectServantWrapper(servant);
     }
 
     return new TypedServantWrapper(servant);

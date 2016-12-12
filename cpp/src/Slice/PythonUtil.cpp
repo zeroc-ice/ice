@@ -187,7 +187,6 @@ private:
 
     Output& _out;
     set<string>& _moduleHistory;
-    const bool _python3;
     list<string> _moduleStack;
     set<string> _classHistory;
 };
@@ -317,7 +316,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 // CodeVisitor implementation.
 //
 Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory, bool python3) :
-    _out(out), _moduleHistory(moduleHistory), _python3(python3)
+    _out(out), _moduleHistory(moduleHistory)
 {
 }
 
@@ -1857,7 +1856,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
             {
                 string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
                 string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
-                
+
                 _out << "\"" << sv2<< "\"";
                 if(sv2 != sv3)
                 {
