@@ -101,7 +101,7 @@ public abstract class EvictorBase implements Ice.ServantLocator
         // look at the excess elements to see whether any of them
         // can be evicted.
         //
-        java.util.Iterator<Ice.Identity> p = _queue.riterator();
+        java.util.Iterator<Ice.Identity> p = _queue.iterator();
         int excessEntries = _map.size() - _size;
         for(int i = 0; i < excessEntries; ++i)
         {
