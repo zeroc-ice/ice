@@ -87,7 +87,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, set<string>&, bool);
+    CodeVisitor(IceUtilInternal::Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -315,7 +315,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 //
 // CodeVisitor implementation.
 //
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory, bool python3) :
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
     _out(out), _moduleHistory(moduleHistory)
 {
 }
@@ -2659,7 +2659,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 }
 
 void
-Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, bool python3, const vector<string>& includePaths,
+Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths,
                         Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
@@ -2690,7 +2690,7 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, bool python3
     ModuleVisitor moduleVisitor(out, moduleHistory);
     un->visit(&moduleVisitor, true);
 
-    CodeVisitor codeVisitor(out, moduleHistory, python3);
+    CodeVisitor codeVisitor(out, moduleHistory);
     un->visit(&codeVisitor, false);
 
     if(checksum)

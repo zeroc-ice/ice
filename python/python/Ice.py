@@ -370,10 +370,7 @@ Returns:
             # Calling 'await <future>' will return the future. Check if we've received a future.
             if isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
                 def handler(future):
-                    try:
-                        self._dispatchCoroutine(cb, coro, value=future.result())
-                    except:
-                        self._dispatchCoroutine(cb, coro, exception=sys.exc_info()[1])
+                    self._dispatchCoroutine(cb, coro, value=future.result())
                 result.add_done_callback(handler)
             else:
                 raise RuntimeError('unexpected value of type ' + str(type(result)) + ' provided by coroutine')
