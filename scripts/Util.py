@@ -2208,6 +2208,7 @@ class PhpMapping(CppBasedClientMapping):
             # the properties.
             #
             if(isinstance(platform, Darwin)):
+                args += ["-n"] # Do not load any php.ini files
                 args += ["-d", "extension_dir=/usr/local/lib/php/extensions"]
                 args += ["-d", "include_path=/usr/local/share/php"]
                 args += ["-d", "extension=IcePHP.so"]
@@ -2222,6 +2223,7 @@ class PhpMapping(CppBasedClientMapping):
                 extensionDir = self.getLibDir(process, current)
                 includePath = "{0}/{1}".format(current.driver.getIceDir(self), "php" if useBinDist else "lib")
 
+            args += ["-n"] # Do not load any php.ini files
             args += ["-d", "extension_dir='{0}'".format(extensionDir)]
             args += ["-d", "extension='{0}'".format(extension)]
             args += ["-d", "include_path='{0}'".format(includePath)]
