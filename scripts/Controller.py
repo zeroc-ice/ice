@@ -27,22 +27,18 @@ class ControllerDriver(Driver):
 
     @classmethod
     def getOptions(self):
-        return ("", ["clean", "id=", "endpoints=", "interface="])
+        return ("", ["clean", "id=", "endpoints="])
 
     @classmethod
     def usage(self):
         print("")
         print("Controller driver options:")
         print("--id=<identity>       The identify of the controller object.")
-        print("--endpoints=<endpts>  The endpoints to listen on.")
-        print("--interface=<IP>      The interface to use to discover the controller.")
         print("--clean               Remove trust settings (OS X).")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
         self.id = "controller"
-        self.endpoints = "tcp"
-        self.interface = ""
         self.clean = False
         parseOptions(self, options, { "clean" : "clean" })
 
@@ -163,7 +159,8 @@ class ControllerDriver(Driver):
 
 
         self.initCommunicator()
-        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
+        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints",
+                                                      "tcp -h {0}".format(self.interface or "127.0.0.1"))
         self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", Ice.generateUUID())
         adapter = self.communicator.createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(self), self.communicator.stringToIdentity(self.id))

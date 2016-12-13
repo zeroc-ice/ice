@@ -16,7 +16,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             return
 
         certsPath = os.path.abspath(os.path.join(self.getPath(), "..", "certs"))
-        if isinstance(platform, Darwin):
+        if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             keychainPath = os.path.join(certsPath, "Find.keychain")
             os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
             os.system("security create-keychain -p password %s" % keychainPath)
@@ -38,7 +38,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             return
 
         certsPath = os.path.abspath(os.path.join(self.getPath(), "..", "certs"))
-        if isinstance(platform, Darwin):
+        if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             os.system("rm -rf {0} {1}".format(os.path.join(certsPath, "keychain"), os.path.join(certsPath, "Find.keychain")))
         elif platform.hasOpenSSL():
             for c in ["cacert1.pem", "cacert2.pem"]:

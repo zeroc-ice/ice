@@ -133,10 +133,10 @@ $1[static]_dependencies	:= IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT
 
 # Dependencies and target dirs for Xcode SDK test projects
 $1[xcodesdk]_dependencies 			:= IceSSL
-$1[iphoneos-xcodesdk]_targetdir			:= test/ios/Bundles-iphoneos/$(subst /,_,$1)
-$1[iphonesimulator-xcodesdk]_targetdir		:= test/ios/Bundles-iphonesimulator/$(subst /,_,$1)
-$1[iphoneos-cpp11-xcodesdk]_targetdir		:= test/ios/Bundles++11-iphoneos/$(subst /,_,$1)
-$1[iphonesimulator-cpp11-xcodesdk]_targetdir	:= test/ios/Bundles++11-iphonesimulator/$(subst /,_,$1)
+$1[iphoneos-xcodesdk]_targetdir			:= test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-xcodesdk]_targetdir		:= test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
+$1[iphoneos-cpp11-xcodesdk]_targetdir		:= test/ios/bundles/Bundles++11-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-cpp11-xcodesdk]_targetdir	:= test/ios/bundles/Bundles++11-iphonesimulator/$(subst /,_,$1)
 
 $(create-test-project)
 endef

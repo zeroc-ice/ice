@@ -20,7 +20,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/Initialize.h>
 
-#if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE)
+#if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE != 0)
 #   include <Ice/Initialize.h>
 #   include <Ice/Logger.h>
 #   include <Ice/LocalException.h>

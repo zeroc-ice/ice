@@ -26,7 +26,9 @@ ifeq ($(os),Darwin)
 Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
 endif
 
+Ice[iphoneos]_excludes			:= $(wildcard $(addprefix $(currentdir)/,Tcp*.cpp))
 Ice[iphoneos]_extra_sources 		:= $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+Ice[iphonesimulator]_excludes		= $(Ice[iphoneos]_excludes)
 Ice[iphonesimulator]_extra_sources	= $(Ice[iphoneos]_extra_sources)
 
 projects += $(project)

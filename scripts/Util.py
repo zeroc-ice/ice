@@ -26,7 +26,7 @@ def run(cmd, cwd=None):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     out = p.stdout.read().decode('UTF-8').strip()
     if(p.wait() != 0):
-        raise RuntimeError(cmd + " failed:\n" + p.stdout.read().decode('UTF-8').strip())
+        raise RuntimeError(cmd + " failed:\n" + out)
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -125,16 +125,17 @@ class Darwin(Platform):
 
     def getFilters(self, config):
         if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
-            return (["Ice/.*", "IceDiscovery/simple", "IceSSL/configuration"],
+            return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/faultTolerance",
                      "Ice/gc",
+                     "Ice/library",
                      "Ice/logger",
-                     "Ice/networkProxy",
                      "Ice/properties",
                      "Ice/plugin",
                      "Ice/stringConverter",
-                     "Ice/threadPoolPriority", "Ice/udp"])
+                     "Ice/threadPoolPriority",
+                     "Ice/udp"])
         return Platform.getFilters(self, config)
 
     def getDefaultBuildPlatform(self):
@@ -875,6 +876,7 @@ class Process(Runnable):
         self.props = props or {}
         self.envs = envs or {}
         self.process = None
+        self.output = None
         self.mapping = mapping
 
     def __str__(self):
@@ -883,12 +885,12 @@ class Process(Runnable):
         return self.exe + (" ({0})".format(self.desc) if self.desc else "")
 
     def getOutput(self):
-        assert(self.process)
+        assert(self.process or self.output is not None)
 
         def d(s):
             return s if isPython2 else s.decode("utf-8") if isinstance(s, bytes) else s
 
-        output = d(self.process.getOutput())
+        output = d(self.process.getOutput() if self.process else self.output)
         try:
             # Apply outfilters to the output
             if len(self.outfilters) > 0:
@@ -975,14 +977,8 @@ class Process(Runnable):
         allProps = self.getEffectiveProps(current, props)
         allEnvs = self.getEffectiveEnv(current)
 
-        # Evaluate and transform properties into command line arguments
-        allArgs = ["--{0}={1}".format(k, val(v)) for k,v in allProps.items()] + [val(a) for a in allArgs]
-
-        # Evaluate environment values
-        for k, v in allEnvs.items():
-            allEnvs[k] = val(v, quoteValue=False)
-
-        self.process = current.driver.createProcess(self, current, allArgs, allEnvs, watchDog)
+        self.output = None
+        self.process = current.driver.getProcessController(current).start(self, current, allArgs, allProps, allEnvs, watchDog)
         try:
             self.waitForStart(current)
         except:
@@ -1006,6 +1002,8 @@ class Process(Runnable):
                                 raise
             finally:
                 self.process.terminate()
+                self.output = self.process.getOutput()
+                self.process = None
                 if not self.quiet: # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(), stdout=False)
 
@@ -1202,6 +1200,10 @@ class TestCase(Runnable):
 
     def getOptions(self):
         return self.options
+
+    def canRun(self, current):
+        # Can be overriden
+        return True
 
     def setupServerSide(self, current):
         # Can be overridden to perform setup activities before the server side is started
@@ -1588,6 +1590,205 @@ class TestSuite:
         # Only run the tests that support cross testing --all-cross or --cross
         return self.id in self.mapping.getCrossTestSuites()
 
+class ProcessController:
+
+    def start(self, process, current, args, props, envs, watchDog):
+        raise NotImplemented()
+
+
+class LocalProcessController(ProcessController):
+
+    class Process(Expect.Expect):
+
+        def waitReady(self, ready, readyCount, startTimeout):
+            if ready:
+                self.expect("%s ready\n" % ready, timeout = startTimeout)
+            else:
+                while readyCount > 0:
+                    self.expect("[^\n]+ ready\n", timeout = startTimeout)
+                    readyCount -= 1
+
+    def start(self, process, current, args, props, envs, watchDog):
+
+        #
+        # Props and arguments can use the format parameters set below in the kargs
+        # dictionary. It's time to convert them to their values.
+        #
+        kargs = {
+            "process": process,
+            "testcase": current.testcase,
+            "testdir": current.testcase.getPath(),
+            "builddir": current.getBuildDir(process.getExe(current)),
+            "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
+        }
+
+        args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
+        for k, v in envs.items():
+            envs[k] = val(v, quoteValue=False)
+
+        cmd = (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+        if current.driver.debug:
+            if len(envs) > 0:
+                current.writeln("({0} env={1})".format(cmd, envs))
+            else:
+                current.writeln("({0})".format(cmd))
+
+        env = os.environ.copy()
+        env.update(envs)
+        cwd = process.getMapping(current).getTestCwd(process, current)
+        process = LocalProcessController.Process(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
+        process.startReader(watchDog)
+        return process
+
+class RemoteProcessController(ProcessController):
+
+    class Process:
+        def __init__(self, exe, proxy):
+            self.exe = exe
+            self.proxy = proxy
+            self.stdout = False
+
+        def waitReady(self, ready, readyCount, startTimeout):
+            self.proxy.waitReady(startTimeout)
+
+        def waitSuccess(self, exitstatus=0, timeout=60):
+            result = self.proxy.waitSuccess(timeout)
+            if exitstatus != result:
+                raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
+
+        def getOutput(self):
+            return self.output
+
+        def trace(self, outfilters):
+            self.stdout = True
+
+        def terminate(self):
+            self.output = self.proxy.terminate().strip()
+            if self.stdout and self.output:
+                print(self.output)
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "remote controller"
+
+    def getController(self, current):
+        # To be overriden in specialization to initialize the process controller proxy
+        return None
+
+    def start(self, process, current, args, props, envs, watchDog):
+        # Get the process controller
+        processController = self.getController(current)
+
+        # TODO: support envs?
+
+        exe = process.getExe(current)
+        args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k,v in props.items()] + [val(a) for a in args]
+        if current.driver.debug:
+            current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
+        return RemoteProcessController.Process(exe, processController.start(str(current.testsuite), exe, args))
+
+class iOSSimulatorProcessController(RemoteProcessController):
+
+    device = "iOSSimulatorProcessController"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
+    runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-2"
+    appPath = "cpp/test/ios/controller/build/Products"
+
+    def __init__(self):
+        RemoteProcessController.__init__(self)
+        self.simulatorID = None
+        self.processControllers = {}
+
+    def __str__(self):
+        return "iOS Simulator"
+
+    def getController(self, current):
+        if isinstance(current.testcase.getMapping(), ObjCMapping):
+            appName = "ObjC Test Controller.app"
+            appBundleID = "com.zeroc.ObjC-Test-Controller"
+        else:
+            assert(isinstance(current.testcase.getMapping(), CppMapping))
+            if current.config.cpp11:
+                appName ="C++11 Test Controller.app"
+                appBundleID = "com.zeroc.Cpp11-Test-Controller"
+            else:
+                appName ="C++98 Test Controller.app"
+                appBundleID = "com.zeroc.Cpp98-Test-Controller"
+
+        proxy = "iPhoneSimulator/{0}".format(appBundleID)
+        if proxy in self.processControllers:
+            return self.processControllers[proxy]
+
+        comm = current.driver.getCommunicator()
+        import Test
+        self.processControllers[proxy] = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(proxy))
+
+        if current.driver.noControllerApp:
+            return self.processControllers[proxy]
+
+        sys.stdout.write("launching simulator... ")
+        sys.stdout.flush()
+        try:
+            run("xcrun simctl boot \"{0}\"".format(self.device))
+        except Exception as ex:
+            if str(ex).find("Booted") >= 0:
+                pass
+            elif str(ex).find("Invalid device") >= 0:
+                # Create the simulator device if it doesn't exist
+                self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
+                run("xcrun simctl boot \"{0}\"".format(self.device))
+            else:
+                raise
+        print("ok")
+
+        sys.stdout.write("launching {0}... ".format(appName))
+        sys.stdout.flush()
+        path = os.path.join(toplevel, self.appPath, "Debug-iphonesimulator", appName)
+        if not os.path.exists(path):
+            path = os.path.join(toplevel, self.appPath, "Release-iphonesimulator", appName)
+        if not os.path.exists(path):
+            raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
+        run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
+        run("xcrun simctl launch \"{0}\" {1}".format(self.device, appBundleID))
+        print("ok")
+
+        return self.processControllers[proxy]
+
+    def destroy(self):
+        for p in self.processControllers.values():
+            appBundleId = p.ice_getIdentity().name
+            run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, appBundleId))
+
+        if self.simulatorID:
+            sys.stdout.write("destroying simulator... ")
+            sys.stdout.flush()
+            try:
+                run("xcrun simctl shutdown \"{0}\"".format(self.simulatorID))
+            except:
+                pass
+            try:
+                run("xcrun simctl delete \"{0}\"".format(self.simulatorID))
+            except:
+                pass
+            print("ok")
+
+class iOSDeviceProcessController(RemoteProcessController):
+
+    appPath = "cpp/test/ios/controller/build/Products"
+
+    def __init__(self):
+        RemoteProcessController.__init__(self)
+
+    def __str__(self):
+        return "iOS Device"
+
+    def getController(self, current):
+        # TODO: launch the controller on a connected iOS device
+        pass
+
+
 class Driver:
 
     class Current:
@@ -1659,7 +1860,8 @@ class Driver:
 
     @classmethod
     def getOptions(self):
-        return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface="])
+        return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
+                         "no-controller-app"])
 
     @classmethod
     def usage(self):
@@ -1677,6 +1879,7 @@ class Driver:
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
+        print("--no-controller-app   Don't start the process controller application.")
 
     def __init__(self, options):
         self.debug = False
@@ -1685,6 +1888,8 @@ class Driver:
         self.host = ""
         self.hostIPv6 = ""
         self.hostBT = ""
+        self.noControllerApp = False
+
         self.failures = []
         parseOptions(self, options, { "d": "debug",
                                       "r" : "filters",
@@ -1692,14 +1897,16 @@ class Driver:
                                       "filter" : "filters",
                                       "rfilter" : "rfilters",
                                       "host-ipv6" : "hostIPv6",
-                                      "host-bt" : "hostBT" })
+                                      "host-bt" : "hostBT",
+                                      "no-controller-app" : "noControllerApp" })
 
         self.filters = [re.compile(a) for a in self.filters]
         self.rfilters = [re.compile(a) for a in self.rfilters]
 
         self.communicator = None
-        self.processController = None
         self.interface = ""
+        self.localProcessController = LocalProcessController()
+        self.processControllers = {}
 
     def setConfigs(self, configs):
         self.configs = configs
@@ -1744,6 +1951,10 @@ class Driver:
         ### Return additional mappings to load required by the driver
         return []
 
+    def getCommunicator(self):
+        self.initCommunicator()
+        return self.communicator
+
     def initCommunicator(self):
         if self.communicator:
             return
@@ -1757,97 +1968,31 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface or "127.0.0.1")
         initData.properties.setProperty("Ice.Default.Host", self.interface or "127.0.0.1")
+        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         #initData.properties.setProperty("Ice.Trace.Protocol", "1")
         #initData.properties.setProperty("Ice.Trace.Network", "2")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         self.communicator = Ice.initialize(initData)
 
         self.ctrlCHandler = Ice.CtrlCHandler()
-        self.ctrlCHandler.setCallback(lambda sig: self.communicator.destroy())
 
-    def initProcessController(self, platform):
-        if platform in ["iphonesimulator", "iphoneos"]:
-            ident = "iOSProcessController"
-        else:
-            return None
+        def signal(sig):
+            self.communicator.destroy()
+        self.ctrlCHandler.setCallback(signal)
 
-        self.initCommunicator()
-        import Test
-        self.processController = Test.Common.ProcessControllerPrx.uncheckedCast(self.communicator.stringToProxy(ident))
+    def getProcessController(self, current):
+        if current.config.buildPlatform in self.processControllers:
+            return self.processControllers[current.config.buildPlatform]
 
-    def createProcess(self, process, current, args, envs, watchDog):
-
-        class RemoteProcess:
-            def __init__(self, exe, proxy):
-                self.exe = exe
-                self.proxy = proxy
-                self.stdout = False
-
-            def waitReady(self, ready, readyCount, startTimeout):
-                self.proxy.waitReady(startTimeout)
-
-            def waitSuccess(self, exitstatus=0, timeout=60):
-                result = self.proxy.waitSuccess(timeout)
-                if exitstatus != result:
-                    raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
-
-            def getOutput(self):
-                return self.output
-
-            def trace(self, outfilters):
-                self.stdout = True
-
-            def terminate(self):
-                self.output = self.proxy.terminate().strip()
-                if self.stdout and self.output:
-                    print(self.output)
-
-        class LocalProcess(Expect.Expect):
-
-            def waitReady(self, ready, readyCount, startTimeout):
-                if ready:
-                    self.expect("%s ready\n" % ready, timeout = startTimeout)
-                else:
-                    while readyCount > 0:
-                        self.expect("[^\n]+ ready\n", timeout = startTimeout)
-                        readyCount -= 1
+        if current.config.buildPlatform == "iphonesimulator":
+            self.processControllers[current.config.buildPlatform] = iOSSimulatorProcessController()
+            return self.processControllers[current.config.buildPlatform]
 
         #
-        # Props and arguments can use the format parameters set below in the kargs
-        # dictionary. It's time to convert them to their values.
+        # Fallback on the local process controller if no specific
+        # controller is needed for the given current
         #
-        kargs = {
-            "process": process,
-            "testcase": current.testcase,
-            "testdir": current.testcase.getPath(),
-            "builddir": current.getBuildDir(process.getExe(current)),
-            "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
-        }
-
-        if current.config.buildPlatform in ["iphonesimulator", "iphoneos"]:
-            #
-            # Use the iOS process controller to start/stop iOS processes
-            #
-            if not self.processController:
-                self.initProcessController(current.config.buildPlatform)
-            exe = process.getExe(current)
-            if self.debug:
-                current.writeln("({0})".format("executing on iOS controller " + exe + " " + str(args)))
-            return RemoteProcess(exe, self.processController.start(str(current.testsuite), exe, args))
-        else:
-            cmd = (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
-            if self.debug:
-                if len(envs) > 0:
-                    current.writeln("({0} env={1})".format(cmd, envs))
-                else:
-                    current.writeln("({0})".format(cmd))
-
-            env = os.environ.copy()
-            env.update(envs)
-            cwd = process.getMapping(current).getTestCwd(process, current)
-            process = LocalProcess(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
-            process.startReader(watchDog)
-            return process
+        return self.localProcessController
 
     def getProcessProps(self, current, ready, readyCount):
         props = {}
@@ -1857,9 +2002,13 @@ class Driver:
         return props
 
     def destroy(self):
+        for controller in self.processControllers.values():
+            controller.destroy()
+
         if self.communicator:
             self.communicator.destroy()
             self.ctrlCHandler.destroy()
+
 
 class CppMapping(Mapping):
 

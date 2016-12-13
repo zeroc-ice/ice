@@ -25,6 +25,13 @@ class NetworkProxyTestCase(ClientServerTestCase):
         self.proxyType = proxyType
         self.proxy = None
 
+    def canRun(self, current):
+        if current.config.buildPlatform == "iphonesimulator":
+            return False
+        elif current.config.buildPlatform == "iphoneos" and self.getName() == "HTTP client/server":
+            return False
+        return True
+
     def setupClientSide(self, current):
         current.write("starting {0} proxy... ".format(self.proxyName))
         self.proxy = self.proxyType(current.driver.getTestPort(current.testsuite.portNum))

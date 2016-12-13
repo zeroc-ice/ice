@@ -21,7 +21,7 @@ xcodesdk_installdir	= $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-progr
 xcodesdk_targetrule	= $(if $(is-iostest-program),iostest,$(if $(filter-out program,$($1_target)),static))
 
 xcodesdk_components	= Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP TestCommon
-xcodesdk_projects	= test/Ice/% test/IceDiscovery/simple test/IceSSL/configuration
+xcodesdk_projects	= test/Ice/% test/IceSSL/configuration
 xcodesdk_excludes	= $(addprefix test/Ice/,background \
 						faultTolerance \
 						gc \
@@ -40,7 +40,7 @@ $2/$1.bundle/$1.dylib: $5 $(foreach d,$6,$($d_targets))
 	$(Q)if [ ! -f $2/$1.bundle/Info.plist ] ; \
 	then \
 	    $(MKDIR) -p $2/$1.bundle ; \
-	    sed "s/NAME/$1/" test/ios/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
+	    sed "s/NAME/$1/" test/ios/bundles/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
 	fi
 	$(Q)$(RM) $2/$1.bundle/$1.dylib
 	$(Q)$(or $($8_cxx),$(platform_cxx)) -bundle $(LDFLAGS) -o $2/$1.bundle/$1.dylib $5 $(strip $7)

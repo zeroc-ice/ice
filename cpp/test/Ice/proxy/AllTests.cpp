@@ -1297,6 +1297,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         else if(tcp)
         {
+            if(pstr != "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+            {
+                cerr << pstr << endl;
+            }
             test(pstr ==
                  "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
