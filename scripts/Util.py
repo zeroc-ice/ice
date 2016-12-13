@@ -242,9 +242,9 @@ class Windows(Platform):
         if current.driver.useBinDist():
             iceHome = os.environ.get("ICE_HOME")
 
-            if iceHome and isinstance(mapping, CppMapping) and config == "Release" and platform == "x64":
+            if iceHome:
                 return "bin"
-            if isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
+            elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
             else:
 
