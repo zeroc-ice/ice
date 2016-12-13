@@ -2209,7 +2209,8 @@ class CSharpMapping(Mapping):
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
-        plugindir = "{icedir}/Assemblies"
+        plugindir = "{0}/{1}".format(platform.getIceDir(self, current),
+                                     "lib" if current.driver.useBinDist() else "Assemblies")
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
             "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory"
