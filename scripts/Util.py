@@ -1763,6 +1763,9 @@ class iOSSimulatorProcessController(RemoteProcessController):
         return self.processControllers[proxy]
 
     def destroy(self):
+        if current.driver.noControllerApp:
+            return
+
         for p in self.processControllers.values():
             appBundleId = p.ice_getIdentity().name
             run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, appBundleId))
@@ -1970,6 +1973,16 @@ class Driver:
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
+
+        # Load IceSSL, this is useful to talk with WSS for JavaScript
+        initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
+        initData.properties.setProperty("IceSSL.DefaultDir", os.path.join(toplevel, "certs"))
+        initData.properties.setProperty("IceSSL.CertFile", "server.p12")
+        initData.properties.setProperty("IceSSL.Password", "password")
+        initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
+        initData.properties.setProperty("IceSSL.KeychainPassword", "password")
+        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface or "127.0.0.1")

@@ -34,13 +34,18 @@ class ControllerDriver(Driver):
         print("")
         print("Controller driver options:")
         print("--id=<identity>       The identify of the controller object.")
+        print("--endpoints=<endpts>  The endpoints to listen on.")
         print("--clean               Remove trust settings (OS X).")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
         self.id = "controller"
+        self.endpoints = ""
         self.clean = False
         parseOptions(self, options, { "clean" : "clean" })
+
+        if not self.endpoints:
+            self.endpoints = "tcp -h " + (self.interface or "127.0.0.1")
 
     def run(self, mappings, testSuiteIds):
 
@@ -135,6 +140,8 @@ class ControllerDriver(Driver):
                 for a in attrs:
                     v = getattr(config, a)
                     if v is not Ice.Unset:
+                        if a not in self.current.config.parsedOptions:
+                            self.current.config.parsedOptions.append(a)
                         setattr(self.current.config, a, v)
 
         class ControllerI(Test.Common.Controller):
@@ -159,8 +166,7 @@ class ControllerDriver(Driver):
 
 
         self.initCommunicator()
-        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints",
-                                                      "tcp -h {0}".format(self.interface or "127.0.0.1"))
+        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
         self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", Ice.generateUUID())
         adapter = self.communicator.createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(self), self.communicator.stringToIdentity(self.id))
