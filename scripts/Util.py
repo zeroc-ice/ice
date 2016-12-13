@@ -216,10 +216,10 @@ class Windows(Platform):
         pass # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "Win32"
+        return "x64"
 
     def getDefaultBuildConfig(self):
-        return "Debug"
+        return "Release"
 
     def getCompiler(self):
         out = run("cl")
@@ -241,7 +241,8 @@ class Windows(Platform):
 
         if current.driver.useBinDist():
             iceHome = os.environ.get("ICE_HOME")
-            if iceHome:
+
+            if iceHome and isinstance(mapping, CppMapping) and config == "Release" and platform == "x64":
                 return "bin"
             if isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
