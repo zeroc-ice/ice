@@ -1625,7 +1625,7 @@ class LocalProcessController(ProcessController):
             "testcase": current.testcase,
             "testdir": current.testcase.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
-            "icedir" : current.driver.getIceDir(current.testcase.getMapping()),
+            "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
         }
 
         args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
@@ -1929,7 +1929,7 @@ class Driver:
             return toplevel
 
     def getSliceDir(self, mapping, current):
-        return platform.getSliceDir(self.getIceDir(mapping) if self.useBinDist() else toplevel)
+        return platform.getSliceDir(self.getIceDir(mapping, current) if self.useBinDist() else toplevel)
 
     def isWorkerThread(self):
         return False
