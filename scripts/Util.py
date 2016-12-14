@@ -246,7 +246,7 @@ class Windows(Platform):
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp)):
+            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
                 return "bin"
             elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
@@ -295,7 +295,7 @@ class Windows(Platform):
         cpp = isinstance(mapping, CppMapping)
         csharp = isinstance(mapping, CSharpMapping)
 
-        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp)):
+        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
             return iceHome
         else:
             return os.path.join(toplevel, mapping.name, "msbuild", "packages",
