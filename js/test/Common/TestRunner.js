@@ -130,7 +130,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 testcases = [ { name: "client/server" } ];
             }
 
-            run = function(testsuite, testcase, client)
+            run = function(testcase, client)
             {
                 if(testcase.langs && testcase.langs.indexOf(language) == -1)
                 {
@@ -140,13 +140,15 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 if(typeof(__testBidir__) !== "undefined" && client == __testBidir__)
                 {
                     out.writeLine("[ running bidir " + testcase.name + " test]");
+                    runTestCase = function() { return controller.runTestCase("cpp", "Ice/echo", "server", language); };
                 }
                 else
                 {
                     out.writeLine("[ running " + testcase.name + " test]");
+                    runTestCase = function() { return controller.runTestCase("js", testsuite, testcase.name, language) };
                 }
                 out.write("starting server side... ");
-                return controller.runTestCase("js", testsuite, testcase.name, language).then(
+                return runTestCase().then(
                     function(proxy)
                     {
                         proxy = controller.ice_getCachedConnection().createProxy(proxy.ice_getIdentity())
@@ -192,14 +194,14 @@ function runTest(testsuite, language, host, protocol, testcases, out)
             if(typeof(__runServer__) !== "undefined")
             {
                 testcases.forEach(function(testcase) {
-                    p = p.then(function() { return run(testsuite, testcase, __test__); })
+                    p = p.then(function() { return run(testcase, __test__); })
                 });
             }
             if(typeof(__testBidir__) !== "undefined" && language === "cpp")
             {
                 testcases.forEach(function(testcase) {
                     options = typeof(__runEchoServerOptions__) !== "undefined" ? __runEchoServerOptions__ : []
-                    p = p.then(function() { return run("Ice/echo", testcase, __testBidir__); })
+                    p = p.then(function() { return run(testcase, __testBidir__); })
                 });
             }
             return p;

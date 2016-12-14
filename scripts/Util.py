@@ -298,7 +298,7 @@ class Windows(Platform):
         if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp)):
             return iceHome
         else:
-            return os.path.join(toplevel, mapping.name, "msbuild", "packages", 
+            return os.path.join(toplevel, mapping.name, "msbuild", "packages",
                                 "zeroc.ice.{0}.{1}".format(name, version))
 
     def canRun(self, current):
@@ -719,8 +719,6 @@ class Mapping:
             testcases.append(ClientTestCase())
         if checkClient("collocated"):
             testcases.append(CollocatedTestCase())
-        if checkClient("clientBidir") and self.getServerMapping().hasSource("Ice/echo", "server"):
-            testcases.append(ClientEchoServerTestCase())
         if len(testcases) > 0:
             return testcases
 
@@ -1410,17 +1408,6 @@ class ClientServerTestCase(ClientTestCase):
     def getServerType(self):
         return "server"
 
-class ClientEchoServerTestCase(ClientServerTestCase):
-
-    def __init__(self, name="client/echo server", *args, **kargs):
-        ClientServerTestCase.__init__(self, name, *args, **kargs)
-
-    def getServerTestCase(self, cross=None):
-        return Mapping.getByName("cpp").findTestSuite("Ice/echo").findTestCase("server")
-
-    def getClientType(self):
-        return "clientBidir"
-
 class CollocatedTestCase(ClientTestCase):
 
     def __init__(self, name="collocated", *args, **kargs):
@@ -1768,8 +1755,8 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         return self.processControllers[proxy]
 
-    def destroy(self):
-        if current.driver.noControllerApp:
+    def destroy(self, driver):
+        if driver.noControllerApp:
             return
 
         for p in self.processControllers.values():
@@ -2028,7 +2015,7 @@ class Driver:
 
     def destroy(self):
         for controller in self.processControllers.values():
-            controller.destroy()
+            controller.destroy(self)
 
         if self.communicator:
             self.communicator.destroy()
@@ -2446,7 +2433,7 @@ class JavaScriptMapping(Mapping):
             return "node {0}/test/Common/run.js {1}".format(self.path, exe)
 
     def getDefaultSource(self, processType):
-        return { "client" : "Client.js", "clientBidir" : "ClientBidir.js" }[processType]
+        return { "client" : "Client.js" }[processType]
 
     def getDefaultExe(self, processType, config=None):
         return self.getDefaultSource(processType).replace(".js", "")
@@ -2529,7 +2516,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getOptions(), Mapping.Config.getOptions()]
         options += [driver.getOptions() for driver in drivers]
-        options += [mapping.Config.getOptions() for mapping in allMappings]
+        options += [mapping.Config.getOptions() for mapping in Mapping.getAll()]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:
@@ -2551,8 +2538,9 @@ def runTests(mappings=None, drivers=None):
         # Create the configurations for each mapping
         #
         configs = {}
-        for mapping in allMappings:
-            configs[mapping] = mapping.createConfig(opts[:])
+        for mapping in allMappings + driver.getMappings():
+            if mapping not in configs:
+                configs[mapping] = mapping.createConfig(opts[:])
 
         #
         # Provide the configurations to the driver and load the test suites for each mapping.

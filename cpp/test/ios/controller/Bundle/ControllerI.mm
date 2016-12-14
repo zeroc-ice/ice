@@ -7,119 +7,116 @@
 //
 // **********************************************************************
 
-#import "ViewController.h"
+#import <Foundation/Foundation.h>
 
 #include <Ice/Ice.h>
 #include <Controller.h>
 #include <TestHelper.h>
 
-#include <dlfcn.h>
-
-using namespace std;
-using namespace Test::Common;
-
-@interface ViewController()
+@protocol ViewController
 -(void) print:(NSString*)msg;
 -(void) println:(NSString*)msg;
 @end
 
+using namespace std;
+using namespace Test::Common;
 
 namespace
 {
-
-typedef int (*MAIN_ENTRY_POINT)(int argc, char** argv, Test::MainHelper* helper);
-typedef int (*SHUTDOWN_ENTRY_POINT)();
-
-class MainHelperI : public Test::MainHelper, private IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Thread
-{
-public:
-
-    MainHelperI(ViewController*, const string&, const StringSeq&);
-    virtual ~MainHelperI();
-
-    virtual void serverReady();
-    virtual void shutdown();
-    virtual void waitForCompleted() {}
-    virtual bool redirect();
-    virtual void print(const std::string&);
-
-    virtual void run();
-
-    void completed(int);
-    void waitReady(int) const;
-    int waitSuccess(int) const;
-    string getOutput() const;
-
-private:
-
-    ViewController* _controller;
-    std::string _dll;
-    StringSeq _args;
-    CFBundleRef _handle;
-    SHUTDOWN_ENTRY_POINT _dllTestShutdown;
-    bool _ready;
-    bool _completed;
-    int _status;
-    std::ostringstream _out;
-};
-
-class ProcessI : public Process
-{
-public:
-
-    ProcessI(ViewController*, MainHelperI*);
-    virtual ~ProcessI();
-
-    void waitReady(int, const Ice::Current&);
-    int waitSuccess(int, const Ice::Current&);
-    string terminate(const Ice::Current&);
-
-private:
-
-    ViewController* _controller;
-    IceUtil::Handle<MainHelperI> _helper;
-};
-
-class ProcessControllerI : public ProcessController
-{
-public:
-
-    ProcessControllerI(ViewController*);
-
-#ifdef ICE_CPP11_MAPPING
-    virtual shared_ptr<ProcessPrx>
-    start(string, string, StringSeq, const Ice::Current&);
-#else
-    virtual ProcessPrx
-    start(const string&, const string&, const StringSeq&, const Ice::Current&);
-#endif
     
-private:
-
-    ViewController* _controller;
-};
-
-class ControllerHelper
-{
-public:
-
-    ControllerHelper(ViewController*);
-    virtual ~ControllerHelper();
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
-};
-
+    typedef int (*MAIN_ENTRY_POINT)(int argc, char** argv, Test::MainHelper* helper);
+    typedef int (*SHUTDOWN_ENTRY_POINT)();
+    
+    class MainHelperI : public Test::MainHelper, private IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Thread
+    {
+    public:
+        
+        MainHelperI(id<ViewController>, const string&, const StringSeq&);
+        virtual ~MainHelperI();
+        
+        virtual void serverReady();
+        virtual void shutdown();
+        virtual void waitForCompleted() {}
+        virtual bool redirect();
+        virtual void print(const std::string&);
+        
+        virtual void run();
+        
+        void completed(int);
+        void waitReady(int) const;
+        int waitSuccess(int) const;
+        string getOutput() const;
+        
+    private:
+        
+        id<ViewController> _controller;
+        std::string _dll;
+        StringSeq _args;
+        CFBundleRef _handle;
+        SHUTDOWN_ENTRY_POINT _dllTestShutdown;
+        bool _ready;
+        bool _completed;
+        int _status;
+        std::ostringstream _out;
+    };
+    
+    class ProcessI : public Process
+    {
+    public:
+        
+        ProcessI(id<ViewController>, MainHelperI*);
+        virtual ~ProcessI();
+        
+        void waitReady(int, const Ice::Current&);
+        int waitSuccess(int, const Ice::Current&);
+        string terminate(const Ice::Current&);
+        
+    private:
+        
+        id<ViewController> _controller;
+        IceUtil::Handle<MainHelperI> _helper;
+    };
+    
+    class ProcessControllerI : public ProcessController
+    {
+    public:
+        
+        ProcessControllerI(id<ViewController>);
+        
+#ifdef ICE_CPP11_MAPPING
+        virtual shared_ptr<ProcessPrx>
+        start(string, string, StringSeq, const Ice::Current&);
+#else
+        virtual ProcessPrx
+        start(const string&, const string&, const StringSeq&, const Ice::Current&);
+#endif
+        
+    private:
+        
+        id<ViewController> _controller;
+    };
+    
+    class ControllerHelper
+    {
+    public:
+        
+        ControllerHelper(id<ViewController>);
+        virtual ~ControllerHelper();
+        
+    private:
+        
+        Ice::CommunicatorPtr _communicator;
+    };
+    
 }
 
-MainHelperI::MainHelperI(ViewController* controller, const string& dll, const StringSeq& args) :
-    _controller(controller),
-    _dll(dll),
-    _args(args),
-    _ready(false),
-    _completed(false),
-    _status(0)
+MainHelperI::MainHelperI(id<ViewController> controller, const string& dll, const StringSeq& args) :
+_controller(controller),
+_dll(dll),
+_args(args),
+_ready(false),
+_completed(false),
+_status(0)
 {
 }
 
@@ -147,7 +144,7 @@ MainHelperI::shutdown()
     {
         return;
     }
-
+    
     if(_dllTestShutdown)
     {
         _dllTestShutdown();
@@ -165,15 +162,16 @@ void
 MainHelperI::print(const std::string& msg)
 {
     _out << msg;
+    //[_controller println:[NSString stringWithUTF8String:msg.c_str()]];
 }
 
 void
 MainHelperI::run()
 {
     NSString* bundlePath = [[NSBundle mainBundle] privateFrameworksPath];
-
+    
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:_dll.c_str()]];
-
+    
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
     _handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
     if(!_handle)
@@ -182,7 +180,7 @@ MainHelperI::run()
         completed(EXIT_FAILURE);
         return;
     }
-
+    
     CFErrorRef error = nil;
     Boolean loaded = CFBundleLoadExecutableAndReturnError(_handle, &error);
     if(error != nil || !loaded)
@@ -191,29 +189,28 @@ MainHelperI::run()
         completed(EXIT_FAILURE);
         return;
     }
-
-    void* sym = dlsym(_handle, "dllTestShutdown");
-    sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllTestShutdown"));
+    
+    void* sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllTestShutdown"));
     if(sym == 0)
     {
         NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllTestShutdown from bundle %@",
-                                  bundlePath];
+                         bundlePath];
         print([err UTF8String]);
         completed(EXIT_FAILURE);
         return;
     }
     _dllTestShutdown = (SHUTDOWN_ENTRY_POINT)sym;
-
+    
     sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllMain"));
     if(sym == 0)
     {
         NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllMain from bundle %@",
-                                  bundlePath];
+                         bundlePath];
         print([err UTF8String]);
         completed(EXIT_FAILURE);
         return;
     }
-
+    
     MAIN_ENTRY_POINT dllMain = (MAIN_ENTRY_POINT)sym;
     char** argv = new char*[_args.size() + 1];
     for(unsigned int i = 0; i < _args.size(); ++i)
@@ -283,7 +280,7 @@ MainHelperI::getOutput() const
     return _out.str();
 }
 
-ProcessI::ProcessI(ViewController* controller, MainHelperI* helper) : _controller(controller), _helper(helper)
+ProcessI::ProcessI(id<ViewController> controller, MainHelperI* helper) : _controller(controller), _helper(helper)
 {
 }
 
@@ -312,7 +309,7 @@ ProcessI::terminate(const Ice::Current& current)
     return _helper->getOutput();
 }
 
-ProcessControllerI::ProcessControllerI(ViewController* controller) : _controller(controller)
+ProcessControllerI::ProcessControllerI(id<ViewController> controller) : _controller(controller)
 {
 }
 
@@ -332,10 +329,10 @@ ProcessControllerI::start(const string& testSuite, const string& exe, const Stri
     return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(ICE_MAKE_SHARED(ProcessI, _controller, helper.get())));
 }
 
-ControllerHelper::ControllerHelper(ViewController* controller)
+ControllerHelper::ControllerHelper(id<ViewController> controller)
 {
     Ice::registerIceDiscovery();
-
+    
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
@@ -346,9 +343,9 @@ ControllerHelper::ControllerHelper(ViewController* controller)
     //initData.properties->setProperty("Ice.Trace.Network", "2");
     //initData.properties->setProperty("Ice.Trace.Protocol", "2");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
-
+    
     _communicator = Ice::initialize(initData);
-
+    
     Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("ControllerAdapter");
     Ice::Identity ident;
 #if TARGET_IPHONE_SIMULATOR != 0
@@ -369,29 +366,19 @@ ControllerHelper::~ControllerHelper()
 
 static ControllerHelper* controllerHelper = 0;
 
-@implementation ViewController
-
-- (void)viewDidLoad
+extern "C"
 {
-    [super viewDidLoad];
-    controllerHelper = new ControllerHelper(self);
+
+void
+startController(id<ViewController> controller)
+{
+    controllerHelper = new ControllerHelper(controller);
 }
-- (void) dealloc
+
+void
+stopController()
 {
     delete controllerHelper;
 }
--(void) write:(NSString*)msg
-{
-    [output insertText:msg];
-    [output layoutIfNeeded];
-    [output scrollRangeToVisible:NSMakeRange([output.text length] - 1, 1)];
+
 }
--(void) print:(NSString*)msg
-{
-    [self performSelectorOnMainThread:@selector(write:) withObject:msg waitUntilDone:NO];
-}
--(void) println:(NSString*)msg
-{
-    [self print:[msg stringByAppendingString:@"\n"]];
-}
-@end

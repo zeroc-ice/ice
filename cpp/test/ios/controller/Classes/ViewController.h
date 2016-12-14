@@ -9,10 +9,16 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@protocol ViewController
+-(void) print:(NSString*)msg;
+-(void) println:(NSString*)msg;
+@end
+
+@interface ViewController : UIViewController<ViewController>
 {
 @private
     IBOutlet UITextView* output;
+    void (*stopController)(id<ViewController>);
 }
 @end
 

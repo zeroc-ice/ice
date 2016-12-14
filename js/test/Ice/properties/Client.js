@@ -50,7 +50,7 @@
                         "BServer": "\\server\\dir"
                     };
 
-                var properties = Ice.createProperties(process.argv);
+                var properties = Ice.createProperties();
                 if(typeof(require("fs").readFileSync) == "function")
                 {
                     //

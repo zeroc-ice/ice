@@ -7,25 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1440D8731E01877300CF7ED3 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
-		1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
-		1440D8841E0188A600CF7ED3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1440D8821E0188A600CF7ED3 /* Info.plist */; };
-		1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
-		1440D88B1E018A2600CF7ED3 /* Cpp11ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
 		148ABA191DFB12C800594F70 /* cacert.der in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA161DFB12C800594F70 /* cacert.der */; };
 		148ABA1A1DFB12C800594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA1B1DFB12C800594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
-		148ABA1D1DFB12DB00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
+		148ABA421DFEEAEE00594F70 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
 		148ABA431DFEEAEE00594F70 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C5B1DF98FD8002AE61B /* ViewController.m */; };
 		148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
 		148ABA451DFEEAEE00594F70 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		148ABA481DFEEAEE00594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA491DFEEAEE00594F70 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
+		148ABA4A1DFEEAEE00594F70 /* Controller.ice in Resources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
 		148ABA4B1DFEEAEE00594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
 		148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
-		148ABA4E1DFEEAEE00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
 		148ABA4F1DFEEAEE00594F70 /* cacert.der in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA161DFB12C800594F70 /* cacert.der */; };
 		14905C561DF98FD8002AE61B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
@@ -33,17 +27,12 @@
 		14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
 		14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
-		14E398261E01B14B00A89291 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
-		14E398271E01B14B00A89291 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
-		14E398291E01B14B00A89291 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
-		14E3982B1E01B14B00A89291 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
-		14E398361E01B18100A89291 /* Cpp98ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		14E398381E01B30500A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
-		14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
+		14905C6E1DF991F3002AE61B /* Controller.ice in Resources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
+		14905C711DF9923D002AE61B /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
-		1440D8721E01874100CF7ED3 /* PBXBuildRule */ = {
+		148ABA511DFEEAEE00594F70 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
 			compilerSpec = com.apple.compilers.proxy.script;
 			filePatterns = "*.ice";
@@ -55,7 +44,7 @@
 			);
 			script = "/usr/local/bin/icebuilder --cpp";
 		};
-		14E3982D1E01B14B00A89291 /* PBXBuildRule */ = {
+		14905C701DF991FB002AE61B /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
 			compilerSpec = com.apple.compilers.proxy.script;
 			filePatterns = "*.ice";
@@ -69,58 +58,13 @@
 		};
 /* End PBXBuildRule section */
 
-/* Begin PBXContainerItemProxy section */
-		1440D8851E01893600CF7ED3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 14905C491DF98FD8002AE61B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1440D86B1E0186FF00CF7ED3;
-			remoteInfo = Cpp11ControllerBundle;
-		};
-		14E398331E01B15F00A89291 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 14905C491DF98FD8002AE61B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 14E398241E01B14B00A89291;
-			remoteInfo = Cpp98ControllerBundle;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		141B555E1E01808100FA1C95 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				1440D88B1E018A2600CF7ED3 /* Cpp11ControllerBundle.bundle in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		14E398351E01B17300A89291 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				14E398361E01B18100A89291 /* Cpp98ControllerBundle.bundle in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp11ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		1440D8811E0188A600CF7ED3 /* ControllerI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ControllerI.mm; path = Bundle/ControllerI.mm; sourceTree = SOURCE_ROOT; };
-		1440D8821E0188A600CF7ED3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Bundle/Info.plist; sourceTree = SOURCE_ROOT; };
-		1440D8891E0189F300CF7ED3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		148ABA161DFB12C800594F70 /* cacert.der */ = {isa = PBXFileReference; lastKnownFileType = file; name = cacert.der; path = ../../../../certs/cacert.der; sourceTree = "<group>"; };
 		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
 		148ABA181DFB12C800594F70 /* server.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = server.p12; path = ../../../../certs/server.p12; sourceTree = "<group>"; };
-		148ABA1C1DFB12DB00594F70 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../IceSSL/certs; sourceTree = "<group>"; };
-		148ABA1E1DFB18A300594F70 /* C++ Test Controller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "C++ Test Controller.entitlements"; sourceTree = "<group>"; };
-		148ABA551DFEEAEE00594F70 /* C++11 Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++11 Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		14905C511DF98FD8002AE61B /* C++98 Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++98 Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		148ABA1E1DFB18A300594F70 /* Objective-C Test Controller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Objective-C Test Controller.entitlements"; sourceTree = "<group>"; };
+		148ABA551DFEEAEE00594F70 /* Objective-C ARC Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C ARC Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		14905C511DF98FD8002AE61B /* Objective-C Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14905C551DF98FD8002AE61B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		14905C571DF98FD8002AE61B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		14905C581DF98FD8002AE61B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -131,22 +75,9 @@
 		14905C631DF98FD8002AE61B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		14905C651DF98FD8002AE61B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14905C6D1DF991F2002AE61B /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
-		14B70D0F1E0160FD00118DE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp98ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		14E398371E01B30500A89291 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		1440D8691E0186FF00CF7ED3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */,
-				1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */,
-				1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		148ABA461DFEEAEE00594F70 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -161,23 +92,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		14E398281E01B14B00A89291 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				14E398381E01B30500A89291 /* CFNetwork.framework in Frameworks */,
-				14E398291E01B14B00A89291 /* UIKit.framework in Frameworks */,
-				14E3982B1E01B14B00A89291 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		148ABA151DFB12A500594F70 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				148ABA1C1DFB12DB00594F70 /* certs */,
 				148ABA161DFB12C800594F70 /* cacert.der */,
 				148ABA171DFB12C800594F70 /* client.p12 */,
 				148ABA181DFB12C800594F70 /* server.p12 */,
@@ -188,22 +108,18 @@
 		14905C481DF98FD8002AE61B = {
 			isa = PBXGroup;
 			children = (
-				148ABA1E1DFB18A300594F70 /* C++ Test Controller.entitlements */,
+				148ABA1E1DFB18A300594F70 /* Objective-C Test Controller.entitlements */,
 				148ABA151DFB12A500594F70 /* Resources */,
 				14905C531DF98FD8002AE61B /* Classes */,
-				14B70CFA1E015C8B00118DE3 /* Bundle */,
 				14905C521DF98FD8002AE61B /* Products */,
-				14B70D0C1E0160F700118DE3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		14905C521DF98FD8002AE61B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				14905C511DF98FD8002AE61B /* C++98 Test Controller.app */,
-				148ABA551DFEEAEE00594F70 /* C++11 Test Controller.app */,
-				1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */,
-				14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */,
+				14905C511DF98FD8002AE61B /* Objective-C Test Controller.app */,
+				148ABA551DFEEAEE00594F70 /* Objective-C ARC Test Controller.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -211,6 +127,7 @@
 		14905C531DF98FD8002AE61B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				14905C6D1DF991F2002AE61B /* Controller.ice */,
 				14905C571DF98FD8002AE61B /* AppDelegate.h */,
 				14905C581DF98FD8002AE61B /* AppDelegate.m */,
 				14905C5A1DF98FD8002AE61B /* ViewController.h */,
@@ -232,105 +149,46 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		14B70CFA1E015C8B00118DE3 /* Bundle */ = {
-			isa = PBXGroup;
-			children = (
-				1440D8811E0188A600CF7ED3 /* ControllerI.mm */,
-				1440D8821E0188A600CF7ED3 /* Info.plist */,
-				14905C6D1DF991F2002AE61B /* Controller.ice */,
-			);
-			name = Bundle;
-			path = "C++ Controller Framework";
-			sourceTree = "<group>";
-		};
-		14B70D0C1E0160F700118DE3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				14E398371E01B30500A89291 /* CFNetwork.framework */,
-				1440D8891E0189F300CF7ED3 /* Foundation.framework */,
-				14B70D0F1E0160FD00118DE3 /* UIKit.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1440D86B1E0186FF00CF7ED3 /* Cpp11ControllerBundle */ = {
+		148ABA401DFEEAEE00594F70 /* Objective-C ARC Test Controller */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1440D86F1E0186FF00CF7ED3 /* Build configuration list for PBXNativeTarget "Cpp11ControllerBundle" */;
-			buildPhases = (
-				1440D8681E0186FF00CF7ED3 /* Sources */,
-				1440D8691E0186FF00CF7ED3 /* Frameworks */,
-				1440D86A1E0186FF00CF7ED3 /* Resources */,
-			);
-			buildRules = (
-				1440D8721E01874100CF7ED3 /* PBXBuildRule */,
-			);
-			dependencies = (
-			);
-			name = Cpp11ControllerBundle;
-			productName = Cpp11ControllerBundle;
-			productReference = 1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */;
-			productType = "com.apple.product-type.bundle";
-		};
-		148ABA401DFEEAEE00594F70 /* C++11 Test Controller */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 148ABA521DFEEAEE00594F70 /* Build configuration list for PBXNativeTarget "C++11 Test Controller" */;
+			buildConfigurationList = 148ABA521DFEEAEE00594F70 /* Build configuration list for PBXNativeTarget "Objective-C ARC Test Controller" */;
 			buildPhases = (
 				148ABA411DFEEAEE00594F70 /* Sources */,
 				148ABA461DFEEAEE00594F70 /* Frameworks */,
 				148ABA471DFEEAEE00594F70 /* Resources */,
 				148ABA501DFEEAEE00594F70 /* Run Script */,
-				141B555E1E01808100FA1C95 /* CopyFiles */,
 			);
 			buildRules = (
+				148ABA511DFEEAEE00594F70 /* PBXBuildRule */,
 			);
 			dependencies = (
-				1440D8861E01893600CF7ED3 /* PBXTargetDependency */,
 			);
-			name = "C++11 Test Controller";
+			name = "Objective-C ARC Test Controller";
 			productName = "C++ Test Controller";
-			productReference = 148ABA551DFEEAEE00594F70 /* C++11 Test Controller.app */;
+			productReference = 148ABA551DFEEAEE00594F70 /* Objective-C ARC Test Controller.app */;
 			productType = "com.apple.product-type.application";
 		};
-		14905C501DF98FD8002AE61B /* C++98 Test Controller */ = {
+		14905C501DF98FD8002AE61B /* Objective-C Test Controller */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 14905C681DF98FD8002AE61B /* Build configuration list for PBXNativeTarget "C++98 Test Controller" */;
+			buildConfigurationList = 14905C681DF98FD8002AE61B /* Build configuration list for PBXNativeTarget "Objective-C Test Controller" */;
 			buildPhases = (
 				14905C4D1DF98FD8002AE61B /* Sources */,
 				14905C4E1DF98FD8002AE61B /* Frameworks */,
 				14905C4F1DF98FD8002AE61B /* Resources */,
 				148ABA141DF9B74A00594F70 /* Run Script */,
-				14E398351E01B17300A89291 /* CopyFiles */,
 			);
 			buildRules = (
+				14905C701DF991FB002AE61B /* PBXBuildRule */,
 			);
 			dependencies = (
-				14E398341E01B15F00A89291 /* PBXTargetDependency */,
 			);
-			name = "C++98 Test Controller";
+			name = "Objective-C Test Controller";
 			productName = "C++ Test Controller";
-			productReference = 14905C511DF98FD8002AE61B /* C++98 Test Controller.app */;
+			productReference = 14905C511DF98FD8002AE61B /* Objective-C Test Controller.app */;
 			productType = "com.apple.product-type.application";
-		};
-		14E398241E01B14B00A89291 /* Cpp98ControllerBundle */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 14E3982E1E01B14B00A89291 /* Build configuration list for PBXNativeTarget "Cpp98ControllerBundle" */;
-			buildPhases = (
-				14E398251E01B14B00A89291 /* Sources */,
-				14E398281E01B14B00A89291 /* Frameworks */,
-				14E3982C1E01B14B00A89291 /* Resources */,
-			);
-			buildRules = (
-				14E3982D1E01B14B00A89291 /* PBXBuildRule */,
-			);
-			dependencies = (
-			);
-			name = Cpp98ControllerBundle;
-			productName = Cpp11ControllerBundle;
-			productReference = 14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -341,10 +199,6 @@
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "ZeroC, Inc.";
 				TargetAttributes = {
-					1440D86B1E0186FF00CF7ED3 = {
-						CreatedOnToolsVersion = 8.2;
-						ProvisioningStyle = Automatic;
-					};
 					148ABA401DFEEAEE00594F70 = {
 						DevelopmentTeam = U4TBVKNQ7F;
 					};
@@ -360,7 +214,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 14905C4C1DF98FD8002AE61B /* Build configuration list for PBXProject "C++ Test Controller" */;
+			buildConfigurationList = 14905C4C1DF98FD8002AE61B /* Build configuration list for PBXProject "Objective-C Test Controller" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -373,32 +227,23 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				14905C501DF98FD8002AE61B /* C++98 Test Controller */,
-				148ABA401DFEEAEE00594F70 /* C++11 Test Controller */,
-				14E398241E01B14B00A89291 /* Cpp98ControllerBundle */,
-				1440D86B1E0186FF00CF7ED3 /* Cpp11ControllerBundle */,
+				14905C501DF98FD8002AE61B /* Objective-C Test Controller */,
+				148ABA401DFEEAEE00594F70 /* Objective-C ARC Test Controller */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1440D86A1E0186FF00CF7ED3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		148ABA471DFEEAEE00594F70 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				148ABA481DFEEAEE00594F70 /* client.p12 in Resources */,
 				148ABA491DFEEAEE00594F70 /* LaunchScreen.storyboard in Resources */,
+				148ABA4A1DFEEAEE00594F70 /* Controller.ice in Resources */,
 				148ABA4B1DFEEAEE00594F70 /* server.p12 in Resources */,
 				148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */,
 				148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */,
-				148ABA4E1DFEEAEE00594F70 /* certs in Resources */,
 				148ABA4F1DFEEAEE00594F70 /* cacert.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -409,19 +254,11 @@
 			files = (
 				148ABA1A1DFB12C800594F70 /* client.p12 in Resources */,
 				14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */,
+				14905C6E1DF991F3002AE61B /* Controller.ice in Resources */,
 				148ABA1B1DFB12C800594F70 /* server.p12 in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
-				148ABA1D1DFB12DB00594F70 /* certs in Resources */,
 				148ABA191DFB12C800594F70 /* cacert.der in Resources */,
-				1440D8841E0188A600CF7ED3 /* Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		14E3982C1E01B14B00A89291 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -459,19 +296,11 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1440D8681E0186FF00CF7ED3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */,
-				1440D8731E01877300CF7ED3 /* Controller.ice in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		148ABA411DFEEAEE00594F70 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				148ABA421DFEEAEE00594F70 /* Controller.ice in Sources */,
 				148ABA431DFEEAEE00594F70 /* ViewController.m in Sources */,
 				148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */,
 				148ABA451DFEEAEE00594F70 /* main.m in Sources */,
@@ -482,35 +311,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14905C711DF9923D002AE61B /* Controller.ice in Sources */,
 				14905C5C1DF98FD8002AE61B /* ViewController.m in Sources */,
 				14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */,
 				14905C561DF98FD8002AE61B /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		14E398251E01B14B00A89291 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				14E398261E01B14B00A89291 /* ControllerI.mm in Sources */,
-				14E398271E01B14B00A89291 /* Controller.ice in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		1440D8861E01893600CF7ED3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1440D86B1E0186FF00CF7ED3 /* Cpp11ControllerBundle */;
-			targetProxy = 1440D8851E01893600CF7ED3 /* PBXContainerItemProxy */;
-		};
-		14E398341E01B15F00A89291 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 14E398241E01B14B00A89291 /* Cpp98ControllerBundle */;
-			targetProxy = 14E398331E01B15F00A89291 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		14905C5D1DF98FD8002AE61B /* Main.storyboard */ = {
@@ -532,63 +340,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		1440D8701E0186FF00CF7ED3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = U4TBVKNQ7F;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					ICE_CPP11_MAPPING,
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Bundle/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = (
-					"-lIceDiscovery++11",
-					"-lIce++11",
-					"-lbz2",
-					"-liconv",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp11ControllerBundle;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Debug;
-		};
-		1440D8711E0186FF00CF7ED3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = U4TBVKNQ7F;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ICE_CPP11_MAPPING,
-					ICE_STATIC_LIBS,
-				);
-				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Bundle/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"-lIceDiscovery++11",
-					"-lIce++11",
-					"-lbz2",
-					"-liconv",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp11ControllerBundle;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Release;
-		};
 		148ABA531DFEEAEE00594F70 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -596,10 +347,12 @@
 				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					ICE_STATIC_LIBS,
+					"DEBUG=1",
 					ICE_CPP11_MAPPING,
+					ICE_STATIC_LIBS,
 				);
-				INFOPLIST_FILE = Classes/Info.plist;
+				HEADER_SEARCH_PATHS = ../../include;
+				INFOPLIST_FILE = "Classes/C++11-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-lIce++11",
@@ -623,7 +376,8 @@
 					ICE_STATIC_LIBS,
 					ICE_CPP11_MAPPING,
 				);
-				INFOPLIST_FILE = Classes/Info.plist;
+				HEADER_SEARCH_PATHS = ../../include;
+				INFOPLIST_FILE = "Classes/C++11-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-lIce++11",
@@ -668,6 +422,10 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -729,6 +487,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -749,6 +508,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -763,72 +523,10 @@
 			};
 			name = Release;
 		};
-		14E3982F1E01B14B00A89291 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = U4TBVKNQ7F;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Bundle/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = (
-					"-lIceDiscovery",
-					"-lIce",
-					"-lbz2",
-					"-liconv",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp98ControllerBundle;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Debug;
-		};
-		14E398301E01B14B00A89291 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = U4TBVKNQ7F;
-				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
-				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Bundle/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"-lIceDiscovery",
-					"-lIce",
-					"-lbz2",
-					"-liconv",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Cpp98ControllerBundle;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				WRAPPER_EXTENSION = bundle;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1440D86F1E0186FF00CF7ED3 /* Build configuration list for PBXNativeTarget "Cpp11ControllerBundle" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1440D8701E0186FF00CF7ED3 /* Debug */,
-				1440D8711E0186FF00CF7ED3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		148ABA521DFEEAEE00594F70 /* Build configuration list for PBXNativeTarget "C++11 Test Controller" */ = {
+		148ABA521DFEEAEE00594F70 /* Build configuration list for PBXNativeTarget "Objective-C ARC Test Controller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				148ABA531DFEEAEE00594F70 /* Debug */,
@@ -837,7 +535,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		14905C4C1DF98FD8002AE61B /* Build configuration list for PBXProject "C++ Test Controller" */ = {
+		14905C4C1DF98FD8002AE61B /* Build configuration list for PBXProject "Objective-C Test Controller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				14905C661DF98FD8002AE61B /* Debug */,
@@ -846,20 +544,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		14905C681DF98FD8002AE61B /* Build configuration list for PBXNativeTarget "C++98 Test Controller" */ = {
+		14905C681DF98FD8002AE61B /* Build configuration list for PBXNativeTarget "Objective-C Test Controller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				14905C691DF98FD8002AE61B /* Debug */,
 				14905C6A1DF98FD8002AE61B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		14E3982E1E01B14B00A89291 /* Build configuration list for PBXNativeTarget "Cpp98ControllerBundle" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				14E3982F1E01B14B00A89291 /* Debug */,
-				14E398301E01B14B00A89291 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
