@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/HashUtil",
         "../Ice/ArrayUtil",
@@ -115,7 +115,7 @@ function memberHashCode(h, e)
 
 function hashCode()
 {
-    let __h = 5381;
+    let h = 5381;
     for(let key in this)
     {
         let e = this[key];
@@ -123,9 +123,9 @@ function hashCode()
         {
             continue;
         }
-        __h = memberHashCode(__h, e);
+        h = memberHashCode(h, e);
     }
-    return __h;
+    return h;
 }
 
 Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
@@ -142,7 +142,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
         obj.prototype.hashCode = hashCode;
     }
 
-    if(obj.prototype.__write && obj.prototype.__read)
+    if(obj.prototype._write && obj.prototype._read)
     {
         obj.write = function(os, v)
         {
@@ -154,7 +154,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
                 }
                 v = obj.prototype._nullMarshalValue;
             }
-            v.__write(os);
+            v._write(os);
         };
 
         obj.read = function(is, v)
@@ -163,7 +163,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
             {
                 v = new this();
             }
-            v.__read(is);
+            v._read(is);
             return v;
         };
      

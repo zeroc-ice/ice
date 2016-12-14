@@ -10,7 +10,7 @@
 const net = require("net");
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/ExUtil",

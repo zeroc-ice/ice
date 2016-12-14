@@ -480,9 +480,9 @@
         var c = Ice.initialize(id);
         return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
-    exports.__test__ = run;
-    exports.__runServer__ = true;
+    exports._test = run;
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

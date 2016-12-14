@@ -47,7 +47,7 @@ class ConnectionRequestHandler
 
     sendAsyncRequest(out)
     {
-        return out.__invokeRemote(this._connection, this._compress, this._response);
+        return out.invokeRemote(this._connection, this._compress, this._response);
     }
 
     asyncRequestCanceled(out)

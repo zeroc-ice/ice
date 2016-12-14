@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Debug", "../Ice/LocalException"]);
+Ice._ModuleRegistry.require(module, ["../Ice/Debug", "../Ice/LocalException"]);
 
 class RetryException extends Error
 {

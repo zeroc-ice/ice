@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/ArrayUtil",
         "../Ice/Debug",
@@ -147,7 +147,7 @@ class RouterInfo
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                this._clientEndpoints = this._router.__reference().getEndpoints();
+                this._clientEndpoints = this._router._getReference().getEndpoints();
                 promise.resolve(this._clientEndpoints);
             }
             else
@@ -162,7 +162,7 @@ class RouterInfo
                 this._router.ice_getConnection().then(
                     con =>
                     {
-                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout()).__reference().getEndpoints();
+                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout())._getReference().getEndpoints();
                         promise.resolve(this._clientEndpoints);
                     }).catch(promise.reject);
             }
@@ -181,7 +181,7 @@ class RouterInfo
         }
 
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        this._serverEndpoints = serverProxy.__reference().getEndpoints();
+        this._serverEndpoints = serverProxy._getReference().getEndpoints();
         return this._serverEndpoints;
     }
 

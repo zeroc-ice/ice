@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/HashMap",
@@ -59,7 +59,7 @@ class RequestHandlerFactory
                                          handler.setException(ex);
                                      });
         }
-        return proxy.__setRequestHandler(handler.connect(proxy));
+        return proxy._setRequestHandler(handler.connect(proxy));
     }
 
     removeRequestHandler(ref, handler)

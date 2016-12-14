@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Stream",
         "../Ice/BuiltinSequences",
@@ -214,7 +214,7 @@ class IncomingAsync
                 {
                     Debug.assert(false);
                 }
-                ex.id.__write(this._os);
+                ex.id._write(this._os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -379,7 +379,7 @@ class IncomingAsync
         //
         // Read the current.
         //
-        this._current.id.__read(this._is);
+        this._current.id._read(this._is);
 
         //
         // For compatibility with the old FacetPath.
@@ -467,7 +467,7 @@ class IncomingAsync
         {
             Debug.assert(this._servant !== null);
 
-            let promise = this._servant.__dispatch(this, this._current);
+            let promise = this._servant._iceDispatch(this, this._current);
             if(promise !== null)
             {
                 promise.then(() => this.response(), (ex) => this.exception(ex));

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/ArrayUtil",
         "../Ice/BatchRequestQueue",
@@ -603,9 +603,9 @@ class ReferenceFactory
         if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.__read(s);
+            protocol._read(s);
             encoding = new Ice.EncodingVersion();
-            encoding.__read(s);
+            encoding._read(s);
         }
         else
         {
@@ -713,7 +713,7 @@ class ReferenceFactory
         let locatorInfo = null;
         if(this._defaultLocator !== null)
         {
-            if(!this._defaultLocator.__reference().getEncoding().equals(encoding))
+            if(!this._defaultLocator._getReference().getEncoding().equals(encoding))
             {
                 locatorInfo = this._instance.locatorManager().find(
                     this._defaultLocator.ice_encodingVersion(encoding));
@@ -749,7 +749,7 @@ class ReferenceFactory
             const locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if(locator !== null)
             {
-                if(!locator.__reference().getEncoding().equals(encoding))
+                if(!locator._getReference().getEncoding().equals(encoding))
                 {
                     locatorInfo = this._instance.locatorManager().find(locator.ice_encodingVersion(encoding));
                 }
@@ -1246,8 +1246,8 @@ class Reference
 
         if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
-            this._protocol.__write(s);
-            this._encoding.__write(s);
+            this._protocol._write(s);
+            this._encoding._write(s);
         }
 
         // Derived class writes the remainder of the reference.
@@ -1663,7 +1663,7 @@ class FixedReference extends Reference
             compress = this._fixedConnection.endpoint().compress();
         }
 
-        return proxy.__setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
+        return proxy._setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
     }
     
     getBatchRequestQueue()
@@ -2001,13 +2001,13 @@ class RoutableReference extends Reference
 
         if(this._routerInfo !== null)
         {
-            this._routerInfo.getRouter().__reference().toProperty(prefix + ".Router").forEach(
+            this._routerInfo.getRouter()._getReference().toProperty(prefix + ".Router").forEach(
                 (value, key) => properties.set(key, value));
         }
 
         if(this._locatorInfo !== null)
         {
-            this._locatorInfo.getLocator().__reference().toProperty(prefix + ".Locator").forEach(
+            this._locatorInfo.getLocator()._getReference().toProperty(prefix + ".Locator").forEach(
                 (value, key) => properties.set(key, value));
         }
 

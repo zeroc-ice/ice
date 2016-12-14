@@ -66,22 +66,22 @@ class EnumHelper
 
     write(os, v)
     {
-        this._enumType.__write(os, v);
+        this._enumType._write(os, v);
     }
 
     writeOptional(os, tag, v)
     {
-        this._enumType.__writeOpt(os, tag, v);
+        this._enumType._writeOpt(os, tag, v);
     }
 
     read(is)
     {
-        return this._enumType.__read(is);
+        return this._enumType._read(is);
     }
 
     readOptional(is, tag)
     {
-        return this._enumType.__readOpt(is, tag);
+        return this._enumType._readOpt(is, tag);
     }
 }
 
@@ -125,7 +125,7 @@ Slice.defineEnum = function(enumerators)
         get: function(){ return 1; }
     });
 
-    type.__write = function(os, v)
+    type._write = function(os, v)
     {
         if(v)
         {
@@ -136,26 +136,26 @@ Slice.defineEnum = function(enumerators)
             os.writeEnum(firstEnum);
         }
     };
-    type.__read = function(is)
+    type._read = function(is)
     {
         return is.readEnum(type);
     };
-    type.__writeOpt = function(os, tag, v)
+    type._writeOpt = function(os, tag, v)
     {
         if(v !== undefined)
         {
             if(os.writeOptional(tag, Ice.OptionalFormat.Size))
             {
-                type.__write(os, v);
+                type._write(os, v);
             }
         }
     };
-    type.__readOpt = function(is, tag)
+    type._readOpt = function(is, tag)
     {
         return is.readOptionalEnum(tag, type);
     };
 
-    type.__helper = new EnumHelper(type);
+    type._helper = new EnumHelper(type);
 
     Object.defineProperty(type, 'valueOf', {
         value: function(v) {

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
@@ -38,7 +38,7 @@ class AsyncResult extends AsyncResultBase
 
     cancel()
     {
-        this.__cancel(new Ice.InvocationCanceledException());
+        this.cancelWithException(new Ice.InvocationCanceledException());
     }
 
     isCompleted()
@@ -64,7 +64,7 @@ class AsyncResult extends AsyncResultBase
         return this._sentSynchronously;
     }
 
-    __markSent(done)
+    markSent(done)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Sent;
@@ -76,7 +76,7 @@ class AsyncResult extends AsyncResultBase
         }
     }
 
-    __markFinished(ok, completed)
+    markFinished(ok, completed)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Done;
@@ -95,7 +95,7 @@ class AsyncResult extends AsyncResultBase
         }
     }
 
-    __markFinishedEx(ex)
+    markFinishedEx(ex)
     {
         Debug.assert((this._state & AsyncResult.Done) === 0);
         this._exception = ex;
@@ -104,7 +104,7 @@ class AsyncResult extends AsyncResultBase
         this.reject(ex);
     }
 
-    __cancel(ex)
+    cancelWithException(ex)
     {
         this._cancellationException = ex;
         if(this._cancellationHandler)
@@ -113,7 +113,7 @@ class AsyncResult extends AsyncResultBase
         }
     }
 
-    __cancelable(handler)
+    cancelable(handler)
     {
         if(this._cancellationException)
         {
@@ -129,38 +129,28 @@ class AsyncResult extends AsyncResultBase
         this._cancellationHandler = handler;
     }
 
-    __os()
+    getOs()
     {
         return this._os;
     }
-
-    __is()
-    {
-        return this._is;
-    }
     
-    __startReadParams()
+    startReadParams()
     {
         this._is.startEncapsulation();
         return this._is;
     }
     
-    __endReadParams()
+    endReadParams()
     {
         this._is.endEncapsulation();
     }
 
-    __readEmptyParams()
+    readEmptyParams()
     {
         this._is.skipEmptyEncapsulation();
     }
 
-    __readParamEncaps()
-    {
-        return this._is.readEncapsulation(null);
-    }
-
-    __throwUserException()
+    throwUserException()
     {
         Debug.assert((this._state & AsyncResult.Done) !== 0);
         if((this._state & AsyncResult.OK) === 0)

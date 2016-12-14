@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/LocalException", "../Ice/TimerUtil"]);
+Ice._ModuleRegistry.require(module, ["../Ice/LocalException", "../Ice/TimerUtil"]);
 
 const CommunicatorDestroyedException = Ice.CommunicatorDestroyedException;
 

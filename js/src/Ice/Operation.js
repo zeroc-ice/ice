@@ -9,8 +9,8 @@
 
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
-__M.require(module,
+const _ModuleRegistry = Ice._ModuleRegistry;
+_ModuleRegistry.require(module,
     [
         "../Ice/Current",
         "../Ice/Exception",
@@ -45,7 +45,7 @@ function parseParam(p)
     }
     else if(t === 'string')
     {
-        type = __M.type(type);
+        type = _ModuleRegistry.type(type);
     }
 
     return {
@@ -272,7 +272,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
-function __dispatchImpl(servant, op, incomingAsync, current)
+function dispatchImpl(servant, op, incomingAsync, current)
 {
     //
     // Check to make sure the servant implements the operation.
@@ -365,21 +365,21 @@ function getServantMethodFromInterfaces(interfaces, methodName, all)
             {
                 all.push(intf);
             }
-            if(intf.__implements)
+            if(intf._iceImplements)
             {
-                method = getServantMethodFromInterfaces(intf.__implements, methodName, all);
+                method = getServantMethodFromInterfaces(intf._iceImplements, methodName, all);
             }
         }
     }
     return method;
 }
 
-const dispatchPrefix = "__op_";
+const dispatchPrefix = "_iceD_";
 
 function getServantMethod(servantType, name)
 {
     //
-    // The dispatch method is named __op_<Slice name> and is stored in the type (not the prototype).
+    // The dispatch method is named _iceD_<Slice name> and is stored in the type (not the prototype).
     //
     const methodName = dispatchPrefix + name;
 
@@ -400,11 +400,11 @@ function getServantMethod(servantType, name)
         let curr = servantType;
         while(curr && method === undefined)
         {
-            if(curr.__implements)
+            if(curr._iceImplements)
             {
-                method = getServantMethodFromInterfaces(curr.__implements, methodName, allInterfaces);
+                method = getServantMethodFromInterfaces(curr._iceImplements, methodName, allInterfaces);
             }
-            curr = curr.__parent;
+            curr = curr._iceParent;
         }
 
         if(method !== undefined)
@@ -422,9 +422,9 @@ function getServantMethod(servantType, name)
         // Next check the op table for the servant's type.
         //
         let op;
-        if(servantType.__ops)
+        if(servantType._iceOps)
         {
-            op = servantType.__ops.find(name);
+            op = servantType._iceOps.find(name);
         }
 
         let source;
@@ -433,17 +433,17 @@ function getServantMethod(servantType, name)
             //
             // Now check the op tables of the base types.
             //
-            let parent = servantType.__parent;
+            let parent = servantType._iceParent;
             while(op === undefined && parent)
             {
-                if(parent.__ops)
+                if(parent._iceOps)
                 {
-                    if((op = parent.__ops.find(name)) !== undefined)
+                    if((op = parent._iceOps.find(name)) !== undefined)
                     {
                         source = parent;
                     }
                 }
-                parent = parent.__parent;
+                parent = parent._iceParent;
             }
 
             //
@@ -452,9 +452,9 @@ function getServantMethod(servantType, name)
             for(let i = 0; op === undefined && i < allInterfaces.length; ++i)
             {
                 let intf = allInterfaces[i];
-                if(intf.__ops)
+                if(intf._iceOps)
                 {
-                    if((op = intf.__ops.find(name)) !== undefined)
+                    if((op = intf._iceOps.find(name)) !== undefined)
                     {
                         source = intf;
                     }
@@ -466,7 +466,7 @@ function getServantMethod(servantType, name)
         {
             method = function(servant, incomingAsync, current)
             {
-                return __dispatchImpl(servant, op, incomingAsync, current);
+                return dispatchImpl(servant, op, incomingAsync, current);
             };
 
             //
@@ -548,18 +548,18 @@ function addProxyOperation(proxyType, name, data)
                 //
                 let results = [];
 
-                let is = asyncResult.__startReadParams();
+                let is = asyncResult.startReadParams();
                 let retvalInfo;
                 if(op.returns && !op.returns.tag)
                 {
                     retvalInfo = op.returns;
                 }
                 unmarshalParams(is, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses, results, 0);
-                asyncResult.__endReadParams();
+                asyncResult.endReadParams();
                 return results.length == 1 ? results[0] : results;
             };
         }
-        return  Ice.ObjectPrx.__invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
+        return  Ice.ObjectPrx._invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
                                        op.exceptions, Array.prototype.slice.call(args));
     };
 }
@@ -569,10 +569,10 @@ Slice.defineOperations = function(classType, proxyType, ops)
 {
     if(ops)
     {
-        classType.__ops = new OpTable(ops);
+        classType._iceOps = new OpTable(ops);
     }
 
-    classType.prototype.__dispatch = function(incomingAsync, current)
+    classType.prototype._iceDispatch = function(incomingAsync, current)
     {
         //
         // Retrieve the dispatch method for this operation.
@@ -598,11 +598,11 @@ Slice.defineOperations = function(classType, proxyType, ops)
     //
     // Copy proxy methods from super-interfaces.
     //
-    if(proxyType.__implements)
+    if(proxyType._implements)
     {
-        for(let intf in proxyType.__implements)
+        for(let intf in proxyType._implements)
         {
-            let proto = proxyType.__implements[intf].prototype;
+            let proto = proxyType._implements[intf].prototype;
             for(let f in proto)
             {
                 if(typeof proto[f] == "function" && proxyType.prototype[f] === undefined)

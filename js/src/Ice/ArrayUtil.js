@@ -8,7 +8,7 @@
 // **********************************************************************
     
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
+const _ModuleRegistry = Ice._ModuleRegistry;
 const Slice = Ice.Slice;
 
 const eq = function(e1, e2)
@@ -96,7 +96,7 @@ Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
                 {
                     if(helper === null)
                     {
-                        helper = Ice.StreamHelpers.generateSeqHelper(__M.type(valueHelper), fixed, __M.type(elementType));
+                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper), fixed, _ModuleRegistry.type(elementType));
                     }
                     return helper;
                 }

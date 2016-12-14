@@ -29,7 +29,7 @@ var id = new Ice.InitializationData();
 id.properties = Ice.createProperties(process.argv);
 exe = process.argv[2]
 var test = module.require(exe)
-test = exe === "ClientBidir" ? test.__testBidir__ : test.__test__;
+test = exe === "ClientBidir" ? test._testBidir : test._test;
 
 test({write: write, writeLine: writeLine}, id).catch(
     ex =>

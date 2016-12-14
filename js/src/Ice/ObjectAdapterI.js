@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
@@ -395,7 +395,7 @@ class ObjectAdapterI
     findByProxy(proxy)
     {
         this.checkForDeactivation();
-        const ref = proxy.__reference();
+        const ref = proxy._getReference();
         return this.findFacet(ref.getIdentity(), ref.getFacet());
     }
 

@@ -68,13 +68,13 @@ class UnknownSlicedValue extends Ice.Object
         return this._unknownTypeId;
     }
 
-    __write(os)
+    _iceWrite(os)
     {
         os.startValue(this._slicedData);
         os.endValue();
     }
 
-    __read(is)
+    _iceRead(is)
     {
         is.startValue();
         this._slicedData = is.endValue(true);

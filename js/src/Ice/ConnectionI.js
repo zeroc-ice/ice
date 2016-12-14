@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncStatus",
         "../Ice/Stream",
@@ -220,12 +220,12 @@ class ConnectionI
 
     close(force)
     {
-        const __r = new AsyncResultBase(this._communicator, "close", this, null, null);
+        const r = new AsyncResultBase(this._communicator, "close", this, null, null);
 
         if(force)
         {
             this.setState(StateClosed, new Ice.ForcedCloseConnectionException());
-            __r.resolve();
+            r.resolve();
         }
         else
         {
@@ -236,11 +236,11 @@ class ConnectionI
             // requests to be retried, regardless of whether the
             // server has processed them or not.
             //
-            this._closePromises.push(__r);
+            this._closePromises.push(r);
             this.checkClose();
         }
 
-        return __r;
+        return r;
     }
 
     checkClose()
@@ -365,7 +365,7 @@ class ConnectionI
     sendAsyncRequest(out, compress, response, batchRequestNum)
     {
         let requestId = 0;
-        const os = out.__os();
+        const ostr = out.getOs();
 
         if(this._exception !== null)
         {
@@ -384,13 +384,13 @@ class ConnectionI
         // Ensure the message isn't bigger than what we can send with the
         // transport.
         //
-        this._transceiver.checkSendSize(os);
+        this._transceiver.checkSendSize(ostr);
 
         //
         // Notify the request that it's cancelable with this connection.
         // This will throw if the request is canceled.
         //
-        out.__cancelable(this); // Notify the request that it's cancelable
+        out.cancelable(this); // Notify the request that it's cancelable
 
         if(response)
         {
@@ -407,19 +407,19 @@ class ConnectionI
             //
             // Fill in the request ID.
             //
-            os.pos = Protocol.headerSize;
-            os.writeInt(requestId);
+            ostr.pos = Protocol.headerSize;
+            ostr.writeInt(requestId);
         }
         else if(batchRequestNum > 0)
         {
-            os.pos = Protocol.headerSize;
-            os.writeInt(batchRequestNum);
+            ostr.pos = Protocol.headerSize;
+            ostr.writeInt(batchRequestNum);
         }
 
         let status;
         try
         {
-            status = this.sendMessage(OutgoingMessage.create(out, out.__os(), compress, requestId));
+            status = this.sendMessage(OutgoingMessage.create(out, out.getOs(), compress, requestId));
         }
         catch(ex)
         {
@@ -454,7 +454,7 @@ class ConnectionI
     flushBatchRequests()
     {
         const result = new ConnectionFlushBatch(this, this._communicator, "flushBatchRequests");
-        result.__invoke();
+        result.invoke();
         return result;
     }
 
@@ -541,7 +541,7 @@ class ConnectionI
                 {
                     this._sendStreams.splice(i, 1);
                 }
-                outAsync.__completedEx(ex);
+                outAsync.completedEx(ex);
                 return; // We're done.
             }
         }
@@ -553,7 +553,7 @@ class ConnectionI
                 if(value === outAsync)
                 {
                     this._asyncRequests.delete(key);
-                    outAsync.__completedEx(ex);
+                    outAsync.completedEx(ex);
                     return; // We're done.
                 }
             }
@@ -750,10 +750,10 @@ class ConnectionI
                         throw new Ice.BadMagicException("", Ice.Buffer.createNative([magic0, magic1, magic2, magic3]));
                     }
 
-                    this._readProtocol.__read(this._readStream);
+                    this._readProtocol._read(this._readStream);
                     Protocol.checkSupportedProtocol(this._readProtocol);
 
-                    this._readProtocolEncoding.__read(this._readStream);
+                    this._readProtocolEncoding._read(this._readStream);
                     Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
 
                     this._readStream.readByte(); // messageType
@@ -909,7 +909,7 @@ class ConnectionI
         {
             if(info.outAsync !== null)
             {
-                info.outAsync.__completed(info.stream);
+                info.outAsync.completed(info.stream);
                 ++count;
             }
 
@@ -1058,7 +1058,7 @@ class ConnectionI
 
         for(let value of this._asyncRequests.values())
         {
-            value.__completedEx(this._exception);
+            value.completedEx(this._exception);
         }
         this._asyncRequests.clear();
 
@@ -1428,8 +1428,8 @@ class ConnectionI
             //
             const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol.__write(os);
-            Protocol.currentProtocolEncoding.__write(os);
+            Protocol.currentProtocol._write(os);
+            Protocol.currentProtocolEncoding._write(os);
             os.writeByte(Protocol.closeConnectionMsg);
             os.writeByte(0); // compression status: always report 0 for CloseConnection.
             os.writeInt(Protocol.headerSize); // Message size.
@@ -1462,8 +1462,8 @@ class ConnectionI
         {
             const os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
             os.writeBlob(Protocol.magic);
-            Protocol.currentProtocol.__write(os);
-            Protocol.currentProtocolEncoding.__write(os);
+            Protocol.currentProtocol._write(os);
+            Protocol.currentProtocolEncoding._write(os);
             os.writeByte(Protocol.validateConnectionMsg);
             os.writeByte(0);
             os.writeInt(Protocol.headerSize); // Message size.
@@ -1506,8 +1506,8 @@ class ConnectionI
                 if(this._writeStream.size === 0)
                 {
                     this._writeStream.writeBlob(Protocol.magic);
-                    Protocol.currentProtocol.__write(this._writeStream);
-                    Protocol.currentProtocolEncoding.__write(this._writeStream);
+                    Protocol.currentProtocol._write(this._writeStream);
+                    Protocol.currentProtocolEncoding._write(this._writeStream);
                     this._writeStream.writeByte(Protocol.validateConnectionMsg);
                     this._writeStream.writeByte(0); // Compression status (always zero for validate connection).
                     this._writeStream.writeInt(Protocol.headerSize); // Message size.
@@ -1545,10 +1545,10 @@ class ConnectionI
                     throw new Ice.BadMagicException("", m);
                 }
 
-                this._readProtocol.__read(this._readStream);
+                this._readProtocol._read(this._readStream);
                 Protocol.checkSupportedProtocol(this._readProtocol);
 
-                this._readProtocolEncoding.__read(this._readStream);
+                this._readProtocolEncoding._read(this._readStream);
                 Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
 
                 const messageType = this._readStream.readByte();
@@ -2118,7 +2118,7 @@ class OutgoingMessage
     {
         if(this.outAsync !== null)
         {
-            this.outAsync.__sent();
+            this.outAsync.sent();
         }
     }
 
@@ -2126,7 +2126,7 @@ class OutgoingMessage
     {
         if(this.outAsync !== null)
         {
-            this.outAsync.__completedEx(ex);
+            this.outAsync.completedEx(ex);
         }
     }
 

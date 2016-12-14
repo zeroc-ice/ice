@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/HashMap", "../Ice/Debug", "../Ice/IdentityUtil"]);
+Ice._ModuleRegistry.require(module, ["../Ice/HashMap", "../Ice/Debug", "../Ice/IdentityUtil"]);
 
 const HashMap = Ice.HashMap;
 const Debug = Ice.Debug;

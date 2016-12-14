@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/Protocol",
@@ -46,7 +46,7 @@ function printIdentityFacetOperation(s, stream)
     }
 
     const identity = new Identity();
-    identity.__read(stream);
+    identity._read(stream);
     s.push("\nidentity = " + Ice.identityToString(identity, toStringMode));
 
     const facet = Ice.StringSeqHelper.read(stream);

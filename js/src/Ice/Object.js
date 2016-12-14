@@ -13,7 +13,7 @@
 // Using IceObject in this file to avoid collisions with the native Object.
 //
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Exception",
         "../Ice/FormatType",
@@ -23,24 +23,24 @@ Ice.__M.require(module,
 
 let nextAddress = 0;
 
-const Ice_Object_ids__ = ["::Ice::Object"];
+const ids = ["::Ice::Object"];
 
 Ice.Object = class
 {
     constructor()
     {
         // Fake Address used as the hashCode for this object instance.
-        this.__address = nextAddress++;
+        this._iceAddress = nextAddress++;
     }
 
     hashCode()
     {
-        return this.__address;
+        return this._iceAddress;
     }
 
     ice_isA(s, current)
     {
-        return this.__mostDerivedType().__ids.indexOf(s) >= 0;
+        return this._iceMostDerivedType()._iceIds.indexOf(s) >= 0;
     }
 
     ice_ping(current)
@@ -49,12 +49,12 @@ Ice.Object = class
 
     ice_ids(current)
     {
-        return this.__mostDerivedType().__ids;
+        return this._iceMostDerivedType()._iceIds;
     }
 
     ice_id(current)
     {
-        return this.__mostDerivedType().__id;
+        return this._iceMostDerivedType()._iceId;
     }
 
     toString()
@@ -70,17 +70,17 @@ Ice.Object = class
     {
     }
 
-    __write(os)
+    _iceWrite(os)
     {
         os.startValue(null);
-        __writeImpl(this, os, this.__mostDerivedType());
+        writeImpl(this, os, this._iceMostDerivedType());
         os.endValue();
     }
 
-    __read(is)
+    _iceRead(is)
     {
         is.startValue();
-        __readImpl(this, is, this.__mostDerivedType());
+        readImpl(this, is, this._iceMostDerivedType());
         is.endValue(false);
     }
 
@@ -92,23 +92,23 @@ Ice.Object = class
             {
                 return true;
             }
-            return this.__mostDerivedType().__instanceof(T);
+            return this._iceMostDerivedType()._iceInstanceof(T);
         }
         return false;
     }
 
     //
-    // __mostDerivedType returns the the most derived Ice generated class. This is
+    // _iceMostDerivedType returns the the most derived Ice generated class. This is
     // necessary because the user might extend Slice generated classes. The user
-    // class extensions don't have __id, __ids, __instanceof etc static members so
+    // class extensions don't have _iceId, _iceIds, _iceInstanceof etc static members so
     // the implementation of ice_id, ice_ids and ice_instanceof would fail trying
     // to access those members of the user defined class. Instead, ice_id, ice_ids
-    // and ice_instanceof call __mostDerivedType to get the most derived Ice class.
+    // and ice_instanceof call _iceMostDerivedType to get the most derived Ice class.
     //
-    // The __mostDerivedType is overriden by each Slice generated class, see the
+    // The _iceMostDerivedType is overriden by each Slice generated class, see the
     // Slice.defineObject method implementation for details.
     //
-    __mostDerivedType()
+    _iceMostDerivedType()
     {
         return Ice.Object;
     }
@@ -150,39 +150,39 @@ Ice.Object = class
 
     static ice_staticId()
     {
-        return this.__id;
+        return this._iceId;
     }
 
-    static __instanceof(T)
+    static _iceInstanceof(T)
     {
         if(T === this)
         {
             return true;
         }
 
-        if(this.__implements.some(i => i.__instanceof(T)))
+        if(this._iceImplements.some(i => i._iceInstanceof(T)))
         {
             return true;
         }
 
-        if(this.__parent)
+        if(this._iceParent)
         {
-            return this.__parent.__instanceof(T);
+            return this._iceParent._iceInstanceof(T);
         }
         return false;
     }
 
-    static get __ids()
+    static get _iceIds()
     {
-        return Ice_Object_ids__;
+        return ids;
     }
 
-    static get __id()
+    static get _iceId()
     {
-        return Ice_Object_ids__[0];
+        return ids[0];
     }
 
-    static get __implements()
+    static get _iceImplements()
     {
         return [];
     }
@@ -192,12 +192,12 @@ Ice.Object = class
 // Private methods
 //
 
-const __writeImpl = function(obj, os, type)
+const writeImpl = function(obj, os, type)
 {
     //
-    // The __writeImpl method is a recursive method that goes down the
+    // The writeImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __writeMemberImpl method.
+    // generated _iceWriteMemberImpl method.
     //
 
     if(type === undefined || type === Ice.Object)
@@ -205,23 +205,23 @@ const __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for Ice.Object
     }
 
-    os.startSlice(type.__id,
-                  Object.prototype.hasOwnProperty.call(type, '__compactId') ? type.__compactId : -1 ,
-                  type.__parent === Ice.Object);
-    if(type.prototype.__writeMemberImpl)
+    os.startSlice(type._iceId,
+                  Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1 ,
+                  type._iceParent === Ice.Object);
+    if(type.prototype._iceWriteMemberImpl)
     {
-        type.prototype.__writeMemberImpl.call(obj, os);
+        type.prototype._iceWriteMemberImpl.call(obj, os);
     }
     os.endSlice();
-    __writeImpl(obj, os, type.__parent);
+    writeImpl(obj, os, type._iceParent);
 };
 
-const __readImpl = function(obj, is, type)
+const readImpl = function(obj, is, type)
 {
     //
-    // The __readImpl method is a recursive method that goes down the
+    // The readImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __readMemberImpl method.
+    // generated _iceReadMemberImpl method.
     //
 
     if(type === undefined || type === Ice.Object)
@@ -230,34 +230,34 @@ const __readImpl = function(obj, is, type)
     }
 
     is.startSlice();
-    if(type.prototype.__readMemberImpl)
+    if(type.prototype._iceReadMemberImpl)
     {
-        type.prototype.__readMemberImpl.call(obj, is);
+        type.prototype._iceReadMemberImpl.call(obj, is);
     }
     is.endSlice();
-    __readImpl(obj, is, type.__parent);
+    readImpl(obj, is, type._iceParent);
 };
 
-const __writePreserved = function(os)
+const writePreserved = function(os)
 {
     //
     // For Slice classes which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__write method.
+    // replaces the Ice.Object.prototype._iceWrite method.
     //
-    os.startValue(this.__slicedData);
-    __writeImpl(this, os, this.__mostDerivedType());
+    os.startValue(this._iceSlicedData);
+    writeImpl(this, os, this._iceMostDerivedType());
     os.endValue();
 };
 
-const __readPreserved = function(is)
+const readPreserved = function(is)
 {
     //
     // For Slice classes which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__read method.
+    // replaces the Ice.Object.prototype._iceRead method.
     //
     is.startValue();
-    __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endValue(true);
+    readImpl(this, is, this._iceMostDerivedType());
+    this._iceSlicedData = is.endValue(true);
 };
 
 
@@ -265,8 +265,8 @@ const Slice = Ice.Slice;
 
 Slice.PreservedObject = function(obj)
 {
-    obj.prototype.__write = __writePreserved;
-    obj.prototype.__read = __readPreserved;
+    obj.prototype._iceWrite = writePreserved;
+    obj.prototype._iceRead = readPreserved;
 };
 
 module.exports.Ice = Ice;

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
@@ -40,7 +40,7 @@ Ice.__M.require(module,
         "../Ice/ToStringMode"
     ]);
 
-const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+const IceSSL = Ice._ModuleRegistry.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
@@ -298,12 +298,12 @@ class Instance
                 this._initData.properties = Properties.createProperties();
             }
 
-            if(Ice.__oneOfDone === undefined)
+            if(Ice._oneOfDone === undefined)
             {
-                Ice.__printStackTraces =
+                Ice._printStackTraces =
                     this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
 
-                Ice.__oneOfDone = true;
+                Ice._oneOfDone = true;
             }
 
             if(this._initData.logger === null)

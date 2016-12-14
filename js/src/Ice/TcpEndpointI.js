@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/HashUtil",
@@ -19,7 +19,7 @@ Ice.__M.require(module,
         "../Ice/EndpointInfo"
     ]);
 
-const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+const IceSSL = Ice._ModuleRegistry.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
 const Debug = Ice.Debug;
 const HashUtil = Ice.HashUtil;

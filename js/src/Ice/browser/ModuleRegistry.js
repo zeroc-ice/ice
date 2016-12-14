@@ -8,25 +8,25 @@
 // **********************************************************************
 
 /* globals self */
-const __root = typeof(window) !== "undefined" ? window : typeof(global) !== "undefined" ? global : typeof(self) !== "undefined" ? self : {};
+const root = typeof(window) !== "undefined" ? window : typeof(global) !== "undefined" ? global : typeof(self) !== "undefined" ? self : {};
 /* globals -self */
 
-class __M
+class _ModuleRegistry
 {
     static module(name)
     {
-        var m =  __root[name];
+        var m = root[name];
         if(m === undefined)
         {
             m = {};
-            __root[name] =  m;
+            root[name] =  m;
         }
         return m;
     }
     
     static require(name)
     {
-        return __root;
+        return root;
     }
     
     static type(scoped)
@@ -36,7 +36,7 @@ class __M
             return undefined;
         }
         var components = scoped.split(".");
-        var T = __root;
+        var T = root;
 
         for(var i = 0, length = components.length; i < length; ++i)
         {
@@ -50,12 +50,12 @@ class __M
     }
 }
 
-const Ice = __M.module("Ice");
+const Ice = _ModuleRegistry.module("Ice");
 
-Ice.__require = function()
+Ice._require = function()
 {
-    return __root;
+    return root;
 };
 
 Ice.Slice = Ice.Slice || {};
-Ice.__M = __M;
+Ice._ModuleRegistry = _ModuleRegistry;

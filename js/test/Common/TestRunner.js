@@ -9,8 +9,8 @@
 
 
  /* global
-    __test__ : false,
-    __testBidir__ : false,
+    _test : false,
+    _testBidir : false,
     Test : false,
 */
 
@@ -117,9 +117,9 @@ function runTest(testsuite, language, host, protocol, testcases, out)
     return Ice.Promise.try(
         function()
         {
-            if(typeof(__runServer__) === "undefined" && typeof(__testBidir__) === "undefined")
+            if(typeof(_runServer) === "undefined" && typeof(_testBidir) === "undefined")
             {
-                return __test__(out, id);
+                return _test(out, id);
             }
 
             communicator = Ice.initialize();
@@ -137,7 +137,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                     return;
                 }
 
-                if(typeof(__testBidir__) !== "undefined" && client == __testBidir__)
+                if(typeof(_testBidir) !== "undefined" && client == _testBidir)
                 {
                     out.writeLine("[ running bidir " + testcase.name + " test]");
                     runTestCase = function() { return controller.runTestCase("cpp", "Ice/echo", "server", language); };
@@ -191,17 +191,17 @@ function runTest(testsuite, language, host, protocol, testcases, out)
             }
 
             var p = Ice.Promise.resolve();
-            if(typeof(__runServer__) !== "undefined")
+            if(typeof(_runServer) !== "undefined")
             {
                 testcases.forEach(function(testcase) {
-                    p = p.then(function() { return run(testcase, __test__); })
+                    p = p.then(function() { return run(testcase, _test); })
                 });
             }
-            if(typeof(__testBidir__) !== "undefined" && language === "cpp")
+            if(typeof(_testBidir) !== "undefined" && language === "cpp")
             {
                 testcases.forEach(function(testcase) {
-                    options = typeof(__runEchoServerOptions__) !== "undefined" ? __runEchoServerOptions__ : []
-                    p = p.then(function() { return run(testcase, __testBidir__); })
+                    options = typeof(_runEchoServerOptions) !== "undefined" ? _runEchoServerOptions : []
+                    p = p.then(function() { return run(testcase, _testBidir); })
                 });
             }
             return p;

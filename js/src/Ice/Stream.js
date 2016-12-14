@@ -8,8 +8,8 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
-__M.require(module,
+const _ModuleRegistry = Ice._ModuleRegistry;
+_ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/ExUtil",
@@ -204,7 +204,7 @@ class EncapsDecoder
         //
         // Read the instance.
         //
-        v.__read(this._stream);
+        v._iceRead(this._stream);
 
         if(this._patchMap !== null)
         {
@@ -340,7 +340,7 @@ class EncapsDecoder10 extends EncapsDecoder
             //
             if(userEx !== null)
             {
-                userEx.__read(this._stream);
+                userEx._read(this._stream);
                 if(usesClasses)
                 {
                     this.readPendingValues();
@@ -609,7 +609,7 @@ class EncapsDecoder11 extends EncapsDecoder
             //
             if(userEx !== null)
             {
-                userEx.__read(this._stream);
+                userEx._read(this._stream);
                 throw userEx;
 
                 // Never reached.
@@ -1357,7 +1357,7 @@ class InputStream
         this._encapsStack.sz = sz;
 
         const encoding = new Ice.EncodingVersion();
-        encoding.__read(this);
+        encoding._read(this);
         Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
         this._encapsStack.setEncoding(encoding);
 
@@ -1420,7 +1420,7 @@ class InputStream
         }
 
         const encoding = new Ice.EncodingVersion();
-        encoding.__read(this);
+        encoding._read(this);
         if(encoding.equals(Ice.Encoding_1_0))
         {
             if(sz != 6)
@@ -1453,7 +1453,7 @@ class InputStream
 
         if(encoding !== null)
         {
-            encoding.__read(this);
+            encoding._read(this);
             this._buf.position = this._buf.position - 6;
         }
         else
@@ -1490,7 +1490,7 @@ class InputStream
             throw new Ice.UnmarshalOutOfBoundsException();
         }
         const encoding = new Ice.EncodingVersion();
-        encoding.__read(this);
+        encoding._read(this);
         try
         {
             this._buf.position = this._buf.position + sz - 6;
@@ -2008,7 +2008,7 @@ class InputStream
         try
         {
             const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-            const Class = __M.type(typeId);
+            const Class = _ModuleRegistry.type(typeId);
             if(Class !== undefined)
             {
                 obj = new Class();
@@ -2029,7 +2029,7 @@ class InputStream
         try
         {
             const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
-            const Class = __M.type(typeId);
+            const Class = _ModuleRegistry.type(typeId);
             if(Class !== undefined)
             {
                 userEx = new Class();
@@ -2290,9 +2290,9 @@ class EncapsEncoder10 extends EncapsEncoder
         // This allows reading the pending instances even if some part of
         // the exception was sliced.
         //
-        const usesClasses = v.__usesClasses();
+        const usesClasses = v._usesClasses();
         this._stream.writeBool(usesClasses);
-        v.__write(this._stream);
+        v._write(this._stream);
         if(usesClasses)
         {
             this.writePendingValues();
@@ -2377,7 +2377,7 @@ class EncapsEncoder10 extends EncapsEncoder
                     this._stream.instance.initializationData().logger.warning(
                         "exception raised by ice_preMarshal:\n" + ex.toString());
                 }
-                key.__write(this._stream);
+                key._iceWrite(this._stream);
             };
 
         while(this._toBeMarshaledMap.size > 0)
@@ -2487,7 +2487,7 @@ class EncapsEncoder11 extends EncapsEncoder
     writeUserException(v)
     {
         Debug.assert(v !== null && v !== undefined);
-        v.__write(this._stream);
+        v._write(this._stream);
     }
 
     startInstance(sliceType, data)
@@ -2722,7 +2722,7 @@ class EncapsEncoder11 extends EncapsEncoder
         }
 
         this._stream.writeSize(1); // Object instance marker.
-        v.__write(this._stream);
+        v._iceWrite(this._stream);
     }
 }
 
@@ -2965,7 +2965,7 @@ class OutputStream
         this._encapsStack.start = this._buf.limit;
 
         this.writeInt(0); // Placeholder for the encapsulation length.
-        this._encapsStack.encoding.__write(this);
+        this._encapsStack.encoding._write(this);
     }
 
     endEncapsulation()
@@ -2988,7 +2988,7 @@ class OutputStream
     {
         Protocol.checkSupportedEncoding(encoding);
         this.writeInt(6); // Size
-        encoding.__write(this);
+        encoding._write(this);
     }
 
     writeEncapsulation(v)
@@ -3187,12 +3187,12 @@ class OutputStream
     {
         if(v !== null)
         {
-            v.__write(this);
+            v._write(this);
         }
         else
         {
             const ident = new Ice.Identity();
-            ident.__write(this);
+            ident._write(this);
         }
     }
 

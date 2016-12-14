@@ -20,7 +20,7 @@ class RetryTask
 
     run()
     {
-        this._outAsync.__retry();
+        this._outAsync.retry();
         this._queue.remove(this);
     }
 
@@ -28,7 +28,7 @@ class RetryTask
     {
         try
         {
-            this._outAsync.__abort(new Ice.CommunicatorDestroyedException());
+            this._outAsync.abort(new Ice.CommunicatorDestroyedException());
         }
         catch(ex)
         {
@@ -45,7 +45,7 @@ class RetryTask
                 this._instance.initializationData().logger.trace(this._instance.traceLevels().retryCat,
                                                                  "operation retry canceled\n" + ex.toString());
             }
-            this._outAsync.__completedEx(ex);
+            this._outAsync.completedEx(ex);
         }
     }
 }
@@ -65,7 +65,7 @@ class RetryQueue
             throw new Ice.CommunicatorDestroyedException();
         }
         let task = new RetryTask(this._instance, this, outAsync);
-        outAsync.__cancelable(task); // This will throw if the request is canceled
+        outAsync.cancelable(task); // This will throw if the request is canceled
         task.token = this._instance.timer().schedule(() => task.run(), interval);
         this._requests.push(task);
     }

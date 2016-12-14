@@ -24,18 +24,9 @@ public:
 
 protected:
 
-    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool);
-    void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
     void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
     void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
     void writeInitDataMembers(const DataMemberList&, const std::string&);
-
-    virtual std::vector<std::string> getParams(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool, bool = false);
-    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool = false, bool = true);
-    virtual std::vector<std::string> getArgs(const OperationPtr&);
-    virtual std::vector<std::string> getArgsAsync(const OperationPtr&, bool = false);
-    virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&, bool = false, bool = false);
 
     std::string getValue(const std::string&, const TypePtr&);
 

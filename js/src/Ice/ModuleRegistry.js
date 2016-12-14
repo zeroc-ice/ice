@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-const __modules__ = {};
+const modules = {};
 
-class __M
+class _ModuleRegistry
 {
     static module(name)
     {
-        let m =  __modules__[name];
+        let m =  modules[name];
         if(m === undefined)
         {
             m = {};
-            __modules__[name] =  m;
+            modules[name] =  m;
         }
         return m;
     }
@@ -40,7 +40,7 @@ class __M
         }
 
         const components = scoped.split(".");
-        let T = __modules__;
+        let T = modules;
 
         for(let i = 0; i < components.length; ++i)
         {
@@ -54,7 +54,7 @@ class __M
     }
 }
 
-const Ice = __M.module("Ice");
+const Ice = _ModuleRegistry.module("Ice");
 Ice.Slice = Ice.Slice || {};
-Ice.__M = __M;
+Ice._ModuleRegistry = _ModuleRegistry;
 exports.Ice = Ice;

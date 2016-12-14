@@ -472,10 +472,10 @@
             }
         ).finally(() => c.destroy);
     };
-    exports.__test__ = run;
-    exports.__clientAllTests__ = allTests;
-    exports.__runServer__ = true;
+    exports._test = run;
+    exports._clientAllTests = allTests;
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

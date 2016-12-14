@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-var __M = require("../Ice/ModuleRegistry").Ice.__M;
+var _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
-module.exports.Glacier2 = __M.require(module,
+module.exports.Glacier2 = _ModuleRegistry.require(module,
     [
         "../Glacier2/PermissionsVerifier",
         "../Glacier2/Router",

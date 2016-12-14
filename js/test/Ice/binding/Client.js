@@ -1136,7 +1136,7 @@
         //
         // With Chrome on Windows the Webworker is unexpectelly terminated.
         //
-        exports.__test__ = function(out, id)
+        exports._test = function(out, id)
         {
             if(isSafari())
             {
@@ -1150,10 +1150,10 @@
     }
     else
     {
-        exports.__test__ = run;
-        exports.__runServer__ = true;
+        exports._test = run;
+        exports._runServer = true;
     }
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

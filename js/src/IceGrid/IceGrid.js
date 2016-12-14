@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-var __M = require("../Ice/ModuleRegistry").Ice.__M;
+var _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
-module.exports.IceGrid = __M.require(module,
+module.exports.IceGrid = _ModuleRegistry.require(module,
     [
         "../IceGrid/Admin",
         "../IceGrid/Descriptor",

@@ -8,9 +8,9 @@
 // **********************************************************************
 
 
-const __M = require("../Ice/ModuleRegistry").Ice.__M;
+const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
-module.exports.Ice = __M.require(module,
+module.exports.Ice = _ModuleRegistry.require(module,
     [
         "../Ice/Initialize",
         "../Ice/Communicator",

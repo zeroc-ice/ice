@@ -8,8 +8,8 @@
 // **********************************************************************
 
  /* global
-    __runEchoServerOptions__ : false,
-    __test__ : false,
+    _runEchoServerOptions : false,
+    _test : false,
     Test : false,
     URI : false,
     current : false,

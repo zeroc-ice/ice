@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/Promise",
@@ -366,7 +366,7 @@ class LocatorInfo
 
     finishRequest(ref, wellKnownRefs, proxy, notRegistered)
     {
-        if(proxy === null || proxy.__reference().isIndirect())
+        if(proxy === null || proxy._getReference().isIndirect())
         {
             //
             // Remove the cached references of well-known objects for which we tried
@@ -380,10 +380,10 @@ class LocatorInfo
 
         if(!ref.isWellKnown())
         {
-            if(proxy !== null && !proxy.__reference().isIndirect())
+            if(proxy !== null && !proxy._getReference().isIndirect())
             {
                 // Cache the adapter endpoints.
-                this._table.addAdapterEndpoints(ref.getAdapterId(), proxy.__reference().getEndpoints());
+                this._table.addAdapterEndpoints(ref.getAdapterId(), proxy._getReference().getEndpoints());
             }
             else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
             {
@@ -395,10 +395,10 @@ class LocatorInfo
         }
         else
         {
-            if(proxy !== null && !proxy.__reference().isWellKnown())
+            if(proxy !== null && !proxy._getReference().isWellKnown())
             {
                 // Cache the well-known object reference.
-                this._table.addObjectReference(ref.getIdentity(), proxy.__reference());
+                this._table.addObjectReference(ref.getIdentity(), proxy._getReference());
             }
             else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
             {
@@ -427,7 +427,7 @@ class RequestCallback
         let endpoints = null;
         if(proxy !== null)
         {
-            let r = proxy.__reference();
+            let r = proxy._getReference();
             if(this._ref.isWellKnown() && !Protocol.isSupported(this._ref.getEncoding(), r.getEncoding()))
             {
                 //

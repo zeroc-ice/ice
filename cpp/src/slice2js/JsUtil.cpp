@@ -388,7 +388,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               const string& param,
                                               bool marshal)
 {
-    string stream = marshal ? "__os" : "__is";
+    string stream = marshal ? "ostr" : "istr";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -521,11 +521,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << typeToString(type) << ".__write(" << stream << ", " << param << ");";
+            out << nl << typeToString(type) << "._write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToString(type) << ".__read(" << stream << ");";
+            out << nl << param << " = " << typeToString(type) << "._read(" << stream << ");";
         }
         return;
     }
@@ -551,7 +551,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".readValue(__o => " << param << " = __o, " << typeToString(type) << ");";
+            out << nl << stream << ".readValue(obj => " << param << " = obj, " << typeToString(type) << ");";
         }
         return;
     }
@@ -579,7 +579,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                                                       int tag,
                                                       bool marshal)
 {
-    string stream = marshal ? "__os" : "__is";
+    string stream = marshal ? "ostr" : "istr";
 
     if(isClassType(type))
     {
@@ -589,7 +589,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".readOptionalValue(" << tag << ", __o => " << param << " = __o, "
+            out << nl << stream << ".readOptionalValue(" << tag << ", obj => " << param << " = obj, "
                 << typeToString(type) << ");";
         }
         return;
@@ -599,11 +599,11 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << typeToString(type) <<".__writeOpt(" << stream << ", " << tag << ", " << param << ");";
+            out << nl << typeToString(type) <<"._writeOpt(" << stream << ", " << tag << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeToString(type) << ".__readOpt(" << stream << ", " << tag << ");";
+            out << nl << param << " = " << typeToString(type) << "._readOpt(" << stream << ", " << tag << ");";
         }
         return;
     }
@@ -677,7 +677,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
 
     if(EnumPtr::dynamicCast(type))
     {
-        return typeToString(type) + ".__helper";
+        return typeToString(type) + "._helper";
     }
 
     if(ProxyPtr::dynamicCast(type) || StructPtr::dynamicCast(type))

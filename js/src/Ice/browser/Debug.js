@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Class", "../Ice/Exception"]);
+Ice._ModuleRegistry.require(module, ["../Ice/Class", "../Ice/Exception"]);
 
 class AssertionFailedException extends Error
 {

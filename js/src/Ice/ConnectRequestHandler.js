@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncStatus",
         "../Ice/ConnectionRequestHandler",
@@ -59,7 +59,7 @@ class ConnectRequestHandler
     {
         if(!this._initialized)
         {
-            out.__cancelable(this); // This will throw if the request is canceled
+            out.cancelable(this); // This will throw if the request is canceled
         }
 
         if(!this.initialized())
@@ -67,7 +67,7 @@ class ConnectRequestHandler
             this._requests.push(out);
             return AsyncStatus.Queued;
         }
-        return out.__invokeRemote(this._connection, this._compress, this._response);
+        return out.invokeRemote(this._connection, this._compress, this._response);
     }
 
     asyncRequestCanceled(out, ex)
@@ -83,7 +83,7 @@ class ConnectRequestHandler
             {
                 if(this._requests[i] === out)
                 {
-                    out.__completedEx(ex);
+                    out.completedEx(ex);
                     this._requests.splice(i, 1);
                     return;
                 }
@@ -168,7 +168,7 @@ class ConnectRequestHandler
             {
                 if(request !== null)
                 {
-                    request.__completedEx(this._exception);
+                    request.completedEx(this._exception);
                 }
             });
         this._requests.length = 0;
@@ -213,7 +213,7 @@ class ConnectRequestHandler
             {
                 try
                 {
-                    request.__invokeRemote(this._connection, this._compress, this._response);
+                    request.invokeRemote(this._connection, this._compress, this._response);
                 }
                 catch(ex)
                 {
@@ -224,13 +224,13 @@ class ConnectRequestHandler
                         // Remove the request handler before retrying.
                         this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
 
-                        request.__retryException(ex.inner);
+                        request.retryException(ex.inner);
                     }
                     else
                     {
                         Debug.assert(ex instanceof LocalException);
                         exception = ex;
-                        request.out.__completedEx(ex);
+                        request.out.completedEx(ex);
                     }
                 }
             });
@@ -239,7 +239,7 @@ class ConnectRequestHandler
         if(this._reference.getCacheConnection() && exception === null)
         {
             this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-            this._proxies.forEach(proxy => proxy.__updateRequestHandler(this, this._requestHandler));
+            this._proxies.forEach(proxy => proxy._updateRequestHandler(this, this._requestHandler));
         }
 
         Debug.assert(!this._initialized);

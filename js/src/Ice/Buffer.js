@@ -10,9 +10,9 @@
 const Ice = require("../Ice/Long").Ice;
 const Long = Ice.Long;
 
-const __BufferOverflowException__ = "BufferOverflowException";
-const __BufferUnderflowException__ = "BufferUnderflowException";
-const __IndexOutOfBoundsException__ = "IndexOutOfBoundsException";
+const bufferOverflowExceptionMsg = "BufferOverflowException";
+const bufferUnderflowExceptionMsg = "BufferUnderflowException";
+const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
 //
 // Buffer implementation to be used by web browsers, it uses ArrayBuffer as
@@ -135,7 +135,7 @@ class Buffer
     {
         if(this._position === this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setUint8(this._position, v);
         this._position++;
@@ -145,7 +145,7 @@ class Buffer
     {
         if(i >= this._limit)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         this.v.setUint8(i, v);
     }
@@ -161,7 +161,7 @@ class Buffer
         {
             if(this._position + v.length > this._limit)
             {
-                throw new Error(__BufferOverflowException__);
+                throw new Error(bufferOverflowExceptionMsg);
             }
             new Uint8Array(this.b, 0, this.b.byteLength).set(v, this._position);
             this._position += v.byteLength;
@@ -172,7 +172,7 @@ class Buffer
     {
         if(this._position + 2 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt16(this._position, v, true);
         this._position += 2;
@@ -182,7 +182,7 @@ class Buffer
     {
         if(this._position + 4 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt32(this._position, v, true);
         this._position += 4;
@@ -192,7 +192,7 @@ class Buffer
     {
         if(i + 4 > this._limit || i < 0)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         this.v.setInt32(i, v, true);
     }
@@ -201,7 +201,7 @@ class Buffer
     {
         if(this._position + 4 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setFloat32(this._position, v, true);
         this._position += 4;
@@ -211,7 +211,7 @@ class Buffer
     {
         if(this._position + 8 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setFloat64(this._position, v, true);
         this._position += 8;
@@ -221,7 +221,7 @@ class Buffer
     {
         if(this._position + 8 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt32(this._position, v.low, true);
         this._position += 4;
@@ -245,7 +245,7 @@ class Buffer
     {
         if(this._position + sz > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         for(var i = 0; i < sz; ++i)
         {
@@ -258,7 +258,7 @@ class Buffer
     {
         if(this._position >= this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = this.v.getUint8(this._position);
         this._position++;
@@ -269,7 +269,7 @@ class Buffer
     {
         if(i < 0 || i >= this._limit)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         return this.v.getUint8(i);
     }
@@ -278,7 +278,7 @@ class Buffer
     {
         if(this._position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var buffer = this.b.slice(this._position, this._position + length);
         this._position += length;
@@ -289,7 +289,7 @@ class Buffer
     {
         if(position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         length = length === undefined ? (this.b.byteLength - position) : length;
         return new Uint8Array(this.b.slice(position, position + length));
@@ -299,7 +299,7 @@ class Buffer
     {
         if(this._limit - this._position < 2)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = this.v.getInt16(this._position, true);
         this._position += 2;
@@ -310,7 +310,7 @@ class Buffer
     {
         if(this._limit - this._position < 4)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = this.v.getInt32(this._position, true);
         this._position += 4;
@@ -321,7 +321,7 @@ class Buffer
     {
         if(this._limit - this._position < 4)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = this.v.getFloat32(this._position, true);
         this._position += 4;
@@ -332,7 +332,7 @@ class Buffer
     {
         if(this._limit - this._position < 8)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = this.v.getFloat64(this._position, true);
         this._position += 8;
@@ -343,7 +343,7 @@ class Buffer
     {
         if(this._limit - this._position < 8)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         var v = new Long();
         v.low = this.v.getUint32(this._position, true);
@@ -357,7 +357,7 @@ class Buffer
     {
         if(this._position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
 
         var data = new DataView(this.b, this._position, length);

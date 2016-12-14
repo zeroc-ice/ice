@@ -8,8 +8,8 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
-__M.require(module, ["../Ice/StringUtil", "../Ice/UUID"]);
+const _ModuleRegistry = Ice._ModuleRegistry;
+_ModuleRegistry.require(module, ["../Ice/StringUtil", "../Ice/UUID"]);
 const StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)
@@ -465,10 +465,10 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
         {
             if(helper === null)
             {
-                helper = Ice.StreamHelpers.generateDictHelper(__M.type(keyHelper),
-                                                              __M.type(valueHelper),
+                helper = Ice.StreamHelpers.generateDictHelper(_ModuleRegistry.type(keyHelper),
+                                                              _ModuleRegistry.type(valueHelper),
                                                               fixed, 
-                                                              __M.type(valueType),
+                                                              _ModuleRegistry.type(valueType),
                                                               module[name]);
             }
             return helper;

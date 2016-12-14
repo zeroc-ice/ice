@@ -92,7 +92,7 @@ class Exception extends Error
             }
         }
 
-        if(Ice.__printStackTraces === true && this.stack)
+        if(Ice._printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;
         }
@@ -140,8 +140,6 @@ class LocalException extends Exception
 
 Ice.LocalException = LocalException;
 
-const Slice = Ice.Slice;
-
 //
 // Ice.UserException
 //
@@ -158,26 +156,26 @@ class UserException extends Exception
         return "Ice::UserException";
     }
 
-    __write(os)
+    _write(os)
     {
         os.startException(null);
-        __writeImpl(this, os, this.__mostDerivedType());
+        writeImpl(this, os, this._mostDerivedType());
         os.endException();
     }
 
-    __read(is)
+    _read(is)
     {
         is.startException();
-        __readImpl(this, is, this.__mostDerivedType());
+        readImpl(this, is, this._mostDerivedType());
         is.endException(false);
     }
 
-    __usesClasses()
+    _usesClasses()
     {
         return false;
     }
 
-    __mostDerivedType()
+    _mostDerivedType()
     {
         return Ice.UserException;
     }
@@ -188,12 +186,12 @@ Ice.UserException = UserException;
 // Private methods
 //
 
-const __writeImpl = function(obj, os, type)
+const writeImpl = function(obj, os, type)
 {
     //
-    // The __writeImpl method is a recursive method that goes down the
+    // The writeImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __writeMemberImpl method.
+    // generated _writeMemberImpl method.
     //
 
     if(type === undefined || type === UserException)
@@ -201,21 +199,21 @@ const __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for Ice.UserException
     }
 
-    os.startSlice(type.__id, -1, type.__parent === UserException);
-    if(type.prototype.__writeMemberImpl)
+    os.startSlice(type._id, -1, type._parent === UserException);
+    if(type.prototype._writeMemberImpl)
     {
-        type.prototype.__writeMemberImpl.call(obj, os);
+        type.prototype._writeMemberImpl.call(obj, os);
     }
     os.endSlice();
-    __writeImpl(obj, os, type.__parent);
+    writeImpl(obj, os, type._parent);
 };
 
-const __readImpl = function(obj, is, type)
+const readImpl = function(obj, is, type)
 {
     //
-    // The __readImpl method is a recursive method that goes down the
+    // The readImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __readMemberImpl method.
+    // generated _readMemberImpl method.
     //
 
     if(type === undefined || type === UserException)
@@ -224,40 +222,40 @@ const __readImpl = function(obj, is, type)
     }
 
     is.startSlice();
-    if(type.prototype.__readMemberImpl)
+    if(type.prototype._readMemberImpl)
     {
-        type.prototype.__readMemberImpl.call(obj, is);
+        type.prototype._readMemberImpl.call(obj, is);
     }
     is.endSlice();
-    __readImpl(obj, is, type.__parent);
+    readImpl(obj, is, type._parent);
 };
 
-const __writePreserved = function(os)
+const writePreserved = function(os)
 {
     //
     // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__write method.
+    // replaces the Ice.UserException.prototype._write method.
     //
-    os.startException(this.__slicedData);
-    __writeImpl(this, os, this.__mostDerivedType());
+    os.startException(this._slicedData);
+    writeImpl(this, os, this._mostDerivedType());
     os.endException();
 };
 
-const __readPreserved = function(is)
+const readPreserved = function(is)
 {
     //
     // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__read method.
+    // replaces the Ice.UserException.prototype._read method.
     //
     is.startException();
-    __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endException(true);
+    readImpl(this, is, this._mostDerivedType());
+    this._slicedData = is.endException(true);
 };
 
-Slice.PreservedUserException = function(ex)
+Ice.Slice.PreservedUserException = function(ex)
 {
-    ex.prototype.__write = __writePreserved;
-    ex.prototype.__read = __readPreserved;
+    ex.prototype._write = writePreserved;
+    ex.prototype._read = readPreserved;
 };
 
 module.exports.Ice = Ice;

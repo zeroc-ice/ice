@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/ExUtil",
@@ -20,7 +20,7 @@ Ice.__M.require(module,
         "../Ice/Timer",
         "../Ice/ConnectionInfo"
     ]);
-const IceSSL = Ice.__M.module("IceSSL");
+const IceSSL = Ice._ModuleRegistry.module("IceSSL");
 
 //
 // With Chrome we don't want to close the socket while connection is in progress,

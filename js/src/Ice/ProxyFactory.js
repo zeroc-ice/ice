@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/ObjectPrx",
@@ -75,7 +75,7 @@ class ProxyFactory
 
     proxyToString(proxy)
     {
-        return proxy === null ? "" : proxy.__reference().toString();
+        return proxy === null ? "" : proxy._getReference().toString();
     }
 
     propertyToProxy(prefix)
@@ -87,13 +87,13 @@ class ProxyFactory
 
     proxyToProperty(proxy, prefix)
     {
-        return proxy === null ? new Map() : proxy.__reference().toProperty(prefix);
+        return proxy === null ? new Map() : proxy._getReference().toProperty(prefix);
     }
 
     streamToProxy(s, type)
     {
         const ident = new Identity();
-        ident.__read(s);
+        ident._read(s);
         return this.referenceToProxy(this._instance.referenceFactory().createFromStream(ident, s), type);
     }
 
@@ -102,7 +102,7 @@ class ProxyFactory
         if(ref !== null)
         {
             const proxy = type ? new type() : new ObjectPrx();
-            proxy.__setup(ref);
+            proxy._setup(ref);
             return proxy;
         }
         else

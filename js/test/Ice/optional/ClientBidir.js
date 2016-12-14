@@ -39,7 +39,7 @@
                 return base.ice_getConnection().then(conn =>
                     {
                         conn.setAdapter(adapter);
-                        return Client.__clientAllTests__(out, communicator, Test);
+                        return Client._clientAllTests(out, communicator, Test);
                     });
             });
     };
@@ -76,8 +76,8 @@
                 }
             });
     };
-    exports.__testBidir__ = run;
+    exports._testBidir = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
