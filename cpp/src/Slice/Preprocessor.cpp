@@ -382,10 +382,38 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     // First remove the backslash used to escape new lines.
     //
     string::size_type pos;
-    while((pos = unprocessed.find("\\\n")) != string::npos)
+    while((pos = unprocessed.find(" \\\n")) != string::npos)
     {
-        unprocessed.replace(pos, 2, "\n");
+        unprocessed.replace(pos, 3, "\n");
     }
+
+    //
+    // Split filenames in separate lines:
+    //
+    // /foo/A.ice /foo/B.ice becomes
+    // /foo/A.ice
+    // /foo/B.ice
+    // 
+    // C:\foo\A.ice C:\foo\B.ice becomes
+    // C:\foo\A.ice
+    // C:\foo\B.ice
+    //
+    pos = 0;
+#ifdef _WIN32
+    while((pos = unprocessed.find(".ice ", pos)) != string::npos)
+    {
+        if(unprocessed.find(":", pos) == pos + 6)
+        {
+            unprocessed.replace(pos, 5, ".ice\n");
+            pos += 5;
+        }
+    }
+#else
+    while((pos = unprocessed.find(".ice /", pos)) != string::npos)
+    {
+        unprocessed.replace(pos, 5, ".ice\n");
+    }
+#endif
 
     //
     // Get the main output file name.
