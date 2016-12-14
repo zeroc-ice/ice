@@ -147,8 +147,8 @@
     <ClCompile Include="..\..\SSLEngine.cpp" />
     <ClCompile Include="..\..\TrustManager.cpp" />
     <ClCompile Include="..\..\Util.cpp" />
-    <ClCompile Include="..\..\WinRTEngine.cpp" />
-    <ClCompile Include="..\..\WinRTTransceiverI.cpp" />
+    <ClCompile Include="..\..\UWPEngine.cpp" />
+    <ClCompile Include="..\..\UWPTransceiverI.cpp" />
     <ClCompile Include="ARM\Debug\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

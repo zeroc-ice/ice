@@ -20,7 +20,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/ObserverHelper.h>
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   include <deque>
 #endif
 
@@ -108,7 +108,7 @@ private:
     mutable Ice::Int _hashValue;
 };
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 #else
 class ICE_API EndpointHostResolver : public IceUtil::Shared
@@ -127,7 +127,7 @@ public:
 
 private:
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     struct ResolveEntry
     {
         std::string host;

@@ -368,9 +368,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     //
-    // This doesn't work well with WinRT because connection to localhost are
+    // This doesn't work well with UWP because connection to localhost are
     // restricted to the same process.
     //
     cout << "testing logger facet... " << flush;

@@ -21,7 +21,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrxPtr myClass = allTests(communicator);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     myClass->shutdown();
     cout << "testing server shutdown... " << flush;
     try

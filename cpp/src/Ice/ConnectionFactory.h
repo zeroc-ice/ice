@@ -199,7 +199,7 @@ public:
     // Operations from EventHandler
     //
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual bool startAsync(SocketOperation);
     virtual bool finishAsync(SocketOperation);
 #endif

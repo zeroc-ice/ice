@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Config.h>
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
 #   include <winsock2.h>
 #endif
 
@@ -23,7 +23,7 @@
 #include <Ice/StringConverter.h>
 #include <fstream>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <ppltasks.h>
 #endif
 
@@ -40,7 +40,7 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 using namespace concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -1692,7 +1692,7 @@ IceSSL::findCertificates(const string& location, const string& name, const strin
     }
     return certs;
 }
-#elif defined (ICE_OS_WINRT)
+#elif defined (ICE_OS_UWP)
 
 namespace
 {

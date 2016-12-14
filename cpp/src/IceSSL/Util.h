@@ -202,7 +202,7 @@ CFArrayRef findCertificateChain(const std::string&, const std::string&, const st
 #elif defined(ICE_USE_SCHANNEL)
 std::vector<PCCERT_CONTEXT>
 findCertificates(const std::string&, const std::string&, const std::string&, std::vector<HCERTSTORE>&);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 Windows::Security::Cryptography::Certificates::Certificate^
 importPersonalCertificate(const std::string&, std::function<std::string()>, bool, int);
 

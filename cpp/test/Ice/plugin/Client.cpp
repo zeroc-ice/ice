@@ -93,8 +93,8 @@ main(int argc, char* argv[])
     //
     // Plugin directory is provided as the last argument
     //
-#if defined(ICE_OS_WINRT)
-    string pluginDir = "plugins/winrt/";
+#if defined(ICE_OS_UWP)
+    string pluginDir = "plugins/uwp/";
 #else
     string pluginDir = argv[argc - 1];
     pluginDir += "/";

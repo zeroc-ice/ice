@@ -30,10 +30,10 @@ typedef IceInternal::Handle<SecureTransportEngine> SecureTransportEnginePtr;
 class SChannelEngine;
 ICESSL_API IceUtil::Shared* upCast(SChannelEngine*);
 typedef IceInternal::Handle<SChannelEngine> SChannelEnginePtr;
-#elif defined(ICE_OS_WINRT)
-class WinRTEngine;
-ICESSL_API IceUtil::Shared* upCast(WinRTEngine*);
-typedef IceInternal::Handle<WinRTEngine> WinRTEnginePtr;
+#elif defined(ICE_OS_UWP)
+class UWPEngine;
+ICESSL_API IceUtil::Shared* upCast(UWPEngine*);
+typedef IceInternal::Handle<UWPEngine> UWPEnginePtr;
 #else // OpenSSL
 class OpenSSLEngine;
 ICESSL_API IceUtil::Shared* upCast(OpenSSLEngine*);

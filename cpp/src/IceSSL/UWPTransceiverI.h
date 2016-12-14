@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_WINRT_TRANSCEIVER_I_H
-#define ICE_SSL_WINRT_TRANSCEIVER_I_H
+#ifndef ICE_SSL_UWP_TRANSCEIVER_I_H
+#define ICE_SSL_UWP_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/SSLEngineF.h>
@@ -59,7 +59,7 @@ private:
     friend class AcceptorI;
 
     const InstancePtr _instance;
-    const WinRTEnginePtr _engine;
+    const UWPEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;

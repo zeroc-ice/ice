@@ -16,7 +16,7 @@
 #include <Ice/InputStream.h>
 #include <Ice/Initialize.h>
 #include <IceUtil/StringUtil.h>
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #    include <Ice/StringConverter.h>
 #endif
 #include <iomanip>
@@ -35,7 +35,7 @@ socketErrorToString(int error)
     {
         return "unknown error";
     }
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     if(error == E_ACCESSDENIED)
     {
         ostringstream os;
@@ -461,7 +461,7 @@ Ice::DNSException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nDNS error: ";
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     out << socketErrorToString(error);
 #else
     out << errorToStringDNS(error);

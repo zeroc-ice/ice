@@ -744,13 +744,10 @@ metricsAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     //
-    // Ice doesn't do any endpoint lookup with WinRT, the WinRT
-    // runtime takes care of if.
-    //
     // In iOS we use CFStream transports that doesn't do any enpoint
     // lookup.
     //
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
+#if (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     tprintf("testing endpoint lookup metrics... ");
 
     [props setObject:@"id" forKey:@"IceMX.Metrics.View.Map.EndpointLookup.GroupBy"];

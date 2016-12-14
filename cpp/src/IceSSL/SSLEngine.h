@@ -40,7 +40,7 @@
 #  include <sspi.h>
 #  include <schannel.h>
 #  undef SECURITY_WIN32
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 #  include <mutex>
 #endif
 
@@ -225,13 +225,13 @@ private:
     std::vector<ALG_ID> _ciphers;
 };
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
-class WinRTEngine : public SSLEngine
+class UWPEngine : public SSLEngine
 {
 public:
 
-    WinRTEngine(const Ice::CommunicatorPtr&);
+    UWPEngine(const Ice::CommunicatorPtr&);
 
     virtual void initialize();
     virtual bool initialized() const;

@@ -816,7 +816,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 {
     if(error < WSABASEERR)
     {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
         wstring lpMsgBuf(256, wchar_t());
         DWORD stored = 0;
@@ -881,7 +881,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             {
                 result = result.substr(0, result.length() - 2);
             }
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
             if(msg)
             {
                 LocalFree(msg);

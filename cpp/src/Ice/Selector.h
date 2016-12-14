@@ -43,7 +43,7 @@ struct __CFSocket;
 typedef struct __CFSocket * CFSocketRef;
 #endif
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 #    include <deque>
 #endif
 
@@ -58,11 +58,11 @@ class SelectorTimeoutException
 };
 
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 
 class Selector
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     struct SelectEvent
     {
         SelectEvent(const EventHandlerPtr& handler, SocketOperation status) : handler(handler), status(status)

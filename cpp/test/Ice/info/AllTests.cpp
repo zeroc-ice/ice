@@ -66,7 +66,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ipEndpoint->host == "tcphost");
         test(ipEndpoint->port == 10000);
         test(ipEndpoint->timeout == 1200);
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         test(ipEndpoint->sourceAddress == "10.10.10.10");
 #endif
         test(ipEndpoint->compress);
@@ -85,7 +85,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(udpEndpoint);
         test(udpEndpoint->host == "udphost");
         test(udpEndpoint->port == 10001);
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         test(udpEndpoint->sourceAddress == "10.10.10.10");
 #endif
         test(udpEndpoint->mcastInterface == "eth0");
@@ -106,12 +106,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
-#ifdef ICE_OS_WINRT
-    bool winrt = true;
+#ifdef ICE_OS_UWP
+    bool uwp = true;
 #else
-    bool winrt = false;
+    bool uwp = false;
 #endif
-    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                   communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
         cout << "test object adapter endpoint information... " << flush;
@@ -215,7 +215,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
         }
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         test(info->rcvSize >= 1024);
         test(info->sndSize >= 2048);
 #endif
@@ -246,7 +246,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 IceSSL::ConnectionInfoPtr wssinfo = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, wsinfo->underlying);
                 test(wssinfo->verified);
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
                 test(!wssinfo->certs.empty());
 #endif
             }
@@ -277,7 +277,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(udpinfo->localAddress == defaultHost);
         }
 
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         test(udpinfo->rcvSize >= 2048);
         test(udpinfo->sndSize >= 1024);
 #endif

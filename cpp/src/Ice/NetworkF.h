@@ -17,7 +17,7 @@
 namespace IceInternal
 {
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 struct ICE_API Address;
 #else
 union Address;

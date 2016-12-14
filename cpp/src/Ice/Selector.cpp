@@ -22,13 +22,13 @@
 using namespace std;
 using namespace IceInternal;
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
 #endif
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance)
 {

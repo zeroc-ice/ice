@@ -71,7 +71,7 @@
                                       x:Name="Language"
                                       SelectedIndex="0"
                                       SelectionChanged="Language_SelectionChanged">
-                                <ComboBoxItem Name="winrt">winrt</ComboBoxItem>
+                                <ComboBoxItem Name="uwp">UWP</ComboBoxItem>
                                 <ComboBoxItem Name="cpp">C++</ComboBoxItem>
                                 <ComboBoxItem Name="csharp">C#</ComboBoxItem>
                                 <ComboBoxItem Name="java">Java</ComboBoxItem>

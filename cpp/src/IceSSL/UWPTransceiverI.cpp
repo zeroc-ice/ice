@@ -9,9 +9,9 @@
 
 #include <IceSSL/Config.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
-#include <IceSSL/WinRTTransceiverI.h>
+#include <IceSSL/UWPTransceiverI.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/SSLEngine.h>
 #include <Ice/Logger.h>
@@ -370,7 +370,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
                                    const string& hostOrAdapterName,
                                    bool incoming) :
     _instance(instance),
-    _engine(WinRTEnginePtr::dynamicCast(instance->engine())),
+    _engine(UWPEnginePtr::dynamicCast(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

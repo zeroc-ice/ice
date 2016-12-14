@@ -28,7 +28,7 @@
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 #  include <Security/Security.h>
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 #  include <ppltasks.h>
 #  include <nserror.h>
 #endif
@@ -52,7 +52,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 using namespace concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -429,7 +429,7 @@ private:
 };
 #endif
 
-#elif defined(ICE_USE_SCHANNEL) || defined(ICE_OS_WINRT)
+#elif defined(ICE_USE_SCHANNEL) || defined(ICE_OS_UWP)
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
 const Ice::Long MSECS_TO_EPOCH = 11644473600000LL;
@@ -1137,7 +1137,7 @@ Certificate::load(const string& file)
     }
     BIO_free(cert);
     return ICE_MAKE_SHARED(Certificate, x);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     promise<shared_ptr<Certificate>> result;
     create_task(StorageFile::GetFileFromApplicationUriAsync(
             ref new Uri(ref new String(stringToWstring(file).c_str())))).then([](StorageFile^ file)
@@ -1241,7 +1241,7 @@ Certificate::decode(const string& encoding)
     }
     BIO_free(cert);
     return ICE_MAKE_SHARED(Certificate, x);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     string::size_type size, startpos, endpos = 0;
     startpos = encoding.find("-----BEGIN CERTIFICATE-----", endpos);
     if (startpos != string::npos)
@@ -1275,7 +1275,7 @@ Certificate::operator==(const Certificate& other) const
     return CertCompareCertificate(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, _certInfo, other._certInfo);
 #elif defined(ICE_USE_OPENSSL)
     return X509_cmp(_cert, other._cert) == 0;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return CryptographicBuffer::Compare(_cert->GetCertificateBlob(), other._cert->GetCertificateBlob());
 #else
 #   error "Unknown platform"
@@ -1305,7 +1305,7 @@ Certificate::getPublicKey() const
     return ICE_MAKE_SHARED(PublicKey, ICE_SHARED_FROM_CONST_THIS(Certificate), &_certInfo->SubjectPublicKeyInfo);
 #elif defined(ICE_USE_OPENSSL)
     return ICE_MAKE_SHARED(PublicKey, ICE_SHARED_FROM_CONST_THIS(Certificate), X509_get_pubkey(_cert));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return ICE_NULLPTR; // Not supported
 #else
 #   error "Unknown platform"
@@ -1433,7 +1433,7 @@ Certificate::verify(const CertificatePtr& cert) const
     return result;
 #elif defined(ICE_USE_OPENSSL)
     return X509_verify(_cert, cert->getPublicKey()->key()) > 0;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return false;
 #else
 #   error "Unknown platform"
@@ -1519,7 +1519,7 @@ Certificate::encode() const
     string result = string(p->data, p->length);
     BIO_free(out);
     return result;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     auto reader = Windows::Storage::Streams::DataReader::FromBuffer(_cert->GetCertificateBlob());
     std::vector<unsigned char> data(reader->UnconsumedBufferLength);
     if(!data.empty())
@@ -1572,7 +1572,7 @@ Certificate::getNotAfter() const
     return filetimeToTime(_certInfo->NotAfter);
 #elif defined(ICE_USE_OPENSSL)
     return ASMUtcTimeToTime(X509_get_notAfter(_cert));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     // Convert 100ns time from January 1, 1601 to ms from January 1, 1970
     IceUtil::Time time = IceUtil::Time::milliSeconds(_cert->ValidTo.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
 #   ifdef ICE_CPP11_MAPPING
@@ -1599,7 +1599,7 @@ Certificate::getNotBefore() const
     return filetimeToTime(_certInfo->NotBefore);
 #elif defined(ICE_USE_OPENSSL)
     return ASMUtcTimeToTime(X509_get_notBefore(_cert));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     // Convert 100ns time from January 1, 1601 to ms from January 1, 1970
     IceUtil::Time time = IceUtil::Time::milliSeconds(_cert->ValidFrom.UniversalTime / TICKS_PER_MSECOND - MSECS_TO_EPOCH);
 #   ifdef ICE_CPP11_MAPPING
@@ -1645,7 +1645,7 @@ Certificate::getSerialNumber() const
     BN_free(bn);
 
     return result;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     ostringstream os;
     os.fill(0);
     os.width(2);
@@ -1671,7 +1671,7 @@ Certificate::getIssuerDN() const
     return DistinguishedName(certNameToString(&_certInfo->Issuer));
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_issuer_name(_cert))));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     ostringstream os;
     os << "CN=" << wstringToString(_cert->Issuer->Data());
     return DistinguishedName(os.str());
@@ -1690,7 +1690,7 @@ Certificate::getIssuerAlternativeNames()
     return certificateAltNames(_certInfo, szOID_ISSUER_ALT_NAME2);
 #elif defined(ICE_USE_OPENSSL)
     return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return vector<pair<int, string> >(); // Not supported
 #else
 #   error "Unknown platform"
@@ -1719,7 +1719,7 @@ Certificate::getSubjectDN() const
     return DistinguishedName(certNameToString(&_certInfo->Subject));
 #elif defined(ICE_USE_OPENSSL)
     return DistinguishedName(RFC2253::parseStrict(convertX509NameToString(X509_get_subject_name(_cert))));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     ostringstream os;
     os << "CN=" << wstringToString(_cert->Subject->Data());
     return DistinguishedName(os.str());
@@ -1738,7 +1738,7 @@ Certificate::getSubjectAlternativeNames()
     return certificateAltNames(_certInfo, szOID_SUBJECT_ALT_NAME2);
 #elif defined(ICE_USE_OPENSSL)
     return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_subject_alt_name, 0, 0)));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return certificateAltNames(_cert->SubjectAlternativeName);
 #else
 #   error "Unknown platform"
@@ -1758,7 +1758,7 @@ Certificate::getVersion() const
     return _certInfo->dwVersion;
 #elif defined(ICE_USE_OPENSSL)
     return static_cast<int>(X509_get_version(_cert));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return -1; // Not supported
 #else
 #   error "Unknown platform"

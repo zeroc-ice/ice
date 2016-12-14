@@ -57,7 +57,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
     _convert(convert),
     _converter(getProcessStringConverter()),
     _sizeMax(sizeMax)
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
     ,_consoleConverter(createWindowsStringConverter(GetConsoleOutputCP()))
 #endif
 {
@@ -233,7 +233,7 @@ Ice::LoggerI::write(const string& message, bool indent)
     }
     else
     {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
         OutputDebugString(stringToWstring(s).c_str());
 #elif defined(_WIN32)
         //

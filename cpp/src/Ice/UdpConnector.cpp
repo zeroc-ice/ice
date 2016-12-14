@@ -124,7 +124,7 @@ IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance, con
                                         const std::string& connectionId) :
     _instance(instance),
     _addr(addr),
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     _sourceAddr(sourceAddr),
 #endif
     _mcastInterface(mcastInterface),

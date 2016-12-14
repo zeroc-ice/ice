@@ -442,7 +442,7 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
             ex.str = "no argument provided for --sourceAddress option in endpoint " + endpoint;
             throw ex;
         }
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
         const_cast<Address&>(_sourceAddr) = getNumericAddress(argument);
         if(!isAddressValid(_sourceAddr))
         {
@@ -486,7 +486,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
     s->read(const_cast<Ice::Int&>(_port));
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
     IceUtil::Thread("Ice.HostResolver"),
@@ -698,7 +698,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host,
                                            const EndpointI_connectorsPtr& callback)
 {
     //
-    // No DNS lookup support with WinRT.
+    // No DNS lookup support with UWP.
     //
     callback->connectors(endpoint->connectors(getAddresses(host, port,
                                                            _instance->protocolSupport(),

@@ -13,7 +13,7 @@
 #include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/SChannelTransceiverI.h>
-#include <IceSSL/WinRTTransceiverI.h>
+#include <IceSSL/UWPTransceiverI.h>
 
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>

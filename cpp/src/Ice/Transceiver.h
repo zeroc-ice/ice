@@ -34,7 +34,7 @@ public:
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&) = 0;
     virtual SocketOperation read(Buffer&) = 0;
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual bool startWrite(Buffer&) = 0;
     virtual void finishWrite(Buffer&) = 0;
     virtual void startRead(Buffer&) = 0;

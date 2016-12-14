@@ -467,10 +467,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     props["IceMX.Metrics.View.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update.get(), props);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int threadCount = 4;
 #else
-    int threadCount = 3; // No endpoint host resolver thread with WinRT.
+    int threadCount = 3; // No endpoint host resolver thread with UWP.
 #endif
 
     Ice::Long timestamp;
@@ -774,10 +774,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         cout << "ok" << endl;
 
         //
-        // Ice doesn't do any endpoint lookup with WinRT, the WinRT
+        // Ice doesn't do any endpoint lookup with UWP, the UWP
         // runtime takes care of if.
         //
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
         cout << "testing endpoint lookup metrics... " << flush;
 
         props["IceMX.Metrics.View.Map.EndpointLookup.GroupBy"] = "id";
@@ -1459,7 +1459,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getTotal() > 0);
         test(obsv->connectionEstablishmentObserver->getTotal() > 0);
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getTotal() > 0);
 #endif
         test(obsv->invocationObserver->remoteObserver->getTotal() > 0);
@@ -1476,7 +1476,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getCurrent() > 0);
         test(obsv->connectionEstablishmentObserver->getCurrent() == 0);
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getCurrent() == 0);
 #endif
         waitForCurrent(obsv->invocationObserver->remoteObserver, 0);
@@ -1499,7 +1499,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         test(obsv->connectionObserver->getFailedCount() > 0);
         test(obsv->connectionEstablishmentObserver->getFailedCount() > 0);
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getFailedCount() > 0);
 #endif
     }

@@ -39,7 +39,7 @@ private:
     IceUtil::Mutex _mutex;
 };
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 class PerThreadImplicitContext : public ImplicitContextI
 {
 public:
@@ -120,11 +120,11 @@ ImplicitContextI::create(const std::string& kind)
     }
     else if(kind == "PerThread")
     {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
         return ICE_MAKE_SHARED(PerThreadImplicitContext);
 #else
         throw InitializationException(__FILE__, __LINE__,
-                                      "'PerThread' Ice.ImplicitContext isn't supported for WinRT.");
+                                      "'PerThread' Ice.ImplicitContext isn't supported for UWP.");
         return 0; // Keep the compiler happy.
 #endif
     }
@@ -137,7 +137,7 @@ ImplicitContextI::create(const std::string& kind)
     }
 }
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
 void
 ImplicitContextI::cleanupThread()
 {
@@ -260,7 +260,7 @@ SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 //
 // PerThreadImplicitContext implementation
 //
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 long PerThreadImplicitContext::_nextId;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
 IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;

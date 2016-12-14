@@ -15,7 +15,7 @@
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 #include <deque>
 #endif
 
@@ -29,13 +29,13 @@ class TcpAcceptor : public Acceptor, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
     virtual void close();
     virtual EndpointIPtr listen();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual void startAccept();
     virtual void finishAccept();
 #endif
@@ -63,7 +63,7 @@ private:
     int _acceptError;
     std::vector<char> _acceptBuf;
     AsyncInfo _info;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     IceUtil::Mutex _mutex;
     bool _acceptPending;
     std::deque<Windows::Networking::Sockets::StreamSocket^> _accepted;

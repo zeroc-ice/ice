@@ -30,7 +30,7 @@
 #include <IceUtil/Random.h>
 #include <functional>
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 #   include <IceUtil/InputUtil.h>
 #   include <IceUtil/CountDownLatch.h>
 #elif defined(_WIN32)
@@ -78,7 +78,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
@@ -105,7 +105,7 @@ IceInternal::getSystemErrno()
 namespace
 {
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 struct AddressIsIPv6 : public unary_function<Address, bool>
 {
 public:
@@ -174,7 +174,7 @@ setKeepAlive(SOCKET fd)
 }
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
 void
 setTcpLoopbackFastPath(SOCKET fd)
 {
@@ -198,7 +198,7 @@ setTcpLoopbackFastPath(SOCKET fd)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 SOCKET
 createSocketImpl(bool udp, int)
 {
@@ -244,7 +244,7 @@ createSocketImpl(bool udp, int family)
         setTcpNoDelay(fd);
         setKeepAlive(fd);
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
         //
         // FIX: the fast path loopback appears to cause issues with
         // connection closure when it's enabled. Sometime, a peer
@@ -261,7 +261,7 @@ createSocketImpl(bool udp, int family)
 }
 #endif
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 vector<Address>
 getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 {
@@ -773,7 +773,7 @@ getAddressStorageSize(const Address& addr)
     return size;
 }
 
-#endif // #ifndef ICE_OS_WINRT
+#endif // #ifndef ICE_OS_UWP
 
 }
 
@@ -819,7 +819,7 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
     }
 }
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 void
 IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
@@ -954,7 +954,7 @@ IceInternal::NativeInfo::newFd()
 bool
 IceInternal::noMoreFds(int error)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     return error == (int)SocketErrorStatus::TooManyOpenFiles;
 #elif defined(_WIN32)
     return error == WSAEMFILE;
@@ -963,7 +963,7 @@ IceInternal::noMoreFds(int error)
 #endif
 }
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 string
 IceInternal::errorToStringDNS(int)
 {
@@ -981,7 +981,7 @@ IceInternal::errorToStringDNS(int error)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::EndpointSelectionType, bool, bool)
 {
@@ -1145,11 +1145,11 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 ProtocolSupport
 IceInternal::getProtocolSupport(const Address&)
 {
-    // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
+    // For UWP, there's no distinction between IPv4 and IPv6 adresses.
     return EnableBoth;
 }
 #else
@@ -1170,7 +1170,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
     if(host.empty())
     {
         Address addr;
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
         ostringstream os;
         os << port;
         //
@@ -1202,7 +1202,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 int
 IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     int o = String::CompareOrdinal(addr1.port, addr2.port);
     if(o != 0)
     {
@@ -1277,7 +1277,7 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 bool
 IceInternal::isIPv6Supported()
 {
@@ -1300,7 +1300,7 @@ IceInternal::isIPv6Supported()
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 SOCKET
 IceInternal::createSocket(bool udp, const Address&)
 {
@@ -1314,7 +1314,7 @@ IceInternal::createSocket(bool udp, const Address& addr)
 }
 #endif
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 SOCKET
 IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport protocol)
 {
@@ -1349,7 +1349,7 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport)
 void
 IceInternal::closeSocketNoThrow(SOCKET fd)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     //
     // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
     // exposed in C++, you have to delete the socket to close
@@ -1372,7 +1372,7 @@ IceInternal::closeSocketNoThrow(SOCKET fd)
 void
 IceInternal::closeSocket(SOCKET fd)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     //
     // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
     // exposed in C++, you have to delete the socket to close
@@ -1423,7 +1423,7 @@ IceInternal::addrToString(const Address& addr)
 void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
@@ -1450,7 +1450,7 @@ IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
@@ -1605,14 +1605,14 @@ IceInternal::addressesToString(const Address& localAddr, const Address& remoteAd
 bool
 IceInternal::isAddressValid(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     return addr.saStorage.ss_family != AF_UNSPEC;
 #else
     return addr.host != nullptr || addr.port != nullptr;
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
@@ -1671,7 +1671,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 string
 IceInternal::inetAddrToString(const Address& ss)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int size = getAddressStorageSize(ss);
     if(size == 0)
     {
@@ -1701,7 +1701,7 @@ IceInternal::inetAddrToString(const Address& ss)
 int
 IceInternal::getPort(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return ntohs(addr.saIn.sin_port);
@@ -1730,7 +1730,7 @@ IceInternal::getPort(const Address& addr)
 void
 IceInternal::setPort(Address& addr, int port)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         addr.saIn.sin_port = htons(port);
@@ -1754,7 +1754,7 @@ IceInternal::setPort(Address& addr, int port)
 bool
 IceInternal::isMulticast(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return IN_MULTICAST(ntohl(addr.saIn.sin_addr.s_addr));
@@ -1867,7 +1867,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
     }
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setBlock(SOCKET fd, bool)
 {
@@ -1931,7 +1931,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
 void
 IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
@@ -1951,7 +1951,7 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getSendBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
@@ -1973,7 +1973,7 @@ IceInternal::getSendBufferSize(SOCKET fd)
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setRecvBufferSize(SOCKET, int)
 {
@@ -1995,7 +1995,7 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getRecvBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
@@ -2012,7 +2012,7 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 #endif
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
@@ -2046,7 +2046,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
     try
     {
         //
-        // NOTE: WinRT doesn't allow specyfing the interface.
+        // NOTE: UWP doesn't allow specyfing the interface.
         //
         safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
     }
@@ -2057,7 +2057,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setMcastInterface(SOCKET, const string&, const Address&)
 {
@@ -2087,7 +2087,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setMcastTtl(SOCKET, int, const Address&)
 {
@@ -2115,7 +2115,7 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setReuseAddress(SOCKET, bool)
 {
@@ -2136,7 +2136,7 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 #endif
 
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 namespace
 {
 
@@ -2174,7 +2174,7 @@ checkResultAndWait(IAsyncAction^ action)
 Address
 IceInternal::doBind(SOCKET fd, const Address& addr)
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     Address local;
     try
     {
@@ -2238,7 +2238,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
 #endif
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 Address
 IceInternal::getNumericAddress(const std::string& address)
@@ -2704,7 +2704,7 @@ IceInternal::createPipe(SOCKET fds[2])
 #endif
 }
 
-#else // ICE_OS_WINRT
+#else // ICE_OS_UWP
 
 void
 IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr)

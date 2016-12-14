@@ -36,9 +36,9 @@ int main(int argc, char** argv)
 
     Ice::InitializationData id;
     id.properties = Ice::createProperties(argc, argv);
-#if !defined(ICE_OS_WINRT) && TARGET_OS_IPHONE==0
+#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
     //
-    // In Ice for WinRT IceSSL is part of Ice core.
+    // In Ice for UWP IceSSL is part of Ice core.
     //
     id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     id.properties->setProperty("IceSSL.Keychain", "client.keychain");

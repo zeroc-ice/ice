@@ -22,10 +22,10 @@ class EmptyI : public virtual Empty
 GPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-#ifdef ICE_OS_WINRT
-    bool winrt = true;
+#ifdef ICE_OS_UWP
+    bool uwp = true;
 #else
-    bool winrt = false;
+    bool uwp = false;
 #endif
 
     cout << "testing Ice.Admin.Facets property... " << flush;
@@ -64,7 +64,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if(winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+    if(uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");

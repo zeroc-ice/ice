@@ -133,7 +133,7 @@ Long ice_nlltoh(const Byte* src)
     return v;
 }
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 Short htons(Short v)
 {
     Short result;
@@ -184,7 +184,7 @@ IceInternal::WSTransceiver::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 AsyncInfo*
 IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 {
@@ -646,7 +646,7 @@ IceInternal::WSTransceiver::read(Buffer& buf)
     return s;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 bool
 IceInternal::WSTransceiver::startWrite(Buffer& buf)
 {

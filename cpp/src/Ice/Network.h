@@ -24,7 +24,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 // Nothing to include
 #elif defined(_WIN32)
 #   include <winsock2.h>
@@ -50,7 +50,7 @@ typedef int ssize_t;
 #elif defined(__APPLE__) && !defined(ICE_NO_CFSTREAM)
 #   define ICE_USE_CFSTREAM 1
 #elif defined(_WIN32)
-#  if defined(ICE_OS_WINRT)
+#  if defined(ICE_OS_UWP)
 #  elif !defined(ICE_NO_IOCP)
 #     define ICE_USE_IOCP 1
 #  else
@@ -68,7 +68,7 @@ typedef int socklen_t;
 #   define SOCKET int
 #   define INVALID_SOCKET -1
 #   define SOCKET_ERROR -1
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     typedef Platform::Object^ SOCKET;
 #   define INVALID_SOCKET nullptr
 #   define SOCKET_ERROR -1
@@ -115,7 +115,7 @@ namespace IceInternal
 //
 // Use Address struct or union depending on the platform
 //
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 struct ICE_API Address
 {
     Windows::Networking::HostName^ host;
@@ -152,17 +152,17 @@ enum SocketOperation
 };
 
 //
-// On WinRT, wait only for read to return, on IOCP/Win32 wait for
+// On UWP, wait only for read to return, on IOCP/Win32 wait for
 // both pending read and write operations to complete (#ICE-6695).
 //
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 const int SocketOperationWaitForClose = 1;
 #elif defined(ICE_USE_IOCP)
 const int SocketOperationWaitForClose = 3;
 #endif
 
 //
-// AsyncInfo struct for Windows IOCP or WinRT holds the result of
+// AsyncInfo struct for Windows IOCP or UWP holds the result of
 // asynchronous operations after it completed.
 //
 #if defined(ICE_USE_IOCP)
@@ -176,7 +176,7 @@ struct ICE_API AsyncInfo : WSAOVERLAPPED
     DWORD count;
     int error;
 };
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 struct ICE_API AsyncInfo
 {
     Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ completedHandler;
@@ -205,7 +205,7 @@ public:
     virtual ~NativeInfo();
 
     NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
         , _newFd(INVALID_SOCKET)
 #endif
     {
@@ -231,7 +231,7 @@ public:
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
     void initialize(HANDLE, ULONG_PTR);
     void completed(SocketOperation);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
     void queueAction(SocketOperation, Windows::Foundation::IAsyncAction^, bool = false);
     void queueOperation(SocketOperation, Windows::Foundation::IAsyncOperation<unsigned int>^);
@@ -250,7 +250,7 @@ protected:
 #if defined(ICE_USE_IOCP)
     HANDLE _handle;
     ULONG_PTR _key;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, bool = false);
     SocketOperationCompletedHandler^ _completedHandler;
 #else
@@ -307,7 +307,7 @@ ICE_API void setReuseAddress(SOCKET, bool);
 ICE_API Address doBind(SOCKET, const Address&);
 ICE_API void doListen(SOCKET, int);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 ICE_API bool interrupted();
 ICE_API bool acceptInterrupted();
 ICE_API bool noBuffers();

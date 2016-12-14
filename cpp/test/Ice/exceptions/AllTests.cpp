@@ -501,13 +501,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         localOAEndpoint = ostr.str();
     }
-#ifdef ICE_OS_WINRT
-    bool winrt = true;
+#ifdef ICE_OS_UWP
+    bool uwp = true;
 #else
-    bool winrt = false;
+    bool uwp = false;
 #endif
 
-    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                   communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
         cout << "testing object adapter registration exceptions... " << flush;

@@ -1274,7 +1274,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const Communicat
     }
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 bool
 IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 {
@@ -1797,7 +1797,7 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
 #if TARGET_OS_IPHONE != 0
     //
     // Only clear the acceptor on iOS where it can be destroyed/re-created during the lifetime of the incoming
-    // connection factory. On other platforms, we keep it set. This is in particular import for IOCP/WinRT where
+    // connection factory. On other platforms, we keep it set. This is in particular import for IOCP/UWP where
     // finishAsync can be called after the acceptor is closed.
     //
     _acceptor = 0;

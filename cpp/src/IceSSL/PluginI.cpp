@@ -82,8 +82,8 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
     _engine = new SecureTransportEngine(com);
 #elif defined(ICE_USE_SCHANNEL)
     _engine = new SChannelEngine(com);
-#elif defined(ICE_OS_WINRT)
-    _engine = new WinRTEngine(com);
+#elif defined(ICE_OS_UWP)
+    _engine = new UWPEngine(com);
 #else
     _engine = new OpenSSLEngine(com);
 #endif

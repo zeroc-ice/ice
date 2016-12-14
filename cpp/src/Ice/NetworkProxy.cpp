@@ -22,7 +22,7 @@ NetworkProxy::~NetworkProxy()
     // Out of line to avoid weak vtable
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 namespace
 {
@@ -304,8 +304,8 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_WINRT
-        throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with WinRT");
+#ifdef ICE_OS_UWP
+        throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with UWP");
 #else
         if(protocolSupport == EnableIPv6)
         {
@@ -319,8 +319,8 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_WINRT
-        throw Ice::InitializationException(__FILE__, __LINE__, "HTTP proxy not supported with WinRT");
+#ifdef ICE_OS_UWP
+        throw Ice::InitializationException(__FILE__, __LINE__, "HTTP proxy not supported with UWP");
 #else
         return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
 #endif

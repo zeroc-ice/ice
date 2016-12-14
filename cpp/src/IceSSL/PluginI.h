@@ -51,8 +51,8 @@ private:
     SecureTransportEnginePtr _engine;
 #elif defined(ICE_USE_SCHANNEL)
     SChannelEnginePtr _engine;
-#elif defined(ICE_OS_WINRT)
-    WinRTEnginePtr _engine;
+#elif defined(ICE_OS_UWP)
+    UWPEnginePtr _engine;
 #else
     OpenSSLEnginePtr _engine;
 #endif

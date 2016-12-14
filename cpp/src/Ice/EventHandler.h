@@ -29,7 +29,7 @@ class ICE_API EventHandler :
 {
 public:
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     //
     // Called to start a new asynchronous read or write operation.
     //
@@ -62,7 +62,7 @@ protected:
     EventHandler();
     virtual ~EventHandler();
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     SocketOperation _pending;
     SocketOperation _started;
     SocketOperation _completed;

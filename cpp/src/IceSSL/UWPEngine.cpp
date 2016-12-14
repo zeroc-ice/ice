@@ -9,7 +9,7 @@
 
 #include <IceSSL/Config.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
 #include <IceSSL/SSLEngine.h>
 #include <Ice/Communicator.h>
@@ -18,17 +18,17 @@
 
 #include <string>
 
-IceUtil::Shared* IceSSL::upCast(IceSSL::WinRTEngine* p) { return p; }
+IceUtil::Shared* IceSSL::upCast(IceSSL::UWPEngine* p) { return p; }
 
 using namespace std;
 using namespace IceSSL;
 
-WinRTEngine::WinRTEngine(const Ice::CommunicatorPtr& communicator) : SSLEngine(communicator)
+UWPEngine::UWPEngine(const Ice::CommunicatorPtr& communicator) : SSLEngine(communicator)
 {
 }
 
 void
-WinRTEngine::initialize()
+UWPEngine::initialize()
 {
     lock_guard<mutex> lock(_mutex);
     if(_initialized)
@@ -81,25 +81,25 @@ WinRTEngine::initialize()
 }
 
 bool
-WinRTEngine::initialized() const
+UWPEngine::initialized() const
 {
     return _initialized;
 }
 
 //shared_ptr<Certificate>
-//WinRTEngine::ca()
+//UWPEngine::ca()
 //{
 //    return _ca;
 //}
 
 shared_ptr<Certificate>
-WinRTEngine::certificate()
+UWPEngine::certificate()
 {
     return _certificate;
 }
 
 void
-WinRTEngine::destroy()
+UWPEngine::destroy()
 {
 }
 

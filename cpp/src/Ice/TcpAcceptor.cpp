@@ -19,7 +19,7 @@
 
 #if defined(ICE_USE_IOCP)
 #  include <Mswsock.h>
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -49,7 +49,7 @@ IceInternal::TcpAcceptor::getNativeInfo()
 void
 IceInternal::TcpAcceptor::close()
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     IceUtil::Mutex::Lock lock(_mutex);
     if(_acceptPending)
     {
@@ -81,7 +81,7 @@ IceInternal::TcpAcceptor::listen()
     try
     {
         const_cast<Address&>(_addr) = doBind(_fd, _addr);
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         doListen(_fd, _backlog);
 #endif
     }
@@ -172,7 +172,7 @@ IceInternal::TcpAcceptor::accept()
     return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
 }
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 AsyncInfo*
 IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
@@ -290,7 +290,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
 {
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     _fd = ref new StreamSocketListener();
     safe_cast<StreamSocketListener^>(_fd)->ConnectionReceived +=
         ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>(

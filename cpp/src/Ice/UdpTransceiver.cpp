@@ -17,14 +17,14 @@
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <ppltasks.h> // For Concurrency::task
 #endif
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -40,7 +40,7 @@ IceInternal::UdpTransceiver::getNativeInfo()
     return this;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 AsyncInfo*
 IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
 {
@@ -55,7 +55,7 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
         assert(false);
         return 0;
     }
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     return &_write;
 #endif
 }
@@ -73,7 +73,7 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
     {
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
         if(_write.count == SOCKET_ERROR)
         {
             try
@@ -106,7 +106,7 @@ IceInternal::UdpTransceiver::closing(bool, const Ice::LocalException&)
 void
 IceInternal::UdpTransceiver::close()
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     IceUtil::Mutex::Lock lock(_mutex);
     if(_readPending)
     {
@@ -182,7 +182,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf)
     {
         return SocketOperationNone;
     }
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     return SocketOperationWrite;
 #else
     assert(buf.i == buf.b.begin());
@@ -260,7 +260,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf)
     {
         return SocketOperationNone;
     }
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     return SocketOperationRead;
 #else
 
@@ -359,7 +359,7 @@ repeat:
 #endif
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 bool
 IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 {
@@ -369,7 +369,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     assert(min(_maxPacketSize, _sndSize - _udpOverhead) >= static_cast<int>(buf.b.size()));
     assert(_fd != INVALID_SOCKET);
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     if(_state < StateConnected)
     {
         try
@@ -559,7 +559,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 
     if(static_cast<int>(_write.count) == SOCKET_ERROR)
     {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
         WSASetLastError(_write.error);
         if(connectionLost())
         {
@@ -589,7 +589,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
     assert(!buf.b.empty() && buf.i != buf.b.end());
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     _read.buf.len = packetSize;
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     int err;
@@ -645,7 +645,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
 void
 IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     IceUtil::Mutex::Lock lock(_mutex);
     assert(!_readPending && (!_received.empty() || _fd == INVALID_SOCKET));
     if(_fd == INVALID_SOCKET)
@@ -749,7 +749,7 @@ IceInternal::UdpTransceiver::toString() const
     }
     else
     {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
         s << fdToString(_fd);
 #else
         Address localAddr;
@@ -784,7 +784,7 @@ Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
     Ice::UDPConnectionInfoPtr info = ICE_MAKE_SHARED(Ice::UDPConnectionInfo);
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     if(isMulticast(_addr) || isAddressValid(_mcastAddr))
     {
         info->remotePort = 0;
@@ -859,7 +859,7 @@ IceInternal::UdpTransceiver::effectivePort() const
 
 IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const Address& addr,
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
                                             const Address&,
                                             const string&,
                                             int
@@ -877,7 +877,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #if defined(ICE_USE_IOCP)
     , _read(SocketOperationRead),
     _write(SocketOperationWrite)
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     , _readPending(false)
 #endif
 {
@@ -885,7 +885,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     setBufSize(-1, -1);
     setBlock(_fd, false);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
     _peerAddr.saStorage.ss_family = AF_UNSPEC; // Not initialized yet.
 
@@ -956,7 +956,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
     _mcastInterface(mcastInterface),
     _port(port),
     _state(connect ? StateNeedConnect : StateNotConnected)
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     , _readPending(false)
 #elif defined(ICE_USE_IOCP)
     , _read(SocketOperationRead),
@@ -967,7 +967,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
     setBufSize(-1, -1);
     setBlock(_fd, false);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     memset(&_mcastAddr.saStorage, 0, sizeof(sockaddr_storage));
     memset(&_peerAddr.saStorage, 0, sizeof(sockaddr_storage));
     _peerAddr.saStorage.ss_family = AF_UNSPEC;
@@ -1104,7 +1104,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
     }
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::UdpTransceiver::appendMessage(DatagramSocketMessageReceivedEventArgs^ args)
 {

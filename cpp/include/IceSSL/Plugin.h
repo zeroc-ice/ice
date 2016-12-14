@@ -25,7 +25,7 @@
 
 // For struct sockaddr_storage
 #ifdef _WIN32
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   include <winsock2.h>
 #endif
 #else
@@ -72,7 +72,7 @@ typedef SecKeyRef KeyRef;
 typedef CERT_SIGNED_CONTENT_INFO* X509CertificateRef;
 typedef CERT_PUBLIC_KEY_INFO* KeyRef;
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 typedef Windows::Security::Cryptography::Certificates::Certificate^ X509CertificateRef;
 typedef Windows::Security::Cryptography::Core::CryptographicKey^ KeyRef;

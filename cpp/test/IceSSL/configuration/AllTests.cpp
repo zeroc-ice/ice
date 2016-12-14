@@ -21,7 +21,7 @@
 #  if TARGET_OS_IPHONE != 0
 #    include <IceSSL/Util.h> // For loadCertificateChain
 #  endif
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 #  include <ppltasks.h>
 #  include <nserror.h>
 using namespace concurrency;
@@ -75,7 +75,7 @@ readFile(const string& file, vector<char>& buffer)
     }
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
 //
 // Helper methods to install a remove certificates from the Application store.
@@ -452,9 +452,9 @@ public:
             }
 
             //
-            // WinRT Certificate API doesn't provide the Issuer alternative name
+            // UWP Certificate API doesn't provide the Issuer alternative name
             //
-#  ifndef ICE_OS_WINRT
+#  ifndef ICE_OS_UWP
             //
             // Issuer alternative name
             //
@@ -624,7 +624,7 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, const string& defaultD
     Ice::PropertiesPtr properties;
 
     properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
     //
     // Remove any CA certificates previously used by this test
@@ -746,7 +746,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 //
 // Anonymous cipher are not supported with SChannel or UWP
 //
-#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_UWP)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
@@ -903,7 +903,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
-#ifdef  ICE_OS_WINRT
+#ifdef  ICE_OS_UWP
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
             Ice::Context ctx;
             ctx["uwp"] = "1";
@@ -920,7 +920,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             //
             // Validate some aspects of the Certificate class.
             //
-#ifdef  ICE_OS_WINRT
+#ifdef  ICE_OS_UWP
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load("ms-appx:///s_rsa_ca1_pub.pem");
 #else
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
@@ -937,7 +937,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #   endif
 #endif
 
-#ifdef  ICE_OS_WINRT
+#ifdef  ICE_OS_UWP
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load("ms-appx:///cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load("ms-appx:///cacert2.pem");
 #else
@@ -956,10 +956,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
             //
-            // IceSSL implementation for WinRT doesn't support to validate a certificate
+            // IceSSL implementation for UWP doesn't support to validate a certificate
             // with a custom CA.
             //
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
             test(!serverCert->verify(serverCert));
             test(serverCert->verify(caCert));
             test(!serverCert->verify(caCert2));
@@ -989,10 +989,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
             //
-            // IceSSL implementation for WinRT doesn't support to validate a certificate
+            // IceSSL implementation for UWP doesn't support to validate a certificate
             // with a custom CA.
             //
-#ifndef  ICE_OS_WINRT
+#ifndef  ICE_OS_UWP
             test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
 #endif
             test(info->nativeCerts.size() == 2 &&
@@ -1014,7 +1014,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
-#ifdef  ICE_OS_WINRT
+#ifdef  ICE_OS_UWP
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
             Ice::Context ctx;
             ctx["uwp"] = "1";
@@ -1310,7 +1310,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             try
             {
                 info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_UWP)
                 test(info->nativeCerts.size() == 1); // SChannel never sends the root certificate
 #else
                 test(info->nativeCerts.size() == 2);
@@ -1358,10 +1358,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
 
         //
-        // With WinRT the following tests that use an intermediate CA fails with
+        // With UWP the following tests that use an intermediate CA fails with
         // ChainValidationResult::IncompleteChain
         //
-#ifndef  ICE_OS_WINRT
+#ifndef  ICE_OS_UWP
         //
         // Try certificate with one intermediate and VerifyDepthMax=2
         //
@@ -1541,7 +1541,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 //
 // Anonymous ciphers are not supported with SChannel.
 //
-#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_SCHANNEL) && !defined(ICE_OS_UWP)
         //
         // ADH is allowed but will not have a certificate.
         //
@@ -1660,9 +1660,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     cout << "ok" << endl;
 
     //
-    // IceSSL.Protocols is not supported with WinRT
+    // IceSSL.Protocols is not supported with UWP
     //
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     cout << "testing protocols... " << flush;
     {
 #  ifndef ICE_USE_SECURE_TRANSPORT
@@ -1947,7 +1947,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
-#  ifdef ICE_OS_WINRT
+#  ifdef ICE_OS_UWP
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load("ms-appx:///s_rsa_ca1_exp_pub.pem");
 #  else
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_exp_pub.pem");
@@ -1985,7 +1985,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
         {
-#  ifdef ICE_OS_WINRT
+#  ifdef ICE_OS_UWP
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_exp_pub.pem");
 #  else
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_exp_pub.pem");
@@ -2051,9 +2051,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
     //
-    // IceSSL.CAs is not supported with WinRT
+    // IceSSL.CAs is not supported with UWP
     //
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     cout << "testing multiple CA certificates... " << flush;
     {
         InitializationData initData;
@@ -2080,9 +2080,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
     //
-    // OpenSSL must use PEM certificate, WinRT doesn't support IceSSL.CAs
+    // OpenSSL must use PEM certificate, UWP doesn't support IceSSL.CAs
     //
-#if !defined(ICE_USE_OPENSSL) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_OPENSSL) && !defined(ICE_OS_UWP)
     cout << "testing DER CA certificate... " << flush;
     {
         InitializationData initData;
@@ -2158,7 +2158,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         // Use an incorrect password and check that retries are attempted.
         //
-#ifdef  ICE_OS_WINRT
+#ifdef  ICE_OS_UWP
         removePersonalCertificate();
 #endif
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_pass_ca1", "cacert1");
@@ -2199,9 +2199,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
 
     //
-    // IceSSL.Ciphers is not implemented with WinRT
+    // IceSSL.Ciphers is not implemented with UWP
     //
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     cout << "testing ciphers... " << flush;
 #  ifndef ICE_USE_SCHANNEL
     {
@@ -2593,9 +2593,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
-    // WinRT only provides the Subject and Issuer CN and not the full Subject and Issuer DNs,
+    // UWP only provides the Subject and Issuer CN and not the full Subject and Issuer DNs,
     // this implies that we can only do a limited range of checks with IceSSL.TrustOnly
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     //
     // iOS support only provides access to the CN of the certificate so we
     // can't check for other attributes
@@ -2840,7 +2840,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
     }
 
-#ifndef  ICE_OS_WINRT
+#ifndef  ICE_OS_UWP
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -3022,7 +3022,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
     }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     {
         //
         // Rejection takes precedence (client).
@@ -3076,7 +3076,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly.Client... " << flush;
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
@@ -3532,7 +3532,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             }
         }
         cout << "ok" << endl;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
         cout << "testing IceSSL.FindCert... " << flush;
         const char* clientFindCertProperties[] =
         {
@@ -3758,10 +3758,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
     }
 
-#if !defined(_AIX) && !defined(ICE_OS_WINRT)
+#if !defined(_AIX) && !defined(ICE_OS_UWP)
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com
-    // WinRT application manifest is not configure to use system CAs and IceSSL.UsePlatformCAs
-    // is not supported with WinRT
+    // UWP application manifest is not configure to use system CAs and IceSSL.UsePlatformCAs
+    // is not supported with UWP
     cout << "testing system CAs... " << flush;
     {
         {

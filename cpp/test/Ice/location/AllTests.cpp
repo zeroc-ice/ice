@@ -689,15 +689,15 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_OS_WINRT
-    bool winrt = true;
+#ifdef ICE_OS_UWP
+    bool uwp = true;
 #else
-    bool winrt = false;
+    bool uwp = false;
 #endif
     string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
         
-    if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                   communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
         if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)

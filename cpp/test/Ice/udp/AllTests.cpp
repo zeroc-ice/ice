@@ -149,7 +149,7 @@ allTests(const CommunicatorPtr& communicator)
     }
     base = communicator->stringToProxy("test -d:" + endpoint);
     TestIntfPrxPtr objMcast = ICE_UNCHECKED_CAST(TestIntfPrx, base);
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     cout << "testing udp multicast... " << flush;
 
     nRetry = 5;

@@ -36,7 +36,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     string value;
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     value = properties->getProperty("Ice.Default.SourceAddress");
     if(!value.empty())
     {

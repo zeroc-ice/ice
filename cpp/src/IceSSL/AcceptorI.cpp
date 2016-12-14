@@ -15,7 +15,7 @@
 #include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/SChannelTransceiverI.h>
-#include <IceSSL/WinRTTransceiverI.h>
+#include <IceSSL/UWPTransceiverI.h>
 
 #include <IceSSL/Util.h>
 
@@ -34,7 +34,7 @@ IceSSL::AcceptorI::getNativeInfo()
 }
 
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 IceInternal::AsyncInfo*
 IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
 {
@@ -55,7 +55,7 @@ IceSSL::AcceptorI::listen()
     return _endpoint;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 void
 IceSSL::AcceptorI::startAccept()
 {

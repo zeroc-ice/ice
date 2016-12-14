@@ -22,7 +22,7 @@
 #include <climits>
 #include <exception>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <thread>
 #endif
 
@@ -33,7 +33,7 @@
 
 using namespace std;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
 IceUtil::ThreadControl::ThreadControl() :
     _id(this_thread::get_id())

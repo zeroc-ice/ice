@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   if defined(_WIN32)
 #      include <process.h>
 #   else

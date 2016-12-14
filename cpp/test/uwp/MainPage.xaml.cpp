@@ -169,7 +169,7 @@ vector<TestSuiteDesc> allTests(string remoteServerLang)
         { "Ice/timeout" },
     };
 
-    if(remoteServerLang == "winrt")
+    if(remoteServerLang == "uwp")
     {
         all.push_back({ "Ice/metrics", {
                 { "client/server" },
@@ -544,7 +544,7 @@ TestRunner::run()
                 assert(!p->client.empty());
                 if(!p->server.empty())
                 {
-                    if(_config.mapping == "winrt")
+                    if(_config.mapping == "uwp")
                     {
                         runClientServerTest(*p);
                     }
@@ -792,7 +792,7 @@ MainPage::completed()
             {
                 _testSuites->IsEnabled = true;
                 _protocol->IsEnabled = true;
-                if(selectedLanguage() != "winrt")
+                if(selectedLanguage() != "uwp")
                 {
                     _host->IsEnabled = true;
                 }
@@ -887,7 +887,7 @@ void
 TestSuite::MainPage::initializeSupportedProtocols()
 {
     _protocols->Clear();
-    if(selectedLanguage() == "winrt")
+    if(selectedLanguage() == "uwp")
     {
         _protocols->Append("tcp");
         _protocols->Append("ws");
@@ -907,7 +907,7 @@ TestSuite::MainPage::initializeSupportedProtocols()
 std::string
 TestSuite::MainPage::selectedProtocol()
 {
-    if(selectedLanguage() == "winrt")
+    if(selectedLanguage() == "uwp")
     {
         const char* protocols[] = { "tcp", "ws" };
         assert(_protocol->SelectedIndex < sizeof(protocols) / sizeof(const char*));
@@ -923,7 +923,7 @@ TestSuite::MainPage::selectedProtocol()
 std::string
 TestSuite::MainPage::selectedLanguage()
 {
-    static const char* languages[] = {"winrt", "cpp", "csharp", "java"};
+    static const char* languages[] = {"uwp", "cpp", "csharp", "java"};
     assert(_language->SelectedIndex < sizeof(languages) / sizeof(const char*));
     return languages[_language->SelectedIndex];
 }
@@ -933,7 +933,7 @@ TestSuite::MainPage::Language_SelectionChanged(Platform::Object^ sender, Selecti
 {
     if(_language)
     {
-        _host->IsEnabled = selectedLanguage() != "winrt";
+        _host->IsEnabled = selectedLanguage() != "uwp";
         initializeSupportedTests();
         initializeSupportedProtocols();
     }

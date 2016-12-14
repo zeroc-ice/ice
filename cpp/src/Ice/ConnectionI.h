@@ -43,7 +43,7 @@
 
 #include <deque>
 
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
 #    ifndef ICE_HAS_BZIP2
 #        define ICE_HAS_BZIP2
 #    endif
@@ -94,7 +94,7 @@ public:
     {
         OutgoingMessage(Ice::OutputStream* str, bool comp) :
             stream(str), compress(comp), requestId(0), adopted(false)
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
             , isSent(false), invokeSent(false), receivedReply(false)
 #endif
         {
@@ -103,7 +103,7 @@ public:
         OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str,
                         bool comp, int rid) :
             stream(str), outAsync(o), compress(comp), requestId(rid), adopted(false)
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
             , isSent(false), invokeSent(false), receivedReply(false)
 #endif
         {
@@ -119,7 +119,7 @@ public:
         bool compress;
         int requestId;
         bool adopted;
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
         bool isSent;
         bool invokeSent;
         bool receivedReply;
@@ -216,7 +216,7 @@ public:
     //
     // Operations from EventHandler
     //
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     bool startAsync(IceInternal::SocketOperation);
     bool finishAsync(IceInternal::SocketOperation);
 #endif

@@ -129,7 +129,7 @@
     <ClCompile Include="..\..\TrustManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinRTTransceiverI.cpp">
+    <ClCompile Include="..\..\UWPTransceiverI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\PluginI.cpp">
@@ -141,7 +141,7 @@
     <ClCompile Include="..\..\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinRTEngine.cpp">
+    <ClCompile Include="..\..\UWPEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\RFC2253.cpp">

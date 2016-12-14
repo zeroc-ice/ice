@@ -301,7 +301,7 @@ Ice::PropertiesI::load(const std::string& file)
 //
 // Metro style applications cannot access Windows registry.
 //
-#if defined (_WIN32) && !defined(ICE_OS_WINRT)
+#if defined (_WIN32) && !defined(ICE_OS_UWP)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
@@ -711,9 +711,9 @@ void
 Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     //
-    // WinRT cannot access environment variables
+    // UWP cannot access environment variables
     //
     if(value.empty() || value == "1")
     {

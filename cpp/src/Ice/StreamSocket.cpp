@@ -13,7 +13,7 @@
 
 using namespace IceInternal;
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 
 #include <Ice/Properties.h>
 using namespace Platform;
@@ -36,7 +36,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 #endif
 {
     init();
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
     if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
         _state = _proxy ? StateProxyWrite : StateConnected;
@@ -92,7 +92,7 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
     {
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
         if(_write.count == SOCKET_ERROR)
         {
             try
@@ -153,7 +153,7 @@ StreamSocket::isConnected()
 size_t
 StreamSocket::getSendPacketSize(size_t length)
 {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     return _maxSendPacketSize > 0 ? std::min(length, _maxSendPacketSize) : length;
 #else
     return length;
@@ -163,7 +163,7 @@ StreamSocket::getSendPacketSize(size_t length)
 size_t
 StreamSocket::getRecvPacketSize(size_t length)
 {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     return _maxRecvPacketSize > 0 ? std::min(length, _maxRecvPacketSize) : length;
 #else
     return length;
@@ -179,7 +179,7 @@ StreamSocket::setBufferSize(int rcvSize, int sndSize)
 SocketOperation
 StreamSocket::read(Buffer& buf)
 {
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
     if(_state == StateProxyRead)
     {
         while(true)
@@ -205,7 +205,7 @@ StreamSocket::read(Buffer& buf)
 SocketOperation
 StreamSocket::write(Buffer& buf)
 {
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
     if(_state == StateProxyWrite)
     {
         while(true)
@@ -228,7 +228,7 @@ StreamSocket::write(Buffer& buf)
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationNone;
 }
 
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
 ssize_t
 StreamSocket::read(char* buf, size_t length)
 {
@@ -368,7 +368,7 @@ StreamSocket::write(const char* buf, size_t length)
 }
 #endif
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
 {
@@ -526,7 +526,7 @@ StreamSocket::finishRead(Buffer& buf)
 
 }
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 bool
 StreamSocket::startWrite(Buffer& buf)
@@ -679,7 +679,7 @@ StreamSocket::init()
     //
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_fd));
     _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_fd));
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     Windows::Networking::Sockets::StreamSocket^ s = safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd);
     _writer = ref new Windows::Storage::Streams::DataWriter(s->OutputStream);
     _reader = ref new Windows::Storage::Streams::DataReader(s->InputStream);

@@ -31,7 +31,7 @@
 #  define ICE_USE_SECURE_TRANSPORT_MACOS 1
 #endif
 #elif defined(_WIN32)
-#  if !defined(ICE_OS_WINRT)
+#  if !defined(ICE_OS_UWP)
 #    define ICE_USE_SCHANNEL 1
 #  endif
 #else

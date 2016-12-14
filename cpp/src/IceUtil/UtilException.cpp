@@ -56,7 +56,7 @@
 #   endif
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__)
 #   define ICE_DBGHELP
 #   if defined(_MSC_VER) && (_MSC_VER >= 1700)
 #       define DBGHELP_TRANSLATE_TCHAR

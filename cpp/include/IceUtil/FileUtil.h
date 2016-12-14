@@ -90,7 +90,7 @@ ICE_API FILE* fopen(const std::string&, const std::string&);
 ICE_API FILE* freopen(const std::string&, const std::string&, FILE*);
 ICE_API int open(const std::string&, int);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 ICE_API int getcwd(std::string&);
 #endif
 

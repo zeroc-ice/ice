@@ -9,7 +9,7 @@
 
 #include <IceUtil/SHA1.h>
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   if defined(_WIN32)
 #      include <Wincrypt.h>
 #      include <IceUtil/Exception.h>
@@ -23,7 +23,7 @@
 using namespace std;
 using namespace IceUtil;
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 namespace IceUtilInternal
 {
@@ -163,7 +163,7 @@ IceUtilInternal::SHA1::finalize(std::vector<unsigned char>& md)
 void
 IceUtilInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     auto dataA =
         ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(data), static_cast<unsigned int>(length));
     auto hasher = Windows::Security::Cryptography::Core::HashAlgorithmProvider::OpenAlgorithm("SHA1");
