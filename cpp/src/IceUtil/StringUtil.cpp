@@ -300,7 +300,7 @@ checkChar(const string& s, string::size_type pos)
 // Append codePoint as a UTF-8 sequence
 //
 void
-appendUTF8(unsigned int codePoint, bool inBMP, string& result)
+appendUTF8(unsigned int codePoint, string& result)
 {
     if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
     {
@@ -458,7 +458,7 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
                                                    "Invalid universal character name: too few hex digits");
                 }
 
-                appendUTF8(codePoint, inBMP, result);
+                appendUTF8(codePoint, result);
                 if(codePoint > 127)
                 {
                     pureASCII = false;

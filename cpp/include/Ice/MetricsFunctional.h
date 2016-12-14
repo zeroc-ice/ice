@@ -94,7 +94,7 @@ namespace IceMX
 
 template<class T, typename Y, typename Func> struct ApplyOnMember
 {
-    ApplyOnMember(Y T::*member, Func func) : func(func), member(member)
+    ApplyOnMember(Y T::*m, Func f) : func(f), member(m)
     {
     }
 
@@ -126,7 +126,7 @@ template<typename T> struct Increment
 
 template<typename T> struct Add
 {
-    Add(T value) : value(value) { }
+    Add(T v) : value(v) { }
 
     template<typename Y>
     void operator()(Y& v)

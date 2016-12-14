@@ -58,7 +58,7 @@ public:
 
     void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, const LocalException&, const string&);
 
-    const int getTraceLevel() const
+    int getTraceLevel() const
     {
         return _traceLevel;
     }
