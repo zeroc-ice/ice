@@ -47,13 +47,13 @@ self.onmessage = function(e)
             var f = "/test/" + test.name + "/" + test.files[i];
             if(test.es5)
             {
-                f = f.replace("/test/Ice/", "/test/Ice/es5/");
+                f = f.replace("/test/", "/test/es5/");
             }
             self.importScripts(f);
         }
 
 
-        runTest(test.name, test.language, test.defaultHost, test.protocol, test.configurations, Output).then(
+        runTest(test.name, test.language, test.defaultHost, test.protocol, test.testcases, Output).then(
             function(r)
             {
                 self.postMessage({type:"TestFinished", success:r});
