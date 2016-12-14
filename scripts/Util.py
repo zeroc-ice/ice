@@ -242,20 +242,22 @@ class Windows(Platform):
 
         if current.driver.useBinDist():
             iceHome = os.environ.get("ICE_HOME")
+            v140 = self.getCompiler() == "v140"
+            cpp = isinstance(mapping, CppMapping)
+            csharp = isinstance(mapping, CSharpMapping)
 
-            if iceHome and ((isinstance(mapping, CppMapping) and platform == "x64" and config == "Release") or
-                            (not isinstance(mapping, CSharpMapping))):
+            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp)):
                 return "bin"
-            elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
+            elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
             else:
 
                 #
-                # With Windows binary distribution Glacier2 and IcePatch binaries are only included
+                # With Windows binary distribution Glacier2 and IcePatch2 binaries are only included
                 # for Release configuration.
                 #
-                config = next(("Release" for p in
-                    [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server] if isinstance(process, p)), config)
+                binaries = [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server]
+                config = next(("Release" for p in binaries if isinstance(process, p)), config)
 
                 return os.path.join("build", "native", "bin", platform, config)
         else:
@@ -289,11 +291,15 @@ class Windows(Platform):
         name = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
         iceHome = os.environ.get("ICE_HOME")
 
-        if iceHome and ((isinstance(mapping, CppMapping) and platform == "x64" and config == "Release") or
-                        (not isinstance(mapping, CSharpMapping))):
+        v140 = self.getCompiler() == "v140"
+        cpp = isinstance(mapping, CppMapping)
+        csharp = isinstance(mapping, CSharpMapping)
+
+        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp)):
             return iceHome
         else:
-            return os.path.join(toplevel, mapping.name, "msbuild", "packages", "zeroc.ice.{0}.{1}".format(name, version))
+            return os.path.join(toplevel, mapping.name, "msbuild", "packages", 
+                                "zeroc.ice.{0}.{1}".format(name, version))
 
     def canRun(self, current):
         #
