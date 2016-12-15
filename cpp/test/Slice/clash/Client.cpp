@@ -7,13 +7,17 @@
 //
 // **********************************************************************
 
-// No pragma once as this file can be included several times in a translation 
-// unit
+#include <Ice/Ice.h>
+#include <Clash.h>
 
-#if defined(_MSC_VER)
-#   pragma warning(pop)
-#elif defined(__clang__)
-#   pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic pop
-#endif
+using namespace std;
+
+int
+main(int /*argc*/, char* /*argv*/[])
+{
+    //
+    // TODO: add runtime testing
+    // 
+    cout << "ok" << endl;
+    return 0;
+}

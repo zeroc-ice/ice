@@ -695,6 +695,19 @@ Slice::Gen::generate(const UnitPtr& p)
         }
     }
 
+    //
+    // Disable shadow warnings in .cpp file
+    //
+    C << sp;
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER)";
+    C << nl << "#   pragma warning(disable:4458) // declaration of ... hides class member";
+    C << nl << "#elif defined(__clang__)";
+    C << nl << "#   pragma clang diagnostic ignored \"-Wshadow\"";
+    C << nl << "#elif defined(__GNUC__)";
+    C << nl << "#   pragma GCC diagnostic ignored \"-Wshadow\"";
+    C << nl << "#endif";
+
     printVersionCheck(H);
     printVersionCheck(C);
 
@@ -1385,21 +1398,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         H << nl << "return false;";
         H << eb;
 
-        H << sp << nl << "bool operator!=(const " << name << "& rhs) const";
+        H << sp << nl << "bool operator!=(const " << name << "& rhs_) const";
         H << sb;
-        H << nl << "return !operator==(rhs);";
+        H << nl << "return !operator==(rhs_);";
         H << eb;
-        H << nl << "bool operator<=(const " << name << "& rhs) const";
+        H << nl << "bool operator<=(const " << name << "& rhs_) const";
         H << sb;
-        H << nl << "return operator<(rhs) || operator==(rhs);";
+        H << nl << "return operator<(rhs_) || operator==(rhs_);";
         H << eb;
-        H << nl << "bool operator>(const " << name << "& rhs) const";
+        H << nl << "bool operator>(const " << name << "& rhs_) const";
         H << sb;
-        H << nl << "return !operator<(rhs) && !operator==(rhs);";
+        H << nl << "return !operator<(rhs_) && !operator==(rhs_);";
         H << eb;
-        H << nl << "bool operator>=(const " << name << "& rhs) const";
+        H << nl << "bool operator>=(const " << name << "& rhs_) const";
         H << sb;
-        H << nl << "return !operator<(rhs);";
+        H << nl << "return !operator<(rhs_);";
         H << eb;
     }
     H << eb << ';';
@@ -3029,7 +3042,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             {
                 C << retS << " ret = ";
             }
-            C << fixKwd(name) << args << ';';
+            C << "this->" << fixKwd(name) << args << ';';
             if(ret || !outParams.empty())
             {
                 C << nl << "::Ice::OutputStream* ostr = inS.startWriteParams();";
@@ -3048,7 +3061,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            C << nl << name << "_async" << argsAMD << ';';
+            C << nl << "this->" << name << "_async" << argsAMD << ';';
             C << nl << "return true;";
         }
         C << eb;
@@ -3512,7 +3525,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         if((*q)->isOutParam())
         {
             outParams.push_back(*q);
-            outArgs.push_back(fixKwd((*q)->name()));
+            outArgs.push_back("iceP_" + (*q)->name());
             outEndArgs.push_back(getEndArg((*q)->type(), (*q)->getMetaData(), outArgs.back()));
             outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring));
         }
@@ -3603,7 +3616,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << sb;
         H << nl << clScope << clName << "Prx proxy = " << clScope << clName
           << "Prx::uncheckedCast(result->getProxy());";
-        writeAllocateCode(H, outParams, p, false, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
+        writeAllocateCode(H, outParams, p, true, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
         H << nl << "try";
         H << sb;
         H << nl;
@@ -3624,7 +3637,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
             }
             H << "result" << epar << ';';
         }
-        writeEndCode(H, outParams, p);
+        writeEndCode(H, outParams, p, true);
         H << eb;
         H << nl << "catch(const ::Ice::Exception& ex)";
         H << sb;
@@ -6712,9 +6725,9 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
 
     C << sp;
-    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string _s, const ::Ice::Current&) const";
+    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string s, const ::Ice::Current&) const";
     C << sb;
-    C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", _s);";
+    C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
     C << eb;
 
     C << sp;
@@ -7004,7 +7017,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl;
         }
 
-        C << opName << spar << args << epar;
+        C << "this->" << opName << spar << args << epar;
         if(p->hasMarshaledResult())
         {
             C << ");";
@@ -7046,7 +7059,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl << "inA->completed();";
             C << eb << ';';
         }
-        C << nl << opName << spar << args << epar << ';';
+        C << nl << "this->" << opName << spar << args << epar << ';';
         C << nl << "return true;";
     }
     C << eb;
