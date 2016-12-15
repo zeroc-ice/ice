@@ -52,6 +52,11 @@ public class Server
                     usage();
                     return 0;
                 }
+                else if(s.Equals("-v") || s.Equals("--version"))
+                {
+                    Console.Out.WriteLine("3.7a3");
+                    return 0;
+                }
                 else
                 {
                     Console.Error.WriteLine("Server: unknown option `" + s + "'");
