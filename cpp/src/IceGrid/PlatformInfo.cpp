@@ -251,6 +251,13 @@ PlatformInfo::PlatformInfo(const string& prefix,
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
 //
+// GetVersionEx will return the Windows 8 OS version value (6.2) for applications
+// not manifested for Windows 8.1 or Windows 10. We read the OS version info from 
+// a system file resource and if that fail we just return whatever GetVersionEx
+// returns.
+//
+
+//
 // GetVersionEx deprecated in Windows 8.1
 //
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
@@ -260,10 +267,44 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
 #    pragma warning (default : 4996)
 #  endif
+
+
+    DWORD major = osInfo.dwMajorVersion;
+    DWORD minor = osInfo.dwMinorVersion;
+    DWORD build = osInfo.dwBuildNumber;
+
+    HMODULE handle = GetModuleHandleW(L"kernel32.dll");
+    if(handle)
+    {
+        wchar_t path[MAX_PATH];
+        if(GetModuleFileNameW(handle, path, MAX_PATH))
+        {
+            DWORD size = GetFileVersionInfoSizeW(path, 0);
+            if(size)
+            {
+                vector<unsigned char> buffer;
+                buffer.resize(size) ;
+
+                if(GetFileVersionInfoW(path, 0, size, &buffer[0]))
+                {
+                    VS_FIXEDFILEINFO* ffi;
+                    unsigned int ffiLen;
+                    if(VerQueryValueW(&buffer[0], L"", (LPVOID*)&ffi, &ffiLen))
+                    {
+                        major = HIWORD(ffi->dwProductVersionMS);
+                        minor = LOWORD(ffi->dwProductVersionMS);
+                        build = HIWORD(ffi->dwProductVersionLS);
+                    }
+                }
+            }
+        }
+    }
+
     ostringstream os;
-    os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
+    os << major << "." << minor;
     _release = os.str();
-    _version = osInfo.szCSDVersion;
+    os << "." << build;
+    _version = os.str();
 
     switch(sysInfo.wProcessorArchitecture)
     {
