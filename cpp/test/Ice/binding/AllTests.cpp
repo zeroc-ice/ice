@@ -950,21 +950,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         serverProps.push_back(localipv4);
         serverProps.push_back(localipv6);
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
-        OSVERSIONINFO ver;
-        ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-#  if defined(_MSC_VER) && _MSC_VER >= 1800
-#    pragma warning (disable : 4996)
-#  endif
-        GetVersionEx(&ver);
-#  if defined(_MSC_VER) && _MSC_VER >= 1800
-#    pragma warning (default : 4996)
-#  endif
-        const bool dualStack = ver.dwMajorVersion >= 6; // Windows XP IPv6 doesn't support dual-stack
-#else
-        const bool dualStack = true;
-#endif
-
         bool ipv6NotSupported = false;
         for(vector<Ice::PropertiesPtr>::const_iterator p = serverProps.begin(); p != serverProps.end(); ++p)
         {
@@ -1036,7 +1021,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
                          (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
                          (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) ||
                          (*p == anyipv4 && *q == ipv6) || (*p == anyipv6 && *q == ipv4) ||
-                         (*p == anyboth && *q == ipv4 && !dualStack) ||
                          (*p == localipv4 && *q == ipv6) || (*p == localipv6 && *q == ipv4) ||
                          (*p == ipv6 && *q == bothPreferIPv4) || (*p == ipv6 && *q == bothPreferIPv6) ||
                          (*p == bothPreferIPv6 && *q == ipv6));
