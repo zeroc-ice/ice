@@ -89,19 +89,6 @@ class ControllerDriver(Driver):
 
             def startServerSide(self, config, c):
                 self.updateCurrent(config)
-
-                # Depending on the configuration, either use an IPv4, IPv6 or BT address for Ice.Default.Host
-                if self.current.config.ipv6:
-                    if not self.driver.hostIPv6:
-                        raise Test.Common.TestCaseFailedException("no IPv6 address set with --host-ipv6")
-                    self.current.host = self.driver.hostIPv6
-                elif self.current.config.protocol == "bt":
-                    if not self.driver.hostBT:
-                        raise Test.Common.TestCaseFailedException("no Bluetooth address set with --host-bt")
-                    self.current.host = self.driver.hostBT
-                else:
-                    self.current.host = self.driver.host if self.driver.host else self.driver.interface
-
                 try:
                     self.current.serverTestCase._startServerSide(self.current)
                     self.serverSideRunning = True
@@ -119,10 +106,8 @@ class ControllerDriver(Driver):
 
             def runClientSide(self, host, config, c):
                 self.updateCurrent(config)
-                if host:
-                    current.host = host
                 try:
-                    self.current.clientTestCase._runClientSide(self.current)
+                    self.current.clientTestCase._runClientSide(self.current, host)
                     return self.current.result.getOutput()
                 except Exception as ex:
                     raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
@@ -161,9 +146,13 @@ class ControllerDriver(Driver):
                 self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
                 return self.testcase
 
+            def getTestSuites(mapping, c):
+                mapping = Mapping.getByName(mapping)
+                config = self.driver.configs[mapping]
+                return [t for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config, [], [])]
+
             def getOptionOverrides(self, c):
                 return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
-
 
         self.initCommunicator()
         self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)

@@ -1297,6 +1297,8 @@ class TestCase(Runnable):
 
     def _startServerSide(self, current):
         current.push(self)
+        # Set the host to use for the server side
+        current.host = current.driver.getProcessController(current).getHost(current)
         self.setupServerSide(current)
         try:
             self.startServerSide(current)
@@ -1334,8 +1336,10 @@ class TestCase(Runnable):
         finally:
             server.teardown(current, success)
 
-    def _runClientSide(self, current):
+    def _runClientSide(self, current, host=None):
         current.push(self)
+        if host:
+            current.host = host
         self.setupClientSide(current)
         success = False
         try:
@@ -1607,6 +1611,17 @@ class LocalProcessController(ProcessController):
                     self.expect("[^\n]+ ready\n", timeout = startTimeout)
                     readyCount -= 1
 
+    def getHost(self, current):
+        # Depending on the configuration, either use an IPv4, IPv6 or BT address for Ice.Default.Host
+        if current.config.ipv6:
+            return current.driver.hostIPv6
+        elif current.config.protocol == "bt":
+            if not current.driver.hostBT:
+                raise Test.Common.TestCaseFailedException("no Bluetooth address set with --host-bt")
+            return current.driver.hostBT
+        else:
+            return current.driver.host if current.driver.host else current.driver.interface
+
     def start(self, process, current, args, props, envs, watchDog):
 
         #
@@ -1667,14 +1682,37 @@ class RemoteProcessController(ProcessController):
                 print(self.output)
 
     def __init__(self):
-        pass
+        self.processControllerProxies = {}
 
     def __str__(self):
         return "remote controller"
 
+    def getHost(self, current):
+        return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
+
     def getController(self, current):
-        # To be overriden in specialization to initialize the process controller proxy
-        return None
+        proxy = self.getControllerProxy(current)
+        if proxy in self.processControllerProxies:
+            return self.processControllerProxies[proxy]
+
+        comm = current.driver.getCommunicator()
+        import Test
+        self.processControllerProxies[proxy] = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(proxy))
+
+        if current.driver.controllerApp:
+            self.startControllerApp(current, self.processControllerProxies[proxy])
+
+        try:
+            self.processControllerProxies[proxy].ice_ping()
+        except:
+            raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
+        return self.processControllerProxies[proxy]
+
+    def startControllerApp(self, current, proxy):
+        pass
+
+    def stopControllerApp(self, proxy):
+        pass
 
     def start(self, process, current, args, props, envs, watchDog):
         # Get the process controller
@@ -1688,6 +1726,12 @@ class RemoteProcessController(ProcessController):
             current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
         return RemoteProcessController.Process(exe, processController.start(str(current.testsuite), exe, args))
 
+    def destroy(self, driver):
+        if driver.controllerApp:
+            for p in self.processControllerProxies.values():
+                self.stopControllerApp(p)
+
+
 class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
@@ -1698,34 +1742,29 @@ class iOSSimulatorProcessController(RemoteProcessController):
     def __init__(self):
         RemoteProcessController.__init__(self)
         self.simulatorID = None
-        self.processControllers = {}
 
     def __str__(self):
         return "iOS Simulator"
 
-    def getController(self, current):
+    def getControllerProxy(self, current):
+        if isinstance(current.testcase.getMapping(), ObjCMapping):
+            return "iPhoneSimulator/com.zeroc.ObjC-Test-Controller"
+        else:
+            assert(isinstance(current.testcase.getMapping(), CppMapping))
+            if current.config.cpp11:
+                return "iPhoneSimulator/com.zeroc.Cpp11-Test-Controller"
+            else:
+                return "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller"
+
+    def startControllerApp(self, current, proxy):
         if isinstance(current.testcase.getMapping(), ObjCMapping):
             appName = "ObjC Test Controller.app"
-            appBundleID = "com.zeroc.ObjC-Test-Controller"
         else:
             assert(isinstance(current.testcase.getMapping(), CppMapping))
             if current.config.cpp11:
                 appName ="C++11 Test Controller.app"
-                appBundleID = "com.zeroc.Cpp11-Test-Controller"
             else:
                 appName ="C++98 Test Controller.app"
-                appBundleID = "com.zeroc.Cpp98-Test-Controller"
-
-        proxy = "iPhoneSimulator/{0}".format(appBundleID)
-        if proxy in self.processControllers:
-            return self.processControllers[proxy]
-
-        comm = current.driver.getCommunicator()
-        import Test
-        self.processControllers[proxy] = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(proxy))
-
-        if current.driver.noControllerApp:
-            return self.processControllers[proxy]
 
         sys.stdout.write("launching simulator... ")
         sys.stdout.flush()
@@ -1750,19 +1789,14 @@ class iOSSimulatorProcessController(RemoteProcessController):
         if not os.path.exists(path):
             raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
-        run("xcrun simctl launch \"{0}\" {1}".format(self.device, appBundleID))
+        run("xcrun simctl launch \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
         print("ok")
 
-        return self.processControllers[proxy]
+    def stopControllerApp(self, proxy):
+        run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
 
     def destroy(self, driver):
-        if driver.noControllerApp:
-            return
-
-        for p in self.processControllers.values():
-            appBundleId = p.ice_getIdentity().name
-            run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, appBundleId))
-
+        RemoteProcessController.destroy(self, driver)
         if self.simulatorID:
             sys.stdout.write("destroying simulator... ")
             sys.stdout.flush()
@@ -1786,10 +1820,22 @@ class iOSDeviceProcessController(RemoteProcessController):
     def __str__(self):
         return "iOS Device"
 
-    def getController(self, current):
-        # TODO: launch the controller on a connected iOS device
+    def getControllerProxy(self, current):
+        if isinstance(current.testcase.getMapping(), ObjCMapping):
+            return "iPhoneOS/com.zeroc.ObjC-Test-Controller"
+        else:
+            assert(isinstance(current.testcase.getMapping(), CppMapping))
+            if current.config.cpp11:
+                return "iPhoneOS/com.zeroc.Cpp11-Test-Controller"
+            else:
+                return "iPhoneOS/com.zeroc.Cpp98-Test-Controller"
+
+    def startControllerApp(self, current, proxy):
+        # TODO: use ios-deploy to deploy and run the application on an attached device?
         pass
 
+    def stopControllerApp(self, proxy):
+        pass
 
 class Driver:
 
@@ -1863,7 +1909,7 @@ class Driver:
     @classmethod
     def getOptions(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "no-controller-app"])
+                         "controller-app"])
 
     @classmethod
     def usage(self):
@@ -1881,7 +1927,7 @@ class Driver:
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
-        print("--no-controller-app   Don't start the process controller application.")
+        print("--controller-app      Start the process controller application.")
 
     def __init__(self, options):
         self.debug = False
@@ -1890,7 +1936,7 @@ class Driver:
         self.host = ""
         self.hostIPv6 = ""
         self.hostBT = ""
-        self.noControllerApp = False
+        self.controllerApp = False
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",
@@ -1900,7 +1946,7 @@ class Driver:
                                       "rfilter" : "rfilters",
                                       "host-ipv6" : "hostIPv6",
                                       "host-bt" : "hostBT",
-                                      "no-controller-app" : "noControllerApp" })
+                                      "controller-app" : "controllerApp" })
 
         self.filters = [re.compile(a) for a in self.filters]
         self.rfilters = [re.compile(a) for a in self.rfilters]
@@ -1996,15 +2042,22 @@ class Driver:
         if current.config.buildPlatform in self.processControllers:
             return self.processControllers[current.config.buildPlatform]
 
+        processController = None
         if current.config.buildPlatform == "iphonesimulator":
-            self.processControllers[current.config.buildPlatform] = iOSSimulatorProcessController()
-            return self.processControllers[current.config.buildPlatform]
+            processController = iOSSimulatorProcessController()
+        elif current.config.buildPlatform == "iphoneos":
+            processController = iOSDeviceProcessController()
 
-        #
-        # Fallback on the local process controller if no specific
-        # controller is needed for the given current
-        #
-        return self.localProcessController
+        if processController:
+            self.processControllers[current.config.buildPlatform] = processController
+        else:
+            #
+            # Fallback on the local process controller if no specific
+            # controller is needed for the given current
+            #
+            processController = self.localProcessController
+
+        return processController
 
     def getProcessProps(self, current, ready, readyCount):
         props = {}

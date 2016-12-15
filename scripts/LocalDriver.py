@@ -154,6 +154,9 @@ class Executor:
 #
 class TestCaseRunner:
 
+    def getTestSuites(self, mapping, testsuites):
+        return testsuites
+
     def filterOptions(self, options):
         return options
 
@@ -188,6 +191,13 @@ class RemoteTestCaseRunner(TestCaseRunner):
         else:
             self.serverController = None
             self.serverOptions = {}
+
+    def getTestSuites(self, mapping, testsuites):
+        if self.clientController:
+            testsuites = [t for t in self.clientController.getTestSuites(mapping) if t in testsuites]
+        if self.serverController:
+            testsuites = [t for t in self.serverController.getTestSuites(mapping) if t in testsuites]
+        return testsuites
 
     def filterOptions(self, options):
         import Ice

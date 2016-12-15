@@ -26,9 +26,7 @@ class NetworkProxyTestCase(ClientServerTestCase):
         self.proxy = None
 
     def canRun(self, current):
-        if current.config.buildPlatform == "iphonesimulator":
-            return False
-        elif current.config.buildPlatform == "iphoneos" and self.getName() == "HTTP client/server":
+        if current.config.buildPlatform in ["iphonesimulator", "iphoneos"]:
             return False
         return True
 

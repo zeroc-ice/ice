@@ -14,11 +14,16 @@
 -(void) println:(NSString*)msg;
 @end
 
-@interface ViewController : UIViewController<ViewController>
+@interface ViewController : UIViewController<ViewController, UIPickerViewDataSource, UIPickerViewDelegate>
 {
 @private
+    IBOutlet UIPickerView* interfaceIPv4;
+    IBOutlet UIPickerView* interfaceIPv6;
     IBOutlet UITextView* output;
+    void (*startController)(id<ViewController>, NSString*, NSString*);
     void (*stopController)(id<ViewController>);
+    NSMutableArray* interfacesIPv4;
+    NSMutableArray* interfacesIPv6;
 }
 @end
 

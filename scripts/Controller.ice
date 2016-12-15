@@ -77,6 +77,8 @@ interface ProcessController
 {
     Process* start(string testsuite, string exe, StringSeq args)
         throws ProcessFailedException;
+
+    string getHost(string protocol, bool ipv6);
 };
 
 interface Controller
@@ -85,6 +87,8 @@ interface Controller
         throws TestCaseNotExistException;
 
     OptionOverrides getOptionOverrides();
+
+    StringSeq getTestSuites(string mapping);
 };
 
 };

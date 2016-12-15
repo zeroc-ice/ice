@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1440D8731E01877300CF7ED3 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
+		1419EB451E028A0700352FD7 /* Controller.ice in Resources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
+		1419EB461E028A3300352FD7 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
+		1419EB471E028A3A00352FD7 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
 		1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
 		1440D8841E0188A600CF7ED3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1440D8821E0188A600CF7ED3 /* Info.plist */; };
 		1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
@@ -34,7 +36,6 @@
 		14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
 		14E398261E01B14B00A89291 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
-		14E398271E01B14B00A89291 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
 		14E398291E01B14B00A89291 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
 		14E3982B1E01B14B00A89291 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
 		14E398361E01B18100A89291 /* Cpp98ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -110,6 +111,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1419EB441E028A0700352FD7 /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
 		1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp11ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		1440D8811E0188A600CF7ED3 /* ControllerI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ControllerI.mm; path = Bundle/ControllerI.mm; sourceTree = SOURCE_ROOT; };
 		1440D8821E0188A600CF7ED3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Bundle/Info.plist; sourceTree = SOURCE_ROOT; };
@@ -130,7 +132,6 @@
 		14905C601DF98FD8002AE61B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14905C631DF98FD8002AE61B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		14905C651DF98FD8002AE61B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		14905C6D1DF991F2002AE61B /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
 		14B70D0F1E0160FD00118DE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp98ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E398371E01B30500A89291 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -216,8 +217,8 @@
 				14905C5A1DF98FD8002AE61B /* ViewController.h */,
 				14905C5B1DF98FD8002AE61B /* ViewController.m */,
 				14905C5D1DF98FD8002AE61B /* Main.storyboard */,
-				14905C601DF98FD8002AE61B /* Assets.xcassets */,
 				14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */,
+				14905C601DF98FD8002AE61B /* Assets.xcassets */,
 				14905C651DF98FD8002AE61B /* Info.plist */,
 				14905C541DF98FD8002AE61B /* Supporting Files */,
 			);
@@ -235,12 +236,11 @@
 		14B70CFA1E015C8B00118DE3 /* Bundle */ = {
 			isa = PBXGroup;
 			children = (
+				1419EB441E028A0700352FD7 /* Controller.ice */,
 				1440D8811E0188A600CF7ED3 /* ControllerI.mm */,
 				1440D8821E0188A600CF7ED3 /* Info.plist */,
-				14905C6D1DF991F2002AE61B /* Controller.ice */,
 			);
-			name = Bundle;
-			path = "C++ Controller Framework";
+			path = Bundle;
 			sourceTree = "<group>";
 		};
 		14B70D0C1E0160F700118DE3 /* Frameworks */ = {
@@ -409,6 +409,7 @@
 			files = (
 				148ABA1A1DFB12C800594F70 /* client.p12 in Resources */,
 				14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */,
+				1419EB451E028A0700352FD7 /* Controller.ice in Resources */,
 				148ABA1B1DFB12C800594F70 /* server.p12 in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
@@ -463,8 +464,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1419EB471E028A3A00352FD7 /* Controller.ice in Sources */,
 				1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */,
-				1440D8731E01877300CF7ED3 /* Controller.ice in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,8 +493,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1419EB461E028A3300352FD7 /* Controller.ice in Sources */,
 				14E398261E01B14B00A89291 /* ControllerI.mm in Sources */,
-				14E398271E01B14B00A89291 /* Controller.ice in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -538,11 +539,14 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				ENABLE_BITCODE = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					ICE_CPP11_MAPPING,
 					"$(inherited)",
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -567,10 +571,13 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				ENABLE_BITCODE = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ICE_CPP11_MAPPING,
 					ICE_STATIC_LIBS,
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -769,10 +776,13 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				ENABLE_BITCODE = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -797,7 +807,10 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				ENABLE_BITCODE = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
