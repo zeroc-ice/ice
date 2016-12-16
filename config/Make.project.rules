@@ -112,8 +112,8 @@ ifneq ($(filter %.ice $2/%.$7,$4),)
 $3/%.o: $2/%.$7
 $3/%.o: $2/%.$7
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) \
-	$(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.$7.d
 endif
 
@@ -122,8 +122,8 @@ ifneq ($(filter %.cpp,$4),)
 $3/%.o: $1/%.cpp
 $3/%.o: $1/%.cpp
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) \
-	$(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.cpp.d
 endif
 
@@ -132,18 +132,18 @@ ifneq ($(filter %.mm,$4),)
 $3/%.o: $1/%.mm
 $3/%.o: $1/%.mm
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) \
-	$(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.mm.d
 endif
 
 ifneq ($(filter %.m,$4),)
-# Rules to build Objetive-C sources from <srcdir>
+# Rules to build Objective-C sources from <srcdir>
 $3/%.o: $1/%.m
 $3/%.o: $1/%.m
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(strip $6) $(call depend-cppflags,$3/$$*.Td,$$@) \
-	$(CXXFLAGS) $(CPPFLAGS) -c $$< -o $$@
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.m.d
 endif
 
