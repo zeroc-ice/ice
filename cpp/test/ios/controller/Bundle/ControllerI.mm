@@ -162,7 +162,6 @@ MainHelperI::redirect()
 }
 
 void
-
 MainHelperI::print(const std::string& msg)
 {
     _out << msg;

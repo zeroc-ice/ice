@@ -90,10 +90,10 @@ class ControllerDriver(Driver):
             def startServerSide(self, config, c):
                 self.updateCurrent(config)
                 try:
-                    self.current.serverTestCase._startServerSide(self.current)
                     self.serverSideRunning = True
-                    return self.current.host
+                    return self.current.serverTestCase._startServerSide(self.current)
                 except Exception as ex:
+                    self.serverSideRunning = False
                     raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
             def stopServerSide(self, success, c):
@@ -121,7 +121,7 @@ class ControllerDriver(Driver):
                 c.adapter.remove(c.id)
 
             def updateCurrent(self, config):
-                attrs = ["protocol", "mx", "serialize", "compress", "ipv6"]
+                attrs = ["protocol", "mx", "serialize", "compress", "ipv6", "cprops", "sprops"]
                 for a in attrs:
                     v = getattr(config, a)
                     if v is not Ice.Unset:

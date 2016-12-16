@@ -9,7 +9,7 @@
 
 #import <acm/TestI.h>
 
-@interface ConnectionCallbackI : NSObject
+@interface ACMConnectionCallbackI : NSObject
 {
     NSCondition* _cond;
     int _count;
@@ -18,7 +18,7 @@
 @end
 
 
-@implementation ConnectionCallbackI
+@implementation ACMConnectionCallbackI
 -(id) init
 {
     self = [super init];
@@ -55,7 +55,7 @@
 }
 @end
 
-@implementation RemoteCommunicatorI
+@implementation ACMRemoteCommunicatorI
 -(id<TestACMRemoteObjectAdapterPrx>) createObjectAdapter:(ICEInt)timeout close:(ICEInt)close heartbeat:(ICEInt)heartbeat
                                                  current:(ICECurrent*)current
 {
@@ -85,7 +85,7 @@
         [com createObjectAdapterWithEndpoints:name
                                     endpoints:[NSString stringWithFormat:@"%@ -h \"%@\"", protocol, host]];
 
-    RemoteObjectAdapterI* remoteAdapter = ICE_AUTORELEASE([[RemoteObjectAdapterI alloc] initWithAdapter:adapter]);
+    ACMRemoteObjectAdapterI* remoteAdapter = ICE_AUTORELEASE([[ACMRemoteObjectAdapterI alloc] initWithAdapter:adapter]);
     return [TestACMRemoteObjectAdapterPrx uncheckedCast:[current.adapter addWithUUID:remoteAdapter]];
 }
 -(void) shutdown:(ICECurrent*)current
@@ -94,7 +94,7 @@
 }
 @end
 
-@implementation RemoteObjectAdapterI
+@implementation ACMRemoteObjectAdapterI
 -(id) initWithAdapter:(id<ICEObjectAdapter>)adapter
 {
     self = [super init];
@@ -194,7 +194,7 @@
 }
 -(void) waitForHeartbeat:(int)count current:(ICECurrent*)current
 {
-    ConnectionCallbackI* callback = [ConnectionCallbackI new];
+    ACMConnectionCallbackI* callback = [ACMConnectionCallbackI new];
 
     [current.con setHeartbeatCallback:^(id<ICEConnection> c)
     {

@@ -54,10 +54,10 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
     return nil;
 };
 
-@interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
+@interface CollocatedMyObjectFactory : NSObject<ICEObjectFactory>
 @end
 
-@implementation ClientMyObjectFactory
+@implementation CollocatedMyObjectFactory
 
 -(ICEObject*) create:(NSString*)type
 {
@@ -83,7 +83,7 @@ run(id<ICECommunicator> communicator)
     [manager add:factory sliceId:@"::Test::J"];
     [manager add:factory sliceId:@"::Test::H"];
 
-    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
+    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[CollocatedMyObjectFactory alloc] init]);
     [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
@@ -112,7 +112,7 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif

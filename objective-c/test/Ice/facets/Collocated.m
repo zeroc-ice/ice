@@ -31,7 +31,7 @@ run(id<ICECommunicator> communicator)
 }
 
 #if TARGET_OS_IPHONE
-#  define main facetsServer
+#  define main facetsCollocated
 #endif
 
 int
@@ -39,7 +39,7 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif

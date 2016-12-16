@@ -28,6 +28,9 @@ interface Process
     string terminate();
 };
 
+sequence<bool> BoolSeq;
+sequence<string> StringSeq;
+
 class Config
 {
     optional(1) string protocol;
@@ -35,10 +38,9 @@ class Config
     optional(3) bool serialize;
     optional(4) bool compress;
     optional(5) bool ipv6;
+    optional(6) StringSeq cprops;
+    optional(7) StringSeq sprops;
 };
-
-sequence<bool> BoolSeq;
-sequence<string> StringSeq;
 
 class OptionOverrides
 {

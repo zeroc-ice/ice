@@ -12,10 +12,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface RemoteCommunicatorI : TestACMRemoteCommunicator<TestACMRemoteCommunicator>
+@interface ACMRemoteCommunicatorI : TestACMRemoteCommunicator<TestACMRemoteCommunicator>
 @end
 
-@interface RemoteObjectAdapterI : TestACMRemoteObjectAdapter<TestACMRemoteObjectAdapter>
+@interface ACMRemoteObjectAdapterI : TestACMRemoteObjectAdapter<TestACMRemoteObjectAdapter>
 {
     id<ICEObjectAdapter> _adapter;
     id<TestACMTestIntfPrx> _testIntf;

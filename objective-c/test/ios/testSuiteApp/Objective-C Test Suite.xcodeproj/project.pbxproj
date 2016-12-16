@@ -341,56 +341,56 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		140064131234DFE800249AA4 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/invoke/Server.m; sourceTree = SOURCE_ROOT; };
-		140064141234DFE800249AA4 /* InvokeTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InvokeTest.ice; path = ../Ice/invoke/InvokeTest.ice; sourceTree = SOURCE_ROOT; };
-		140064151234DFE800249AA4 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/invoke/Client.m; sourceTree = SOURCE_ROOT; };
-		140064161234DFE800249AA4 /* BlobjectI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlobjectI.m; path = ../Ice/invoke/BlobjectI.m; sourceTree = SOURCE_ROOT; };
-		140064171234DFE800249AA4 /* BlobjectI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlobjectI.h; path = ../Ice/invoke/BlobjectI.h; sourceTree = SOURCE_ROOT; };
-		140064181234DFE800249AA4 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/invoke/AllTests.m; sourceTree = SOURCE_ROOT; };
-		140064291234E0E900249AA4 /* TwowaysNewAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TwowaysNewAMI.m; path = ../Ice/operations/TwowaysNewAMI.m; sourceTree = SOURCE_ROOT; };
-		1400642A1234E0E900249AA4 /* OnewaysNewAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OnewaysNewAMI.m; path = ../Ice/operations/OnewaysNewAMI.m; sourceTree = SOURCE_ROOT; };
-		140157B9123645D0007C165E /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/dispatcher/TestI.h; sourceTree = SOURCE_ROOT; };
-		140157BA123645D0007C165E /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/dispatcher/TestI.m; sourceTree = SOURCE_ROOT; };
-		140157BB123645D0007C165E /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/dispatcher/AllTests.m; sourceTree = SOURCE_ROOT; };
-		140157BC123645D0007C165E /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/dispatcher/Client.m; sourceTree = SOURCE_ROOT; };
-		140157BE123645D0007C165E /* DispatcherTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DispatcherTest.ice; path = ../Ice/dispatcher/DispatcherTest.ice; sourceTree = SOURCE_ROOT; };
-		140157BF123645D0007C165E /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/dispatcher/Server.m; sourceTree = SOURCE_ROOT; };
-		140A3927122CF11300E1931D /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/ami/TestI.m; sourceTree = SOURCE_ROOT; };
-		140A3928122CF11300E1931D /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/ami/TestI.h; sourceTree = SOURCE_ROOT; };
-		140A3929122CF11300E1931D /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/ami/Client.m; sourceTree = SOURCE_ROOT; };
-		140A392A122CF11300E1931D /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/ami/Server.m; sourceTree = SOURCE_ROOT; };
-		140A392B122CF11300E1931D /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/ami/AllTests.m; sourceTree = SOURCE_ROOT; };
-		140A392C122CF11300E1931D /* AMITest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AMITest.ice; path = ../Ice/ami/AMITest.ice; sourceTree = SOURCE_ROOT; };
+		140064131234DFE800249AA4 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/invoke/Server.m; sourceTree = SOURCE_ROOT; };
+		140064141234DFE800249AA4 /* InvokeTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InvokeTest.ice; path = ../../Ice/invoke/InvokeTest.ice; sourceTree = SOURCE_ROOT; };
+		140064151234DFE800249AA4 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/invoke/Client.m; sourceTree = SOURCE_ROOT; };
+		140064161234DFE800249AA4 /* BlobjectI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlobjectI.m; path = ../../Ice/invoke/BlobjectI.m; sourceTree = SOURCE_ROOT; };
+		140064171234DFE800249AA4 /* BlobjectI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlobjectI.h; path = ../../Ice/invoke/BlobjectI.h; sourceTree = SOURCE_ROOT; };
+		140064181234DFE800249AA4 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/invoke/AllTests.m; sourceTree = SOURCE_ROOT; };
+		140064291234E0E900249AA4 /* TwowaysNewAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TwowaysNewAMI.m; path = ../../Ice/operations/TwowaysNewAMI.m; sourceTree = SOURCE_ROOT; };
+		1400642A1234E0E900249AA4 /* OnewaysNewAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OnewaysNewAMI.m; path = ../../Ice/operations/OnewaysNewAMI.m; sourceTree = SOURCE_ROOT; };
+		140157B9123645D0007C165E /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/dispatcher/TestI.h; sourceTree = SOURCE_ROOT; };
+		140157BA123645D0007C165E /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/dispatcher/TestI.m; sourceTree = SOURCE_ROOT; };
+		140157BB123645D0007C165E /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/dispatcher/AllTests.m; sourceTree = SOURCE_ROOT; };
+		140157BC123645D0007C165E /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/dispatcher/Client.m; sourceTree = SOURCE_ROOT; };
+		140157BE123645D0007C165E /* DispatcherTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DispatcherTest.ice; path = ../../Ice/dispatcher/DispatcherTest.ice; sourceTree = SOURCE_ROOT; };
+		140157BF123645D0007C165E /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/dispatcher/Server.m; sourceTree = SOURCE_ROOT; };
+		140A3927122CF11300E1931D /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/ami/TestI.m; sourceTree = SOURCE_ROOT; };
+		140A3928122CF11300E1931D /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/ami/TestI.h; sourceTree = SOURCE_ROOT; };
+		140A3929122CF11300E1931D /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/ami/Client.m; sourceTree = SOURCE_ROOT; };
+		140A392A122CF11300E1931D /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/ami/Server.m; sourceTree = SOURCE_ROOT; };
+		140A392B122CF11300E1931D /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/ami/AllTests.m; sourceTree = SOURCE_ROOT; };
+		140A392C122CF11300E1931D /* AMITest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AMITest.ice; path = ../../Ice/ami/AMITest.ice; sourceTree = SOURCE_ROOT; };
 		14103B0B1CF892720097DE5A /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
-		1450A1081ABC09B400A71895 /* BatchOnewaysAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BatchOnewaysAMI.m; path = "../../../../ice/objective-c/test/Ice/operations/BatchOnewaysAMI.m"; sourceTree = "<group>"; };
+		1450A1081ABC09B400A71895 /* BatchOnewaysAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BatchOnewaysAMI.m; path = ../../Ice/operations/BatchOnewaysAMI.m; sourceTree = "<group>"; };
 		14532DCD1761D39700176FE1 /* Objective-C Test Suite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C Test Suite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14532DCE1761D39700176FE1 /* Info-ARC.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-ARC.plist"; path = "/Users/joe/Development/ZeroC/icetouch/test/objective-c/iPhone/container/Info-ARC.plist"; sourceTree = "<absolute>"; };
-		1469025A1CF7228100DE11F2 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/defaultServant/TestI.h; sourceTree = "<group>"; };
-		1469025B1CF7228100DE11F2 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/defaultServant/TestI.m; sourceTree = "<group>"; };
-		146B33FF0FE8BC61009C6199 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/hold/AllTests.m; sourceTree = SOURCE_ROOT; };
-		146B34000FE8BC61009C6199 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/hold/Client.m; sourceTree = SOURCE_ROOT; };
-		146B34010FE8BC61009C6199 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/hold/Server.m; sourceTree = SOURCE_ROOT; };
-		146B34030FE8BC61009C6199 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/hold/TestI.h; sourceTree = SOURCE_ROOT; };
-		146B34040FE8BC61009C6199 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/hold/TestI.m; sourceTree = SOURCE_ROOT; };
-		146B340A0FE8BD58009C6199 /* HoldTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = HoldTest.ice; path = ../Ice/hold/HoldTest.ice; sourceTree = SOURCE_ROOT; };
+		1469025A1CF7228100DE11F2 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/defaultServant/TestI.h; sourceTree = "<group>"; };
+		1469025B1CF7228100DE11F2 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/defaultServant/TestI.m; sourceTree = "<group>"; };
+		146B33FF0FE8BC61009C6199 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/hold/AllTests.m; sourceTree = SOURCE_ROOT; };
+		146B34000FE8BC61009C6199 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/hold/Client.m; sourceTree = SOURCE_ROOT; };
+		146B34010FE8BC61009C6199 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/hold/Server.m; sourceTree = SOURCE_ROOT; };
+		146B34030FE8BC61009C6199 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/hold/TestI.h; sourceTree = SOURCE_ROOT; };
+		146B34040FE8BC61009C6199 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/hold/TestI.m; sourceTree = SOURCE_ROOT; };
+		146B340A0FE8BD58009C6199 /* HoldTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = HoldTest.ice; path = ../../Ice/hold/HoldTest.ice; sourceTree = SOURCE_ROOT; };
 		14934E64161AFC8C00348FC2 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		14B5567E1753721F00FDA693 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = "../../../../ice/objective-c/test/Ice/optional/AllTests.m"; sourceTree = "<group>"; };
-		14B5567F1753721F00FDA693 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = "../../../../ice/objective-c/test/Ice/optional/Client.m"; sourceTree = "<group>"; };
-		14B556801753721F00FDA693 /* OptionalTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = OptionalTest.ice; path = "../../../../ice/objective-c/test/Ice/optional/OptionalTest.ice"; sourceTree = "<group>"; };
-		14B556811753721F00FDA693 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = "../../../../ice/objective-c/test/Ice/optional/Server.m"; sourceTree = "<group>"; };
-		14B556821753721F00FDA693 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = "../../../../ice/objective-c/test/Ice/optional/TestI.h"; sourceTree = "<group>"; };
-		14B556831753721F00FDA693 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = "../../../../ice/objective-c/test/Ice/optional/TestI.m"; sourceTree = "<group>"; };
-		14CBD36B17588C51000D3373 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = "../../../../ice/objective-c/test/Ice/stream/Client.m"; sourceTree = "<group>"; };
-		14CBD36C17588C51000D3373 /* StreamTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = StreamTest.ice; path = "../../../../ice/objective-c/test/Ice/stream/StreamTest.ice"; sourceTree = "<group>"; };
-		14D5BF951240C61900A19716 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/defaultValue/AllTests.m; sourceTree = SOURCE_ROOT; };
-		14D5BF961240C61900A19716 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/defaultValue/Client.m; sourceTree = SOURCE_ROOT; };
-		14D5BF971240C61900A19716 /* DefaultValueTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DefaultValueTest.ice; path = ../Ice/defaultValue/DefaultValueTest.ice; sourceTree = SOURCE_ROOT; };
-		14F560DF1A7010B80028417F /* AdminTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AdminTest.ice; path = "../../../../ice/objective-c/test/Ice/admin/AdminTest.ice"; sourceTree = "<group>"; };
-		14F560E01A7010B80028417F /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = "../../../../ice/objective-c/test/Ice/admin/AllTests.m"; sourceTree = "<group>"; };
-		14F560E11A7010B80028417F /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = "../../../../ice/objective-c/test/Ice/admin/Client.m"; sourceTree = "<group>"; };
-		14F560E21A7010B80028417F /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = "../../../../ice/objective-c/test/Ice/admin/Server.m"; sourceTree = "<group>"; };
-		14F560E31A7010B80028417F /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = "../../../../ice/objective-c/test/Ice/admin/TestI.h"; sourceTree = "<group>"; };
-		14F560E41A7010B80028417F /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = "../../../../ice/objective-c/test/Ice/admin/TestI.m"; sourceTree = "<group>"; };
+		14B5567E1753721F00FDA693 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/optional/AllTests.m; sourceTree = "<group>"; };
+		14B5567F1753721F00FDA693 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/optional/Client.m; sourceTree = "<group>"; };
+		14B556801753721F00FDA693 /* OptionalTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = OptionalTest.ice; path = ../../Ice/optional/OptionalTest.ice; sourceTree = "<group>"; };
+		14B556811753721F00FDA693 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/optional/Server.m; sourceTree = "<group>"; };
+		14B556821753721F00FDA693 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/optional/TestI.h; sourceTree = "<group>"; };
+		14B556831753721F00FDA693 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/optional/TestI.m; sourceTree = "<group>"; };
+		14CBD36B17588C51000D3373 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/stream/Client.m; sourceTree = "<group>"; };
+		14CBD36C17588C51000D3373 /* StreamTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = StreamTest.ice; path = ../../Ice/stream/StreamTest.ice; sourceTree = "<group>"; };
+		14D5BF951240C61900A19716 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/defaultValue/AllTests.m; sourceTree = SOURCE_ROOT; };
+		14D5BF961240C61900A19716 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/defaultValue/Client.m; sourceTree = SOURCE_ROOT; };
+		14D5BF971240C61900A19716 /* DefaultValueTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DefaultValueTest.ice; path = ../../Ice/defaultValue/DefaultValueTest.ice; sourceTree = SOURCE_ROOT; };
+		14F560DF1A7010B80028417F /* AdminTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AdminTest.ice; path = ../../Ice/admin/AdminTest.ice; sourceTree = "<group>"; };
+		14F560E01A7010B80028417F /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/admin/AllTests.m; sourceTree = "<group>"; };
+		14F560E11A7010B80028417F /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/admin/Client.m; sourceTree = "<group>"; };
+		14F560E21A7010B80028417F /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/admin/Server.m; sourceTree = "<group>"; };
+		14F560E31A7010B80028417F /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/admin/TestI.h; sourceTree = "<group>"; };
+		14F560E41A7010B80028417F /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/admin/TestI.m; sourceTree = "<group>"; };
 		1D3623240D0F684500981E51 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Objective-C Test Suite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C Test Suite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -407,93 +407,93 @@
 		344126370FD8E8EA00C8D69C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		34730A10122BF6C300D293CC /* TestSelect-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "TestSelect-iPad.xib"; sourceTree = "<group>"; };
 		34730A14122BF6ED00D293CC /* TestView-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "TestView-iPad.xib"; sourceTree = "<group>"; };
-		34B3B4AA0FD7A7700018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/operations/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B4AB0FD7A7700018C227 /* BatchOneways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BatchOneways.m; path = ../Ice/operations/BatchOneways.m; sourceTree = SOURCE_ROOT; };
-		34B3B4AC0FD7A7700018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/operations/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B4AD0FD7A7700018C227 /* Oneways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Oneways.m; path = ../Ice/operations/Oneways.m; sourceTree = SOURCE_ROOT; };
-		34B3B4AF0FD7A7700018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/operations/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B4B30FD7A7700018C227 /* Twoways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Twoways.m; path = ../Ice/operations/Twoways.m; sourceTree = SOURCE_ROOT; };
-		34B3B4F00FD7A9660018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/operations/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B4F10FD7A9660018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/operations/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B4AA0FD7A7700018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/operations/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B4AB0FD7A7700018C227 /* BatchOneways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BatchOneways.m; path = ../../Ice/operations/BatchOneways.m; sourceTree = SOURCE_ROOT; };
+		34B3B4AC0FD7A7700018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/operations/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B4AD0FD7A7700018C227 /* Oneways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Oneways.m; path = ../../Ice/operations/Oneways.m; sourceTree = SOURCE_ROOT; };
+		34B3B4AF0FD7A7700018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/operations/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B4B30FD7A7700018C227 /* Twoways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Twoways.m; path = ../../Ice/operations/Twoways.m; sourceTree = SOURCE_ROOT; };
+		34B3B4F00FD7A9660018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/operations/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B4F10FD7A9660018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/operations/TestI.m; sourceTree = SOURCE_ROOT; };
 		34B3B5000FD7AB5C0018C227 /* TestCommon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestCommon.m; path = ../Common/TestCommon.m; sourceTree = SOURCE_ROOT; };
-		34B3B5180FD7E7740018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/adapterDeactivation/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5190FD7E7740018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/adapterDeactivation/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B51C0FD7E7740018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/adapterDeactivation/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B51E0FD7E7740018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/adapterDeactivation/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B51F0FD7E7740018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/adapterDeactivation/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5260FD7E78B0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/binding/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5270FD7E78B0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/binding/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5280FD7E78B0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/binding/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5290FD7E78B0018C227 /* BindingTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = BindingTest.ice; path = ../Ice/binding/BindingTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B52A0FD7E78B0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/binding/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B52B0FD7E78B0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/binding/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5320FD7E7BD0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/defaultServant/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5330FD7E7BD0018C227 /* DefaultServantTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DefaultServantTest.ice; path = ../Ice/defaultServant/DefaultServantTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5380FD7E7CA0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/exceptions/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5390FD7E7CA0018C227 /* ExceptionsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ExceptionsTest.ice; path = ../Ice/exceptions/ExceptionsTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B53A0FD7E7CA0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/exceptions/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B53B0FD7E7CA0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/exceptions/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B53C0FD7E7CA0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/exceptions/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B53D0FD7E7CA0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/exceptions/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5430FD7E7E60018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/facets/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5440FD7E7E60018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/facets/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5450FD7E7E60018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/facets/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5460FD7E7E60018C227 /* FacetsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = FacetsTest.ice; path = ../Ice/facets/FacetsTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5470FD7E7E60018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/facets/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B5480FD7E7E60018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/facets/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B54E0FD7E7FB0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/inheritance/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B54F0FD7E7FB0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/inheritance/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5500FD7E7FB0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/inheritance/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5510FD7E7FB0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/inheritance/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5520FD7E7FB0018C227 /* InheritanceTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InheritanceTest.ice; path = ../Ice/inheritance/InheritanceTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5530FD7E7FB0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/inheritance/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5590FD7E8080018C227 /* InterceptorTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InterceptorTest.ice; path = ../Ice/interceptor/InterceptorTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B55A0FD7E8080018C227 /* MyObjectI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyObjectI.h; path = ../Ice/interceptor/MyObjectI.h; sourceTree = SOURCE_ROOT; };
-		34B3B55B0FD7E8080018C227 /* MyObjectI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyObjectI.m; path = ../Ice/interceptor/MyObjectI.m; sourceTree = SOURCE_ROOT; };
-		34B3B55C0FD7E8080018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/interceptor/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B55D0FD7E8080018C227 /* InterceptorI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InterceptorI.m; path = ../Ice/interceptor/InterceptorI.m; sourceTree = SOURCE_ROOT; };
-		34B3B55E0FD7E8080018C227 /* InterceptorI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InterceptorI.h; path = ../Ice/interceptor/InterceptorI.h; sourceTree = SOURCE_ROOT; };
-		34B3B5630FD7E81B0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/location/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5640FD7E81B0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/location/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B5650FD7E81B0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/location/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5660FD7E81B0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/location/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5670FD7E81B0018C227 /* LocationTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = LocationTest.ice; path = ../Ice/location/LocationTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5680FD7E81B0018C227 /* ServerLocator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServerLocator.m; path = ../Ice/location/ServerLocator.m; sourceTree = SOURCE_ROOT; };
-		34B3B5690FD7E81B0018C227 /* ServerLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServerLocator.h; path = ../Ice/location/ServerLocator.h; sourceTree = SOURCE_ROOT; };
-		34B3B56A0FD7E81B0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/location/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5710FD7E8270018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/objects/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5720FD7E8270018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/objects/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5730FD7E8270018C227 /* ObjectsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ObjectsTest.ice; path = ../Ice/objects/ObjectsTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5740FD7E8270018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/objects/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5750FD7E8270018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/objects/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B5760FD7E8270018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/objects/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B57C0FD7E8390018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/proxy/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B57D0FD7E8390018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/proxy/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B57E0FD7E8390018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/proxy/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B57F0FD7E8390018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/proxy/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5800FD7E8390018C227 /* ProxyTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ProxyTest.ice; path = ../Ice/proxy/ProxyTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5810FD7E8390018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/proxy/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5870FD7E8440018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/retry/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5880FD7E8440018C227 /* RetryTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = RetryTest.ice; path = ../Ice/retry/RetryTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5890FD7E8440018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/retry/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B58A0FD7E8440018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/retry/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B58B0FD7E8440018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/retry/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B58C0FD7E8440018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/retry/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5920FD7E8560018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/timeout/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B5930FD7E8560018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/timeout/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B5940FD7E8560018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/timeout/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B5950FD7E8560018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/timeout/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5960FD7E8560018C227 /* TimeoutTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = TimeoutTest.ice; path = ../Ice/timeout/TimeoutTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5970FD7E8560018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/timeout/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B59D0FD7E8640018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../Ice/slicing/exceptions/AllTests.m; sourceTree = SOURCE_ROOT; };
-		34B3B59E0FD7E8640018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../Ice/slicing/exceptions/Client.m; sourceTree = SOURCE_ROOT; };
-		34B3B59F0FD7E8640018C227 /* SlicingExceptionsTestServer.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = SlicingExceptionsTestServer.ice; path = ../Ice/slicing/exceptions/SlicingExceptionsTestServer.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5A00FD7E8640018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../Ice/slicing/exceptions/TestI.m; sourceTree = SOURCE_ROOT; };
-		34B3B5A10FD7E8640018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../Ice/slicing/exceptions/TestI.h; sourceTree = SOURCE_ROOT; };
-		34B3B5A20FD7E8640018C227 /* SlicingExceptionsTestClient.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = SlicingExceptionsTestClient.ice; path = ../Ice/slicing/exceptions/SlicingExceptionsTestClient.ice; sourceTree = SOURCE_ROOT; };
-		34B3B5A30FD7E8640018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../Ice/slicing/exceptions/Server.m; sourceTree = SOURCE_ROOT; };
-		34B3B6020FD7EFCC0018C227 /* AdapterDeactivationTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AdapterDeactivationTest.ice; path = ../Ice/adapterDeactivation/AdapterDeactivationTest.ice; sourceTree = SOURCE_ROOT; };
-		34B3B66A0FD7F41C0018C227 /* OperationsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = OperationsTest.ice; path = ../Ice/operations/OperationsTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5180FD7E7740018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/adapterDeactivation/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5190FD7E7740018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/adapterDeactivation/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B51C0FD7E7740018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/adapterDeactivation/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B51E0FD7E7740018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/adapterDeactivation/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B51F0FD7E7740018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/adapterDeactivation/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5260FD7E78B0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/binding/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5270FD7E78B0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/binding/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5280FD7E78B0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/binding/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5290FD7E78B0018C227 /* BindingTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = BindingTest.ice; path = ../../Ice/binding/BindingTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B52A0FD7E78B0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/binding/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B52B0FD7E78B0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/binding/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5320FD7E7BD0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/defaultServant/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5330FD7E7BD0018C227 /* DefaultServantTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = DefaultServantTest.ice; path = ../../Ice/defaultServant/DefaultServantTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5380FD7E7CA0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/exceptions/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5390FD7E7CA0018C227 /* ExceptionsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ExceptionsTest.ice; path = ../../Ice/exceptions/ExceptionsTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B53A0FD7E7CA0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/exceptions/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B53B0FD7E7CA0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/exceptions/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B53C0FD7E7CA0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/exceptions/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B53D0FD7E7CA0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/exceptions/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5430FD7E7E60018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/facets/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5440FD7E7E60018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/facets/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5450FD7E7E60018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/facets/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5460FD7E7E60018C227 /* FacetsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = FacetsTest.ice; path = ../../Ice/facets/FacetsTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5470FD7E7E60018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/facets/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B5480FD7E7E60018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/facets/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B54E0FD7E7FB0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/inheritance/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B54F0FD7E7FB0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/inheritance/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5500FD7E7FB0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/inheritance/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5510FD7E7FB0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/inheritance/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5520FD7E7FB0018C227 /* InheritanceTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InheritanceTest.ice; path = ../../Ice/inheritance/InheritanceTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5530FD7E7FB0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/inheritance/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5590FD7E8080018C227 /* InterceptorTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = InterceptorTest.ice; path = ../../Ice/interceptor/InterceptorTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B55A0FD7E8080018C227 /* MyObjectI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyObjectI.h; path = ../../Ice/interceptor/MyObjectI.h; sourceTree = SOURCE_ROOT; };
+		34B3B55B0FD7E8080018C227 /* MyObjectI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyObjectI.m; path = ../../Ice/interceptor/MyObjectI.m; sourceTree = SOURCE_ROOT; };
+		34B3B55C0FD7E8080018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/interceptor/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B55D0FD7E8080018C227 /* InterceptorI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InterceptorI.m; path = ../../Ice/interceptor/InterceptorI.m; sourceTree = SOURCE_ROOT; };
+		34B3B55E0FD7E8080018C227 /* InterceptorI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InterceptorI.h; path = ../../Ice/interceptor/InterceptorI.h; sourceTree = SOURCE_ROOT; };
+		34B3B5630FD7E81B0018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/location/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5640FD7E81B0018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/location/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B5650FD7E81B0018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/location/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5660FD7E81B0018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/location/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5670FD7E81B0018C227 /* LocationTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = LocationTest.ice; path = ../../Ice/location/LocationTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5680FD7E81B0018C227 /* ServerLocator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServerLocator.m; path = ../../Ice/location/ServerLocator.m; sourceTree = SOURCE_ROOT; };
+		34B3B5690FD7E81B0018C227 /* ServerLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServerLocator.h; path = ../../Ice/location/ServerLocator.h; sourceTree = SOURCE_ROOT; };
+		34B3B56A0FD7E81B0018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/location/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5710FD7E8270018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/objects/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5720FD7E8270018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/objects/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5730FD7E8270018C227 /* ObjectsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ObjectsTest.ice; path = ../../Ice/objects/ObjectsTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5740FD7E8270018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/objects/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5750FD7E8270018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/objects/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B5760FD7E8270018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/objects/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B57C0FD7E8390018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/proxy/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B57D0FD7E8390018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/proxy/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B57E0FD7E8390018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/proxy/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B57F0FD7E8390018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/proxy/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5800FD7E8390018C227 /* ProxyTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = ProxyTest.ice; path = ../../Ice/proxy/ProxyTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5810FD7E8390018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/proxy/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5870FD7E8440018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/retry/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5880FD7E8440018C227 /* RetryTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = RetryTest.ice; path = ../../Ice/retry/RetryTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5890FD7E8440018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/retry/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B58A0FD7E8440018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/retry/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B58B0FD7E8440018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/retry/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B58C0FD7E8440018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/retry/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5920FD7E8560018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/timeout/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B5930FD7E8560018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/timeout/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B5940FD7E8560018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/timeout/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B5950FD7E8560018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/timeout/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5960FD7E8560018C227 /* TimeoutTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = TimeoutTest.ice; path = ../../Ice/timeout/TimeoutTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5970FD7E8560018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/timeout/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B59D0FD7E8640018C227 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/slicing/exceptions/AllTests.m; sourceTree = SOURCE_ROOT; };
+		34B3B59E0FD7E8640018C227 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/slicing/exceptions/Client.m; sourceTree = SOURCE_ROOT; };
+		34B3B59F0FD7E8640018C227 /* SlicingExceptionsTestServer.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = SlicingExceptionsTestServer.ice; path = ../../Ice/slicing/exceptions/SlicingExceptionsTestServer.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5A00FD7E8640018C227 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/slicing/exceptions/TestI.m; sourceTree = SOURCE_ROOT; };
+		34B3B5A10FD7E8640018C227 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/slicing/exceptions/TestI.h; sourceTree = SOURCE_ROOT; };
+		34B3B5A20FD7E8640018C227 /* SlicingExceptionsTestClient.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = SlicingExceptionsTestClient.ice; path = ../../Ice/slicing/exceptions/SlicingExceptionsTestClient.ice; sourceTree = SOURCE_ROOT; };
+		34B3B5A30FD7E8640018C227 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/slicing/exceptions/Server.m; sourceTree = SOURCE_ROOT; };
+		34B3B6020FD7EFCC0018C227 /* AdapterDeactivationTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = AdapterDeactivationTest.ice; path = ../../Ice/adapterDeactivation/AdapterDeactivationTest.ice; sourceTree = SOURCE_ROOT; };
+		34B3B66A0FD7F41C0018C227 /* OperationsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = OperationsTest.ice; path = ../../Ice/operations/OperationsTest.ice; sourceTree = SOURCE_ROOT; };
 		34B766280E8D55E700CE4701 /* TestSelectController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSelectController.h; sourceTree = "<group>"; };
 		34B766290E8D55E700CE4701 /* TestSelectController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestSelectController.m; sourceTree = "<group>"; };
 		34B7662B0E8D55FE00CE4701 /* TestSelect.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TestSelect.xib; sourceTree = "<group>"; };
@@ -501,9 +501,9 @@
 		34B766330E8D56C700CE4701 /* Test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Test.m; sourceTree = "<group>"; };
 		34C618AE122C035000F60A28 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		34E396620FF1D71400FBACD6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		820AA55E170D92D6000DD016 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = "../../../../ice/objective-c/test/Ice/hash/AllTests.m"; sourceTree = "<group>"; };
-		820AA55F170D92D6000DD016 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = "../../../../ice/objective-c/test/Ice/hash/Client.m"; sourceTree = "<group>"; };
-		820AA560170D92D6000DD016 /* HashTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = HashTest.ice; path = "../../../../ice/objective-c/test/Ice/hash/HashTest.ice"; sourceTree = "<group>"; };
+		820AA55E170D92D6000DD016 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/hash/AllTests.m; sourceTree = "<group>"; };
+		820AA55F170D92D6000DD016 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/hash/Client.m; sourceTree = "<group>"; };
+		820AA560170D92D6000DD016 /* HashTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; name = HashTest.ice; path = ../../Ice/hash/HashTest.ice; sourceTree = "<group>"; };
 		82591289174D147C00B3F597 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AllTests.m; sourceTree = "<group>"; };
 		8259128A174D147C00B3F597 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
 		8259128D174D147C00B3F597 /* ServicesTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.slice; path = ServicesTest.ice; sourceTree = "<group>"; };
@@ -952,7 +952,7 @@
 				8259128D174D147C00B3F597 /* ServicesTest.ice */,
 			);
 			name = services;
-			path = "../../../../ice/objective-c/test/Ice/services";
+			path = ../../Ice/services;
 			sourceTree = "<group>";
 		};
 		8291ABFF1744E0C600A5CEFE /* metrics */ = {
@@ -966,7 +966,7 @@
 				8291AC121744E0C600A5CEFE /* TestI.m */,
 			);
 			name = metrics;
-			path = "../../../../ice/objective-c/test/Ice/metrics";
+			path = ../../Ice/metrics;
 			sourceTree = "<group>";
 		};
 		82E5DA73173C1993007C2602 /* info */ = {
@@ -980,7 +980,7 @@
 				82E5DA86173C1993007C2602 /* TestI.m */,
 			);
 			name = info;
-			path = "../../../../ice/objective-c/test/Ice/info";
+			path = ../../Ice/info;
 			sourceTree = "<group>";
 		};
 		82F4E87B17328C7400920D6D /* enums */ = {
@@ -994,7 +994,7 @@
 				82F4E88617328C7400920D6D /* TestI.m */,
 			);
 			name = enums;
-			path = "../../../../ice/objective-c/test/Ice/enums";
+			path = ../../Ice/enums;
 			sourceTree = "<group>";
 		};
 		D83717A11BFFC64D005D65BC /* Tests */ = {
@@ -1078,6 +1078,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0710;
+				TargetAttributes = {
+					14532D301761D39700176FE1 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Objective-C Test Suite" */;
 			compatibilityVersion = "Xcode 6.3";
@@ -1437,7 +1442,7 @@
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1445,8 +1450,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1488,7 +1493,7 @@
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1496,8 +1501,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1538,14 +1543,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Objective-C Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1586,14 +1591,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Objective-C Test Suite_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1658,8 +1663,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_OBJC_NOGC;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1720,8 +1725,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_OBJC_NOGC;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1772,8 +1777,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_OBJC_NOGC;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);
@@ -1821,8 +1826,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_OBJC_NOGC;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"../../../../ice/objective-c/test/include",
-					"../../../../ice/objective-c/test/Ice",
+					../../include,
+					../../Ice,
 					Classes,
 					generated,
 				);

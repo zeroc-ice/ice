@@ -618,7 +618,7 @@ class Mapping:
         return self.name
 
     def createConfig(self, options):
-        return Mapping.Config(options)
+        return self.Config(options)
 
     def filterTestSuite(self, testId, config, filters, rfilters):
         (pfilters, prfilters) = platform.getFilters(config)
@@ -1296,12 +1296,12 @@ class TestCase(Runnable):
         return testsuite.findTestCase(self) if testsuite else None
 
     def _startServerSide(self, current):
-        current.push(self)
         # Set the host to use for the server side
-        current.host = current.driver.getProcessController(current).getHost(current)
+        current.push(self, current.driver.getProcessController(current).getHost(current))
         self.setupServerSide(current)
         try:
             self.startServerSide(current)
+            return current.host
         except:
             self._stopServerSide(current, False)
             raise
@@ -1337,9 +1337,7 @@ class TestCase(Runnable):
             server.teardown(current, success)
 
     def _runClientSide(self, current, host=None):
-        current.push(self)
-        if host:
-            current.host = host
+        current.push(self, host)
         self.setupClientSide(current)
         success = False
         try:
@@ -1731,13 +1729,12 @@ class RemoteProcessController(ProcessController):
             for p in self.processControllerProxies.values():
                 self.stopControllerApp(p)
 
-
 class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
     runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-2"
-    appPath = "cpp/test/ios/controller/build/Products"
+    appPath = "ios/controller/build/Products"
 
     def __init__(self):
         RemoteProcessController.__init__(self)
@@ -1748,7 +1745,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
     def getControllerProxy(self, current):
         if isinstance(current.testcase.getMapping(), ObjCMapping):
-            return "iPhoneSimulator/com.zeroc.ObjC-Test-Controller"
+            if current.config.arc:
+                return "iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller"
+            else:
+                return "iPhoneSimulator/com.zeroc.ObjC-Test-Controller"
         else:
             assert(isinstance(current.testcase.getMapping(), CppMapping))
             if current.config.cpp11:
@@ -1757,14 +1757,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 return "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller"
 
     def startControllerApp(self, current, proxy):
-        if isinstance(current.testcase.getMapping(), ObjCMapping):
-            appName = "ObjC Test Controller.app"
+        mapping = current.testcase.getMapping()
+        if isinstance(mapping, ObjCMapping):
+            appName = "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
         else:
-            assert(isinstance(current.testcase.getMapping(), CppMapping))
-            if current.config.cpp11:
-                appName ="C++11 Test Controller.app"
-            else:
-                appName ="C++98 Test Controller.app"
+            assert(isinstance(mapping, CppMapping))
+            appName = "C++11 Test Controller.app" if current.config.cpp11 else "C++98 Test Controller.app"
 
         sys.stdout.write("launching simulator... ")
         sys.stdout.flush()
@@ -1783,9 +1781,9 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write("launching {0}... ".format(appName))
         sys.stdout.flush()
-        path = os.path.join(toplevel, self.appPath, "Debug-iphonesimulator", appName)
+        path = os.path.join(mapping.getTestsPath(), self.appPath, "Debug-iphonesimulator", appName)
         if not os.path.exists(path):
-            path = os.path.join(toplevel, self.appPath, "Release-iphonesimulator", appName)
+            path = os.path.join(mapping.getTestsPath(), self.appPath, "Release-iphonesimulator", appName)
         if not os.path.exists(path):
             raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
@@ -1793,7 +1791,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
         print("ok")
 
     def stopControllerApp(self, proxy):
-        run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
+        try:
+            run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
+        except:
+            pass
 
     def destroy(self, driver):
         RemoteProcessController.destroy(self, driver)
@@ -1865,20 +1866,21 @@ class Driver:
         def writeln(self, *args, **kargs):
             self.result.writeln(*args, **kargs)
 
-        def push(self, testcase):
+        def push(self, testcase, host=None):
             if not testcase.mapping:
                 assert(not testcase.parent and not testcase.testsuite)
                 testcase.mapping = self.testcase.getMapping()
                 testcase.testsuite = self.testcase.getTestSuite()
                 testcase.parent = self.testcase
-            self.testcases.append((self.testcase, self.config))
+            self.testcases.append((self.testcase, self.config, self.host))
             self.testcase = testcase
             self.config = self.driver.configs[self.testcase.getMapping()].cloneAndOverrideWith(self)
+            self.host = host
 
         def pop(self):
             assert(self.testcase)
             testcase = self.testcase
-            (self.testcase, self.config) = self.testcases.pop()
+            (self.testcase, self.config, self.host) = self.testcases.pop()
             if testcase.parent and self.testcase != testcase:
                 testcase.mapping = None
                 testcase.testsuite = None
@@ -2110,9 +2112,6 @@ class CppMapping(Mapping):
 
             return True
 
-    def createConfig(self, options):
-        return CppMapping.Config(options)
-
     def getDefaultExe(self, processType, config):
         return platform.getDefaultExe(processType, config)
 
@@ -2329,6 +2328,10 @@ class ObjCMapping(CppBasedMapping):
         mappingName = "objc"
         mappingDesc = "Objective-C"
 
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+            self.arc = self.buildConfig.lower().find("arc") >= 0
+
     def getDefaultSource(self, processType):
         return {
             "client" : "Client.m",
@@ -2468,9 +2471,6 @@ class JavaScriptMapping(Mapping):
             Mapping.Config.__init__(self, options)
             self.es5 = False
             parseOptions(self, options)
-
-    def createConfig(self, options):
-        return JavaScriptMapping.Config(options)
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)

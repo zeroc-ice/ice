@@ -17,7 +17,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
     [[communicator getProperties] setProperty:@"TestAdapter.ACM.Timeout" value:@"0"];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    [adapter add:[RemoteCommunicatorI remoteCommunicator]
+    [adapter add:[ACMRemoteCommunicatorI remoteCommunicator]
         identity:[ICEUtil stringToIdentity:@"communicator"]];
     [adapter activate];
 
@@ -39,7 +39,7 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif

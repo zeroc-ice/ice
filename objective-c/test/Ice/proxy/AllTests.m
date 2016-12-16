@@ -914,11 +914,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     {
         // Working?
         //BOOL ssl = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"ssl"];
-        BOOL tcp = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"tcp"];
-        if(tcp)
-        {
-            [[p1 ice_encodingVersion:ICEEncoding_1_0] ice_ping];
-        }
+        //BOOL tcp = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"tcp"];
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = [communicator stringToProxy:@"test -e 1.0:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA=="];

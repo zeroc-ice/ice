@@ -161,13 +161,13 @@ class TestCaseRunner:
         return options
 
     def startServerSide(self, testcase, current):
-        testcase._startServerSide(current)
+        return testcase._startServerSide(current)
 
     def stopServerSide(self, testcase, current, success):
         testcase._stopServerSide(current, success)
 
-    def runClientSide(self, testcase, current):
-        testcase._runClientSide(current)
+    def runClientSide(self, testcase, current, host):
+        testcase._runClientSide(current, host)
 
 #
 # Runner to run the test cases remotely with the controller (requires IcePy)
@@ -210,8 +210,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
     def startServerSide(self, testcase, current):
         if not self.serverController:
-            TestCaseRunner.startServerSide(self, testcase, current)
-            return
+            return TestCaseRunner.startServerSide(self, testcase, current)
 
         import Test
         current.serverTestCase = self.serverController.runTestCase(str(testcase.getMapping()),
@@ -220,7 +219,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
                                                                    str(current.driver.cross))
         try:
             try:
-                current.host = current.serverTestCase.startServerSide(self.getConfig(current))
+                return current.serverTestCase.startServerSide(self.getConfig(current))
             except Test.Common.TestCaseFailedException as ex:
                 current.result.writeln(ex.output)
                 raise RuntimeError("test failed")
@@ -244,10 +243,10 @@ class RemoteTestCaseRunner(TestCaseRunner):
         finally:
             current.serverTestCase = None
 
-    def runClientSide(self, testcase, current):
+    def runClientSide(self, testcase, current, host):
         import Test
         if not self.clientController:
-            TestCaseRunner.runClientSide(self, testcase, current)
+            TestCaseRunner.runClientSide(self, testcase, current, host)
             return
 
         clientTestCase = self.clientController.runTestCase(str(testcase.getMapping()),
@@ -255,7 +254,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
                                                            testcase.getName(),
                                                            str(current.driver.cross))
         try:
-            current.result.write(clientTestCase.runClientSide(current.host, self.getConfig(current)))
+            current.result.write(clientTestCase.runClientSide(host, self.getConfig(current)))
         except Test.Common.TestCaseFailedException as ex:
             current.result.writeln(ex.output)
             raise RuntimeError("test failed")
@@ -268,7 +267,9 @@ class RemoteTestCaseRunner(TestCaseRunner):
                                   current.config.mx,
                                   current.config.serialize,
                                   current.config.compress,
-                                  current.config.ipv6)
+                                  current.config.ipv6,
+                                  current.config.cprops,
+                                  current.config.sprops)
 
 class LocalDriver(Driver):
 
@@ -394,11 +395,11 @@ class LocalDriver(Driver):
                             print("  [...]")
                             for i in range(max(4, len(lines) - 8), len(lines)):
                                 print("  " + lines[i])
+                return 1
             else:
                 print("{0} succeeded".format(len(results)))
-
-            if not self.loop:
-                return 1 if len(failures) > 0 else 0
+                if not self.loop:
+                    return 0
 
     def runTestSuite(self, current):
         current.result.writeln("*** [{0}/{1}] Running {2}/{3} tests ***".format(current.index,
@@ -427,9 +428,9 @@ class LocalDriver(Driver):
 
         if current.testcase.getParent():
             success = False
-            current.testcase._startServerSide(current)
+            host = current.testcase._startServerSide(current)
             try:
-                current.testcase._runClientSide(current)
+                current.testcase._runClientSide(current, host)
                 success = True
             finally:
                 current.testcase._stopServerSide(current, success)
@@ -464,9 +465,9 @@ class LocalDriver(Driver):
                 return
 
             success = False
-            self.runner.startServerSide(server, current)
+            host = self.runner.startServerSide(server, current)
             try:
-                self.runner.runClientSide(client, current)
+                self.runner.runClientSide(client, current, host)
                 success = True
             finally:
                 self.runner.stopServerSide(server, current, success)
