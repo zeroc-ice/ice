@@ -98,7 +98,7 @@ cpp11_targetdir		= $(if $(filter %/build,$5),cpp11)
 # $(call make-cpp-src-project,$1=project)
 #
 define make-cpp-src-project
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 $1_slicecompiler 	:= slice2cpp
 $1_sliceflags		+= -I$(slicedir)
 $1_cppflags 		+= -Isrc -I$1/generated -I$(includedir) -I$(includedir)/generated -DICE_BUILDING_SRC
@@ -114,7 +114,7 @@ define make-cpp-test-project
 $1_slicecompiler 	:= slice2cpp
 $1_sliceflags		+= -I$(slicedir)
 $1_cppflags		+= -I$1/generated -I$1 -Itest/include -I$(includedir)
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 $1_cppflags		+= -I$(includedir)/generated
 endif
 $(make-project)

@@ -16,10 +16,16 @@ PHP_CONFIG      ?= php-config
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-php_cppflags     = $(shell $(PHP_CONFIG) --includes)
+php_cppflags            = $(shell $(PHP_CONFIG) --includes)
 
 ifeq ($(os),Darwin)
-    php_ldflags      := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+    php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+endif
+
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
+php_cpp_includes        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+else
+php_cpp_includes        = -I$(includedir)
 endif
 
 ifeq ($(os),Linux)
@@ -59,6 +65,8 @@ installdirs += $(install_phpdir)
 #
 define make-php-package
 
+ifeq ($(filter all php, $(ICE_BIN_DIST)),)
+
 $2/$3/.depend/%.ice.d: | $2/$3/.depend ;
 
 $2/$3/.depend:
@@ -85,6 +93,8 @@ distclean clean::
 generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice))
 
 $$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)),$2,$(install_phpdir),install))
+
+endif
 
 endef
 
@@ -119,4 +129,3 @@ distclean clean::
 tests generate-srcs srcs all:: $(patsubst $1/%.ice,$1/%.php,$(wildcard $1/*.ice))
 
 endef
-

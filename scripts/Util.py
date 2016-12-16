@@ -240,7 +240,7 @@ class Windows(Platform):
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
 
-        if current.driver.useBinDist():
+        if current.driver.useIceBinDist(mapping):
             iceHome = os.environ.get("ICE_HOME")
             v140 = self.getCompiler() == "v140"
             cpp = isinstance(mapping, CppMapping)
@@ -269,7 +269,7 @@ class Windows(Platform):
 
     def getLibSubDir(self, mapping, process, current):
         if isinstance(mapping, PhpMapping):
-            return "php" if current.driver.useBinDist() else "lib"
+            return "php" if current.driver.useIceBinDist(mapping) else "lib"
         return self.getBinSubDir(mapping, process, current)
 
     def getBuildSubDir(self, name, current):
@@ -306,7 +306,7 @@ class Windows(Platform):
         # On Windows, if testing with a binary distribution, don't test Glacier2/IceStorm services
         # with the Debug configurations since we don't provide binaries for them.
         #
-        if current.driver.useBinDist():
+        if current.driver.useIceBinDist(currnet.mapping):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceStorm"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
@@ -2122,11 +2122,12 @@ class Driver:
     def setConfigs(self, configs):
         self.configs = configs
 
-    def useBinDist(self):
-        return os.environ.get("USE_BIN_DIST", "no") == "yes"
+    def useIceBinDist(self, mapping):
+        env = os.environ.get("ICE_BIN_DIST", "").split()
+        return 'all' in env or mapping in env
 
     def getIceDir(self, mapping, current):
-        if self.useBinDist():
+        if self.useIceBinDist(mapping):
             return platform.getIceDir(mapping, current)
         elif mapping:
             return mapping.getPath()
@@ -2134,7 +2135,7 @@ class Driver:
             return toplevel
 
     def getSliceDir(self, mapping, current):
-        return platform.getSliceDir(self.getIceDir(mapping, current) if self.useBinDist() else toplevel)
+        return platform.getSliceDir(self.getIceDir(mapping, current) if self.useIceBinDist(mapping) else toplevel)
 
     def isWorkerThread(self):
         return False
@@ -2420,14 +2421,14 @@ class CSharpMapping(Mapping):
 
     def getPluginEntryPoint(self, plugin, process, current):
         plugindir = "{0}/{1}".format(platform.getIceDir(self, current),
-                                     "lib" if current.driver.useBinDist() else "Assemblies")
+                                     "lib" if current.driver.useIceBinDist(self) else "Assemblies")
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
             "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory"
         }[plugin]
 
     def getEnv(self, process, current):
-        if current.driver.useBinDist():
+        if current.driver.useIceBinDist(self):
             bzip2 = os.path.join(platform.getIceDir(self, current), "tools")
             assembliesDir = os.path.join(platform.getIceDir(self, current), "lib")
         else:
@@ -2579,7 +2580,7 @@ class PhpMapping(CppBasedClientMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if isinstance(platform, Windows) and current.driver.useBinDist():
+        if isinstance(platform, Windows) and current.driver.useIceBinDist(self):
             env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
         return env
 
@@ -2597,7 +2598,7 @@ class PhpMapping(CppBasedClientMapping):
                 args += ["-d", "include_path=/usr/local/share/php"]
                 args += ["-d", "extension=IcePHP.so"]
         else:
-            useBinDist = current.driver.useBinDist()
+            useBinDist = current.driver.useIceBinDist(self)
             if isinstance(platform, Windows):
                 extension = "php_ice_nts.dll" if "NTS" in run("php -v") else "php_ice.dll"
                 extensionDir = self.getBinDir(process, current)

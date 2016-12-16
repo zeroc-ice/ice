@@ -58,6 +58,13 @@ PLATFORMS              	?= $(firstword $(supported-platforms))
 CONFIGS			?= $(firstword $(supported-configs))
 
 #
+# List of binary distributions to build against. Defaults to undefined,
+# i.e. build all source distributions. This is useful for building
+# a language mapping or tests against a binary distribution.
+#
+#ICE_BIN_DIST         ?=
+
+#
 # Third-party libraries (Ice for C++)
 #
 # If a third-party library is not installed in a standard location
@@ -80,7 +87,7 @@ include	$(top_srcdir)/config/Make.rules.$(os)
 include	$(top_srcdir)/config/Make.project.rules
 include	$(top_srcdir)/config/Make.tests.rules
 
-ifeq ($(USE_BIN_DIST),yes)
+ifneq ($(ICE_BIN_DIST),)
 prefix 			:= $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
 bindir			?= $(install_bindir)
 libdir			?= $(install_libdir)

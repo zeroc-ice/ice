@@ -30,7 +30,8 @@ var babel       = require("gulp-babel"),
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
-var useBinDist = process.env.USE_BIN_DIST == "yes";
+var iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
+var useBinDist = iceBinDist.find(function(variable) {return variable == "js" || variable == "all" }) !== undefined;
 
 function parseArg(argv, key)
 {

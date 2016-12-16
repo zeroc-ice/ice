@@ -97,7 +97,7 @@ The Maven package id for the application bundler package is as follows:
 
 ### Preparing to Build
 
-The build system  requires the Slice translators from Ice for C++. If you have
+The build system requires the Slice translators from Ice for C++. If you have
 not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
 environment variable with the path name of your Ice installation. For example,
 on Unix:
@@ -194,7 +194,7 @@ In OS X there is also an application bundle named IceGrid Admin. You can start
 the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net

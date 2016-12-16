@@ -150,9 +150,9 @@ int main(int argc, char* argv[])
 #if defined(_WIN32)
     bool binDist = false;
     vector<wchar_t> buf(256);
-    DWORD ret = GetEnvironmentVariableW(L"USE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
+    DWORD ret = GetEnvironmentVariableW(L"ICE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
     string valstr = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    binDist = valstr == "yes";
+    binDist = (valstr.find("all") != std::string::npos) ||  == (valstr.find("cpp") != std::string::npos);
 
     if(binDist)
     {
@@ -183,10 +183,10 @@ int main(int argc, char* argv[])
 
 #if defined(__APPLE__)
     bool binDist = false;
-    const char* s = getenv("USE_BIN_DIST");
+    const char* s = getenv("ICE_BIN_DIST");
     if(s && *s != '\0')
     {
-       binDist = string(s) == "yes";
+       binDist = (string(s).find("all") != std::string::npos) || (string(s).find("cpp") != std::string::npos);
     }
 
     if(binDist && !optimized)

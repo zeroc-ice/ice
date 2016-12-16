@@ -1,20 +1,19 @@
 {
-
-"presets": 
+"presets":
     [
         "babel-preset-es2015-script"
     ],
-"plugins": 
+"plugins":
     [
         [
-            "babel-plugin-transform-builtin-extend", 
+            "babel-plugin-transform-builtin-extend",
                 {
-                    globals: ["Error", "Promise"]
+                    "globals": ["Error", "Promise"]
                 }
         ],
         [
             "rewrite-require",
-                { 
+                {
                     "aliases": { "ice": "ice/src/es5"}
                 }
         ]

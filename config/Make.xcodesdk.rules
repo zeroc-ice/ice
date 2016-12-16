@@ -14,7 +14,7 @@ xcodesdk_objdir		= static
 xcodesdk_cppflags	= $(static_cppflags)
 xcodesdk_ldflags	= $(static_ldflags)
 
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
 $(foreach d,Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP \
 	    IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC,$(eval $d[xcodesdk]_targetdir := $(top_srcdir)))
 endif

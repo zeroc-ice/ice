@@ -14,6 +14,8 @@ ifeq ($(PYTHON),)
     PYTHON = python
 endif
 
+ifeq ($(filter all python,$(ICE_BIN_DIST)),)
+
 include $(top_srcdir)/config/Make.rules
 
 #
@@ -43,3 +45,5 @@ $(call make-projects,$(projects))
 #
 all generate-srcs clean distclean install::
 	+$(Q)$(MAKE) -C python $@
+
+endif

@@ -56,7 +56,7 @@ arc_dependency	 	:=
 slice2objc_targetext	= m
 
 # Rule for installing headers file from include/objc directory
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
 $(DESTDIR)$(install_includedir)/objc:
 	$(Q)$(MKDIR) -p $(DESTDIR)$(install_includedir)/objc
 
@@ -68,7 +68,7 @@ endif
 # $(make-objc-src-project $1=project)
 #
 define make-objc-src-project
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
 $1_slicecompiler 	:= slice2objc
 $1_sliceflags		+= -I$(slicedir)
 $1_cppflags 		+= -I$(includedir) -I$(includedir)/generated
@@ -86,7 +86,7 @@ $1_slicecompiler 	:= slice2objc
 $1_sliceflags		:= -I$(slicedir) $$($1_sliceflags)
 $1_cppflags		:= -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
 $1_ldflags		+= -framework Foundation
-ifneq ($(USE_BIN_DIST),yes)
+ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
 $1_cppflags		+= -I$(includedir)/generated
 endif
 $(make-project)

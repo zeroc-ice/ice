@@ -26,6 +26,7 @@ include $(lang_srcdir)/config/Make.rules
 #
 # Load Makefile.mk fragments
 #
+ifeq ($(filter all php, $(ICE_BIN_DIST)),)
 ifeq ($(filter tests,$(MAKECMDGOALS)),)
     ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
         $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
@@ -36,6 +37,7 @@ ifeq ($(filter tests,$(MAKECMDGOALS)),)
             include $(lang_srcdir)/src/php7/Makefile.mk
         endif
     endif
+endif
 endif
 
 #

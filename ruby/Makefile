@@ -10,6 +10,8 @@
 top_srcdir	:= ..
 lang_srcdir	:= $(top_srcdir)/ruby
 
+ifeq ($(filter all ruby,$(ICE_BIN_DIST)),)
+
 include $(top_srcdir)/config/Make.rules
 
 #
@@ -44,3 +46,5 @@ $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceBox))
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceGrid))
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IcePatch2))
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,IceStorm))
+
+endif

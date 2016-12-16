@@ -48,7 +48,7 @@ if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) 
 slice {
     cppConfiguration = this.cppConfiguration
     cppPlatform = this.cppPlatform
-    if(System.env.USE_BIN_DIST != "yes") {
+    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
         iceHome =  this.hasProperty('iceHome') ? this.iceHome
             : new File([rootProject.projectDir, ".."].join(File.separator)).getCanonicalPath()
     }
