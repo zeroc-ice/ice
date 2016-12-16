@@ -64,8 +64,7 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*
-              );
+    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
     ~OperationI();
 
     virtual zend_function* function();

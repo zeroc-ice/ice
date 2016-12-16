@@ -284,15 +284,15 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 
     DWORD size;
     DWORD rv = GetAdaptersAddresses(family, 0, NULL, NULL, &size);
-    if (rv == ERROR_BUFFER_OVERFLOW)
+    if(rv == ERROR_BUFFER_OVERFLOW)
     {
         PIP_ADAPTER_ADDRESSES adapter_addresses = (PIP_ADAPTER_ADDRESSES) malloc(size);
         rv = GetAdaptersAddresses(family, 0, NULL, adapter_addresses, &size);
-        if (rv == ERROR_SUCCESS)
+        if(rv == ERROR_SUCCESS)
         {
-            for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != NULL; aa = aa->Next)
+            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != NULL; aa = aa->Next)
             {
-                for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next)
+                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
