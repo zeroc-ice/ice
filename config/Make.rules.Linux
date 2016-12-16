@@ -88,7 +88,7 @@ shared_ldflags	    = $(if $(filter-out program,$($1_target)),\
         $(if $(filter yes,$(allow-undefined-symbols)),,-Wl$(comma)--no-undefined),\
 	$$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-CXXFLAGS        += -Wall -Werror -pthread
+CXXFLAGS        += -Wall -Wdeprecated -Werror -pthread
 LDFLAGS         += -pthread
 
 ifeq ($(MAXWARN),yes)
