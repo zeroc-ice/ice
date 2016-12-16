@@ -704,6 +704,7 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#   pragma warning(disable:4458) // declaration of ... hides class member";
     C << nl << "#elif defined(__clang__)";
     C << nl << "#   pragma clang diagnostic ignored \"-Wshadow\"";
+    C << nl << "#   pragma clang diagnostic ignored  \"-Wdeprecated-declarations\"";
     C << nl << "#elif defined(__GNUC__)";
     C << nl << "#   pragma GCC diagnostic ignored \"-Wshadow\"";
     C << nl << "#endif";
@@ -5329,6 +5330,10 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     // Out of line dtor to avoid weak vtable
     H << sp << nl << _dllMemberExport << "virtual ~" << name << "();";
+
+    // Default copy ctor
+    H << sp << nl << name << "(const " << name << "&) = default;";
+
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
@@ -6353,7 +6358,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Out of line virtual dtor to avoid weak vtable
     //
-    H << sp << nl << _dllMemberExport << "virtual ~" << name  << "();";
+    H << nl << _dllMemberExport << "virtual ~" << name  << "();";
     C << sp << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
@@ -6389,6 +6394,11 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp << nl << name << "() = default;";
         }
+
+        H << sp << nl << name << "(const " << name << "&) = default;";
+        H << nl << name << "(" << name << "&&) = default;";
+        H << nl << name << "& operator=(const " << name << "&) = default;";
+        H << nl << name << "& operator=(" << name << "&&) = default;";
 
         emitOneShotConstructor(p);
     }
@@ -7147,6 +7157,11 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     H << sp << nl << name << "() = default;";
+
+    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << nl << name << "(" << name << "&&) = default;";
+    H << nl << name << "& operator=(const " << name << "&) = default;";
+    H << nl << name << "& operator=(" << name << "&&) = default;";
 
     emitOneShotConstructor(p);
 

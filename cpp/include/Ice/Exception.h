@@ -35,6 +35,7 @@ public:
     LocalException(const char*, int);
 
 #ifdef ICE_CPP11_COMPILER
+    LocalException(const LocalException&) = default;
     virtual ~LocalException();
 #else
     virtual ~LocalException() throw();
@@ -72,8 +73,8 @@ public:
 
 protected:
 
-    virtual void _writeImpl(::Ice::OutputStream*) const {};
-    virtual void _readImpl(::Ice::InputStream*) {};
+    virtual void _writeImpl(::Ice::OutputStream*) const {}
+    virtual void _readImpl(::Ice::InputStream*) {}
 };
 
 
@@ -86,6 +87,7 @@ public:
 
     SystemException(const char*, int);
 #ifdef ICE_CPP11_COMPILER
+    SystemException(const SystemException&) = default;
     virtual ~SystemException();
 #else
     virtual ~SystemException() throw();

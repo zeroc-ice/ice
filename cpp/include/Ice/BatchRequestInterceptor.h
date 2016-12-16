@@ -42,6 +42,6 @@ typedef IceUtil::Handle<BatchRequestInterceptor> BatchRequestInterceptorPtr;
 
 #endif
 
-};
+}
 
 #endif

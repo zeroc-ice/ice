@@ -24,6 +24,15 @@ class ICE_API Value
 {
 public:
 
+    // See "Rule of zero" at http://en.cppreference.com/w/cpp/language/rule_of_three
+    // The virtual dtor is actually not stricly necessary since Values are always stored
+    // in std::shared_ptr
+
+    Value() = default;
+    Value(const Value&) = default;
+    Value(Value&&) = default;
+    Value& operator=(const Value&) = default;
+    Value& operator=(Value&&) = default;
     virtual ~Value() = default;
 
     virtual void ice_preMarshal();

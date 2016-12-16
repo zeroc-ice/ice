@@ -127,8 +127,8 @@ public:
     virtual void _iceWrite(Ice::OutputStream*) const;
     virtual void _iceRead(Ice::InputStream*);
 
-    virtual bool _iceGcVisit(IceInternal::GCVisitor&) { return false; };
-    virtual void ice_collectable(bool) { };
+    virtual bool _iceGcVisit(IceInternal::GCVisitor&) { return false; }
+    virtual void ice_collectable(bool) { }
 
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
