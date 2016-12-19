@@ -543,6 +543,8 @@ $2_srcdir	:= $$(or $$($2_srcdir),$$($1_srcdir))
 # Combine settings set at the project and component levels.
 #
 $2_sliceflags	:= $$($2_sliceflags) $$($1_sliceflags)
+$2_bisonflags	:= $$($2_bisonflags) $$($1_bisonflags)
+$2_flexflags	:= $$($2_flexflags) $$($1_flexflags)
 
 #
 # If we're compiling a library, we check for a ../slice/<component> directory.
