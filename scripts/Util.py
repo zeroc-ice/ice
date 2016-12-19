@@ -2183,7 +2183,14 @@ class JavaMapping(Mapping):
 
         assert(current.testcase.getPath().startswith(self.getTestsPath()))
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
-        return "{0} {1}.{2}".format(java, package, exe)
+        javaArgs = self.getJavaArgs(process, current)
+        if javaArgs:
+            return "{0} {1} {2}.{3}".format(java, " ".join(javaArgs), package, exe)
+        else:
+            return "{0} {1}.{2}".format(java, package, exe)
+
+    def getJavaArgs(self, process, current):
+        return []
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
