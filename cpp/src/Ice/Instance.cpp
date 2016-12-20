@@ -1461,7 +1461,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     {
         _wstringConverter = newWstringConverter;
     }
-    else if(!dynamic_cast<IceUtil::UnicodeWstringConverter*>(_wstringConverter.get()))
+    else
     {
         _wstringConverter = new IceUtil::UnicodeWstringConverter;
     }
