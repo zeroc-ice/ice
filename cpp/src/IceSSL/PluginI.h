@@ -28,6 +28,8 @@ public:
     //
     virtual void initialize();
     virtual void destroy();
+    virtual std::string getEngineName() const;
+    virtual Ice::Long getEngineVersion() const;
 
     //
     // From IceSSL::Plugin.

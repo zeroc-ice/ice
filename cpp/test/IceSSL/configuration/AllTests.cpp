@@ -9,9 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/Plugin.h>
-#if ICE_USE_OPENSSL
-#  include <openssl/ssl.h> // Required for OPENSSL_VERSION_NUMBER
-#endif
 #include <TestCommon.h>
 #include <Test.h>
 #include <fstream>
@@ -42,17 +39,6 @@ using namespace Windows::Security::Cryptography::Certificates;
 
 using namespace std;
 using namespace Ice;
-
-#ifdef ICE_USE_OPENSSL
-//
-// With OpenSSL 1.1.0 we need to set SECLEVEL=0 to allow ADH ciphers
-//
-#  if OPENSSL_VERSION_NUMBER >= 0x10100000L
-const string anonCiphers = "ADH:@SECLEVEL=0";
-#  else
-const string anonCiphers = "ADH";
-#  endif
-#endif
 
 void
 readFile(const string& file, vector<char>& buffer)
@@ -716,6 +702,29 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     string sep = ";";
 #else
     string sep = ":";
+#endif
+    
+    string engineName;
+    Ice::Long engineVersion;
+    {
+        //
+        // Get the IceSSL engine name and version
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
+        CommunicatorPtr comm = initialize(initData);
+        IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
+        test(plugin);
+        engineName = plugin->getEngineName();
+        engineVersion = plugin->getEngineVersion();
+        comm->destroy();
+    }
+    
+#ifdef ICE_USE_OPENSSL
+    //
+    // Parse OpenSSL version from engineName "OpenSSLEngine@OpenSSL 1.0.2g  1 Mar 2016"
+    //
+    const string anonCiphers = engineVersion >= 0x10100000L ? "ADH:@SECLEVEL=0" : "ADH";
 #endif
 
     IceSSL::NativeConnectionInfoPtr info;
@@ -1719,13 +1728,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         catch(const LocalException& ex)
         {
             //
-            // OpenSSL < 1.0 doesn't support tls 1.1 so it will also fail, we ignore in this
-            // case.
+            // OpenSSL < 1.0 doesn't support tls 1.1 so it will fail, we ignore the error in this case.
             //
-#    if defined(ICE_USE_SCHANNEL) || (defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L)
-            cerr << ex << endl;
-            test(false);
-#    endif
+            if((engineName.find("OpenSSLEngine") != string::npos && engineVersion < 0x10000000L) ||
+                engineName.find("OpenSSLEngine") == string::npos)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
         }
         fact->destroyServer(server);
         comm->destroy();

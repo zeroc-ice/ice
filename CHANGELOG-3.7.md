@@ -103,6 +103,9 @@ These are the changes since Ice 3.6.3.
 - Upgrade UWP IceSSL implementation to support client side certificates and custom
   certificate verification.
 
+- Added getEngineName and getEngineVersion methods to IceSSL::Plugin to retrieve
+  the SSL engine name and version used by the Ice runtime.
+
 ## C# Changes
 
 - Added new interface/class metadata cs:tie. Use this metadata to generate a tie

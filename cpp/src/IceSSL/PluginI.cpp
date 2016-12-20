@@ -133,6 +133,32 @@ IceSSL::PluginI::destroy()
     _engine = 0;
 }
 
+string
+IceSSL::PluginI::getEngineName() const
+{
+#if defined(ICE_USE_SECURE_TRANSPORT)
+    return "SecureTransportEngine";
+#elif defined(ICE_USE_SCHANNEL)
+    return "SChannelEngine";
+#elif defined(ICE_OS_UWP)
+    return "UWPEngine";
+#else
+    ostringstream os;
+    os << "OpenSSLEngine@" << SSLeay_version(SSLEAY_VERSION);
+    return os.str();
+#endif
+}
+
+Ice::Long
+IceSSL::PluginI::getEngineVersion() const
+{
+#if defined(ICE_USE_OPENSSL)
+    return SSLeay();
+#else
+    return 0;
+#endif
+}
+
 #ifdef ICE_CPP11_MAPPING
 void
 IceSSL::PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> verifier)

@@ -576,6 +576,9 @@ class ICESSL_API Plugin : public Ice::Plugin
 public:
 
     virtual ~Plugin();
+    
+    virtual std::string getEngineName() const = 0;
+    virtual Ice::Long getEngineVersion() const = 0;
 
     //
     // Establish the certificate verifier object. This should be done
