@@ -1686,7 +1686,10 @@ class RemoteProcessController(ProcessController):
             self.proxy.waitReady(startTimeout)
 
         def waitSuccess(self, exitstatus=0, timeout=60):
-            result = self.proxy.waitSuccess(timeout)
+            try:
+                result = self.proxy.waitSuccess(timeout)
+            except:
+                raise Except.TIMEOUT("waitSuccess timeout")
             if exitstatus != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
 
@@ -2693,7 +2696,7 @@ class JavaScriptMapping(Mapping):
             "serialize" : [False],
             "mx" : [False],
             "es5" : [False, True],
-            "worker" : [False, True] if current.config.browser else [],
+            "worker" : [False, True] if current.config.browser else [False],
         }
 
         # Edge and Ie only support ES5 for now
