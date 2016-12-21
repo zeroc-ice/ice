@@ -1,11 +1,11 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Condition="'$(Configuration)' == ''">
+      <Configuration>Release</Configuration>
+    </PropertyGroup>
+
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
-
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-      <Configuration>Debug</Configuration>
-    </PropertyGroup>
 
     <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
       <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>

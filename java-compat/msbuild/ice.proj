@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+  </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets"/>
 
   <PropertyGroup>
     <Gradle Condition="'$(Gradle)' == ''">gradlew</Gradle>
-    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <slice2java Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2java</slice2java>
     <slice2java Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2java</slice2java>
   </PropertyGroup>

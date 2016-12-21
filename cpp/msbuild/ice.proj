@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
   <PropertyGroup Condition="'$(Configuration)' == ''">
-    <Configuration>Debug</Configuration>
+    <Configuration>Release</Configuration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)' == ''">
-    <Platform>Win32</Platform>
+    <Platform>x64</Platform>
   </PropertyGroup>
+
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
   <!--
       Restore Nuget packages.

@@ -54,7 +54,7 @@ public class Server
                 }
                 else if(s.Equals("-v") || s.Equals("--version"))
                 {
-                    Console.Out.WriteLine("3.7a3");
+                    Console.Out.WriteLine(Ice.Util.stringVersion());
                     return 0;
                 }
                 else

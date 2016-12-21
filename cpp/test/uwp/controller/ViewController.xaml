@@ -1,0 +1,36 @@
+﻿<Page
+    x:Class="Controller.ViewController"
+    IsTabStop="false"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Controller"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="ZeroC - UWP Controller" 
+                       Style="{StaticResource TitleStyle}" 
+                       Margin="5" 
+                       VerticalAlignment="Bottom" TextWrapping="Wrap"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" >
+            <TextBlock Margin="5" Text="Hostname" Style="{StaticResource BasicTextStyle}" FontSize="16"/>
+            <ComboBox Margin="5,5,5,5" x:Name="Hostname" HorizontalAlignment="Stretch" SelectionChanged="Hostname_SelectionChanged"></ComboBox>
+        </StackPanel>
+        <ListBox Margin="5" Grid.Row="2" x:Name="Output" Background="LightGray"></ListBox>
+        <StackPanel Grid.Row="3" VerticalAlignment="Bottom">
+            <TextBlock Text="Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved." 
+                       Style="{StaticResource FooterStyle}"
+                       Margin="5"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+    </Grid>
+</Page>

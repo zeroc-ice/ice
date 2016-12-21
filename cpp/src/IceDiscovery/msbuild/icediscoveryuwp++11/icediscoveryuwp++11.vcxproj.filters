@@ -90,6 +90,15 @@
     <ClCompile Include="x64\Release\IceDiscovery.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\LocatorI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\LookupI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\generated\uwp\Win32\Debug\IceDiscovery\IceDiscovery.h">
@@ -109,6 +118,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\uwp\x64\Release\IceDiscovery\IceDiscovery.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LocatorI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LookupI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PluginI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,14 +1,13 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
-
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Platform)' == ''">
-      <Platform>Win32</Platform>
+      <Platform>x64</Platform>
     </PropertyGroup>
+
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
     <!-- Restore Nuget packages -->
     <Target Name="NugetRestore" DependsOnTargets="GetNuget">

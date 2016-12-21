@@ -188,7 +188,10 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
       { \
           try \
           { \
-             communicatorInstance->destroy(); \
+              if(communicatorInstance) \
+              { \
+                  communicatorInstance->destroy(); \
+              } \
           } \
           catch(const Ice::LocalException&) \
           { \

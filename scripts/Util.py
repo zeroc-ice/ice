@@ -118,7 +118,7 @@ class Platform:
         # This is used by the IceSSL test suite to figure out how to setup certificates
         return False
 
-    def canRun(self, current):
+    def canRun(self, mapping, current):
         return True
 
 class Darwin(Platform):
@@ -200,7 +200,7 @@ class Linux(Platform):
                 name += "++11"
         return name
 
-    def canRun(self, current):
+    def canRun(self, mapping, current):
         if self.linuxId in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
             #
             # Don't test Glacier2/IceStorm/IceGrid services with multilib platforms. We only
@@ -212,6 +212,32 @@ class Linux(Platform):
         return True
 
 class Windows(Platform):
+
+    def getFilters(self, config):
+        if config.buildPlatform == "UWP":
+            return (["Ice/.*", "IceSSL/configuration"],
+                    ["Ice/background",
+                     "Ice/checksum",
+                     "Ice/custom",
+                     "Ice/defaultServant",
+                     "Ice/defaultValue",
+                     "Ice/faultTolerance",
+                     "Ice/gc",
+                     "Ice/interceptor",
+                     "Ice/library",
+                     "Ice/logger",
+                     "Ice/networkProxy",
+                     "Ice/properties",
+                     "Ice/plugin",
+                     "Ice/stringConverter",
+                     "Ice/servantLocator",
+                     "Ice/services",
+                     "Ice/slicing/exceptions",
+                     "Ice/slicing/objects",
+                     "Ice/threadPoolPriority",
+                     # TODO: Only run IceSSL/configuration with remote C++ server.
+                     "IceSSL/configuration"])
+        return Platform.getFilters(self, config)
 
     def parseBuildVariables(self, variables):
         pass # Nothing to do, we don't support the make build system on Windows
@@ -301,12 +327,12 @@ class Windows(Platform):
             return os.path.join(toplevel, mapping.name, "msbuild", "packages",
                                 "zeroc.ice.{0}.{1}".format(name, version))
 
-    def canRun(self, current):
+    def canRun(self, mapping, current):
         #
         # On Windows, if testing with a binary distribution, don't test Glacier2/IceStorm services
         # with the Debug configurations since we don't provide binaries for them.
         #
-        if current.driver.useIceBinDist(currnet.mapping):
+        if current.driver.useIceBinDist(mapping):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceStorm"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
@@ -498,7 +524,7 @@ class Mapping:
             return [c for c in gen(options)]
 
         def canRun(self, current):
-            if not platform.canRun(current):
+            if not platform.canRun(self, current):
                 return False
 
             options = {}
@@ -1938,6 +1964,26 @@ class iOSDeviceProcessController(RemoteProcessController):
     def stopControllerApp(self, ident):
         pass
 
+class UWPProcessController(RemoteProcessController):
+    def __init__(self, current):
+        RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001")
+        self.appUserModelId = "ice-uwp-controller_3qjctahehqazm!App"
+    def __str__(self):
+        return "UWP"
+
+    def getControllerIdentity(self, current):
+        return "UWP/ProcessController"
+
+    def startControllerApp(self, current, ident):
+        print("staring UWP controller app")
+        run('"{0}" {1}'.format(
+            "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/microsoft.windows.softwarelogo.appxlauncher.exe",
+            self.appUserModelId))
+
+    def stopControllerApp(self, proxy):
+        #run("taskkill /f /im controller.exe")
+        pass
+
 class BrowserProcessController(RemoteProcessController):
 
     def __init__(self, current):
@@ -2211,6 +2257,8 @@ class Driver:
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
+        elif current.config.buildPlatform == "UWP":
+            processController = UWPProcessController
         elif isinstance(current.testcase.getMapping(), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
         else:
@@ -2285,12 +2333,15 @@ class CppMapping(Mapping):
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
+        server = isinstance(process, Server)
+        uwp = current.config.buildPlatform == "UWP"
+        
         props.update({
             "IceSSL.CAs": "cacert.pem",
-            "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
+            "IceSSL.CertFile": "server.p12" if server else "ms-appx:///client.p12" if uwp else "client.p12"
         })
         if isinstance(platform, Darwin):
-            keychainFile = "server.keychain" if isinstance(process, Server) else "client.keychain"
+            keychainFile = "server.keychain" if server else "client.keychain"
             props.update({
                 "IceSSL.KeychainPassword" : "password",
                 "IceSSL.Keychain": keychainFile

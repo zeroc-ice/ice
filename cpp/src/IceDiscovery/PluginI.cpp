@@ -75,15 +75,15 @@ PluginI::initialize()
         address = properties->getPropertyWithDefault("IceDiscovery.Address", "ff15::1");
     }
     int port = properties->getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
-    string interface = properties->getProperty("IceDiscovery.Interface");
+    string intf = properties->getProperty("IceDiscovery.Interface");
 
     if(properties->getProperty("IceDiscovery.Multicast.Endpoints").empty())
     {
         ostringstream os;
         os << "udp -h \"" << address << "\" -p " << port;
-        if(!interface.empty())
+        if(!intf.empty())
         {
-            os << " --interface \"" << interface << "\"";
+            os << " --interface \"" << intf << "\"";
         }
         properties->setProperty("IceDiscovery.Multicast.Endpoints", os.str());
     }
@@ -91,9 +91,9 @@ PluginI::initialize()
     {
         ostringstream os;
         os << "udp";
-        if(!interface.empty())
+        if(!intf.empty())
         {
-            os << " -h \"" << interface << "\"";
+            os << " -h \"" << intf << "\"";
         }
         properties->setProperty("IceDiscovery.Reply.Endpoints", os.str());
     }
@@ -118,9 +118,9 @@ PluginI::initialize()
     {
         ostringstream os;
         os << "udp -h \"" << address << "\" -p " << port;
-        if(!interface.empty())
+        if(!intf.empty())
         {
-            os << " --interface \"" << interface << "\"";
+            os << " --interface \"" << intf << "\"";
         }
         lookupEndpoints = os.str();
     }
