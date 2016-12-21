@@ -59,7 +59,7 @@
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
-      <service name="${instance-name}" entry="IceStormService,37a3:createIceStorm">
+      <service name="${instance-name}" entry="IceStormService,37a4:createIceStorm">
 
         <adapter name="${service}.TopicManager"
                  id="${instance-name}.TopicManager"
@@ -108,7 +108,7 @@
       <parameter name="publish-replica-group"/>
       <parameter name="topic-manager-replica-group"/>
 
-      <service name="${instance-name}${node-id}" entry="IceStormService,37a3:createIceStorm">
+      <service name="${instance-name}${node-id}" entry="IceStormService,37a4:createIceStorm">
 
         <adapter name="${service}.TopicManager"
 		 id="${instance-name}${node-id}.TopicManager"
