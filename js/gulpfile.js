@@ -445,6 +445,14 @@ function runTestsWithBrowser(url)
 {
     require("./bin/HttpServer")();
     var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d"];
+    if(platform)
+    {
+        cmd.push("--platform=" + platform);
+    }
+    if(configuration)
+    {
+        cmd.push("--config=" + configuration);
+    }
     cmd = cmd.concat(process.argv.slice(3));
     var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
     p.on("error", function(err)

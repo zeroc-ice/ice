@@ -47,7 +47,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
     //
     var Logger =
     {
-        print(message)
+        print:function(message)
         {
             out.writeLine(message, false);
         },

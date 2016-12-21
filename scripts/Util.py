@@ -2669,9 +2669,20 @@ class JavaScriptMapping(Mapping):
         return Mapping.computeTestCases(self, testId, files)
 
     def getOptions(self, current):
-        # JavaScript with NodeJS only supports tcp and no other options, Browsers only support WS and WSS
-        protocols = ["ws", "wss"] if current.config.browser else ["tcp"]
-        return { "protocol" : protocols, "compress" : [False], "ipv6" : [False], "serialize" : [False], "mx" : [False] }
+        options = {
+            "protocol" : ["ws", "wss"] if current.config.browser else ["tcp"],
+            "compress" : [False],
+            "ipv6" : [False],
+            "serialize" : [False],
+            "mx" : [False],
+            "es5" : [False, True]
+        }
+
+        # Edge and Ie only support ES5 for now
+        if current.config.browser in ["Edge", "Ie"]:
+            options["es5"] = [True]
+
+        return options
 
 from Glacier2Util import *
 from IceBoxUtil import *

@@ -209,13 +209,14 @@ function Init()
                 basePath = this._basePath;
             }
 
-            var filePath = path.resolve(path.join(basePath, req.url.pathname));
+            var filePath = req.url.pathname;
             if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
             {
                 // We only host JS files in the es5 subdirectory, other files
                 // (such as config/escapes.cfg are in test)
                 filePath = filePath.replace("es5/", "")
             }
+            filePath = path.resolve(path.join(basePath, filePath))
 
             //
             // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
