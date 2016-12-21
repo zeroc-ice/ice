@@ -44,6 +44,7 @@ function Init()
     var TestSuites = JSON.parse(TestData.TestSuites);
     TestData.tests = Object.keys(TestSuites);
     var template = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "index.html"), "utf8"));
+    var controller = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "controller.html"), "utf8"));
     var libraryMaps = libraries.map(
         function(f)
         {
@@ -58,6 +59,7 @@ function Init()
     HttpServer.prototype.processRequest = function(req, res)
     {
         var match = req.url.pathname.match("^\/test/(.*)/index\.html");
+        var matchController = req.url.pathname.match("^\/test/(.*)/controller\.html");
         if(match)
         {
             var es5 = match[1].indexOf("es5/") !== -1;
@@ -163,13 +165,47 @@ function Init()
                 }
             }
         }
+        else if(matchController)
+        {
+            var es5 = matchController[1].indexOf("es5/") !== -1;
+            var m = es5 ? matchController[1].replace("es5/", "") : matchController[1];
+            var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
+            var scripts = es5 ? [
+                "/lib/es5/Ice.js",
+                "/test/es5/Common/Controller.js",
+                "/test/es5/Common/ControllerI.js",
+            ] : [
+                "/lib/Ice.js",
+                "/test/Common/Controller.js",
+                "/test/Common/ControllerI.js",
+            ];
+            var testSuite = TestSuites[m];
+            if(testSuite)
+            {
+                scripts = scripts.concat(TestSuites[m].files)
+            }
+            else
+            {
+                scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
+            }
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(controller.render({ "scripts" : scripts }))
+            console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
+        }
         else
         {
             var iceLib = libraries.indexOf(req.url.pathname) !== -1;
             var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
 
-            var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ?
-                path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
+            var basePath;
+            if(process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap))
+            {
+                basePath = path.resolve(path.join(require.resolve("ice"), "..", ".."));
+            }
+            else
+            {
+                basePath = this._basePath;
+            }
 
             var filePath = path.resolve(path.join(basePath, req.url.pathname));
             if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != "js")

@@ -13,21 +13,6 @@ module Test
 module Common
 {
 
-exception ProcessFailedException
-{
-    string reason;
-};
-
-interface Process
-{
-    void waitReady(int timeout)
-        throws ProcessFailedException;
-
-    int waitSuccess(int timeout);
-
-    string terminate();
-};
-
 sequence<bool> BoolSeq;
 sequence<string> StringSeq;
 
@@ -75,14 +60,6 @@ interface TestCase
     void destroy();
 };
 
-interface ProcessController
-{
-    Process* start(string testsuite, string exe, StringSeq args)
-        throws ProcessFailedException;
-
-    string getHost(string protocol, bool ipv6);
-};
-
 interface Controller
 {
     TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
@@ -91,6 +68,34 @@ interface Controller
     OptionOverrides getOptionOverrides();
 
     StringSeq getTestSuites(string mapping);
+};
+
+exception ProcessFailedException
+{
+    string reason;
+};
+
+interface Process
+{
+    void waitReady(int timeout)
+        throws ProcessFailedException;
+
+    int waitSuccess(int timeout);
+
+    string terminate();
+};
+
+interface ProcessController
+{
+    Process* start(string testsuite, string exe, StringSeq args)
+        throws ProcessFailedException;
+
+    string getHost(string protocol, bool ipv6);
+};
+
+interface ProcessControllerRegistry
+{
+    void setProcessController(ProcessController* controller);
 };
 
 };

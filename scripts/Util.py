@@ -444,9 +444,9 @@ class Mapping:
                     return
 
                 supportedOptions = supportedOptions.copy()
-                supportedOptions.update(testcase.getMapping().getOptions())
-                supportedOptions.update(testcase.getTestSuite().getOptions())
-                supportedOptions.update(testcase.getOptions())
+                supportedOptions.update(testcase.getMapping().getOptions(current))
+                supportedOptions.update(testcase.getTestSuite().getOptions(current))
+                supportedOptions.update(testcase.getOptions(current))
 
                 for o in self.parsedOptions:
                     # Remove options which were explicitly set
@@ -502,9 +502,10 @@ class Mapping:
                 return False
 
             options = {}
-            options.update(current.testcase.getMapping().getOptions())
-            options.update(current.testcase.getTestSuite().getOptions())
-            options.update(current.testcase.getOptions())
+            options.update(current.testcase.getMapping().getOptions(current))
+            options.update(current.testcase.getTestSuite().getOptions(current))
+            options.update(current.testcase.getOptions(current))
+
             for (k, v) in options.items():
                 if not hasattr(self, k):
                     continue
@@ -518,9 +519,9 @@ class Mapping:
             # Clone this configuration and make sure all the options are supported
             #
             options = {}
-            options.update(current.testcase.getMapping().getOptions())
-            options.update(current.testcase.getTestSuite().getOptions())
-            options.update(current.testcase.getOptions())
+            options.update(current.testcase.getMapping().getOptions(current))
+            options.update(current.testcase.getTestSuite().getOptions(current))
+            options.update(current.testcase.getOptions(current))
             clone = copy.copy(self)
             for o in self.parsedOptions:
                 if o in options and getattr(self, o) not in options[o]:
@@ -535,7 +536,7 @@ class Mapping:
             # options that are set on the JS configuration.
             #
             clone = copy.copy(self)
-            for o in current.config.parsedOptions:
+            for o in current.config.parsedOptions + ["protocol"]:
                 if o not in ["buildConfig", "buildPlatform"]:
                     setattr(clone, o, getattr(current.config, o))
             clone.parsedOptions = current.config.parsedOptions
@@ -717,6 +718,8 @@ class Mapping:
             testcases.append(ClientAMDServerTestCase())
         if checkClient("client") and len(testcases) == 0:
             testcases.append(ClientTestCase())
+        if checkClient("clientBidir") and self.getServerMapping().hasSource("Ice/echo", "server"):
+            testcases.append(ClientEchoServerTestCase())
         if checkClient("collocated"):
             testcases.append(CollocatedTestCase())
         if len(testcases) > 0:
@@ -826,7 +829,7 @@ class Mapping:
     def getEnv(self, process, current):
         return {}
 
-    def getOptions(self):
+    def getOptions(self, current):
         return {}
 
     def getRunOrder(self):
@@ -1208,7 +1211,7 @@ class TestCase(Runnable):
             server = self.mapping.getDefaultProcess(self.getServerType(), testsuite)
             self.servers = [server] if server else []
 
-    def getOptions(self):
+    def getOptions(self, current):
         return self.options
 
     def canRun(self, current):
@@ -1297,7 +1300,8 @@ class TestCase(Runnable):
 
     def _startServerSide(self, current):
         # Set the host to use for the server side
-        current.push(self, current.driver.getProcessController(current).getHost(current))
+        current.push(self)
+        current.host = current.driver.getProcessController(current).getHost(current)
         self.setupServerSide(current)
         try:
             self.startServerSide(current)
@@ -1409,6 +1413,17 @@ class ClientServerTestCase(ClientTestCase):
 
     def getServerType(self):
         return "server"
+
+class ClientEchoServerTestCase(ClientServerTestCase):
+
+    def __init__(self, name="client/echo server", *args, **kargs):
+        ClientServerTestCase.__init__(self, name, *args, **kargs)
+
+    def getServerTestCase(self, cross=None):
+        return Mapping.getByName("cpp").findTestSuite("Ice/echo").findTestCase("server")
+
+    def getClientType(self):
+        return "clientBidir"
 
 class CollocatedTestCase(ClientTestCase):
 
@@ -1528,7 +1543,7 @@ class TestSuite:
     def getId(self):
         return self.id
 
-    def getOptions(self):
+    def getOptions(self, current):
         return self.options
 
     def getPath(self):
@@ -1593,9 +1608,14 @@ class TestSuite:
 
 class ProcessController:
 
+    def __init__(self, current):
+        pass
+
     def start(self, process, current, args, props, envs, watchDog):
         raise NotImplemented()
 
+    def destroy(self, driver):
+        pass
 
 class LocalProcessController(ProcessController):
 
@@ -1679,8 +1699,28 @@ class RemoteProcessController(ProcessController):
             if self.stdout and self.output:
                 print(self.output)
 
-    def __init__(self):
+    def __init__(self, current, endpoints=None):
         self.processControllerProxies = {}
+        self.cond = threading.Condition()
+        if endpoints:
+            comm = current.driver.getCommunicator()
+            import Test
+
+            class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
+
+                def __init__(self, remoteProcessController):
+                    self.remoteProcessController = remoteProcessController
+
+                def setProcessController(self, proxy, current):
+                    import Test
+                    proxy = Test.Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
+                    self.remoteProcessController.setProcessController(proxy)
+
+            self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
+            self.adapter.add(ProcessControllerRegistryI(self), comm.stringToIdentity("Util/ProcessControllerRegistry"))
+            self.adapter.activate()
+        else:
+            self.adapter = None
 
     def __str__(self):
         return "remote controller"
@@ -1689,27 +1729,73 @@ class RemoteProcessController(ProcessController):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
     def getController(self, current):
-        proxy = self.getControllerProxy(current)
-        if proxy in self.processControllerProxies:
-            return self.processControllerProxies[proxy]
+        ident = self.getControllerIdentity(current)
+        if type(ident) == str:
+            ident = current.driver.getCommunicator().stringToIdentity(ident)
+
+        with self.cond:
+            if ident in self.processControllerProxies:
+                return self.processControllerProxies[ident]
 
         comm = current.driver.getCommunicator()
+        import Ice
         import Test
-        self.processControllerProxies[proxy] = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(proxy))
 
         if current.driver.controllerApp:
-            self.startControllerApp(current, self.processControllerProxies[proxy])
+            self.startControllerApp(current, ident)
 
+        # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
+        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
         try:
-            self.processControllerProxies[proxy].ice_ping()
-        except:
+            try:
+                proxy.ice_ping()
+            except Ice.NoEndpointException as ex:
+                with self.cond:
+                    if not ident in self.processControllerProxies:
+                        self.cond.wait(5)
+                    if ident in self.processControllerProxies:
+                        return self.processControllerProxies[ident]
+                raise
+        except Exception as ex:
+            print(ex)
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
-        return self.processControllerProxies[proxy]
 
-    def startControllerApp(self, current, proxy):
+        with self.cond:
+            self.processControllerProxies[ident] = proxy
+            return self.processControllerProxies[ident]
+
+    def setProcessController(self, proxy):
+        with self.cond:
+            self.processControllerProxies[proxy.ice_getIdentity()] = proxy
+            conn = proxy.ice_getConnection()
+            if(hasattr(conn, "setCloseCallback")):
+                proxy.ice_getConnection().setCloseCallback(lambda conn : self.clearProcessController(proxy, conn))
+            else:
+                import Ice
+                class CallbackI(Ice.ConnectionCallback):
+                    def __init__(self, registry):
+                        self.registry = registry
+
+                    def heartbeath(self, conn):
+                        pass
+
+                    def closed(self, conn):
+                        self.registry.clearProcessController(proxy, conn)
+
+                proxy.ice_getConnection().setCallback(CallbackI(self))
+
+            self.cond.notifyAll()
+
+    def clearProcessController(self, proxy, conn):
+        with self.cond:
+            if proxy.ice_getIdentity() in self.processControllerProxies:
+                if conn == self.processControllerProxies[proxy.ice_getIdentity()].ice_getCachedConnection():
+                    del self.processControllerProxies[proxy.ice_getIdentity()]
+
+    def startControllerApp(self, current, ident):
         pass
 
-    def stopControllerApp(self, proxy):
+    def stopControllerApp(self, ident):
         pass
 
     def start(self, process, current, args, props, envs, watchDog):
@@ -1722,12 +1808,19 @@ class RemoteProcessController(ProcessController):
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k,v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
             current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
-        return RemoteProcessController.Process(exe, processController.start(str(current.testsuite), exe, args))
+        prx = processController.start(str(current.testsuite), exe, args)
+
+        # Create bi-dir proxy in case we're talking to a bi-bir process controller.
+        prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
+        import Test
+        return RemoteProcessController.Process(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
 
     def destroy(self, driver):
         if driver.controllerApp:
-            for p in self.processControllerProxies.values():
-                self.stopControllerApp(p)
+            for ident in self.processControllerProxies.keys():
+                self.stopControllerApp(ident)
+        if self.adapter:
+            self.adapter.destroy()
 
 class iOSSimulatorProcessController(RemoteProcessController):
 
@@ -1736,14 +1829,14 @@ class iOSSimulatorProcessController(RemoteProcessController):
     runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-2"
     appPath = "ios/controller/build/Products"
 
-    def __init__(self):
-        RemoteProcessController.__init__(self)
+    def __init__(self, current):
+        RemoteProcessController.__init__(self, current)
         self.simulatorID = None
 
     def __str__(self):
         return "iOS Simulator"
 
-    def getControllerProxy(self, current):
+    def getControllerIdentity(self, current):
         if isinstance(current.testcase.getMapping(), ObjCMapping):
             if current.config.arc:
                 return "iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller"
@@ -1756,7 +1849,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             else:
                 return "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller"
 
-    def startControllerApp(self, current, proxy):
+    def startControllerApp(self, current, ident):
         mapping = current.testcase.getMapping()
         if isinstance(mapping, ObjCMapping):
             appName = "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
@@ -1787,12 +1880,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
         if not os.path.exists(path):
             raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
-        run("xcrun simctl launch \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
+        run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
         print("ok")
 
-    def stopControllerApp(self, proxy):
+    def stopControllerApp(self, ident):
         try:
-            run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, proxy.ice_getIdentity().name))
+            run("xcrun simctl uninstall \"{0}\" {1}".format(self.device, ident.name))
         except:
             pass
 
@@ -1815,13 +1908,13 @@ class iOSDeviceProcessController(RemoteProcessController):
 
     appPath = "cpp/test/ios/controller/build/Products"
 
-    def __init__(self):
-        RemoteProcessController.__init__(self)
+    def __init__(self, current):
+        RemoteProcessController.__init__(self, current)
 
     def __str__(self):
         return "iOS Device"
 
-    def getControllerProxy(self, current):
+    def getControllerIdentity(self, current):
         if isinstance(current.testcase.getMapping(), ObjCMapping):
             return "iPhoneOS/com.zeroc.ObjC-Test-Controller"
         else:
@@ -1831,12 +1924,69 @@ class iOSDeviceProcessController(RemoteProcessController):
             else:
                 return "iPhoneOS/com.zeroc.Cpp98-Test-Controller"
 
-    def startControllerApp(self, current, proxy):
+    def startControllerApp(self, current, ident):
         # TODO: use ios-deploy to deploy and run the application on an attached device?
         pass
 
-    def stopControllerApp(self, proxy):
+    def stopControllerApp(self, ident):
         pass
+
+class BrowserProcessController(RemoteProcessController):
+
+    def __init__(self, current):
+        RemoteProcessController.__init__(self, current, "ws -h 127.0.0.1 -p 15002:wss -h 127.0.0.1 -p 15003")
+
+        from selenium import webdriver
+        if not hasattr(webdriver, current.config.browser):
+            raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
+
+        if current.config.browser == "Firefox":
+            #
+            # We need to specify a profile for Firefox. This profile only provides the cert8.db which
+            # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
+            # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
+            #
+            # capabilities = webdriver.DesiredCapabilities.FIREFOX.copy()
+            # capabilities["marionette"] = True
+            # capabilities["acceptInsecureCerts"] = True
+            # capabilities["moz:firefoxOptions"] = {}
+            # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
+            profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
+            self.driver = webdriver.Firefox(firefox_profile=profile)
+        else:
+            self.driver = getattr(webdriver, current.config.browser)()
+
+
+        cmd = "node -e \"require('./bin/HttpServer')()\"";
+        cwd = current.testsuite.getMapping().getPath()
+        self.httpServer = Expect.Expect(cmd, cwd=cwd)
+
+    def __str__(self):
+        return str(self.driver)
+
+    def getControllerIdentity(self, current):
+
+        #
+        # Load the controller page each time we're asked for the controller, the controller page
+        # will connect to the process controller registry to register itself with this script.
+        #
+        testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
+        protocol = "https" if current.config.protocol == "wss" else "http"
+        port = 9090 if current.config.protocol == "wss" else 8080
+        self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html".format(protocol, port, testsuite))
+        self.currentTestSuite = current.testsuite
+
+        return "Browser/ProcessController"
+
+    def destroy(self, driver):
+        if self.httpServer:
+            self.httpServer.terminate()
+            self.httpServer = None
+
+        try:
+            self.driver.quit()
+        except:
+            pass
 
 class Driver:
 
@@ -1955,7 +2105,6 @@ class Driver:
 
         self.communicator = None
         self.interface = ""
-        self.localProcessController = LocalProcessController()
         self.processControllers = {}
 
     def setConfigs(self, configs):
@@ -2041,25 +2190,22 @@ class Driver:
         self.ctrlCHandler.setCallback(signal)
 
     def getProcessController(self, current):
-        if current.config.buildPlatform in self.processControllers:
-            return self.processControllers[current.config.buildPlatform]
-
         processController = None
         if current.config.buildPlatform == "iphonesimulator":
-            processController = iOSSimulatorProcessController()
+            processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
-            processController = iOSDeviceProcessController()
-
-        if processController:
-            self.processControllers[current.config.buildPlatform] = processController
+            processController = iOSDeviceProcessController
+        elif isinstance(current.testcase.getMapping(), JavaScriptMapping) and current.config.browser:
+            processController = BrowserProcessController
         else:
-            #
-            # Fallback on the local process controller if no specific
-            # controller is needed for the given current
-            #
-            processController = self.localProcessController
+            processController = LocalProcessController
 
-        return processController
+        if processController in self.processControllers:
+            return self.processControllers[processController]
+
+        # Instantiate the controller
+        self.processControllers[processController] = processController(current)
+        return self.processControllers[processController]
 
     def getProcessProps(self, current, ready, readyCount):
         props = {}
@@ -2466,18 +2612,22 @@ class JavaScriptMapping(Mapping):
 
         @classmethod
         def getOptions(self):
-            return ("", ["es5"])
+            return ("", ["es5", "browser="])
 
         @classmethod
         def usage(self):
             print("")
             print("JavaScript mapping options:")
             print("--es5                 Use JavaScript ES5 (Babel compiled code).")
+            print("--browser=<name>      Run with the given browser.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
             self.es5 = False
+            self.browser = ""
             parseOptions(self, options)
+            if self.browser and self.protocol == "tcp":
+                self.protocol = "ws"
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
@@ -2493,7 +2643,7 @@ class JavaScriptMapping(Mapping):
             return "node {0}/test/Common/run.js {1}".format(self.path, exe)
 
     def getDefaultSource(self, processType):
-        return { "client" : "Client.js" }[processType]
+        return { "client" : "Client.js", "clientBidir" : "ClientBidir.js" }[processType]
 
     def getDefaultExe(self, processType, config=None):
         return self.getDefaultSource(processType).replace(".js", "")
@@ -2502,6 +2652,9 @@ class JavaScriptMapping(Mapping):
         env = Mapping.getEnv(self, process, current)
         env["NODE_PATH"] = self.getTestCwd(process, current)
         return env
+
+    def getSSLProps(self, process, current):
+        return {}
 
     def getTestCwd(self, process, current):
         if current.config.es5:
@@ -2515,9 +2668,10 @@ class JavaScriptMapping(Mapping):
             return # Ignore es5 directories
         return Mapping.computeTestCases(self, testId, files)
 
-    def getOptions(self):
-        # JavaScript with NodeJS only supports tcp and no other options
-        return { "protocol" : ["tcp"], "compress" : [False], "ipv6" : [False], "serialize" : [False], "mx" : [False] }
+    def getOptions(self, current):
+        # JavaScript with NodeJS only supports tcp and no other options, Browsers only support WS and WSS
+        protocols = ["ws", "wss"] if current.config.browser else ["tcp"]
+        return { "protocol" : protocols, "compress" : [False], "ipv6" : [False], "serialize" : [False], "mx" : [False] }
 
 from Glacier2Util import *
 from IceBoxUtil import *

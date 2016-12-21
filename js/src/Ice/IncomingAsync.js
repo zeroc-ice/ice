@@ -360,7 +360,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
                 //this._os.writeString(ex.toString());
-                this._os.writeString(ex.stack ? ex.stack : "");
+                this._os.writeString(ex.toString() + (ex.stack ? "\n" + ex.stack : ""));
                 this._connection.sendResponse(this._os, this._compress);
             }
             else
