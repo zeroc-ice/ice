@@ -46,7 +46,13 @@ class ProcessI extends Test.Common.Process
 
     waitSuccess(timeout, current)
     {
-        return this._promise.then(function() { return 0; }, function(ex) { console.log(ex); return 1; });
+        let out = this._output;
+        return this._promise.then(function() {
+            return 0;
+        }, function(ex) {
+            out.writeLine("unexpected exception while running test: " + ex.toString() + "\nstack = " + ex.stack);
+            return 1;
+        });
     }
 
     terminate(current)
@@ -58,31 +64,71 @@ class ProcessI extends Test.Common.Process
 
 class ProcessControllerI extends Test.Common.ProcessController
 {
-    constructor(output, logger)
+    constructor(output, logger, worker, scripts)
     {
         super();
         this._output = output;
         this._logger = logger;
+        this._worker = worker;
+        this._scripts = scripts;
     }
 
     start(testSuite, exe, args, current)
     {
         let promise;
-        let initData = new Ice.InitializationData();
-        initData.logger = this._logger;
-        initData.properties = Ice.createProperties(args);
-        if(exe === "ClientBidir")
+        if(this._worker)
         {
-            promise = _testBidir(this._output, initData);
+            let out = this._output;
+            let scripts = this._scripts;
+            promise = new Promise(function(resolve, reject) {
+                let worker;
+                if(document.location.pathname.indexOf("/es5/") !== -1)
+                {
+                    worker = new Worker("/test/es5/Common/ControllerWorker.js");
+                }
+                else
+                {
+                    worker = new Worker("/test/Common/ControllerWorker.js");
+                }
+                worker.onmessage = function(e) {
+                    if(e.data.type == "write")
+                    {
+                        out.write(e.data.message);
+                    }
+                    else if(e.data.type == "writeLine")
+                    {
+                        out.writeLine(e.data.message);
+                    }
+                    else if(e.data.type == "finished")
+                    {
+                        if(e.data.exception)
+                        {
+                            reject(e.data.exception);
+                        }
+                        else
+                        {
+                            resolve();
+                        }
+                        worker.terminate();
+                    }
+                };
+                worker.postMessage({ scripts:scripts, exe:exe, args:args })
+            });
         }
         else
         {
-            promise = _test(this._output, initData);
+            let initData = new Ice.InitializationData();
+            initData.logger = this._logger;
+            initData.properties = Ice.createProperties(args);
+            if(exe === "ClientBidir")
+            {
+                promise = _testBidir(this._output, initData);
+            }
+            else
+            {
+                promise = _test(this._output, initData);
+            }
         }
-        promise = promise.catch(ex => {
-            this._output.writeLine("unexpected exception while running test: " + ex.toString() + "\nstack = " + ex.stack);
-            throw ex;
-        });
         return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, this._output)));
     }
 
@@ -92,7 +138,7 @@ class ProcessControllerI extends Test.Common.ProcessController
     }
 };
 
-function runController(output)
+function runController(output, scripts)
 {
     let out =
     {
@@ -123,76 +169,31 @@ function runController(output)
         return false;
     };
 
-    //
-    // This logger is setup to work with Web Workers and normal scripts using
-    // the received out object. With some browser like Safari using console.log
-    // method doesn't work when running inside a web worker.
-    //
-    let logger =
+    class Logger extends Ice.Logger
     {
-        print: function(message)
+        constructor(out)
         {
-            out.writeLine(message, false);
-        },
-        trace: function(category, message)
-        {
-            let s = [];
-            let d = new Date();
-            s.push("-- ");
-            s.push(this.timestamp());
-            s.push(' ');
-            s.push(this._prefix);
-            s.push(category);
-            s.push(": ");
-            s.push(message);
-            out.writeLine(s.join(""), true);
-        },
-        warning: function(message)
-        {
-            let s = [];
-            let d = new Date();
-            s.push("-! ");
-            s.push(this.timestamp());
-            s.push(' ');
-            s.push(this._prefix);
-            s.push("warning: ");
-            s.push(message);
-            out.writeLine(s.join(""), true);
-        },
-        error: function(message)
-        {
-            let s = [];
-            let d = new Date();
-            s.push("!! ");
-            s.push(this.timestamp());
-            s.push(' ');
-            s.push(this._prefix);
-            s.push("error: ");
-            s.push(message);
-            out.writeLine(s.join(""), true);
-        },
-        getPrefix: function()
-        {
-            return "";
-        },
-        cloneWithPrefix: function(prefix)
-        {
-            return Logger;
-        },
-        timestamp: function()
-        {
-            let d = new Date();
-            return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
+            super()
+            this._out = out
         }
-    };
+
+        write(message, indent)
+        {
+            if(indent)
+            {
+                message = message.replace(/\n/g, "\n   ");
+            }
+            out.write(message);
+        }
+    }
 
     let uri = new URI(document.location.href)
     let initData = new Ice.InitializationData();
     let protocol = uri.protocol() === "http" ? "ws" : "wss";
     query = uri.search(true)
-    let port = query["port"]
-    let worker = query["worker"]
-    initData.logger = logger;
+    let port = "port" in query ? query["port"] : 15002;
+    let worker = "worker" in query ? query["worker"] === "True" : false;
+    initData.logger = new Logger(out);
 
     let registerProcessController = function(adapter, registry, processController) {
         registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController)).then(
@@ -201,7 +202,7 @@ function runController(output)
             connection.setAdapter(adapter)
             connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
             connection.setCloseCallback(connection => {
-                logger.print("connection with process controller registry closed");
+                out.writeLine("connection with process controller registry closed");
             });
         },
         ex => {
@@ -211,7 +212,7 @@ function runController(output)
             }
             else
             {
-                logger.error("unexpected exception while connecting to process controller registry:\n" + ex.toString())
+                out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString())
             }
         });
     };
@@ -221,11 +222,11 @@ function runController(output)
     let registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
     comm.createObjectAdapter("").then(adapter => {
         let ident = new Ice.Identity("ProcessController", "Browser");
-        let processController = adapter.add(new ProcessControllerI(out, logger), ident);
+        let processController = adapter.add(new ProcessControllerI(out, initData.logger, worker, scripts), ident);
         adapter.activate();
         registerProcessController(adapter, registry, processController);
     }).catch(ex => {
-        logger.error("unexpected exception while creating controller:\n" + ex.toString());
+        out.writeLine("unexpected exception while creating controller:\n" + ex.toString());
         comm.destroy();
     });
 }

@@ -1764,7 +1764,7 @@ class RemoteProcessController(ProcessController):
                     self.cond.wait(10)
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
-            raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
+            raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
 
     def setProcessController(self, proxy):
@@ -1974,7 +1974,7 @@ class BrowserProcessController(RemoteProcessController):
         # will connect to the process controller registry to register itself with this script.
         #
         testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
-        if current.config.protocol == "ws":
+        if current.config.protocol == "wss":
             protocol = "https"
             port = "9090"
             cport = "15003"

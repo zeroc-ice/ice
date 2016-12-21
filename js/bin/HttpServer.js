@@ -184,7 +184,7 @@ function Init()
             var testSuite = TestSuites[m];
             if(testSuite)
             {
-                scripts = scripts.concat(TestSuites[m].files)
+                scripts = scripts.concat(TestSuites[m].files.map(function(f) { return "/test/" + matchController[1] + "/" + f}))
             }
             else
             {

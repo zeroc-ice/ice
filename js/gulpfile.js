@@ -141,7 +141,7 @@ gulp.task("common:slice", [],
 
 gulp.task("common:slice-babel", ["common:slice"],
     function(){
-        return gulp.src(["test/Common/Controller.js", "test/Common/ControllerI.js"])
+        return gulp.src(["test/Common/Controller.js", "test/Common/ControllerI.js", "test/Common/ControllerWorker.js"])
             .pipe(babel({compact: false}))
             .pipe(gulp.dest("test/es5/Common"));
     });
