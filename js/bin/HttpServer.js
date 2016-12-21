@@ -171,6 +171,8 @@ function Init()
             var m = es5 ? matchController[1].replace("es5/", "") : matchController[1];
             var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
             var scripts = es5 ? [
+                "/node_modules/babel-polyfill/dist/polyfill.js",
+                "/node_modules/regenerator-runtime/runtime.js",
                 "/lib/es5/Ice.js",
                 "/test/es5/Common/Controller.js",
                 "/test/es5/Common/ControllerI.js",
@@ -208,8 +210,10 @@ function Init()
             }
 
             var filePath = path.resolve(path.join(basePath, req.url.pathname));
-            if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != "js")
+            if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
             {
+                // We only host JS files in the es5 subdirectory, other files
+                // (such as config/escapes.cfg are in test)
                 filePath = filePath.replace("es5/", "")
             }
 
