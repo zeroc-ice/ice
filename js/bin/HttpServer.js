@@ -200,10 +200,10 @@ function Init()
             var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
 
             var basePath;
-            function checkIceBinDist(dist) = {
+            function checkIceBinDist(dist) {
                 return dist == "js" || dist == "all"
             }
-            var useBinDist = (process.env.ICE_BIN_DIST || "").split(" ").find(checkBinDist) !== undefined;
+            var useBinDist = (process.env.ICE_BIN_DIST || "").split(" ").find(checkIceBinDist) !== undefined;
             if(useBinDist && (iceLib || iceLibMap))
             {
                 basePath = path.resolve(path.join(require.resolve("ice"), "..", ".."));
