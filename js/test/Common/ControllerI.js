@@ -189,7 +189,9 @@ function runController(output)
     let uri = new URI(document.location.href)
     let initData = new Ice.InitializationData();
     let protocol = uri.protocol() === "http" ? "ws" : "wss";
-    let port = protocol == "ws" ? 15002 : 15003;
+    query = uri.search(true)
+    let port = query["port"]
+    let worker = query["worker"]
     initData.logger = logger;
 
     let registerProcessController = function(adapter, registry, processController) {
@@ -197,7 +199,7 @@ function runController(output)
         () => {
             let connection = registry.ice_getCachedConnection();
             connection.setAdapter(adapter)
-            connection.setACM(5, ACMClose.CloseOff, ACMHeartbeat.HeartbeatAlways);
+            connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
             connection.setCloseCallback(connection => {
                 logger.print("connection with process controller registry closed");
             });

@@ -623,19 +623,21 @@ class Mapping:
 
     def filterTestSuite(self, testId, config, filters, rfilters):
         (pfilters, prfilters) = platform.getFilters(config)
-        if (len(filters) + len(pfilters)) > 0:
-            for f in filters + [re.compile(pf) for pf in pfilters]:
-                if f.search(self.name + "/" + testId):
-                    break
-            else:
-                return True
-
-        if (len(rfilters) + len(prfilters)) > 0:
-            for f in rfilters + [re.compile(pf) for pf in prfilters]:
-                if f.search(self.name + "/" + testId):
+        for includes in [filters, [re.compile(pf) for pf in pfilters]]:
+            if len(includes) > 0:
+                for f in includes:
+                    if f.search(self.name + "/" + testId):
+                        break
+                else:
                     return True
-            else:
-                return False
+
+        for excludes in [rfilters, [re.compile(pf) for pf in prfilters]]:
+            if len(excludes) > 0:
+                for f in excludes:
+                    if f.search(self.name + "/" + testId):
+                        return True
+                else:
+                    return False
 
         return False
 
@@ -1744,25 +1746,26 @@ class RemoteProcessController(ProcessController):
         if current.driver.controllerApp:
             self.startControllerApp(current, ident)
 
-        # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
-        try:
+        if not self.adapter:
+            # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
+            proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
             try:
                 proxy.ice_ping()
-            except Ice.NoEndpointException as ex:
-                with self.cond:
-                    if not ident in self.processControllerProxies:
-                        self.cond.wait(5)
-                    if ident in self.processControllerProxies:
-                        return self.processControllerProxies[ident]
-                raise
-        except Exception as ex:
-            print(ex)
+            except Exception as ex:
+                raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
+
+            with self.cond:
+                self.processControllerProxies[ident] = proxy
+                return self.processControllerProxies[ident]
+        else:
+            # Wait 10 seconds for a process controller to be registered with the ProcessControllerRegistry
+            with self.cond:
+                if not ident in self.processControllerProxies:
+                    self.cond.wait(10)
+                if ident in self.processControllerProxies:
+                    return self.processControllerProxies[ident]
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
 
-        with self.cond:
-            self.processControllerProxies[ident] = proxy
-            return self.processControllerProxies[ident]
 
     def setProcessController(self, proxy):
         with self.cond:
@@ -1811,7 +1814,8 @@ class RemoteProcessController(ProcessController):
         prx = processController.start(str(current.testsuite), exe, args)
 
         # Create bi-dir proxy in case we're talking to a bi-bir process controller.
-        prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
+        if self.adapter:
+            prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
         import Test
         return RemoteProcessController.Process(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
 
@@ -1956,7 +1960,6 @@ class BrowserProcessController(RemoteProcessController):
         else:
             self.driver = getattr(webdriver, current.config.browser)()
 
-
         cmd = "node -e \"require('./bin/HttpServer')()\"";
         cwd = current.testsuite.getMapping().getPath()
         self.httpServer = Expect.Expect(cmd, cwd=cwd)
@@ -1971,11 +1974,20 @@ class BrowserProcessController(RemoteProcessController):
         # will connect to the process controller registry to register itself with this script.
         #
         testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
-        protocol = "https" if current.config.protocol == "wss" else "http"
-        port = 9090 if current.config.protocol == "wss" else 8080
-        self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html".format(protocol, port, testsuite))
-        self.currentTestSuite = current.testsuite
+        if current.config.protocol == "ws":
+            protocol = "https"
+            port = "9090"
+            cport = "15003"
+        else:
+            protocol = "http"
+            port = "8080"
+            cport = "15002"
 
+        self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
+                                                                                                  port,
+                                                                                                  testsuite,
+                                                                                                  cport,
+                                                                                                  current.config.worker))
         return "Browser/ProcessController"
 
     def destroy(self, driver):
@@ -2612,7 +2624,7 @@ class JavaScriptMapping(Mapping):
 
         @classmethod
         def getOptions(self):
-            return ("", ["es5", "browser="])
+            return ("", ["es5", "browser=", "worker"])
 
         @classmethod
         def usage(self):
@@ -2620,14 +2632,18 @@ class JavaScriptMapping(Mapping):
             print("JavaScript mapping options:")
             print("--es5                 Use JavaScript ES5 (Babel compiled code).")
             print("--browser=<name>      Run with the given browser.")
+            print("--worker              Run with Web workers enabled.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
             self.es5 = False
             self.browser = ""
+            self.worker = False
             parseOptions(self, options)
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
+            if self.browser in ["Edge", "Ie"]:
+                self.es5 = True
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
@@ -2675,7 +2691,8 @@ class JavaScriptMapping(Mapping):
             "ipv6" : [False],
             "serialize" : [False],
             "mx" : [False],
-            "es5" : [False, True]
+            "es5" : [False, True],
+            "worker" : [False, True] if current.config.browser else [],
         }
 
         # Edge and Ie only support ES5 for now
