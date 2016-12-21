@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     vector<wchar_t> buf(256);
     DWORD ret = GetEnvironmentVariableW(L"ICE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
     string valstr = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    binDist = (valstr.find("all") != std::string::npos) ||  == (valstr.find("cpp") != std::string::npos);
+    binDist = (valstr.find("all") != std::string::npos) || (valstr.find("cpp") != std::string::npos);
 
     if(binDist)
     {
