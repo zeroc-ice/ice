@@ -9,6 +9,7 @@
 
 apply plugin: 'java'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+slice.compat = true
 apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
 sourceCompatibility = iceSourceCompatibility
@@ -17,7 +18,7 @@ targetCompatibility = iceTargetCompatibility
 sourceSets {
     main {
         java {
-            srcDir "$rootProject.projectDir/../java/test/plugins/src/main/java"
+            srcDir "$rootProject.projectDir/../java-compat/test/plugins/src/main/java"
             include 'test/Ice/plugin/plugins/**'
         }
     }
@@ -45,5 +46,5 @@ idea.module {
 }
 
 dependencies {
-    compile localDependency('ice')
+    compile localDependency('ice-compat')
 }

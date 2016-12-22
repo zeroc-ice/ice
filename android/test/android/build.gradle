@@ -9,6 +9,7 @@
 
 apply plugin: 'com.android.application'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+slice.compat = true
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 android {
@@ -89,7 +90,7 @@ clean {
 }
 
 dependencies {
-    compile localDependency('ice')
+    compile localDependency('ice-compat')
     compile project(':test')
     compile project(':testPlugins')
 }

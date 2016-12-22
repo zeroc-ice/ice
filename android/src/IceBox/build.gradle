@@ -9,7 +9,8 @@
 
 apply plugin: 'java'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
-apply from: "$rootProject.projectDir/../java/src/IceBox/build.gradle"
+slice.compat = true
+apply from: "$rootProject.projectDir/../java-compat/src/IceBox/build.gradle"
 
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
@@ -17,7 +18,7 @@ targetCompatibility = iceTargetCompatibility
 sourceSets {
     main {
         java {
-            srcDir "$rootProject.projectDir/../java/src/IceBox/src/main/java"
+            srcDir "$rootProject.projectDir/../java-compat/src/IceBox/src/main/java"
         }
     }
 }

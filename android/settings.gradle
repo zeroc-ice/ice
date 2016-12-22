@@ -15,18 +15,18 @@ tests.each {
 }
 
 // Main source
-include ':ice'
-project(':ice').projectDir = new File('src/Ice')
-include	':icebox'
-project(':icebox').projectDir = new File('src/IceBox')
-include	':glacier2'
-project(':glacier2').projectDir = new File('src/Glacier2')
-include	':icepatch2'
-project(':icepatch2').projectDir = new File('src/IcePatch2')
-include	':icestorm'
-project(':icestorm').projectDir = new File('src/IceStorm')
-include	':icegrid'
-project(':icegrid').projectDir = new File('src/IceGrid')
+include ':ice-compat'
+project(':ice-compat').projectDir = new File('src/Ice')
+include	':icebox-compat'
+project(':icebox-compat').projectDir = new File('src/IceBox')
+include	':glacier2-compat'
+project(':glacier2-compat').projectDir = new File('src/Glacier2')
+include	':icepatch2-compat'
+project(':icepatch2-compat').projectDir = new File('src/IcePatch2')
+include	':icestorm-compat'
+project(':icestorm-compat').projectDir = new File('src/IceStorm')
+include	':icegrid-compat'
+project(':icegrid-compat').projectDir = new File('src/IceGrid')
 
 include ':test', ':testPlugins', ':testApp'
 

@@ -9,9 +9,9 @@
 
 apply plugin: 'java'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
-
-ext.testDir = "$rootProject.projectDir/../java/test/src/main/java/test"
-apply from: "$rootProject.projectDir/../java/test/slice.gradle"
+slice.compat = true
+ext.testDir = "$rootProject.projectDir/../java-compat/test/src/main/java/test"
+apply from: "$rootProject.projectDir/../java-compat/test/slice.gradle"
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
@@ -21,7 +21,7 @@ targetCompatibility = iceTargetCompatibility
 sourceSets {
     main {
         java {
-            srcDir "$rootProject.projectDir/../java/test/src/main/java"
+            srcDir "$rootProject.projectDir/../java-compat/test/src/main/java"
             include 'test/Util/**'
             exclude 'test/Ice/**/lambda'
         }
@@ -34,7 +34,7 @@ idea.module {
 }
 
 dependencies {
-    compile localDependency('ice')
+    compile localDependency('ice-compat')
 }
 
 tests.each {
@@ -44,6 +44,7 @@ tests.each {
     project(":test_Ice_${name}") {
         apply plugin: 'java'
         apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+        slice.compat = true
 
         sourceCompatibility = iceSourceCompatibility
         targetCompatibility = iceTargetCompatibility
@@ -51,7 +52,7 @@ tests.each {
         sourceSets {
             main {
                 java {
-                    srcDir "$rootProject.projectDir/../java/test/src/main/java"
+                    srcDir "$rootProject.projectDir/../java-compat/test/src/main/java"
                     include "test/Ice/${dirName}/**"
                     exclude 'test/Ice/**/lambda'
                     srcDir "$rootProject.projectDir/test/build/generated-src/"
@@ -82,7 +83,7 @@ tests.each {
 
         dependencies {
             compile project(':test')
-            compile localDependency('ice')
+            compile localDependency('ice-compat')
         }
     }
 }
