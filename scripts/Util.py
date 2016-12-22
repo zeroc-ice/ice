@@ -22,10 +22,10 @@ import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def run(cmd, cwd=None):
+def run(cmd, cwd=None, err=False):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     out = p.stdout.read().decode('UTF-8').strip()
-    if(p.wait() != 0):
+    if(not err and p.wait() != 0) or (err and p.wait() == 0) :
         raise RuntimeError(cmd + " failed:\n" + out)
     return out
 
@@ -215,9 +215,14 @@ class Linux(Platform):
 class Windows(Platform):
 
     def getFilters(self, config):
-        if config.buildPlatform == "UWP":
+        if config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
+                     #
+                     # TODO: Test scripts are killing the Ice/binding test because it takes
+                     # too much time to run
+                     # 
+                     "Ice/binding",
                      "Ice/checksum",
                      "Ice/custom",
                      "Ice/defaultServant",
@@ -409,7 +414,7 @@ class Mapping:
 
         @classmethod
         def getOptions(self):
-            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx", "cprops=", "sprops="])
+            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx", "cprops=", "sprops=", "uwp"])
 
         @classmethod
         def usage(self):
@@ -428,6 +433,7 @@ class Mapping:
             print("--sprops=<properties> Specifies a list of additional server properties.")
             print("--config=<config>     Build configuration for native executables.")
             print("--platform=<platform> Build platform for native executables.")
+            print("--uwp                 Run UWP (Universal Windows Platform).")
 
         def __init__(self, options=[]):
             # Build configuration
@@ -451,7 +457,8 @@ class Mapping:
             self.mx = False
             self.cprops = []
             self.sprops = []
-            parseOptions(self, options, { "config" : "buildConfig", "platform" : "buildPlatform" })
+            self.uwp = False
+            parseOptions(self, options, { "config" : "buildConfig", "platform" : "buildPlatform", "uwp" : "uwp" })
 
         def __str__(self):
             s = []
@@ -664,8 +671,6 @@ class Mapping:
                 for f in excludes:
                     if f.search(self.name + "/" + testId):
                         return True
-                else:
-                    return False
 
         return False
 
@@ -1975,7 +1980,9 @@ class iOSDeviceProcessController(RemoteProcessController):
 class UWPProcessController(RemoteProcessController):
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001")
+        self.name = "ice-uwp-controller"
         self.appUserModelId = "ice-uwp-controller_3qjctahehqazm!App"
+
     def __str__(self):
         return "UWP"
 
@@ -1983,14 +1990,52 @@ class UWPProcessController(RemoteProcessController):
         return "UWP/ProcessController"
 
     def startControllerApp(self, current, ident):
-        print("staring UWP controller app")
+        platform = current.config.buildPlatform
+        config = current.config.buildConfig
+        layout = os.path.join(toplevel, "cpp", "test", platform, config, "AppX")
+
+        self.packageFullName = "{0}_1.0.0.0_{1}__3qjctahehqazm".format(
+            self.name, "x86" if platform == "Win32" else platform)
+
+        package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller", 
+            "controller_1.0.0.0_{0}_{1}_Test".format(platform, config), 
+            "controller_1.0.0.0_{0}_{1}.appx".format(platform, config))
+
+        #
+        # If the application is already installed remove it, this will also take care
+        # of closing it.
+        #
+        if self.name in run("powershell Get-AppxPackage -Name {0}".format(self.name)):
+            run("powershell Remove-AppxPackage {0}".format(self.packageFullName))
+
+        #
+        # Remove any previous package we have extracted to ensure we use a 
+        # fresh build
+        #
+        if os.path.exists(layout):
+            shutil.rmtree(layout)
+        os.makedirs(layout)
+
+        print("Unpackaing package: {0} to {1}....".format(os.path.basename(package), layout))
+        run("MakeAppx.exe unpack /p \"{0}\" /d \"{1}\" /l".format(package, layout))
+
+        print("Registering application to run from layout...")
+        run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\"".format(layout))
+
+        #
+        # microsoft.windows.softwarelogo.appxlauncher.exe returns the PID as return code
+        # and 0 on case of failures. We pass err=True to run to handle this.
+        #
+        print("staring UWP controller app...")
         run('"{0}" {1}'.format(
             "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/microsoft.windows.softwarelogo.appxlauncher.exe",
-            self.appUserModelId))
+            self.appUserModelId), err=True)
 
-    def stopControllerApp(self, proxy):
-        #run("taskkill /f /im controller.exe")
-        pass
+    def stopControllerApp(self, ident):
+        try:
+            run("powershell Remove-AppxPackage {0}".format(self.packageFullName))
+        except:
+            pass
 
 class BrowserProcessController(RemoteProcessController):
 
@@ -2167,7 +2212,7 @@ class Driver:
                                       "rfilter" : "rfilters",
                                       "host-ipv6" : "hostIPv6",
                                       "host-bt" : "hostBT",
-                                      "controller-app" : "controllerApp" })
+                                      "controller-app" : "controllerApp"})
 
         self.filters = [re.compile(a) for a in self.filters]
         self.rfilters = [re.compile(a) for a in self.rfilters]
@@ -2265,7 +2310,7 @@ class Driver:
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
-        elif current.config.buildPlatform == "UWP":
+        elif current.config.uwp:
             processController = UWPProcessController
         elif isinstance(current.testcase.getMapping(), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
