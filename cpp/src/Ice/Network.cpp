@@ -79,6 +79,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 #ifdef ICE_OS_UWP
+using namespace Concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
@@ -2049,6 +2050,53 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
         // NOTE: UWP doesn't allow specyfing the interface.
         //
         safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
+
+        //
+        // BUGFIX DatagramSocket will not recive any messages from a multicast group if the 
+        // messages originate in the same host until the socket is used to send at least one
+        // message. We send a valiate connection message that the peers will ignore to workaround
+        // the issue.
+        //
+        promise<void> p;
+        create_task(safe_cast<DatagramSocket^>(fd)->GetOutputStreamAsync(group.host, group.port))
+
+        .then([](IOutputStream^ out)
+            {
+
+                OutputStream os;
+                os.write(magic[0]);
+                os.write(magic[1]);
+                os.write(magic[2]);
+                os.write(magic[3]);
+                os.write(currentProtocol);
+                os.write(currentProtocolEncoding);
+                os.write(validateConnectionMsg);
+                os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+                os.write(headerSize); // Message size.
+                os.i = os.b.begin();
+
+                auto writer = ref new DataWriter(out);
+                writer->WriteBytes(ref new Array<unsigned char>(&*os.i, static_cast<unsigned int>(headerSize)));
+
+                return writer->StoreAsync();
+            },
+            task_continuation_context::use_arbitrary())
+
+        .then([&p](task<unsigned int> t)
+            {
+                try
+                {
+                    t.get();
+                    p.set_value();
+                }
+                catch(...)
+                {
+                    p.set_exception(current_exception());
+                }
+            },
+            task_continuation_context::use_arbitrary());
+
+        p.get_future().get();
     }
     catch(Platform::Exception^ pex)
     {
