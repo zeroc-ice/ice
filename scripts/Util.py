@@ -1737,6 +1737,7 @@ class RemoteProcessController(ProcessController):
 
     def __init__(self, current, endpoints=None):
         self.processControllerProxies = {}
+        self.controllerApps = []
         self.cond = threading.Condition()
         if endpoints:
             comm = current.driver.getCommunicator()
@@ -1778,6 +1779,7 @@ class RemoteProcessController(ProcessController):
         import Test
 
         if current.driver.controllerApp:
+            self.controllerApps.append(ident)
             self.startControllerApp(current, ident)
 
         if not self.adapter:
@@ -1855,8 +1857,9 @@ class RemoteProcessController(ProcessController):
 
     def destroy(self, driver):
         if driver.controllerApp:
-            for ident in self.processControllerProxies.keys():
+            for ident in self.controllerApps:
                 self.stopControllerApp(ident)
+            self.controllerApps = []
         if self.adapter:
             self.adapter.destroy()
 
@@ -2340,7 +2343,7 @@ class CppMapping(Mapping):
         props = Mapping.getSSLProps(self, process, current)
         server = isinstance(process, Server)
         uwp = current.config.buildPlatform == "UWP"
-        
+
         props.update({
             "IceSSL.CAs": "cacert.pem",
             "IceSSL.CertFile": "server.p12" if server else "ms-appx:///client.p12" if uwp else "client.p12"
