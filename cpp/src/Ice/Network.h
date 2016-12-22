@@ -303,8 +303,7 @@ ICE_API void setMcastGroup(SOCKET, const Address&, const std::string&);
 ICE_API void setMcastInterface(SOCKET, const std::string&, const Address&);
 ICE_API void setMcastTtl(SOCKET, int, const Address&);
 ICE_API void setReuseAddress(SOCKET, bool);
-
-ICE_API Address doBind(SOCKET, const Address&);
+ICE_API Address doBind(SOCKET, const Address&, const std::string& intf = "");
 ICE_API void doListen(SOCKET, int);
 
 #ifndef ICE_OS_UWP

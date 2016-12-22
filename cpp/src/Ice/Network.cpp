@@ -2047,7 +2047,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
     try
     {
         //
-        // NOTE: UWP doesn't allow specyfing the interface.
+        // NOTE: UWP mcast interface is set earlier in doBind.
         //
         safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
 
@@ -2219,10 +2219,10 @@ checkResultAndWait(IAsyncAction^ action)
 }
 #endif
 
-Address
-IceInternal::doBind(SOCKET fd, const Address& addr)
-{
 #ifdef ICE_OS_UWP
+Address
+IceInternal::doBind(SOCKET fd, const Address& addr, const string& intf)
+{
     Address local;
     try
     {
@@ -2246,7 +2246,32 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         {
             if(addr.host == nullptr) // inaddr_any
             {
-                checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
+                NetworkAdapter^ adapter;
+                if(!intf.empty())
+                {
+                    auto s = ref new String(Ice::stringToWstring(intf).c_str());
+                    auto profiles = NetworkInformation::GetConnectionProfiles();
+                    for(auto i = profiles->First(); adapter == nullptr && i->HasCurrent; i->MoveNext())
+                    {
+                        auto names = i->Current->GetNetworkNames();
+                        for(auto j = names->First(); adapter == nullptr && j->HasCurrent; j->MoveNext())
+                        {
+                            if(j->Current->Equals(s))
+                            {
+                                adapter = i->Current->NetworkAdapter;
+                            }
+                        }
+                    }
+                }
+
+                if(adapter)
+                {
+                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port, adapter));
+                }
+                else
+                {
+                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
+                }
             }
             else
             {
@@ -2262,7 +2287,11 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         throw;
     }
     return local;
+}
 #else
+Address
+IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
+{
     int size = getAddressStorageSize(addr);
     assert(size != 0);
 
@@ -2283,8 +2312,8 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
     assert(ret != SOCKET_ERROR);
 #  endif
     return local;
-#endif
 }
+#endif
 
 #ifndef ICE_OS_UWP
 
