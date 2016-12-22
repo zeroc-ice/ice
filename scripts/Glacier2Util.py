@@ -50,7 +50,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
         props.update({
             "Glacier2.Client.Endpoints" : current.getTestEndpoint(self.portnum),
             "Glacier2.Server.Endpoints" : "tcp",
-            "Ice.Admin.Endpoints" : current.getTestEndpoint(self.portnum + 1, "tcp"),
+            "Ice.Admin.Endpoints" : current.getTestEndpoint(self.portnum + 1),
             "Ice.Admin.InstanceName" : "Glacier2",
         })
         if self.passwords:

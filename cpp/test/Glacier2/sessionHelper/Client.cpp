@@ -456,7 +456,7 @@ public:
             {
                 cout << "testing stringToProxy for process object... " << flush;
                 processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                            getTestEndpoint(communicator(), 11, "tcp"));
+                                                            getTestEndpoint(communicator(), 11));
                 cout << "ok" << endl;
             }
 

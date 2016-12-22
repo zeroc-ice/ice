@@ -127,7 +127,7 @@ class ConnectRequestHandler
         if(ri !== null)
         {
                                                                                   //
-            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router 
+            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router
                                                                                   // info, we're now ready to send the
                                                                                   // queued requests.
                                                                                   //

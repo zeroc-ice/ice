@@ -118,7 +118,7 @@ AttackClient::run(int, char**)
     backend->shutdown();
     communicator()->setDefaultRouter(0);
     ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                        getTestEndpoint(communicator(), 11, "tcp"));
+                                                        getTestEndpoint(communicator(), 11));
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(adminBase);
     test(process);
     process->shutdown();

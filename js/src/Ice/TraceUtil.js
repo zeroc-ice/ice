@@ -40,9 +40,9 @@ function traceSlicing(kind, typeId, slicingCat, logger)
 function printIdentityFacetOperation(s, stream)
 {
     let toStringMode = Ice.ToStringMode.Unicode;
-    if(stream.instance() !== null)
+    if(stream.instance !== null)
     {
-        toStringMode = stream.instance().toStringMode();
+        toStringMode = stream.instance.toStringMode();
     }
 
     const identity = new Identity();
@@ -431,7 +431,7 @@ class TraceUtil
             stream.pos = p;
         }
     }
-    
+
     static dumpStream(stream)
     {
         const pos = stream.pos;

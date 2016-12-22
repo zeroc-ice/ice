@@ -44,10 +44,14 @@ self.onmessage = function(e)
         self.importScripts("/test/Common/TestRunner.js");
         for(var i = 0; i < test.files.length; ++i)
         {
-            var f = "/test/" + test.name + "/" + test.files[i];
-            if(test.es5)
+            var f = test.files[i]
+            if(f.indexOf("/") === -1)
             {
-                f = f.replace("/test/", "/test/es5/");
+                f = "/test/" + test.name + "/" + f;
+                if(test.es5)
+                {
+                    f = f.replace("/test/", "/test/es5/");
+                }
             }
             self.importScripts(f);
         }

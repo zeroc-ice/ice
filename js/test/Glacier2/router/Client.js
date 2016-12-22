@@ -106,7 +106,7 @@
                 out.writeLine("ok");
 
                 out.write("testing stringToProxy for server object... ");
-                base = communicator.stringToProxy("c1/callback:tcp -p 12010");
+                base = communicator.stringToProxy("c1/callback:default -p 12010");
                 out.writeLine("ok");
 
                 out.write("trying to ping server before session creation... ");
@@ -355,7 +355,7 @@
                     out.writeLine("ok");
 
                     out.write("testing stringToProxy for process object... ");
-                    processBase = communicator.stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12021");
+                    processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -h 127.0.0.1 -p 12021");
                     out.writeLine("ok");
 
                     out.write("testing checked cast for admin object... ");
@@ -406,6 +406,7 @@
             });
     };
     exports._test = run;
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,

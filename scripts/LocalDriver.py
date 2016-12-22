@@ -192,12 +192,20 @@ class RemoteTestCaseRunner(TestCaseRunner):
             self.serverController = None
             self.serverOptions = {}
 
-    def getTestSuites(self, mapping, testsuites):
+    def getTestSuites(self, mapping, testSuiteIds):
         if self.clientController:
-            testsuites = [t for t in self.clientController.getTestSuites(mapping) if t in testsuites]
+            clientTestSuiteIds = self.clientController.getTestSuites(str(mapping))
+            if testSuiteIds:
+                testSuiteIds = [ts for ts in clientTestSuiteIds if ts in testSuiteIds]
+            else:
+                testSuiteIds = clientTestSuiteIds
         if self.serverController:
-            testsuites = [t for t in self.serverController.getTestSuites(mapping) if t in testsuites]
-        return testsuites
+            serverTestSuiteIds = self.serverController.getTestSuites(str(mapping))
+            if testSuiteIds:
+                testSuiteIds = [ts for ts in serverTestSuiteIds if ts in testSuiteIds]
+            else:
+                testSuiteIds = serverTestSuiteIds
+        return mapping.getTestSuites(testSuiteIds)
 
     def filterOptions(self, options):
         import Ice
@@ -342,7 +350,7 @@ class LocalDriver(Driver):
         while True:
             executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
             for mapping in mappings:
-                testsuites = mapping.getTestSuites(testSuiteIds)
+                testsuites = self.runner.getTestSuites(mapping, testSuiteIds)
 
                 #
                 # Sort the test suites to run tests in the following order.

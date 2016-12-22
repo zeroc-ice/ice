@@ -14,6 +14,8 @@
     Test : false,
 */
 
+var process = { argv : [] };
+
 function isSafari()
 {
     return /^((?!chrome).)*safari/i.test(navigator.userAgent);
@@ -165,6 +167,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                         if(testcase.args !== undefined)
                         {
                             initData.properties = Ice.createProperties(testcase.args, id.properties);
+                            process.argv=testcase.args
                         }
                         return client(out, initData);
                     }

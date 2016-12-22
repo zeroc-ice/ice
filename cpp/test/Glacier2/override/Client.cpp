@@ -211,7 +211,7 @@ CallbackClient::run(int, char**)
 
         communicator()->setDefaultRouter(0);
         ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                              getTestEndpoint(communicator(), 11, "tcp"));
+                                                              getTestEndpoint(communicator(), 11));
         Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
         process->shutdown();
         try

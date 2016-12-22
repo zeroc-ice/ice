@@ -387,7 +387,7 @@ public class Client : TestCommon.Application
 
             {
                 Console.Out.Write("testing stringToProxy for admin object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11, "tcp"));
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
                 Console.Out.WriteLine("ok");
             }
 

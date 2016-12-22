@@ -152,7 +152,7 @@ AttackClient::run(int, char**)
     }
 
     ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                          getTestEndpoint(communicator(), 11, "tcp"));
+                                                          getTestEndpoint(communicator(), 11));
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();

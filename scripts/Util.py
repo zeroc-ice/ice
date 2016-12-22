@@ -127,6 +127,7 @@ class Darwin(Platform):
         if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
+                     "Ice/echo",
                      "Ice/faultTolerance",
                      "Ice/gc",
                      "Ice/library",
@@ -375,7 +376,8 @@ def parseOptions(obj, options, mapped={}):
                 if not a and not isinstance(a, str):
                     a = "0"
                 setattr(obj, o, type(getattr(obj, o))(a))
-            obj.parsedOptions.append(o)
+            if not o in obj.parsedOptions:
+                obj.parsedOptions.append(o)
         else:
             remaining.append((o, a))
     options[:] = remaining
@@ -647,7 +649,7 @@ class Mapping:
     def createConfig(self, options):
         return self.Config(options)
 
-    def filterTestSuite(self, testId, config, filters, rfilters):
+    def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         (pfilters, prfilters) = platform.getFilters(config)
         for includes in [filters, [re.compile(pf) for pf in pfilters]]:
             if len(includes) > 0:
@@ -1448,7 +1450,10 @@ class ClientEchoServerTestCase(ClientServerTestCase):
         ClientServerTestCase.__init__(self, name, *args, **kargs)
 
     def getServerTestCase(self, cross=None):
-        return Mapping.getByName("cpp").findTestSuite("Ice/echo").findTestCase("server")
+        ts = Mapping.getByName("cpp").findTestSuite("Ice/echo")
+        if ts:
+            return ts.findTestCase("server")
+        return None
 
     def getClientType(self):
         return "clientBidir"
@@ -2702,7 +2707,7 @@ class JavaScriptMapping(Mapping):
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
-        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
+        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config, filters, rfilters)
 
     def getServerMapping(self):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables

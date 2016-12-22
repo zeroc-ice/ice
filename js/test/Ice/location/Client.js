@@ -16,8 +16,6 @@
 
     var allTests = function(out, communicator)
     {
-        var failCB = function() { test(false); };
-
         var p = new Ice.Promise();
         var test = function(b)
         {
@@ -292,7 +290,7 @@
                 return base.ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 test(ex instanceof Ice.NotRegisteredException);
@@ -304,7 +302,7 @@
                 return base.ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 test(ex instanceof Ice.NotRegisteredException);
@@ -697,7 +695,7 @@
                 return communicator.stringToProxy("test@TestAdapter3").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.NotRegisteredException))
@@ -722,7 +720,11 @@
         ).then(
             function()
             {
-                registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:tcp"));
+                return registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:default"));
+            }
+        ).then(
+            function()
+            {
                 return communicator.stringToProxy("test@TestAdapter3").ice_ping();
             }
         ).then(
@@ -731,7 +733,7 @@
                 return communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -741,7 +743,7 @@
                 return communicator.stringToProxy("test@TestAdapter3").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -753,7 +755,11 @@
         ).then(
             function(adapter)
             {
-                registry.setAdapterDirectProxy("TestAdapter3", adapter);
+                return registry.setAdapterDirectProxy("TestAdapter3", adapter);
+            }
+        ).then(
+            function()
+            {
                 return communicator.stringToProxy("test@TestAdapter3").ice_ping();
             }
         ).then(
@@ -762,6 +768,11 @@
                 out.writeLine("ok");
                 out.write("testing well-known object locator cache... ");
                 return registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
+            },
+            function(ex)
+            {
+                out.writeLine(ex.toString());
+                test(false);
             }
         ).then(
             function()
@@ -769,7 +780,7 @@
                 return communicator.stringToProxy("test3").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.NotRegisteredException))
@@ -787,7 +798,7 @@
         ).then(
             function()
             {
-                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
+                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
             }
         ).then(
             function()
@@ -795,7 +806,7 @@
                 return communicator.stringToProxy("test3").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -817,7 +828,7 @@
         ).then(
             function()
             {
-                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
+                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
             }
         ).then(
             function()
@@ -830,7 +841,7 @@
                 return communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -840,7 +851,7 @@
                 return communicator.stringToProxy("test@TestAdapter4").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -850,7 +861,7 @@
                 return communicator.stringToProxy("test3").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -875,7 +886,7 @@
                 return communicator.stringToProxy("test4").ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.NoEndpointException))
@@ -941,7 +952,7 @@
                         registry.setAdapterDirectProxy("TestAdapter5", null).then(
                             function()
                             {
-                                return registry.addObject(communicator.stringToProxy("test3:tcp"));
+                                return registry.addObject(communicator.stringToProxy("test3:default"));
                             }
                         ).then(
                             function()
@@ -1198,7 +1209,7 @@
                 return obj2.ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -1208,7 +1219,7 @@
                 return obj3.ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))
@@ -1218,7 +1229,7 @@
                 return obj5.ice_ping();
             }
         ).then(
-            failCB,
+            function() { test(false); },
             function(ex)
             {
                 if(!(ex instanceof Ice.LocalException))

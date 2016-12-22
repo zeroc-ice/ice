@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+var process = { argv : [] };
+
 function isSafari()
 {
     return /^((?!chrome).)*safari/i.test(navigator.userAgent);
@@ -120,6 +122,7 @@ class ProcessControllerI extends Test.Common.ProcessController
             let initData = new Ice.InitializationData();
             initData.logger = this._logger;
             initData.properties = Ice.createProperties(args);
+            process.argv = args
             if(exe === "ClientBidir")
             {
                 promise = _testBidir(this._output, initData);
@@ -183,7 +186,7 @@ function runController(output, scripts)
             {
                 message = message.replace(/\n/g, "\n   ");
             }
-            out.write(message);
+            out.writeLine(message);
         }
     }
 

@@ -146,10 +146,10 @@ class ControllerDriver(Driver):
                 self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
                 return self.testcase
 
-            def getTestSuites(mapping, c):
+            def getTestSuites(self, mapping, c):
                 mapping = Mapping.getByName(mapping)
                 config = self.driver.configs[mapping]
-                return [t for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config, [], [])]
+                return [str(t) for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config)]
 
             def getOptionOverrides(self, c):
                 return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))

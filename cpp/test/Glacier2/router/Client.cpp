@@ -911,7 +911,7 @@ CallbackClient::run(int argc, char* argv[])
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
             processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                        getTestEndpoint(communicator(), 11, "tcp"));
+                                                        getTestEndpoint(communicator(), 11));
             cout << "ok" << endl;
         }
 

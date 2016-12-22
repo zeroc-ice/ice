@@ -184,7 +184,16 @@ function Init()
             var testSuite = TestSuites[m];
             if(testSuite)
             {
-                scripts = scripts.concat(TestSuites[m].files.map(function(f) { return "/test/" + matchController[1] + "/" + f}))
+                scripts = scripts.concat(TestSuites[m].files.map(function(f) {
+                    if(f.indexOf("/") === -1)
+                    {
+                        return "/test/" + matchController[1] + "/" + f;
+                    }
+                    else
+                    {
+                        return f;
+                    }
+                }))
             }
             else
             {

@@ -198,7 +198,7 @@
                 out.write("testing AsyncResult operations... ");
 
                 var indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"));
-                
+
                 return indirect.op().catch(ex => test(ex instanceof Ice.NoEndpointException)
                 ).then(() => testController.holdAdapter()
                 ).then(() =>
@@ -292,7 +292,7 @@
                         r2.then(
                             () => test(false),
                             (ex) => test(ex instanceof Ice.InvocationCanceledException));
-                    
+
                         r1.cancel();
                         r2.cancel();
 

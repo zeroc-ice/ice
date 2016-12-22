@@ -369,7 +369,7 @@ public class Client extends test.Util.Application
             com.zeroc.Ice.ObjectPrx processBase;
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11, "tcp"));
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
                 out.println("ok");
             }
 

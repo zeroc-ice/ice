@@ -392,7 +392,7 @@ public class Client : TestCommon.Application
             Ice.ObjectPrx processBase;
             {
                 Console.Out.Write("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11, "tcp"));
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
                 Console.Out.WriteLine("ok");
             }
 

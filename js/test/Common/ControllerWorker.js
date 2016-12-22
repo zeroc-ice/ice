@@ -11,6 +11,7 @@
     self : false,
     runTest : false
 */
+var process = { argv : [] };
 
 let out =
 {
@@ -47,7 +48,7 @@ self.onmessage = function(e)
                 {
                     message = message.replace(/\n/g, "\n   ");
                 }
-                out.write(message);
+                out.writeLine(message);
             }
         }
 
@@ -55,6 +56,7 @@ self.onmessage = function(e)
         let initData = new Ice.InitializationData();
         initData.logger = new Logger(out);
         initData.properties = Ice.createProperties(e.data.args);
+        process.argv = e.data.args;
         if(e.data.exe === "ClientBidir")
         {
             promise = _testBidir(out, initData);

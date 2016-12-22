@@ -73,7 +73,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrxPtr base3 = communicator->stringToProxy("test");
-    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager"); 
+    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager");
     Ice::ObjectPrxPtr base5 = communicator->stringToProxy("test2");
     Ice::ObjectPrxPtr base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
     cout << "ok" << endl;
@@ -90,8 +90,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
     communicator->setDefaultLocator(locator);
     base = communicator->stringToProxy("test @ TestAdapter");
-    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator())); 
-    
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
+
     //
     // We also test ice_router/ice_getRouter (perhaps we should add a
     // test/Ice/router test?)
@@ -127,7 +127,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     TestIntfPrxPtr obj6 = ICE_CHECKED_CAST(TestIntfPrx, base6);
     test(obj6);
     cout << "ok" << endl;
- 
+
     cout << "testing id@AdapterId indirect proxy... " << flush;
     obj->shutdown();
     manager->startServer();
@@ -140,8 +140,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;    
-    
+    cout << "ok" << endl;
+
     cout << "testing id@ReplicaGroupId indirect proxy... " << flush;
     obj->shutdown();
     manager->startServer();
@@ -154,7 +154,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;    
+    cout << "ok" << endl;
 
     cout << "testing identity indirect proxy... " << flush;
     obj->shutdown();
@@ -296,11 +296,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     count += 2;
     test(count == locator->getRequestCount());
 
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping(); 
+    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_ping(); 
+    communicator->stringToProxy("test@TestAdapter")->ice_ping();
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_ping();
     test(count == locator->getRequestCount());
@@ -456,7 +456,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
         test(false);
     }
-    
+
     try
     {
         communicator->stringToProxy("test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
@@ -471,7 +471,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(false);
     }
     catch(const Ice::LocalException&)
-    {   
+    {
     }
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
     try
@@ -541,7 +541,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(false);
     }
     catch(const Ice::LocalException&)
-    {   
+    {
     }
     try
     {
@@ -560,7 +560,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
         test(false);
     }
-    
+
     registry->addObject(communicator->stringToProxy("test4"));
     try
     {
@@ -696,7 +696,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 #endif
     string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-        
+
     if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                   communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
@@ -715,7 +715,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
             id.name = Ice::generateUUID();
             registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
             adapter->activate();
-            
+
             HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));
             test(!helloPrx->ice_getConnection());
 
