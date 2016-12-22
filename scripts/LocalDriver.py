@@ -154,8 +154,8 @@ class Executor:
 #
 class TestCaseRunner:
 
-    def getTestSuites(self, mapping, testsuites):
-        return testsuites
+    def getTestSuites(self, mapping, testSuiteIds):
+        return mapping.getTestSuites(testSuiteIds)
 
     def filterOptions(self, options):
         return options
