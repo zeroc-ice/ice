@@ -1,10 +1,10 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Condition="'$(Configuration)' == ''">
-        <Configuration>Release</Configuration>
+        <Configuration>Debug</Configuration>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Platform)' == ''">
-      <Platform>x64</Platform>
+      <Platform>Win32</Platform>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />

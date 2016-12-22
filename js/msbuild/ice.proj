@@ -3,8 +3,8 @@
 
   <PropertyGroup>
     <NPM Condition="'$(NPM)' == ''">npm</NPM>
-    <Platform Condition="'$(Platform)' == ''">x64</Platform>
-    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
   </PropertyGroup>
 
   <Target Name="Build">

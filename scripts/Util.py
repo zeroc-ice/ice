@@ -244,10 +244,10 @@ class Windows(Platform):
         pass # Nothing to do, we don't support the make build system on Windows
 
     def getDefaultBuildPlatform(self):
-        return "x64"
+        return "Win32"
 
     def getDefaultBuildConfig(self):
-        return "Release"
+        return "Debug"
 
     def getCompiler(self):
         out = run("cl")
