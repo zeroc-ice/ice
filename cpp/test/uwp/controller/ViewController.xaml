@@ -11,7 +11,6 @@
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -21,11 +20,7 @@
                        Margin="5" 
                        VerticalAlignment="Bottom" TextWrapping="Wrap"/>
         </StackPanel>
-        <StackPanel Grid.Row="1" >
-            <TextBlock Margin="5" Text="Hostname" Style="{StaticResource BasicTextStyle}" FontSize="16"/>
-            <ComboBox Margin="5,5,5,5" x:Name="Hostname" HorizontalAlignment="Stretch" SelectionChanged="Hostname_SelectionChanged"></ComboBox>
-        </StackPanel>
-        <ListBox Margin="5" Grid.Row="2" x:Name="Output" Background="LightGray"></ListBox>
+        <ListBox Margin="5" Grid.Row="1" x:Name="Output" Background="LightGray"></ListBox>
         <StackPanel Grid.Row="3" VerticalAlignment="Bottom">
             <TextBlock Text="Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved." 
                        Style="{StaticResource FooterStyle}"

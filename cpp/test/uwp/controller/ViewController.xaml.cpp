@@ -115,7 +115,7 @@ class ControllerHelper
 {
 public:
 
-    ControllerHelper(ViewController^, string);
+    ControllerHelper(ViewController^);
     virtual ~ControllerHelper();
 
     void
@@ -340,12 +340,12 @@ ProcessControllerI::getHost(string, bool, const Ice::Current&)
     return _hostname;
 }
 
-ControllerHelper::ControllerHelper(ViewController^ controller, string hostname)
+ControllerHelper::ControllerHelper(ViewController^ controller)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
-    initData.properties->setProperty("Ice.Default.Host", hostname);
+    initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
     //initData.properties->setProperty("Ice.Trace.Network", "3");
     //initData.properties->setProperty("Ice.Trace.Protocol", "1");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
@@ -357,7 +357,7 @@ ControllerHelper::ControllerHelper(ViewController^ controller, string hostname)
     Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "");
     Ice::Identity ident = { "ProcessController", "UWP"};
     auto processController = Ice::uncheckedCast<ProcessControllerPrx>(
-        adapter->add(make_shared<ProcessControllerI>(controller, hostname), ident));
+        adapter->add(make_shared<ProcessControllerI>(controller, "127.0.0.1"), ident));
     adapter->activate();
 
     registerProcessController(controller, adapter, registry, processController);
@@ -417,29 +417,12 @@ ViewController::ViewController()
 void
 ViewController::OnNavigatedTo(NavigationEventArgs^)
 {
-    Hostname->Items->Clear();
-    Hostname->Items->Append(L"127.0.0.1");
-    for(auto i : NetworkInformation::GetHostNames())
-    {
-        if(i->IPInformation != nullptr && i->IPInformation->NetworkAdapter != nullptr)
-        {
-            Hostname->Items->Append(i->CanonicalName);
-        }
-    }
-    Hostname->SelectedIndex = 0;
-}
-
-
-void
-ViewController::Hostname_SelectionChanged(Platform::Object^ sender, SelectionChangedEventArgs^ e)
-{
-    String^ hostname = Hostname->SelectedItem->ToString();
     if(controllerHelper)
     {
         delete controllerHelper;
         controllerHelper = 0;
     }
-    controllerHelper = new ControllerHelper(this, Ice::wstringToString(hostname->Data()));
+    controllerHelper = new ControllerHelper(this);
 }
 
 void
@@ -449,6 +432,8 @@ ViewController::println(const string& s)
         [=]()
         {
             Output->Items->Append(ref new String(Ice::stringToWstring(s).c_str()));
+            Output->SelectedIndex = Output->Items->Size - 1;
+            Output->ScrollIntoView(Output->SelectedItem);
         }));
 }
 
