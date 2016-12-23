@@ -9,6 +9,7 @@
 
 #include <Slice/PHPUtil.h>
 #include <functional>
+#include <algorithm>
 #include <vector>
 
 using namespace std;
