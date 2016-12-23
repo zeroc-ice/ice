@@ -9,6 +9,7 @@
 
 #include <Slice/PHPUtil.h>
 #include <functional>
+#include <vector>
 
 using namespace std;
 using namespace Slice;
@@ -29,8 +30,8 @@ lookupKwd(const string& name)
     //
     // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const string keywordList[] = 
-    {       
+    static const string keywordList[] =
+    {
         "abstract", "and", "array", "as", "break", "case", "catch", "class", "clone", "const", "continue", "declare",
         "default", "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif",
         "endswitch", "endwhile", "eval", "exit", "extends", "final", "for", "foreach", "function", "global", "if",
@@ -132,12 +133,6 @@ Slice::PHP::fixIdent(const string& ident)
         result << "::" + *i;
     }
     return result.str();
-}
-
-string
-Slice::PHP::getAbsolute(const ContainedPtr& cont, bool ns, const string& prefix, const string& suffix)
-{
-    return scopedToName(cont->scope() + prefix + cont->name() + suffix, ns);
 }
 
 string

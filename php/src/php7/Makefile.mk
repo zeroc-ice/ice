@@ -16,7 +16,6 @@ IcePHP_installdir	:= $(install_phplibdir)
 IcePHP_cppflags  	:= -I$(project) -I$(top_srcdir)/cpp/src $(php_cpp_includes) $(php_cppflags)
 IcePHP_ldflags		:= $(php_ldflags)
 IcePHP_dependencies	:= IceDiscovery IceLocatorDiscovery IceSSL Ice
-IcePHP_libs             := mcpp
 IcePHP_extra_sources    := $(top_srcdir)/cpp/src/Slice/PHPUtil.cpp
 
 projects += $(project)

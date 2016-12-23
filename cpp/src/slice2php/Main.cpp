@@ -20,6 +20,7 @@
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/PHPUtil.h>
+#include <Slice/Parser.h>
 #include <Slice/Util.h>
 #include <cstring>
 #include <climits>
@@ -40,6 +41,22 @@ using namespace Slice;
 using namespace Slice::PHP;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+namespace
+{
+
+//
+// Get the fully-qualified name of the given definition. If a suffix is provided,
+// it is prepended to the definition's unqualified name. If the nameSuffix
+// is provided, it is appended to the container's name.
+//
+string
+getAbsolute(const ContainedPtr& cont, bool ns, const string& pfx = std::string(), const string& suffix = std::string())
+{
+    return scopedToName(cont->scope() + pfx + cont->name() + suffix, ns);
+}
+
+}
 
 //
 // CodeVisitor generates the PHP mapping for a translation unit.
