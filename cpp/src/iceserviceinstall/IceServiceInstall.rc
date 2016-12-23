@@ -1,30 +1,29 @@
-#include "winver.h"
+#include<IceUtil/ResourceConfig.h>
+
+#define ICE_INTERNALNAME "iceserviceinstall\0"
+#define ICE_ORIGINALFILENAME "iceserviceinstall.exe\0"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,7,54,0
- PRODUCTVERSION 3,7,54,0
- FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
-#ifdef _DEBUG
- FILEFLAGS VS_FF_DEBUG
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE VFT_APP
- FILESUBTYPE 0x0L
+FILEVERSION ICE_VERSION
+PRODUCTVERSION ICE_VERSION
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+FILEFLAGS VER_DEBUG
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "ZeroC, Inc.\0"
+            VALUE "CompanyName", ICE_COMPANY_NAME
             VALUE "FileDescription", "Install Ice Services as Windows Services\0"
-            VALUE "FileVersion", "3.7a4\0"
-            VALUE "InternalName", "iceserviceinstall\0"
-            VALUE "LegalCopyright", "\251 2003-2016 ZeroC, Inc.\0"
-            VALUE "OriginalFilename", "iceserviceinstall.exe\0"
-            VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.7a4\0"
+            VALUE "FileVersion", ICE_STRING_VERSION
+            VALUE "InternalName", ICE_INTERNALNAME
+            VALUE "LegalCopyright", ICE_COPYRIGHT
+            VALUE "OriginalFilename", ICE_ORIGINALFILENAME
+            VALUE "ProductName", ICE_PRODUCT_NAME
+            VALUE "ProductVersion", ICE_STRING_VERSION
         END
     END
     BLOCK "VarFileInfo"

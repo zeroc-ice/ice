@@ -159,6 +159,9 @@
     <Link>
       <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)</AdditionalLibraryDirectories>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(Ice_BuildingSrc)' == 'DynamicLibrary|yes'">
