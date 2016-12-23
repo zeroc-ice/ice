@@ -227,7 +227,8 @@
   <!-- UWP targets -->
 
   <!-- Build UWP distribution targetes -->
-  <Target Name="UWPBuildDist" DependsOnTargets="NugetRestore">
+  <Target Name="UWPBuildDist" DependsOnTargets="NugetRestore"
+          Condition="'$(UseBinDist)' != 'yes'">
     <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
