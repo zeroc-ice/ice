@@ -2278,6 +2278,15 @@ class Driver:
         if self.communicator:
             return
 
+        try:
+            import Ice
+        except ImportError:
+            # Try to add the local Python build to the sys.path
+            pythonMapping = Mapping.getByName("python")
+            if pythonMapping:
+                for p in pythonMapping.getPythonDirs(pythonMapping.getPath(), self.configs[pythonMapping]):
+                    sys.path.append(p)
+
         import Ice
         Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
 
@@ -2627,19 +2636,20 @@ class PythonMapping(CppBasedMapping):
         return sys.executable + " " + exe
 
     def getEnv(self, process, current):
-        c = current.config
         env = CppBasedMapping.getEnv(self, process, current)
         if current.driver.getIceDir(self, current) != platform.getIceDir(self, current):
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
-
-            pythondirs = []
-            if isinstance(platform, Windows):
-                pythondirs.append(os.path.join(current.driver.getIceDir(self, current), "python", c.buildPlatform, c.buildConfig))
-            pythondirs.append(os.path.join(current.driver.getIceDir(self, current), "python"))
-
-            env["PYTHONPATH"] = os.pathsep.join(pythondirs)
+            dirs = self.getPythonDirs(current.driver.getIceDir(self, current), current.config)
+            env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
+
+    def getPythonDirs(self, iceDir, config):
+        dirs = []
+        if isinstance(platform, Windows):
+            dirs.append(os.path.join(iceDir, "python", config.buildPlatform, config.buildConfig))
+        dirs.append(os.path.join(iceDir, "python"))
+        return dirs
 
     def getDefaultExe(self, processType, config):
         return self.getDefaultSource(processType)
@@ -2894,10 +2904,11 @@ def runTests(mappings=None, drivers=None):
         driver = Driver.create(opts)
 
         #
-        # Create the configurations for each mapping
+        # Create the configurations for each mapping (we always parse the configuration for the
+        # python mapping because we might use the local IcePy build to initialize a communicator).
         #
         configs = {}
-        for mapping in allMappings + driver.getMappings():
+        for mapping in allMappings + driver.getMappings() + [Mapping.getByName("python")]:
             if mapping not in configs:
                 configs[mapping] = mapping.createConfig(opts[:])
 
