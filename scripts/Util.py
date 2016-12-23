@@ -1982,7 +1982,7 @@ class UWPProcessController(RemoteProcessController):
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001")
         self.name = "ice-uwp-controller"
-        self.appUserModelId = "ice-uwp-controller_3qjctahehqazm!App"
+        self.appUserModelId = "ice-uwp-controller_3qjctahehqazm"
 
     def __str__(self):
         return "UWP"
@@ -2023,18 +2023,21 @@ class UWPProcessController(RemoteProcessController):
         print("Registering application to run from layout...")
         run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\"".format(layout))
 
+        run("CheckNetIsolation LoopbackExempt -a -n={0}".format(self.appUserModelId))
+
         #
         # microsoft.windows.softwarelogo.appxlauncher.exe returns the PID as return code
         # and 0 on case of failures. We pass err=True to run to handle this.
         #
         print("staring UWP controller app...")
-        run('"{0}" {1}'.format(
+        run('"{0}" {1}!App'.format(
             "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/microsoft.windows.softwarelogo.appxlauncher.exe",
             self.appUserModelId), err=True)
 
     def stopControllerApp(self, ident):
         try:
             run("powershell Remove-AppxPackage {0}".format(self.packageFullName))
+            run("CheckNetIsolation LoopbackExempt -c -n={0}".format(self.appUserModelId))
         except:
             pass
 
