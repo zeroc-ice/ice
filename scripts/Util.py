@@ -221,7 +221,7 @@ class Windows(Platform):
                      #
                      # TODO: Test scripts are killing the Ice/binding test because it takes
                      # too much time to run
-                     # 
+                     #
                      "Ice/binding",
                      "Ice/checksum",
                      "Ice/custom",
@@ -1978,6 +1978,7 @@ class iOSDeviceProcessController(RemoteProcessController):
         pass
 
 class UWPProcessController(RemoteProcessController):
+
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001")
         self.name = "ice-uwp-controller"
@@ -1997,8 +1998,8 @@ class UWPProcessController(RemoteProcessController):
         self.packageFullName = "{0}_1.0.0.0_{1}__3qjctahehqazm".format(
             self.name, "x86" if platform == "Win32" else platform)
 
-        package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller", 
-            "controller_1.0.0.0_{0}_{1}_Test".format(platform, config), 
+        package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
+            "controller_1.0.0.0_{0}_{1}_Test".format(platform, config),
             "controller_1.0.0.0_{0}_{1}.appx".format(platform, config))
 
         #
@@ -2009,7 +2010,7 @@ class UWPProcessController(RemoteProcessController):
             run("powershell Remove-AppxPackage {0}".format(self.packageFullName))
 
         #
-        # Remove any previous package we have extracted to ensure we use a 
+        # Remove any previous package we have extracted to ensure we use a
         # fresh build
         #
         if os.path.exists(layout):
@@ -2065,6 +2066,7 @@ class BrowserProcessController(RemoteProcessController):
         cmd = "node -e \"require('./bin/HttpServer')()\"";
         cwd = current.testsuite.getMapping().getPath()
         self.httpServer = Expect.Expect(cmd, cwd=cwd)
+        self.httpServer.expect("listening on ports")
 
     def __str__(self):
         return str(self.driver)
@@ -2806,6 +2808,10 @@ class JavaScriptMapping(Mapping):
         # Edge and Ie only support ES5 for now
         if current.config.browser in ["Edge", "Ie"]:
             options["es5"] = [True]
+
+        # TODO: Fix Safari issue where tests hang when ran with --worker
+        if current.config.browser == "Safari":
+            options["worker"] = [False]
 
         return options
 

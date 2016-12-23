@@ -15,9 +15,10 @@ using namespace std;
 int
 main(int /*argc*/, char* /*argv*/[])
 {
+    cout << "testing clash... " << flush;
     //
     // TODO: add runtime testing
-    // 
+    //
     cout << "ok" << endl;
     return 0;
 }
