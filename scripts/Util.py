@@ -989,7 +989,7 @@ class Process(Runnable):
             self.process.trace(self.outfilters)
         while True:
             try:
-                self.process.waitSuccess(timeout=30)
+                self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
                 break
             except Expect.TIMEOUT:
                 if watchDog and watchDog.timedOut():
