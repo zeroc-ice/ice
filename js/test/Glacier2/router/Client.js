@@ -65,8 +65,6 @@
 
     var allTests = function(out, communicator)
     {
-        var p = new Promise();
-
         var failCB = function () { test(false); };
 
         var router, base, session, twoway, oneway, category, processBase, processPrx, adapter,callbackReceiverImpl,
@@ -384,7 +382,7 @@
                     );
                 }
             }
-        ).catch(e => console.log(e));
+        )
     };
 
     var run = function(out, id)

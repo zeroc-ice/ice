@@ -987,7 +987,14 @@ class Process(Runnable):
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
             self.process.trace(self.outfilters)
-        self.stop(current, True, exitstatus, watchDog)
+        while True:
+            try:
+                self.process.waitSuccess(timeout=30)
+                break
+            except Expect.TIMEOUT:
+                if watchDog and watchDog.timedOut():
+                    raise
+        self.stop(current, True, exitstatus)
 
     def getEffectiveArgs(self, current, args):
         allArgs = []
@@ -1037,17 +1044,11 @@ class Process(Runnable):
         # To be overridden in specialization to wait for a token indicating the process readiness.
         pass
 
-    def stop(self, current, waitSuccess=False, exitstatus=0, watchDog=None):
+    def stop(self, current, waitSuccess=False, exitstatus=0):
         if self.process:
             try:
                 if waitSuccess: # Wait for the process to exit successfully by itself.
-                    while True:
-                        try:
-                            self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
-                            break
-                        except Expect.TIMEOUT:
-                            if watchDog and watchDog.timedOut():
-                                raise
+                    self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
             finally:
                 self.process.terminate()
                 self.output = self.process.getOutput()
@@ -1137,8 +1138,8 @@ class Server(IceProcess):
         if not self.quiet and not current.driver.isWorkerThread():
             self.process.trace(self.outfilters)
 
-    def stop(self, current, waitSuccess=False, exitstatus=0, watchDog=None):
-        IceProcess.stop(self, current, waitSuccess and self.waitForShutdown, exitstatus, watchDog)
+    def stop(self, current, waitSuccess=False, exitstatus=0):
+        IceProcess.stop(self, current, waitSuccess and self.waitForShutdown, exitstatus)
 
 #
 # An Ice client process.
