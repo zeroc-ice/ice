@@ -2047,30 +2047,34 @@ class BrowserProcessController(RemoteProcessController):
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "ws -h 127.0.0.1 -p 15002:wss -h 127.0.0.1 -p 15003")
 
-        from selenium import webdriver
-        if not hasattr(webdriver, current.config.browser):
-            raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
+        try:
+            from selenium import webdriver
+            if not hasattr(webdriver, current.config.browser):
+                raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
 
-        if current.config.browser == "Firefox":
-            #
-            # We need to specify a profile for Firefox. This profile only provides the cert8.db which
-            # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
-            # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
-            #
-            # capabilities = webdriver.DesiredCapabilities.FIREFOX.copy()
-            # capabilities["marionette"] = True
-            # capabilities["acceptInsecureCerts"] = True
-            # capabilities["moz:firefoxOptions"] = {}
-            # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
-            profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
-            self.driver = webdriver.Firefox(firefox_profile=profile)
-        else:
-            self.driver = getattr(webdriver, current.config.browser)()
+            if current.config.browser == "Firefox":
+                #
+                # We need to specify a profile for Firefox. This profile only provides the cert8.db which
+                # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
+                # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
+                #
+                # capabilities = webdriver.DesiredCapabilities.FIREFOX.copy()
+                # capabilities["marionette"] = True
+                # capabilities["acceptInsecureCerts"] = True
+                # capabilities["moz:firefoxOptions"] = {}
+                # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
+                profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
+                self.driver = webdriver.Firefox(firefox_profile=profile)
+            else:
+                self.driver = getattr(webdriver, current.config.browser)()
 
-        cmd = "node -e \"require('./bin/HttpServer')()\"";
-        cwd = current.testsuite.getMapping().getPath()
-        self.httpServer = Expect.Expect(cmd, cwd=cwd)
-        self.httpServer.expect("listening on ports")
+            cmd = "node -e \"require('./bin/HttpServer')()\"";
+            cwd = current.testsuite.getMapping().getPath()
+            self.httpServer = Expect.Expect(cmd, cwd=cwd)
+            self.httpServer.expect("listening on ports")
+        except:
+            self.destroy()
+            raise
 
     def __str__(self):
         return str(self.driver)
