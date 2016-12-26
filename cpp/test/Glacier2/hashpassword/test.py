@@ -21,7 +21,7 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
                 raise RuntimeError('test assertion failed')
 
         def hashPasswords(password, args = ""):
-            p = subprocess.Popen('%s "%s" %s' % (sys.executable, hashpassword, args), shell=True, stdout=subprocess.PIPE,
+            p = subprocess.Popen('"%s" "%s" %s' % (sys.executable, hashpassword, args), shell=True, stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
             p.stdin.write(password.encode('UTF-8'))
             p.stdin.write('\r\n'.encode('UTF-8'))

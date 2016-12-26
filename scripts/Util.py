@@ -2638,7 +2638,7 @@ class PythonMapping(CppBasedMapping):
         mappingDesc = "Python"
 
     def getCommandLine(self, current, process, exe):
-        return sys.executable + " " + exe
+        return "\"{0}\" {1}".format(sys.executable, exe)
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)

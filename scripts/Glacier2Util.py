@@ -22,7 +22,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
         if self.passwords:
             path = os.path.join(current.testcase.getPath(), "passwords")
             with open(path, "w") as file:
-                command = "%s %s" % (sys.executable,
+                command = "\"%s\" %s" % (sys.executable,
                                      os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
 
                 #
