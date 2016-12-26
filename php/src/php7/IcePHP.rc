@@ -1,34 +1,34 @@
-#include "winver.h"
+#include<IceUtil/ResourceConfig.h>
+
+#ifdef ZTS
+#   define ICE_INTERNALNAME "ice_php_nts\0"
+#   define ICE_ORIGINALFILENAME "ice_php_nts.dll\0"
+#else
+#   define ICE_INTERNALNAME "ice_php\0"
+#   define ICE_ORIGINALFILENAME "ice_php.dll\0"
+#endif
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,7,54,0
- PRODUCTVERSION 3,7,54,0
- FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
-#ifdef _DEBUG
- FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "php_iced\0"
- #define ORIGINALFILENAME "php_iced.dll\0"
-#else
- FILEFLAGS 0x0L
- #define INTERNALNAME "php_ice\0"
- #define ORIGINALFILENAME "php_ice.dll\0"
-#endif
- FILEOS 0x4L
- FILETYPE VFT_DLL
- FILESUBTYPE 0x0L
+FILEVERSION ICE_VERSION
+PRODUCTVERSION ICE_VERSION
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_DLL
+FILESUBTYPE VFT2_UNKNOWN
+FILEFLAGS VER_DEBUG
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "ZeroC, Inc.\0"
+            VALUE "CompanyName", ICE_COMPANY_NAME
             VALUE "FileDescription", "Ice for PHP Extension\0"
-            VALUE "FileVersion", "3.7a4\0"
-            VALUE "InternalName", INTERNALNAME
-            VALUE "LegalCopyright", "Copyright (c) 2003-2016 ZeroC, Inc.  All rights reserved.\0"
-            VALUE "OriginalFilename", ORIGINALFILENAME
-            VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.7a4\0"
+            VALUE "FileVersion", ICE_STRING_VERSION
+            VALUE "InternalName", ICE_INTERNALNAME
+            VALUE "LegalCopyright", ICE_COPYRIGHT
+            VALUE "OriginalFilename", ICE_ORIGINALFILENAME
+            VALUE "ProductName", ICE_PRODUCT_NAME
+            VALUE "ProductVersion", ICE_STRING_VERSION
         END
     END
     BLOCK "VarFileInfo"

@@ -198,6 +198,11 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'NTS-Release' Or '$(Configuration)' == 'NTS-Debug'">
+    <ResourceCompile>
+      <PreprocessorDefinitions>ZTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\PHPUtil.cpp" />
     <ClCompile Include="..\Communicator.cpp" />
