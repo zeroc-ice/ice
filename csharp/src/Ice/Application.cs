@@ -18,11 +18,6 @@ namespace Ice
 
     internal static class NativeMethods
     {
-        //
-        // Technically it's not necessary to wrap DllImport in conditional compilation because
-        // the binding occurs at run time and it will never be executed on Mono. However, it
-        // causes problems for the Compact Framework.
-        //
         [DllImport("kernel32.dll")]
         [return: MarshalAsAttribute(UnmanagedType.Bool)]
         internal static extern bool
@@ -222,14 +217,7 @@ namespace Ice
             int status;
             if(iceSignalPolicy == SignalPolicy.HandleSignals)
             {
-                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-                {
-                    _signals = new WindowsSignals();
-                }
-                else
-                {
-                    _signals = new MonoSignals();
-                }
+                _signals = new WindowsSignals();
                 _signals.register(_handler);
 
                 status = doMain(args, initData);
@@ -729,14 +717,7 @@ namespace Ice
         private static int SIGHUP;
         static Application()
         {
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-            {
-                SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
-            }
-            else
-            {
-                SIGHUP = 1;
-            }
+            SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
         }
 
         private delegate void SignalHandler(int sig);
@@ -747,136 +728,6 @@ namespace Ice
         {
             void register(SignalHandler handler);
             void destroy();
-        }
-
-        private class MonoSignals : Signals
-        {
-            public void register(SignalHandler handler)
-            {
-                _handler = handler;
-                _destroyed = false;
-
-                try
-                {
-                    //
-                    // Signal handling in Mono is provided in the Mono.Unix.Native namespace.
-                    // We use reflection to do the equivalent of the following:
-                    //
-                    // Stdlib.signal(Signum.SIGHUP, delegate);
-                    // Stdlib.signal(Signum.SIGINT, delegate);
-                    // Stdlib.signal(Signum.SIGTERM, delegate);
-                    //
-                    // We don't use conditional compilation so that the Ice assembly can be
-                    // used without change on Windows and Mono.
-                    //
-                    Assembly a = Assembly.Load(
-                        "Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-                    Type sigs = a.GetType("Mono.Unix.Native.Signum");
-                    object SIGHUP = Enum.Parse(sigs, "SIGHUP");
-                    object SIGINT = Enum.Parse(sigs, "SIGINT");
-                    object SIGTERM = Enum.Parse(sigs, "SIGTERM");
-                    Type stdlib = a.GetType("Mono.Unix.Native.Stdlib");
-                    MethodInfo method = stdlib.GetMethod("signal", BindingFlags.Static | BindingFlags.Public);
-                    Type delType = a.GetType("Mono.Unix.Native.SignalHandler");
-                    Delegate del = Delegate.CreateDelegate(delType, this, "callback");
-                    object[] args = new object[2];
-                    args[0] = SIGHUP;
-                    args[1] = del;
-                    method.Invoke(null, args);
-                    args[0] = SIGINT;
-                    args[1] = del;
-                    method.Invoke(null, args);
-                    args[0] = SIGTERM;
-                    args[1] = del;
-                    method.Invoke(null, args);
-
-                    //
-                    // Doing certain activities within Mono's signal dispatch thread
-                    // can cause the VM to crash, so we use a separate thread to invoke
-                    // the handler.
-                    //
-                    _thread = new Thread(new ThreadStart(run));
-                    _thread.IsBackground = true;
-                    _thread.Name = "Ice.Application.SignalThread";
-                    _thread.Start();
-                }
-                catch(System.DllNotFoundException)
-                {
-                    //
-                    // The class Mono.Unix.Native.Stdlib requires libMonoPosixHelper.so. Mono raises
-                    // DllNotFoundException if it cannot be found in the shared library search path.
-                    //
-                    Util.getProcessLogger().warning("unable to initialize signals");
-                }
-            }
-
-            public void destroy()
-            {
-                lock(_m)
-                {
-                    _destroyed = true;
-                    System.Threading.Monitor.Pulse(_m);
-                }
-
-                if(_thread != null)
-                {
-                    _thread.Join();
-                    _thread = null;
-                }
-            }
-
-            private void callback(int sig)
-            {
-                lock(_m)
-                {
-                    _signals.Add(sig);
-                    System.Threading.Monitor.Pulse(_m);
-                }
-            }
-
-            private void run()
-            {
-                while(true)
-                {
-                    List<int> signals = null;
-                    bool destroyed = false;
-
-                    lock(_m)
-                    {
-                        if(!_destroyed && _signals.Count == 0)
-                        {
-                            System.Threading.Monitor.Wait(_m);
-                        }
-
-                        if(_signals.Count > 0)
-                        {
-                            signals = _signals;
-                            _signals = new List<int>();
-                        }
-
-                        destroyed = _destroyed;
-                    }
-
-                    if(signals != null)
-                    {
-                        foreach(int sig in signals)
-                        {
-                            _handler(sig);
-                        }
-                    }
-
-                    if(destroyed)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            private static SignalHandler _handler;
-            private static bool _destroyed;
-            private static object _m = new object();
-            private static Thread _thread;
-            private static List<int> _signals = new List<int>();
         }
 
         private class WindowsSignals : Signals

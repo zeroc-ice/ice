@@ -228,38 +228,17 @@ public class AllTests : TestCommon.AllTests
             adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
             adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
 
-            int count;
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-            {
-                count = 20;
-            }
-            else
-            {
-                count = 60;
-            }
-
+            int count = 20;
             int adapterCount = adapters.Length;
             while(--count > 0)
             {
                 TestIntfPrx[] proxies;
-                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                if(count == 10)
                 {
-                    if(count == 10)
-                    {
-                        com.deactivateObjectAdapter(adapters[4]);
-                        --adapterCount;
-                    }
-                    proxies = new TestIntfPrx[10];
+                    com.deactivateObjectAdapter(adapters[4]);
+                    --adapterCount;
                 }
-                else
-                {
-                    if(count < 60 && count % 10 == 0)
-                    {
-                        com.deactivateObjectAdapter(adapters[count / 10 - 1]);
-                        --adapterCount;
-                    }
-                    proxies = new TestIntfPrx[40];
-                }
+                proxies = new TestIntfPrx[10];
 
                 int i;
                 for(i = 0; i < proxies.Length; ++i)

@@ -122,11 +122,9 @@ public class AllTests
             {
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                // will be throw when try to send a packet bigger than that. However, Mono 2.10 bug in setting Socket
-                // options could cause the RcvSize/SndSize to contain an arbitrary value so the test might fail
-                // with smaller message sizes.
+                // will be throw when try to send a packet bigger than that.
                 //
-                test(seq.Length > 16384 || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
+                test(seq.Length > 16384);
             }
             obj.ice_getConnection().close(false);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
@@ -139,20 +137,12 @@ public class AllTests
                 bool b = replyI.waitReply(1, 500);
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                // should not be delivered. However, Mono 2.10 bug in setting Socket options could
-                // cause the RcvSize/SndSize to contain an arbitrary value so the packet might
-                // be delivered successfully.
+                // should not be delivered.
                 //
-                test(!b || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
+                test(!b);
             }
             catch(Ice.DatagramLimitException)
             {
-                //
-                // Mono 2.10 bug in setting Socket options could cause the RcvSize/SndSize to contain
-                // an arbitrary value so the message send might fail if the effetive SndSize is minor
-                // than expected.
-                //
-                test(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
             }
             catch(Ice.LocalException ex)
             {
@@ -168,14 +158,7 @@ public class AllTests
         string endpoint;
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            if(IceInternal.AssemblyUtil.osx_)
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
-            }
-            else
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
-            }
+            endpoint = "udp -h \"ff15::1:1\" -p 12020";
         }
         else
         {

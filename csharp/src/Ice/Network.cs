@@ -610,19 +610,6 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
-
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows)
-            {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to
-                // a server which was just deactivated if the client socket re-uses the same ephemeral
-                // port as the server).
-                //
-                if(addr.Equals(getLocalAddress(fd)))
-                {
-                    throw new Ice.ConnectionRefusedException();
-                }
-            }
             return true;
         }
 
@@ -704,20 +691,6 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
-
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows)
-            {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to
-                // a server which was just deactivated if the client socket re-uses the same ephemeral
-                // port as the server).
-                //
-                EndPoint remoteAddr = getRemoteAddress(fd);
-                if(remoteAddr != null && remoteAddr.Equals(getLocalAddress(fd)))
-                {
-                    throw new Ice.ConnectionRefusedException();
-                }
-            }
         }
 
         public static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
@@ -920,15 +893,8 @@ namespace IceInternal
         setTcpBufSize(Socket socket, ProtocolInstance instance)
         {
             //
-            // By default, on Windows we use a 128KB buffer size. On Unix
-            // platforms, we use the system defaults.
-            //
-            int dfltBufSize = 0;
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-            {
-                dfltBufSize = 128 * 1024;
-            }
-
+            // By default, on Windows we use a 128KB buffer size.
+            int dfltBufSize = 128 * 1024;
             int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
             int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
 

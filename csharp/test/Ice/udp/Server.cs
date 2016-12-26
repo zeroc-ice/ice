@@ -46,14 +46,7 @@ public class Server : TestCommon.Application
         string endpoint;
         if(properties.getProperty("Ice.IPv6").Equals("1"))
         {
-            if(IceInternal.AssemblyUtil.osx_)
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
-            }
-            else
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
-            }
+            endpoint = "udp -h \"ff15::1:1\" -p 12020";
         }
         else
         {

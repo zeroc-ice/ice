@@ -313,8 +313,7 @@ namespace Ice
         
         public void load(string file)
         {
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
-               (file.StartsWith("HKLM\\", StringComparison.Ordinal)))
+            if(file.StartsWith("HKLM\\", StringComparison.Ordinal))
             {
                 RegistryKey iceKey = Registry.LocalMachine.OpenSubKey(file.Substring(5));
                 if(iceKey == null)

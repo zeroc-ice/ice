@@ -53,20 +53,17 @@ namespace IceInternal
 
             if(_state <= StateConnectPending)
             {
-                if(!AssemblyUtil.osx_)
+                //
+                // On Windows, we delay the join for the mcast group after the connection
+                // establishment succeeds. This is necessary for older Windows versions
+                // where joining the group fails if the socket isn't bound. See ICE-5113.
+                //
+                if(Network.isMulticast((IPEndPoint)_addr))
                 {
-                    //
-                    // On Windows, we delay the join for the mcast group after the connection
-                    // establishment succeeds. This is necessary for older Windows versions
-                    // where joining the group fails if the socket isn't bound. See ICE-5113.
-                    //
-                    if(Network.isMulticast((IPEndPoint)_addr))
+                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
+                    if(_mcastTtl != -1)
                     {
-                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                        if(_mcastTtl != -1)
-                        {
-                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                        }
+                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
                     }
                 }
                 _state = StateConnected;
@@ -105,24 +102,23 @@ namespace IceInternal
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = (IPEndPoint)_addr;
-                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+
+                //
+                // Windows does not allow binding to the mcast address itself
+                // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
+                // bi-directional connection won't work because the source
+                // address won't the multicast address and the client will
+                // therefore reject the datagram.
+                //
+                if(_addr.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    //
-                    // Windows does not allow binding to the mcast address itself
-                    // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-                    // bi-directional connection won't work because the source
-                    // address won't the multicast address and the client will
-                    // therefore reject the datagram.
-                    //
-                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        _addr = new IPEndPoint(IPAddress.Any, _port);
-                    }
-                    else
-                    {
-                        _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
-                    }
+                    _addr = new IPEndPoint(IPAddress.Any, _port);
                 }
+                else
+                {
+                    _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
+                }
+
                 _addr = Network.doBind(_fd, _addr);
                 if(_port == 0)
                 {
@@ -132,22 +128,6 @@ namespace IceInternal
             }
             else
             {
-                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
-                {
-                    //
-                    // Enable SO_REUSEADDR on Unix platforms to allow re-using
-                    // the socket even if it's in the TIME_WAIT state. On
-                    // Windows, this doesn't appear to be necessary and
-                    // enabling SO_REUSEADDR would actually not be a good
-                    // thing since it allows a second process to bind to an
-                    // address even it's already bound by another process.
-                    //
-                    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-                    // probably be better but it's only supported by recent
-                    // Windows versions (XP SP2, Windows Server 2003).
-                    //
-                    Network.setReuseAddress(_fd, true);
-                }
                 _addr = Network.doBind(_fd, _addr);
             }
             _bound = true;
@@ -720,19 +700,6 @@ namespace IceInternal
                     if(_mcastInterface.Length > 0)
                     {
                         Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
-                    }
-                    if(AssemblyUtil.osx_)
-                    {
-                        //
-                        // On Windows, we delay the join for the mcast group after the connection
-                        // establishment succeeds. This is necessary for older Windows versions
-                        // where joining the group fails if the socket isn't bound. See ICE-5113.
-                        //
-                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                        if(_mcastTtl != -1)
-                        {
-                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                        }
                     }
                 }
             }

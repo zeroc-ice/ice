@@ -298,18 +298,7 @@ namespace IceInternal
         {
             get
             {
-                if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
-                {
-                    //
-                    // The Mono deserialization implementation has a bug that causes a call to Seek() such
-                    // that the reading position is set to -1.
-                    //
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

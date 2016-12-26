@@ -354,7 +354,7 @@ namespace Ice
             //
             string err = "unable to load plug-in `" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
-            if(sepPos != -1 && IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            if(sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if(entryPoint.Length > 3 &&

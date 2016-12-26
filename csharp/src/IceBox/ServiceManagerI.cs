@@ -474,7 +474,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             string err = "ServiceManager: unable to load service '" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
-            if(sepPos != -1 && IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            if(sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if(entryPoint.Length > 3 &&
@@ -587,9 +587,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
                 // don't set any logger.
                 //
-                if(initData.properties.getProperty("Ice.LogFile").Length == 0 &&
-                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") <= 0 ||
-                    IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows))
+                if(initData.properties.getProperty("Ice.LogFile").Length == 0)
                 {
                     initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
                 }

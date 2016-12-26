@@ -785,11 +785,7 @@ namespace Ice
         {
             try
             {
-                //
-                // COMPILERFIX: for some reasons _buf.get() doesn't work here on OS X with Mono;
-                //
-                //byte b = _buf.b.get();
-                byte b = readByte();
+                byte b = _buf.b.get();
                 if(b == 255)
                 {
                     int v = _buf.b.getInt();

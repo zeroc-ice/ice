@@ -17,70 +17,6 @@ namespace IceInternal
 
     public sealed class AssemblyUtil
     {
-        public enum Runtime { DotNET, Mono };
-        public enum Platform { Windows, NonWindows };
-
-        static AssemblyUtil()
-        {
-            PlatformID id = Environment.OSVersion.Platform;
-            if(   id == PlatformID.Win32NT
-               || id == PlatformID.Win32S
-               || id == PlatformID.Win32Windows
-               || id == PlatformID.WinCE)
-            {
-                platform_ = Platform.Windows;
-            }
-            else
-            {
-                platform_ = Platform.NonWindows;
-            }
-
-            if(System.Type.GetType("Mono.Runtime") != null)
-            {
-                runtime_ = Runtime.Mono;
-            }
-            else
-            {
-                runtime_ = Runtime.DotNET;
-            }
-
-            System.Version v = System.Environment.Version;
-            runtimeMajor_ = v.Major;
-            runtimeMinor_ = v.Minor;
-            runtimeBuild_ = v.Build;
-            runtimeRevision_ = v.Revision;
-
-            v = System.Environment.OSVersion.Version;
-
-            osx_ = false;
-            if (platform_ == Platform.NonWindows)
-            {
-                try
-                {
-                    Assembly a = Assembly.Load(
-                        "Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-                    Type syscall = a.GetType("Mono.Unix.Native.Syscall");
-                    if(syscall != null)
-                    {
-                        MethodInfo method = syscall.GetMethod("uname", BindingFlags.Static | BindingFlags.Public);
-                        if(method != null)
-                        {
-                            object[] p = new object[1];
-                            method.Invoke(null, p);
-                            if(p[0] != null)
-                            {
-                                Type utsname = a.GetType("Mono.Unix.Native.Utsname");
-                                osx_ = ((string)utsname.GetField("sysname").GetValue(p[0])).Equals("Darwin");
-                            }
-                        }
-                    }
-                }
-                catch(System.Exception)
-                {
-                }
-            }
-        }
-
         public static Type findType(Instance instance, string csharpId)
         {
             lock(_mutex)
@@ -214,19 +150,5 @@ namespace IceInternal
         private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
         private static Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
         private static object _mutex = new object();
-
-        public readonly static Runtime runtime_; // Either DotNET or Mono
-        //
-        // Versioning is: Major.Minor.Build.Revision. (Yes, really. It is not Major.Minor.Revision.Build, as
-        // one might expect.) If a part of a version number (such as revision) is not defined, it is -1.
-        //
-        public readonly static int runtimeMajor_;
-        public readonly static int runtimeMinor_;
-        public readonly static int runtimeBuild_;
-        public readonly static int runtimeRevision_;
-
-        public readonly static Platform platform_;
-        public readonly static bool osx_;
     }
-
 }

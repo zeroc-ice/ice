@@ -776,19 +776,8 @@ namespace IceInternal
                 if(_initData.logger == null)
                 {
                     string logfile = _initData.properties.getProperty("Ice.LogFile");
-                    if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0 &&
-                       AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                    if(logfile.Length != 0)
                     {
-                        if(logfile.Length != 0)
-                        {
-                            throw new Ice.InitializationException("Ice.LogFile and Ice.UseSyslog cannot both be set.");
-                        }
-                        _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"),
-                            _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
-                    }
-                    else if(logfile.Length != 0)
-                    {
-
                         _initData.logger =
                             new Ice.FileLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
                     }
