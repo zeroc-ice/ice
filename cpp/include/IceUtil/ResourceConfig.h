@@ -10,8 +10,6 @@
 #ifndef ICE_UTIL_RESOURCE_CONFIG_H
 #define ICE_UTIL_RESOURCE_CONFIG_H
 
-#ifdef _MSC_VER
-
 #include "winver.h"
 
 #define ICE_VERSION 3,7,54,0
@@ -55,8 +53,6 @@
 #  define VER_DEBUG 0
 #else
 #  define VER_DEBUG VS_FF_DEBUG
-#endif
-
 #endif
 
 #endif
