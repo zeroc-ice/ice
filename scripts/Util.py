@@ -1048,7 +1048,7 @@ class Process(Runnable):
         if self.process:
             try:
                 if waitSuccess: # Wait for the process to exit successfully by itself.
-                    self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
+                    self.process.waitSuccess(exitstatus=exitstatus, timeout=60)
             finally:
                 self.process.terminate()
                 self.output = self.process.getOutput()
@@ -2073,7 +2073,7 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
         except:
-            self.destroy()
+            self.destroy(current.driver)
             raise
 
     def __str__(self):
