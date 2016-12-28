@@ -36,20 +36,20 @@ OBJS		= .\BatchRequestInterceptor.obj \
 		  .\Util.obj
 
 #
-# Get Make.common.rules.mak to figure out CPP_COMPILER by setting it
-# to "auto"
+# Get Make.common.rules.mak to determine CPP_COMPILER by setting it to 'auto'
 #
 CPP_COMPILER=auto
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-!if exist ($(PYTHON_HOME)\python35.dll)
+!if ([$(PYTHON_HOME)\python.exe -c "import sys;print(sys.version_info >= (3, 5))" | findstr "True" > nul] == 0)
 REQUIRED_COMPILER	= VC140
 !else
 REQUIRED_COMPILER	= VC100
 !endif
+
 #
-# Ensure we're using VC100
+# Ensure we are using the right compiler
 #
 !if "$(CPP_COMPILER)" != "$(REQUIRED_COMPILER)"
 !error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to $(REQUIRED_COMPILER).
