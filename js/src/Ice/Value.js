@@ -23,7 +23,7 @@ const ids = ["::Ice::Object"];
 
 Ice.Value = class
 {
-	ice_preMarshal()
+    ice_preMarshal()
     {
     }
 

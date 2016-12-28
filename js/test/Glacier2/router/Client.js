@@ -100,7 +100,7 @@
         ).then(
             function(timeout)
             {
-                test(timeout.low === 30);
+                test(timeout.toNumber() === 30);
                 out.writeLine("ok");
 
                 out.write("testing stringToProxy for server object... ");

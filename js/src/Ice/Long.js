@@ -15,19 +15,46 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 //
 class Long
 {
-    constructor(high, low)
+    //
+    // If only one argument is provide we assume it is a JavaScript Number,
+    // and we convert it to two 32 bit words to fit in the Ice.Long internal
+    // representation.
+    //
+    // If two arguments are provided we asume these are the high and low words
+    // respectively.
+    // 
+    constructor(high = 0, low)
     {
-        if(low < 0 || low > Long.MAX_UINT32)
+        if(!Number.isSafeInteger(high))
         {
-            throw new RangeError("Low word must be between 0 and 0xFFFFFFFF");
+            throw new RangeError(low === undefined ?
+                    "Number must be a safe integer" :
+                    "High word must be a safe integer");
         }
-        if(high < 0 || high > Long.MAX_UINT32)
+
+        if(low === undefined)
         {
-            throw new RangeError("High word must be between 0 and 0xFFFFFFFF");
+            this.low = high % Long.HIGH_MASK;
+            this.high = Math.floor(high / Long.HIGH_MASK);
         }
-        
-        this.high = high;
-        this.low = low;
+        else
+        {
+            if(!Number.isSafeInteger(low))
+            {
+                throw new RangeError("Low word must be a safe integer");
+            }
+            if(low < 0 || low > Long.MAX_UINT32)
+            {
+                throw new RangeError("Low word must be between 0 and 0xFFFFFFFF");
+            }
+            if(high < 0 || high > Long.MAX_UINT32)
+            {
+                throw new RangeError("High word must be between 0 and 0xFFFFFFFF");
+            }
+            
+            this.high = high;
+            this.low = low;
+        }
     }
     
     hashCode()
@@ -55,22 +82,15 @@ class Long
 
     toNumber()
     {
-
         if((this.high & Long.SIGN_MASK) !== 0)
         {
-            if(this.high === Long.MAX_UINT32 && this.low !== 0)
-            {
-                return -(~this.low + 1);
-            }
- 
-            const high = ~this.high + 1;
-
-            if(high > Long.HIGH_MAX)
+            const l = (~this.low) >>> 0;
+            const h = (~this.high) >>> 0;
+            if(h > Long.HIGH_MAX || h == Long.HIGH_MAX && l == Long.MAX_UINT32)
             {
                 return Number.NEGATIVE_INFINITY;
             }
-
-            return -1 * (high * Long.HIGH_MASK) + this.low;
+            return -((h * Long.HIGH_MASK) + l + 1)
         }
         else
         {

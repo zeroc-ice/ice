@@ -345,12 +345,12 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = new Long();
-        v.low = this.v.getUint32(this._position, true);
+        const low = this.v.getUint32(this._position, true);
         this._position += 4;
-        v.high = this.v.getUint32(this._position, true);
+        const high = this.v.getUint32(this._position, true);
         this._position += 4;
-        return v;
+
+        return new Long(high, low);
     }
 
     getString(length)

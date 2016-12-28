@@ -119,6 +119,11 @@ These are the changes since Ice 3.6.3.
 - (Java Compat) Added new interface/class metadata java:tie. Use this metadata
   to generate a tie class for a given interface or class.
 
+## JavaScript Changes
+
+- Improve Ice.Long class to allow creating Ice.Long instance from 
+  JavaScript Numbers.
+
 ## Objective-C Changes
 
 - Fixed a bug where optional object dictionary parameters would
