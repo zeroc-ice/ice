@@ -20,7 +20,7 @@
         }
     };
 
-    class MyDerivedClassI extends Test.MyDerivedClass
+    class MyDerivedClassI extends Test._MyDerivedClassDisp
     {
         //
         // Override the Object "pseudo" operations to verify the operation mode.

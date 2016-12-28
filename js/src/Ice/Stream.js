@@ -15,6 +15,7 @@ _ModuleRegistry.require(module,
         "../Ice/ExUtil",
         "../Ice/FormatType",
         "../Ice/Object",
+        "../Ice/Value",
         "../Ice/OptionalFormat",
         "../Ice/Protocol",
         "../Ice/TraceUtil",
@@ -75,10 +76,10 @@ class EncapsDecoder
         this._sliceValues = sliceValues;
         this._valueFactoryManager = f;
         this._patchMap = null; // Lazy initialized, Map<int, Patcher[] >()
-        this._unmarshaledMap = new Map(); // Map<int, Ice.Object>()
+        this._unmarshaledMap = new Map(); // Map<int, Ice.Value>()
         this._typeIdMap = null; // Lazy initialized, Map<int, String>
         this._typeIdIndex = 0;
-        this._valueList = null; // Lazy initialized. Ice.Object[]
+        this._valueList = null; // Lazy initialized. Ice.Value[]
     }
 
     readOptional()
@@ -248,7 +249,7 @@ class EncapsDecoder
         {
             if(this._valueList === null) // Lazy initialization
             {
-                this._valueList = []; // Ice.Object[]
+                this._valueList = []; // Ice.Value[]
             }
             this._valueList.push(v);
 
@@ -498,7 +499,7 @@ class EncapsDecoder10 extends EncapsDecoder
             // For the 1.0 encoding, the type ID for the base Object class
             // marks the last slice.
             //
-            if(this._typeId == Ice.Object.ice_staticId())
+            if(this._typeId == Ice.Value.ice_staticId())
             {
                 throw new Ice.NoValueFactoryException("", mostDerivedId);
             }
@@ -1030,7 +1031,7 @@ class EncapsDecoder11 extends EncapsDecoder
             {
                 for(let j = 0; j < table.length; ++j)
                 {
-                    this.addPatchEntry(table[j], sequencePatcher(info.instances, j, Ice.Object));
+                    this.addPatchEntry(table[j], sequencePatcher(info.instances, j, Ice.Value));
                 }
             }
         }
@@ -1839,7 +1840,7 @@ class InputStream
             this._encapsStack.decoder,
             obj =>
             {
-                if(obj !== null && !(obj.ice_instanceof(T)))
+                if(obj !== null && !(obj instanceof T))
                 {
                     ExUtil.throwUOE(T.ice_staticId(), obj);
                 }
@@ -1941,7 +1942,7 @@ class InputStream
                 this.skip(this.readInt());
                 break;
             case OptionalFormat.Class:
-                this.readValue(null, Ice.Object);
+                this.readValue(null, Ice.Value);
                 break;
         }
     }
@@ -2217,7 +2218,7 @@ class EncapsEncoder
     {
         this._stream = stream;
         this._encaps = encaps;
-        this._marshaledMap = new Map(); // Map<Ice.Object, int>;
+        this._marshaledMap = new Map(); // Map<Ice.Value, int>;
         this._typeIdMap = null; // Lazy initialized. Map<String, int>
         this._typeIdIndex = 0;
     }
@@ -2260,7 +2261,7 @@ class EncapsEncoder10 extends EncapsEncoder
         this._sliceType = SliceType.NoSlice;
         this._writeSlice = 0;        // Position of the slice data members
         this._valueIdIndex = 0;
-        this._toBeMarshaledMap = new Map(); // Map<Ice.Object, Integer>();
+        this._toBeMarshaledMap = new Map(); // Map<Ice.Value, Integer>();
     }
 
     writeValue(v)
@@ -2311,7 +2312,7 @@ class EncapsEncoder10 extends EncapsEncoder
             //
             // Write the Object slice.
             //
-            this.startSlice(Ice.Object.ice_staticId(), -1, true);
+            this.startSlice(Ice.Value.ice_staticId(), -1, true);
             this._stream.writeSize(0); // For compatibility with the old AFM.
             this.endSlice();
         }
@@ -2391,7 +2392,7 @@ class EncapsEncoder10 extends EncapsEncoder
             this._toBeMarshaledMap.forEach((value, key) => this._marshaledMap.set(key, value));
 
             const savedMap = this._toBeMarshaledMap;
-            this._toBeMarshaledMap = new Map(); // Map<Ice.Object, int>();
+            this._toBeMarshaledMap = new Map(); // Map<Ice.Value, int>();
             this._stream.writeSize(savedMap.size);
             savedMap.forEach(writeCB);
         }
@@ -2449,8 +2450,8 @@ class EncapsEncoder11 extends EncapsEncoder
         {
             if(this._current.indirectionTable === null) // Lazy initialization
             {
-                this._current.indirectionTable = []; // Ice.Object[]
-                this._current.indirectionMap = new Map(); // Map<Ice.Object, int>
+                this._current.indirectionTable = []; // Ice.Value[]
+                this._current.indirectionMap = new Map(); // Map<Ice.Value, int>
             }
 
             //
@@ -2679,8 +2680,8 @@ class EncapsEncoder11 extends EncapsEncoder
                 {
                     if(this._current.indirectionTable === null) // Lazy initialization
                     {
-                        this._current.indirectionTable = []; // Ice.Object[]
-                        this._current.indirectionMap = new Map(); // Map<Ice.Object, int>
+                        this._current.indirectionTable = []; // Ice.Value[]
+                        this._current.indirectionMap = new Map(); // Map<Ice.Value, int>
                     }
 
 
@@ -2746,8 +2747,8 @@ EncapsEncoder11.InstanceData = class
         this.sliceFlags = 0;
         this.writeSlice = 0;    // Position of the slice data members
         this.sliceFlagsPos = 0; // Position of the slice flags
-        this.indirectionTable = null; // Ice.Object[]
-        this.indirectionMap = null; // Map<Ice.Object, int>
+        this.indirectionTable = null; // Ice.Value[]
+        this.indirectionMap = null; // Map<Ice.Value, int>
     }
 };
 
@@ -3485,7 +3486,7 @@ Ice.ObjectHelper = class
     static read(is)
     {
         let o;
-        is.readValue(v => o = v, Ice.Object);
+        is.readValue(v => o = v, Ice.Value);
         return o;
     }
 
@@ -3497,7 +3498,7 @@ Ice.ObjectHelper = class
     static readOptional(is, tag)
     {
         let o;
-        is.readOptionalValue(tag, v => o = v, Ice.Object);
+        is.readOptionalValue(tag, v => o = v, Ice.Value);
         return o;
     }
 

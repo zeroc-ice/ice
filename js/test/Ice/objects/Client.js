@@ -60,7 +60,7 @@
             super(1, "hello");
         }
 
-        checkValues(current)
+        checkValues()
         {
             return this.i == 1 && this.s == "hello";
         }
@@ -73,7 +73,7 @@
             super(e, e);
         }
 
-        checkValues(current)
+        checkValues()
         {
             return this.e1 !== null && this.e1 === this.e2;
         }
@@ -83,12 +83,20 @@
     {
     }
 
-    class II extends Test.I
+    class II extends Ice.InterfaceByValue
     {
+        constructor()
+        {
+            super(Test._IDisp.ice_staticId());
+        }
     }
 
-    class JI extends Test.J
+    class JI extends Ice.InterfaceByValue
     {
+        constructor()
+        {
+            super(Test._JDisp.ice_staticId());
+        }
     }
 
     function MyValueFactory(type)

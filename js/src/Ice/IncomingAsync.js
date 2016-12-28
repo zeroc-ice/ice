@@ -536,7 +536,6 @@ class IncomingAsync
         }
         catch(ex)
         {
-            console.log(ex);
             this._connection.invokeException(ex, 1);
         }
         this._connection = null;

@@ -789,6 +789,7 @@ class ObjectPrx
             {
                 prx = prx.ice_facet(facet);
             }
+
             r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
             prx.ice_isA(this.ice_staticId(), ctx).then(
                 ret =>
@@ -880,7 +881,12 @@ class ObjectPrx
     
     static ice_staticId()
     {
-        return "::Ice::Object";
+        return this._id;
+    }
+
+    static get _implements()
+    {
+        return [];
     }
 }
 

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-const Ice = require("../Ice/Object").Ice;
+const Ice = require("../Ice/Value").Ice;
     
 class SliceInfo
 {
@@ -55,7 +55,7 @@ class SlicedData
 }
 Ice.SlicedData = SlicedData;
 
-class UnknownSlicedValue extends Ice.Object
+class UnknownSlicedValue extends Ice.Value
 {
     constructor(unknownTypeId)
     {

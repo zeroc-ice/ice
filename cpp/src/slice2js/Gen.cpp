@@ -643,6 +643,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         if(_seenClass || _seenObjectSeq || _seenObjectDict)
         {
             requires["Ice"].push_back("Ice/Object");
+            requires["Ice"].push_back("Ice/Value");
         }
         if(_seenClass)
         {
@@ -902,25 +903,20 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
     const string prxName = p->name() + "Prx";
-    const string objectRef = "Ice.Object";
-    const string prxRef = "Ice.ObjectPrx";
 
     ClassList bases = p->bases();
     ClassDefPtr base;
     string baseRef;
-    string basePrxRef;
     const bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
     if(hasBaseClass)
     {
         base = bases.front();
         bases.erase(bases.begin());
         baseRef = getReference(scope, base->scoped());
-        basePrxRef = getReference(scope, base->scoped() + "Prx");
     }
     else
     {
-        baseRef = objectRef;
-        basePrxRef = prxRef;
+        baseRef = "Ice.Value";
     }
 
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -979,92 +975,123 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "];";
     }
 
-    _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
-    _out << nl << localScope << '.' << name << " = class";
-    if(!p->isLocal() || hasBaseClass)
+    if(!p->isInterface() || p->isLocal())
     {
-        _out << " extends " << baseRef;
-    }
-    _out << sb;
-    if(!allParamNames.empty())
-    {
-        _out << nl << "constructor" << spar;
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-        {
-            _out << fixId((*q)->name());
-        }
-
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            string value;
-            if((*q)->optional())
-            {
-                if((*q)->defaultValueType())
-                {
-                    value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                }
-                else
-                {
-                    value = "undefined";
-                }
-            }
-            else
-            {
-                if((*q)->defaultValueType())
-                {
-                    value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                }
-                else
-                {
-                    value = getValue(scope, (*q)->type());
-                }
-            }
-            _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
-        }
-
-        _out << epar << sb;
+        _out << sp;
+        writeDocComment(p, getDeprecateReason(p, 0, "type"));
+        _out << nl << localScope << '.' << name << " = class";
         if(!p->isLocal() || hasBaseClass)
         {
-            _out << nl << "super" << spar << baseParamNames << epar << ';';
+            _out << " extends " << baseRef;
         }
-        writeInitDataMembers(dataMembers, scope);
-        _out << eb;
+
+        _out << sb;
+        if(!allParamNames.empty())
+        {
+            _out << nl << "constructor" << spar;
+            for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+            {
+                _out << fixId((*q)->name());
+            }
+
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                string value;
+                if((*q)->optional())
+                {
+                    if((*q)->defaultValueType())
+                    {
+                        value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
+                    }
+                    else
+                    {
+                        value = "undefined";
+                    }
+                }
+                else
+                {
+                    if((*q)->defaultValueType())
+                    {
+                        value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
+                    }
+                    else
+                    {
+                        value = getValue(scope, (*q)->type());
+                    }
+                }
+                _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
+            }
+
+            _out << epar << sb;
+            if(!p->isLocal() || hasBaseClass)
+            {
+                _out << nl << "super" << spar << baseParamNames << epar << ';';
+            }
+            writeInitDataMembers(dataMembers, scope);
+            _out << eb;
+
+            if(!p->isLocal())
+            {
+                if(p->compactId() != -1)
+                {
+                    _out << sp;
+                    _out << nl << "static get _iceCompactId()";
+                    _out << sb;
+                    _out << nl << "return " << p->compactId() << ";";
+                    _out << eb;
+                }
+
+                if(!dataMembers.empty())
+                {
+                    _out << sp;
+                    _out << nl << "_iceWriteMemberImpl(ostr)";
+                    _out << sb;
+                    writeMarshalDataMembers(dataMembers, optionalMembers);
+                    _out << eb;
+
+                    _out << sp;
+                    _out << nl << "_iceReadMemberImpl(istr)";
+                    _out << sb;
+                    writeUnmarshalDataMembers(dataMembers, optionalMembers);
+                    _out << eb;
+                }
+            }
+        }
+        _out << eb << ";";
+
+        _out << sp;
+        if(!p->isLocal())
+        {
+            bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
+
+            _out << nl << "Slice.defineValue(" << localScope << "." << name << ", " 
+                 << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], "
+                 << (preserved ? "true" : "false") ;
+            if(p->compactId() >= 0)
+            {
+                _out << ", " << p->compactId();
+            }
+            _out << ");";
+        }
     }
 
-    _out << sp;
-    _out << nl << "static get _iceParent()";
-    _out << sb;
-    if(!p->isLocal() || hasBaseClass)
-    {
-        _out << nl << "return " << baseRef << ";";
-    }
-    else
-    {
-        _out << nl << "return undefined;";
-    }
-    _out << eb;
-
+    //
+    // Define servant an proxy types for non local classes
+    //
     if(!p->isLocal())
     {
         _out << sp;
-        _out << nl << "static get _iceIds()";
+        writeDocComment(p, getDeprecateReason(p, 0, "type"));
+        _out << nl << localScope << "._" << p->name() << "Disp" << " = class extends ";
+        if(hasBaseClass)
+        {
+            _out << getLocalScope(base->scope())  << "._" << base->name() << "Disp";
+        }
+        else
+        {
+            _out << "Ice.Object";
+        }
         _out << sb;
-        _out << nl << "return iceC_" << getLocalScope(scoped, "_") << "_ids;";
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "static get _iceId()";
-        _out << sb;
-        _out << nl << "return iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "];";
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "_iceMostDerivedType()";
-        _out << sb;
-        _out << nl << "return " << localScope << "." << name << ";";
-        _out << eb;
-
 
         if(!bases.empty())
         {
@@ -1078,7 +1105,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ClassDefPtr base = *q;
                 if(base->isInterface())
                 {
-                    _out << nl << getLocalScope(base->scope()) << "." << base->name();
+                    _out << nl << getLocalScope(base->scope()) << "._" << base->name()<< "Disp" ;
                     if(++q != bases.end())
                     {
                         _out << ", ";
@@ -1093,36 +1120,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "];";
             _out << eb;
         }
+        _out << eb << ";";
 
-        if(p->compactId() != -1)
-        {
-            _out << sp;
-            _out << nl << "static get _iceCompactId()";
-            _out << sb;
-            _out << nl << "return " << p->compactId() << ";";
-            _out << eb;
-        }
-
-        if(!dataMembers.empty())
-        {
-            _out << sp;
-            _out << nl << "_iceWriteMemberImpl(ostr)";
-            _out << sb;
-            writeMarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
-
-            _out << sp;
-            _out << nl << "_iceReadMemberImpl(istr)";
-            _out << sb;
-            writeUnmarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
-        }
-    }
-    _out << eb << ";";
-
-
-    if(!p->isLocal())
-    {
         const string baseProxy =
             !p->isInterface() && base ? (getLocalScope(base->scope()) + "." + base->name() + "Prx") : "Ice.ObjectPrx";
 
@@ -1130,18 +1129,14 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << localScope << '.' << prxName << " = class extends " << baseProxy;
         _out << sb;
 
-        _out << sp;
-        _out << nl << "static ice_staticId()";
-        _out << sb;
-        _out << nl << "return " << localScope << "." << name << "._iceId;";
-        _out << eb;
 
-        _out << sp;
-        _out << nl << "static get _implements()";
-        _out << sb;
-        _out << nl << "return [";
         if(!bases.empty())
         {
+            _out << sp;
+            _out << nl << "static get _implements()";
+            _out << sb;
+            _out << nl << "return [";
+        
             _out.inc();
             for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
             {
@@ -1160,32 +1155,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
             _out.dec();
+            _out << "];";
+            _out << eb;
         }
-        _out << "];";
-        _out << eb;
 
         _out << eb << ";";
 
-        if(p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice"))
-        {
-            _out << sp;
-            _out << nl << "Slice.PreservedObject(" << localScope << "." << name << ");";
-        }
-
-        //
-        // Register the compact id
-        //
-        if(p->compactId() >= 0)
-        {
-            //
-            // Also register the type using the stringified compact ID.
-            //
-            _out << nl << "Ice.CompactIdRegistry.set(" << p->compactId() << ", " << localScope << "."
-                 << name << ".ice_staticId());";
-        }
-
-        _out << sp << nl << "Slice.defineOperations(" << localScope << '.' << name << ", " << localScope << '.'
-             << prxName;
+        _out << sp << nl << "Slice.defineOperations("
+             << localScope << "._" << p->name() << "Disp, "
+             << localScope << '.' << prxName << ", "
+             << "iceC_" << getLocalScope(scoped, "_") << "_ids, "
+             << scopedPos;
 
         const OperationList ops = p->operations();
         if(!ops.empty())
@@ -1773,17 +1753,18 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
 
     static const char* builtinTable[] =
     {
-        "0", // byte
-        "1", // bool
-        "2", // short
-        "3", // int
-        "4", // long
-        "5", // float
-        "6", // double
-        "7", // string
-        "8", // Ice.Object
-        "9", // Ice.ObjectPrx
-        "??" // LocalObject
+        "0",  // byte
+        "1",  // bool
+        "2",  // short
+        "3",  // int
+        "4",  // long
+        "5",  // float
+        "6",  // double
+        "7",  // string
+        "8",  // Ice.Object
+        "9",  // Ice.ObjectPrx
+        "??", // LocalObject
+        "10", // Ice.Value
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1825,7 +1806,14 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        return "\"" + fixId(cl->scoped()) + "\"";
+        if(cl->isInterface())
+        {
+            return "\"Ice.Value\"";
+        }
+        else
+        {
+            return "\"" + fixId(cl->scoped()) + "\"";
+        }
     }
 
     return "???";

@@ -16,7 +16,7 @@
 
     var allTests = function(out, communicator, Test, bidir)
     {
-        class EmptyI extends Test.Empty
+        class EmptyI extends Test._EmptyDisp
         {
         }
 

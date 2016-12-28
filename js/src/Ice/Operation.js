@@ -31,7 +31,7 @@ const builtinHelpers =
     Ice.FloatHelper,
     Ice.DoubleHelper,
     Ice.StringHelper,
-    Ice.Object,
+    Ice.Value,
     Ice.ObjectPrx
 ];
 
@@ -404,7 +404,7 @@ function getServantMethod(servantType, name)
             {
                 method = getServantMethodFromInterfaces(curr._iceImplements, methodName, allInterfaces);
             }
-            curr = curr._iceParent;
+            curr = Object.getPrototypeOf(curr);
         }
 
         if(method !== undefined)
@@ -433,7 +433,7 @@ function getServantMethod(servantType, name)
             //
             // Now check the op tables of the base types.
             //
-            let parent = servantType._iceParent;
+            let parent = Object.getPrototypeOf(servantType);
             while(op === undefined && parent)
             {
                 if(parent._iceOps)
@@ -443,7 +443,7 @@ function getServantMethod(servantType, name)
                         source = parent;
                     }
                 }
-                parent = parent._iceParent;
+                parent = Object.getPrototypeOf(parent);
             }
 
             //
@@ -565,7 +565,7 @@ function addProxyOperation(proxyType, name, data)
 }
 
 const Slice = Ice.Slice;
-Slice.defineOperations = function(classType, proxyType, ops)
+Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
 {
     if(ops)
     {
@@ -585,6 +585,24 @@ Slice.defineOperations = function(classType, proxyType, ops)
         }
 
         return method.call(method, this, incomingAsync, current);
+    };
+
+    classType.prototype._iceMostDerivedType = function()
+    {
+        return classType;
+    };
+
+    Object.defineProperty(classType, "_iceIds", {
+        get: function(){ return ids; }
+    });
+
+    Object.defineProperty(classType, "_iceId", {
+        get: function(){ return ids[pos]; }
+    });
+
+    classType.ice_staticId = function()
+    {
+        return classType._iceId;
     };
 
     if(ops)
@@ -612,12 +630,16 @@ Slice.defineOperations = function(classType, proxyType, ops)
             }
         }
     }
+
+    Object.defineProperty(proxyType, "_id", {
+        get: function(){ return ids[pos]; }
+    });
 };
 
 //
 // Define the "built-in" operations for all Ice objects.
 //
-Slice.defineOperations(Ice.Object, Ice.ObjectPrx,
+Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], 0,
 {
     "ice_ping": [, 1, 1, , , , , ],
     "ice_isA": [, 1, 1, , [1], [[7]], , ],

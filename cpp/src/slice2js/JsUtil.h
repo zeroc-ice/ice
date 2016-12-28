@@ -25,12 +25,9 @@ public:
 protected:
 
     static bool isClassType(const TypePtr&);
-    static std::string localProxyHelper(const TypePtr&);
-    static std::string fixId(const std::string&, bool = false);
-    static std::string fixId(const ContainedPtr&, bool = false);
-    static std::string getOptionalFormat(const TypePtr&);
-    static std::string getStaticId(const TypePtr&);
-    static std::string typeToString(const TypePtr&, bool = false);
+    static std::string fixId(const std::string&);
+    static std::string fixId(const ContainedPtr&);
+    static std::string typeToString(const TypePtr&);
     static std::string getLocalScope(const std::string&, const std::string& separator = ".");
     static std::string getReference(const std::string&, const std::string&);
 

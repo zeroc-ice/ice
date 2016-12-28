@@ -25,7 +25,7 @@
     var CallbackPrx = Test.CallbackPrx;
     var CallbackReceiverPrx = Test.CallbackReceiverPrx;
 
-    class CallbackReceiverI extends Test.CallbackReceiver
+    class CallbackReceiverI extends Test._CallbackReceiverDisp
     {
         constructor()
         {

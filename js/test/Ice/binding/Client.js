@@ -82,10 +82,13 @@
                     {
                         if(adapters.length > 0)
                         {
-                            return (adapters);
+                            return f1(adapters);
                         }
-                    }
-                );
+                    }).catch(
+                        ex =>
+                        {
+                            test(ex instanceof Ice.CommunicatorDestroyedException);
+                        });
             };
             return f1(ArrayUtil.clone(adapters));
         };
@@ -753,11 +756,9 @@
                                             names.shift();
                                             return f1(0, ++idx, names);
                                         }
-                                    }
-                                );
+                                    });
                             }
-                        }
-                    );
+                        });
                 };
 
                 return f1(0, 0, ArrayUtil.clone(names));
