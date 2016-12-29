@@ -279,7 +279,7 @@
         runTestCase: function(adapter, proxy)
         {
             var self = this;
-            return Ice.Promise.delay(1500).then(function()
+            return Ice.Promise.delay(2000).then(function()
                                                 {
                                                     test(self._heartbeat === 0);
                                                     test(self._closed);
