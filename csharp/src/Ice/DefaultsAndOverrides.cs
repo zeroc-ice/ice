@@ -13,7 +13,6 @@ using System.Text;
 
 namespace IceInternal
 {
-
     public sealed class DefaultsAndOverrides
     {
         internal DefaultsAndOverrides(Ice.Properties properties, Ice.Logger logger)

@@ -248,7 +248,7 @@ namespace IceInternal
             if(groupBy.Length > 0)
             {
                 string v = "";
-                bool attribute = Char.IsLetter(groupBy[0]) || Char.IsDigit(groupBy[0]);
+                bool attribute = char.IsLetter(groupBy[0]) || char.IsDigit(groupBy[0]);
                 if(!attribute)
                 {
                     _groupByAttributes.Add("");
@@ -256,7 +256,7 @@ namespace IceInternal
             
                 foreach(char p in groupBy)
                 {
-                    bool isAlphaNum = Char.IsLetter(p) || Char.IsDigit(p) || p == '.';
+                    bool isAlphaNum = char.IsLetter(p) || char.IsDigit(p) || p == '.';
                     if(attribute && !isAlphaNum)
                     {
                         _groupByAttributes.Add(v);
@@ -713,7 +713,7 @@ namespace IceInternal
 
         class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
         {
-            public MetricsMapFactory(System.Action updater)
+            public MetricsMapFactory(Action updater)
             {
                 _updater = updater;
             }
@@ -735,7 +735,7 @@ namespace IceInternal
                 _subMaps.Add(subMap, new SubMapFactory<S>(field));
             }
 
-            readonly private System.Action _updater;
+            readonly private Action _updater;
             readonly private Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
         }
 
@@ -859,7 +859,7 @@ namespace IceInternal
             lock(this)
             {
                 MetricsViewI view = getMetricsView(viewName);
-                timestamp = IceInternal.Time.currentMonotonicTimeMillis();
+                timestamp = Time.currentMonotonicTimeMillis();
                 if(view != null)
                 {
                     return view.getMetrics();
@@ -895,7 +895,7 @@ namespace IceInternal
             }
         }
 
-        public void registerMap<T>(string map, System.Action updater)
+        public void registerMap<T>(string map, Action updater)
             where T : IceMX.Metrics, new()
         {
             bool updated;

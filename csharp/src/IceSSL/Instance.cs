@@ -9,16 +9,8 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Security;
     using System.Security.Authentication;
-    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
-    using System.Text;
-    using System.Globalization;
 
     internal class Instance : IceInternal.ProtocolInstance
     {

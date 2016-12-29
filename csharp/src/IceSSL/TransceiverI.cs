@@ -13,7 +13,6 @@ namespace IceSSL
     using System.Diagnostics;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
@@ -48,8 +47,8 @@ namespace IceSSL
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = System.Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
-            _maxRecvPacketSize = System.Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
+            _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
+            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
 
             if(_sslStream == null)
             {
@@ -742,12 +741,12 @@ namespace IceSSL
 
         private int getSendPacketSize(int length)
         {
-            return _maxSendPacketSize > 0 ? System.Math.Min(length, _maxSendPacketSize) : length;
+            return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
         }
 
         public int getRecvPacketSize(int length)
         {
-            return _maxRecvPacketSize > 0 ? System.Math.Min(length, _maxRecvPacketSize) : length;
+            return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
         }
 
         private Instance _instance;

@@ -190,7 +190,7 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch(System.Exception)
+            catch(Exception)
             {
                 _adapter.decDirectCount();
                 throw;
@@ -222,7 +222,7 @@ namespace IceInternal
             }
             else // Optimization: directly call invokeAll if there's no dispatcher.
             {
-                if (sentAsync(outAsync))
+                if(sentAsync(outAsync))
                 {
                     invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                 }

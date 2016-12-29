@@ -9,8 +9,6 @@
 
 namespace IceInternal
 {
-
-    using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Diagnostics;
@@ -68,7 +66,7 @@ namespace IceInternal
         //
         public override string ice_toString_()
         {
-            string val = IceUtilInternal.Base64.encode(_rawBytes);
+            string val = System.Convert.ToBase64String(_rawBytes);
             return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
         }
 
@@ -259,7 +257,7 @@ namespace IceInternal
             s += " -e " + Ice.Util.encodingVersionToString(_rawEncoding);
             if(_rawBytes.Length > 0)
             {
-                s += " -v " + IceUtilInternal.Base64.encode(_rawBytes);
+                s += " -v " + System.Convert.ToBase64String(_rawBytes);
             }
             return s;
         }
@@ -377,16 +375,16 @@ namespace IceInternal
                     throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
                 }
 
-                for(int j = 0; j < argument.Length; ++j)
+
+                try
                 {
-                    if(!IceUtilInternal.Base64.isBase64(argument[j]))
-                    {
-                        throw new Ice.EndpointParseException("invalid base64 character `" + argument[j] +
-                                                             "' (ordinal " + ((int)argument[j]) +
-                                                             ") in endpoint " + endpoint);
-                    }
+                    _rawBytes = System.Convert.FromBase64String(argument);
                 }
-                _rawBytes = IceUtilInternal.Base64.decode(argument);
+                catch(System.FormatException ex)
+                {
+                    throw new Ice.EndpointParseException("Invalid Base64 input in endpoint " + endpoint, ex);
+                }
+                
                 return true;
             }
 
@@ -419,9 +417,9 @@ namespace IceInternal
         private void calcHashValue()
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, _type);
-            IceInternal.HashUtil.hashAdd(ref h, _rawEncoding);
-            IceInternal.HashUtil.hashAdd(ref h, _rawBytes);
+            HashUtil.hashAdd(ref h, _type);
+            HashUtil.hashAdd(ref h, _rawEncoding);
+            HashUtil.hashAdd(ref h, _rawBytes);
             _hashCode = h;
         }
 

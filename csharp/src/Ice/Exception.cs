@@ -228,7 +228,7 @@ namespace Ice
 
 namespace IceInternal
 {
-    public class RetryException : System.Exception
+    public class RetryException : Exception
     {
         public RetryException(Ice.LocalException ex)
         {

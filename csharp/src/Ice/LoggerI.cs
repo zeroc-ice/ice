@@ -170,7 +170,7 @@ namespace Ice
             s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(message);
-            this.WriteLine(s.ToString());
+            WriteLine(s.ToString());
         }
 
         public override void Write(string message)

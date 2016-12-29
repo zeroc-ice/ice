@@ -54,7 +54,7 @@ namespace IceInternal
             Response
         };
 
-        internal int isCompleteMessage(IceInternal.ByteBuffer buf, int begin, int end)
+        internal int isCompleteMessage(ByteBuffer buf, int begin, int end)
         {
             byte[] raw = buf.rawBytes();
             int p = begin;
@@ -99,7 +99,7 @@ namespace IceInternal
             return -1;
         }
 
-        internal bool parse(IceInternal.ByteBuffer buf, int begin, int end)
+        internal bool parse(ByteBuffer buf, int begin, int end)
         {
             byte[] raw = buf.rawBytes();
             int p = begin;
@@ -543,7 +543,7 @@ namespace IceInternal
                         _versionMinor = 0;
                     }
                     _versionMinor *= 10;
-                    _versionMinor += (int)(c - '0');
+                    _versionMinor += (c - '0');
                     break;
                 }
                 case State.Response:
@@ -601,7 +601,7 @@ namespace IceInternal
                         _status = 0;
                     }
                     _status *= 10;
-                    _status += (int)(c - '0');
+                    _status += (c - '0');
                     break;
                 }
                 case State.ResponseReasonStart:

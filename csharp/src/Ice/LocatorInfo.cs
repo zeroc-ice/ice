@@ -150,7 +150,7 @@ namespace IceInternal
 
                         while(!_response && _exception == null)
                         {
-                            System.Threading.Monitor.Wait(this);
+                            Monitor.Wait(this);
                         }
                     }
 
@@ -204,7 +204,7 @@ namespace IceInternal
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
                     _response = true;
                     _proxy = proxy;
-                    System.Threading.Monitor.PulseAll(this);
+                    Monitor.PulseAll(this);
                 }
                 foreach(RequestCallback callback in _callbacks)
                 {
@@ -219,7 +219,7 @@ namespace IceInternal
                 {
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
                     _exception = ex;
-                    System.Threading.Monitor.PulseAll(this);
+                    Monitor.PulseAll(this);
                 }
                 foreach(RequestCallback callback in _callbacks)
                 {
@@ -273,7 +273,7 @@ namespace IceInternal
                 try
                 {
                     _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
-                        this.response, this.exception);
+                        response, exception);
                 }
                 catch(Ice.Exception ex)
                 {
@@ -300,7 +300,7 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(object.ReferenceEquals(this, obj))
+            if(ReferenceEquals(this, obj))
             {
                 return true;
             }
@@ -784,8 +784,8 @@ namespace IceInternal
             public override int GetHashCode()
             {
                 int h = 5381;
-                IceInternal.HashUtil.hashAdd(ref h, _id);
-                IceInternal.HashUtil.hashAdd(ref h, _encoding);
+                HashUtil.hashAdd(ref h, _id);
+                HashUtil.hashAdd(ref h, _encoding);
                 return h;
             }
 
@@ -832,7 +832,6 @@ namespace IceInternal
             //
             // TODO: reap unused locator info objects?
             //
-
             lock(this)
             {
                 LocatorInfo info = null;
@@ -881,7 +880,7 @@ namespace IceInternal
             }
         }
 
-        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
+        internal EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
         {
             if(ttl == 0) // Locator cache disabled.
             {
@@ -903,7 +902,7 @@ namespace IceInternal
             }
         }
 
-        internal void addAdapterEndpoints(string adapter, IceInternal.EndpointI[] endpoints)
+        internal void addAdapterEndpoints(string adapter, EndpointI[] endpoints)
         {
             lock(this)
             {
@@ -912,7 +911,7 @@ namespace IceInternal
             }
         }
 
-        internal IceInternal.EndpointI[] removeAdapterEndpoints(string adapter)
+        internal EndpointI[] removeAdapterEndpoints(string adapter)
         {
             lock(this)
             {
@@ -984,14 +983,14 @@ namespace IceInternal
 
         sealed private class EndpointTableEntry
         {
-            public EndpointTableEntry(long time, IceInternal.EndpointI[] endpoints)
+            public EndpointTableEntry(long time, EndpointI[] endpoints)
             {
                 this.time = time;
                 this.endpoints = endpoints;
             }
 
             public long time;
-            public IceInternal.EndpointI[] endpoints;
+            public EndpointI[] endpoints;
         }
 
         sealed private class ReferenceTableEntry

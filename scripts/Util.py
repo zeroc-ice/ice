@@ -327,11 +327,14 @@ class Windows(Platform):
         cpp = isinstance(mapping, CppMapping)
         csharp = isinstance(mapping, CSharpMapping)
 
-        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
-            return iceHome
+        if current.driver.useIceBinDist(mapping):
+            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
+                return iceHome
+            else:
+                return os.path.join(toplevel, mapping.name, "msbuild", "packages",
+                                    "zeroc.ice.{0}.{1}".format(name, version))
         else:
-            return os.path.join(toplevel, mapping.name, "msbuild", "packages",
-                                "zeroc.ice.{0}.{1}".format(name, version))
+            return os.path.join(toplevel, mapping.name)
 
     def canRun(self, mapping, current):
         #

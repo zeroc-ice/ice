@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Threading;
 
@@ -34,8 +33,7 @@ namespace Ice
             }
             else
             {
-                throw new Ice.InitializationException(
-                    "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
+                throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
             }
         }
         
@@ -210,7 +208,7 @@ namespace Ice
             {
                 if(_map.ContainsKey(currentThread))
                 {
-                    threadContext = (Dictionary<string, string>)_map[currentThread];
+                    threadContext = _map[currentThread];
                 }
             }
 

@@ -37,14 +37,14 @@ namespace IceInternal
             _connectionId = connectionId;
 
             _hashCode = 5381;
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
+            HashUtil.hashAdd(ref _hashCode, _addr);
             if(sourceAddr != null)
             {
-                IceInternal.HashUtil.hashAdd(ref _hashCode, _sourceAddr);
+                HashUtil.hashAdd(ref _hashCode, _sourceAddr);
             }
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastInterface);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastTtl);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
+            HashUtil.hashAdd(ref _hashCode, _mcastInterface);
+            HashUtil.hashAdd(ref _hashCode, _mcastTtl);
+            HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)

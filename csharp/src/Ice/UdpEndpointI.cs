@@ -269,10 +269,10 @@ namespace IceInternal
         public override void hashInit(ref int h)
         {
             base.hashInit(ref h);
-            IceInternal.HashUtil.hashAdd(ref h, _mcastInterface);
-            IceInternal.HashUtil.hashAdd(ref h, _mcastTtl);
-            IceInternal.HashUtil.hashAdd(ref h, _connect);
-            IceInternal.HashUtil.hashAdd(ref h, _compress);
+            HashUtil.hashAdd(ref h, _mcastInterface);
+            HashUtil.hashAdd(ref h, _mcastTtl);
+            HashUtil.hashAdd(ref h, _connect);
+            HashUtil.hashAdd(ref h, _compress);
         }
 
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
@@ -352,9 +352,9 @@ namespace IceInternal
 
                 try
                 {
-                    _mcastTtl = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                    _mcastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
-                catch(System.FormatException ex)
+                catch(FormatException ex)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
                     e.str = "invalid TTL value `" + argument + "' in endpoint " + endpoint;

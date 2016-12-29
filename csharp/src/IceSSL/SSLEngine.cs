@@ -10,7 +10,6 @@
 namespace IceSSL
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Security;
@@ -31,15 +30,6 @@ namespace IceSSL
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
-            _tls12Support = false;
-            try
-            {
-                Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
-                _tls12Support = true;
-            }
-            catch(Exception)
-            {
-            }
         }
 
         internal void initialize()
@@ -81,9 +71,7 @@ namespace IceSSL
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
             _protocols = parseProtocols(
-                properties.getPropertyAsListWithDefault(prefix + "Protocols",
-                                                        _tls12Support ? new string[]{"TLS1_0", "TLS1_1", "TLS1_2"} :
-                                                                        new string[]{"TLS1_0", "TLS1_1"}));
+                properties.getPropertyAsListWithDefault(prefix + "Protocols", new string[]{"TLS1_0", "TLS1_1", "TLS1_2"}));
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
@@ -1138,6 +1126,5 @@ namespace IceSSL
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
-        private bool _tls12Support;
     }
 }

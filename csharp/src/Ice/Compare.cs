@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
-
 namespace Ice
 {
     public class CollectionComparer
@@ -25,7 +22,7 @@ namespace Ice
                                             System.Collections.ICollection c2,
                                             out bool result)
         {
-            if(object.ReferenceEquals(c1, c2))
+            if(ReferenceEquals(c1, c2))
             {
                 result = true;
                 return true; // Equal references means the collections are equal.
@@ -138,7 +135,7 @@ namespace Ice
         {
             try
             {
-                if(object.ReferenceEquals(c1, c2))
+                if(ReferenceEquals(c1, c2))
                 {
                     return true; // Equal references means the collections are equal.
                 }

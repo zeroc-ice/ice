@@ -741,14 +741,14 @@ namespace IceInternal
                                 throw fe;
                             }
                             outStream.AutoFlush = true;
-                            System.Console.Out.Close();
-                            System.Console.SetOut(outStream);
+                            Console.Out.Close();
+                            Console.SetOut(outStream);
                         }
                         if(stdErr.Length > 0)
                         {
                             if(stdErr.Equals(stdOut))
                             {
-                                System.Console.SetError(outStream);
+                                Console.SetError(outStream);
                             }
                             else
                             {
@@ -764,8 +764,8 @@ namespace IceInternal
                                     throw fe;
                                 }
                                 errStream.AutoFlush = true;
-                                System.Console.Error.Close();
-                                System.Console.SetError(errStream);
+                                Console.Error.Close();
+                                Console.SetError(errStream);
                             }
                         }
 
@@ -786,16 +786,14 @@ namespace IceInternal
                         //
                         // Ice.ConsoleListener is enabled by default.
                         //
-                        bool console =
-                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) > 0;
+                        bool console = _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) > 0;
                         _initData.logger =
                             new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
                     }
 
                     if(Ice.Util.getProcessLogger() is Ice.LoggerI)
                     {
-                        _initData.logger =
-                            new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                        _initData.logger = new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
                     }
                     else
                     {
@@ -1055,18 +1053,10 @@ namespace IceInternal
             //
             try
             {
-                if(initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
-                {
-                    ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
-                                                initializationData().properties.getProperty("Ice.ThreadPriority"));
-                    _timer = new Timer(this, priority);
-                }
-                else
-                {
-                    _timer = new Timer(this);
-                }
+                _timer = new Timer(this, Util.stringToThreadPriority(
+                                                initializationData().properties.getProperty("Ice.ThreadPriority")));
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 string s = "cannot create thread for timer:\n" + ex;
                 _initData.logger.error(s);
@@ -1077,7 +1067,7 @@ namespace IceInternal
             {
                 _endpointHostResolver = new EndpointHostResolver(this);
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 string s = "cannot create thread for endpoint host resolver:\n" + ex;
                 _initData.logger.error(s);
@@ -1118,7 +1108,7 @@ namespace IceInternal
                 {
                     using(Process p = Process.GetCurrentProcess())
                     {
-                        System.Console.WriteLine(p.Id);
+                        Console.WriteLine(p.Id);
                     }
                     _printProcessIdDone = true;
                 }
@@ -1585,6 +1575,6 @@ namespace IceInternal
         private static bool _printProcessIdDone = false;
         private static bool _oneOffDone = false;
         private Dictionary<string, Ice.ObjectFactory> _objectFactoryMap = new Dictionary<string, Ice.ObjectFactory>();
-        private static System.Object _staticLock = new System.Object();
+        private static object _staticLock = new object();
     }
 }

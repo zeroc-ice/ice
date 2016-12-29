@@ -28,8 +28,7 @@ namespace IceInternal
         //
         // The magic number at the front of each message
         //
-        internal static readonly byte[] magic
-            = new byte[] { (byte)0x49, (byte)0x63, (byte)0x65, (byte)0x50 }; // 'I', 'c', 'e', 'P'
+        internal static readonly byte[] magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
         
         //
         // The current Ice protocol and encoding version
@@ -44,13 +43,13 @@ namespace IceInternal
 
         public const byte OPTIONAL_END_MARKER           = 0xFF;
 
-        public const byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
-        public const byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
-        public const byte FLAG_HAS_TYPE_ID_COMPACT      = (byte)(1<<1 | 1<<0);
-        public const byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
-        public const byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
-        public const byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
-        public const byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
+        public const byte FLAG_HAS_TYPE_ID_STRING       = (1<<0);
+        public const byte FLAG_HAS_TYPE_ID_INDEX        = (1<<1);
+        public const byte FLAG_HAS_TYPE_ID_COMPACT      = (1<<1 | 1<<0);
+        public const byte FLAG_HAS_OPTIONAL_MEMBERS     = (1<<2);
+        public const byte FLAG_HAS_INDIRECTION_TABLE    = (1<<3);
+        public const byte FLAG_HAS_SLICE_SIZE           = (1<<4);
+        public const byte FLAG_IS_LAST_SLICE            = (1<<5);
         
         //
         // The Ice protocol message types
@@ -63,37 +62,34 @@ namespace IceInternal
 
         internal static readonly byte[] requestHdr = new byte[]
         {
-            IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
-            IceInternal.Protocol.magic[3],
-            IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
-            IceInternal.Protocol.requestMsg,
-            (byte)0, // Compression status.
-            (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-            (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
+            magic[0], magic[1], magic[2], magic[3],
+            protocolMajor, protocolMinor,
+            protocolEncodingMajor, protocolEncodingMinor,
+            requestMsg,
+            0, // Compression status.
+            0, 0, 0, 0, // Message size (placeholder).
+            0, 0, 0, 0  // Request ID (placeholder).
         };
 
         internal static readonly byte[] requestBatchHdr = new byte[]
         {
-            IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2],
-            IceInternal.Protocol.magic[3],
-            IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
-            IceInternal.Protocol.requestBatchMsg,
-            (byte)0, // Compression status.
-            (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-            (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
+            magic[0], magic[1], magic[2], magic[3],
+            protocolMajor, protocolMinor,
+            protocolEncodingMajor, protocolEncodingMinor,
+            requestBatchMsg,
+            0, // Compression status.
+            0, 0, 0, 0, // Message size (placeholder).
+            0, 0, 0, 0  // Number of requests in batch (placeholder).
         };
         
         internal static readonly byte[] replyHdr = new byte[]
         {
-            IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
-            IceInternal.Protocol.magic[3],
-            IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
-            IceInternal.Protocol.replyMsg,
-            (byte)0, // Compression status.
-            (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
+            magic[0], magic[1], magic[2], magic[3],
+            protocolMajor, protocolMinor,
+            protocolEncodingMajor, protocolEncodingMinor,
+            replyMsg,
+            0, // Compression status.
+            0, 0, 0, 0 // Message size (placeholder).
         };
 
         internal static void

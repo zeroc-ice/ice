@@ -9,11 +9,7 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
-    using System.Net;
-    using System.Globalization;
 
     sealed class EndpointI : IceInternal.EndpointI
     {
@@ -28,7 +24,7 @@ namespace IceSSL
             _delegate.streamWriteImpl(os);
         }
 
-        private sealed class InfoI : IceSSL.EndpointInfo
+        private sealed class InfoI : EndpointInfo
         {
             public InfoI(EndpointI e)
             {

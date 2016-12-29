@@ -7,12 +7,9 @@
 //
 // **********************************************************************
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Ice.Instrumentation;
 
 namespace IceInternal
 {
@@ -202,7 +199,7 @@ namespace IceInternal
             {
                 while(_flushing && _exception == null)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 if(_exception != null)

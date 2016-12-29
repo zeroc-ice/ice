@@ -9,7 +9,6 @@
 
 namespace IceSSL
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Security.Cryptography.X509Certificates;

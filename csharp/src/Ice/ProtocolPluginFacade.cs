@@ -38,7 +38,7 @@ namespace IceInternal
         public ProtocolPluginFacadeI(Ice.Communicator communicator)
         {
             _communicator = communicator;
-            _instance = IceInternal.Util.getInstance(communicator);
+            _instance = Util.getInstance(communicator);
         }
 
         //

@@ -56,7 +56,7 @@ namespace IceMX
                         {
                             return field.GetValue(obj);
                         }
-                        catch(ArgumentException ex)
+                        catch(ArgumentException)
                         {
                             if(obj is Ice.EndpointInfo)
                             {
@@ -68,7 +68,7 @@ namespace IceMX
                             }
                             else
                             {
-                                throw ex;
+                                throw;
                             }
                         }
                     }
@@ -430,7 +430,7 @@ namespace IceMX
 
         public void update()
         {
-            System.Action updater;
+            Action updater;
             lock(this)
             {
                 _maps.Clear();
@@ -448,7 +448,7 @@ namespace IceMX
             }
         }
 
-        public void setUpdater(System.Action updater)
+        public void setUpdater(Action updater)
         {
             lock(this)
             {
@@ -456,10 +456,10 @@ namespace IceMX
             }
         }
 
-        private readonly IceInternal.MetricsAdminI _metrics;
+        private readonly MetricsAdminI _metrics;
         private readonly string _name;
         private List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
         private volatile bool _enabled;
-        private System.Action _updater;
+        private Action _updater;
     }
 }

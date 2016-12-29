@@ -10,7 +10,6 @@
 using System;
 using System.Threading;
 using System.Collections;
-using System.Text;
 using System.Globalization;
 
 namespace Ice
@@ -60,7 +59,7 @@ namespace Ice
         /// <summary>
         /// Creates and returns a copy of this object.
         /// </summary>
-        public System.Object Clone()
+        public object Clone()
         {
             //
             // A member-wise copy is safe because the members are immutable.
@@ -81,7 +80,7 @@ namespace Ice
         /// <summary>
         /// The communicator observer used by the Ice run-time.
         /// </summary>
-        public Ice.Instrumentation.CommunicatorObserver observer;
+        public Instrumentation.CommunicatorObserver observer;
 
         /// <summary>
         /// The thread hook for the communicator.
@@ -277,7 +276,7 @@ namespace Ice
                 {
                     ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
                 }
-                catch(System.ArgumentException e)
+                catch(ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid identity name `" + s + "': " + e.Message;
@@ -290,7 +289,7 @@ namespace Ice
                 {
                     ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
                 }
-                catch(System.ArgumentException e)
+                catch(ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid category in identity `" + s + "': " + e.Message;
@@ -302,7 +301,7 @@ namespace Ice
                     {
                         ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
                     }
-                    catch(System.ArgumentException e)
+                    catch(ArgumentException e)
                     {
                         IdentityParseException ex = new IdentityParseException();
                         ex.str = "invalid name in identity `" + s + "': " + e.Message;
@@ -451,7 +450,7 @@ namespace Ice
             {
                 if(_processLogger == null)
                 {
-                    _processLogger = new ConsoleLoggerI(System.AppDomain.CurrentDomain.FriendlyName);
+                    _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
                 }
                 return _processLogger;
             }
@@ -496,11 +495,11 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted protocol version.</returns>
-        public static Ice.ProtocolVersion stringToProtocolVersion(string version)
+        public static ProtocolVersion stringToProtocolVersion(string version)
         {
             byte major, minor;
             stringToMajorMinor(version, out major, out minor);
-            return new Ice.ProtocolVersion(major, minor);
+            return new ProtocolVersion(major, minor);
         }
 
         /// <summary>
@@ -508,11 +507,11 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted object identity.</returns>
-        public static Ice.EncodingVersion stringToEncodingVersion(string version)
+        public static EncodingVersion stringToEncodingVersion(string version)
         {
             byte major, minor;
             stringToMajorMinor(version, out major, out minor);
-            return new Ice.EncodingVersion(major, minor);
+            return new EncodingVersion(major, minor);
         }
 
         /// <summary>
@@ -537,10 +536,10 @@ namespace Ice
 
         static private void stringToMajorMinor(string str, out byte major, out byte minor)
         {
-            int pos = str.IndexOf((System.Char) '.');
+            int pos = str.IndexOf('.');
             if(pos == -1)
             {
-                throw new Ice.VersionParseException("malformed version value `" + str + "'");
+                throw new VersionParseException("malformed version value `" + str + "'");
             }
 
             string majStr = str.Substring(0, (pos) - (0));
@@ -549,30 +548,26 @@ namespace Ice
             int minVersion;
             try
             {
-                majVersion = System.Int32.Parse(majStr, CultureInfo.InvariantCulture);
-                minVersion = System.Int32.Parse(minStr, CultureInfo.InvariantCulture);
+                majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
+                minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
             }
-            catch(System.FormatException)
+            catch(FormatException)
             {
-                throw new Ice.VersionParseException("invalid version value `" + str + "'");
+                throw new VersionParseException("invalid version value `" + str + "'");
             }
 
             if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
-                throw new Ice.VersionParseException("range error in version `" + str + "'");
+                throw new VersionParseException("range error in version `" + str + "'");
             }
 
             major = (byte)majVersion;
             minor = (byte)minVersion;
         }
 
-        static private String majorMinorToString(byte major, byte minor)
+        static private string majorMinorToString(byte major, byte minor)
         {
-            StringBuilder str = new StringBuilder();
-            str.Append(major < 0 ? (int)major + 255 : (int)major);
-            str.Append(".");
-            str.Append(minor < 0 ? (int)minor + 255 : (int)minor);
-            return str.ToString();
+            return string.Format("{0}.{1}", major, minor);
         }
 
         public static readonly ProtocolVersion currentProtocol =
@@ -690,9 +685,9 @@ namespace IceInternal
             return new ProtocolPluginFacadeI(communicator);
         }
 
-        public static System.Threading.ThreadPriority stringToThreadPriority(string s)
+        public static ThreadPriority stringToThreadPriority(string s)
         {
-            if(String.IsNullOrEmpty(s))
+            if(string.IsNullOrEmpty(s))
             {
                 return ThreadPriority.Normal;
             }

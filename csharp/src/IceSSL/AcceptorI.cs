@@ -9,10 +9,6 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     class AcceptorI : IceInternal.Acceptor
     {
         public void close()

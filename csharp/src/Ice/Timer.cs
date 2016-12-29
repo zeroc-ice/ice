@@ -36,7 +36,7 @@ namespace IceInternal
                 }
 
                 _instance = null;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             
                 _tokens.Clear();
                 _tasks.Clear();
@@ -68,7 +68,7 @@ namespace IceInternal
             
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace IceInternal
 
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
         } 
@@ -124,17 +124,12 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-        internal Timer(IceInternal.Instance instance, ThreadPriority priority)
+        internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal)
         {
             init(instance, priority, true);
         }
-        
-        internal Timer(IceInternal.Instance instance)
-        {
-            init(instance, ThreadPriority.Normal, false);
-        }
 
-        internal void init(IceInternal.Instance instance, ThreadPriority priority,  bool hasPriority)
+        internal void init(Instance instance, ThreadPriority priority,  bool hasPriority)
         {
             _instance = instance;
 
@@ -201,8 +196,8 @@ namespace IceInternal
 
                     if(_tokens.Count == 0)
                     {
-                        _wakeUpTime = System.Int64.MaxValue;
-                        System.Threading.Monitor.Wait(this);
+                        _wakeUpTime = long.MaxValue;
+                        Monitor.Wait(this);
                     }
             
                     if(_instance == null)
@@ -234,7 +229,7 @@ namespace IceInternal
                         }
                     
                         _wakeUpTime = first.scheduledTime;
-                        System.Threading.Monitor.Wait(this, (int)(first.scheduledTime - now));
+                        Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
                 
                     if(_instance == null)
@@ -322,7 +317,7 @@ namespace IceInternal
 
             public override bool Equals(object o)
             {
-                if(object.ReferenceEquals(this, o))
+                if(ReferenceEquals(this, o))
                 {
                     return true;
                 }
@@ -333,8 +328,8 @@ namespace IceInternal
             public override int GetHashCode()
             {
                 int h = 5381;
-                IceInternal.HashUtil.hashAdd(ref h, id);
-                IceInternal.HashUtil.hashAdd(ref h, scheduledTime);
+                HashUtil.hashAdd(ref h, id);
+                HashUtil.hashAdd(ref h, scheduledTime);
                 return h;
             }
 
@@ -347,7 +342,7 @@ namespace IceInternal
         private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
         private Instance _instance;
-        private long _wakeUpTime = System.Int64.MaxValue;
+        private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;
 

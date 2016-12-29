@@ -136,7 +136,7 @@ namespace IceInternal
                 Network.setBlock(_fd, false);
                 Network.setTcpBufSize(_fd, _instance);
             }
-            catch(System.Exception)
+            catch(Exception)
             {
                 _fd = null;
                 throw;
@@ -147,7 +147,7 @@ namespace IceInternal
         private ProtocolInstance _instance;
         private Socket _fd;
         private Socket _acceptFd;
-        private System.Exception _acceptError;
+        private Exception _acceptError;
         private int _backlog;
         private IPEndPoint _addr;
         private IAsyncResult _result;

@@ -247,7 +247,7 @@ namespace IceInternal
 
                     try
                     {
-                        v = System.Int32.Parse(arr[i], CultureInfo.InvariantCulture);
+                        v = int.Parse(arr[i], CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException)
                     {

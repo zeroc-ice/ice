@@ -23,16 +23,8 @@ namespace IceInternal
             _preferIPv6 = instance.preferIPv6();
             _thread = new HelperThread(this);
             updateObserver();
-            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
-            {
-                ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
-                    instance.initializationData().properties.getProperty("Ice.ThreadPriority"));
-                _thread.Start(priority);
-            }
-            else
-            {
-                _thread.Start(ThreadPriority.Normal);
-            }
+            _thread.Start(Util.stringToThreadPriority(
+                    instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
@@ -83,7 +75,7 @@ namespace IceInternal
                 }
 
                 _queue.AddLast(entry);
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -93,7 +85,7 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -116,7 +108,7 @@ namespace IceInternal
                 {
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                     }
 
                     if(_destroyed)

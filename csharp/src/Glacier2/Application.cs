@@ -133,7 +133,7 @@ public abstract class Application : Ice.Application
     /// Returns the Glacier2 session proxy.
     /// </summary>
     /// <returns>The session proxy.</returns>
-    public static Glacier2.SessionPrx
+    public static SessionPrx
     session()
     {
         return _session;
@@ -246,7 +246,7 @@ public abstract class Application : Ice.Application
         {
             iceCommunicator = Ice.Util.initialize(ref args, initData);
 
-            _router = Glacier2.RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
+            _router = RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
             if(_router == null)
             {
                 Ice.Util.getProcessLogger().error(iceAppName + ": no Glacier2 router configured");
@@ -294,7 +294,7 @@ public abstract class Application : Ice.Application
                     {
                         Ice.Connection connection = _router.ice_getCachedConnection();
                         Debug.Assert(connection != null);
-                        connection.setACM((int)acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                        connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
                         connection.setCloseCallback(_ => sessionDestroyed());
                     }
                     _category = _router.getCategoryForClient();
@@ -342,7 +342,7 @@ public abstract class Application : Ice.Application
             Ice.Util.getProcessLogger().error(ex.ToString());
             status = 1;
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
             status = 1;
@@ -392,13 +392,13 @@ public abstract class Application : Ice.Application
                 // Expected if another thread invoked on an object from the session concurrently.
                 //
             }
-            catch(Glacier2.SessionNotExistException)
+            catch(SessionNotExistException)
             {
                 //
                 // This can also occur.
                 //
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 //
                 // Not expected.
@@ -420,7 +420,7 @@ public abstract class Application : Ice.Application
                 Ice.Util.getProcessLogger().error(ex.ToString());
                 status = 1;
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
                 status = 1;
@@ -443,8 +443,8 @@ public abstract class Application : Ice.Application
     }
 
     private static Ice.ObjectAdapter _adapter;
-    private static Glacier2.RouterPrx _router;
-    private static Glacier2.SessionPrx _session;
+    private static RouterPrx _router;
+    private static SessionPrx _session;
     private static bool _createdSession = false;
     private static string _category;
 }

@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -31,7 +30,7 @@ namespace IceInternal
 {
     sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
     {
-        internal PropertiesAdminI(IceInternal.Instance instance)
+        internal PropertiesAdminI(Instance instance)
         {
             _properties = instance.initializationData().properties;
             _logger = instance.initializationData().logger;

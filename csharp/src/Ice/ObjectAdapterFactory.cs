@@ -9,10 +9,7 @@
 
 namespace IceInternal
 {
-
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
 
     public sealed class ObjectAdapterFactory
     {

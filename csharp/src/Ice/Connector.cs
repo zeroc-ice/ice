@@ -9,10 +9,6 @@
 
 namespace IceInternal
 {
-
-    using System;
-    using System.Net.Sockets;
-
     public interface Connector
     {
         //

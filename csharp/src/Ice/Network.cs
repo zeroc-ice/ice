@@ -49,7 +49,7 @@ namespace IceInternal
         {
             SocketError error = socketErrorCode(ex);
             return error == SocketError.NoBufferSpaceAvailable ||
-                      error == SocketError.Fault;
+                   error == SocketError.Fault;
         }
 
         public static bool wouldBlock(SocketException ex)
@@ -155,7 +155,7 @@ namespace IceInternal
             return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
         }
 
-        public static bool noMoreFds(System.Exception ex)
+        public static bool noMoreFds(Exception ex)
         {
             try
             {
@@ -176,13 +176,13 @@ namespace IceInternal
                 string[] arr = ip.Split(splitChars);
                 try
                 {
-                    int i = System.Int32.Parse(arr[0], CultureInfo.InvariantCulture);
+                    int i = int.Parse(arr[0], CultureInfo.InvariantCulture);
                     if(i >= 223 && i <= 239)
                     {
                         return true;
                     }
                 }
-                catch(System.FormatException)
+                catch(FormatException)
                 {
                     return false;
                 }
@@ -313,7 +313,7 @@ namespace IceInternal
             {
                 socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 closeSocketNoThrow(socket);
                 throw new Ice.SocketException(ex);
@@ -324,12 +324,12 @@ namespace IceInternal
         {
             const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
 
-            Byte[] OptionInValue = BitConverter.GetBytes(1);
+            byte[] OptionInValue = BitConverter.GetBytes(1);
             try
             {
                 socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
             }
-            catch(System.Exception)
+            catch(Exception)
             {
                 // Expected on platforms that do not support TCP Loopback Fast Path
             }
@@ -354,7 +354,7 @@ namespace IceInternal
             {
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 closeSocketNoThrow(socket);
                 throw new Ice.SocketException(ex);
@@ -439,9 +439,9 @@ namespace IceInternal
                 {
                     try
                     {
-                        ifaceIndex = System.Int32.Parse(iface, CultureInfo.InvariantCulture);
+                        ifaceIndex = int.Parse(iface, CultureInfo.InvariantCulture);
                     }
-                    catch(System.FormatException ex)
+                    catch(FormatException ex)
                     {
                         closeSocketNoThrow(socket);
                         throw new Ice.SocketException(ex);
@@ -450,7 +450,7 @@ namespace IceInternal
 
                 if(family == AddressFamily.InterNetwork)
                 {
-                    ifaceIndex = (int)IPAddress.HostToNetworkOrder(ifaceIndex);
+                    ifaceIndex = IPAddress.HostToNetworkOrder(ifaceIndex);
                     socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, ifaceIndex);
                 }
                 else
@@ -796,7 +796,7 @@ namespace IceInternal
                 e.host = host;
                 throw e;
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = host;
@@ -864,7 +864,7 @@ namespace IceInternal
                 e.host = "0.0.0.0";
                 throw e;
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = "0.0.0.0";
@@ -883,7 +883,7 @@ namespace IceInternal
             }
             else if (addr.AddressFamily == AddressFamily.InterNetwork)
             {
-                Byte[] bytes = addr.GetAddressBytes();
+                byte[] bytes = addr.GetAddressBytes();
                 return bytes[0] == 169 && bytes[1] == 254;
             }
             return false;
@@ -971,8 +971,7 @@ namespace IceInternal
             List<string> hosts = new List<string>();
             if(wildcard)
             {
-                IPAddress[] addrs =
-                    getLocalAddresses(ipv4Wildcard ? Network.EnableIPv4 : protocol, includeLoopback);
+                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback);
                 foreach(IPAddress a in addrs)
                 {
                     if(!isLinklocal(a))
@@ -1090,7 +1089,7 @@ namespace IceInternal
         {
             try
             {
-                return (EndPoint)socket.RemoteEndPoint;
+                return socket.RemoteEndPoint;
             }
             catch(SocketException)
             {
@@ -1115,9 +1114,9 @@ namespace IceInternal
             //
             try
             {
-                return System.Int32.Parse(iface, CultureInfo.InvariantCulture);
+                return int.Parse(iface, CultureInfo.InvariantCulture);
             }
-            catch(System.FormatException)
+            catch(FormatException)
             {
             }
 
@@ -1186,10 +1185,10 @@ namespace IceInternal
         getNumericAddress(string sourceAddress)
         {
             EndPoint addr = null;
-            if(!String.IsNullOrEmpty(sourceAddress))
+            if(!string.IsNullOrEmpty(sourceAddress))
             {
-                List<EndPoint> addrs = getAddresses(sourceAddress, 0, Network.EnableBoth,
-                                                    Ice.EndpointSelectionType.Ordered, false, false);
+                List<EndPoint> addrs = getAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered, 
+                                                    false, false);
                 if(addrs.Count != 0)
                 {
                     return addrs[0];

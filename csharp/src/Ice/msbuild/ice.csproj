@@ -45,9 +45,6 @@
     <Compile Include="..\AsyncResult.cs">
       <Link>AsyncResult.cs</Link>
     </Compile>
-    <Compile Include="..\Base64.cs">
-      <Link>Base64.cs</Link>
-    </Compile>
     <Compile Include="..\BatchRequestInterceptor.cs">
       <Link>BatchRequestInterceptor.cs</Link>
     </Compile>
@@ -278,9 +275,6 @@
     </Compile>
     <Compile Include="..\StringUtil.cs">
       <Link>StringUtil.cs</Link>
-    </Compile>
-    <Compile Include="..\SysLoggerI.cs">
-      <Link>SysLoggerI.cs</Link>
     </Compile>
     <Compile Include="..\TcpAcceptor.cs">
       <Link>TcpAcceptor.cs</Link>

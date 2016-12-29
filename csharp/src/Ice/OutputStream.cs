@@ -455,7 +455,7 @@ namespace Ice
             if(v > 254)
             {
                 expand(5);
-                _buf.b.put((byte)255);
+                _buf.b.put(255);
                 _buf.b.putInt(v);
             }
             else
@@ -1903,7 +1903,7 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional string sequence to write to the stream.</param>
-        public void writeStringSeq(int tag, Optional<String[]> v)
+        public void writeStringSeq(int tag, Optional<string[]> v)
         {
             if(v.HasValue)
             {
@@ -2490,7 +2490,7 @@ namespace Ice
 
                 _current.sliceFlagsPos = _stream.pos();
 
-                _current.sliceFlags = (byte)0;
+                _current.sliceFlags = 0;
                 if(_encaps.format == FormatType.SlicedFormat)
                 {
                     //
@@ -2503,7 +2503,7 @@ namespace Ice
                     _current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE; // This is the last slice.
                 }
 
-                _stream.writeByte((byte)0); // Placeholder for the slice flags
+                _stream.writeByte(0); // Placeholder for the slice flags
 
                 //
                 // For instance slices, encode the flag and the type ID either as a
@@ -2562,7 +2562,7 @@ namespace Ice
                 //
                 if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
-                    _stream.writeByte((byte)Protocol.OPTIONAL_END_MARKER);
+                    _stream.writeByte(Protocol.OPTIONAL_END_MARKER);
                 }
 
                 //
@@ -2712,7 +2712,7 @@ namespace Ice
                         previous.next = this;
                     }
                     this.previous = previous;
-                    this.next = null;
+                    next = null;
                 }
 
                 // Instance attributes

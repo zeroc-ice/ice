@@ -196,8 +196,8 @@ namespace IceInternal
         public override void hashInit(ref int h)
         {
             base.hashInit(ref h);
-            IceInternal.HashUtil.hashAdd(ref h, _timeout);
-            IceInternal.HashUtil.hashAdd(ref h, _compress);
+            HashUtil.hashAdd(ref h, _timeout);
+            HashUtil.hashAdd(ref h, _compress);
         }
 
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
@@ -232,7 +232,7 @@ namespace IceInternal
                     {
                         try
                         {
-                            _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                            _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
                             if(_timeout < 1)
                             {
                                 Ice.EndpointParseException e = new Ice.EndpointParseException();

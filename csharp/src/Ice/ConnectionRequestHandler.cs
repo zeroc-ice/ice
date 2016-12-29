@@ -7,11 +7,6 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using Ice.Instrumentation;
-
 namespace IceInternal
 {
     public class ConnectionRequestHandler : RequestHandler

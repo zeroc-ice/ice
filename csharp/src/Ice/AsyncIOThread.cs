@@ -21,16 +21,8 @@ namespace IceInternal
 
             _thread = new HelperThread(this);
             updateObserver();
-            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
-            {
-                ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
-                                           instance.initializationData().properties.getProperty("Ice.ThreadPriority"));
-                _thread.Start(priority);
-            }
-            else
-            {
-                _thread.Start(ThreadPriority.Normal);
-            }
+            _thread.Start(Util.stringToThreadPriority(
+                                        instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void
@@ -59,7 +51,7 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
                 _queue.AddLast(callback);
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -69,7 +61,7 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -103,7 +95,7 @@ namespace IceInternal
 
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                     }
 
                     LinkedList<ThreadPoolWorkItem> tmp = queue;
@@ -140,7 +132,7 @@ namespace IceInternal
 
             if(_observer != null)
             {
-                    _observer.detach();
+                _observer.detach();
             }
         }
 

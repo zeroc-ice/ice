@@ -850,7 +850,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Invalid -x option
-            communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
+            communicator.stringToProxy("id:opaque -t 99 -v abcd -x abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -870,7 +870,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Repeated -t
-            communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -t 1 -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -880,7 +880,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Repeated -v
-            communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -v abcd -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -890,7 +890,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Missing -t
-            communicator.stringToProxy("id:opaque -v abc");
+            communicator.stringToProxy("id:opaque -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -910,7 +910,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Missing arg for -t
-            communicator.stringToProxy("id:opaque -t -v abc");
+            communicator.stringToProxy("id:opaque -t -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -930,7 +930,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // Not a number for -t
-            communicator.stringToProxy("id:opaque -t x -v abc");
+            communicator.stringToProxy("id:opaque -t x -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -940,7 +940,7 @@ public class AllTests : TestCommon.AllTests
         try
         {
             // < 0 for -t
-            communicator.stringToProxy("id:opaque -t -1 -v abc");
+            communicator.stringToProxy("id:opaque -t -1 -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -951,6 +951,16 @@ public class AllTests : TestCommon.AllTests
         {
             // Invalid char for -v
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
+        try
+        {
+            // Invalid lenght for base64 input
+            communicator.stringToProxy("id:opaque -t 99 -v xc");
             test(false);
         }
         catch(Ice.EndpointParseException)

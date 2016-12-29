@@ -152,7 +152,7 @@ namespace IceInternal
             Debug.Assert(_fd != null && _state >= StateConnected);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
             int ret = 0;
             while(true)
@@ -194,7 +194,7 @@ namespace IceInternal
                         throw new Ice.SocketException(ex);
                     }
                 }
-                catch(System.Exception e)
+                catch(Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
@@ -216,7 +216,7 @@ namespace IceInternal
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null);
 
-            int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             buf.resize(packetSize, true);
             buf.b.position(0);
 
@@ -280,7 +280,7 @@ namespace IceInternal
                         throw new Ice.SocketException(e);
                     }
                 }
-                catch(System.Exception e)
+                catch(Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
@@ -319,7 +319,7 @@ namespace IceInternal
         {
             Debug.Assert(buf.b.position() == 0);
 
-            int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             buf.resize(packetSize, true);
             buf.b.position(0);
 
@@ -456,7 +456,7 @@ namespace IceInternal
             Debug.Assert(_fd != null);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
             Debug.Assert(buf.b.position() == 0);
 
@@ -605,7 +605,7 @@ namespace IceInternal
             // The maximum packetSize is either the maximum allowable UDP packet size, or
             // the UDP send buffer size (which ever is smaller).
             //
-            int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
             if(packetSize < buf.size())
             {
                 throw new Ice.DatagramLimitException();
@@ -657,7 +657,7 @@ namespace IceInternal
             if(intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
-                s.Append(String.Join(", ", intfs.ToArray()));
+                s.Append(string.Join(", ", intfs.ToArray()));
             }
             return s.ToString();
         }
@@ -794,7 +794,7 @@ namespace IceInternal
                 //
                 // Check for sanity.
                 //
-                if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
+                if(sizeRequested < (_udpOverhead + Protocol.headerSize))
                 {
                     _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
                                                dfltSize);

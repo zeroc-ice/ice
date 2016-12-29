@@ -168,8 +168,8 @@ namespace Ice
                             }
                             catch(System.Exception ex)
                             {
-                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
-                                                                    p.name + "' destruction:\n" + ex.ToString());
+                                Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
+                                                                p.name + "' destruction:\n" + ex.ToString());
                             }
                         }
                     }
@@ -433,13 +433,13 @@ namespace Ice
                     throw e;
                 }
             }
-            catch(System.InvalidCastException ex)
+            catch(InvalidCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException(ex);
                 e.reason = err + "InvalidCastException to Ice.PluginFactory";
                 throw e;
             }
-            catch(System.UnauthorizedAccessException ex)
+            catch(UnauthorizedAccessException ex)
             {
                 PluginInitializationException e = new PluginInitializationException(ex);
                 e.reason = err + "UnauthorizedAccessException: " + ex.ToString();

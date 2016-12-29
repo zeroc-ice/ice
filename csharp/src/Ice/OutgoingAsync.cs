@@ -159,7 +159,7 @@ namespace IceInternal
             }
         }
 
-        public virtual void cancelable(IceInternal.CancellationHandler handler)
+        public virtual void cancelable(CancellationHandler handler)
         {
             lock(this)
             {

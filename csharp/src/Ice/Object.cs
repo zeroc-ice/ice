@@ -10,6 +10,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Ice
 {
@@ -28,7 +29,7 @@ namespace Ice
     /// <summary>
     /// the base interface for servants.
     /// </summary>
-    public interface Object : System.ICloneable
+    public interface Object : ICloneable
     {
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
@@ -67,9 +68,9 @@ namespace Ice
         /// </summary>
         /// <param name="request">The details of the invocation.</param>
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-        Task<Ice.OutputStream> ice_dispatch(Request request);
+        Task<OutputStream> ice_dispatch(Request request);
 
-        Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inc, Current current);
+        Task<OutputStream> iceDispatch(IceInternal.Incoming inc, Current current);
     }
 
     /// <summary>
@@ -110,7 +111,8 @@ namespace Ice
             return s.Equals(_ids[0]);
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_isA(Ice.Object obj, IceInternal.Incoming inS, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task<OutputStream> iceD_ice_isA(Object obj, IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.startReadParams();
             var id = istr.readString();
@@ -132,7 +134,8 @@ namespace Ice
             // Nothing to do.
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_ping(Ice.Object obj, IceInternal.Incoming inS, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task<OutputStream> iceD_ice_ping(Object obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             obj.ice_ping(current);
@@ -150,7 +153,8 @@ namespace Ice
             return _ids;
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_ids(Ice.Object obj, IceInternal.Incoming inS, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task<OutputStream> iceD_ice_ids(Object obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             var ret = obj.ice_ids(current);
@@ -171,7 +175,8 @@ namespace Ice
             return _ids[0];
         }
 
-        public static Task<Ice.OutputStream> iceD_ice_id(Ice.Object obj, IceInternal.Incoming inS, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task<OutputStream> iceD_ice_id(Object obj, IceInternal.Incoming inS, Current current)
         {
             inS.readEmptyParams();
             var ret = obj.ice_id(current);
@@ -202,19 +207,20 @@ namespace Ice
         /// </summary>
         /// <param name="request">The details of the invocation.</param>
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-        public virtual Task<Ice.OutputStream> ice_dispatch(Request request)
+        public virtual Task<OutputStream> ice_dispatch(Request request)
         {
             var inc = (IceInternal.Incoming)request;
             inc.startOver();
             return iceDispatch(inc, inc.getCurrent());
         }
 
-        public virtual Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inc, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual Task<OutputStream> iceDispatch(IceInternal.Incoming inc, Current current)
         {
-            int pos = System.Array.BinarySearch(_all, current.operation);
+            int pos = Array.BinarySearch(_all, current.operation);
             if(pos < 0)
             {
-                throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
+                throw new OperationNotExistException(current.id, current.facet, current.operation);
             }
 
             switch(pos)
@@ -238,21 +244,21 @@ namespace Ice
             }
 
             Debug.Assert(false);
-            throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
+            throw new OperationNotExistException(current.id, current.facet, current.operation);
         }
 
         private static string operationModeToString(OperationMode mode)
         {
-            if(mode == Ice.OperationMode.Normal)
+            if(mode == OperationMode.Normal)
             {
                 return "::Ice::Normal";
             }
-            if(mode == Ice.OperationMode.Nonmutating)
+            if(mode == OperationMode.Nonmutating)
             {
                 return "::Ice::Nonmutating";
             }
 
-            if(mode == Ice.OperationMode.Idempotent)
+            if(mode == OperationMode.Idempotent)
             {
                 return "::Ice::Idempotent";
             }
@@ -273,7 +279,7 @@ namespace Ice
                 }
                 else
                 {
-                    Ice.MarshalException ex = new Ice.MarshalException();
+                    MarshalException ex = new MarshalException();
                     ex.reason = "unexpected operation mode. expected = " + operationModeToString(expected) +
                         " received = " + operationModeToString(received);
                     throw ex;
@@ -287,7 +293,7 @@ namespace Ice
     /// derives a concrete servant class from Blobject that
     /// implements the Blobject.ice_invoke method.
     /// </summary>
-    public abstract class Blobject : Ice.ObjectImpl
+    public abstract class Blobject : ObjectImpl
     {
         /// <summary>
         /// Dispatch an incoming request.
@@ -303,7 +309,8 @@ namespace Ice
         /// Ice run-time exception, it must throw it directly.</returns>
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
-        public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Task<OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
         {
             byte[] inEncaps = inS.readParamEncaps();
             byte[] outEncaps;
@@ -313,17 +320,18 @@ namespace Ice
         }
     }
 
-    public abstract class BlobjectAsync : Ice.ObjectImpl
+    public abstract class BlobjectAsync : ObjectImpl
     {
         public abstract Task<Ice.Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
         {
             byte[] inEncaps = inS.readParamEncaps();
-            return ice_invokeAsync(inEncaps, current).ContinueWith((Task<Ice.Object_Ice_invokeResult> t) =>
+            return ice_invokeAsync(inEncaps, current).ContinueWith((Task<Object_Ice_invokeResult> t) =>
             {
                 var ret = t.GetAwaiter().GetResult();
-                return Task.FromResult<Ice.OutputStream>(inS.writeParamEncaps(ret.outEncaps, ret.returnValue));
+                return Task.FromResult(inS.writeParamEncaps(ret.outEncaps, ret.returnValue));
             }).Unwrap();
         }
     }

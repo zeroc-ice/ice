@@ -106,7 +106,7 @@ namespace Ice
             {
                 if(!_isSet)
                 {
-                    throw new System.InvalidOperationException();
+                    throw new InvalidOperationException();
                 }
                 return _value;
             }
@@ -126,7 +126,7 @@ namespace Ice
 
         public override bool Equals(object other)
         {
-            if(object.ReferenceEquals(this, other))
+            if(ReferenceEquals(this, other))
             {
                 return true;
             }
@@ -218,7 +218,7 @@ namespace Ice
                 // However, when v is null, the optional might be cleared, which
                 // is not the result we want.
                 //
-                this.value = new Optional<T>((T)v);
+                value = new Optional<T>((T)v);
             }
             else
             {

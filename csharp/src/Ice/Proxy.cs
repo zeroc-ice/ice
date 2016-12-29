@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 using IceUtilInternal;
 using IceInternal;
@@ -767,6 +768,7 @@ namespace Ice
         /// Write a proxy to the output stream.
         /// </summary>
         /// <param name="os">Output stream object to write the proxy.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         void iceWrite(OutputStream os);
     }
 
@@ -2399,17 +2401,20 @@ namespace Ice
             return !Equals(lhs, rhs);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceWrite(OutputStream os)
         {
             _reference.getIdentity().ice_writeMembers(os);
             _reference.streamWrite(os);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference iceReference()
         {
             return _reference;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceCopyFrom(ObjectPrx from)
         {
             lock(from)
@@ -2420,6 +2425,7 @@ namespace Ice
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int iceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
                                      ref int cnt)
         {
@@ -2465,6 +2471,7 @@ namespace Ice
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceCheckAsyncTwowayOnly(string name)
         {
             //
@@ -2478,6 +2485,7 @@ namespace Ice
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public RequestHandler iceGetRequestHandler()
         {
             if(_reference.getCacheConnection())
@@ -2493,6 +2501,7 @@ namespace Ice
             return _reference.getRequestHandler(this);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public BatchRequestQueue
         iceGetBatchRequestQueue()
         {
@@ -2506,6 +2515,7 @@ namespace Ice
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public RequestHandler
         iceSetRequestHandler(RequestHandler handler)
         {
@@ -2523,6 +2533,7 @@ namespace Ice
             return handler;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceUpdateRequestHandler(RequestHandler previous, RequestHandler handler)
         {
             if(_reference.getCacheConnection() && previous != null)
@@ -2728,6 +2739,12 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Only for internal use by OutgoingAsync
+        /// </summary>
+        /// <param name="iss"></param>
+        /// <param name="os"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void
         cacheMessageBuffers(InputStream iss, OutputStream os)
         {
@@ -2748,6 +2765,7 @@ namespace Ice
         /// Only for internal use by ProxyFactory
         /// </summary>
         /// <param name="ref"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void setup(Reference @ref)
         {
             //

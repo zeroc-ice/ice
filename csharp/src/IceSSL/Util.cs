@@ -25,7 +25,7 @@ namespace IceSSL
         /// supply a certificate. The peer's certificate (if any) is the
         /// first one in the chain.
         /// </summary>
-        public System.Security.Cryptography.X509Certificates.X509Certificate2[] nativeCerts;
+        public X509Certificate2[] nativeCerts;
     }
 
     public sealed class Util

@@ -34,7 +34,7 @@ namespace IceInternal
     // as a single byte, followed by the contents of the _bytes buffer.
     //
 
-    public class OutputStreamWrapper : System.IO.Stream, System.IDisposable
+    public class OutputStreamWrapper : Stream, System.IDisposable
     {
         public OutputStreamWrapper(Ice.OutputStream s)
         {
@@ -233,7 +233,7 @@ namespace IceInternal
         private long _length;
     }
 
-    public class InputStreamWrapper : System.IO.Stream, System.IDisposable
+    public class InputStreamWrapper : Stream, System.IDisposable
     {
         public InputStreamWrapper(int size, Ice.InputStream s)
         {

@@ -38,34 +38,34 @@ namespace Ice
             return _instance.objectAdapterFactory().isShutdown();
         }
 
-        public Ice.ObjectPrx stringToProxy(string s)
+        public ObjectPrx stringToProxy(string s)
         {
             return _instance.proxyFactory().stringToProxy(s);
         }
 
-        public string proxyToString(Ice.ObjectPrx proxy)
+        public string proxyToString(ObjectPrx proxy)
         {
             return _instance.proxyFactory().proxyToString(proxy);
         }
 
-        public Ice.ObjectPrx propertyToProxy(string s)
+        public ObjectPrx propertyToProxy(string s)
         {
             return _instance.proxyFactory().propertyToProxy(s);
         }
 
-        public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
         {
             return _instance.proxyFactory().proxyToProperty(proxy, prefix);
         }
 
-        public Ice.Identity stringToIdentity(string s)
+        public Identity stringToIdentity(string s)
         {
-            return Ice.Util.stringToIdentity(s);
+            return Util.stringToIdentity(s);
         }
 
-        public string identityToString(Ice.Identity ident)
+        public string identityToString(Identity ident)
         {
-            return Ice.Util.identityToString(ident, _instance.toStringMode());
+            return Util.identityToString(ident, _instance.toStringMode());
         }
 
         public ObjectAdapter createObjectAdapter(string name)
@@ -77,7 +77,7 @@ namespace Ice
         {
             if(name.Length == 0)
             {
-                name = System.Guid.NewGuid().ToString();
+                name = Guid.NewGuid().ToString();
             }
 
             getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -88,7 +88,7 @@ namespace Ice
         {
             if(name.Length == 0)
             {
-                name = System.Guid.NewGuid().ToString();
+                name = Guid.NewGuid().ToString();
             }
 
             //
@@ -128,7 +128,7 @@ namespace Ice
             return _instance.initializationData().logger;
         }
 
-        public Ice.Instrumentation.CommunicatorObserver getObserver()
+        public Instrumentation.CommunicatorObserver getObserver()
         {
             return _instance.initializationData().observer;
         }
@@ -186,24 +186,24 @@ namespace Ice
 
         private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
         {
-            public CommunicatorFlushBatchCompletionCallback(Ice.Communicator communicator,
+            public CommunicatorFlushBatchCompletionCallback(Communicator communicator,
                                                             Instance instance,
                                                             string op,
                                                             object cookie,
-                                                            Ice.AsyncCallback callback)
+                                                            AsyncCallback callback)
                 : base(communicator, instance, op, cookie, callback)
             {
             }
 
-            protected override Ice.AsyncCallback getCompletedCallback()
+            protected override AsyncCallback getCompletedCallback()
             {
-                return (Ice.AsyncResult result) =>
+                return (AsyncResult result) =>
                 {
                     try
                     {
                         result.throwLocalException();
                     }
-                    catch(Ice.Exception ex)
+                    catch(Exception ex)
                     {
                         if(exceptionCallback_ != null)
                         {
@@ -244,22 +244,22 @@ namespace Ice
             return _instance.getAdmin();
         }
 
-        public void addAdminFacet(Ice.Object servant, string facet)
+        public void addAdminFacet(Object servant, string facet)
         {
             _instance.addAdminFacet(servant, facet);
         }
 
-        public Ice.Object removeAdminFacet(string facet)
+        public Object removeAdminFacet(string facet)
         {
             return _instance.removeAdminFacet(facet);
         }
 
-        public Ice.Object findAdminFacet(string facet)
+        public Object findAdminFacet(string facet)
         {
             return _instance.findAdminFacet(facet);
         }
 
-        public Dictionary<string, Ice.Object> findAllAdminFacets()
+        public Dictionary<string, Object> findAllAdminFacets()
         {
             return _instance.findAllAdminFacets();
         }
@@ -271,7 +271,7 @@ namespace Ice
 
         internal CommunicatorI(InitializationData initData)
         {
-            _instance = new IceInternal.Instance(this, initData);
+            _instance = new Instance(this, initData);
         }
 
         /*
@@ -312,11 +312,11 @@ namespace Ice
         //
         // For use by Util.getInstance()
         //
-        internal IceInternal.Instance getInstance()
+        internal Instance getInstance()
         {
             return _instance;
         }
 
-        private IceInternal.Instance _instance;
+        private Instance _instance;
     }
 }

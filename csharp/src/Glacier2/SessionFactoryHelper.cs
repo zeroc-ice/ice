@@ -153,7 +153,7 @@ public class SessionFactoryHelper
     /// </summary>
     /// <param name="protocol">The protocol.</param>
     public void
-    setProtocol(String protocol)
+    setProtocol(string protocol)
     {
         lock(this)
         {
@@ -177,7 +177,7 @@ public class SessionFactoryHelper
     /// Returns the protocol that will be used by the session factory to establish the connection.
     /// </summary>
     /// <returns>The protocol.</returns>
-    public String
+    public string
     getProtocol()
     {
         lock(this)

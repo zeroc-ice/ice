@@ -12,7 +12,6 @@ using System.Collections;
 
 namespace IceUtilInternal
 {
-
     public sealed class Arrays
     {
         public static bool Equals(object[] arr1, object[] arr2)

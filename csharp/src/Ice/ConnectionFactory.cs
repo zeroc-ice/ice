@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -21,7 +20,7 @@ namespace IceInternal
         Add(K key, V value)
         {
             ICollection<V> list = null;
-            if(!this.TryGetValue(key, out list))
+            if(!TryGetValue(key, out list))
             {
                 list = new List<V>();
                 Add(key, list);
@@ -690,7 +689,7 @@ namespace IceInternal
             TraceLevels traceLevels = _instance.traceLevels();
             if(traceLevels.retry >= 2)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                StringBuilder s = new StringBuilder();
                 s.Append("connection to endpoint failed");
                 if(ex is Ice.CommunicatorDestroyedException)
                 {
@@ -770,7 +769,7 @@ namespace IceInternal
             TraceLevels traceLevels = _instance.traceLevels();
             if(traceLevels.retry >= 2)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                StringBuilder s = new StringBuilder();
                 s.Append("couldn't resolve endpoint host");
                 if(ex is Ice.CommunicatorDestroyedException)
                 {
@@ -1298,7 +1297,7 @@ namespace IceInternal
                 }
                 finally
                 {
-                    System.Environment.FailFast(s);
+                    Environment.FailFast(s);
                 }
                 return false;
             }
@@ -1322,7 +1321,7 @@ namespace IceInternal
                     }
                     finally
                     {
-                        System.Environment.FailFast(s);
+                        Environment.FailFast(s);
                     }
                     return false;
                 }
@@ -1400,7 +1399,7 @@ namespace IceInternal
                             }
                             finally
                             {
-                                System.Environment.FailFast(s);
+                                Environment.FailFast(s);
                             }
                         }
 
@@ -1551,7 +1550,7 @@ namespace IceInternal
                     createAcceptor();
                 }
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 //
                 // Clean up.

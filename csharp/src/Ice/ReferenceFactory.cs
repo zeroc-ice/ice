@@ -262,7 +262,7 @@ namespace IceInternal
                         {
                             facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
                         }
-                        catch(System.ArgumentException argEx)
+                        catch(ArgumentException argEx)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
                             e.str = "invalid facet in `" + s + "': " + argEx.Message;
@@ -421,14 +421,14 @@ namespace IceInternal
                             int quote = beg;
                             while(true)
                             {
-                                quote = s.IndexOf((System.Char) '\"', quote);
+                                quote = s.IndexOf('\"', quote);
                                 if(quote == -1 || end < quote)
                                 {
                                     break;
                                 }
                                 else
                                 {
-                                    quote = s.IndexOf((System.Char) '\"', ++quote);
+                                    quote = s.IndexOf('\"', ++quote);
                                     if(quote == -1)
                                     {
                                         break;
@@ -476,7 +476,7 @@ namespace IceInternal
                     for(int idx = 0; idx < sz; ++idx)
                     {
                         msg.Append(" `");
-                        msg.Append((string)unknownEndpoints[idx]);
+                        msg.Append(unknownEndpoints[idx]);
                         msg.Append("'");
                     }
                     _instance.initializationData().logger.warning(msg.ToString());
@@ -530,7 +530,7 @@ namespace IceInternal
                 {
                     adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
                 }
-                catch(System.ArgumentException argEx)
+                catch(ArgumentException argEx)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
                     e.str = "invalid adapter id in `" + s + "': " + argEx.Message;
@@ -580,7 +580,7 @@ namespace IceInternal
                 facet = "";
             }
 
-            int mode = (int)s.readByte();
+            int mode = s.readByte();
             if(mode < 0 || mode > (int)Reference.Mode.ModeLast)
             {
                 throw new Ice.ProxyUnmarshalException();
@@ -682,14 +682,14 @@ namespace IceInternal
         };
 
         private void
-        checkForUnknownProperties(String prefix)
+        checkForUnknownProperties(string prefix)
         {
             //
             // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
             //
-            for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+            for(int i = 0; PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
+                if(prefix.StartsWith(PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -698,7 +698,7 @@ namespace IceInternal
             List<string> unknownProps = new List<string>();
             Dictionary<string, string> props
                 = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-            foreach(String prop in props.Keys)
+            foreach(string prop in props.Keys)
             {
                 bool valid = false;
                 for(int i = 0; i < _suffixes.Length; ++i)

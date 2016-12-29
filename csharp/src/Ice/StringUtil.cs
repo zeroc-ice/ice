@@ -67,7 +67,7 @@ namespace IceUtilInternal
             for(int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if(match.IndexOf((char) ch) == -1)
+                if(match.IndexOf(ch) == -1)
                 {
                     return i;
                 }
@@ -249,13 +249,13 @@ namespace IceUtilInternal
                 for(int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if(toStringMode == Ice.ToStringMode.Unicode || !System.Char.IsSurrogate(c))
+                    if(toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
                     {
                         encodeChar(c, result, special, toStringMode);
                     }
                     else
                     {
-                        Debug.Assert(toStringMode == Ice.ToStringMode.ASCII && System.Char.IsSurrogate(c));
+                        Debug.Assert(toStringMode == Ice.ToStringMode.ASCII && char.IsSurrogate(c));
                         if(i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("High surrogate without low surrogate");
@@ -263,7 +263,7 @@ namespace IceUtilInternal
                         else
                         {
                             i++;
-                            int codePoint = System.Char.ConvertToUtf32(c, s[i]);
+                            int codePoint = char.ConvertToUtf32(c, s[i]);
                             // append \Unnnnnnnn
                             result.Append("\\U");
                             string hex = System.Convert.ToString(codePoint, 16);
@@ -424,7 +424,7 @@ namespace IceUtilInternal
                         }
                         else
                         {
-                            result.Append(System.Char.ConvertFromUtf32(codePoint));
+                            result.Append(char.ConvertFromUtf32(codePoint));
                         }
                         break;
                     }
@@ -520,7 +520,7 @@ namespace IceUtilInternal
                     }
                     default:
                     {
-                        if(System.String.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                        if(string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
                         {
                             result.Append('\\'); // not in special, so we keep the backslash
                         }
@@ -720,14 +720,13 @@ namespace IceUtilInternal
             return true;
         }
 
-        private class OrdinalStringComparerImpl : System.Collections.Generic.IComparer<string>
+        private class OrdinalStringComparerImpl : IComparer<string>
         {
             public int Compare(string l, string r)
             {
                 return string.CompareOrdinal(l, r);
             }
         }
-        public static System.Collections.Generic.IComparer<string> OrdinalStringComparer =
-            new OrdinalStringComparerImpl();
+        public static IComparer<string> OrdinalStringComparer = new OrdinalStringComparerImpl();
     }
 }

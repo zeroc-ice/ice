@@ -708,7 +708,6 @@ public class AllTests : TestCommon.AllTests
         test(obj != null);
 
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
-
         sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);

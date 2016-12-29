@@ -401,7 +401,7 @@ namespace IceUtilInternal
                 }
             }
             
-            return (string[])vec.ToArray();
+            return vec.ToArray();
         }
     }
 }

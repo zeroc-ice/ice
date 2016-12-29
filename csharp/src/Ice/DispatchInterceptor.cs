@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-using System.Diagnostics;
-
 namespace Ice
 {
     /// <summary>
@@ -19,7 +17,7 @@ namespace Ice
     /// A dispatch interceptor is useful particularly to automatically retry requests
     /// that have failed due to a recoverable error condition.
     /// </summary>
-    public abstract class DispatchInterceptor : Ice.ObjectImpl
+    public abstract class DispatchInterceptor : ObjectImpl
     {
         /// <summary>
         /// Called by the Ice run time to dispatch an incoming request. The implementation
@@ -27,10 +25,10 @@ namespace Ice
         /// </summary>
         /// <param name="request">The details of the incoming request.</param>
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
-        public abstract System.Threading.Tasks.Task<Ice.OutputStream>
+        public abstract System.Threading.Tasks.Task<OutputStream>
         dispatch(Request request);
 
-        public override System.Threading.Tasks.Task<Ice.OutputStream>
+        public override System.Threading.Tasks.Task<OutputStream>
         iceDispatch(IceInternal.Incoming inc, Current current)
         {
             return dispatch(inc);

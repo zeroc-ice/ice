@@ -66,7 +66,7 @@ namespace IceInternal
         }
 
         private ProtocolInstance _instance;
-        private IceInternal.Connector _delegate;
+        private Connector _delegate;
         private string _host;
         private string _resource;
     }

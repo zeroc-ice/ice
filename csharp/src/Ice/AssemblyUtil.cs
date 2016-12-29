@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -139,7 +138,7 @@ namespace IceInternal
                         _loadedAssemblies[ra.FullName] = ra;
                         loadReferencedAssemblies(ra);
                     }
-                    catch(System.Exception)
+                    catch(Exception)
                     {
                         // Ignore assemblies that cannot be loaded.
                     }

@@ -11,7 +11,6 @@ namespace IceDiscovery
 {
     using System;
     using System.Text;
-    using System.Collections.Generic;
 
     public sealed class PluginFactory : Ice.PluginFactory
     {

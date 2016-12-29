@@ -15,7 +15,7 @@ namespace Ice
     /// thread notification hook  and return the instance from their
     /// PluginFactory implementation.
     /// </summary>
-    public class ThreadHookPlugin : Ice.Plugin
+    public class ThreadHookPlugin : Plugin
     {
         /// <summary>
         /// Installs a custom logger for a communicator.
