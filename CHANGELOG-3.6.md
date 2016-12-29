@@ -51,6 +51,11 @@ These are the changes since Ice 3.6.4.
   Slice files are located in a directory that contains the string ".ice" in 
   the path.
 
+## JavaScript Changes
+
+- Fixed a bug in Ice.Long toNumber implementation where negative integers
+  smaller than -(2^52 - 1) where not correctly handle.
+
 # Changes in Ice 3.6.3
 
 These are the changes since Ice 3.6.2.

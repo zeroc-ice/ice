@@ -54,19 +54,13 @@ var Long = Ice.Class({
 
         if((this.high & Long.SIGN_MASK) !== 0)
         {
-            if(this.high === Long.MAX_UINT32 && this.low !== 0)
-            {
-                return -(~this.low + 1);
-            }
- 
-            var high = ~this.high + 1;
-
-            if(high > Long.HIGH_MAX)
+            const l = (~this.low) >>> 0;
+            const h = (~this.high) >>> 0;
+            if(h > Long.HIGH_MAX || h == Long.HIGH_MAX && l == Long.MAX_UINT32)
             {
                 return Number.NEGATIVE_INFINITY;
             }
-
-            return -1 * (high * Long.HIGH_MASK) + this.low;
+            return -((h * Long.HIGH_MASK) + l + 1)
         }
         else
         {
