@@ -99,6 +99,7 @@
         "TraceUtil.js",
         "UnknownSlicedValue.js",
         "UUID.js",
+        "Value.js",
         "ValueFactoryManagerI.js",
         "WSEndpoint.js",
         "WSEndpointFactory.js"],

@@ -33,7 +33,7 @@ function isWindows()
     return navigator.userAgent.indexOf("Windows") != -1;
 }
 
-class ProcessI extends Test.Common.Process
+class ProcessI extends Test.Common._ProcessDisp
 {
     constructor(promise, output)
     {
@@ -64,7 +64,7 @@ class ProcessI extends Test.Common.Process
     }
 };
 
-class ProcessControllerI extends Test.Common.ProcessController
+class ProcessControllerI extends Test.Common._ProcessControllerDisp
 {
     constructor(output, logger, worker, scripts)
     {
