@@ -1128,7 +1128,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Invalid -x option
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v abcd -x abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1148,7 +1148,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Repeated -t
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1158,7 +1158,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Repeated -v
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v abcd -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1168,7 +1168,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Missing -t
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1188,7 +1188,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Missing arg for -t
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1208,7 +1208,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // Not a number for -t
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t x -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1218,7 +1218,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
         // < 0 for -t
-        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -1 -v abcd");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)

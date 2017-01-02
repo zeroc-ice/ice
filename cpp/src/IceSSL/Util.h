@@ -109,6 +109,63 @@ std::string getSslErrors(bool);
 
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 
+template<typename T>
+class UniqueRef
+{
+public:
+
+    explicit UniqueRef(CFTypeRef ptr = 0) : _ptr((T)ptr)
+    {
+    }
+
+    ~UniqueRef()
+    {
+        if(_ptr != 0)
+        {
+            CFRelease(_ptr);
+        }
+    }
+
+    T release()
+    {
+        T r = _ptr;
+        _ptr = 0;
+        return r;
+    }
+
+    void reset(CFTypeRef ptr = 0)
+    {
+        if(_ptr == ptr)
+        {
+            return;
+        }
+        if(_ptr != 0)
+        {
+            CFRelease(_ptr);
+        }
+        _ptr = (T)ptr;
+    }
+
+    void retain(CFTypeRef ptr)
+    {
+        reset(ptr ? CFRetain(ptr) : ptr);
+    }
+
+    T get() const
+    {
+        return _ptr;
+    }
+
+    operator bool() const
+    {
+        return _ptr != 0;
+    }
+
+private:
+
+    T _ptr;
+};
+
 //
 // Helper functions to use by Secure Transport.
 //
