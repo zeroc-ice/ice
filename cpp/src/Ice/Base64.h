@@ -23,12 +23,6 @@ public:
 
     static std::string encode(const std::vector<unsigned char>&);
     static std::vector<unsigned char> decode(const std::string&);
-    static bool isBase64(char);
-
-private:
-
-    static char encode(unsigned char);
-    static unsigned char decode(char);
 };
 
 }

@@ -8,262 +8,167 @@
 // **********************************************************************
 
 #include <Ice/Base64.h>
+#include <Ice/LocalException.h>
+#include <IceUtil/StringConverter.h>
+#include <IceUtil/StringUtil.h>
+#include <IceUtil/UniqueRef.h>
 #include <iterator>
 
+#if defined(ICE_OS_UWP)
+using namespace Platform;
+using namespace Windows::Security::Cryptography;
+using namespace Windows::Storage::Streams;
+#elif defined(_WIN32)
+#   include <Wincrypt.h>
+#elif defined(__APPLE__)
+#   include <Security/Security.h>
+#else
+#   include <openssl/bio.h>
+#   include <openssl/evp.h>
+#endif
+
+using namespace IceUtil;
 using namespace std;
 
 string
-IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
+IceInternal::Base64::encode(const vector<unsigned char>& decoded)
 {
-    string retval;
-
-    if(plainSeq.size() == 0) 
+#if defined(ICE_OS_UWP)
+    try
     {
-        return retval;
+        ArrayReference<unsigned char> data(const_cast<unsigned char*>(&decoded[0]),
+                                           static_cast<unsigned int>(decoded.size()));
+        auto writer = ref new DataWriter();
+        writer->WriteBytes(data);
+        return wstringToString(CryptographicBuffer::EncodeToBase64String(writer->DetachBuffer())->Data());
     }
- 
-    // Reserve enough space for the returned base64 string
-    size_t base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
-    size_t newlineBytes = (((base64Bytes * 2) / 76) + 1);
-    size_t totalBytes = base64Bytes + newlineBytes;
- 
-    retval.reserve(totalBytes);
-
-    unsigned char by1 = 0;
-    unsigned char by2 = 0;
-    unsigned char by3 = 0;
-    unsigned char by4 = 0;
-    unsigned char by5 = 0;
-    unsigned char by6 = 0;
-    unsigned char by7 = 0;
-
-    for(size_t i = 0; i < plainSeq.size(); i += 3)
+    catch(Platform::Exception^ ex)
     {
-        by1 = plainSeq[i];
-        by2 = 0;
-        by3 = 0;
-
-        if((i + 1) < plainSeq.size())
-        {
-            by2 = plainSeq[i+1];
-        }
-
-        if((i + 2) < plainSeq.size())
-        {
-            by3 = plainSeq[i+2];
-        }
- 
-        by4 = by1 >> 2;
-        by5 = ((by1 & 0x3) << 4) | (by2 >> 4);
-        by6 = ((by2 & 0xf) << 2) | (by3 >> 6);
-        by7 = by3 & 0x3f;
-
-        retval += encode(by4);
-        retval += encode(by5);
- 
-        if((i + 1) < plainSeq.size())
-        {
-            retval += encode(by6);
-        }
-        else
-        {
-            retval += "=";
-        }
- 
-        if((i + 2) < plainSeq.size())
-        {
-            retval += encode(by7);
-        }
-        else
-        {
-            retval += "=";
-        }
+        throw IllegalArgumentException(__FILE__, __LINE__, wstringToString(ex->Message->Data()));
     }
-
-    string outString;
-    outString.reserve(totalBytes);
-    string::iterator iter = retval.begin();
-
-    while((retval.end() - iter) > 76)
+#elif defined(_WIN32)
+    DWORD sz = 0;
+    const DWORD flags = CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF;
+    if(!CryptBinaryToString(&decoded[0], static_cast<DWORD>(decoded.size()), flags, 0, &sz))
     {
-        copy(iter, iter+76, back_inserter(outString));
-        outString += "\r\n";
-        iter += 76;
+        throw IllegalArgumentException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
+    std::string encoded;
+    encoded.resize(sz - 1);
+    if(!CryptBinaryToString(&decoded[0], static_cast<DWORD>(decoded.size()), flags, &encoded[0], &sz))
+    {
+        throw IllegalArgumentException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    return encoded;
+#elif defined(__APPLE__)
+    CFErrorRef err = 0;
+    UniqueRef<SecTransformRef> encoder(SecEncodeTransformCreate(kSecBase64Encoding, &err));
+    if(err)
+    {
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
+    }
+    CFDataRef in = CFDataCreateWithBytesNoCopy(0, &decoded[0], decoded.size(), kCFAllocatorNull);
+    SecTransformSetAttribute(encoder.get(), kSecTransformInputAttributeName, in, &err);
+    if(err)
+    {
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
+    }
+    UniqueRef<CFDataRef> data(static_cast<CFDataRef>(SecTransformExecute(encoder.get(), &err)));
+    if(err)
+    {
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
+    }
+    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(data.get())), CFDataGetLength(data.get()));
+#else
+    BIO* b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    BIO* bio = BIO_new(BIO_s_mem());
+    BIO_push(b64, bio);
+    if(BIO_write(b64, &buffer[0], buffer.size()) <= 0)
+    {
+        BIO_free_all(b64);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
+    }
+    BIO_flush(b64);
 
-    copy(iter, retval.end(), back_inserter(outString));
-
-    return outString;
+    char* data;
+    long size = BIO_get_mem_data(bio, &data);
+    string encoded(data, size);
+    BIO_free_all(b64);
+    return encoded;
+#endif
 }
 
 vector<unsigned char>
-IceInternal::Base64::decode(const string& str)
+IceInternal::Base64::decode(const string& encoded)
 {
-    string newStr;
-
-    newStr.reserve(str.length());
-
-    for(size_t j = 0; j < str.length(); j++)
+    vector<unsigned char> decoded;
+#if defined(ICE_OS_UWP)
+    try
     {
-        if(isBase64(str[j]))
+        auto reader = DataReader::FromBuffer(
+            CryptographicBuffer::DecodeFromBase64String(ref new String(stringToWstring(encoded).c_str())));
+        decoded.resize(reader->UnconsumedBufferLength);
+        if(!decoded.empty())
         {
-            newStr += str[j];
+            reader->ReadBytes(ArrayReference<unsigned char>(&decoded[0], reader->UnconsumedBufferLength));
         }
     }
-
-    vector<unsigned char> retval;
-
-    if(newStr.length() == 0)
+    catch(Platform::Exception^ ex)
     {
-        return retval;
+        throw IllegalArgumentException(__FILE__, __LINE__, wstringToString(ex->Message->Data()));
     }
-
-    // Note: This is how we were previously computing the size of the return
-    //       sequence.  The method below is more efficient (and correct).
-    // size_t lines = str.size() / 78;
-    // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
-
-    // Figure out how long the final sequence is going to be.
-    size_t totalBytes = (newStr.size() * 3 / 4) + 1;
-
-    retval.reserve(totalBytes);
-
-    unsigned char by1 = 0;
-    unsigned char by2 = 0;
-    unsigned char by3 = 0;
-    unsigned char by4 = 0;
-
-    char c1, c2, c3, c4;
-
-    for(size_t i = 0; i < newStr.length(); i += 4)
+#elif defined(_WIN32)
+    DWORD sz = static_cast<DWORD>(encoded.size());
+    decoded.resize(sz);
+    if(!CryptStringToBinary(encoded.c_str(), sz, CRYPT_STRING_BASE64, &decoded[0], &sz, 0, 0))
     {
-        c1 = 'A';
-        c2 = 'A';
-        c3 = 'A';
-        c4 = 'A';
-
-        c1 = newStr[i];
-
-        if((i + 1) < newStr.length())
-        {
-            c2 = newStr[i + 1];
-        }
-
-        if((i + 2) < newStr.length())
-        {
-            c3 = newStr[i + 2];
-        }
-
-        if((i + 3) < newStr.length())
-        {
-            c4 = newStr[i + 3];
-        }
-
-        by1 = decode(c1);
-        by2 = decode(c2);
-        by3 = decode(c3);
-        by4 = decode(c4);
-
-        retval.push_back((by1 << 2) | (by2 >> 4));
-
-        if(c3 != '=')
-        {
-            retval.push_back(((by2 & 0xf) << 4) | (by3 >> 2));
-        }
-
-        if(c4 != '=')
-        {
-            retval.push_back(((by3 & 0x3) << 6) | by4);
-        }
+        throw IllegalArgumentException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
-
-    return retval;
-}
-
-bool
-IceInternal::Base64::isBase64(char c)
-{
-    if(c >= 'A' && c <= 'Z')
+    decoded.resize(sz);
+#elif defined(__APPLE__)
+    CFErrorRef err = 0;
+    UniqueRef<SecTransformRef> decoder(SecDecodeTransformCreate(kSecBase64Encoding, &err));
+    if(err)
     {
-        return true;
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
     }
-
-    if(c >= 'a' && c <= 'z')
+    CFDataRef input = CFDataCreateWithBytesNoCopy(0, reinterpret_cast<const unsigned char*>(&encoded[0]), 
+                                                  encoded.size(), kCFAllocatorNull);
+    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, input, &err);
+    if(err)
     {
-        return true;
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
     }
-
-    if(c >= '0' && c <= '9')
+    UniqueRef<CFDataRef> data(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &err)));
+    if(err)
     {
-        return true;
+        CFRelease(err);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
     }
-
-    if(c == '+')
+    vector<unsigned char> out;
+    decoded.resize(CFDataGetLength(data.get()));
+    memcpy(&decoded[0], CFDataGetBytePtr(data.get()), decoded.size());
+    return out;
+#else
+    BIO* b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    BIO* bio = BIO_new_mem_buf(&encoded[0], static_cast<int>(encoded.size()));
+    BIO_push(b64, bio);
+    decoded.resize(encoded.size());
+    int sz = BIO_read(b64, &decoded[0], static_cast<int>(decoded.size()));
+    if(sz <= 0)
     {
-        return true;
+        BIO_free_all(b64);
+        throw IllegalArgumentException(__FILE__, __LINE__, "Base64 bad data");
     }
-
-    if(c == '/')
-    {
-        return true;
-    }
-
-    if(c == '=')
-    {
-        return true;
-    }
-
-    return false;
-}
-
-char
-IceInternal::Base64::encode(unsigned char uc)
-{
-    if(uc < 26)
-    {
-        return 'A' + uc;
-    }
-    
-    if(uc < 52)
-    {
-        return 'a' + (uc - 26);
-    }
-    
-    if(uc < 62)
-    {
-        return '0' + (uc - 52);
-    }
-    
-    if(uc == 62)
-    {
-        return '+';
-    }
-
-    return '/';
-}
-
-unsigned char
-IceInternal::Base64::decode(char c)
-{
-    if(c >= 'A' && c <= 'Z')
-    {
-        return c - 'A';
-    }
-
-    if(c >= 'a' && c <= 'z')
-    {
-        return c - 'a' + 26;
-    }
-
-    if(c >= '0' && c <= '9')
-    {
-        return c - '0' + 52;
-    }
-
-    if(c == '+')
-    {
-        return 62;
-    }
- 
-    return 63;
+    decoded.resize(sz);
+    BIO_free_all(b64);
+#endif
+    return decoded;
 }

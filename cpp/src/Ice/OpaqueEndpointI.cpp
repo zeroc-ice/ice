@@ -377,19 +377,17 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
             ex.str = "no argument provided for -v option in endpoint " + endpoint;
             throw ex;
         }
-        for(string::size_type i = 0; i < argument.size(); ++i)
+
+        try
         {
-            if(!Base64::isBase64(argument[i]))
-            {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ostringstream ostr;
-                ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << static_cast<int>(argument[i])
-                     << ") in endpoint " << endpoint;
-                ex.str = ostr.str();
-                throw ex;
-            }
+            const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
         }
-        const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
+        catch(const IceUtil::IllegalArgumentException& ex)
+        {
+            ostringstream os;
+            os << "Invalid Base64 input in opaque endpoint `" << endpoint << "'\n" << ex;
+            throw EndpointParseException(__FILE__, __LINE__, os.str());
+        }
         return true;
     }
 

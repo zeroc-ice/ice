@@ -77,7 +77,7 @@ mkphpmodulename = $1.so
 #
 # System libraries
 #
-Ice_system_libs	:= -ldl
+Ice_system_libs	:= -ldl -framework Security -framework CoreFoundation
 
 # Frameworks for macos
 IceSSL[macosx]_system_libs := -framework Security -framework CoreFoundation

@@ -14,6 +14,7 @@
 
 #include <IceSSL/Util.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/UniqueRef.h>
 #include <IceUtil/StringUtil.h>
 
 #include <Ice/Base64.h>
@@ -634,6 +635,7 @@ IceSSL::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
     {
         ostringstream os;
         os << "IceSSL: error getting property for certificate:\n" << errorToString(err);
+        CFRelease(err);
         throw CertificateReadException(__FILE__, __LINE__, os.str());
     }
 

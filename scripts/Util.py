@@ -2002,7 +2002,7 @@ class UWPProcessController(RemoteProcessController):
         self.packageFullName = "{0}_1.0.0.0_{1}__3qjctahehqazm".format(
             self.name, "x86" if platform == "Win32" else platform)
 
-        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "{0}_".format(config) if config == "Debug" else "")
+        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
         package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
             "{0}_Test".format(prefix), "{0}.appx".format(prefix))
 

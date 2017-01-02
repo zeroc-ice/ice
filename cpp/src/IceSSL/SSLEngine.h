@@ -17,6 +17,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/UniqueRef.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Network.h>
 
@@ -126,8 +127,8 @@ private:
     void parseCiphers(const std::string&);
 
     bool _initialized;
-    UniqueRef<CFArrayRef> _certificateAuthorities;
-    UniqueRef<CFArrayRef> _chain;
+    IceUtil::UniqueRef<CFArrayRef> _certificateAuthorities;
+    IceUtil::UniqueRef<CFArrayRef> _chain;
 
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;
