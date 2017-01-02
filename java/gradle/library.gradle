@@ -118,6 +118,28 @@ uploadArchives {
     }
 }
 
+jar {
+    manifest {
+        attributes("Class-Path": configurations.runtime.resolve().collect{ "${it.name}" }.join(' '))
+    }
+}
+
+if(project.name == "icebox") {
+    jar {
+        manifest {
+            attributes("Main-Class": "com.zeroc.IceBox.Server")
+        }
+    }
+}
+
+if(project.name == "icebox-compat") {
+    jar {
+        manifest {
+            attributes("Main-Class": "IceBox.Server")
+        }
+    }
+}
+
 clean {
     delete("${libDir}/${jar.archiveName}")
     delete("${libDir}/${project.name}-${project.version}-javadoc.jar")
@@ -128,29 +150,10 @@ clean {
 //
 // Check if we need to update the JARs class-path
 //
-if(jarsClassPath.toBoolean()){
-    task copyJars(type: Copy, dependsOn: [jarSources, javadocJar], overwrite: true) {
-        from "${pomName}"
-        from "${libDir}/${jar.archiveName}"
-        from "${libDir}/${project.name}-${project.version}-sources.jar"
-        into "${DESTDIR}${jarDir}"
-    }
 
-    task updateInstallManifest(dependsOn: copyJars) << {
-        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
-            delegate.manifest {
-                attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
-            }
-        }
-    }
-    updateInstallManifest.files("${DESTDIR}${jarDir}/${jar.archiveName}")
-    install.dependsOn(updateInstallManifest)
-} else {
-    task install(type: Copy, dependsOn: jarSources, overwrite: true) {
-        from "${pomName}"
-        from "${libDir}/${jar.archiveName}"
-        from "${libDir}/${project.name}-${project.version}-sources.jar"
-        into "${DESTDIR}${jarDir}"
-    }
+task install(type: Copy, dependsOn: jarSources, overwrite: true) {
+    from "${pomName}"
+    from "${libDir}/${jar.archiveName}"
+    from "${libDir}/${project.name}-${project.version}-sources.jar"
+    into "${DESTDIR}${jarDir}"
 }
