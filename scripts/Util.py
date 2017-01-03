@@ -100,7 +100,7 @@ class Platform:
     def getLdPathEnvName(self):
         return "LD_LIBRARY_PATH"
 
-    def getIceDir(self, mapping, current):
+    def getIceInstallDir(self, mapping, current):
         return os.environ.get("ICE_HOME", "/usr")
 
     def getSliceDir(self, iceDir):
@@ -145,7 +145,7 @@ class Darwin(Platform):
     def getLdPathEnvName(self):
         return "DYLD_LIBRARY_PATH"
 
-    def getIceDir(self, mapping, current):
+    def getIceInstallDir(self, mapping, current):
         return os.environ.get("ICE_HOME", "/usr/local")
 
 class AIX(Platform):
@@ -313,28 +313,31 @@ class Windows(Platform):
     def getLdPathEnvName(self):
         return "PATH"
 
-    def getIceDir(self, mapping, current):
+    def getIceInstallDir(self, mapping, current):
 
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
 
-        configFile = open(os.path.join(toplevel, "config", "icebuilder.props"), "r")
-        version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        name = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
+        with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+            version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
         iceHome = os.environ.get("ICE_HOME")
 
         v140 = self.getCompiler() == "v140"
         cpp = isinstance(mapping, CppMapping)
         csharp = isinstance(mapping, CSharpMapping)
 
-        if current.driver.useIceBinDist(mapping):
-            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
-                return iceHome
-            else:
-                return os.path.join(toplevel, mapping.name, "msbuild", "packages",
-                                    "zeroc.ice.{0}.{1}".format(name, version))
-        else:
-            return os.path.join(toplevel, mapping.name)
+        #
+        # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
+        # for another mapping than C++ or C#.
+        #
+        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
+            return iceHome
+
+        #
+        # Otherwise, use the appropriate nuget package
+        #
+        return os.path.join(toplevel, mapping.name, "msbuild", "packages", "zeroc.ice.{0}.{1}".format(comp, version))
 
     def canRun(self, mapping, current):
         #
@@ -2243,7 +2246,7 @@ class Driver:
 
     def getIceDir(self, mapping, current):
         if self.useIceBinDist(mapping):
-            return platform.getIceDir(mapping, current)
+            return platform.getIceInstallDir(mapping, current)
         elif mapping:
             return mapping.getPath()
         else:
@@ -2549,7 +2552,7 @@ class CSharpMapping(Mapping):
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
-        plugindir = "{0}/{1}".format(platform.getIceDir(self, current),
+        plugindir = "{0}/{1}".format(current.driver.getIceDir(self, current),
                                      "lib" if current.driver.useIceBinDist(self) else "Assemblies")
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
@@ -2558,15 +2561,13 @@ class CSharpMapping(Mapping):
 
     def getEnv(self, process, current):
         if current.driver.useIceBinDist(self):
-            bzip2 = os.path.join(platform.getIceDir(self, current), "tools")
-            assembliesDir = os.path.join(platform.getIceDir(self, current), "lib")
+            bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools")
+            assembliesDir = os.path.join(platform.getIceInstallDir(self, current), "lib")
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                  "bzip2.{0}.1.0.6.4".format(platform.getCompiler()),
                                  "build", "native", "bin", "x64", "Release")
             assembliesDir = os.path.join(current.driver.getIceDir(self, current), "Assemblies")
-
-
         return { "DEVPATH" : assembliesDir, "PATH" : bzip2 };
 
     def getDefaultSource(self, processType):
@@ -2611,7 +2612,7 @@ class CppBasedMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceDir(self, current):
+        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
             # If not installed in the default platform installation directory, add
             # the Ice C++ library directory to the library path
             env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(process, current)
@@ -2645,7 +2646,7 @@ class PythonMapping(CppBasedMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceDir(self, current):
+        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
             dirs = self.getPythonDirs(current.driver.getIceDir(self, current), current.config)
@@ -2693,7 +2694,7 @@ class RubyMapping(CppBasedClientMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceDir(self, current):
+        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
             # If not installed in the default platform installation directory, add
             # the Ice ruby directory to RUBYLIB
             env["RUBYLIB"] = os.path.join(self.path, "ruby")
@@ -2716,7 +2717,7 @@ class PhpMapping(CppBasedClientMapping):
 
     def getCommandLine(self, current, process, exe):
         args = []
-        if current.driver.getIceDir(self, current) == platform.getIceDir(self, current):
+        if current.driver.getIceDir(self, current) == platform.getIceInstallDir(self, current):
             #
             # If installed in the platform system directory and on Linux, we rely
             # on ice.ini to find the extension. On OS X, we still need to setup
