@@ -2052,7 +2052,7 @@ class BrowserProcessController(RemoteProcessController):
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "ws -h 127.0.0.1 -p 15002:wss -h 127.0.0.1 -p 15003")
-
+        self.httpServer = None
         try:
             from selenium import webdriver
             if not hasattr(webdriver, current.config.browser):
