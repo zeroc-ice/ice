@@ -8,6 +8,9 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.6.4](#changes-in-ice-364)
+  - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -48,8 +51,19 @@ These are the changes since Ice 3.6.4.
   Andreas Sommer for the bug report and fix.
 
 - Fixed a bug in Slice compilers which generates bogus dependencies when the
-  Slice files are located in a directory that contains the string ".ice" in 
+  Slice files are located in a directory that contains the string ".ice" in
   the path.
+
+## C++ Changes
+
+- Fixed a spurious and harmless error message related to the kqueue selector.
+  This message would only show up under certain circumstances when using Ice
+  on macOS Sierra (10.2).
+
+## JavaScript Changes
+
+- Fixed a bug in Ice.Long toNumber implementation where negative integers
+  smaller than -(2^52 - 1) where not correctly handle.
 
 # Changes in Ice 3.6.3
 
