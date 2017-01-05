@@ -22,6 +22,13 @@
 using namespace std;
 using namespace IceInternal;
 
+#if defined(ICE_USE_KQUEUE)
+namespace
+{
+struct timespec zeroTimeout = { 0, 0 };
+}
+#endif
+
 #ifdef ICE_OS_WINRT
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -450,11 +457,26 @@ Selector::finish(EventHandler* handler, bool closeNow)
 void
 Selector::updateSelector()
 {
-    int rs = kevent(_queueFd, &_changes[0], _changes.size(), 0, 0, 0);
+    int rs = kevent(_queueFd, &_changes[0], _changes.size(), &_changes[0], _changes.size(), &zeroTimeout);
     if(rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);
         out << "error while updating selector:\n" << IceUtilInternal::errorToString(IceInternal::getSocketErrno());
+    }
+    else
+    {
+        for(int i = 0; i < rs; ++i)
+        {
+            //
+            // Check for errors, we ignore EINPROGRESS that started showing up with macOS Sierra
+            // and which occurs when another thread removes the FD from the kqueue (see ICE-7419).
+            //
+            if(_changes[i].flags & EV_ERROR && _changes[i].data != EINPROGRESS)
+            {
+                Ice::Error out(_instance->initializationData().logger);
+                out << "error while updating selector:\n" << IceUtilInternal::errorToString(_changes[i].data);
+            }
+        }
     }
     _changes.clear();
 }
