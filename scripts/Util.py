@@ -2737,18 +2737,11 @@ class PhpMapping(CppBasedClientMapping):
 
     def getCommandLine(self, current, process, exe):
         args = []
-        if current.driver.getIceDir(self, current) == platform.getIceInstallDir(self, current):
-            #
-            # If installed in the platform system directory and on Linux, we rely
-            # on ice.ini to find the extension. On OS X, we still need to setup
-            # the properties.
-            #
-            if(isinstance(platform, Darwin)):
-                args += ["-n"] # Do not load any php.ini files
-                args += ["-d", "extension_dir=/usr/local/lib/php/extensions"]
-                args += ["-d", "include_path=/usr/local/share/php"]
-                args += ["-d", "extension=IcePHP.so"]
-        else:
+        #
+        # If Ice is not installed in the system directory, specify its location with PHP
+        # configuration arguments.
+        #
+        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
             useBinDist = current.driver.useIceBinDist(self)
             if isinstance(platform, Windows):
                 extension = "php_ice_nts.dll" if "NTS" in run("php -v") else "php_ice.dll"
