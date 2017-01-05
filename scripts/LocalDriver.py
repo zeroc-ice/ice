@@ -424,7 +424,8 @@ class LocalDriver(Driver):
                         current.config = conf
                         testcase.run(current)
                 except:
-                    print(traceback.format_exc())
+                    if current.driver.debug:
+                        current.result.writeln(traceback.format_exc())
                     raise
                 finally:
                     current.config = config

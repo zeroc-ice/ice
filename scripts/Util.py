@@ -929,8 +929,6 @@ class Process(Runnable):
         self.args = args or []
         self.props = props or {}
         self.envs = envs or {}
-        self.process = None
-        self.output = None
         self.mapping = mapping
 
     def __str__(self):
@@ -938,13 +936,13 @@ class Process(Runnable):
             return str(self.__class__)
         return self.exe + (" ({0})".format(self.desc) if self.desc else "")
 
-    def getOutput(self):
-        assert(self.process or self.output is not None)
+    def getOutput(self, current):
+        assert(self in current.processes)
 
         def d(s):
             return s if isPython2 else s.decode("utf-8") if isinstance(s, bytes) else s
 
-        output = d(self.process.getOutput() if self.process else self.output)
+        output = d(current.processes[self].getOutput())
         try:
             # Apply outfilters to the output
             if len(self.outfilters) > 0:
@@ -992,15 +990,17 @@ class Process(Runnable):
         self.start(current, args, props, watchDog=watchDog)
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
-            self.process.trace(self.outfilters)
-        while True:
-            try:
-                self.process.waitSuccess(exitstatus=exitstatus, timeout=30)
-                break
-            except Expect.TIMEOUT:
-                if watchDog and watchDog.timedOut():
-                    raise
-        self.stop(current, True, exitstatus)
+            current.processes[self].trace(self.outfilters)
+        try:
+            while True:
+                try:
+                    current.processes[self].waitSuccess(exitstatus=exitstatus, timeout=30)
+                    break
+                except Expect.TIMEOUT:
+                    if watchDog and watchDog.timedOut():
+                        raise
+        finally:
+            self.stop(current, True, exitstatus)
 
     def getEffectiveArgs(self, current, args):
         allArgs = []
@@ -1038,8 +1038,8 @@ class Process(Runnable):
         allProps = self.getEffectiveProps(current, props)
         allEnvs = self.getEffectiveEnv(current)
 
-        self.output = None
-        self.process = current.driver.getProcessController(current).start(self, current, allArgs, allProps, allEnvs, watchDog)
+        processController = current.driver.getProcessController(current)
+        current.processes[self] = processController.start(self, current, allArgs, allProps, allEnvs, watchDog)
         try:
             self.waitForStart(current)
         except:
@@ -1051,27 +1051,29 @@ class Process(Runnable):
         pass
 
     def stop(self, current, waitSuccess=False, exitstatus=0):
-        if self.process:
+        if self in current.processes:
             try:
                 if waitSuccess: # Wait for the process to exit successfully by itself.
-                    self.process.waitSuccess(exitstatus=exitstatus, timeout=60)
+                    current.processes[self].waitSuccess(exitstatus=exitstatus, timeout=60)
             finally:
-                self.process.terminate()
-                self.output = self.process.getOutput()
-                self.process = None
+                current.processes[self].terminate()
                 if not self.quiet: # Write the output to the test case (but not on stdout)
-                    current.write(self.getOutput(), stdout=False)
+                    current.write(self.getOutput(current), stdout=False)
 
-    def expect(self, pattern, timeout=60):
-        assert(self.process)
-        return self.process.expect(pattern, timeout)
+    def expect(self, current, pattern, timeout=60):
+        assert(self in current.processes and isinstance(current.processes[self], Expect.Expect))
+        return current.processes[self].expect(pattern, timeout)
 
-    def sendline(self, data):
-        assert(self.process)
-        return self.process.sendline(data)
+    def sendline(self, current, data):
+        assert(self in current.processes and isinstance(current.processes[self], Expect.Expect))
+        return current.processes[self].sendline(data)
 
-    def isStarted(self):
-        return self.process is not None
+    def getMatch(self, current):
+        assert(self in current.processes and isinstance(current.processes[self], Expect.Expect))
+        return current.processes[self].match
+
+    def isStarted(self, current):
+        return self in current.processes
 
     def isFromBinDir(self):
         return False
@@ -1135,14 +1137,14 @@ class Server(IceProcess):
 
     def waitForStart(self, current):
         # Wait for the process to be ready
-        self.process.waitReady(self.ready, self.readyCount + (1 if current.config.mx else 0), self.startTimeout)
+        current.processes[self].waitReady(self.ready, self.readyCount + (1 if current.config.mx else 0), self.startTimeout)
 
         # Filter out remaining ready messages
         self.outfilters.append(re.compile("[^\n]+ ready"))
 
         # If we are not asked to be quiet and running from the main thread, print the server output
         if not self.quiet and not current.driver.isWorkerThread():
-            self.process.trace(self.outfilters)
+            current.processes[self].trace(self.outfilters)
 
     def stop(self, current, waitSuccess=False, exitstatus=0):
         IceProcess.stop(self, current, waitSuccess and self.waitForShutdown, exitstatus)
@@ -1360,7 +1362,7 @@ class TestCase(Runnable):
             self.stopServerSide(current, success)
         finally:
             for server in reversed(self.servers):
-                if server.isStarted():
+                if server.isStarted(current):
                     self._stopServer(current, server, False)
             self.teardownServerSide(current, success)
             current.pop()
@@ -1664,7 +1666,7 @@ class ProcessController:
 
 class LocalProcessController(ProcessController):
 
-    class Process(Expect.Expect):
+    class LocalProcess(Expect.Expect):
 
         def waitReady(self, ready, readyCount, startTimeout):
             if ready:
@@ -1713,13 +1715,13 @@ class LocalProcessController(ProcessController):
         env = os.environ.copy()
         env.update(envs)
         cwd = process.getMapping(current).getTestCwd(process, current)
-        process = LocalProcessController.Process(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
+        process = LocalProcessController.LocalProcess(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
         process.startReader(watchDog)
         return process
 
 class RemoteProcessController(ProcessController):
 
-    class Process:
+    class RemoteProcess:
         def __init__(self, exe, proxy):
             self.exe = exe
             self.proxy = proxy
@@ -1865,7 +1867,7 @@ class RemoteProcessController(ProcessController):
         if self.adapter:
             prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
         import Test
-        return RemoteProcessController.Process(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
+        return RemoteProcessController.RemoteProcess(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
 
     def destroy(self, driver):
         if driver.controllerApp:
@@ -2147,6 +2149,7 @@ class Driver:
             self.host = None
             self.testcase = None
             self.testcases = []
+            self.processes = {}
 
         def getTestEndpoint(self, *args, **kargs):
             return self.driver.getTestEndpoint(*args, **kargs)

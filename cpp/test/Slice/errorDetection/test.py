@@ -27,7 +27,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
 
             # Don't print out slice2cpp output and expect failures
             slice2cpp.run(current, args=args, exitstatus=1)
-            output = slice2cpp.getOutput()
+            output = slice2cpp.getOutput(current)
 
             regex1 = re.compile("\.ice$", re.IGNORECASE)
             lines1 = output.strip().split("\n")

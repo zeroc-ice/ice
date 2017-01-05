@@ -15,7 +15,7 @@ class IceGridAdminTestCase(IceGridTestCase):
         sys.stdout.write("testing IceGrid file lock... ")
         registry = IceGridRegistryMaster(portnum=25, readyCount=0, quiet=True);
         registry.start(current)
-        registry.expect(".*IceUtil::FileLockException.*")
+        registry.expect(current, ".*IceUtil::FileLockException.*")
         registry.stop(current, False)
         print("ok")
 

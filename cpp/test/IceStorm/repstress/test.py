@@ -42,15 +42,15 @@ class IceStormRepStressTestCase(IceStormTestCase):
         current.write("running subscriber... ")
         subscriber = Subscriber(quiet=True)
         subscriber.start(current)
-        subscriber.expect("([^\n]+)\n")
-        subControl = subscriber.process.match.group(1)
+        subscriber.expect(current, "([^\n]+)\n")
+        subControl = subscriber.getMatch(current).group(1)
         current.writeln("ok")
 
         current.write("running publisher... ")
         publisher = Publisher(quiet=True)
         publisher.start(current)
-        publisher.expect("([^\n]+)\n")
-        pubControl = publisher.process.match.group(1)
+        publisher.expect(current, "([^\n]+)\n")
+        pubControl = publisher.getMatch(current).group(1)
         current.writeln("ok")
 
         time.sleep(2)
@@ -89,8 +89,8 @@ class IceStormRepStressTestCase(IceStormTestCase):
 
         current.write("stopping publisher... ")
         Client(exe="control", args=[pubControl]).run(current)
-        publisher.expect("([^\n]+)\n")
-        publisherCount = publisher.process.match.group(1)
+        publisher.expect(current, "([^\n]+)\n")
+        publisherCount = publisher.getMatch(current).group(1)
         publisher.stop(current, True)
         current.writeln("ok")
 
@@ -100,8 +100,8 @@ class IceStormRepStressTestCase(IceStormTestCase):
 
         current.write("stopping subscriber... ")
         Client(exe="control", args=[subControl]).run(current)
-        subscriber.expect("([^\n]+)\n")
-        subscriberCount = subscriber.process.match.group(1)
+        subscriber.expect(current, "([^\n]+)\n")
+        subscriberCount = subscriber.getMatch(current).group(1)
         subscriber.stop(current, True)
         current.writeln("ok")
 

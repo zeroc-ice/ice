@@ -93,7 +93,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
             # Give some time for the output to be sent.
             time.sleep(2)
 
-            icestorm1[0].expect("topic.fed1.*subscriber offline")
+            icestorm1[0].expect(current, "topic.fed1.*subscriber offline")
             current.writeln("ok")
 
             current.write("starting downstream icestorm server... ")
@@ -113,7 +113,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
             current.writeln("ok")
 
             try:
-                icestorm1[0].expect("topic.fed1.*subscriber offline", timeout=1)
+                icestorm1[0].expect(current, "topic.fed1.*subscriber offline", timeout=1)
                 assert False
             except Expect.TIMEOUT:
                 pass

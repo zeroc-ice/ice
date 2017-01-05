@@ -204,7 +204,7 @@ class IceStormTestCase(TestCase):
     def runadmin(self, current, cmd, instanceName=None, instance=None, exitstatus=0, quiet=False):
         admin = IceStormAdmin(instanceName, instance, args=["-e", cmd], quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
-        return admin.getOutput()
+        return admin.getOutput(current)
 
     def getTopicManager(self, current, instanceName=None):
         if not instanceName:

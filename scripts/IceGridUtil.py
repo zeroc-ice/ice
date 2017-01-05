@@ -259,7 +259,7 @@ class IceGridTestCase(TestCase):
     def runadmin(self, current, cmd, replica="Master", exitstatus=0, quiet=False):
         admin = IceGridAdmin(args=["-r", replica, "-e", cmd], replica=replica, quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
-        return admin.getOutput()
+        return admin.getOutput(current)
 
     def runWithDriver(self, current):
         current.driver.runClientServerTestCase(current)
