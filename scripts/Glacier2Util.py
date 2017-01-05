@@ -43,7 +43,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
                     if(p.wait() != 0):
                         raise RuntimeError("icehashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
                     file.write("%s %s\n" % (user, p.stdout.readline().decode('UTF-8').strip()))
-            current.testcase.files.append(path)
+            current.files.append(path)
 
     def getProps(self, current):
         props = Server.getProps(self, current)

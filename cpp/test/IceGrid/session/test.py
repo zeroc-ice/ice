@@ -12,7 +12,7 @@ class IceGridSessionTestCase(IceGridTestCase):
 
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
-        self.mkdirs("db/node-1")
+        current.mkdirs("db/node-1")
 
     def setupServerSide(self, current):
         self.verifier = Server(exe="verifier", waitForShutdown=False, props={

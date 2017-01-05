@@ -58,6 +58,8 @@ class Executor:
                 raise
             except:
                 pass
+            finally:
+                current.destroy()
             results.put((result, mainThread))
             if not result.isSuccess() and not self.continueOnFailure:
                 with self.lock: self.failure = True

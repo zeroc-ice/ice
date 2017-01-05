@@ -16,7 +16,7 @@ class IniClient(Client):
 
     def setup(self, current):
         if self.iceProfile:
-            current.testcase.createFile("ice.profiles", [
+            current.createFile("ice.profiles", [
                 "[%s]" % self.iceProfile,
                 "ice.config=\"config.client\"",
                 "ice.options=\"%s\"" % self.iceOptions,

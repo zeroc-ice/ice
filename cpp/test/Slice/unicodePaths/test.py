@@ -33,11 +33,11 @@ class SliceUnicodePathsTestCase(ClientTestCase):
         if os.path.exists(srcPath): shutil.rmtree(srcPath)
         os.mkdir(srcPath)
 
-        self.createFile("%s/Test.ice" % srcPath,
-                        ["module Test { ",
-                         "class Point{int x; int y; };",
-                         "interface Canvas{ void draw(Point p); };",
-                         "};"], "utf-8")
+        current.createFile("%s/Test.ice" % srcPath,
+                           ["module Test { ",
+                            "class Point{int x; int y; };",
+                            "interface Canvas{ void draw(Point p); };",
+                            "};"], "utf-8")
 
         tests = [
             ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++11"),

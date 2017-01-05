@@ -4,7 +4,7 @@ class SliceGenerationTestCase(ClientTestCase):
         current.write("testing list-generated... ")
 
         slice2java = SliceTranslator("slice2java")
-        self.mkdirs("classes")
+        current.mkdirs("classes")
 
         slice2java.run(current,
                        args=["--list-generated", "--output-dir", "classes", "File1.ice", "File2.ice"] +

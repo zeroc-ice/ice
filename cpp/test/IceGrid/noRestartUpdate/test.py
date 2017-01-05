@@ -12,8 +12,8 @@ class IceGridNoRestartUpdateTestCase(IceGridTestCase):
 
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
-        self.mkdirs("db/node1")
-        self.mkdirs("db/node2")
+        current.mkdirs("db/node1")
+        current.mkdirs("db/node2")
 
 clientProps = lambda process, current: {
     "IceBoxExe" : IceBox().getCommandLine(current),

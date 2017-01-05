@@ -27,7 +27,7 @@ class IceGridDistributionTestCase(IceGridTestCase):
         ]
 
         current.write("creating IcePatch2 data directory... ")
-        self.mkdirs(datadir)
+        current.mkdirs(datadir)
 
         for [file, content] in files:
             file = os.path.join(datadir, file)

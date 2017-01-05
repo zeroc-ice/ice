@@ -1207,8 +1207,6 @@ class TestCase(Runnable):
         self.mapping = None
         self.testsuite = None
         self.options = options
-        self.dirs = []
-        self.files = []
         self.args = args
         self.props = props
         self.envs = envs
@@ -1417,24 +1415,6 @@ class TestCase(Runnable):
             raise
         finally:
             current.pop()
-            for d in self.dirs:
-                if os.path.exists(d): shutil.rmtree(d)
-            for f in self.files:
-                if os.path.exists(f): os.unlink(f)
-
-    def createFile(self, path, lines, encoding=None):
-        path = os.path.join(self.getPath(), path.decode("utf-8") if isPython2 else path)
-        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
-            for l in lines:
-                file.write("%s\n" % l)
-        self.files.append(path)
-
-    def mkdirs(self, dirs):
-        for d in dirs if isinstance(dirs, list) else [dirs]:
-            d = os.path.join(self.getPath(), d)
-            self.dirs.append(d)
-            if not os.path.exists(d):
-                os.makedirs(d)
 
 class ClientTestCase(TestCase):
 
@@ -1573,7 +1553,7 @@ class TestSuite:
         if self.chdir:
             # Only tests running on main thread can change the current working directory
             self.runOnMainThread = True
-        self.files = []
+
         if testcases is None:
             files = [f for f in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, f))]
             testcases = self.mapping.computeTestCases(self.id, files)
@@ -1633,18 +1613,9 @@ class TestSuite:
             current.driver.runTestSuite(current)
         finally:
             if cwd: os.chdir(cwd)
-            for f in self.files:
-                if os.path.exists(f): os.remove(f)
 
     def teardown(self, current, success):
         pass
-
-    def createFile(self, path, lines, encoding=None):
-        path = os.path.join(self.path, path.decode("utf-8") if isPython2 else path)
-        with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
-            for l in lines:
-                file.write("%s\n" % l)
-        self.files.append(path)
 
     def isMultiHost(self):
         return self.multihost
@@ -2150,6 +2121,8 @@ class Driver:
             self.testcase = None
             self.testcases = []
             self.processes = {}
+            self.dirs = []
+            self.files = []
 
         def getTestEndpoint(self, *args, **kargs):
             return self.driver.getTestEndpoint(*args, **kargs)
@@ -2185,6 +2158,26 @@ class Driver:
                 testcase.mapping = None
                 testcase.testsuite = None
                 testcase.parent = None
+
+        def createFile(self, path, lines, encoding=None):
+            path = os.path.join(self.testsuite.getPath(), path.decode("utf-8") if isPython2 else path)
+            with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
+                for l in lines:
+                    file.write("%s\n" % l)
+            self.files.append(path)
+
+        def mkdirs(self, dirs):
+            for d in dirs if isinstance(dirs, list) else [dirs]:
+                d = os.path.join(self.testsuite.getPath(), d)
+                self.dirs.append(d)
+                if not os.path.exists(d):
+                    os.makedirs(d)
+
+        def destroy(self):
+            for d in self.dirs:
+                if os.path.exists(d): shutil.rmtree(d)
+            for f in self.files:
+                if os.path.exists(f): os.unlink(f)
 
     drivers = {}
     driver = "local"

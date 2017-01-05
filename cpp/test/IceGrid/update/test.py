@@ -12,8 +12,8 @@ class IceGridUpdateTestCase(IceGridTestCase):
 
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
-        self.mkdirs("db/node-1")
-        self.mkdirs("db/node-2")
+        current.mkdirs("db/node-1")
+        current.mkdirs("db/node-2")
 
 clientProps = lambda process, current: {
     "NodePropertiesOverride" : current.testcase.icegridnode[0].getPropertiesOverride(current),
