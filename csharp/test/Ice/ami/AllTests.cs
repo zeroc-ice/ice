@@ -1957,12 +1957,11 @@ public class AllTests : TestCommon.AllTests
         Flush();
         {
             {
-                CallbackBase cb = new CallbackBase();
+                FlushCallback cb = new FlushCallback();
                 System.Threading.Tasks.Task t = p.ice_batchOneway().ice_flushBatchRequestsAsync(
-                    progress: new Progress<bool>(sentSynchronously =>
+                    progress: new Progress(sentSynchronously =>
                     {
-                        test(sentSynchronously);
-                        cb.called();
+                        cb.sent(sentSynchronously);
                     }));
                 cb.check();
                 t.Wait();
@@ -1973,11 +1972,11 @@ public class AllTests : TestCommon.AllTests
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
                 b1.opBatch();
-                CallbackBase cb = new CallbackBase();
+                FlushCallback cb = new FlushCallback();
                 System.Threading.Tasks.Task t = b1.ice_flushBatchRequestsAsync(
-                    progress: new Progress<bool>(sentSynchronoully =>
+                    progress: new Progress(sentSynchronoully =>
                     {
-                        cb.called();
+                        cb.sent(sentSynchronoully);
                     }));
 
                 cb.check();
@@ -1991,12 +1990,11 @@ public class AllTests : TestCommon.AllTests
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
                 b1.ice_getConnection().close(false);
-                CallbackBase cb = new CallbackBase();
+                FlushCallback cb = new FlushCallback();
                 System.Threading.Tasks.Task t = b1.ice_flushBatchRequestsAsync(
-                    progress:new Progress<bool>(sentSynchronoully =>
+                    progress:new Progress(sentSynchronoully =>
                     {
-                        test(!sentSynchronoully);
-                        cb.called();
+                        cb.sent(sentSynchronoully);
                     }));
                 cb.check();
                 t.Wait();
