@@ -293,7 +293,7 @@ class LocalDriver(Driver):
     @classmethod
     def getOptions(self):
         return ("", ["cross=", "workers=", "continue", "loop", "start=", "all", "all-cross", "host=",
-                     "client=", "server="])
+                     "client=", "server=", "show-durations"])
 
     @classmethod
     def usage(self):
@@ -308,6 +308,7 @@ class LocalDriver(Driver):
         print("--all-cross           Run all sensible permutations of cross language tests.")
         print("--client=<proxy>      The endpoint of the controller to run the client side.")
         print("--server=<proxy>      The endpoint of the controller to run the server side.")
+        print("--show-durations      Print out the duration of each tests.")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
@@ -319,6 +320,7 @@ class LocalDriver(Driver):
         self.loop = False
         self.start = 0
         self.all = False
+        self.showDurations = False
 
         self.clientCtlPrx = ""
         self.serverCtlPrx = ""
@@ -327,7 +329,8 @@ class LocalDriver(Driver):
                                       "l" : "loop",
                                       "all-cross" : "allCross",
                                       "client" : "clientCtlPrx",
-                                      "server" : "serverCtlPrx" })
+                                      "server" : "serverCtlPrx",
+                                      "show-durations" : "showDurations" })
 
         if self.cross:
             self.cross = Mapping.getByName(self.cross)
@@ -393,6 +396,11 @@ class LocalDriver(Driver):
                 print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
             else:
                 print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
+
+            if self.showDurations:
+                for r in sorted(results, key = lambda r : r.getDuration()):
+                    print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
+
             if len(failures) > 0:
                 print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
                 for r in failures:

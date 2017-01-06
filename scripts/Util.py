@@ -1478,6 +1478,13 @@ class Result:
         self._stdout = StringIO()
         self._writeToStdout = writeToStdout
         self._testcases = {}
+        self._duration = 0
+
+    def start(self):
+        self._duration = time.time()
+
+    def finished(self):
+        self._duration = time.time() - self._duration
 
     def started(self, testcase):
         self._start = self._stdout.tell()
@@ -1496,6 +1503,9 @@ class Result:
 
     def getFailed(self):
         return self._failed
+
+    def getDuration(self):
+        return self._duration
 
     def getOutput(self, testcase=None):
         if testcase:
@@ -1606,6 +1616,7 @@ class TestSuite:
 
     def run(self, current):
         try:
+            current.result.start()
             cwd=None
             if self.chdir:
                 cwd = os.getcwd()
@@ -1613,6 +1624,7 @@ class TestSuite:
             current.driver.runTestSuite(current)
         finally:
             if cwd: os.chdir(cwd)
+            current.result.finished()
 
     def teardown(self, current, success):
         pass
@@ -2043,7 +2055,7 @@ class BrowserProcessController(RemoteProcessController):
                 # capabilities["acceptInsecureCerts"] = True
                 # capabilities["moz:firefoxOptions"] = {}
                 # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
-                if isinstance(platform, Linux) and os.environ.get("DISPLAY") != ":1":
+                if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "jenkins":
                     current.writeln("error: DISPLAY is unset, setting it to :1")
                     os.environ["DISPLAY"] = ":1"
 
