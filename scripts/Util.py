@@ -2043,6 +2043,10 @@ class BrowserProcessController(RemoteProcessController):
                 # capabilities["acceptInsecureCerts"] = True
                 # capabilities["moz:firefoxOptions"] = {}
                 # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
+                if isinstance(platform, Linux) and os.environ.get("DISPLAY") != ":1":
+                    current.writeln("error: DISPLAY is unset, setting it to :1")
+                    os.environ["DISPLAY"] = ":1"
+
                 profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
                 self.driver = webdriver.Firefox(firefox_profile=profile)
             elif current.config.browser == "Safari" and os.environ.get("USER", "") == "jenkins":
