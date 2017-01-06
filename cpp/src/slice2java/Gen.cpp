@@ -85,6 +85,19 @@ getEscapedParamName(const OperationPtr& p, const string& name)
     return name;
 }
 
+string
+getEscapedParamName(const DataMemberList& params, const string& name)
+{
+    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if((*i)->name() == name)
+        {
+            return name + "_";
+        }
+    }
+    return name;
+}
+
 bool
 isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
 {
@@ -314,7 +327,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         for(ParamDeclList::const_iterator pli = required.begin(); pli != required.end(); ++pli)
         {
             const string paramName = fixKwd((*pli)->name());
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, true, iter, "",
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, "this." + paramName, true, iter, "",
                                       (*pli)->getMetaData());
         }
 
@@ -338,7 +351,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             }
 
             const string paramName = fixKwd((*pli)->name());
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName,
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), "this." + paramName,
                                       true, iter, "", (*pli)->getMetaData());
         }
 
@@ -358,7 +371,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         {
             const string paramName = fixKwd((*pli)->name());
             const string patchParams = getPatcher((*pli)->type(), package, paramName, false);
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, false, iter,
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, "this." + paramName, false, iter,
                                       "", (*pli)->getMetaData(), patchParams);
         }
 
@@ -386,7 +399,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
             const string paramName = fixKwd((*pli)->name());
             const string patchParams = getPatcher((*pli)->type(), package, paramName, true);
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), paramName,
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalOutParam, true, (*pli)->tag(), "this." + paramName,
                                       false, iter, "", (*pli)->getMetaData(), patchParams);
         }
 
@@ -1585,7 +1598,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             }
             else
             {
-                out << nl << fixKwd((*p)->name()) << " = ";
+                out << nl << "this." << fixKwd((*p)->name()) << " = ";
                 writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ';';
             }
@@ -1595,21 +1608,21 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
             if(builtin && builtin->kind() == Builtin::KindString)
             {
-                out << nl << fixKwd((*p)->name()) << " = \"\";";
+                out << nl << "this." << fixKwd((*p)->name()) << " = \"\";";
             }
 
             EnumPtr en = EnumPtr::dynamicCast(t);
             if(en)
             {
                 string firstEnum = fixKwd(en->getEnumerators().front()->name());
-                out << nl << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
+                out << nl << "this." << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
             }
 
             StructPtr st = StructPtr::dynamicCast(t);
             if(st)
             {
                 string memberType = typeToString(st, TypeModeMember, package, (*p)->getMetaData());
-                out << nl << fixKwd((*p)->name()) << " = new " << memberType << "();";
+                out << nl << "this." << fixKwd((*p)->name()) << " = new " << memberType << "();";
             }
         }
     }
@@ -2837,7 +2850,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 //
                 if(allDataMembers.size() < 254)
                 {
-                    paramDecl.push_back("Throwable cause");
+                    const string causeParamName = getEscapedParamName(allDataMembers, "cause"); 
+
+                    paramDecl.push_back("Throwable " + causeParamName);
                     out << sp << nl << "public " << name << spar;
                     out << paramDecl << epar;
                     out << sb;
@@ -2852,12 +2867,12 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                                 baseParamNames.push_back(fixKwd((*d)->name()));
                             }
                         }
-                        baseParamNames.push_back("cause");
+                        baseParamNames.push_back(causeParamName);
                         out << baseParamNames << epar << ';';
                     }
                     else
                     {
-                        out << nl << "super(cause);";
+                        out << nl << "super(" << causeParamName << ");";
                     }
                     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
                     {
@@ -2916,13 +2931,15 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             if(allDataMembers.size() < 254)
             {
-                paramDecl.push_back("Throwable cause");
+                const string causeParamName = getEscapedParamName(allDataMembers, "cause");
+
+                paramDecl.push_back("Throwable " + causeParamName);
                 out << sp << nl << "public " << name << spar;
                 out << paramDecl << epar;
                 out << sb;
                 if(!base)
                 {
-                    out << nl << "super(cause);";
+                    out << nl << "super(" << causeParamName << ");";
                 }
                 else
                 {
@@ -2933,7 +2950,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     {
                         baseParamNames.push_back(fixKwd((*d)->name()));
                     }
-                    baseParamNames.push_back("cause");
+                    baseParamNames.push_back(causeParamName);
                     out << baseParamNames << epar << ';';
                 }
                 for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -4727,7 +4744,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << contextParam << epar;
     out << sb;
-    out << nl << "return _iceI_" << p->name() << "Async" << spar << args << "context" << "false" << epar << ';';
+    out << nl << "return _iceI_" << p->name() << "Async" << spar << args << contextParamName << "false" << epar << ';';
     out << eb;
 
     const string futureImpl = getFutureImplType(p, package);

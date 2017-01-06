@@ -59,7 +59,7 @@ task testSliceTask {
                                                          'IceBox/admin/*.ice',
                                                          'IceBox/configuration/*.ice',
                                                          'IceSSL/configuration/*.ice',
-                                                         'Slice/keyword/*.ice',
+                                                         'Slice/escape/*.ice',
                                                          'Slice/macros/*.ice',
                                                          'Slice/structure/*.ice'])
             }

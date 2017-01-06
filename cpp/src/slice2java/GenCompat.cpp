@@ -1845,7 +1845,7 @@ Slice::JavaCompatVisitor::writeDataMemberInitializers(Output& out, const DataMem
             }
             else
             {
-                out << nl << fixKwd((*p)->name()) << " = ";
+                out << nl << "this." << fixKwd((*p)->name()) << " = ";
                 writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ';';
             }
@@ -1855,21 +1855,21 @@ Slice::JavaCompatVisitor::writeDataMemberInitializers(Output& out, const DataMem
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
             if(builtin && builtin->kind() == Builtin::KindString)
             {
-                out << nl << fixKwd((*p)->name()) << " = \"\";";
+                out << nl << "this." << fixKwd((*p)->name()) << " = \"\";";
             }
 
             EnumPtr en = EnumPtr::dynamicCast(t);
             if(en)
             {
                 string firstEnum = fixKwd(en->getEnumerators().front()->name());
-                out << nl << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
+                out << nl << "this." << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
             }
 
             StructPtr st = StructPtr::dynamicCast(t);
             if(st)
             {
                 string memberType = typeToString(st, TypeModeMember, package, (*p)->getMetaData());
-                out << nl << fixKwd((*p)->name()) << " = new " << memberType << "();";
+                out << nl << "this." << fixKwd((*p)->name()) << " = new " << memberType << "();";
             }
         }
     }

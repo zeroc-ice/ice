@@ -759,8 +759,6 @@ Slice::Gen::generate(const UnitPtr& p)
     // Necessary for objc_getClass use when marshalling/unmarshalling proxies.
     _M << nl << "#import <objc/runtime.h>";
 
-    _M << nl;
-
     StringList includes = p->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
@@ -787,7 +785,6 @@ Slice::Gen::generate(const UnitPtr& p)
         _M << nl << "#ifndef " << _dllExport << "_EXPORTS";
         _M << nl << "#   define " << _dllExport << "_EXPORTS";
         _M << nl << "#endif";
-        _M << nl;
 
         _H << nl;
         _H << nl << "#ifndef " << _dllExport;
@@ -805,6 +802,15 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         _dllExport += " ";
     }
+
+    //
+    // Disable shadow warnings in .cppm file
+    //
+    _M << sp;
+    _M.zeroIndent();
+    _M << nl << "#ifdef __clang__";
+    _M << nl << "#   pragma clang diagnostic ignored \"-Wshadow-ivar\"";
+    _M << nl << "#endif";
 
     UnitVisitor unitVisitor(_H, _M, _dllExport);
     p->visit(&unitVisitor, false);

@@ -20,6 +20,27 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+namespace
+{
+
+string
+getEscapedParamName(const OperationPtr& p, const string& name)
+{
+    ParamDeclList params = p->parameters();
+
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if((*i)->name() == name)
+        {
+            return name + "_";
+        }
+    }
+    return name;
+}
+
+}
+
+
 namespace Slice
 {
 namespace Python
@@ -576,9 +597,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         _out << ", " << fixIdent((*pli)->name());
                     }
                 }
+               
                 if(!p->isLocal())
                 {
-                    _out << ", current=None";
+                    const string currentParamName = getEscapedParamName(*oli, "current");
+                    _out << ", " << currentParamName << "=None";
                 }
                 _out << "):";
                 _out.inc();
@@ -603,7 +626,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 if(!p->isLocal())
                 {
-                    _out << ", current=None";
+                    const string currentParamName = getEscapedParamName(*oli, "current");
+                    _out << ", " << currentParamName << "=None";
                 }
                 _out << "):";
                 _out.inc();
@@ -2576,7 +2600,8 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         if(!local && (mode == DocDispatch || mode == DocAsyncDispatch))
         {
-            _out << nl << "current -- The Current object for the invocation.";
+            const string currentParamName = getEscapedParamName(op, "current");
+            _out << nl << currentParamName << " -- The Current object for the invocation.";
         }
     }
     else if(mode == DocAsyncEnd)

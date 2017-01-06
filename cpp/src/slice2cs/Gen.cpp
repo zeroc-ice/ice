@@ -337,13 +337,13 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
     else
     {
         string stream = forStruct ? "" : "ostr_";
-        string memberName = fixId(member->name());
+        string memberName = name;
         if(forStruct)
         {
             memberName = "this." + memberName;
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), name, true, stream);
+        writeMarshalUnmarshalCode(_out, member->type(), memberName, true, stream);
     }
 }
 
@@ -376,13 +376,13 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     else
     {
         string stream = forStruct ? "" : "istr_";
-        string memberName = fixId(member->name());
+        string memberName = name;
         if(forStruct)
         {
             memberName = "this." + memberName;
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, stream);
+        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : memberName, false, stream);
     }
 }
 
@@ -1391,13 +1391,13 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
             BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
             if(builtin && builtin->kind() == Builtin::KindString)
             {
-                _out << nl << fixId((*p)->name(), baseTypes) << " = \"\";";
+                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = \"\";";
             }
 
             StructPtr st = StructPtr::dynamicCast((*p)->type());
             if(st)
             {
-                _out << nl << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, false) << "();";
+                _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, false) << "();";
             }
         }
     }
@@ -2479,7 +2479,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 _out << " : base()";
             }
             _out << sb;
-            writeDataMemberInitializers(dataMembers, 0, propertyMapping);
+            writeDataMemberInitializers(dataMembers, DotNet::ICloneable, propertyMapping);
             _out << eb;
 
             _out << sp;
@@ -2488,7 +2488,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             vector<string> paramDecl;
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
-                string memberName = fixId((*d)->name());
+                string memberName = fixId((*d)->name(), DotNet::ICloneable);
                 string memberType = typeToString((*d)->type(), (*d)->optional());
                 paramDecl.push_back(memberType + " " + memberName);
             }
@@ -2500,7 +2500,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 DataMemberList baseDataMembers = bases.front()->allDataMembers();
                 for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
                 {
-                    baseParamNames.push_back(fixId((*d)->name()));
+                    baseParamNames.push_back(fixId((*d)->name(), DotNet::ICloneable));
                 }
                 _out << baseParamNames << epar;
             }
@@ -2508,7 +2508,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             for(DataMemberList::const_iterator d = dataMembers.begin(); d != dataMembers.end(); ++d)
             {
                 _out << nl << "this.";
-                const string paramName = fixId((*d)->name());
+                const string paramName = fixId((*d)->name(), DotNet::ICloneable);
                 if(propertyMapping)
                 {
                     _out << "_" + (*d)->name();

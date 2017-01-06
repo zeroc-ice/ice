@@ -106,7 +106,7 @@ splitScopedName(const string& scoped)
 // their "@"-prefixed version; otherwise, if the passed name is
 // not scoped, but a C# keyword, return the "@"-prefixed name;
 // otherwise, check if the name is one of the method names of baseTypes;
-// if so, prefix it with _Ice_; otherwise, return the name unchanged.
+// if so, prefix it with ice_; otherwise, return the name unchanged.
 //
 string
 Slice::CsGenerator::fixId(const string& name, int baseTypes, bool mangleCasts)
