@@ -1285,6 +1285,16 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     IceMX::ChildInvocationMetricsPtr rim1;
     im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["op"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+    size_t size = !collocated ? im1->remotes.size() : im1->collocated.size();
+    if(size != 1)
+    {
+        cerr << "invalid remote metrics size = " << size << endl;
+        IceMX::MetricsMap* map = collocated ? &im1->collocated : &im1->remotes;
+        for(IceMX::MetricsMap::const_iterator p = map->begin(); p != map->end(); ++p)
+        {
+            cerr << "- " << (*p)->id << endl;
+        }
+    }
     test(!collocated ? (im1->remotes.size() == 1) : (im1->collocated.size() == 1));
     rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, !collocated ? im1->remotes[0] : im1->collocated[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
