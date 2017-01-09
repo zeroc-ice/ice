@@ -579,13 +579,10 @@ public:
 
 private:
     unsigned int _cp;
-    WstringConverterPtr _unicodeConverter;
-
 };
 
 WindowsStringConverter::WindowsStringConverter(unsigned int cp) :
-    _cp(cp),
-    _unicodeConverter(createUnicodeWstringConverter())
+    _cp(cp)
 {
 }
 
@@ -630,7 +627,7 @@ WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, U
     //
     // Then convert this UTF-16 wbuffer into UTF-8
     //
-    return _unicodeConverter->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
+    return getUnicodeWstringConverter()->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
 }
 
 void
@@ -653,7 +650,7 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     // First convert to wstring (UTF-16)
     //
     wstring wtarget;
-    _unicodeConverter->fromUTF8(sourceStart, sourceEnd, wtarget);
+    getUnicodeWstringConverter()->fromUTF8(sourceStart, sourceEnd, wtarget);
 
     //
     // WC_ERR_INVALID_CHARS conversion flag is only supported with 65001 (UTF-8) and
