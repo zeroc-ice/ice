@@ -151,5 +151,5 @@ These are the changes since Ice 3.6.3.
   done in a thread-safe manner. To assist with this, the Ice.wrap_future() function accepts
   an Ice.Future and returns an asyncio.Future.
 
-- Renamed optional invocation context parameter to 'context' for consistency with other
-  language mappings (was '_ctx' in previous versions).
+- Renamed optional invocation context parameter to `context` for consistency with other
+  language mappings (was `_ctx` in previous versions).
