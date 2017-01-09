@@ -34,12 +34,15 @@ class ServerFactoryI : public Test::ServerFactory
 {
 public:
 
+    ServerFactoryI(const std::string&);
+
     virtual Test::ServerPrxPtr createServer(ICE_IN(Test::Properties), const Ice::Current&);
     virtual void destroyServer(ICE_IN(Test::ServerPrxPtr), const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:
 
+    std::string _defaultDir;
     std::map<Ice::Identity, ServerIPtr> _servers;
 };
 

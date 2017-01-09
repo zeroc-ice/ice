@@ -83,8 +83,11 @@ ServerI::checkCipher(ICE_IN(string) cipher, const Ice::Current& c)
 void
 ServerI::destroy()
 {
-    string defaultDir = _communicator->getProperties()->getProperty("IceSSL.DefaultDir");
     _communicator->destroy();
+}
+
+ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDir)
+{
 }
 
 Test::ServerPrxPtr
@@ -96,6 +99,7 @@ ServerFactoryI::createServer(ICE_IN(Test::Properties) props, const Current&)
     {
         initData.properties->setProperty(p->first, p->second);
     }
+    initData.properties->setProperty("IceSSL.DefaultDir", _defaultDir);
 
     CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");

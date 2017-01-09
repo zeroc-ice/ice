@@ -26,7 +26,7 @@ class ControllerDriver(Driver):
             self.config.protocol = protocol
 
     @classmethod
-    def getOptions(self):
+    def getSupportedArgs(self):
         return ("", ["clean", "id=", "endpoints="])
 
     @classmethod

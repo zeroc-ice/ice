@@ -291,7 +291,7 @@ class LocalDriver(Driver):
             self.total = total
 
     @classmethod
-    def getOptions(self):
+    def getSupportedArgs(self):
         return ("", ["cross=", "workers=", "continue", "loop", "start=", "all", "all-cross", "host=",
                      "client=", "server=", "show-durations"])
 

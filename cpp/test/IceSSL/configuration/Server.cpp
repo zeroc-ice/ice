@@ -16,12 +16,22 @@ DEFINE_TEST("server")
 using namespace std;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
+    string testdir;
+#if TARGET_OS_IPHONE == 0
+    if(argc < 2)
+    {
+        cerr << "Usage: " << argv[0] << " testdir" << endl;
+        return 1;
+    }
+    testdir = string(argv[1]) + "/../certs";
+#endif
+
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("factory");
-    adapter->add(ICE_MAKE_SHARED(ServerFactoryI), id);
+    adapter->add(ICE_MAKE_SHARED(ServerFactoryI, testdir), id);
     adapter->activate();
     TEST_READY
     communicator->waitForShutdown();

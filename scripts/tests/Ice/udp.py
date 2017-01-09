@@ -14,6 +14,11 @@ from Util import *
 #
 servers=range(0, 5)
 
+#
+# With UWP, we can't run the UDP tests with the C++ servers (used when SSL is enabled).
+#
+options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else {}
+
 TestSuite(__name__, [
     ClientServerTestCase(client=Client(args=[5]), servers=[Server(args=[i], ready="McastTestAdapter") for i in servers])
-], multihost=False)
+], multihost=False, options=options)

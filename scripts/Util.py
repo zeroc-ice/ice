@@ -240,9 +240,7 @@ class Windows(Platform):
                      "Ice/services",
                      "Ice/slicing/exceptions",
                      "Ice/slicing/objects",
-                     "Ice/threadPoolPriority",
-                     # TODO: Only run IceSSL/configuration with remote C++ server.
-                     "IceSSL/configuration"])
+                     "Ice/threadPoolPriority"])
         return Platform.getFilters(self, config)
 
     def parseBuildVariables(self, variables):
@@ -419,8 +417,9 @@ class Mapping:
         }
 
         @classmethod
-        def getOptions(self):
-            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx", "cprops=", "sprops=", "uwp"])
+        def getSupportedArgs(self):
+            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx",
+                         "cprops=", "sprops=", "uwp"])
 
         @classmethod
         def usage(self):
@@ -1038,7 +1037,7 @@ class Process(Runnable):
         allProps = self.getEffectiveProps(current, props)
         allEnvs = self.getEffectiveEnv(current)
 
-        processController = current.driver.getProcessController(current)
+        processController = current.driver.getProcessController(current, self)
         current.processes[self] = processController.start(self, current, allArgs, allProps, allEnvs, watchDog)
         try:
             self.waitForStart(current)
@@ -1254,7 +1253,7 @@ class TestCase(Runnable):
             self.servers = [server] if server else []
 
     def getOptions(self, current):
-        return self.options
+        return self.options(current) if callable(self.options) else self.options
 
     def canRun(self, current):
         # Can be overriden
@@ -1581,7 +1580,7 @@ class TestSuite:
         return self.id
 
     def getOptions(self, current):
-        return self.options
+        return self.options(current) if callable(self.options) else self.options
 
     def getPath(self):
         return self.path
@@ -1998,7 +1997,7 @@ class UWPProcessController(RemoteProcessController):
         self.packageFullName = "{0}_1.0.0.0_{1}__3qjctahehqazm".format(
             self.name, "x86" if platform == "Win32" else platform)
 
-        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "{0}_".format(config) if config == "Debug" else "")
+        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
         package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
             "{0}_Test".format(prefix), "{0}.appx".format(prefix))
 
@@ -2017,7 +2016,7 @@ class UWPProcessController(RemoteProcessController):
             shutil.rmtree(layout)
         os.makedirs(layout)
 
-        print("Unpackaing package: {0} to {1}....".format(os.path.basename(package), layout))
+        print("Unpacking package: {0} to {1}....".format(os.path.basename(package), layout))
         run("MakeAppx.exe unpack /p \"{0}\" /d \"{1}\" /l".format(package, layout))
 
         print("Registering application to run from layout...")
@@ -2029,7 +2028,7 @@ class UWPProcessController(RemoteProcessController):
         # microsoft.windows.softwarelogo.appxlauncher.exe returns the PID as return code
         # and 0 on case of failures. We pass err=True to run to handle this.
         #
-        print("staring UWP controller app...")
+        print("starting UWP controller app...")
         run('"{0}" {1}!App'.format(
             "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/microsoft.windows.softwarelogo.appxlauncher.exe",
             self.appUserModelId), err=True)
@@ -2226,7 +2225,7 @@ class Driver:
         return driver(options)
 
     @classmethod
-    def getOptions(self):
+    def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
                          "controller-app"])
 
@@ -2366,14 +2365,18 @@ class Driver:
             self.communicator.destroy()
         self.ctrlCHandler.setCallback(signal)
 
-    def getProcessController(self, current):
+    def getProcessController(self, current, process=None):
         processController = None
         if current.config.buildPlatform == "iphonesimulator":
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
         elif current.config.uwp:
-            processController = UWPProcessController
+            # No SSL server-side support in UWP.
+            if current.config.protocol in ["ssl", "wss"] and not isinstance(process, Client):
+                processController = LocalProcessController
+            else:
+                processController = UWPProcessController
         elif isinstance(current.testcase.getMapping(), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
         else:
@@ -2407,7 +2410,7 @@ class CppMapping(Mapping):
     class Config(Mapping.Config):
 
         @classmethod
-        def getOptions(self):
+        def getSupportedArgs(self):
             return ("", ["cpp-config=", "cpp-platform="])
 
         @classmethod
@@ -2440,6 +2443,9 @@ class CppMapping(Mapping):
     def getDefaultExe(self, processType, config):
         return platform.getDefaultExe(processType, config)
 
+    def getOptions(self, current):
+        return { "compress" : [False] } if current.config.uwp else {}
+
     def getProps(self, process, current):
         props = Mapping.getProps(self, process, current)
         if isinstance(process, IceProcess):
@@ -2449,7 +2455,7 @@ class CppMapping(Mapping):
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
         server = isinstance(process, Server)
-        uwp = current.config.buildPlatform == "UWP"
+        uwp = current.config.uwp
 
         props.update({
             "IceSSL.CAs": "cacert.pem",
@@ -2623,7 +2629,7 @@ class CppBasedMapping(Mapping):
     class Config(Mapping.Config):
 
         @classmethod
-        def getOptions(self):
+        def getSupportedArgs(self):
             return ("", [self.mappingName + "-config=", self.mappingName + "-platform="])
 
         @classmethod
@@ -2785,7 +2791,7 @@ class JavaScriptMapping(Mapping):
     class Config(Mapping.Config):
 
         @classmethod
-        def getOptions(self):
+        def getSupportedArgs(self):
             return ("", ["es5", "browser=", "worker"])
 
         @classmethod
@@ -2922,9 +2928,9 @@ def runTests(mappings=None, drivers=None):
 
     driver = None
     try:
-        options = [Driver.getOptions(), Mapping.Config.getOptions()]
-        options += [driver.getOptions() for driver in drivers]
-        options += [mapping.Config.getOptions() for mapping in Mapping.getAll()]
+        options = [Driver.getSupportedArgs(), Mapping.Config.getSupportedArgs()]
+        options += [driver.getSupportedArgs() for driver in drivers]
+        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll()]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:

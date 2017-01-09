@@ -1288,11 +1288,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     size_t size = !collocated ? im1->remotes.size() : im1->collocated.size();
     if(size != 1)
     {
-        cerr << "invalid remote metrics size = " << size << endl;
+        cout << "invalid remote metrics size = " << size << endl;
         IceMX::MetricsMap* map = collocated ? &im1->collocated : &im1->remotes;
         for(IceMX::MetricsMap::const_iterator p = map->begin(); p != map->end(); ++p)
         {
-            cerr << "- " << (*p)->id << endl;
+            cout << "- " << (*p)->id << endl;
         }
     }
     test(!collocated ? (im1->remotes.size() == 1) : (im1->collocated.size() == 1));
