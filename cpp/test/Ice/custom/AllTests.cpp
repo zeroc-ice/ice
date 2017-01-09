@@ -607,7 +607,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing alternate strings... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
         string out;
         string ret = t->opString(in, out);
 
@@ -1250,7 +1250,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing alternate strings with AMI... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2020,7 +2020,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing alternate strings with AMI callbacks... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
 
 #ifdef ICE_CPP11_MAPPING
 
