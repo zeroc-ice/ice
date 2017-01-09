@@ -230,7 +230,7 @@ proxyBeginIceIsA(ProxyObject* self, PyObject* args, PyObject* kwds)
         const_cast<char*>("_response"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
-        const_cast<char*>("_ctx"),
+        const_cast<char*>("context"),
         0
     };
     PyObject* type;
@@ -313,7 +313,7 @@ proxyBeginIcePing(ProxyObject* self, PyObject* args, PyObject* kwds)
         const_cast<char*>("_response"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
-        const_cast<char*>("_ctx"),
+        const_cast<char*>("context"),
         0
     };
     PyObject* response = Py_None;
@@ -395,7 +395,7 @@ proxyBeginIceIds(ProxyObject* self, PyObject* args, PyObject* kwds)
         const_cast<char*>("_response"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
-        const_cast<char*>("_ctx"),
+        const_cast<char*>("context"),
         0
     };
     PyObject* response = Py_None;
@@ -477,7 +477,7 @@ proxyBeginIceId(ProxyObject* self, PyObject* args, PyObject* kwds)
         const_cast<char*>("_response"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
-        const_cast<char*>("_ctx"),
+        const_cast<char*>("context"),
         0
     };
     PyObject* response = Py_None;
@@ -2337,9 +2337,9 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     //
     PyObject* obj;
     char* id;
-    PyObject* facetOrCtx = 0;
+    PyObject* facetOrContext = 0;
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("OsOO"), &obj, &id, &facetOrCtx, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("OsOO"), &obj, &id, &facetOrContext, &ctx))
     {
         return 0;
     }
@@ -2358,20 +2358,20 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
 
     PyObject* facet = 0;
 
-    if(checkString(facetOrCtx))
+    if(checkString(facetOrContext))
     {
-        facet = facetOrCtx;
+        facet = facetOrContext;
     }
-    else if(PyDict_Check(facetOrCtx))
+    else if(PyDict_Check(facetOrContext))
     {
         if(ctx != Py_None)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
             return 0;
         }
-        ctx = facetOrCtx;
+        ctx = facetOrContext;
     }
-    else if(facetOrCtx != Py_None)
+    else if(facetOrContext != Py_None)
     {
         PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
         return 0;
@@ -2571,7 +2571,7 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_isAAsync"), reinterpret_cast<PyCFunction>(proxyIceIsAAsync), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_isAAsync(type, [ctx]) -> Ice.Future")) },
     { STRCAST("begin_ice_isA"), reinterpret_cast<PyCFunction>(proxyBeginIceIsA), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_ice_isA(type[, _response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_ice_isA(type[, _response][, _ex][, _sent][, context]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_isA"), reinterpret_cast<PyCFunction>(proxyEndIceIsA), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_isA(Ice.AsyncResult) -> bool")) },
     { STRCAST("ice_ping"), reinterpret_cast<PyCFunction>(proxyIcePing), METH_VARARGS,
@@ -2579,7 +2579,7 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_pingAsync"), reinterpret_cast<PyCFunction>(proxyIcePingAsync), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_pingAsync([ctx]) -> Ice.Future")) },
     { STRCAST("begin_ice_ping"), reinterpret_cast<PyCFunction>(proxyBeginIcePing), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_ice_ping([_response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_ice_ping([_response][, _ex][, _sent][, context]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_ping"), reinterpret_cast<PyCFunction>(proxyEndIcePing), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_ping(Ice.AsyncResult) -> None")) },
     { STRCAST("ice_ids"), reinterpret_cast<PyCFunction>(proxyIceIds), METH_VARARGS,
@@ -2587,7 +2587,7 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_idsAsync"), reinterpret_cast<PyCFunction>(proxyIceIdsAsync), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_idsAsync([ctx]) -> Ice.Future")) },
     { STRCAST("begin_ice_ids"), reinterpret_cast<PyCFunction>(proxyBeginIceIds), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_ice_ids([_response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_ice_ids([_response][, _ex][, _sent][, context]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_ids"), reinterpret_cast<PyCFunction>(proxyEndIceIds), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_ids(Ice.AsyncResult) -> list")) },
     { STRCAST("ice_id"), reinterpret_cast<PyCFunction>(proxyIceId), METH_VARARGS,
@@ -2595,7 +2595,7 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_idAsync"), reinterpret_cast<PyCFunction>(proxyIceIdAsync), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_idAsync([ctx]) -> Ice.Future")) },
     { STRCAST("begin_ice_id"), reinterpret_cast<PyCFunction>(proxyBeginIceId), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_ice_id([_response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_ice_id([_response][, _ex][, _sent][, context]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_id"), reinterpret_cast<PyCFunction>(proxyEndIceId), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_id(Ice.AsyncResult) -> string")) },
     { STRCAST("ice_getIdentity"), reinterpret_cast<PyCFunction>(proxyIceGetIdentity), METH_NOARGS,
@@ -2707,13 +2707,13 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_invoke"), reinterpret_cast<PyCFunction>(proxyIceInvoke), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_invoke(operation, mode, inParams) -> bool, outParams")) },
     { STRCAST("ice_invokeAsync"), reinterpret_cast<PyCFunction>(proxyIceInvokeAsync), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("ice_invokeAsync(op, mode, inParams[, _ctx]) -> Ice.Future")) },
+        PyDoc_STR(STRCAST("ice_invokeAsync(op, mode, inParams[, context]) -> Ice.Future")) },
     { STRCAST("begin_ice_invoke"), reinterpret_cast<PyCFunction>(proxyBeginIceInvoke), METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_ice_invoke(op, mode, inParams[, _response][, _ex][, _sent][, _ctx]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_ice_invoke(op, mode, inParams[, _response][, _ex][, _sent][, context]) -> Ice.AsyncResult")) },
     { STRCAST("end_ice_invoke"), reinterpret_cast<PyCFunction>(proxyEndIceInvoke), METH_VARARGS,
         PyDoc_STR(STRCAST("end_ice_invoke(Ice.AsyncResult) -> (bool, results)")) },
     { STRCAST("ice_checkedCast"), reinterpret_cast<PyCFunction>(proxyIceCheckedCast), METH_VARARGS | METH_CLASS,
-        PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
+        PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrContext[, context]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), reinterpret_cast<PyCFunction>(proxyIceUncheckedCast), METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_uncheckedCast(proxy) -> proxy")) },
     { STRCAST("checkedCast"), reinterpret_cast<PyCFunction>(proxyCheckedCast), METH_VARARGS | METH_STATIC,

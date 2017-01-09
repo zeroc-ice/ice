@@ -17,7 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 

@@ -23,7 +23,7 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace IceStorm;
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 

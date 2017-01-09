@@ -391,22 +391,22 @@ def allTests(communicator, collocated):
 
     result = p.begin_ice_isA("::Test::TestIntf")
     test(p.end_ice_isA(result))
-    result = p.begin_ice_isA("::Test::TestIntf", _ctx=ctx)
+    result = p.begin_ice_isA("::Test::TestIntf", context=ctx)
     test(p.end_ice_isA(result))
 
     result = p.begin_ice_ping()
     p.end_ice_ping(result)
-    result = p.begin_ice_ping(_ctx=ctx)
+    result = p.begin_ice_ping(context=ctx)
     p.end_ice_ping(result)
 
     result = p.begin_ice_id()
     test(p.end_ice_id(result) == "::Test::TestIntf")
-    result = p.begin_ice_id(_ctx=ctx)
+    result = p.begin_ice_id(context=ctx)
     test(p.end_ice_id(result) == "::Test::TestIntf")
 
     result = p.begin_ice_ids()
     test(len(p.end_ice_ids(result)) == 2)
-    result = p.begin_ice_ids(_ctx=ctx)
+    result = p.begin_ice_ids(context=ctx)
     test(len(p.end_ice_ids(result)) == 2)
 
     if not collocated:
@@ -415,12 +415,12 @@ def allTests(communicator, collocated):
 
     result = p.begin_op()
     p.end_op(result)
-    result = p.begin_op(_ctx=ctx)
+    result = p.begin_op(context=ctx)
     p.end_op(result)
 
     result = p.begin_opWithResult()
     test(p.end_opWithResult(result) == 15)
-    result = p.begin_opWithResult(_ctx=ctx)
+    result = p.begin_opWithResult(context=ctx)
     test(p.end_opWithResult(result) == 15)
 
     result = p.begin_opWithUE()
@@ -429,7 +429,7 @@ def allTests(communicator, collocated):
         test(False)
     except Test.TestIntfException:
         pass
-    result = p.begin_opWithUE(_ctx=ctx)
+    result = p.begin_opWithUE(context=ctx)
     try:
         p.end_opWithUE(result)
         test(False)
@@ -450,37 +450,37 @@ def allTests(communicator, collocated):
     cb.check()
     p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex, _ctx=ctx)
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex, context=ctx)
     cb.check()
     p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie),
-                    _ctx=ctx)
+                    context=ctx)
     cbWC.check()
 
     p.begin_ice_ping(cb.ping, cb.ex)
     cb.check()
     p.begin_ice_ping(lambda: cbWC.ping(cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_ice_ping(cb.ping, cb.ex, _ctx=ctx)
+    p.begin_ice_ping(cb.ping, cb.ex, context=ctx)
     cb.check()
-    p.begin_ice_ping(lambda: cbWC.ping(cookie), lambda: cbWC.ex(ex, cookie), _ctx=ctx)
+    p.begin_ice_ping(lambda: cbWC.ping(cookie), lambda: cbWC.ex(ex, cookie), context=ctx)
     cbWC.check()
 
     p.begin_ice_id(cb.id, cb.ex)
     cb.check()
     p.begin_ice_id(lambda id: cbWC.id(id, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_ice_id(cb.id, cb.ex, _ctx=ctx)
+    p.begin_ice_id(cb.id, cb.ex, context=ctx)
     cb.check()
-    p.begin_ice_id(lambda id: cbWC.id(id, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    p.begin_ice_id(lambda id: cbWC.id(id, cookie), lambda ex: cbWC.ex(ex, cookie), context=ctx)
     cbWC.check()
 
     p.begin_ice_ids(cb.ids, cb.ex)
     cb.check()
     p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_ice_ids(cb.ids, cb.ex, _ctx=ctx)
+    p.begin_ice_ids(cb.ids, cb.ex, context=ctx)
     cb.check()
-    p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie), context=ctx)
     cbWC.check()
 
     if not collocated:
@@ -493,27 +493,27 @@ def allTests(communicator, collocated):
     cb.check()
     p.begin_op(lambda: cbWC.op(cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_op(cb.op, cb.ex, _ctx=ctx)
+    p.begin_op(cb.op, cb.ex, context=ctx)
     cb.check()
-    p.begin_op(lambda: cbWC.op(cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    p.begin_op(lambda: cbWC.op(cookie), lambda ex: cbWC.ex(ex, cookie), context=ctx)
     cbWC.check()
 
     p.begin_opWithResult(cb.opWithResult, cb.ex)
     cb.check()
     p.begin_opWithResult(lambda r: cbWC.opWithResult(r, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_opWithResult(cb.opWithResult, cb.ex, _ctx=ctx)
+    p.begin_opWithResult(cb.opWithResult, cb.ex, context=ctx)
     cb.check()
-    p.begin_opWithResult(lambda r: cbWC.opWithResult(r, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    p.begin_opWithResult(lambda r: cbWC.opWithResult(r, cookie), lambda ex: cbWC.ex(ex, cookie), context=ctx)
     cbWC.check()
 
     p.begin_opWithUE(cb.op, cb.opWithUE)
     cb.check()
     p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie))
     cbWC.check()
-    p.begin_opWithUE(cb.op, cb.opWithUE, _ctx=ctx)
+    p.begin_opWithUE(cb.op, cb.opWithUE, context=ctx)
     cb.check()
-    p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie), _ctx=ctx)
+    p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie), context=ctx)
     cbWC.check()
 
     print("ok")

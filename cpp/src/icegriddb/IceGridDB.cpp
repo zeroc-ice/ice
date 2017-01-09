@@ -126,7 +126,7 @@ struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
 }
 
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 

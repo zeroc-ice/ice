@@ -1101,7 +1101,7 @@ def twowaysAMI(communicator, p):
     test(c != ctx)
 
     test(len(p.ice_getContext()) == 0)
-    r = p.begin_opContext(_ctx=ctx)
+    r = p.begin_opContext(context=ctx)
     c = p.end_opContext(r)
     test(c == ctx)
 
@@ -1111,7 +1111,7 @@ def twowaysAMI(communicator, p):
     c = p2.end_opContext(r)
     test(c == ctx)
 
-    r = p2.begin_opContext(_ctx=ctx)
+    r = p2.begin_opContext(context=ctx)
     c = p2.end_opContext(r)
     test(c == ctx)
 

@@ -1134,7 +1134,7 @@ IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE self)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOrCtx, VALUE ctx)
+IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOrContext, VALUE ctx)
 {
     //
     // ice_checkedCast is called from generated code, therefore we always expect
@@ -1157,19 +1157,19 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
         string idstr = getString(id);
 
         volatile VALUE facet = Qnil;
-        if(isString(facetOrCtx))
+        if(isString(facetOrContext))
         {
-            facet = facetOrCtx;
+            facet = facetOrContext;
         }
-        else if(isHash(facetOrCtx))
+        else if(isHash(facetOrContext))
         {
             if(!NIL_P(ctx))
             {
                 throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
             }
-            ctx = facetOrCtx;
+            ctx = facetOrContext;
         }
-        else if(!NIL_P(facetOrCtx))
+        else if(!NIL_P(facetOrContext))
         {
             throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
         }

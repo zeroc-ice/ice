@@ -19,6 +19,27 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+
+namespace
+{
+
+string
+getEscapedParamName(const OperationPtr& p, const string& name)
+{
+    ParamDeclList params = p->parameters();
+
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if((*i)->name() == name)
+        {
+            return name + "_";
+        }
+    }
+    return name;
+}
+
+}
+
 namespace Slice
 {
 namespace Ruby
@@ -524,10 +545,11 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << inParams << ", ";
             }
-            _out << "_ctx=nil)";
+            const string contextParamName = getEscapedParamName(*oli, "context");
+            _out << contextParamName << "=nil)";
             _out.inc();
             _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
-            _out << "], _ctx)";
+            _out << "], " << contextParamName << ")";
             _out.dec();
             _out << nl << "end";
         }
@@ -538,9 +560,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
         _out << nl << "include " << name << "Prx_mixin";
 
-        _out << sp << nl << "def " << name << "Prx.checkedCast(proxy, facetOrCtx=nil, _ctx=nil)";
+        _out << sp << nl << "def " << name << "Prx.checkedCast(proxy, facetOrContext=nil, context=nil)";
         _out.inc();
-        _out << nl << "ice_checkedCast(proxy, '" << scoped << "', facetOrCtx, _ctx)";
+        _out << nl << "ice_checkedCast(proxy, '" << scoped << "', facetOrContext, context)";
         _out.dec();
         _out << nl << "end";
 

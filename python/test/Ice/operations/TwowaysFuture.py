@@ -1244,7 +1244,7 @@ def twowaysFuture(communicator, p):
     test(c != ctx)
 
     test(len(p.ice_getContext()) == 0)
-    f = p.opContextAsync(_ctx=ctx)
+    f = p.opContextAsync(context=ctx)
     c = f.result()
     test(c == ctx)
 
@@ -1254,7 +1254,7 @@ def twowaysFuture(communicator, p):
     c = f.result()
     test(c == ctx)
 
-    f = p2.opContextAsync(_ctx=ctx)
+    f = p2.opContextAsync(context=ctx)
     c = f.result()
     test(c == ctx)
 

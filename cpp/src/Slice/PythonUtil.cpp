@@ -705,14 +705,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << ", " << inParams;
             }
-            _out << ", _ctx=None):";
+            const string contextParamName = getEscapedParamName(*oli, "context");
+            _out << ", " << contextParamName << "=None):";
             _out.inc();
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "), _ctx))";
+            _out << "), " << contextParamName << "))";
             _out.dec();
 
             //
@@ -725,14 +726,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << ", " << inParams;
             }
-            _out << ", _ctx=None):";
+            _out << ", " << contextParamName << "=None):";
             _out.inc();
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "), _ctx))";
+            _out << "), " << contextParamName << "))";
             _out.dec();
 
             _out << sp;
@@ -742,14 +743,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << ", " << inParams;
             }
-            _out << ", _response=None, _ex=None, _sent=None, _ctx=None):";
+            _out << ", _response=None, _ex=None, _sent=None, " << contextParamName << "=None):";
             _out.inc();
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".begin(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "), _response, _ex, _sent, _ctx))";
+            _out << "), _response, _ex, _sent, " << contextParamName << "))";
             _out.dec();
 
             _out << sp;
@@ -760,9 +761,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
         }
 
-        _out << sp << nl << "def checkedCast(proxy, facetOrCtx=None, _ctx=None):";
+        _out << sp << nl << "def checkedCast(proxy, facetOrContext=None, context=None):";
         _out.inc();
-        _out << nl << "return _M_" << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facetOrCtx, _ctx)";
+        _out << nl << "return _M_" << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facetOrContext, context)";
         _out.dec();
         _out << nl << "checkedCast = staticmethod(checkedCast)";
 
@@ -2596,7 +2597,8 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         if(!local && (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin))
         {
-            _out << nl << "_ctx -- The request context for the invocation.";
+             const string contextParamName = getEscapedParamName(op, "context");
+            _out << nl << contextParamName << " -- The request context for the invocation.";
         }
         if(!local && (mode == DocDispatch || mode == DocAsyncDispatch))
         {

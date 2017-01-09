@@ -3004,7 +3004,7 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
         const_cast<char*>("_response"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
-        const_cast<char*>("_ctx"),
+        const_cast<char*>("context"),
         0
     };
     char* operation;

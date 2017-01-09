@@ -99,9 +99,9 @@ namespace Ice
 
     class ObjectPrxHelper
     {
-        public static function checkedCast($proxy, $facetOrCtx=null, $ctx=null)
+        public static function checkedCast($proxy, $facetOrContext=null, $context=null)
         {
-            return $proxy->ice_checkedCast('::Ice::Object', $facetOrCtx, $ctx);
+            return $proxy->ice_checkedCast('::Ice::Object', $facetOrContext, $context);
         }
 
         public static function uncheckedCast($proxy, $facet=null)

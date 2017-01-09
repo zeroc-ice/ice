@@ -399,9 +399,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp << nl << "class " << prxName << "Helper";
         _out << sb;
 
-        _out << sp << nl << "public static function checkedCast($proxy, $facetOrCtx=null, $ctx=null)";
+        _out << sp << nl << "public static function checkedCast($proxy, $facetOrContext=null, $context=null)";
         _out << sb;
-        _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', $facetOrCtx, $ctx);";
+        _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', $facetOrContext, $context);";
         _out << eb;
 
         _out << sp << nl << "public static function uncheckedCast($proxy, $facet=null)";

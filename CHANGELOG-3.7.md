@@ -150,3 +150,6 @@ These are the changes since Ice 3.6.3.
   is multithreaded, users who also want to use the asyncio package must make sure it's
   done in a thread-safe manner. To assist with this, the Ice.wrap_future() function accepts
   an Ice.Future and returns an asyncio.Future.
+
+- Renamed optional invocation context parameter to 'context' for consistency with other
+  language mappings (was '_ctx' in previous versions).

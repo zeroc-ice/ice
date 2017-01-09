@@ -255,7 +255,7 @@ private:
     bool _pressAnyKeyMessage;
 };
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 
