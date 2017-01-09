@@ -20,10 +20,16 @@ public class Server : TestCommon.Application
 {
     public override int run(string[] args)
     {
+        if(args.Length < 1)
+        {
+            Console.Error.WriteLine("Usage: server testdir");
+            return 1;
+        }
+
         communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("factory");
-        adapter.add(new ServerFactoryI(), id);
+        adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
         adapter.activate();
 
         communicator().waitForShutdown();

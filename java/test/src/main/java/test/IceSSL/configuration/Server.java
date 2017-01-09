@@ -14,11 +14,16 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
+        if(args.length < 1)
+        {
+            System.out.println("Usage: server testdir");
+            return 1;
+        }
         com.zeroc.Ice.Communicator communicator = communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("factory");
-        adapter.add(new ServerFactoryI(), id);
+        adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
         adapter.activate();
 
         communicator.waitForShutdown();

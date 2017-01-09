@@ -90,6 +90,11 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         }
     }
 
+    public ServerFactoryI(string defaultDir)
+    {
+        _defaultDir = defaultDir;
+    }
+
     public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
@@ -98,6 +103,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         {
             initData.properties.setProperty(key, props[key]);
         }
+        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
         string[] args = new string[0];
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
@@ -125,5 +131,6 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
+    private string _defaultDir;
     private Hashtable _servers = new Hashtable();
 }

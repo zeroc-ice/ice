@@ -21,6 +21,11 @@ class ServerFactoryI implements ServerFactory
         }
     }
 
+    public ServerFactoryI(String defaultDir)
+    {
+        _defaultDir = defaultDir;
+    }
+
     @Override
     public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
     {
@@ -30,7 +35,7 @@ class ServerFactoryI implements ServerFactory
         {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
-
+        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
         String[] args = new String[0];
         com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
         com.zeroc.Ice.ObjectAdapter adapter = ir.communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
@@ -61,6 +66,7 @@ class ServerFactoryI implements ServerFactory
         current.adapter.getCommunicator().shutdown();
     }
 
+    private String _defaultDir;
     private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
         new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
 }
