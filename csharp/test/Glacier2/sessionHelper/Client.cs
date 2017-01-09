@@ -220,7 +220,7 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this, 2000);
+                    Monitor.Wait(this, 30000);
                     break;
                 }
                 catch(ThreadInterruptedException)
@@ -248,7 +248,7 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this, 2000);
+                    Monitor.Wait(this, 30000);
                     break;
                 }
                 catch(ThreadInterruptedException)
@@ -271,7 +271,7 @@ public class Client : TestCommon.Application
             {
                 try
                 {
-                    Monitor.Wait(this, 2000);
+                    Monitor.Wait(this, 30000);
                     break;
                 }
                 catch(ThreadInterruptedException)

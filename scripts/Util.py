@@ -2062,7 +2062,7 @@ class BrowserProcessController(RemoteProcessController):
                 # capabilities["acceptInsecureCerts"] = True
                 # capabilities["moz:firefoxOptions"] = {}
                 # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
-                if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "jenkins":
+                if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "ubuntu":
                     current.writeln("error: DISPLAY is unset, setting it to :1")
                     os.environ["DISPLAY"] = ":1"
 

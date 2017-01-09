@@ -110,7 +110,7 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait(2000);
+                    wait(30000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
@@ -190,7 +190,7 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait(2000);
+                    wait(30000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
@@ -248,7 +248,7 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait(2000);
+                    wait(30000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
