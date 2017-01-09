@@ -228,12 +228,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this, 2000);
+                    System.Threading.Monitor.Wait(this, 30000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this, 2000);
+                        System.Threading.Monitor.Wait(this, 30000);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -261,12 +261,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this, 2000);
+                    System.Threading.Monitor.Wait(this, 30000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this, 2000);
+                        System.Threading.Monitor.Wait(this, 30000);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -289,12 +289,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    System.Threading.Monitor.Wait(this, 2000);
+                    System.Threading.Monitor.Wait(this, 30000);
                     break;
 #else
                     try
                     {
-                        System.Threading.Monitor.Wait(this, 2000);
+                        System.Threading.Monitor.Wait(this, 30000);
                         break;
                     }
                     catch(ThreadInterruptedException)
