@@ -16,6 +16,7 @@
 #include <Slice/PythonUtil.h>
 #include <Slice/Util.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/ConsoleUtil.h>
 
 //
 // Python headers needed for PyEval_EvalCode.
@@ -27,6 +28,7 @@ using namespace std;
 using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
+using namespace IceUtilInternal;
 
 extern "C"
 PyObject*
@@ -233,22 +235,22 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argSeq[0] << ": error:" << ex.what() << endl;
+        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argSeq[0] << ": error:" << msg << endl;
+        consoleErr << argSeq[0] << ": error:" << msg << endl;
         rc = EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argSeq[0] << ": error:" << msg << endl;
+        consoleErr << argSeq[0] << ": error:" << msg << endl;
         rc = EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argSeq[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << argSeq[0] << ": error:" << "unknown exception" << endl;
         rc = EXIT_FAILURE;
     }
 
