@@ -42,7 +42,9 @@
     <Compile Include="generated\Key.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Clash.ice" />
+    <None Include="..\..\Clash.ice">
+      <Link>Clash.ice</Link>
+    </None>
     <None Include="client.exe.config" />
     <None Include="..\..\Key.ice">
       <Link>Key.ice</Link>
