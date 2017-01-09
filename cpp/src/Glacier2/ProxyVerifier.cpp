@@ -8,12 +8,14 @@
 // **********************************************************************
 
 #include <Glacier2/ProxyVerifier.h>
+#include <Ice/ConsoleUtil.h>
 
 #include <vector>
 #include <string>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 //
 // TODO: Some of the address matching helper classes can probably be
@@ -600,16 +602,16 @@ public:
     void 
     dump() const
     {
-        cerr << "address(";
+        consoleErr << "address(";
         for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
         {
-            cerr << (*i)->toString() << " ";
+            consoleErr << (*i)->toString() << " ";
         }
         if(_portMatcher != 0)
         {
-            cerr << "):port(" << _portMatcher->toString() << " ";
+            consoleErr << "):port(" << _portMatcher->toString() << " ";
         }
-        cerr << ")" << endl;
+        consoleErr << ")" << endl;
     }
 
 private:

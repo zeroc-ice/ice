@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DBTypes.h>
@@ -19,6 +20,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace
@@ -110,7 +112,6 @@ struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
 {
     static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)
     {
-        // cerr << "Custom read" << endl;
         is->read(v.id);
         is->read(v.loadBalancing);
         is->read(v.proxyOptions);
@@ -152,8 +153,8 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " <options>\n";
-    cerr <<
+    consoleErr << "Usage: " << appName() << " <options>\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help             Show this message.\n"
         "-v, --version          Display version.\n"
@@ -188,13 +189,13 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        consoleErr << argv[0] << ": " << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -207,20 +208,20 @@ Client::run(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
     if(!(opts.isSet("import") ^ opts.isSet("export")))
     {
-        cerr << argv[0] << ": either --import or --export must be set" << endl;
+        consoleErr << argv[0] << ": either --import or --export must be set" << endl;
         usage();
         return EXIT_FAILURE;
     }
 
     if(!(opts.isSet("dbhome") ^ opts.isSet("dbpath")))
     {
-        cerr << argv[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
+        consoleErr << argv[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -253,24 +254,25 @@ Client::run(int argc, char* argv[])
 
         if(import)
         {
-            cout << "Importing database to directory `" << dbPath << "' from file `" << dbFile << "'" << endl;
+            consoleOut << "Importing database to directory `" << dbPath << "' from file `" << dbFile << "'"
+                       << endl;
 
             if(!IceUtilInternal::directoryExists(dbPath))
             {
-                cerr << argv[0] << ": output directory does not exist: " << dbPath << endl;
+                consoleErr << argv[0] << ": output directory does not exist: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             if(!IceUtilInternal::isEmptyDirectory(dbPath))
             {
-                cerr << argv[0] << ": output directory is not empty: " << dbPath << endl;
+                consoleErr << argv[0] << ": output directory is not empty: " << dbPath << endl;
                 return EXIT_FAILURE;
             }
 
             ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
+                consoleErr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.unsetf(ios::skipws);
@@ -281,7 +283,7 @@ Client::run(int argc, char* argv[])
             if(!fileSize)
             {
                 fs.close();
-                cerr << argv[0] << ": empty input file" << endl;
+                consoleErr << argv[0] << ": empty input file" << endl;
                 return EXIT_FAILURE;
             }
 
@@ -308,7 +310,7 @@ Client::run(int argc, char* argv[])
             stream.read(type);
             if(type != "IceGrid")
             {
-                cerr << argv[0] << ": incorrect input file type: " << type << endl;
+                consoleErr << argv[0] << ": incorrect input file type: " << type << endl;
                 return EXIT_FAILURE;
             }
             stream.read(version);
@@ -316,7 +318,7 @@ Client::run(int argc, char* argv[])
             {
                 if(debug)
                 {
-                    cout << "Reading Ice 3.5.x data" << endl;
+                    consoleOut << "Reading Ice 3.5.x data" << endl;
                 }
                 skipReplicaGroupFilter = true;
             }
@@ -328,7 +330,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Writing Applications Map:" << endl;
+                    consoleOut << "Writing Applications Map:" << endl;
                 }
 
                 IceDB::Dbi<string, ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
@@ -338,14 +340,14 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << p->descriptor.name << endl;
+                        consoleOut << "  NAME = " << p->descriptor.name << endl;
                     }
                     apps.put(txn, p->descriptor.name, *p);
                 }
 
                 if(debug)
                 {
-                    cout << "Writing Adapters Map:" << endl;
+                    consoleOut << "Writing Adapters Map:" << endl;
                 }
 
                 IceDB::Dbi<string, AdapterInfo, IceDB::IceContext, Ice::OutputStream>
@@ -355,14 +357,14 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << p->id << endl;
+                        consoleOut << "  NAME = " << p->id << endl;
                     }
                     adpts.put(txn, p->id, *p);
                 }
 
                 if(debug)
                 {
-                    cout << "Writing Objects Map:" << endl;
+                    consoleOut << "Writing Objects Map:" << endl;
                 }
 
                 IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStream>
@@ -372,14 +374,15 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity()) << endl;
+                        consoleOut << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity())
+                                   << endl;
                     }
                     objs.put(txn, p->proxy->ice_getIdentity(), *p);
                 }
 
                 if(debug)
                 {
-                    cout << "Writing Internal Objects Map:" << endl;
+                    consoleOut << "Writing Internal Objects Map:" << endl;
                 }
 
                 IceDB::Dbi<Identity, ObjectInfo, IceDB::IceContext, Ice::OutputStream>
@@ -390,14 +393,15 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity()) << endl;
+                        consoleOut << "  NAME = " << communicator()->identityToString(p->proxy->ice_getIdentity())
+                                   << endl;
                     }
                     internalObjs.put(txn, p->proxy->ice_getIdentity(), *p);
                 }
 
                 if(debug)
                 {
-                    cout << "Writing Serials Map:" << endl;
+                    consoleOut << "Writing Serials Map:" << endl;
                 }
 
                 IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStream>
@@ -407,7 +411,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << p->first << endl;
+                        consoleOut << "  NAME = " << p->first << endl;
                     }
                     srls.put(txn, p->first, p->second);
                 }
@@ -418,7 +422,8 @@ Client::run(int argc, char* argv[])
         }
         else
         {
-            cout << "Exporting database from directory `" << dbPath << "' to file `" << dbFile << "'" << endl;
+            consoleOut << "Exporting database from directory `" << dbPath << "' to file `" << dbFile << "'"
+                       << endl;
 
             {
                 IceDB::Env env(dbPath, 5);
@@ -426,7 +431,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Reading Application Map:" << endl;
+                    consoleOut << "Reading Application Map:" << endl;
                 }
 
                 IceDB::Dbi<string, IceGrid::ApplicationInfo, IceDB::IceContext, Ice::OutputStream>
@@ -440,7 +445,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  APPLICATION = " << name << endl;
+                        consoleOut << "  APPLICATION = " << name << endl;
                     }
                     data.applications.push_back(application);
                 }
@@ -448,7 +453,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Reading Adapter Map:" << endl;
+                    consoleOut << "Reading Adapter Map:" << endl;
                 }
 
                 IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream>
@@ -461,7 +466,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  ADAPTER = " << name << endl;
+                        consoleOut << "  ADAPTER = " << name << endl;
                     }
                     data.adapters.push_back(adapter);
                 }
@@ -469,7 +474,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Reading Object Map:" << endl;
+                    consoleOut << "Reading Object Map:" << endl;
                 }
 
                 IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
@@ -483,7 +488,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  IDENTITY = " << communicator()->identityToString(id) << endl;
+                        consoleOut << "  IDENTITY = " << communicator()->identityToString(id) << endl;
                     }
                     data.objects.push_back(object);
                 }
@@ -491,7 +496,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Reading Internal Object Map:" << endl;
+                    consoleOut << "Reading Internal Object Map:" << endl;
                 }
 
                 IceDB::Dbi<Identity, IceGrid::ObjectInfo, IceDB::IceContext, Ice::OutputStream>
@@ -503,7 +508,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  IDENTITY = " << communicator()->identityToString(id) << endl;
+                        consoleOut << "  IDENTITY = " << communicator()->identityToString(id) << endl;
                     }
                     data.internalObjects.push_back(object);
                 }
@@ -511,7 +516,7 @@ Client::run(int argc, char* argv[])
 
                 if(debug)
                 {
-                    cout << "Reading Serials Map:" << endl;
+                    consoleOut << "Reading Serials Map:" << endl;
                 }
 
                 IceDB::Dbi<string, Long, IceDB::IceContext, Ice::OutputStream>
@@ -524,7 +529,7 @@ Client::run(int argc, char* argv[])
                 {
                     if(debug)
                     {
-                        cout << "  NAME = " << name << endl;
+                        consoleOut << "  NAME = " << name << endl;
                     }
                     data.serials.insert(std::make_pair(name, serial));
                 }
@@ -542,7 +547,7 @@ Client::run(int argc, char* argv[])
             ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                cerr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
+                consoleErr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
@@ -551,7 +556,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << argv[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
+        consoleErr << argv[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
         return EXIT_FAILURE;
     }
 

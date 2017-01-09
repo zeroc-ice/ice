@@ -147,7 +147,7 @@
     <ClCompile Include="..\..\SHA1.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
-    <ClCompile Include="..\..\WindowsStringConverter.cpp" />
+    <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\StreamSocket.cpp" />
     <ClCompile Include="..\..\Thread.cpp" />

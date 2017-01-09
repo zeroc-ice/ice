@@ -13,16 +13,11 @@
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
 
-#include <ostream>
-#include <fstream>
-
 namespace Slice
 {
 
 std::string fullPath(const std::string&);
 std::string changeInclude(const std::string&, const std::vector<std::string>&);
-void setErrorStream(std::ostream&);
-std::ostream& getErrorStream();
 void emitError(const std::string&, int, const std::string&);
 void emitWarning(const std::string&, int, const std::string&);
 void emitError(const std::string&, const std::string&, const std::string&);
@@ -53,20 +48,8 @@ std::string
 toStringLiteral(const std::string&, const std::string&, const std::string&, EscapeMode, unsigned char);
 
 
-class DependOutputUtil : IceUtil::noncopyable
-{
-public:
-
-    DependOutputUtil(std::string& file);
-    ~DependOutputUtil();
-    void cleanup();
-    std::ostream& os();
-
-private:
-
-    const std::string _file;
-    std::ofstream _os;
-};
+void
+writeDependencies(const std::string&, const std::string&);
 
 }
 

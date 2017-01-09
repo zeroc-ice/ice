@@ -41,7 +41,6 @@ class TopicManagerImpl : public IceStormElection::Replica,
 public:
 
     TopicManagerImpl(const PersistentInstancePtr&);
-    ~TopicManagerImpl();
 
     // TopicManager methods.
     TopicPrx create(const std::string&);

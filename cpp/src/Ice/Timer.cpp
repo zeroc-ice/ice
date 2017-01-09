@@ -9,9 +9,11 @@
 
 #include <IceUtil/Timer.h>
 #include <IceUtil/Exception.h>
+#include <Ice/ConsoleUtil.h>
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceInternal;
 
 TimerTask::~TimerTask()
 {
@@ -231,19 +233,19 @@ Timer::run()
             }
             catch(const IceUtil::Exception& e)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
+                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__
-                cerr << "\n" << e.ice_stackTrace();
+                consoleErr << "\n" << e.ice_stackTrace();
 #endif
-                cerr << endl;
+                consoleErr << endl;
             } 
             catch(const std::exception& e)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
+                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
             } 
             catch(...)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception" << endl;
+                consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
             }
         }
     }

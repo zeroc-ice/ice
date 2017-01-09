@@ -10,6 +10,7 @@
 #include <Ice/UUID.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/FileUtil.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/Service.h>
 #include <Glacier2/Instance.h>
 #include <Glacier2/RouterI.h>
@@ -20,6 +21,7 @@
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
+using namespace IceInternal;
 
 namespace
 {
@@ -40,7 +42,7 @@ private:
 
     void usage(const std::string&);
 
-    InstancePtr _instance;
+    Glacier2::InstancePtr _instance;
     SessionRouterIPtr _sessionRouter;
 };
 
@@ -108,7 +110,7 @@ RouterService::start(int argc, char* argv[], int& status)
 
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }
@@ -341,7 +343,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     try
     {
-        _instance = new Instance(communicator(), clientAdapter, serverAdapter);
+        _instance = new Glacier2::Instance(communicator(), clientAdapter, serverAdapter);
     }
     catch(const Ice::InitializationException& ex)
     {

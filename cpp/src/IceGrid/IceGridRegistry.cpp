@@ -10,12 +10,14 @@
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <Ice/Service.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>
 
 using namespace std;
 using namespace Ice;
+using namespace IceUtilInternal;
 using namespace IceGrid;
 
 namespace IceGrid
@@ -109,7 +111,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }

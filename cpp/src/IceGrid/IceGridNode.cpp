@@ -12,6 +12,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
@@ -33,6 +34,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace
@@ -581,14 +583,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
                 while(id.empty())
                 {
-                    cout << "user id: " << flush;
+                    consoleOut << "user id: " << flush;
                     getline(cin, id);
                     id = IceUtilInternal::trim(id);
                 }
 
                 if(password.empty())
                 {
-                    cout << "password: " << flush;
+                    consoleOut << "password: " << flush;
                     getline(cin, password);
                     password = IceUtilInternal::trim(password);
                 }

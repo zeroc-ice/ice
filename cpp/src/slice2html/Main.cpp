@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -19,7 +20,7 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -58,8 +59,8 @@ interruptedCallback(int /*signal*/)
 void
 usage(const string& n)
 {
-    getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<
+    consoleErr << "Usage: " << n << " [options] slice-files...\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -120,7 +121,7 @@ compile(const vector<string>& argv)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        getErrorStream() << argv[0] << ": error: " << e.reason << endl;
+        consoleErr << argv[0] << ": error: " << e.reason << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -136,7 +137,7 @@ compile(const vector<string>& argv)
 
     if(opts.isSet("version"))
     {
-        getErrorStream() << ICE_STRING_VERSION << endl;
+        consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -179,8 +180,8 @@ compile(const vector<string>& argv)
         s >>  indexCount;
         if(!s)
         {
-            getErrorStream() << argv[0] << ": error: the --index operation requires a positive integer argument"
-                             << endl;
+            consoleErr << argv[0] << ": error: the --index operation requires a positive integer argument"
+                       << endl;
             if(!validate)
             {
                 usage(argv[0]);
@@ -203,8 +204,8 @@ compile(const vector<string>& argv)
         s >>  summaryCount;
         if(!s)
         {
-            getErrorStream() << argv[0] << ": error: the --summary operation requires a positive integer argument"
-                             << endl;
+            consoleErr << argv[0] << ": error: the --summary operation requires a positive integer argument"
+                       << endl;
             if(!validate)
             {
                 usage(argv[0]);
@@ -221,7 +222,7 @@ compile(const vector<string>& argv)
 
     if(args.empty())
     {
-        getErrorStream() << argv[0] << ": error: no input file" << endl;
+        consoleErr << argv[0] << ": error: no input file" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -297,19 +298,19 @@ compile(const vector<string>& argv)
             // created files.
             FileTracker::instance()->cleanup();
             p->destroy();
-            getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+            consoleErr << argv[0] << ": error: " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
         catch(const string& err)
         {
             FileTracker::instance()->cleanup();
-            getErrorStream() << argv[0] << ": error: " << err << endl;
+            consoleErr << argv[0] << ": error: " << err << endl;
             status = EXIT_FAILURE;
         }
         catch(const char* err)
         {
             FileTracker::instance()->cleanup();
-            getErrorStream() << argv[0] << ": error: " << err << endl;
+            consoleErr << argv[0] << ": error: " << err << endl;
             status = EXIT_FAILURE;
         }
     }
@@ -342,22 +343,22 @@ int main(int argc, char* argv[])
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << args[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << args[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << args[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

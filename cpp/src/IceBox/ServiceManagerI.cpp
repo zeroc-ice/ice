@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/SliceChecksums.h>
 #include <Ice/Initialize.h>
@@ -17,6 +18,7 @@
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
+using namespace IceUtilInternal;
 using namespace IceBox;
 using namespace std;
 
@@ -467,7 +469,7 @@ IceBox::ServiceManagerI::start()
         string bundleName = properties->getProperty("IceBox.PrintServicesReady");
         if(!bundleName.empty())
         {
-            cout << bundleName << " ready" << endl;
+            consoleOut << bundleName << " ready" << endl;
         }
 
         //

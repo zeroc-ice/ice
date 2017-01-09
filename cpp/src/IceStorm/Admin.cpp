@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <Ice/Application.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/SliceChecksums.h>
 #include <IceStorm/Parser.h>
 
@@ -19,6 +20,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceStorm;
 
 class Client : public Application
@@ -56,8 +58,8 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<
+    consoleErr << "Usage: " << appName() << " [options]\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -85,13 +87,13 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -103,7 +105,7 @@ Client::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     if(opts.isSet("e"))
@@ -139,7 +141,7 @@ Client::run(int argc, char* argv[])
                 }
                 catch(const Ice::ProxyParseException&)
                 {
-                    cerr << appName() << ": malformed proxy: " << p->second << endl;
+                    consoleErr << appName() << ": malformed proxy: " << p->second << endl;
                     return EXIT_FAILURE;
                 }
             }
@@ -180,7 +182,7 @@ Client::run(int argc, char* argv[])
 
     if(!defaultManager)
     {
-        cerr << appName() << ": no manager proxies configured" << endl;
+        consoleErr << appName() << ": no manager proxies configured" << endl;
         return EXIT_FAILURE;
     }
 

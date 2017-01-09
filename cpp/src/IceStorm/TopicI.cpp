@@ -441,11 +441,6 @@ TopicImpl::TopicImpl(
     __setNoDelete(false);
 }
 
-TopicImpl::~TopicImpl()
-{
-    //cout << "~TopicImpl" << endl;
-}
-
 string
 TopicImpl::getName() const
 {

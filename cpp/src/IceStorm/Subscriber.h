@@ -31,8 +31,6 @@ public:
 
     static SubscriberPtr create(const InstancePtr&, const IceStorm::SubscriberRecord&);
 
-    ~Subscriber();
-
     Ice::ObjectPrx proxy() const; // Get the per subscriber object.
     Ice::Identity id() const; // Return the id of the subscriber.
     IceStorm::SubscriberRecord record() const; // Get the subscriber record.

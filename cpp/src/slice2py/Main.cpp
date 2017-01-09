@@ -9,10 +9,12 @@
 
 #include <Slice/PythonUtil.h>
 #include <Slice/Util.h>
+#include <IceUtil/ConsoleUtil.h>
 
 using namespace std;
 using namespace Slice;
 using namespace Slice::Python;
+using namespace IceUtilInternal;
 
 #ifdef _WIN32
 int wmain(int argc, wchar_t* argv[])
@@ -27,22 +29,22 @@ int main(int argc, char* argv[])
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << args[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << args[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << args[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

@@ -19,6 +19,7 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Cond.h>
+#include <IceUtil/ConsoleUtil.h>
 #if !defined(__APPLE__) && !defined(ICE_OS_UWP)
 #   include <IceUtil/CtrlCHandler.h>
 #endif

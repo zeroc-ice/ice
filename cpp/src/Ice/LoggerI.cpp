@@ -19,6 +19,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -57,9 +58,6 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
     _convert(convert),
     _converter(getProcessStringConverter()),
     _sizeMax(sizeMax)
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
-    ,_consoleConverter(createWindowsStringConverter(GetConsoleOutputCP()))
-#endif
 {
     if(!prefix.empty())
     {
@@ -253,31 +251,7 @@ Ice::LoggerI::write(const string& message, bool indent)
         }
         else
         {
-            try
-            {
-                // Convert message to UTF-8
-                string u8s = nativeToUTF8(s, _converter);
-
-                // Then from UTF-8 to console CP
-                string consoleString;
-                _consoleConverter->fromUTF8(reinterpret_cast<const Byte*>(u8s.data()),
-                                            reinterpret_cast<const Byte*>(u8s.data() + u8s.size()),
-                                            consoleString);
-
-                // We cannot use cerr here as writing to console using cerr
-                // will do its own conversion and will corrupt the messages.
-                //
-                fprintf_s(stderr, "%s\n", consoleString.c_str());
-            }
-            catch(const IceUtil::IllegalConversionException&)
-            {
-                //
-                // If there is a problem with the encoding conversions we just
-                // write the original message without encoding conversions.
-                //
-                fprintf_s(stderr, "%s\n", s.c_str());
-            }
-            fflush(stderr);
+            consoleErr << s << endl;
         }
 #else
         cerr << s << endl;

@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/IceStormInternal.h>
 #include <algorithm>
@@ -23,6 +24,7 @@ extern int yydebug;
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceStorm;
 
 namespace IceStorm
@@ -89,7 +91,7 @@ Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx&
 void
 Parser::usage()
 {
-    cout <<
+    consoleOut <<
         "help                     Print this message.\n"
         "exit, quit               Exit this program.\n"
         "create TOPICS            Add TOPICS.\n"
@@ -229,7 +231,7 @@ Parser::links(const list<string>& args)
             LinkInfoSeq links = i->second->getLinkInfoSeq();
             for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
             {
-                cout << i->first << " to " << (*p).name << " with cost " << (*p).cost << endl;
+                consoleOut << i->first << " to " << p->name << " with cost " << p->cost << endl;
             }
         }
     }
@@ -263,7 +265,7 @@ Parser::topics(const list<string>& args)
         TopicDict d = manager->retrieveAll();
         for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
         {
-            cout << i->first << endl;
+            consoleOut << i->first << endl;
         }
     }
     catch(const Exception& ex)
@@ -299,49 +301,50 @@ Parser::replica(const list<string>& args)
             error("This topic is not replicated");
         }
         IceStormElection::NodeInfoSeq nodes = node->nodes();
-        cout << "replica count: " << nodes.size() << endl;
+        consoleOut << "replica count: " << nodes.size() << endl;
         for(IceStormElection::NodeInfoSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
         {
             try
             {
                 IceStormElection::QueryInfo info = p->n->query();
-                cout << p->id << ": id:         " << info.id << endl;
-                cout << p->id << ": coord:      " << info.coord << endl;
-                cout << p->id << ": group name: " << info.group << endl;
-                cout << p->id << ": state:      ";
+                consoleOut << p->id << ": id:         " << info.id << endl;
+                consoleOut << p->id << ": coord:      " << info.coord << endl;
+                consoleOut << p->id << ": group name: " << info.group << endl;
+                consoleOut << p->id << ": state:      ";
                 switch(info.state)
                 {
                 case IceStormElection::NodeStateInactive:
-                    cout << "inactive";
+                    consoleOut << "inactive";
                     break;
                 case IceStormElection::NodeStateElection:
-                    cout << "election";
+                    consoleOut << "election";
                     break;
                 case IceStormElection::NodeStateReorganization:
-                    cout << "reorganization";
+                    consoleOut << "reorganization";
                     break;
                 case IceStormElection::NodeStateNormal:
-                    cout << "normal";
+                    consoleOut << "normal";
                     break;
                 default:
-                    cout << "unknown";
+                    consoleOut << "unknown";
                 }
-                cout << endl;
-                cout << p->id << ": group:      ";
+                consoleOut << endl;
+                consoleOut << p->id << ": group:      ";
                 for(IceStormElection::GroupInfoSeq::const_iterator q = info.up.begin(); q != info.up.end(); ++q)
                 {
                     if(q != info.up.begin())
                     {
-                        cout << ",";
+                        consoleOut << ",";
                     }
-                    cout << q->id;
+                    consoleOut << q->id;
                 }
-                cout << endl;
-                cout << p->id << ": max:        " << info.max << endl;
+                consoleOut << endl;
+                consoleOut << p->id << ": max:        " << info.max
+                           << endl;
             }
             catch(const Exception& ex)
             {
-                cout << p->id << ": " << ex.ice_id() << endl;
+                consoleOut << p->id << ": " << ex.ice_id() << endl;
             }
         }
     }
@@ -364,11 +367,11 @@ Parser::subscribers(const list<string>& args)
         for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
         {
             TopicPrx topic = _defaultManager->retrieve(*i);
-            cout << (*i) << ": subscribers:" << endl;
+            consoleOut << (*i) << ": subscribers:" << endl;
             IdentitySeq subscribers = topic->getSubscribers();
             for(IdentitySeq::const_iterator j = subscribers.begin(); j != subscribers.end(); ++j)
             {
-                cout << "\t" << _communicator->identityToString(*j) << endl;
+                consoleOut << "\t" << _communicator->identityToString(*j) << endl;
             }
         }
     }
@@ -383,7 +386,7 @@ Parser::current(const list<string>& args)
 {
     if(args.empty())
     {
-        cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
+        consoleOut << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
         return;
     }
     else if(args.size() > 1)
@@ -407,7 +410,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2016 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2016 ZeroC, Inc." << endl;
 }
 
 //
@@ -477,7 +480,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
 
 #else
 
-        cout << parser->getPrompt() << flush;
+        consoleOut << parser->getPrompt() << flush;
 
         string line;
         while(true)
@@ -545,7 +548,7 @@ Parser::getPrompt()
 void
 Parser::error(const char* s)
 {
-    cerr << "error: " << s << endl;
+    consoleErr << "error: " << s << endl;
     _errors++;
 }
 
@@ -558,7 +561,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    cerr << "warning: " << s << endl;
+    consoleErr << "warning: " << s << endl;
 }
 
 void
@@ -570,7 +573,7 @@ Parser::warning(const string& s)
 void
 Parser::invalidCommand(const string& s)
 {
-    cerr << s << endl;
+    consoleErr << s << endl;
 }
 
 int

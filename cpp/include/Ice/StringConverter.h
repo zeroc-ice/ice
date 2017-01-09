@@ -12,6 +12,7 @@
 
 #include <Ice/Config.h>
 #include <IceUtil/StringConverter.h>
+#include <IceUtil/ConsoleUtil.h>
 
 namespace Ice
 {
@@ -30,11 +31,7 @@ using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
 #endif
 
 #ifdef _WIN32
-//
-// Create a StringConverter that converts to and from narrow chars
-// in the given code page, using MultiByteToWideChar and WideCharToMultiByte
-//
-ICE_API StringConverterPtr createWindowsStringConverter(unsigned int);
+using IceUtil::createWindowsStringConverter;
 #endif
 
 using IceUtil::createUnicodeWstringConverter;

@@ -38,8 +38,6 @@ class Replica : public virtual IceUtil::Shared
 {
 public:
 
-    ~Replica();
-
     virtual LogUpdate getLastLogUpdate() const = 0;
     virtual void sync(const Ice::ObjectPrx&) = 0;
     virtual void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const LogUpdate&) = 0;

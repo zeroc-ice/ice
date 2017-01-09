@@ -30,7 +30,6 @@ public:
 
     NodeI(const IceStorm::InstancePtr&, const ReplicaPtr&, const Ice::ObjectPrx&,
           int, const std::map<int, NodePrx>&);
-    ~NodeI();
 
     void start();
 

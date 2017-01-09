@@ -158,4 +158,16 @@ ICE_API std::vector<IceUtil::Byte> fromUTF32(const std::vector<unsigned int>&);
 
 }
 
+#ifdef _WIN32
+namespace IceUtil
+{
+//
+// Create a StringConverter that converts to and from narrow chars
+// in the given code page, using MultiByteToWideChar and WideCharToMultiByte
+//
+ICE_API StringConverterPtr createWindowsStringConverter(unsigned int);
+
+}
+#endif
+
 #endif

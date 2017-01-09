@@ -19,10 +19,9 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, U
     Byte* targetStart = buffer.getMoreBytes(size, 0);
     Byte* targetEnd = targetStart + size;
 
-    size_t j = size;
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = sourceStart[--j];
+        targetStart[i] = tolower(sourceStart[i]);
     }
 
     return targetEnd;
@@ -34,11 +33,9 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
     target.resize(size);
-
-    size_t j = size;
     for(size_t i = 0; i < size; ++i)
     {
-        target[i] = sourceStart[--j];
+        target[i] = toupper(sourceStart[i]);
     }
 }
 
@@ -53,10 +50,9 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
     Byte* targetStart = buffer.getMoreBytes(size, 0);
     Byte* targetEnd = targetStart + size;
 
-    size_t j = size;
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Byte>(s[--j]);
+        targetStart[i] = tolower(s[i]);
     }
     return targetEnd;
 }
@@ -65,16 +61,11 @@ void
 Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
                                   wstring& target) const
 {
-    size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    string s;
-    s.resize(size);
-
-    size_t j = size;
-    for(size_t i = 0; i < size; ++i)
+    string s(sourceStart, sourceEnd);
+    for(size_t i = 0; i < s.size(); ++i)
     {
-        s[i] = sourceStart[--j];
+        s[i] = toupper(s[i]);
     }
-
     target = stringToWstring(s);
 }
 

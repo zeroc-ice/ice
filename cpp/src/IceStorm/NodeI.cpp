@@ -118,11 +118,6 @@ GroupNodeInfo::operator=(const GroupNodeInfo& other)
 }
 #endif
 
-Replica::~Replica()
-{
-    //cout << "~Replica" << endl;
-}
-
 namespace
 {
 static IceUtil::Time
@@ -188,11 +183,6 @@ NodeI::NodeI(const InstancePtr& instance,
         instance->serviceName() + ".Election.ElectionTimeout", 10, properties, _traceLevels);
     const_cast<IceUtil::Time&>(_mergeTimeout) = getTimeout(
         instance->serviceName() + ".Election.ResponseTimeout", 10, properties, _traceLevels);
-}
-
-NodeI::~NodeI()
-{
-    //cout << "~NodeI" << endl;
 }
 
 void

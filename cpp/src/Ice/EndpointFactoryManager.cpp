@@ -129,8 +129,8 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         short type;
         bs.read(type);
         EndpointIPtr ue = new IceInternal::OpaqueEndpointI(type, &bs);
-        cerr << "Normal: " << e->toString() << endl;
-        cerr << "Opaque: " << ue->toString() << endl;
+        consoleErr << "Normal: " << e->toString() << endl;
+        consoleErr << "Opaque: " << ue->toString() << endl;
         return e;
 #endif
     }

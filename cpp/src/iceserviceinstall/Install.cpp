@@ -8,11 +8,13 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceUtil/Options.h>
 #include <ServiceInstaller.h>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 class Install : public Application
 {
@@ -74,7 +76,7 @@ Install::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << "Error:" << e.reason << endl;
+        consoleErr << "Error:" << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -89,7 +91,7 @@ Install::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         _pause = true;
         return EXIT_SUCCESS;
     }
@@ -112,7 +114,7 @@ Install::run(int argc, char* argv[])
 
     if(serviceType == -1)
     {
-        cerr << "Invalid service " << commands[0] << endl;
+        consoleErr << "Invalid service " << commands[0] << endl;
         return EXIT_FAILURE;
     }
 
@@ -145,12 +147,12 @@ Install::run(int argc, char* argv[])
     }
     catch(const string& msg)
     {
-        cerr << "Error: " << msg << endl;
+        consoleErr << "Error: " << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const Ice::Exception& ex)
     {
-        cerr << "Error: " << ex << endl;
+        consoleErr << "Error: " << ex << endl;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -195,9 +197,9 @@ Install::usage() const
 #endif
     defaultImagePath += ".exe";
 
-    cerr << "Usage: " << appName()
+    consoleErr << "Usage: " << appName()
          << " [options] service config-file [property] [property]\n";
-    cerr <<
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-n, --nopause        Do not call pause after displaying a message.\n"

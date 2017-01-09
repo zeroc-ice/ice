@@ -31,6 +31,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/PropertyNames.h>
+#include <Ice/ConsoleUtil.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -149,7 +150,7 @@ Ice::ObjectAdapterI::activate()
 
     if(printAdapterReady)
     {
-        cout << _name << " ready" << endl;
+        consoleOut << _name << " ready" << endl;
     }
 
     {

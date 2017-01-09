@@ -9,10 +9,12 @@
 
 #include <Slice/RubyUtil.h>
 #include <Slice/Util.h>
+#include <IceUtil/ConsoleUtil.h>
 
 using namespace std;
 using namespace Slice;
 using namespace Slice::Ruby;
+using namespace IceUtilInternal;
 
 int
 main(int argc, char* argv[])
@@ -24,22 +26,22 @@ main(int argc, char* argv[])
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << argv[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << argv[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << argv[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << argv[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

@@ -19,6 +19,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
+#include <Ice/ConsoleUtil.h>
 #include <climits>
 #include <exception>
 
@@ -32,6 +33,7 @@
 #endif
 
 using namespace std;
+using namespace IceInternal;
 
 #ifdef ICE_OS_UWP
 
@@ -169,7 +171,7 @@ WINAPI startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }
@@ -404,7 +406,7 @@ WINAPI startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }
@@ -650,7 +652,7 @@ startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }

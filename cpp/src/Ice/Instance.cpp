@@ -43,6 +43,7 @@
 #include <Ice/RegisterPluginsInit.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/Functional.h>
+#include <Ice/ConsoleUtil.h>
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
@@ -141,16 +142,16 @@ public:
 
             if(notDestroyedCount > 0)
             {
-                cerr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
+                consoleErr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
                 if(notDestroyedCount == 1)
                 {
-                    cerr << "communicator ";
+                    consoleErr << "communicator ";
                 }
                 else
                 {
-                    cerr << notDestroyedCount << " communicators ";
+                    consoleErr << notDestroyedCount << " communicators ";
                 }
-                cerr << "not destroyed during global destruction.";
+                consoleErr << "not destroyed during global destruction.";
             }
 
             delete instanceList;
@@ -1521,9 +1522,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     if(printProcessId)
     {
 #ifdef _MSC_VER
-        cout << GetCurrentProcessId() << endl;
+        consoleOut << GetCurrentProcessId() << endl;
 #else
-        cout << getpid() << endl;
+        consoleOut << getpid() << endl;
 #endif
     }
 
@@ -1930,12 +1931,12 @@ IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current
     {
         case 1:
         {
-            cout << message << endl;
+            consoleOut << message << endl;
             break;
         }
         case 2:
         {
-            cerr << message << endl;
+            consoleErr << message << endl;
             break;
         }
     }

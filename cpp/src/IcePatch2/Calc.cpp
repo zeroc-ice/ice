@@ -10,11 +10,13 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <Ice/ConsoleUtil.h>
 #include <IcePatch2Lib/Util.h>
 #include <iterator>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
@@ -77,21 +79,21 @@ public:
     virtual bool
     remove(const string& path)
     {
-        cout << "removing: " << path << endl;
+        consoleOut << "removing: " << path << endl;
         return true;
     }
 
     virtual bool
     checksum(const string& path)
     {
-        cout << "checksum: " << path << endl;
+        consoleOut << "checksum: " << path << endl;
         return true;
     }
 
     virtual bool
     compress(const string& path)
     {
-        cout << "compress: " << path << endl;
+        consoleOut << "compress: " << path << endl;
         return true;
     }
 };
@@ -99,8 +101,8 @@ public:
 void
 usage(const string& appName)
 {
-    cerr << "Usage: " << appName << " [options] DIR [FILES...]\n";
-    cerr <<     
+    consoleErr << "Usage: " << appName << " [options] DIR [FILES...]\n";
+    consoleErr <<     
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -147,7 +149,7 @@ main(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -159,14 +161,14 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     bool doCompress = opts.isSet("compress");
     bool dontCompress = opts.isSet("no-compress");
     if(doCompress && dontCompress)
     {
-        cerr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
+        consoleErr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -183,7 +185,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << appName << ": no data directory specified" << endl;
+        consoleErr << appName << ": no data directory specified" << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -312,12 +314,12 @@ main(int argc, char* argv[])
     }
     catch(const string& ex)
     {
-        cerr << appName << ": " << ex << endl;
+        consoleErr << appName << ": " << ex << endl;
         return EXIT_FAILURE;
     }
     catch(const char* ex)
     {
-        cerr << appName << ": " << ex << endl;
+        consoleErr << appName << ": " << ex << endl;
         return EXIT_FAILURE;
     }
 

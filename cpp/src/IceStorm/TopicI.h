@@ -32,7 +32,6 @@ class TopicImpl : public IceUtil::Shared
 public:
 
     TopicImpl(const PersistentInstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
-    ~TopicImpl();
 
     std::string getName() const;
     Ice::ObjectPrx getPublisher() const;

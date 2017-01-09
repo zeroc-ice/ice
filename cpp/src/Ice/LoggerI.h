@@ -49,10 +49,6 @@ private:
     // after which rename could be attempted again. Otherwise is set to zero.
     //
     IceUtil::Time _nextRetry;
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
-    const StringConverterPtr _consoleConverter;
-#endif
-
 };
 ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
 

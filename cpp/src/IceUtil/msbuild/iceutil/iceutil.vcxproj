@@ -87,6 +87,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ConsoleUtil.cpp" />
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\RecMutex.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Atomic.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
+    <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />

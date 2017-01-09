@@ -174,11 +174,6 @@ Instance::Instance(
     __setNoDelete(false);
 }
 
-Instance::~Instance()
-{
-    //cout << "~Instance" << endl;
-}
-
 void
 Instance::setNode(const NodeIPtr& node)
 {

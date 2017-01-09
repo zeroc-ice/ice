@@ -13,6 +13,7 @@
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -27,6 +28,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtilInternal;
 
 //
 // mcpp defines
@@ -274,10 +276,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
         }
         else
         {
-            ostream& os = getErrorStream();
-            os << _path << ": error: could not open temporary file: ";
-            os << _cppFile;
-            os << endl;
+            consoleErr << _path << ": error: could not open temporary file: " << _cppFile << endl;
         }
     }
 
@@ -764,14 +763,14 @@ Slice::Preprocessor::checkInputFile()
     }
     if(suffix != ".ice")
     {
-        getErrorStream() << _path << ": error: input files must end with `.ice'" << endl;
+        consoleErr << _path << ": error: input files must end with `.ice'" << endl;
         return false;
     }
 
     ifstream test(IceUtilInternal::streamFilename(_fileName).c_str());
     if(!test)
     {
-        getErrorStream() << _path << ": error: cannot open `" << _fileName << "' for reading" << endl;
+        consoleErr << _path << ": error: cannot open `" << _fileName << "' for reading" << endl;
         return false;
     }
     test.close();

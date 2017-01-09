@@ -69,7 +69,6 @@ public:
 
     Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
              const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0, const IceStormElection::NodePrx& = 0);
-    ~Instance();
 
     void setNode(const IceStormElection::NodeIPtr&);
 

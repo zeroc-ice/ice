@@ -34,10 +34,6 @@ public:
     {
     }
 
-    ~PerSubscriberPublisherI()
-    {
-    }
-
     void
     setSubscriber(const SubscriberPtr& subscriber)
     {
@@ -107,7 +103,6 @@ class SubscriberBatch : public Subscriber
 public:
 
     SubscriberBatch(const InstancePtr&, const SubscriberRecord&, const Ice::ObjectPrx&, int, const Ice::ObjectPrx&);
-    ~SubscriberBatch();
 
     virtual void flush();
 
@@ -131,7 +126,6 @@ class SubscriberOneway : public Subscriber
 public:
 
     SubscriberOneway(const InstancePtr&, const SubscriberRecord&, const Ice::ObjectPrx&, int, const Ice::ObjectPrx&);
-    ~SubscriberOneway();
 
     virtual void flush();
 
@@ -207,10 +201,6 @@ SubscriberBatch::SubscriberBatch(
     _interval(instance->flushInterval())
 {
     assert(retryCount == 0);
-}
-
-SubscriberBatch::~SubscriberBatch()
-{
 }
 
 void
@@ -324,10 +314,6 @@ SubscriberOneway::SubscriberOneway(
     _obj(obj)
 {
     assert(retryCount == 0);
-}
-
-SubscriberOneway::~SubscriberOneway()
-{
 }
 
 void
@@ -627,11 +613,6 @@ Subscriber::create(
 
         return subscriber;
     }
-}
-
-Subscriber::~Subscriber()
-{
-    //cout << "~Subscriber" << endl;
 }
 
 Ice::ObjectPrx

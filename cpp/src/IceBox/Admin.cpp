@@ -9,11 +9,13 @@
 
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceUtil/Options.h>
 #include <IceBox/IceBox.h>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 class Client : public Application
 {
@@ -42,8 +44,8 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options] [command...]\n";
-    cerr <<
+    consoleErr << "Usage: " << appName() << " [options] [command...]\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -69,7 +71,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -81,7 +83,7 @@ Client::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -111,7 +113,7 @@ Client::run(int argc, char* argv[])
             string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
             if(managerEndpoints.empty())
             {
-                cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
+                consoleErr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return EXIT_FAILURE;
             }
 
@@ -122,7 +124,7 @@ Client::run(int argc, char* argv[])
             string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
             if(managerAdapterId.empty())
             {
-                cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
+                consoleErr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
                 return EXIT_FAILURE;
             }
 
@@ -135,7 +137,7 @@ Client::run(int argc, char* argv[])
     IceBox::ServiceManagerPrxPtr manager = ICE_CHECKED_CAST(IceBox::ServiceManagerPrx, base);
     if(!manager)
     {
-        cerr << appName() << ": `" << base << "' is not an IceBox::ServiceManager" << endl;
+        consoleErr << appName() << ": `" << base << "' is not an IceBox::ServiceManager" << endl;
         return EXIT_FAILURE;
     }
 
@@ -146,11 +148,11 @@ Client::run(int argc, char* argv[])
         Ice::SliceChecksumDict::const_iterator q = serverChecksums.find(p->first);
         if(q == serverChecksums.end())
         {
-            cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
+            consoleErr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
         }
         else if(p->second != q->second)
         {
-            cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
+            consoleErr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
         }
     }
 
@@ -164,7 +166,7 @@ Client::run(int argc, char* argv[])
         {
             if(++r == commands.end())
             {
-                cerr << appName() << ": no service name specified." << endl;
+                consoleErr << appName() << ": no service name specified." << endl;
                 return EXIT_FAILURE;
             }
 
@@ -174,19 +176,19 @@ Client::run(int argc, char* argv[])
             }
             catch(const IceBox::NoSuchServiceException&)
             {
-                cerr << appName() << ": unknown service `" << *r << "'" << endl;
+                consoleErr << appName() << ": unknown service `" << *r << "'" << endl;
                 return EXIT_FAILURE;
             }
             catch(const IceBox::AlreadyStartedException&)
             {
-                cerr << appName() << ": service already started." << endl;
+                consoleErr << appName() << ": service already started." << endl;
             }
         }
         else if((*r) == "stop")
         {
             if(++r == commands.end())
             {
-                cerr << appName() << ": no service name specified." << endl;
+                consoleErr << appName() << ": no service name specified." << endl;
                 return EXIT_FAILURE;
             }
 
@@ -196,17 +198,17 @@ Client::run(int argc, char* argv[])
             }
             catch(const IceBox::NoSuchServiceException&)
             {
-                cerr << appName() << ": unknown service `" << *r << "'" << endl;
+                consoleErr << appName() << ": unknown service `" << *r << "'" << endl;
                 return EXIT_FAILURE;
             }
             catch(const IceBox::AlreadyStoppedException&)
             {
-                cerr << appName() << ": service already stopped." << endl;
+                consoleErr << appName() << ": service already stopped." << endl;
             }
         }
         else
         {
-            cerr << appName() << ": unknown command `" << *r << "'" << endl;
+            consoleErr << appName() << ": unknown command `" << *r << "'" << endl;
             usage();
             return EXIT_FAILURE;
         }

@@ -43,11 +43,6 @@ public:
     {
     }
 
-    ~TopicManagerI()
-    {
-        //cout << "~TopicManagerI" << endl;
-    }
-
     virtual TopicPrx create(const string& id, const Ice::Current&)
     {
         while(true)
@@ -134,11 +129,6 @@ public:
     {
     }
 
-    ~ReplicaObserverI()
-    {
-        //cout << "~ReplicaObserverI" << endl;
-    }
-
     virtual void init(const LogUpdate& llu, const TopicContentSeq& content, const Ice::Current&)
     {
         NodeIPtr node = _instance->node();
@@ -154,7 +144,6 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            //cout << "createTopic: " << llu.generation << " node generation: " << unlock.generation() << endl;
             _impl->observerCreateTopic(llu, name);
         }
         catch(const ObserverInconsistencyException& e)
@@ -229,11 +218,6 @@ public:
     TopicManagerSyncI(const TopicManagerImplPtr& impl) :
         _impl(impl)
     {
-    }
-
-    ~TopicManagerSyncI()
-    {
-        //cout << "~TopicManagerSyncI" << endl;
     }
 
     virtual void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&)
@@ -323,11 +307,6 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
         throw;
     }
     __setNoDelete(false);
-}
-
-TopicManagerImpl::~TopicManagerImpl()
-{
-    //cout << "~TopicManagerImpl" << endl;
 }
 
 TopicPrx
