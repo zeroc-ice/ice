@@ -2477,15 +2477,19 @@ class CppMapping(Mapping):
         }[plugin]
 
     def getEnv(self, process, current):
-
         #
         # On Windows, add the testcommon directories to the PATH
         #
         libPaths = []
         if isinstance(platform, Windows):
-            libPaths.append(self.getLibDir(process, current))
             testcommon = os.path.join(self.path, "test", "Common")
             libPaths.append(os.path.join(testcommon, self.getBuildDir("testcommon", current)))
+
+        #
+        # On most platforms, we also need to add the library directory to the library path environment variable.
+        #
+        if not isinstance(platform, Darwin):
+            libPaths.append(self.getLibDir(process, current))
 
         #
         # Add the test suite library directories to the platform library path environment variable.
