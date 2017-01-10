@@ -64,6 +64,13 @@ public:
     }
 };
 
+//
+// Explicit template instantiation so that dynamic_cast of derived exported
+// classes works well with clang, see ICE-7473.
+//
+template class ICE_API BasicStringConverter<char>;
+template class ICE_API BasicStringConverter<wchar_t>;
+
 typedef BasicStringConverter<char> StringConverter;
 ICE_DEFINE_PTR(StringConverterPtr, StringConverter);
 
