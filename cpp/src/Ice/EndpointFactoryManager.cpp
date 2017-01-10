@@ -62,7 +62,7 @@ IceInternal::EndpointFactoryManager::get(Short type) const
             return _factories[i];
         }
     }
-    return 0;
+    return ICE_NULLPTR;
 }
 
 EndpointIPtr
@@ -170,7 +170,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
 
-    return 0;
+    return ICE_NULLPTR;
 }
 
 EndpointIPtr

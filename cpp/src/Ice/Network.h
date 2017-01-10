@@ -25,7 +25,7 @@
 #include <Ice/EndpointTypes.h>
 
 #if defined(ICE_OS_UWP)
-// Nothing to include
+#   include <ppltasks.h>
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -331,6 +331,36 @@ ICE_API Address getNumericAddress(const std::string&);
 #else
 ICE_API void checkConnectErrorCode(const char*, int, HRESULT);
 ICE_API void checkErrorCode(const char*, int, HRESULT);
+
+//
+// UWP impose some restriction on operations that block when run from
+// STA thread and throws concurrency::invalid_operation. We cannot
+// directly call task::get or task::way, this helper method is used to
+// workaround this limitation.
+//
+template<typename T>
+T runSync(Windows::Foundation::IAsyncOperation<T>^ operation)
+{
+    std::promise<T> p;
+    concurrency::create_task(operation).then(
+        [&p](concurrency::task<T> t)
+        {
+            try
+            {
+                p.set_value(t.get());
+            }
+            catch(...)
+            {
+                p.set_exception(std::current_exception());
+            }
+        },
+        concurrency::task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
+
+ICE_API void runSync(Windows::Foundation::IAsyncAction^ action);
+
 #endif
 
 #if defined(ICE_USE_IOCP)

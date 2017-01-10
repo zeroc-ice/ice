@@ -1138,39 +1138,24 @@ Certificate::load(const string& file)
     BIO_free(cert);
     return ICE_MAKE_SHARED(Certificate, x);
 #elif defined(ICE_OS_UWP)
-    promise<shared_ptr<Certificate>> result;
-    create_task(StorageFile::GetFileFromApplicationUriAsync(
-            ref new Uri(ref new String(stringToWstring(file).c_str())))).then([](StorageFile^ file)
+    try
+    {
+        auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
+        auto file = create_task(StorageFile::GetFileFromApplicationUriAsync(uri)).get();
+        auto buffer = create_task(FileIO::ReadTextAsync(file)).get();
+        return Certificate::decode(wstringToString(buffer->Data()));
+    }
+    catch(Platform::Exception^ ex)
+    {
+        if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
         {
-            return FileIO::ReadTextAsync(file);
-        },
-        task_continuation_context::use_arbitrary()).then([&result, &file](task<String^> previous)
+            throw CertificateReadException(__FILE__, __LINE__, "certificate file not found:\n" + file);
+        }
+        else
         {
-            try
-            {
-                result.set_value(Certificate::decode(wstringToString(previous.get()->Data())));
-            }
-            catch(Platform::Exception^ ex)
-            {
-                try
-                {
-                    if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
-                    {
-                        throw CertificateReadException(__FILE__, __LINE__, "certificate file not found:\n" + file);
-                    }
-                    else
-                    {
-                        throw Ice::SyscallException(__FILE__, __LINE__, ex->HResult);
-                    }
-                }
-                catch(...)
-                {
-                    result.set_exception(current_exception());
-                }
-            }
-        },
-        task_continuation_context::use_arbitrary());
-        return result.get_future().get();
+            throw Ice::SyscallException(__FILE__, __LINE__, ex->HResult);
+        }
+    }
 #else
 #   error "Unknown platform"
 #endif

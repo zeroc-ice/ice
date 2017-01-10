@@ -32,7 +32,6 @@
 
 #if defined(ICE_OS_UWP)
 #   include <IceUtil/InputUtil.h>
-#   include <IceUtil/CountDownLatch.h>
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -2057,46 +2056,24 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
         // message. We send a valiate connection message that the peers will ignore to workaround
         // the issue.
         //
-        promise<void> p;
-        create_task(safe_cast<DatagramSocket^>(fd)->GetOutputStreamAsync(group.host, group.port))
+        auto out = IceInternal::runSync(safe_cast<DatagramSocket^>(fd)->GetOutputStreamAsync(group.host, group.port));
+        auto writer = ref new DataWriter(out);
 
-        .then([](IOutputStream^ out)
-            {
+        OutputStream os;
+        os.write(magic[0]);
+        os.write(magic[1]);
+        os.write(magic[2]);
+        os.write(magic[3]);
+        os.write(currentProtocol);
+        os.write(currentProtocolEncoding);
+        os.write(validateConnectionMsg);
+        os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+        os.write(headerSize); // Message size.
+        os.i = os.b.begin();
 
-                OutputStream os;
-                os.write(magic[0]);
-                os.write(magic[1]);
-                os.write(magic[2]);
-                os.write(magic[3]);
-                os.write(currentProtocol);
-                os.write(currentProtocolEncoding);
-                os.write(validateConnectionMsg);
-                os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
-                os.write(headerSize); // Message size.
-                os.i = os.b.begin();
+        writer->WriteBytes(ref new Array<unsigned char>(&*os.i, static_cast<unsigned int>(headerSize)));
 
-                auto writer = ref new DataWriter(out);
-                writer->WriteBytes(ref new Array<unsigned char>(&*os.i, static_cast<unsigned int>(headerSize)));
-
-                return writer->StoreAsync();
-            },
-            task_continuation_context::use_arbitrary())
-
-        .then([&p](task<unsigned int> t)
-            {
-                try
-                {
-                    t.get();
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    p.set_exception(current_exception());
-                }
-            },
-            task_continuation_context::use_arbitrary());
-
-        p.get_future().get();
+        IceInternal::runSync(writer->StoreAsync());
     }
     catch(Platform::Exception^ pex)
     {
@@ -2191,28 +2168,34 @@ namespace
 void
 checkResultAndWait(IAsyncAction^ action)
 {
-    if(action->Status == Windows::Foundation::AsyncStatus::Started)
+    auto status = action->Status;
+    switch(status)
     {
-        IceUtilInternal::CountDownLatch count(1);
-        HRESULT result = 0;
-        action->Completed = ref new AsyncActionCompletedHandler(
-            [&count, &result] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
-                {
-                    if(status != Windows::Foundation::AsyncStatus::Completed)
-                    {
-                        result = action->ErrorCode.Value;
-                    }
-                    count.countDown();
-                });
-        count.await();
-        if(result)
+        case Windows::Foundation::AsyncStatus::Started:
         {
-            checkErrorCode(__FILE__, __LINE__, result);
+            promise<HRESULT> p;
+            action->Completed = ref new AsyncActionCompletedHandler(
+                [&p] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
+                    {
+                        p.set_value(status != Windows::Foundation::AsyncStatus::Completed ? action->ErrorCode.Value : 0);
+                    });
+            
+            HRESULT result = p.get_future().get();
+            if(result)
+            {
+                checkErrorCode(__FILE__, __LINE__, result);
+            }
+            break;
         }
-    }
-    else if(action->Status == Windows::Foundation::AsyncStatus::Error)
-    {
-        checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
+        case Windows::Foundation::AsyncStatus::Error:
+        {
+            checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
 }
 
@@ -2856,6 +2839,34 @@ IceInternal::checkErrorCode(const char* file, int line, HRESULT herr)
     }
 }
 
+//
+// UWP impose some restriction on operations that block when run from
+// STA thread and throws concurrency::invalid_operation. We cannot
+// directly call task::get or task::way, this helper method is used to
+// workaround this limitation.
+//
+void
+IceInternal::runSync(Windows::Foundation::IAsyncAction^ action)
+{
+    std::promise<void> p;
+
+    concurrency::create_task(action).then(
+        [&p](concurrency::task<void> t)
+        {
+            try
+            {
+                t.get();
+                p.set_value();
+            }
+            catch(...)
+            {
+                p.set_exception(std::current_exception());
+            }
+        },
+        concurrency::task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
 
 #endif
 

@@ -152,30 +152,15 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 //{
                 // params->ExclusiveTrustRoots->Append(_engine->ca()->getCert());
                 //}
-
-                promise<CertificateChain^> p;
-                create_task(fd->Information->ServerCertificate->BuildChainAsync(
-                                fd->Information->ServerIntermediateCertificates, params)).then(
-                        [&](task<CertificateChain^> previous)
-                        {
-                            try
-                            {
-                                p.set_value(previous.get());
-                            }
-                            catch(Platform::Exception^ ex)
-                            {
-                                try
-                                {
-                                    throw SyscallException(__FILE__, __LINE__, ex->HResult);
-                                }
-                                catch(...)
-                                {
-                                    p.set_exception(current_exception());
-                                }
-                            }
-                        });
-
-                _chain = p.get_future().get();
+                try
+                {
+                    _chain = create_task(fd->Information->ServerCertificate->BuildChainAsync(
+                                         fd->Information->ServerIntermediateCertificates, params)).get();
+                }
+                catch(Platform::Exception^ ex)
+                {
+                    throw SyscallException(__FILE__, __LINE__, ex->HResult);
+                }
 
                 ChainValidationResult result = _chain->Validate();
                 //

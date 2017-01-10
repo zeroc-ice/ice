@@ -23,10 +23,6 @@
 #include <Ice/StringConverter.h>
 #include <fstream>
 
-#ifdef ICE_OS_UWP
-#   include <ppltasks.h>
-#endif
-
 #ifdef ICE_USE_OPENSSL
 #   include <openssl/err.h>
 //
@@ -1705,45 +1701,22 @@ namespace
 Certificates::Certificate^
 findPersonalCertificate(String^ friendlyName)
 {
-    std::promise<Certificates::Certificate^> p;
-
     CertificateQuery^ query = ref new CertificateQuery();
     query->IncludeDuplicates = true;
     query->IncludeExpiredCertificates = true;
     query->FriendlyName = friendlyName;
     query->StoreName = StandardCertificateStoreNames::Personal;
 
-    create_task(CertificateStores::FindAllAsync(query))
-
-    .then([&p](IVectorView<Certificates::Certificate^>^ certificates)
-        {
-            if(certificates->Size > 0)
-            {
-                p.set_value(certificates->GetAt(0));
-            }
-            else
-            {
-                p.set_value(nullptr);
-            }
-        },
-        task_continuation_context::use_arbitrary())
-
-    .then([&](task<void> t)
-        {
-            try
-            {
-                t.get();
-            }
-            catch(Platform::Exception^ ex)
-            {
-                p.set_exception(make_exception_ptr(
-                    PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" + 
-                                                                      wstringToString(ex->Message->Data()))));
-            }
-        },
-        task_continuation_context::use_arbitrary());
-
-    return p.get_future().get();
+    try
+    {
+        auto certificates = IceInternal::runSync(CertificateStores::FindAllAsync(query));
+        return certificates->Size > 0 ? certificates->GetAt(0) : nullptr; 
+    }
+    catch(Platform::Exception^ ex)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: certificate error:\n" + wstringToString(ex->Message->Data()));
+    }
 }
 
 //
@@ -1755,45 +1728,29 @@ findPersonalCertificate(String^ friendlyName)
 bool
 importPfxData(String^ friendlyName, String^ data, String^ password)
 {
-    promise<bool> p;
-
-    create_task(CertificateEnrollmentManager::ImportPfxDataAsync(
-        data,
-        password,
-        ExportOption::NotExportable,
-        KeyProtectionLevel::NoConsent,
-        InstallOptions::None,
-        friendlyName))
-
-    .then([&p]()
+    try
+    {
+        IceInternal::runSync(CertificateEnrollmentManager::ImportPfxDataAsync(
+            data,
+            password,
+            ExportOption::NotExportable,
+            KeyProtectionLevel::NoConsent,
+            InstallOptions::None,
+            friendlyName));
+        return false; // The import succcess
+    }
+    catch(Platform::Exception^ ex)
+    {
+        if(HRESULT_CODE(ex->HResult) == ERROR_DECRYPTION_FAILED)
         {
-            p.set_value(false); // The import succcess
-        },
-        task_continuation_context::use_arbitrary())
-    
-    .then([&p](task<void> t)
+            return true; // Password error
+        }
+        else
         {
-            try
-            {
-                t.get();
-            }
-            catch(Platform::Exception^ ex)
-            {
-                if(HRESULT_CODE(ex->HResult) == ERROR_DECRYPTION_FAILED)
-                {
-                    p.set_value(true); // Password error
-                }
-                else
-                {
-                    p.set_exception(make_exception_ptr(
-                        PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" + 
-                                                      wstringToString(ex->Message->Data()))));
-                }
-            }
-        },
-        task_continuation_context::use_arbitrary());
-
-    return p.get_future().get();
+            throw PluginInitializationException(__FILE__, __LINE__, 
+                                                "IceSSL: certificate error:\n" + wstringToString(ex->Message->Data()));
+        }
+    }
 }
 
 }
@@ -1802,84 +1759,60 @@ Certificates::Certificate^
 IceSSL::importPersonalCertificate(const string& file, function<string ()> password, bool passwordPrompt,
                                   int passwordRetryMax)
 {
-    std::promise<Certificates::Certificate^> p;
     auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
-    create_task(StorageFile::GetFileFromApplicationUriAsync(uri))
-    
-    .then([](StorageFile^ file)
+    try
+    {
+        auto file = IceInternal::runSync(StorageFile::GetFileFromApplicationUriAsync(uri));
+        auto buffer = IceInternal::runSync(FileIO::ReadBufferAsync(file));
+
+        //
+        // Create a hash of the certificate to use as a friendly name, this will allow us
+        // to uniquely identify the certificate in the store.
+        //
+        auto hasher = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Sha1);
+        auto hash = hasher->CreateHash();
+
+        hash->Append(buffer);
+        String^ friendlyName = CryptographicBuffer::EncodeToBase64String(hash->GetValueAndReset());
+
+        //
+        // If the certificate is already in the store we avoid importing it.
+        //
+        Certificates::Certificate^ cert = findPersonalCertificate(friendlyName);
+        if(cert)
         {
-            return FileIO::ReadBufferAsync(file);
-        },
-        task_continuation_context::use_arbitrary())
-
-    .then([&file, &password, &p, passwordPrompt, passwordRetryMax](IBuffer^ buffer)
+            return cert;
+        }
+        else
         {
-            //
-            // Create a hash of the certificate to use as a friendly name, this will allow us
-            // to uniquely identify the certificate in the store.
-            //
-            auto hasher = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Sha1);
-            auto hash = hasher->CreateHash();
-
-            hash->Append(buffer);
-            String^ friendlyName = CryptographicBuffer::EncodeToBase64String(hash->GetValueAndReset());
-
-            //
-            // If the certificate is already in the store we avoid importing it.
-            //
-            Certificates::Certificate^ cert = findPersonalCertificate(friendlyName);
-            if(cert)
+            String^ data = CryptographicBuffer::EncodeToBase64String(buffer);
+            int count = 0;
+            bool passwordErr = false;
+            do
             {
-                p.set_value(cert);
+                passwordErr = importPfxData(friendlyName, data,
+                                            ref new String(stringToWstring(password()).c_str()));
             }
-            else
+            while(passwordPrompt && passwordErr && ++count < passwordRetryMax);
+            if(passwordErr)
             {
-                String^ data = CryptographicBuffer::EncodeToBase64String(buffer);
-                int count = 0;
-                bool passwordErr = false;
-                do
-                {
-                    passwordErr = importPfxData(friendlyName, data,
-                                                ref new String(stringToWstring(password()).c_str()));
-                }
-                while(passwordPrompt && passwordErr && ++count < passwordRetryMax);
-                if(passwordErr)
-                {
-                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding certificate");
-                }
-                p.set_value(findPersonalCertificate(friendlyName));
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: error decoding certificate");
             }
-        },
-        task_continuation_context::use_arbitrary())
-    
-    .then([&p, &file](task<void> t)
+            return findPersonalCertificate(friendlyName);
+        }
+    }
+    catch(Platform::Exception^ ex)
+    {
+        if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
         {
-            try
-            {
-                t.get();
-            }
-            catch(Platform::Exception^ ex)
-            {
-                if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
-                {
-                    p.set_exception(make_exception_ptr(
-                        PluginInitializationException(__FILE__, __LINE__, "certificate file not found:\n" + file)));
-                }
-                else
-                {
-                    p.set_exception(make_exception_ptr(
-                        PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" +
-                                                                          wstringToString(ex->Message->Data()))));
-                }
-            }
-            catch(...)
-            {
-                p.set_exception(current_exception());
-            }
-        },
-        task_continuation_context::use_arbitrary());
-
-    return p.get_future().get();
+            throw PluginInitializationException(__FILE__, __LINE__, "certificate file not found:\n" + file);
+        }
+        else
+        {
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: certificate error:\n" + wstringToString(ex->Message->Data()));
+        }
+    }
 }
 
 IVectorView<Certificates::Certificate^>^
@@ -1974,31 +1907,15 @@ IceSSL::findCertificates(const string& name, const string& value)
         }
     }
 
-    std::promise<IVectorView<Certificates::Certificate^>^> p;
-    create_task(CertificateStores::FindAllAsync(query))
-
-    .then([&p](IVectorView<Certificates::Certificate^>^ certificates)
-        {
-            p.set_value(certificates);
-        },
-        task_continuation_context::use_arbitrary())
-
-    .then([&p](task<void> t)
-        {
-            try
-            {
-                t.get();
-            }
-            catch(Platform::Exception^ ex)
-            {
-                p.set_exception(
-                    make_exception_ptr(PluginInitializationException(__FILE__, __LINE__, "IceSSL: certificate error:\n" +
-                                                                     wstringToString(ex->Message->Data()))));
-            }
-        },
-        task_continuation_context::use_arbitrary());
-
-    return p.get_future().get();
+    try
+    {
+        return IceInternal::runSync(CertificateStores::FindAllAsync(query));
+    }
+    catch(Platform::Exception^ ex)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__,
+                                            "IceSSL: certificate error:\n" + wstringToString(ex->Message->Data()));
+    }
 }
 #endif
 
