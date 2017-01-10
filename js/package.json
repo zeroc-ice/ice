@@ -22,7 +22,7 @@
     "gulp-concat": "^2.5.2",
     "gulp-ext-replace": "^0.2.0",
     "gulp-gzip": "1.2.0",
-    "gulp-ice-builder": "^1.0.1",
+    "gulp-ice-builder": "^1.0.4",
     "gulp-jshint": "^2.0.0",
     "gulp-minify-css": "^1.2.3",
     "gulp-newer": "^1.1.0",
