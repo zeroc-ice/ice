@@ -79,7 +79,7 @@ public:
 private:
 
     Ice::ObjectPrx _proxy;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     bool _finished;
     int _nRepetitions;
 };
@@ -414,7 +414,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -430,7 +430,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -446,7 +446,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -499,7 +499,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         admin->stopServer("server-activation-timeout");

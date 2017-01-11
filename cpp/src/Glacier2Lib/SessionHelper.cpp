@@ -541,7 +541,7 @@ private:
 
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
-    IceUtil::UniquePtr<Ice::Exception> _ex;
+    IceInternal::UniquePtr<Ice::Exception> _ex;
 };
 
 class CreatedCommunicator : public Ice::DispatcherCall

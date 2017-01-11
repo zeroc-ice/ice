@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_SHA1_H
-#define ICE_UTIL_SHA1_H
+#ifndef ICE_SHA1_H
+#define ICE_SHA1_H
 
-#include <IceUtil/Config.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/Config.h>
+#include <Ice/UniquePtr.h>
 
 #include <vector>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 
 ICE_API void 
@@ -39,7 +39,7 @@ private:
     SHA1 operator=(const SHA1&);
     
     class Hasher;
-    IceUtil::UniquePtr<Hasher> _hasher;
+    UniquePtr<Hasher> _hasher;
 };
 #endif
 

@@ -272,7 +272,7 @@ ConnectRequestHandler::flushRequests()
 #ifdef ICE_CPP11_MAPPING
     std::unique_ptr<Ice::LocalException> exception;
 #else
-    IceUtil::UniquePtr<Ice::LocalException> exception;
+    IceInternal::UniquePtr<Ice::LocalException> exception;
 #endif
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {

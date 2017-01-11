@@ -81,7 +81,7 @@ private:
     IceUtil::TimerPtr _timer;
     RegistryIPtr _registry;
     NodeIPtr _node;
-    IceUtil::UniquePtr<NodeSessionManager> _sessions;
+    IceInternal::UniquePtr<NodeSessionManager> _sessions;
     Ice::ObjectAdapterPtr _adapter;
 };
 

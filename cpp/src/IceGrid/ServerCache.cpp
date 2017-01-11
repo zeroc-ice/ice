@@ -393,7 +393,7 @@ ServerEntry::unsync()
     Lock sync(*this);
     if(_loaded.get())
     {
-        _load = _loaded;
+        _load.reset(_loaded.release());
     }
     _proxy = 0;
     _adapters.clear();
@@ -421,7 +421,7 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
 {
     Lock sync(*this);
 
-    IceUtil::UniquePtr<ServerInfo> descriptor(new ServerInfo());
+    IceInternal::UniquePtr<ServerInfo> descriptor(new ServerInfo());
     *descriptor = info;
 
     _updated = true;
@@ -430,17 +430,17 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
     {
         if(_loaded.get() && descriptor->node != _loaded->node)
         {
-            _destroy = _loaded;
+            _destroy.reset(_loaded.release());
         }
         else if(_load.get() && descriptor->node != _load->node)
         {
-            _destroy = _load;
+            _destroy.reset(_load.release());
         }
     }
 
-    _load = descriptor;
+    _load.reset(descriptor.release());
     _noRestart = noRestart;
-    _loaded.reset(0);
+    _loaded.reset();
     _allocatable = info.descriptor->allocatable;
     if(info.descriptor->activation == "session")
     {
@@ -462,18 +462,18 @@ ServerEntry::destroy(bool noRestart)
         if(_loaded.get())
         {
             assert(!_destroy.get());
-            _destroy = _loaded;
+            _destroy.reset(_loaded.release());
         }
         else if(_load.get())
         {
             assert(!_destroy.get());
-            _destroy = _load;
+            _destroy.reset(_load.release());
         }
     }
 
     _noRestart = noRestart;
-    _load.reset(0);
-    _loaded.reset(0);
+    _load.reset();
+    _loaded.reset();
     _allocatable = false;
 }
 
@@ -685,7 +685,7 @@ ServerEntry::syncImpl()
 
         if(!_load.get() && !_destroy.get())
         {
-            _load = _loaded; // Re-load the current server.
+            _load.reset(_loaded.release()); // Re-load the current server.
         }
 
         _updated = false;
@@ -853,8 +853,8 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
             // time should set the correct timeout before invoking on the
             // proxy (e.g.: server start/stop, adapter activate).
             //
-            _loaded = _load;
-            assert(_loaded.get());
+            assert(_load.get());
+            _loaded.reset(_load.release());
             _proxy = proxy;
             _adapters = adpts;
             _activationTimeout = at;
@@ -1126,7 +1126,7 @@ ServerEntry::allocated(const SessionIPtr& session)
         _updated = true;
         if(!_load.get())
         {
-            _load = _loaded;
+            _load.reset(_loaded.release());
         }
         _session = session;
         _load->sessionId = session->getId();
@@ -1213,7 +1213,7 @@ ServerEntry::released(const SessionIPtr& session)
         _updated = true;
         if(!_load.get())
         {
-            _load = _loaded;
+            _load.reset(_loaded.release());
         }
         _load->sessionId = "";
         _session = 0;

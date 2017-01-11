@@ -713,8 +713,8 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, A
 
     ApplicationInfo oldApp;
     ApplicationUpdateInfo update = updt;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
     try
     {
         Lock sync(*this);
@@ -755,8 +755,8 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
 
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
     try
     {
         Lock sync(*this);
@@ -800,8 +800,8 @@ Database::instantiateServer(const string& application,
 
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
 
     try
     {

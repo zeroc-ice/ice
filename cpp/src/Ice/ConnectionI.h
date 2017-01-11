@@ -15,7 +15,7 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/Connection.h>
@@ -349,7 +349,7 @@ private:
     std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
-    IceUtil::UniquePtr<LocalException> _exception;
+    IceInternal::UniquePtr<LocalException> _exception;
 
     const size_t _messageSizeMax;
     IceInternal::BatchRequestQueuePtr _batchRequestQueue;

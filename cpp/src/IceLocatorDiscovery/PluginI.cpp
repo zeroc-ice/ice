@@ -120,7 +120,7 @@ protected:
     exception_ptr _exception;
 #else
     const Ice::AMD_Object_ice_invokePtr _amdCB;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceInternal::UniquePtr<Ice::Exception> _exception;
 #endif
 
     Ice::LocatorPrxPtr _locatorPrx;

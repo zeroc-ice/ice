@@ -61,15 +61,15 @@ private:
     int _line;
     int _column;
 
-    IceUtil::UniquePtr<ApplicationDescriptorBuilder> _currentApplication;
-    IceUtil::UniquePtr<NodeDescriptorBuilder> _currentNode;
-    IceUtil::UniquePtr<TemplateDescriptorBuilder> _currentTemplate;
-    IceUtil::UniquePtr<ServerInstanceDescriptorBuilder> _currentServerInstance;
-    IceUtil::UniquePtr<ServiceInstanceDescriptorBuilder> _currentServiceInstance;
-    IceUtil::UniquePtr<ServerDescriptorBuilder> _currentServer;
-    IceUtil::UniquePtr<ServiceDescriptorBuilder> _currentService;
+    IceInternal::UniquePtr<ApplicationDescriptorBuilder> _currentApplication;
+    IceInternal::UniquePtr<NodeDescriptorBuilder> _currentNode;
+    IceInternal::UniquePtr<TemplateDescriptorBuilder> _currentTemplate;
+    IceInternal::UniquePtr<ServerInstanceDescriptorBuilder> _currentServerInstance;
+    IceInternal::UniquePtr<ServiceInstanceDescriptorBuilder> _currentServiceInstance;
+    IceInternal::UniquePtr<ServerDescriptorBuilder> _currentServer;
+    IceInternal::UniquePtr<ServiceDescriptorBuilder> _currentService;
     CommunicatorDescriptorBuilder* _currentCommunicator;
-    IceUtil::UniquePtr<PropertySetDescriptorBuilder> _currentPropertySet;
+    IceInternal::UniquePtr<PropertySetDescriptorBuilder> _currentPropertySet;
 
     bool _isTopLevel;
     bool _inAdapter;

@@ -42,7 +42,6 @@
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
-#include <IceUtil/UniquePtr.h>
 
 namespace Ice
 {

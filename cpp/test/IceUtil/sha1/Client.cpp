@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/SHA1.h>
+#include <Ice/SHA1.h>
 #include <TestCommon.h>
 
 using namespace std;
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     {
         const SHA1Item* item = &items[i];
         vector<unsigned char> buffer;
-        IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(item->data), strlen(item->data), buffer);
+        IceInternal::sha1(reinterpret_cast<const unsigned char*>(item->data), strlen(item->data), buffer);
         test(buffer.size() == 20);
         string digest = toHex(string(reinterpret_cast<const char*>(&buffer[0]), 20));
         test(item->digest == digest);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     for(int i = 0; i < itemsSize; ++i)
     {
         const SHA1Item* item = &items[i];
-        IceUtilInternal::SHA1 hasher;
+        IceInternal::SHA1 hasher;
         //
         // Test adding the data in chunks
         //

@@ -12,6 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
+#include <Ice/UniquePtr.h>
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Registry.h>
@@ -110,9 +111,9 @@ private:
 
     ServerCache& _cache;
     const std::string _id;
-    IceUtil::UniquePtr<ServerInfo> _loaded;
-    IceUtil::UniquePtr<ServerInfo> _load;
-    IceUtil::UniquePtr<ServerInfo> _destroy;
+    IceInternal::UniquePtr<ServerInfo> _loaded;
+    IceInternal::UniquePtr<ServerInfo> _load;
+    IceInternal::UniquePtr<ServerInfo> _destroy;
 
     ServerPrx _proxy;
     AdapterPrxDict _adapters;
@@ -121,7 +122,7 @@ private:
 
     bool _synchronizing;
     bool _updated;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceInternal::UniquePtr<Ice::Exception> _exception;
     bool _noRestart;
     std::vector<SynchronizationCallbackPtr> _callbacks;
 

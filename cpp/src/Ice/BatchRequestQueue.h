@@ -13,7 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
@@ -54,7 +54,7 @@ private:
     bool _batchStreamCanFlush;
     int _batchRequestNum;
     size_t _batchMarker;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     size_t _maxSize;
 };
 

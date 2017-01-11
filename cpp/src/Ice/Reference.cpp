@@ -1796,7 +1796,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             const vector<EndpointIPtr> _endpoints;
             const GetConnectionCallbackPtr _callback;
             size_t _i;
-            IceUtil::UniquePtr<Ice::LocalException> _exception;
+            IceInternal::UniquePtr<Ice::LocalException> _exception;
         };
 
         //

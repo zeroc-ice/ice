@@ -11,6 +11,7 @@
 #define ICE_GRID_REGISTRYI_H
 
 #include <IceUtil/Timer.h>
+#include <Ice/UniquePtr.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/PlatformInfo.h>
@@ -119,7 +120,7 @@ private:
     IceUtil::TimerPtr _timer;
     SessionServantManagerPtr _servantManager;
     int _sessionTimeout;
-    IceUtil::UniquePtr<ReplicaSessionManager> _session;
+    IceInternal::UniquePtr<ReplicaSessionManager> _session;
     mutable PlatformInfo _platform;
     
     ClientSessionFactoryPtr _clientSessionFactory;

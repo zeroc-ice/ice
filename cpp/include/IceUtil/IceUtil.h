@@ -40,7 +40,6 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/UniquePtr.h>
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

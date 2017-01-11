@@ -22,7 +22,7 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #ifndef ICE_CPP11_MAPPING
 #    include <Ice/AsyncResult.h>
@@ -171,8 +171,8 @@ protected:
     Ice::LocalObjectPtr _cookie;
 #endif
 
-    IceUtil::UniquePtr<Ice::Exception> _ex;
-    IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
+    IceInternal::UniquePtr<Ice::Exception> _ex;
+    IceInternal::UniquePtr<Ice::LocalException> _cancellationException;
 
     InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;

@@ -65,7 +65,7 @@ public:
 private:
 
     bool _haveResponse;
-    IceUtil::UniquePtr<Exception> _ex;
+    IceInternal::UniquePtr<Exception> _ex;
     Int _response;
 };
 typedef IceUtil::Handle<AsyncCallback> AsyncCallbackPtr;

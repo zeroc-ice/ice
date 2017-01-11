@@ -11,7 +11,7 @@
 #define ICE_REQUEST_HANDLER_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
@@ -44,7 +44,7 @@ public:
 
 private:
 
-    IceUtil::UniquePtr<Ice::LocalException> _ex;
+    IceInternal::UniquePtr<Ice::LocalException> _ex;
 };
 
 

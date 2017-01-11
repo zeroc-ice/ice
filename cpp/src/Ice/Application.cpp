@@ -13,7 +13,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
 #include <IceUtil/ArgVector.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 using namespace std;
 using namespace Ice;

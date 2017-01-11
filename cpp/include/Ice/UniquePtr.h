@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_UNIQUE_PTR_H
-#define ICE_UTIL_UNIQUE_PTR_H
+#ifndef ICE_UNIQUE_PTR_H
+#define ICE_UNIQUE_PTR_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 
-namespace IceUtil
+namespace IceInternal
 {
 
 #ifdef ICE_CPP11_MAPPING
@@ -30,17 +30,6 @@ public:
     explicit UniquePtr(T* ptr = 0) :
         _ptr(ptr)
     {
-    }
-
-    UniquePtr(UniquePtr& o) :
-        _ptr(o.release())
-    {
-    }
-
-    UniquePtr& operator=(UniquePtr& o)
-    {
-        reset(o.release());
-        return *this;
     }
 
     ~UniquePtr()
@@ -79,7 +68,6 @@ public:
         return _ptr;
     }
 
-
     T* get() const
     {
         return _ptr;
@@ -98,6 +86,9 @@ public:
     }
 
 private:
+
+    UniquePtr(UniquePtr&);
+    UniquePtr& operator=(UniquePtr&);
 
     T* _ptr;
 };

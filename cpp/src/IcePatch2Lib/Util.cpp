@@ -18,7 +18,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <IceUtil/SHA1.h>
+#include <Ice/SHA1.h>
 #include <IceUtil/Exception.h>
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/FileServer.h>
@@ -823,7 +823,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
             ByteSeq bytesSHA(20);
             if(!bytes.empty())
             {
-                IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
+                IceInternal::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
             }
             else
             {
@@ -892,7 +892,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
             }
             else
             {
-                IceUtilInternal::SHA1 hasher;
+                IceInternal::SHA1 hasher;
                 if(relPath.size() != 0)
                 {
                     hasher.update(reinterpret_cast<const IceUtil::Byte*>(relPath.c_str()), relPath.size());
@@ -1223,7 +1223,7 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
 
         if(!allChecksums1.empty())
         {
-            IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
+            IceInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
         }
         else
         {
@@ -1235,7 +1235,7 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
 
     if(!allChecksums0.empty())
     {
-        IceUtilInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
+        IceInternal::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
     }
     else
     {

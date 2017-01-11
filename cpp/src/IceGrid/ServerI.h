@@ -327,7 +327,7 @@ private:
     std::vector<AMD_Node_loadServerPtr> _loadCB;
     bool _clearDir;
     InternalServerDescriptorPtr _desc;
-    IceUtil::UniquePtr<DeploymentException> _exception;
+    IceInternal::UniquePtr<DeploymentException> _exception;
     InternalServerDescriptorPtr _runtime;
     bool _updating;
     TraceLevelsPtr _traceLevels;

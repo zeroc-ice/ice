@@ -18,7 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Base64.h>
 #include <IceUtil/Random.h>
-#include <IceUtil/SHA1.h>
+#include <Ice/SHA1.h>
 #include <IceUtil/StringUtil.h>
 
 // Python 2.7 under Windows.
@@ -1028,7 +1028,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
     vector<unsigned char> hash;
-    IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     out << IceInternal::Base64::encode(hash) << "\r\n" << "\r\n"; // EOM
 
     string str = out.str();
@@ -1126,7 +1126,7 @@ IceInternal::WSTransceiver::handleResponse()
     }
     string input = _key + _wsUUID;
     vector<unsigned char> hash;
-    IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     if(val != IceInternal::Base64::encode(hash))
     {
         throw WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");

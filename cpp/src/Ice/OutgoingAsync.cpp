@@ -994,7 +994,7 @@ OutgoingAsync::response()
                 string operation;
                 _is.read(operation, false);
 
-                IceUtil::UniquePtr<RequestFailedException> ex;
+                IceInternal::UniquePtr<RequestFailedException> ex;
                 switch(replyStatus)
                 {
                     case replyObjectNotExist:
@@ -1035,7 +1035,7 @@ OutgoingAsync::response()
                 string unknown;
                 _is.read(unknown, false);
 
-                IceUtil::UniquePtr<UnknownException> ex;
+                IceInternal::UniquePtr<UnknownException> ex;
                 switch(replyStatus)
                 {
                     case replyUnknownException:

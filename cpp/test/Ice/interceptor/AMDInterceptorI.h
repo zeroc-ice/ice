@@ -12,6 +12,7 @@
 
 #include <InterceptorI.h>
 #include <IceUtil/IceUtil.h>
+#include <Ice/UniquePtr.h>
 
 class AMDInterceptorI : public InterceptorI
 {
@@ -31,7 +32,7 @@ private:
 #ifndef ICE_CPP11_MAPPING
     Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
 #endif
-    IceUtil::UniquePtr<IceUtil::Exception> _exception;
+    IceInternal::UniquePtr<IceUtil::Exception> _exception;
 
     IceUtil::Mutex _mutex;
 };

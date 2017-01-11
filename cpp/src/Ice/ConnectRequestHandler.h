@@ -12,7 +12,7 @@
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/RequestHandler.h>
@@ -63,7 +63,7 @@ private:
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     bool _initialized;
     bool _flushing;
 
