@@ -88,7 +88,7 @@ import javafx.util.StringConverter;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.Paddings;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.BorderStyle;
@@ -289,7 +289,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
                     FormLayout layout = new FormLayout("fill:pref:grow", "pref");
                     final DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                    builder.border(Borders.DIALOG);
+                    builder.border(Paddings.DIALOG);
                     builder.append(titlePanel);
                     builder.nextLine();
                     builder.append(refreshPanel);

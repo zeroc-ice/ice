@@ -18,7 +18,7 @@ import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.Paddings;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -59,7 +59,7 @@ public abstract class EditorBase
             FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
 
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.border(Borders.DLU2);
+            builder.border(Paddings.DLU2);
             builder.rowGroupingEnabled(true);
             builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
@@ -73,7 +73,7 @@ public abstract class EditorBase
                             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        scrollPane.setBorder(Borders.DIALOG);
+        scrollPane.setBorder(Paddings.DIALOG);
 
         if(_propertiesPanel == null)
         {
@@ -84,7 +84,7 @@ public abstract class EditorBase
             _propertiesPanel.removeAll();
         }
         _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
-        _propertiesPanel.setBorder(Borders.EMPTY);
+        _propertiesPanel.setBorder(Paddings.EMPTY);
         _propertiesPanel.revalidate();
     }
 

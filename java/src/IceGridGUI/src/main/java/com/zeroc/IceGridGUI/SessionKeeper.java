@@ -36,7 +36,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.Paddings;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -1277,7 +1277,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
@@ -1395,7 +1395,7 @@ public class SessionKeeper
                 {
                     FormLayout layout = new FormLayout("pref:grow", "pref");
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                    builder.border(Borders.DIALOG);
+                    builder.border(Paddings.DIALOG);
                     builder.rowGroupingEnabled(false);
                     builder.append(_directDiscoveryDiscoveredEndpoint);
                     builder.append(createStrippedScrollPane(_directDiscoveryEndpointList));
@@ -1409,7 +1409,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _directConnectToMaster = new JCheckBox("Connect to a Master Registry.");
@@ -1423,7 +1423,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
@@ -1459,7 +1459,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
@@ -1498,7 +1498,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _directDefaultEndpointHost = new JTextField(20);
@@ -1588,7 +1588,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _routedDefaultEndpointHost = new JTextField(20);
@@ -1685,7 +1685,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _directCustomEndpointValue = new JTextField(20);
@@ -1722,7 +1722,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _routedCustomEndpointValue = new JTextField(20);
@@ -1759,7 +1759,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
@@ -1855,7 +1855,7 @@ public class SessionKeeper
 
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
                 builder.append(new JLabel("<html><b>X.509 Certificate</b></html>"));
                 builder.append(panel);
@@ -1921,7 +1921,7 @@ public class SessionKeeper
 
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
                 builder.append(new JLabel("<html><b>X.509 Certificate</b></html>"));
                 builder.append(panel);
@@ -1932,7 +1932,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
@@ -1969,7 +1969,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _directUsername = new JTextField();
@@ -2011,7 +2011,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
 
                 _routedUsername = new JTextField();
@@ -2598,7 +2598,7 @@ public class SessionKeeper
 
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(_backButton, _nextButton).
                 addUnrelatedGap().addButton(_finishButton, _cancelButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             getContentPane().add(buttonBar, java.awt.BorderLayout.SOUTH);
 
             getContentPane().add(_cardPanel, java.awt.BorderLayout.CENTER);
@@ -3288,7 +3288,7 @@ public class SessionKeeper
             {
                 FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
                 builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
@@ -3382,7 +3382,7 @@ public class SessionKeeper
                     }
                 });
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(closeButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             contentPane.add(buttonBar);
             getRootPane().setDefaultButton(closeButton);
             pack();
@@ -3540,14 +3540,14 @@ public class SessionKeeper
                 builder.nextLine();
 
                 connectionActionPanel = builder.getPanel();
-                connectionActionPanel.setBorder(Borders.DIALOG);
+                connectionActionPanel.setBorder(Paddings.DIALOG);
             }
 
             JPanel savedConfigurationsPanel = null;
             {
                 FormLayout layout = new FormLayout("left:pref", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
                 _connectionListModel = new ConnectionListModel();
 
@@ -3682,7 +3682,7 @@ public class SessionKeeper
                     }
                 });
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(_connectButton, closeButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             contentPane.add(buttonBar);
 
             pack();
@@ -4249,7 +4249,7 @@ public class SessionKeeper
             add(builder.getPanel());
             JComponent buttonBar = new ButtonBarBuilder().addButton(_importButton, _viewButton, _removeButton).
                                                                                                       addGlue().build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             add(buttonBar);
         }
 
@@ -4407,7 +4407,7 @@ public class SessionKeeper
 
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
         builder.addSeparator("Subject");
@@ -4460,7 +4460,7 @@ public class SessionKeeper
 
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
         builder.addSeparator("Issuer");
@@ -4502,7 +4502,7 @@ public class SessionKeeper
     {
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
         builder.addSeparator("Validity");
@@ -4520,7 +4520,7 @@ public class SessionKeeper
     {
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
         builder.addSeparator("Fingerprints");
@@ -4598,7 +4598,7 @@ public class SessionKeeper
     {
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
         builder.addSeparator("Subject Alternate Names");
@@ -4652,7 +4652,7 @@ public class SessionKeeper
                     }
                 });
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(closeButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             contentPane.add(buttonBar);
 
             pack();
@@ -4701,7 +4701,7 @@ public class SessionKeeper
             getRootPane().setDefaultButton(closeButton);
 
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(closeButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             contentPane.add(buttonBar);
             setResizable(false);
             pack();
@@ -4828,7 +4828,7 @@ public class SessionKeeper
                         // Build the basic login panel.
                         FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
                         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                        builder.border(Borders.DIALOG);
+                        builder.border(Paddings.DIALOG);
 
                         if(info.getPassword() == null || info.getPassword().length == 0)
                         {
@@ -4966,7 +4966,7 @@ public class SessionKeeper
 
                     JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).
                                                                                                       addGlue().build();
-                    buttonBar.setBorder(Borders.DIALOG);
+                    buttonBar.setBorder(Paddings.DIALOG);
                     contentPane.add(buttonBar);
 
                     getRootPane().setDefaultButton(okButton);
@@ -5030,7 +5030,7 @@ public class SessionKeeper
                         // Build the basic login panel.
                         FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
                         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                        builder.border(Borders.DIALOG);
+                        builder.border(Paddings.DIALOG);
 
                         builder.append(new JLabel("Key Password"), _keyPassword);
                         builder.nextLine();
@@ -5108,7 +5108,7 @@ public class SessionKeeper
 
                     JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).
                         addGlue().build();
-                    buttonBar.setBorder(Borders.DIALOG);
+                    buttonBar.setBorder(Paddings.DIALOG);
                     contentPane.add(buttonBar);
 
                     getRootPane().setDefaultButton(okButton);
@@ -5247,7 +5247,7 @@ public class SessionKeeper
                     // Build the basic login panel.
                     FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                    builder.border(Borders.DIALOG);
+                    builder.border(Paddings.DIALOG);
 
                     if(info.getAuth() == AuthType.UsernamePasswordAuthType)
                     {
@@ -5410,7 +5410,7 @@ public class SessionKeeper
 
                 JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton,
                     cancelButton).addGlue().build();
-                buttonBar.setBorder(Borders.DIALOG);
+                buttonBar.setBorder(Paddings.DIALOG);
                 contentPane.add(buttonBar);
 
                 getRootPane().setDefaultButton(okButton);

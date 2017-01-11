@@ -34,7 +34,7 @@ import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.Paddings;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -3647,7 +3647,7 @@ public class Coordinator
             X509Certificate cert = (X509Certificate)info.nativeCerts[0];
             {
                 DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("pref", "pref"));
-                builder.border(Borders.DIALOG);
+                builder.border(Paddings.DIALOG);
                 builder.rowGroupingEnabled(true);
                 builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
@@ -3724,7 +3724,7 @@ public class Coordinator
             getRootPane().setDefaultButton(noButton);
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(yesAlwaysButton, yesButton,
                                                                               noButton).build();
-            buttonBar.setBorder(Borders.DIALOG);
+            buttonBar.setBorder(Paddings.DIALOG);
             contentPane.add(buttonBar);
             pack();
             setResizable(false);

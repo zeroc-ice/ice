@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.Paddings;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -40,7 +40,7 @@ class ApplicationDetailsDialog extends JDialog
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DIALOG);
+        builder.border(Paddings.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
