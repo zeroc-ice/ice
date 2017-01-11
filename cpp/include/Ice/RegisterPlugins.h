@@ -50,14 +50,16 @@ ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool = true);
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool = true);
 #endif
 
-#ifndef ICEBT_API_EXPORTS
+#if !defined(_WIN32) && !defined(__APPLE__)
+#   ifndef ICEBT_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool = true);
+#   endif
 #endif
 
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#ifndef ICEIAP_API_EXPORTS
+#   ifndef ICEIAP_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool = true);
-#endif
+#   endif
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_SRC)
