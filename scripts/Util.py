@@ -2068,18 +2068,6 @@ class BrowserProcessController(RemoteProcessController):
 
                 profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
                 self.driver = webdriver.Firefox(firefox_profile=profile)
-            elif current.config.browser == "Safari" and os.environ.get("USER", "") == "jenkins":
-                #
-                # When running with Jenkins in headless mode, we need to manually start the webdriver
-                # to fill in the requested password.
-                #
-                import pexpect
-                self.safariDriver = pexpect.spawn("/usr/bin/safaridriver", ["-p", "9987"])
-                self.safariDriver.expect("Password:")
-                self.safariDriver.sendline("jenkins")
-                self.safariDriver.expect("\n")
-                time.sleep(1)
-                self.driver = webdriver.Remote("http://localhost:9987", webdriver.DesiredCapabilities.SAFARI)
             else:
                 self.driver = getattr(webdriver, current.config.browser)()
 
