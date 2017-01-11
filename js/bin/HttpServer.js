@@ -189,6 +189,10 @@ function Init()
                     {
                         return "/test/" + matchController[1] + "/" + f;
                     }
+                    else if(f.indexOf("/lib") === 0 && es5)
+                    {
+                        return f.replace("/lib", "/lib/es5");
+                    }
                     else
                     {
                         return f;

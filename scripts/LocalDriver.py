@@ -363,7 +363,7 @@ class LocalDriver(Driver):
                 runOrder = mapping.getRunOrder()
                 def testsuiteKey(testsuite):
                     for k in runOrder:
-                        if testsuite.getId().startswith(k + os.sep):
+                        if testsuite.getId().startswith(k + '/'):
                             return testsuite.getId().replace(k, str(runOrder.index(k)))
                     return testsuite.getId()
                 testsuites = sorted(testsuites, key=testsuiteKey)
