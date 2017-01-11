@@ -182,7 +182,7 @@ setTcpLoopbackFastPath(SOCKET fd)
     DWORD NumberOfBytesReturned = 0;
 
     int status =
-        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
+        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), ICE_NULLPTR, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
     {
             // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
@@ -283,16 +283,16 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     }
 
     DWORD size;
-    DWORD rv = GetAdaptersAddresses(family, 0, NULL, NULL, &size);
+    DWORD rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, ICE_NULLPTR, &size);
     if(rv == ERROR_BUFFER_OVERFLOW)
     {
         PIP_ADAPTER_ADDRESSES adapter_addresses = (PIP_ADAPTER_ADDRESSES) malloc(size);
-        rv = GetAdaptersAddresses(family, 0, NULL, adapter_addresses, &size);
+        rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, adapter_addresses, &size);
         if(rv == ERROR_SUCCESS)
         {
-            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != NULL; aa = aa->Next)
+            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != ICE_NULLPTR; aa = aa->Next)
             {
-                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next)
+                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != ICE_NULLPTR; ua = ua->Next)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
@@ -1105,7 +1105,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         throw ex;
     }
 
-    for(struct addrinfo* p = info; p != NULL; p = p->ai_next)
+    for(struct addrinfo* p = info; p != ICE_NULLPTR; p = p->ai_next)
     {
         memcpy(&addr.saStorage, p->ai_addr, p->ai_addrlen);
         if(p->ai_family == PF_INET)
@@ -2910,7 +2910,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         throw ex;
     }
 
-    LPFN_CONNECTEX ConnectEx = NULL; // a pointer to the 'ConnectEx()' function
+    LPFN_CONNECTEX ConnectEx = ICE_NULLPTR; // a pointer to the 'ConnectEx()' function
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
     DWORD dwBytes;
     if(WSAIoctl(fd,
@@ -2920,8 +2920,8 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
                 &ConnectEx,
                 sizeof(ConnectEx),
                 &dwBytes,
-                NULL,
-                NULL) == SOCKET_ERROR)
+                ICE_NULLPTR,
+                ICE_NULLPTR) == SOCKET_ERROR)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
@@ -2985,7 +2985,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
         }
     }
 
-    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, ICE_NULLPTR, 0) == SOCKET_ERROR)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();

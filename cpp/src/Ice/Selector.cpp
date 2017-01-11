@@ -49,8 +49,8 @@ Selector::~Selector()
 void
 Selector::setup(int sizeIO)
 {
-    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, sizeIO);
-    if(_handle == NULL)
+    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, ICE_NULLPTR, 0, sizeIO);
+    if(_handle == ICE_NULLPTR)
     {
         Ice::SocketException ex(__FILE__, __LINE__);
         ex.error = GetLastError();
@@ -76,7 +76,7 @@ Selector::initialize(EventHandler* handler)
     }
 #ifdef ICE_USE_IOCP
     HANDLE socket = reinterpret_cast<HANDLE>(handler->getNativeInfo()->fd());
-    if(CreateIoCompletionPort(socket, _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == NULL)
+    if(CreateIoCompletionPort(socket, _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == ICE_NULLPTR)
     {
         Ice::SocketException ex(__FILE__, __LINE__);
         ex.error = GetLastError();

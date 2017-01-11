@@ -319,8 +319,8 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxNameSize, &maxDataSize,
-                                  NULL, NULL);
+            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, &numValues, &maxNameSize, &maxDataSize,
+                                  ICE_NULLPTR, ICE_NULLPTR);
             if(err != ERROR_SUCCESS)
             {
                 InitializationException ex(__FILE__, __LINE__);
@@ -336,7 +336,7 @@ Ice::PropertiesI::load(const std::string& file)
                 DWORD keyType;
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
-                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, NULL, &keyType, &dataBuf[0], &dataBufSize);
+                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, ICE_NULLPTR, &keyType, &dataBuf[0], &dataBufSize);
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;

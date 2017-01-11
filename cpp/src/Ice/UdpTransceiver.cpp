@@ -503,7 +503,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     int err;
     if(_state == StateConnected)
     {
-        err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, NULL);
+        err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, ICE_NULLPTR);
     }
     else
     {
@@ -524,7 +524,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             throw ex;
         }
         err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa,
-                        len, &_write, NULL);
+                        len, &_write, ICE_NULLPTR);
     }
 
     if(err == SOCKET_ERROR)
@@ -595,7 +595,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     int err;
     if(_state == StateConnected)
     {
-        err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, NULL);
+        err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, ICE_NULLPTR);
     }
     else
     {
@@ -603,7 +603,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
         err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags,
-                          &_readAddr.sa, &_readAddrLen, &_read, NULL);
+                          &_readAddr.sa, &_readAddrLen, &_read, ICE_NULLPTR);
     }
 
     if(err == SOCKET_ERROR)

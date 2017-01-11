@@ -29,10 +29,10 @@ IceObjC::StreamConnector::connect()
     CFWriteStreamRef writeStream = nil;
     try
     {
-        CFStringRef h = CFStringCreateWithCString(NULL, _host.c_str(), kCFStringEncodingUTF8);
-        CFHostRef host = CFHostCreateWithName(NULL, h);
+        CFStringRef h = CFStringCreateWithCString(ICE_NULLPTR, _host.c_str(), kCFStringEncodingUTF8);
+        CFHostRef host = CFHostCreateWithName(ICE_NULLPTR, h);
         CFRelease(h);
-        CFStreamCreatePairWithSocketToCFHost(NULL, host, _port, &readStream, &writeStream);
+        CFStreamCreatePairWithSocketToCFHost(ICE_NULLPTR, host, _port, &readStream, &writeStream);
         CFRelease(host);
 
         _instance->setupStreams(readStream, writeStream, false, _host);

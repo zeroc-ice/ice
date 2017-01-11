@@ -391,7 +391,7 @@ getStackTrace(const vector<void*>& stackFrames)
                            "startHook",
                            &myModule);
         //
-        // If GetModuleHandleEx fails, myModule is NULL, i.e. we'll locate the current exe's directory.
+        // If GetModuleHandleEx fails, myModule is ICE_NULLPTR, i.e. we'll locate the current exe's directory.
         //
 
         TCHAR myFilename[MAX_PATH];

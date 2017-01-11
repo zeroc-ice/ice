@@ -585,21 +585,21 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _classMethods[] =
 {
-    ZEND_ME(Ice_Properties, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Properties, __toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getProperty, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyWithDefault, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsInt, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsIntWithDefault, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsList, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsListWithDefault, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertiesForPrefix, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, setProperty, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getCommandLineOptions, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, parseCommandLineOptions, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, parseIceCommandLineOptions, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, load, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, clone, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Properties, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getProperty, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyWithDefault, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsInt, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsIntWithDefault, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsList, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsListWithDefault, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertiesForPrefix, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, setProperty, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getCommandLineOptions, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, parseCommandLineOptions, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, parseIceCommandLineOptions, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, load, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, clone, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

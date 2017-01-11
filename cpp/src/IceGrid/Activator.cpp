@@ -302,13 +302,13 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
 {
 #ifdef _WIN32
     _hIntr = CreateEvent(
-        NULL,  // Security attributes
+        ICE_NULLPTR,  // Security attributes
         TRUE,  // Manual reset
         FALSE, // Initial state is nonsignaled
-        NULL   // Unnamed
+        ICE_NULLPTR   // Unnamed
     );
 
-    if(_hIntr == NULL)
+    if(_hIntr == ICE_NULLPTR)
     {
         SyscallException ex(__FILE__, __LINE__);
         ex.error = getSystemErrno();
@@ -337,7 +337,7 @@ Activator::~Activator()
     assert(!_thread);
 
 #ifdef _WIN32
-    if(_hIntr != NULL)
+    if(_hIntr != ICE_NULLPTR)
     {
         CloseHandle(_hIntr);
     }
@@ -389,7 +389,7 @@ Activator::activate(const string& name,
             // IceGrid doesn't support to use string converters, so don't need to use
             // any string converter in wstringToString conversions.
             //
-            if(SearchPathW(NULL, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
+            if(SearchPathW(ICE_NULLPTR, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
             {
                 if(_traceLevels->activator > 0)
                 {
@@ -416,7 +416,7 @@ Activator::activate(const string& name,
     if(!pwd.empty())
     {
         wchar_t absbuf[_MAX_PATH];
-        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == NULL)
+        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == ICE_NULLPTR)
         {
             if(_traceLevels->activator > 0)
             {
@@ -505,7 +505,7 @@ Activator::activate(const string& name,
     // any string converter in stringToWstring conversions.
     //
     wstring wpwd = stringToWstring(pwd);
-    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : NULL;
+    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : ICE_NULLPTR;
 
     //
     // Make a copy of the command line.
@@ -518,7 +518,7 @@ Activator::activate(const string& name,
     // Since Windows is case insensitive wrt environment variables we convert the keys to
     // uppercase to ensure matches are found.
     //
-    const wchar_t* env = NULL;
+    const wchar_t* env = ICE_NULLPTR;
     wstring envbuf;
     if(!envs.empty())
     {
@@ -582,10 +582,10 @@ Activator::activate(const string& name,
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
     BOOL b = CreateProcessW(
-        NULL,                     // Executable
+        ICE_NULLPTR,                     // Executable
         cmdbuf,                   // Command line
-        NULL,                     // Process attributes
-        NULL,                     // Thread attributes
+        ICE_NULLPTR,                     // Process attributes
+        ICE_NULLPTR,                     // Thread attributes
         FALSE,                    // Do NOT inherit handles
         CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT, // Process creation flags
         (LPVOID)env,              // Process environment
@@ -981,7 +981,7 @@ Activator::sendSignal(const string& name, int signal)
     else if(signal == SIGKILL)
     {
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-        if(hnd == NULL)
+        if(hnd == ICE_NULLPTR)
         {
             SyscallException ex(__FILE__, __LINE__);
             ex.error = getSystemErrno();

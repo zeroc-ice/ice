@@ -826,13 +826,13 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             stored = FormatMessageW(
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS |
-                (source != NULL ? FORMAT_MESSAGE_FROM_HMODULE : 0),
+                (source != ICE_NULLPTR ? FORMAT_MESSAGE_FROM_HMODULE : 0),
                 source,
                 error,
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
                 const_cast<wchar_t*>(lpMsgBuf.data()),
                 static_cast<int>(lpMsgBuf.size()),
-                NULL);
+                ICE_NULLPTR);
 
             if(stored == 0)
             {
@@ -864,13 +864,13 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS |
-            (source != NULL ? FORMAT_MESSAGE_FROM_HMODULE : 0),
+            (source != ICE_NULLPTR ? FORMAT_MESSAGE_FROM_HMODULE : 0),
             source,
             error,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
             reinterpret_cast<LPWSTR>(&msg),
             0,
-            NULL);
+            ICE_NULLPTR);
 #endif
 
         if(stored > 0)

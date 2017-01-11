@@ -92,7 +92,7 @@ getIceHome()
 
         WCHAR buf[512];
         DWORD bufSize = sizeof(buf);
-        if(RegQueryValueExW(hKey, L"InstallDir", 0, NULL, (LPBYTE)buf, &bufSize) != ERROR_SUCCESS)
+        if(RegQueryValueExW(hKey, L"InstallDir", 0, ICE_NULLPTR, (LPBYTE)buf, &bufSize) != ERROR_SUCCESS)
         {
             return "";
         }

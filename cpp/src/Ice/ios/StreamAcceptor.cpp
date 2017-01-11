@@ -72,7 +72,7 @@ IceObjC::StreamAcceptor::accept()
     CFWriteStreamRef writeStream = nil;
     try
     {
-        CFStreamCreatePairWithSocket(NULL, fd, &readStream, &writeStream);
+        CFStreamCreatePairWithSocket(ICE_NULLPTR, fd, &readStream, &writeStream);
         _instance->setupStreams(readStream, writeStream, true, "");
         return new StreamTransceiver(_instance, readStream, writeStream, fd);
     }

@@ -138,7 +138,7 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
         // For each position of a found escape character
         while(pos != string::npos)
         {
-            pair<unsigned int,unsigned int> *region = NULL;
+            pair<unsigned int,unsigned int> *region = ICE_NULLPTR;
 
             // Is this pos in an escaped section?
             for(list<pair<unsigned int,unsigned int> >::iterator i = escaperLimits.begin(); i != escaperLimits.end();
@@ -151,7 +151,7 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
                 }
             }
 
-            if(region == NULL)
+            if(region == ICE_NULLPTR)
             {
                 comment.replace(pos, c.size(), replacement);
                 pos = comment.find(c, pos + replacement.size());

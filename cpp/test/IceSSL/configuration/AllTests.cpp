@@ -657,7 +657,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     bool isElCapitanOrGreater = false;
     vector<char> s(256);
     size_t size = s.size();
-    int ret = sysctlbyname("kern.osrelease", &s[0], &size, NULL, 0);
+    int ret = sysctlbyname("kern.osrelease", &s[0], &size, ICE_NULLPTR, 0);
     if(ret == 0)
     {
         // version format is x.y.z

@@ -111,10 +111,10 @@ static struct PyModuleDef iceModule =
     "The Internet Communications Engine.",
     -1,
     methods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    ICE_NULLPTR,
+    ICE_NULLPTR,
+    ICE_NULLPTR,
+    ICE_NULLPTR
 };
 
 #else

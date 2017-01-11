@@ -49,7 +49,7 @@ namespace
 inline CFStringRef
 toCFString(const string& s)
 {
-    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
+    return CFStringCreateWithCString(ICE_NULLPTR, s.c_str(), kCFStringEncodingUTF8);
 }
 
 }

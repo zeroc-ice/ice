@@ -240,7 +240,7 @@ IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if(_error)
         {
-            CFErrorRef err = NULL;
+            CFErrorRef err = ICE_NULLPTR;
             if(CFWriteStreamGetStatus(_writeStream) == kCFStreamStatusError)
             {
                 err = CFWriteStreamCopyError(_writeStream);

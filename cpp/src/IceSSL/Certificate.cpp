@@ -1129,8 +1129,8 @@ Certificate::load(const string& file)
         throw CertificateReadException(__FILE__, __LINE__, "error opening file");
     }
 
-    X509CertificateRef x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
-    if(x == NULL)
+    X509CertificateRef x = PEM_read_bio_X509_AUX(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    if(x == ICE_NULLPTR)
     {
         BIO_free(cert);
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
@@ -1218,8 +1218,8 @@ Certificate::decode(const string& encoding)
     return ICE_MAKE_SHARED(Certificate, cert);
 #elif defined(ICE_USE_OPENSSL)
     BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
-    X509CertificateRef x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
-    if(x == NULL)
+    X509CertificateRef x = PEM_read_bio_X509_AUX(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    if(x == ICE_NULLPTR)
     {
         BIO_free(cert);
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));

@@ -175,7 +175,7 @@ std::string fromCFString(CFStringRef);
 inline CFStringRef
 toCFString(const std::string& s)
 {
-    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
+    return CFStringCreateWithCString(ICE_NULLPTR, s.c_str(), kCFStringEncodingUTF8);
 }
 
 std::string errorToString(CFErrorRef);

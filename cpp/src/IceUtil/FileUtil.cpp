@@ -254,7 +254,7 @@ IceUtilInternal::getcwd(string& cwd)
     // from Windows API.
     //
     wchar_t cwdbuf[_MAX_PATH];
-    if(_wgetcwd(cwdbuf, _MAX_PATH) == NULL)
+    if(_wgetcwd(cwdbuf, _MAX_PATH) == ICE_NULLPTR)
     {
         return -1;
     }
@@ -293,7 +293,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     //
 #ifndef ICE_OS_UWP
     _fd = ::CreateFileW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
-                        GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                        GENERIC_WRITE, 0, ICE_NULLPTR, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, ICE_NULLPTR);
 #else
     CREATEFILE2_EXTENDED_PARAMETERS params;
     params.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
@@ -411,7 +411,7 @@ int
 IceUtilInternal::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
-    if(::getcwd(cwdbuf, PATH_MAX) == NULL)
+    if(::getcwd(cwdbuf, PATH_MAX) == ICE_NULLPTR)
     {
         return -1;
     }

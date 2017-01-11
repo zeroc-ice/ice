@@ -556,7 +556,7 @@ IceSSL::getSslErrors(bool verbose)
         else
         {
             const char* reason = ERR_reason_error_string(err);
-            ostr << (reason == NULL ? "unknown reason" : reason);
+            ostr << (reason == ICE_NULLPTR ? "unknown reason" : reason);
             if(flags & ERR_TXT_STRING)
             {
                 ostr << ": " << data;
@@ -622,7 +622,7 @@ IceSSL::fromCFString(CFStringRef v)
 CFDictionaryRef
 IceSSL::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
 {
-    CFArrayRef keys = CFArrayCreate(NULL, &key , 1, &kCFTypeArrayCallBacks);
+    CFArrayRef keys = CFArrayCreate(ICE_NULLPTR, &key , 1, &kCFTypeArrayCallBacks);
     CFErrorRef err = 0;
     CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
     CFRelease(keys);
@@ -1409,7 +1409,7 @@ IceSSL::findCertificateChain(const std::string& keychainPath, const std::string&
     err = SecItemCopyMatching(query.get(), (CFTypeRef*)&identity);
     if(err == noErr)
     {
-        SecCertificateRef cert2 = NULL;
+        SecCertificateRef cert2 = ICE_NULLPTR;
         if((err = SecIdentityCopyCertificate(identity, &cert2)) == noErr)
         {
             err = CFEqual(cert2, cert) ? noErr : errSecItemNotFound;
