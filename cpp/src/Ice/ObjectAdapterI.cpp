@@ -1194,6 +1194,10 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
         beg = endpts.find_first_not_of(delim, end);
         if(beg == string::npos)
         {
+            if(!endpoints.empty())
+            {
+                throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
+            }
             break;
         }
 
@@ -1242,17 +1246,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
 
         if(end == beg)
         {
-            ++end;
-            continue;
+            throw EndpointParseException(__FILE__, __LINE__, "invalid empty object adapter endpoint");
         }
 
         string s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
         if(endp == 0)
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid object adapter endpoint `" + s + "'";
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "invalid object adapter endpoint `" + s + "'");
         }
         endpoints.push_back(endp);
 

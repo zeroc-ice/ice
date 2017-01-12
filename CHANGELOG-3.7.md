@@ -93,6 +93,9 @@ These are the changes since Ice 3.6.3.
   and universal character names (\unnnn and \Unnnnnnnn). See the property
   Ice.ToStringMode and the static function/method identityToString.
 
+- An empty endpoint in an Object Adapter endpoint list is now rejected with an
+  `EndpointParseException`; such an endpoint was ignored in previous releases.
+
 - IcePatch2 and IceGrid's distribution mechanism have been deprecated.
 
 ## C++ Changes

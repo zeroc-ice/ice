@@ -244,7 +244,7 @@ public class AllTests
 
         try
         {
-            b1 = communicator.stringToProxy("test:tcp@adapterId");
+            communicator.stringToProxy("test:tcp@adapterId");
             test(false);
         }
         catch(Ice.EndpointParseException ex)
@@ -262,7 +262,37 @@ public class AllTests
         //}
         try
         {
-            b1 = communicator.stringToProxy("test::tcp");
+            communicator.stringToProxy("test: :tcp");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        //
+        // Test invalid endpoint syntax
+        //
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
             test(false);
         }
         catch(Ice.EndpointParseException ex)

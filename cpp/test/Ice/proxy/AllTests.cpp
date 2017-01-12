@@ -236,7 +236,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        b1 = communicator->stringToProxy("test:tcp@adapterId");
+        communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -254,7 +254,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //}
     try
     {
-        b1 = communicator->stringToProxy("test::tcp");
+        communicator->stringToProxy("test: :tcp");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    //
+    // Test invalid endpoint syntax
+    //
+    try
+    {
+        communicator->createObjectAdapterWithEndpoints("BadAdapter", " : ");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        communicator->createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        communicator->createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
         test(false);
     }
     catch(const Ice::EndpointParseException&)

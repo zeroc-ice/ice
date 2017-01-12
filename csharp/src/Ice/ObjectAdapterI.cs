@@ -1118,6 +1118,10 @@ namespace Ice
                 beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
                 if(beg == -1)
                 {
+                    if(endpoints.Count != 0)
+                    {
+                        throw new EndpointParseException("invalid empty object adapter endpoint");
+                    }
                     break;
                 }
 
@@ -1166,17 +1170,14 @@ namespace Ice
 
                 if(end == beg)
                 {
-                    ++end;
-                    continue;
+                    throw new EndpointParseException("invalid empty object adapter endpoint");
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
                 EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
                 if(endp == null)
                 {
-                    EndpointParseException e2 = new EndpointParseException();
-                    e2.str = "invalid object adapter endpoint `" + s + "'";
-                    throw e2;
+                    throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
                 }
                 endpoints.Add(endp);
 

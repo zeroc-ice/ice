@@ -1211,6 +1211,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
             if(beg == -1)
             {
+                if(!endpoints.isEmpty())
+                {
+                    throw new EndpointParseException("invalid empty object adapter endpoint");
+                }
                 break;
             }
 
@@ -1259,17 +1263,14 @@ public final class ObjectAdapterI implements ObjectAdapter
 
             if(end == beg)
             {
-                ++end;
-                continue;
+                throw new EndpointParseException("invalid empty object adapter endpoint");
             }
 
             String s = endpts.substring(beg, end);
             IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if(endp == null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "invalid object adapter endpoint `" + s + "'";
-                throw e;
+                throw new Ice.EndpointParseException("invalid object adapter endpoint `" + s + "'");
             }
             endpoints.add(endp);
 
