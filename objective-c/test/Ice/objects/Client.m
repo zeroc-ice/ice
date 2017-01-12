@@ -15,6 +15,11 @@
 #   import <Foundation/NSGarbageCollector.h>
 #endif
 
+#if defined(__clang__)
+// For 'Ice::Communicator::addObjectFactory()' deprecation
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 // Note that the factory must not autorelease the
 // returned objects.
 static ICEValueFactory factory = ^ICEObject* (NSString* type)

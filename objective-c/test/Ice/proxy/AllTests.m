@@ -11,7 +11,6 @@
 #import <TestCommon.h>
 #import <ProxyTest.h>
 
-
 TestProxyMyClassPrx*
 proxyAllTests(id<ICECommunicator> communicator)
 {
@@ -411,7 +410,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing proxy methods... ");
-    test([[communicator identityToString:[[base ice_identity:[communicator stringToIdentity:@"other"]] ice_getIdentity]]
+    test([[communicator identityToString:[[base ice_identity:[ICEUtil stringToIdentity:@"other"]] ice_getIdentity]]
              isEqualToString:@"other"]);
 
     //

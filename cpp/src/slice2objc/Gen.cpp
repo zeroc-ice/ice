@@ -90,6 +90,23 @@ opFormatTypeToString(const OperationPtr& op)
 }
 
 string
+getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
+{
+    string deprecateMetadata, deprecateSymbol;
+    if(p1->findMetaData("deprecate", deprecateMetadata) ||
+       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    {
+        string msg = "is deprecated";
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            msg = deprecateMetadata.substr(10);
+        }
+        deprecateSymbol = " ICE_DEPRECATED_API(\"" + msg + "\")";
+    }
+    return deprecateSymbol;
+}
+
+string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
     ParamDeclList params = p->parameters();
@@ -1176,6 +1193,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         params = getServerParams(p);
     }
 
+    const string deprecateSymbol = getDeprecateSymbol(p, cl);
+
     _H << nl << "-(" << retString << ") " << name << params;
     if(!cl->isLocal())
     {
@@ -1183,21 +1202,24 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         {
             _H << " current";
         }
-        _H << ":(ICECurrent *)" << getEscapedParamName(p, "current") << ";";
+        _H << ":(ICECurrent *)" << getEscapedParamName(p, "current") << deprecateSymbol << ";";
     }
     else
     {
-        _H << ";";
+        _H << deprecateSymbol << ";";
     }
 
     if(cl->isLocal() && (cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
         // TODO: add support for parameters when needed.
-        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ";";
-        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ":(void(^)(ICEException*))exception;";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << deprecateSymbol << ";";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ":(void(^)(ICEException*))exception"
+           << deprecateSymbol << ";";
         _H << nl << "-(id<ICEAsyncResult>) begin_" << name
-           << ":(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;";
-        _H << nl << "-(void) end_" << name << ":(id<ICEAsyncResult>)result;";
+           << ":(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent"
+           << deprecateSymbol << ";";
+        _H << nl << "-(void) end_" << name << ":(id<ICEAsyncResult>)result"
+           << deprecateSymbol << ";";
     }
 }
 
@@ -2228,33 +2250,35 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string marshalParams = getMarshalParams(p);
     string unmarshalParams = getUnmarshalParams(p);
 
+    const string deprecateSymbol = getDeprecateSymbol(p, ClassDefPtr::dynamicCast(p->container()));
+
     //
     // Write two versions of the operation--with and without a
     // context parameter.
     //
-    _H << nl << "-(" << retString << ") " << name << params << ";";
+    _H << nl << "-(" << retString << ") " << name << params << deprecateSymbol << ";";
 
     _H << nl << "-(" << retString << ") " << name << params;
     if(!params.empty())
     {
         _H << " context";
     }
-    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << ";";
+    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << deprecateSymbol << ";";
 
-    _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams << ";";
+    _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams << deprecateSymbol << ";";
     _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams;
     if(!marshalParams.empty())
     {
         _H << " context";
     }
-    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << ";";
+    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << deprecateSymbol << ";";
 
     _H << nl << "-(" << retString << ") end_" << p->name() << unmarshalParams;
     if(!unmarshalParams.empty())
     {
         _H << " result";
     }
-    _H << ":(id<ICEAsyncResult>)" << getEscapedParamName(p, "result") << ";";
+    _H << ":(id<ICEAsyncResult>)" << getEscapedParamName(p, "result") << deprecateSymbol << ";";
 
     string responseExceptionDecl = ":(" + getResponseCBSig(p) + ")" + getEscapedParamName(p, "response") +
         " exception:(void(^)(ICEException*))" + getEscapedParamName(p, "exception");
@@ -2265,21 +2289,22 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         _H << " response";
     }
-    _H << responseExceptionDecl << ";";
+    _H << responseExceptionDecl << deprecateSymbol << ";";
 
     _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams;
     if(!marshalParams.empty())
     {
         _H << " context";
     }
-    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << " response" << responseExceptionDecl << ";";
+    _H << ":(ICEContext *)" << getEscapedParamName(p, "context") << " response" << responseExceptionDecl
+       << deprecateSymbol << ";";
 
     _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams;
     if(!marshalParams.empty())
     {
         _H << " response";
     }
-    _H << responseExceptionSentDecl << ";";
+    _H << responseExceptionSentDecl << deprecateSymbol << ";";
 
     _H << nl << "-(id<ICEAsyncResult>) begin_" << p->name() << marshalParams;
     if(!marshalParams.empty())
@@ -2287,7 +2312,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _H << " context";
     }
     _H << ":(ICEContext *)" << getEscapedParamName(p, "context");
-    _H << " response" << responseExceptionSentDecl << ";";
+    _H << " response" << responseExceptionSentDecl << deprecateSymbol << ";";
 }
 
 Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dllExport) :

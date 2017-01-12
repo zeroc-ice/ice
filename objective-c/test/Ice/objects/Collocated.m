@@ -11,6 +11,11 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
+#if defined(__clang__)
+// For 'Ice::Communicator::addObjectFactory()' deprecation
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 // Note that the factory must not autorelease the
 // returned objects.
 ICEValueFactory factory = ^ICEObject* (NSString* type)

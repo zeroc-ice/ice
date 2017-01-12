@@ -11,6 +11,11 @@
 #import <TestCommon.h>
 #import <ObjectsTest.h>
 
+#if defined(__clang__)
+// For 'Ice::Communicator::findObjectFactory()' deprecation
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 void breakRetainCycleB();
 void breakRetainCycleC();
 void breakRetainCycleD();
