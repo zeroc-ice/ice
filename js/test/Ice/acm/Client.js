@@ -157,7 +157,7 @@
             {
                 var now = Date.now();
                 return Ice.Promise.delay(1000).then(() => {
-                    if(Data.now() - now > 1000)
+                    if(Date.now() - now > 1000)
                     {
                         test(false);
                     }
