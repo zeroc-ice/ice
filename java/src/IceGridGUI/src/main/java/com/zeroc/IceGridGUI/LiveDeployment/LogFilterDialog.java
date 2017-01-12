@@ -26,7 +26,7 @@ import com.zeroc.Ice.LogMessageType;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Paddings;
+import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -145,7 +145,7 @@ class LogFilterDialog extends JDialog
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Paddings.DIALOG);
+        builder.border(Borders.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
@@ -170,7 +170,7 @@ class LogFilterDialog extends JDialog
         builder.nextLine();
           
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
-        buttonBar.setBorder(Paddings.DIALOG);
+        buttonBar.setBorder(Borders.DIALOG);
 
         java.awt.Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));

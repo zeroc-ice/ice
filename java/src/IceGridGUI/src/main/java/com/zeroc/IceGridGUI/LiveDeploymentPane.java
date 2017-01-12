@@ -22,7 +22,7 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
-import com.jgoodies.forms.factories.Paddings;
+import com.jgoodies.forms.factories.Borders;
 
 import com.zeroc.IceGridGUI.LiveDeployment.Editor;
 import com.zeroc.IceGridGUI.LiveDeployment.Root;
@@ -229,7 +229,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
             new JScrollPane(tree,
                             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        leftScroll.setBorder(Paddings.EMPTY);
+        leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");
         _leftPane.setContent(leftScroll);

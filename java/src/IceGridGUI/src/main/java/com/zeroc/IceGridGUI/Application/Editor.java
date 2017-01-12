@@ -21,7 +21,7 @@ import javax.swing.event.DocumentListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.factories.Paddings;
+import com.jgoodies.forms.factories.Borders;
 import com.zeroc.IceGridGUI.*;
 
 public class Editor extends EditorBase
@@ -96,7 +96,7 @@ public class Editor extends EditorBase
     {
         super.buildPropertiesPanel();
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(_applyButton, _discardButton).build();
-        buttonBar.setBorder(Paddings.DIALOG);
+        buttonBar.setBorder(Borders.DIALOG);
         _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
     }
 
