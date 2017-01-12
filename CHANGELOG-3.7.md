@@ -114,6 +114,8 @@ These are the changes since Ice 3.6.3.
 - Added new interface/class metadata cs:tie. Use this metadata to generate a tie
   class for a given interface or class.
 
+- `cs:` and `clr:` are now interchangeable in metadata directives.
+
 ## Java Changes
 
 - Fixed a bug where unmarshaling Ice objects was really slow when using

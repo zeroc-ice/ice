@@ -1288,7 +1288,7 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->hasMetaData("clr:class") ? string("null") : "new " + fixId(st->scoped()) + "()";
+        return st->hasMetaData("cs:class") ? string("null") : "new " + fixId(st->scoped()) + "()";
     }
 
     return "null";
@@ -2393,10 +2393,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // Check for clr:implements metadata.
+    // Check for cs:implements metadata.
     //
     const StringList metaData = p->getMetaData();
-    static const string prefix = "clr:implements:";
+    static const string prefix = "cs:implements:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
         if(q->find(prefix) == 0)
@@ -2467,7 +2467,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(!allDataMembers.empty())
         {
             const bool isAbstract = p->isLocal() && p->isAbstract();
-            const bool propertyMapping = p->hasMetaData("clr:property");
+            const bool propertyMapping = p->hasMetaData("cs:property");
 
             _out << sp << nl << "#region Constructors";
 
@@ -3178,10 +3178,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     }
 
     //
-    // Check for clr:implements metadata.
+    // Check for cs:implements metadata.
     //
     const StringList metaData = p->getMetaData();
-    static const string prefix = "clr:implements:";
+    static const string prefix = "cs:implements:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
         if(q->find(prefix) == 0)
@@ -3218,7 +3218,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
 
-    const bool propertyMapping = p->hasMetaData("clr:property");
+    const bool propertyMapping = p->hasMetaData("cs:property");
 
     _out << sp << nl << "#endregion"; // Slice data members
 
@@ -3591,7 +3591,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             baseTypes = DotNet::ICloneable;
         }
-        if(cont->hasMetaData("clr:property"))
+        if(cont->hasMetaData("cs:property"))
         {
             isProperty = true;
         }
@@ -3607,7 +3607,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         isLocal = cl->isLocal();
         baseTypes = DotNet::ICloneable;
         isClass = true;
-        if(cont->hasMetaData("clr:property"))
+        if(cont->hasMetaData("cs:property"))
         {
             isProperty = true;
         }
@@ -3715,8 +3715,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
             if(seq)
             {
                 string meta;
-                bool isSerializable = seq->findMetaData("clr:serializable:", meta);
-                bool isGeneric = seq->findMetaData("clr:generic:", meta);
+                bool isSerializable = seq->findMetaData("cs:serializable:", meta);
+                bool isGeneric = seq->findMetaData("cs:generic:", meta);
                 bool isArray = !isSerializable && !isGeneric;
                 if(isArray)
                 {
@@ -5005,7 +5005,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << eb;
     _out << eb;
 
-    string prefix = "clr:generic:";
+    string prefix = "cs:generic:";
     string meta;
     if(p->findMetaData(prefix, meta))
     {
@@ -5054,7 +5054,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     string meta;
 
-    string prefix = "clr:generic:";
+    string prefix = "cs:generic:";
     string genericType;
     if(!p->findMetaData(prefix, meta))
     {

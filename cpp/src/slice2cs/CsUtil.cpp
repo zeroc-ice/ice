@@ -142,7 +142,7 @@ Slice::CsGenerator::fixId(const ContainedPtr& cont, int baseTypes, bool mangleCa
 {
     ContainerPtr container = cont->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
-    if(contained && contained->hasMetaData("clr:property") &&
+    if(contained && contained->hasMetaData("cs:property") &&
        (contained->containedType() == Contained::ContainedTypeClass || contained->containedType() == Contained::ContainedTypeStruct))
     {
         return "_" + cont->name();
@@ -335,7 +335,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string prefix = "clr:generic:";
+        string prefix = "cs:generic:";
         string meta;
         if(seq->findMetaData(prefix, meta))
         {
@@ -350,7 +350,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
             }
         }
 
-        prefix = "clr:serializable:";
+        prefix = "cs:serializable:";
         if(seq->findMetaData(prefix, meta))
         {
             string type = meta.substr(prefix.size());
@@ -363,7 +363,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        string prefix = "clr:generic:";
+        string prefix = "cs:generic:";
         string meta;
         string typeName;
         if(d->findMetaData(prefix, meta))
@@ -482,7 +482,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
     StructPtr s = StructPtr::dynamicCast(type);
     if(s)
     {
-        if(s->hasMetaData("clr:class"))
+        if(s->hasMetaData("cs:class"))
         {
             return false;
         }
@@ -1125,7 +1125,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     TypePtr type = seq->type();
     string typeS = typeToString(type);
 
-    const string genericPrefix = "clr:generic:";
+    const string genericPrefix = "cs:generic:";
     string genericType;
     string addMethod = "Add";
     const bool isGeneric = seq->findMetaData(genericPrefix, genericType);
@@ -1307,7 +1307,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             default:
             {
-                string prefix = "clr:serializable:";
+                string prefix = "cs:serializable:";
                 string meta;
                 if(seq->findMetaData(prefix, meta))
                 {
@@ -1827,7 +1827,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     const string seqS = typeToString(seq);
 
     string meta;
-    const bool isArray = !seq->findMetaData("clr:generic:", meta);
+    const bool isArray = !seq->findMetaData("cs:generic:", meta);
     const string length = isArray ? param + ".Value.Length" : param + ".Value.Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1846,7 +1846,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         {
             string func = typeS;
             func[0] = toupper(static_cast<unsigned char>(typeS[0]));
-            const bool isSerializable = seq->findMetaData("clr:serializable:", meta);
+            const bool isSerializable = seq->findMetaData("cs:serializable:", meta);
 
             if(marshal)
             {
@@ -2312,9 +2312,17 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
-        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+
+        for(StringList::iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
-            string s = *r;
+            string& s = *r;
+            string oldS = s;
+
+            if(s.find(clrPrefix) == 0)
+            {
+                s.replace(0, clrPrefix.size(), csPrefix);
+            }
+
             if(_history.count(s) == 0)
             {
                 if(s.find(csPrefix) == 0)
@@ -2324,16 +2332,13 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     {
                         continue;
                     }
-                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-                    _history.insert(s);
-                }
-                else if(s.find(clrPrefix) == 0)
-                {
-                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
+                    emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
                     _history.insert(s);
                 }
             }
         }
+
+        dc->setMetaData(globalMetaData);
     }
     return true;
 }
@@ -2459,22 +2464,30 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 
     StringList localMetaData = cont->getMetaData();
 
-    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
-        string s = *p;
+        string& s = *p;
+        string oldS = s;
 
-        string prefix = "clr:";
+        const string csPrefix = "cs:";
+        const string clrPrefix = "clr:";
+
+        if(s.find(clrPrefix) == 0)
+        {
+            s.replace(0, clrPrefix.size(), csPrefix);
+        }
+
         if(_history.count(s) == 0)
         {
-            if(s.find(prefix) == 0)
+            if(s.find(csPrefix) == 0)
             {
                 SequencePtr seq = SequencePtr::dynamicCast(cont);
                 if(seq)
                 {
-                    static const string clrGenericPrefix = prefix + "generic:";
-                    if(s.find(clrGenericPrefix) == 0)
+                    static const string csGenericPrefix = csPrefix + "generic:";
+                    if(s.find(csGenericPrefix) == 0)
                     {
-                        string type = s.substr(clrGenericPrefix.size());
+                        string type = s.substr(csGenericPrefix.size());
                         if(type == "LinkedList" || type == "Queue" || type == "Stack")
                         {
                             if(!isClassType(seq->type()))
@@ -2487,16 +2500,16 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                             continue; // Custom type or List<T>
                         }
                     }
-                    static const string clrSerializablePrefix = prefix + "serializable:";
-                    if(s.find(clrSerializablePrefix) == 0)
+                    static const string csSerializablePrefix = csPrefix + "serializable:";
+                    if(s.find(csSerializablePrefix) == 0)
                     {
                         string meta;
-                        if(cont->findMetaData(prefix + "generic:", meta))
+                        if(cont->findMetaData(csPrefix + "generic:", meta))
                         {
                             emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
                                         "serialization can only be used with the array mapping for byte sequences");
                         }
-                        string type = s.substr(clrSerializablePrefix.size());
+                        string type = s.substr(csSerializablePrefix.size());
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                         if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
                         {
@@ -2506,56 +2519,47 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 }
                 else if(StructPtr::dynamicCast(cont))
                 {
-                    if(s.substr(prefix.size()) == "class")
+                    if(s.substr(csPrefix.size()) == "class")
                     {
                         continue;
                     }
-                    if(s.substr(prefix.size()) == "property")
+                    if(s.substr(csPrefix.size()) == "property")
                     {
                         continue;
                     }
-                    static const string clrImplementsPrefix = prefix + "implements:";
-                    if(s.find(clrImplementsPrefix) == 0)
+                    static const string csImplementsPrefix = csPrefix + "implements:";
+                    if(s.find(csImplementsPrefix) == 0)
                     {
                         continue;
                     }
                 }
                 else if(ClassDefPtr::dynamicCast(cont))
                 {
-                    if(s.substr(prefix.size()) == "property")
+                    if(s.substr(csPrefix.size()) == "property")
                     {
                         continue;
                     }
-                    static const string clrImplementsPrefix = prefix + "implements:";
-                    if(s.find(clrImplementsPrefix) == 0)
+                    static const string csImplementsPrefix = csPrefix + "implements:";
+                    if(s.find(csImplementsPrefix) == 0)
                     {
                         continue;
                     }
                 }
                 else if(DictionaryPtr::dynamicCast(cont))
                 {
-                    static const string clrGenericPrefix = prefix + "generic:";
-                    if(s.find(clrGenericPrefix) == 0)
+                    static const string csGenericPrefix = csPrefix + "generic:";
+                    if(s.find(csGenericPrefix) == 0)
                     {
-                        string type = s.substr(clrGenericPrefix.size());
+                        string type = s.substr(csGenericPrefix.size());
                         if(type == "SortedDictionary" ||  type == "SortedList")
                         {
                             continue;
                         }
                     }
                 }
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
-                _history.insert(s);
-            }
-        }
 
-        prefix = "cs:";
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                static const string csAttributePrefix = prefix + "attribute:";
-                static const string csTie = prefix + "tie";
+                static const string csAttributePrefix = csPrefix + "attribute:";
+                static const string csTie = csPrefix + "tie";
                 if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
                 {
                     continue;
@@ -2564,14 +2568,11 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     continue;
                 }
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+
+                emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
                 _history.insert(s);
             }
-        }
-
-        if(_history.count(s) == 0)
-        {
-            if(s == "delegate")
+            else if(s == "delegate")
             {
                 ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
                 if(cl && cl->isDelegate())
@@ -2583,4 +2584,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
         }
     }
+
+    cont->setMetaData(localMetaData);
 }
