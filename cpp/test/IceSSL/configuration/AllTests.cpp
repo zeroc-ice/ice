@@ -285,8 +285,8 @@ public:
             string resolved;
             if(IceSSL::checkPath(certificates[i], defaultDir, false, resolved))
             {
-                CFArrayRef certs = IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0);
-                SecIdentityRef identity = static_cast<SecIdentityRef>(CFArrayGetValueAtIndex(certs, 0));
+                IceInternal::UniqueRef<CFArrayRef> certs(IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0));
+                SecIdentityRef identity = static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
                 _identities.push_back(identity);
                 OSStatus err;
