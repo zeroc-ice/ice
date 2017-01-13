@@ -19,13 +19,15 @@ int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
     string testdir;
-#if TARGET_OS_IPHONE == 0
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     if(argc < 2)
     {
         cerr << "Usage: " << argv[0] << " testdir" << endl;
         return 1;
     }
     testdir = string(argv[1]) + "/../certs";
+#else
+    testdir = "certs";
 #endif
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0, "tcp"));

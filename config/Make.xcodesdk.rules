@@ -73,3 +73,55 @@ $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated
 endif
 
 endef
+
+#
+# $(call make-xcode-project-with-config,$1=project,$2=platform,$3=config)
+#
+define make-xcode-project-with-config
+
+$1[$2-$3]: $$($1_dependencies)
+	$(E) "Running xcodebuild for $1 scheme=\"$$(call $1_scheme,$2,$3)\""
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) SYMROOT=./build
+
+$1[$2-$3]_clean:
+	$(E) "Cleaning $1"
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) SYMROOT=./build \
+		   clean
+
+$1:: $1[$2-$3]
+$1_clean:: $1[$2-$3]_clean
+
+endef
+
+#
+# $(call create-xcode-project-targets,$1=project)
+#
+define create-xcode-project-targets
+endef
+
+#
+# $(call make-xcode-project,$1=project)
+#
+define make-xcode-project
+#
+# Define per-<platform-config> rules for this component.
+#
+$$(foreach p,$$(filter $(platforms),$$($1_platforms)),\
+    $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$(filter $(configs),$$($1_configs))),\
+        $$(if $$(filter $(SKIP),$1[$$p-$$c]),,\
+	    $$(eval $$(call make-xcode-project-with-config,$1,$$p,$$c,$1[$$p-$$c])))))
+
+$1::
+$1_clean::
+
+all:: $1
+clean:: $1_clean
+endef

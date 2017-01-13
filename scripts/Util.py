@@ -1872,7 +1872,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
     runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-2"
-    appPath = "ios/controller/build/Products"
+    appPath = "ios/controller/build"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current)
@@ -1956,7 +1956,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
 class iOSDeviceProcessController(RemoteProcessController):
 
-    appPath = "cpp/test/ios/controller/build/Products"
+    appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current)

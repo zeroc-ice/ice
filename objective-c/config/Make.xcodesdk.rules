@@ -9,7 +9,7 @@
 
 include $(top_srcdir)/config/Make.xcodesdk.rules
 
-supported-configs	+= xcodesdk
+supported-configs	+= xcodesdk arc-xcodesdk
 
 #
 # Xcode configuration to build Xcode IceSDK.

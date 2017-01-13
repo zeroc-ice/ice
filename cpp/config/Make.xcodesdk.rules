@@ -30,7 +30,6 @@ xcodesdk_excludes	= $(addprefix test/Ice/,background \
 						stringConverter \
 						threadPoolPriority)
 
-
 #
 # Rule to build an iOS bundle for testing (this is used for packaging client/server programs)
 #

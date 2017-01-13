@@ -835,8 +835,8 @@ endef
 #
 # Create the targets for the given projects and then make the project rules.
 #
-make-projects = $(foreach p,$1,$(eval $(call $(or $3,create-project-targets),$p)))\
-		$(foreach p,$1,$(eval $(call $(or $2,make-project),$p)))
+make-projects = $(foreach p,$1,$(eval $(call $(or $(if $($p_type),create-$($p_type)-project-targets),$3,create-project-targets),$p)))\
+		$(foreach p,$1,$(eval $(call $(or $(if $($p_type),make-$($p_type)-project),$2,make-project),$p)))
 
 #
 # $(call depend_cppflags,$1=dependencyfile,$2=targetfile)
