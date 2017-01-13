@@ -1323,28 +1323,27 @@ IceSSL::findCertificateChain(const std::string& keychainPath, const std::string&
     // Retrieve the certificate chain
     //
     UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, 0));
-    SecTrustRef trust = 0;
-    err = SecTrustCreateWithCertificates(reinterpret_cast<CFArrayRef>(cert.get()), policy.get(), &trust);
+    UniqueRef<SecTrustRef> trust;
+    err = SecTrustCreateWithCertificates(reinterpret_cast<CFArrayRef>(cert.get()), policy.get(), &trust.get());
     if(err || !trust)
     {
         throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error creating trust object" +
                                             (err ? ":\n" + errorToString(err) : ""));
     }
-    UniqueRef<SecTrustRef> v(trust);
 
     SecTrustResultType trustResult;
-    if((err = SecTrustEvaluate(trust, &trustResult)))
+    if((err = SecTrustEvaluate(trust.get(), &trustResult)))
     {
         throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error evaluating trust:\n" + errorToString(err));
     }
 
-    int chainLength = SecTrustGetCertificateCount(trust);
+    int chainLength = SecTrustGetCertificateCount(trust.get());
     UniqueRef<CFArrayRef> items(CFArrayCreateMutable(kCFAllocatorDefault, chainLength, &kCFTypeArrayCallBacks));
     for(int i = 0; i < chainLength; ++i)
     {
-        CFArrayAppendValue(const_cast<CFMutableArrayRef>(items.get()), SecTrustGetCertificateAtIndex(trust, i));
+        CFArrayAppendValue(const_cast<CFMutableArrayRef>(items.get()), SecTrustGetCertificateAtIndex(trust.get(), i));
     }
 
     //

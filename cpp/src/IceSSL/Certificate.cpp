@@ -1196,7 +1196,7 @@ Certificate::decode(const string& encoding)
     UniqueRef<SecKeychainItemRef> item;
     item.retain(static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0))));
     assert(SecCertificateGetTypeID() == CFGetTypeID(item.get()));
-    return ICE_MAKE_SHARED(Certificate, reinterpret_cast<SecCertificateRef>(item.get()));
+    return ICE_MAKE_SHARED(Certificate, reinterpret_cast<SecCertificateRef>(item.release()));
 #elif defined(ICE_USE_SCHANNEL)
     CERT_SIGNED_CONTENT_INFO* cert;
     loadCertificate(&cert, encoding.c_str(), static_cast<DWORD>(encoding.size()));
