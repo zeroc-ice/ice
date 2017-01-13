@@ -1936,13 +1936,18 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
     def destroy(self, driver):
         RemoteProcessController.destroy(self, driver)
+
+        sys.stdout.write("shutting down simulator... ")
+        sys.stdout.flush()
+        try:
+            run("xcrun simctl shutdown \"{0}\"".format(self.simulatorID))
+        except:
+            pass
+        print("ok")
+
         if self.simulatorID:
             sys.stdout.write("destroying simulator... ")
             sys.stdout.flush()
-            try:
-                run("xcrun simctl shutdown \"{0}\"".format(self.simulatorID))
-            except:
-                pass
             try:
                 run("xcrun simctl delete \"{0}\"".format(self.simulatorID))
             except:
