@@ -61,6 +61,78 @@ public:
 };
 
 Init init;
+
+#elif defined(__APPLE__)
+
+// UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
+
+template<typename R>
+class UniqueRef
+{
+public:
+
+    explicit UniqueRef(R ref = 0) :
+        _ref(ref)
+    {
+    }
+
+    ~UniqueRef()
+    {
+        if(_ref != 0)
+        {
+            CFRelease(_ref);
+        }
+    }
+
+    R release()
+    {
+        R r = _ref;
+        _ref = 0;
+        return r;
+    }
+
+    void reset(R ref = 0)
+    {
+        assert(ref == 0 || ref != _ref);
+
+        if(_ref != 0)
+        {
+            CFRelease(_ref);
+        }
+        _ref = ref;
+    }
+
+    R& get()
+    {
+        return _ref;
+    }
+
+    R get() const
+    {
+        return _ref;
+    }
+
+    operator bool() const
+    {
+        return _ref != 0;
+    }
+
+    void swap(UniqueRef& a)
+    {
+        R tmp = a._ref;
+        a._ref = _ref;
+        _ref = tmp;
+    }
+
+private:
+
+    UniqueRef(UniqueRef&);
+    UniqueRef& operator=(UniqueRef&);
+
+    R _ref;
+};
+
+
 #endif
 
 
@@ -320,74 +392,59 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     std::replace(checksum.begin(), checksum.end(), '.', '+');
     checksum += paddingBytes(checksum.size());
 #   if defined(__APPLE__)
-    CFErrorRef error = 0;
-    SecTransformRef decoder = SecDecodeTransformCreate(kSecBase64Encoding, &error);
+    UniqueRef<CFErrorRef> error(0);
+    UniqueRef<SecTransformRef> decoder(SecDecodeTransformCreate(kSecBase64Encoding, &error.get()));
     if(error)
     {
-        CFRelease(error);
         return false;
     }
 
-    CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                                 reinterpret_cast<const uint8_t*>(salt.c_str()),
-                                                 salt.size(), kCFAllocatorNull);
+    UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+                                                          reinterpret_cast<const uint8_t*>(salt.c_str()),
+                                                          salt.size(), kCFAllocatorNull));
 
-    SecTransformSetAttribute(decoder, kSecTransformInputAttributeName, data, &error);
+    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
     if(error)
     {
-        CFRelease(error);
-        CFRelease(decoder);
         return false;
     }
 
-    CFDataRef saltBuffer = static_cast<CFDataRef>(SecTransformExecute(decoder, &error));
-    CFRelease(decoder);
-
+    UniqueRef<CFDataRef> saltBuffer(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error.get())));
     if(error)
     {
-        CFRelease(error);
         return false;
     }
 
     vector<uint8_t> checksumBuffer1(checksumLength);
     OSStatus status = CCKeyDerivationPBKDF(kCCPBKDF2, password.c_str(), password.size(),
-                                           CFDataGetBytePtr(saltBuffer), CFDataGetLength(saltBuffer),
+                                           CFDataGetBytePtr(saltBuffer.get()), CFDataGetLength(saltBuffer.get()),
                                            algorithmId, rounds, &checksumBuffer1[0], checksumLength);
-    CFRelease(saltBuffer);
     if(status != errSecSuccess)
     {
         return false;
     }
 
-    decoder = SecDecodeTransformCreate(kSecBase64Encoding, &error);
+    decoder.reset(SecDecodeTransformCreate(kSecBase64Encoding, &error.get()));
     if(error)
     {
-        CFRelease(error);
         return false;
     }
-    data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                       reinterpret_cast<const uint8_t*>(checksum.c_str()),
-                                       checksum.size(), kCFAllocatorNull);
-    SecTransformSetAttribute(decoder, kSecTransformInputAttributeName, data, &error);
+    data.reset(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+                                           reinterpret_cast<const uint8_t*>(checksum.c_str()),
+                                           checksum.size(), kCFAllocatorNull));
+    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
     if(error)
     {
-        CFRelease(error);
-        CFRelease(decoder);
         return false;
     }
 
-    data = static_cast<CFDataRef>(SecTransformExecute(decoder, &error));
-    CFRelease(decoder);
-    decoder = 0;
-
+    data.reset(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error.get())));
     if(error)
     {
-        CFRelease(error);
         return false;
     }
 
-    vector<uint8_t> checksumBuffer2(CFDataGetBytePtr(data), CFDataGetBytePtr(data) + CFDataGetLength(data));
-    CFRelease(data);
+    vector<uint8_t> checksumBuffer2(CFDataGetBytePtr(data.get()), CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
 
     return checksumBuffer1 == checksumBuffer2;
 #   else
