@@ -285,20 +285,19 @@ public:
             string resolved;
             if(IceSSL::checkPath(certificates[i], defaultDir, false, resolved))
             {
-                CFArrayRef certs = IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0);
-                SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs, 0);
+                IceInternal::UniqueRef<CFArrayRef> certs(IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0));
+                SecIdentityRef identity = (SecIdentityRef)CFArrayGetValueAtIndex(certs.get(), 0);
                 CFRetain(identity);
                 _identities.push_back(identity);
                 OSStatus err;
-                CFMutableDictionaryRef query;
+                IceInternal::UniqueRef<CFMutableDictionaryRef> query;
 
-                query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-                CFDictionarySetValue(query, kSecValueRef, identity);
-                if((err = SecItemAdd(query, 0)))
+                query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+                CFDictionarySetValue(query.get(), kSecValueRef, identity);
+                if((err = SecItemAdd(query.get(), 0)))
                 {
                     cerr << "failed to add identity " << certificates[i] << ": " << err << endl;
                 }
-                CFRelease(query);
 
                 // query = CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
                 // CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
@@ -311,7 +310,6 @@ public:
                 // {
                 //     printf("Cert %d: %s\n", i, (new IceSSL::Certificate((SecCertificateRef)CFArrayGetValueAtIndex(array, i)))->toString().c_str());
                 // }
-                // CFRelease(certs);
             }
         }
         // Nothing to do.
@@ -324,23 +322,20 @@ public:
 
     void cleanup()
     {
-        CFMutableDictionaryRef query;
+        IceInternal::UniqueRef<CFMutableDictionaryRef> query;
         for(vector<SecIdentityRef>::const_iterator p = _identities.begin(); p != _identities.end(); ++p)
         {
-            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-            CFDictionarySetValue(query, kSecClass, kSecClassIdentity);
-            CFDictionarySetValue(query, kSecValueRef, *p);
-            SecItemDelete(query);
-            CFRelease(query);
+            query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+            CFDictionarySetValue(query.get(), kSecClass, kSecClassIdentity);
+            CFDictionarySetValue(query.get(), kSecValueRef, *p);
+            SecItemDelete(query.get());
 
             SecCertificateRef cert;
             SecIdentityCopyCertificate(*p, &cert);
-            query = CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-            CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
-            CFDictionarySetValue(query, kSecValueRef, cert);
-            SecItemDelete(query);
-            CFRelease(query);
-
+            query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+            CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
+            CFDictionarySetValue(query.get(), kSecValueRef, cert);
+            SecItemDelete(query.get());
             CFRelease(*p);
         }
         _identities.clear();
@@ -564,11 +559,6 @@ static Test::Properties
 createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12, const string& cert, const string& ca)
 {
     Test::Properties d;
-
-    //
-    // If no CA is specified, we don't set IceSSL.DefaultDir since
-    // with OpenSSL the CAs might still be found.
-    //
     d = createServerProps(defaultProps, p12);
     if(!ca.empty())
     {
@@ -685,6 +675,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
     Ice::PropertiesPtr defaultProps = communicator->getProperties()->clone();
     defaultProps->setProperty("IceSSL.DefaultDir", defaultDir);
+
 #ifdef _WIN32
     string sep = ";";
 #else
@@ -880,7 +871,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
         fact->destroyServer(server);
         comm->destroy();
-
         //
         // Test IceSSL.VerifyPeer=1. Client has a certificate.
         //

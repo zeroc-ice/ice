@@ -17,6 +17,7 @@
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
+#include <Ice/UniqueRef.h>
 
 #if defined(ICE_USE_EPOLL)
 #   include <sys/epoll.h>
@@ -255,8 +256,8 @@ private:
     Selector& _selector;
     SocketOperation _ready;
     bool _finish;
-    CFSocketRef _socket;
-    CFRunLoopSourceRef _source;
+    IceInternal::UniqueRef<CFSocketRef> _socket;
+    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
 };
 typedef IceUtil::Handle<EventHandlerWrapper> EventHandlerWrapperPtr;
 
@@ -295,7 +296,7 @@ private:
     InstancePtr _instance;
     IceUtil::ThreadPtr _thread;
     CFRunLoopRef _runLoop;
-    CFRunLoopSourceRef _source;
+    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
     bool _destroyed;
 
     std::set<EventHandlerWrapperPtr> _changes;

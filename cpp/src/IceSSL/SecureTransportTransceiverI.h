@@ -16,6 +16,7 @@
 #include <IceSSL/Plugin.h>
 
 #include <Ice/Transceiver.h>
+#include <Ice/UniqueRef.h>
 #include <Ice/Network.h>
 
 #ifdef ICE_USE_SECURE_TRANSPORT
@@ -67,8 +68,8 @@ private:
     const bool _incoming;
     const IceInternal::TransceiverPtr _delegate;
 
-    SSLContextRef _ssl;
-    SecTrustRef _trust;
+    IceInternal::UniqueRef<SSLContextRef> _ssl;
+    IceInternal::UniqueRef<SecTrustRef> _trust;
     bool _connected;
     bool _verified;
 

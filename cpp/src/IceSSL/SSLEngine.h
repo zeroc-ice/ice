@@ -19,6 +19,7 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Network.h>
+#include <Ice/UniqueRef.h>
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <Security/Security.h>
@@ -126,8 +127,8 @@ private:
     void parseCiphers(const std::string&);
 
     bool _initialized;
-    UniqueRef<CFArrayRef> _certificateAuthorities;
-    UniqueRef<CFArrayRef> _chain;
+    IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
+    IceInternal::UniqueRef<CFArrayRef> _chain;
 
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;

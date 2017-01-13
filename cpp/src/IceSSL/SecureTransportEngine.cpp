@@ -31,6 +31,7 @@
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceSSL;
 
 namespace
@@ -1192,15 +1193,14 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
     //
     // Context used to get the cipher list
     //
-    SSLContextRef ctx = SSLCreateContext(kCFAllocatorDefault, kSSLServerSide, kSSLStreamType);
+    UniqueRef<SSLContextRef> ctx(SSLCreateContext(kCFAllocatorDefault, kSSLServerSide, kSSLStreamType));
     size_t numSupportedCiphers = 0;
-    SSLGetNumberSupportedCiphers(ctx, &numSupportedCiphers);
+    SSLGetNumberSupportedCiphers(ctx.get(), &numSupportedCiphers);
 
     vector<SSLCipherSuite> supported;
     supported.resize(numSupportedCiphers);
 
-    OSStatus err = SSLGetSupportedCiphers(ctx, &supported[0], &numSupportedCiphers);
-    CFRelease(ctx);
+    OSStatus err = SSLGetSupportedCiphers(ctx.get(), &supported[0], &numSupportedCiphers);
     if(err)
     {
         throw PluginInitializationException(__FILE__, __LINE__,

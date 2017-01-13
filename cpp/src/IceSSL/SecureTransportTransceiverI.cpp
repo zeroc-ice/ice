@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceSSL;
 
 namespace
@@ -96,7 +97,7 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
 }
 
 bool
-checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const InstancePtr& instance,
+checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const IceSSL::InstancePtr& instance,
                  const string& host)
 {
     OSStatus err = noErr;
@@ -123,13 +124,12 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
             // Add SSL trust policy if we need to check the certificate name.
             //
             UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(false, toCFString(host)));
-            CFArrayRef policies;
-            if((err = SecTrustCopyPolicies(trust, &policies)))
+            UniqueRef<CFArrayRef> policies;
+            if((err = SecTrustCopyPolicies(trust, &policies.get())))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
             }
-            UniqueRef<CFMutableArrayRef> newPolicies(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, policies));
-            CFRelease(policies);
+            UniqueRef<CFMutableArrayRef> newPolicies(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, policies.get()));
             CFArrayAppendValue(newPolicies.get(), policy.release());
             if((err = SecTrustSetPolicies(trust, newPolicies.release())))
             {
@@ -223,14 +223,14 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         //
         // Initialize SSL context
         //
-        _ssl = _engine->newContext(_incoming);
-        if((err = SSLSetIOFuncs(_ssl, socketRead, socketWrite)))
+        _ssl.reset(_engine->newContext(_incoming));
+        if((err = SSLSetIOFuncs(_ssl.get(), socketRead, socketWrite)))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
                                     errorToString(err));
         }
 
-        if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
+        if((err = SSLSetConnection(_ssl.get(), reinterpret_cast<SSLConnectionRef>(this))))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
                                     errorToString(err));
@@ -238,14 +238,14 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
     }
 
     SSLSessionState state;
-    SSLGetSessionState(_ssl, &state);
+    SSLGetSessionState(_ssl.get(), &state);
 
     //
     // SSL Handshake
     //
     while(state == kSSLHandshake || state == kSSLIdle)
     {
-        err = SSLHandshake(_ssl);
+        err = SSLHandshake(_ssl.get());
         if(err == noErr)
         {
             break; // We're done!
@@ -258,8 +258,9 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         else if(err == errSSLPeerAuthCompleted)
         {
             assert(!_trust);
-            err = SSLCopyPeerTrust(_ssl, &_trust);
-            if(_incoming && _engine->getVerifyPeer() == 1 && (err == errSSLBadCert || _trust == 0))
+            err = SSLCopyPeerTrust(_ssl.get(), &_trust.get());
+
+            if(_incoming && _engine->getVerifyPeer() == 1 && (err == errSSLBadCert || !_trust))
             {
                 // This is expected if the client doesn't provide a certificate. With 10.10 and 10.11 errSSLBadCert
                 // is expected, the server is configured to verify but not require the client
@@ -268,7 +269,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             }
             if(err == noErr)
             {
-                _verified = checkTrustResult(_trust, _engine, _instance, _host);
+                _verified = checkTrustResult(_trust.get(), _engine, _instance, _host);
                 continue; // Call SSLHandshake to resume the handsake.
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
@@ -292,11 +293,11 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
         SSLProtocol protocol;
-        SSLGetNegotiatedProtocolVersion(_ssl, &protocol);
+        SSLGetNegotiatedProtocolVersion(_ssl.get(), &protocol);
         const string sslProtocolName = protocolName(protocol);
 
         SSLCipherSuite cipher;
-        SSLGetNegotiatedCipher(_ssl, &cipher);
+        SSLGetNegotiatedCipher(_ssl.get(), &cipher);
         const string sslCipherName = _engine->getCipherName(cipher);
 
         if(sslCipherName.empty())
@@ -325,18 +326,12 @@ IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 void
 IceSSL::TransceiverI::close()
 {
-    if(_trust)
-    {
-        CFRelease(_trust);
-        _trust = 0;
-    }
-
+    _trust.reset(0);
     if(_ssl)
     {
-        SSLClose(_ssl);
-        CFRelease(_ssl);
-        _ssl = 0;
+        SSLClose(_ssl.get());
     }
+    _ssl.reset(0);
 
     _delegate->close();
 }
@@ -361,8 +356,8 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
     while(buf.i != buf.b.end())
     {
         size_t processed = 0;
-        OSStatus err = _buffered ? SSLWrite(_ssl, 0, 0, &processed) :
-                                   SSLWrite(_ssl, reinterpret_cast<const void*>(buf.i), packetSize, &processed);
+        OSStatus err = _buffered ? SSLWrite(_ssl.get(), 0, 0, &processed) :
+                                   SSLWrite(_ssl.get(), reinterpret_cast<const void*>(buf.i), packetSize, &processed);
 
         if(err)
         {
@@ -439,7 +434,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
     while(buf.i != buf.b.end())
     {
         size_t processed = 0;
-        OSStatus err = SSLRead(_ssl, reinterpret_cast<void*>(buf.i), packetSize, &processed);
+        OSStatus err = SSLRead(_ssl.get(), reinterpret_cast<void*>(buf.i), packetSize, &processed);
         if(err)
         {
             if(err == errSSLWouldBlock)
@@ -486,7 +481,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
     // Check if there's still buffered data to read. In this case, set the read ready status.
     //
     size_t buffered = 0;
-    OSStatus err = SSLGetBufferedReadSize(_ssl, &buffered);
+    OSStatus err = SSLGetBufferedReadSize(_ssl.get(), &buffered);
     if(err)
     {
         errno = err;
@@ -523,9 +518,9 @@ IceSSL::TransceiverI::getInfo() const
     info->adapterName = _adapterName;
     if(_ssl)
     {
-        for(int i = 0, count = SecTrustGetCertificateCount(_trust); i < count; ++i)
+        for(int i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
         {
-            SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust, i);
+            SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
             CFRetain(cert);
 
             CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cert);
@@ -534,7 +529,7 @@ IceSSL::TransceiverI::getInfo() const
         }
 
         SSLCipherSuite cipher;
-        SSLGetNegotiatedCipher(_ssl, &cipher);
+        SSLGetNegotiatedCipher(_ssl.get(), &cipher);
         info->cipher = _engine->getCipherName(cipher);
         info->verified = _verified;
     }
@@ -556,7 +551,7 @@ IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _delegate->setBufferSize(rcvSize, sndSize);
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
+IceSSL::TransceiverI::TransceiverI(const IceSSL::InstancePtr& instance,
                                    const IceInternal::TransceiverPtr& delegate,
                                    const string& hostOrAdapterName,
                                    bool incoming) :
@@ -566,8 +561,6 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),
     _delegate(delegate),
-    _ssl(0),
-    _trust(0),
     _connected(false),
     _verified(false),
     _buffered(0)

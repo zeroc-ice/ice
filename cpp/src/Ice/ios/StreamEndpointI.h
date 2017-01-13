@@ -15,6 +15,7 @@
 #include <Ice/WSEndpoint.h>
 #include <Ice/EndpointFactory.h>
 #include <Ice/InstanceF.h>
+#include <Ice/UniqueRef.h>
 
 #include <CoreFoundation/CFDictionary.h>
 #include <CFNetwork/CFNetwork.h>
@@ -55,7 +56,7 @@ private:
 
     const bool _voip;
     const Ice::CommunicatorPtr _communicator;
-    CFMutableDictionaryRef _proxySettings;
+    IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
     std::string _proxyHost;
     int _proxyPort;
 };

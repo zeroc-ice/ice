@@ -14,6 +14,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <Ice/Instance.h>
+#include <Ice/UniqueRef.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
@@ -68,27 +69,19 @@ IceObjC::StreamAcceptor::accept()
     //
     // Create the read/write streams
     //
-    CFReadStreamRef readStream = nil;
-    CFWriteStreamRef writeStream = nil;
+    UniqueRef<CFReadStreamRef> readStream;
+    UniqueRef<CFWriteStreamRef> writeStream;
     try
     {
-        CFStreamCreatePairWithSocket(ICE_NULLPTR, fd, &readStream, &writeStream);
-        _instance->setupStreams(readStream, writeStream, true, "");
-        return new StreamTransceiver(_instance, readStream, writeStream, fd);
+        CFStreamCreatePairWithSocket(ICE_NULLPTR, fd, &readStream.get(), &writeStream.get());
+        _instance->setupStreams(readStream.get(), writeStream.get(), true, "");
+        return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), fd);
     }
     catch(const Ice::LocalException& ex)
     {
         if(fd != INVALID_SOCKET)
         {
             closeSocketNoThrow(fd);
-        }
-        if(readStream)
-        {
-            CFRelease(readStream);
-        }
-        if(writeStream)
-        {
-            CFRelease(writeStream);
         }
         throw;
     }

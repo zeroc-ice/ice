@@ -1058,9 +1058,7 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
     _streamNativeInfo(StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo())),
     _selector(selector),
     _ready(SocketOperationNone),
-    _finish(false),
-    _socket(0),
-    _source(0)
+    _finish(false)
 {
     if(_streamNativeInfo)
     {
@@ -1070,28 +1068,23 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
     {
         SOCKET fd = handler->getNativeInfo()->fd();
         CFSocketContext ctx = { 0, this, 0, 0, 0 };
-        _socket = CFSocketCreateWithNative(kCFAllocatorDefault,
-                                           fd,
-                                           kCFSocketReadCallBack |
-                                           kCFSocketWriteCallBack |
-                                           kCFSocketConnectCallBack,
-                                           eventHandlerSocketCallback,
-                                           &ctx);
+        _socket.reset(CFSocketCreateWithNative(kCFAllocatorDefault,
+                                               fd,
+                                               kCFSocketReadCallBack |
+                                               kCFSocketWriteCallBack |
+                                               kCFSocketConnectCallBack,
+                                               eventHandlerSocketCallback,
+                                               &ctx));
 
         // Disable automatic re-enabling of callbacks and closing of the native socket.
-        CFSocketSetSocketFlags(_socket, 0);
-        CFSocketDisableCallBacks(_socket, kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
-        _source = CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket, 0);
+        CFSocketSetSocketFlags(_socket.get(), 0);
+        CFSocketDisableCallBacks(_socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+        _source.reset(CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket.get(), 0));
     }
 }
 
 EventHandlerWrapper::~EventHandlerWrapper()
 {
-    if(_socket)
-    {
-        CFRelease(_socket);
-        CFRelease(_source);
-    }
 }
 
 void
@@ -1102,24 +1095,24 @@ EventHandlerWrapper::updateRunLoop()
 
     if(_socket)
     {
-        CFSocketDisableCallBacks(_socket, kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+        CFSocketDisableCallBacks(_socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         if(op)
         {
-            CFSocketEnableCallBacks(_socket, toCFCallbacks(op));
+            CFSocketEnableCallBacks(_socket.get(), toCFCallbacks(op));
         }
 
-        if(op && !CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode))
+        if(op && !CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode))
         {
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode);
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
         }
-        else if(!op && CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode))
+        else if(!op && CFRunLoopContainsSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode))
         {
-            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode);
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
         }
 
         if(_finish)
         {
-            CFSocketInvalidate(_socket);
+            CFSocketInvalidate(_socket.get());
         }
     }
     else
@@ -1239,7 +1232,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     memset(&ctx, 0, sizeof(CFRunLoopSourceContext));
     ctx.info = this;
     ctx.perform = selectorInterrupt;
-    _source = CFRunLoopSourceCreate(0, 0, &ctx);
+    _source.reset(CFRunLoopSourceCreate(0, 0, &ctx));
     _runLoop = 0;
 
     _thread = new SelectorHelperThread(*this);
@@ -1267,12 +1260,12 @@ Selector::destroy()
         // streams/sockets are closed.
         //
         _destroyed = true;
-        CFRunLoopSourceSignal(_source);
+        CFRunLoopSourceSignal(_source.get());
         CFRunLoopWakeUp(_runLoop);
 
         while(!_changes.empty())
         {
-            CFRunLoopSourceSignal(_source);
+            CFRunLoopSourceSignal(_source.get());
             CFRunLoopWakeUp(_runLoop);
 
             wait();
@@ -1283,7 +1276,7 @@ Selector::destroy()
     _thread = 0;
 
     Lock sync(*this);
-    CFRelease(_source);
+    _source.reset(0);
 
     //assert(_wrappers.empty());
     _readyHandlers.clear();
@@ -1422,7 +1415,7 @@ Selector::select(int timeout)
     {
         while(!_changes.empty())
         {
-            CFRunLoopSourceSignal(_source);
+            CFRunLoopSourceSignal(_source.get());
             CFRunLoopWakeUp(_runLoop);
 
             wait();
@@ -1478,9 +1471,9 @@ Selector::run()
         notify();
     }
 
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
     CFRunLoopRun();
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source, kCFRunLoopDefaultMode);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
 }
 
 void

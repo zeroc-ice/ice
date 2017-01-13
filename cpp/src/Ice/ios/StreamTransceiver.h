@@ -13,6 +13,7 @@
 #include <Ice/WSTransceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Selector.h>
+#include <Ice/UniqueRef.h>
 
 struct __CFError;
 typedef struct __CFError * CFErrorRef;
@@ -42,6 +43,7 @@ public:
 
     StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, const std::string&, Ice::Int);
     StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, SOCKET);
+
     virtual ~StreamTransceiver();
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
@@ -72,8 +74,8 @@ private:
     const InstancePtr _instance;
     const std::string _host;
     const Ice::Int _port;
-    CFReadStreamRef _readStream;
-    CFWriteStreamRef _writeStream;
+    IceInternal::UniqueRef<CFReadStreamRef> _readStream;
+    IceInternal::UniqueRef<CFWriteStreamRef> _writeStream;
     bool _readStreamRegistered;
     bool _writeStreamRegistered;
     bool _opening;
