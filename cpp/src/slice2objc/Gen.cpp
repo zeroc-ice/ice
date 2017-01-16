@@ -2026,29 +2026,46 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
         TypePtr type = (*q)->type();
         string name = fixId((*q)->name(), baseType);
 
-        _M << nl << "h_ = ((h_ << 5) + h_) ^ ";
         if(isValueType(type))
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
             if(builtin)
             {
-                if(builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble)
+                switch(builtin->kind())
                 {
-                    _M << "(2654435761u * (uint)" << name << ");";
-                }
-                else
-                {
-                    _M << "(2654435761u * " << name << ");";
+                    case Builtin::KindLong:
+                    {
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)(" << name << " ^ (" << name << " >> 32));";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (2654435761u * (uint)" << name << ");";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        _M << sb;
+                        _M << nl << "unsigned long long bits_ = (unsigned long long)" << name << ";";
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)(bits_ ^ (bits_ >> 32));";
+                        _M << eb;
+                        break;
+                    }
+                    default:
+                    {
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (2654435761u * " << name << ");";
+                        break;
+                    }
                 }
             }
             else
             {
-                _M << name << ";";
+                 _M << nl << "h_ = ((h_ << 5) + h_) ^ " << name << ";";
             }
         }
         else
         {
-            _M << "[self->" << name << " hash];";
+            _M << nl << "h_ = ((h_ << 5) + h_) ^ [self->" << name << " hash];";
         }
     }
     _M << nl << "return h_;";
