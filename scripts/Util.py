@@ -1050,12 +1050,14 @@ class Process(Runnable):
         pass
 
     def stop(self, current, waitSuccess=False, exitstatus=0):
-        if self in current.processes and not current.processes[self].isTerminated():
+        if self in current.processes:
             try:
-                if waitSuccess: # Wait for the process to exit successfully by itself.
+                # Wait for the process to exit successfully by itself.
+                if not current.processes[self].isTerminated() and waitSuccess:
                     current.processes[self].waitSuccess(exitstatus=exitstatus, timeout=60)
             finally:
-                current.processes[self].terminate()
+                if not current.processes[self].isTerminated():
+                    current.processes[self].terminate()
                 if not self.quiet: # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
 
