@@ -501,6 +501,16 @@ public class AllTests
             {
             }
 
+            try
+            {
+                ((TimeoutPrx)timeout.ice_invocationTimeout(-2)).ice_ping();
+                ((TimeoutPrx)timeout.ice_invocationTimeout(-2)).begin_ice_ping().waitForCompleted();
+            }
+            catch(Ice.Exception ex)
+            {
+                test(false);
+            }
+
             ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).ice_ping();
 
             TimeoutPrx batchTimeout = (TimeoutPrx)proxy.ice_batchOneway();

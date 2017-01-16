@@ -440,6 +440,16 @@ public class AllTests : TestCommon.TestApp
             {
             }
 
+            try
+            {
+                ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_ping();
+                ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).begin_ice_ping().waitForCompleted();
+            }
+            catch(Ice.Exception)
+            {
+                test(false);
+            }
+
             Test.TimeoutPrx batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();

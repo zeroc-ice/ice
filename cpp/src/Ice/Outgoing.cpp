@@ -137,11 +137,14 @@ ProxyOutgoingBase::invokeImpl()
                 try
                 {
                     _invocationTimeoutDeadline = Time(); // Reset any previously set value
-
-                    int timeout = _handler->waitForConnection()->timeout();
-                    if(timeout > 0)
+                    Ice::ConnectionIPtr connection = _handler->waitForConnection();
+                    if(connection)
                     {
-                        _invocationTimeoutDeadline = Time::now(Time::Monotonic) + Time::milliSeconds(timeout);
+                        int timeout = connection->timeout();
+                        if(timeout > 0)
+                        {
+                            _invocationTimeoutDeadline = Time::now(Time::Monotonic) + Time::milliSeconds(timeout);
+                        }
                     }
                 }
                 catch(const Ice::LocalException&)

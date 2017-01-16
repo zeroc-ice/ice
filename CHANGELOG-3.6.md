@@ -60,6 +60,9 @@ These are the changes since Ice 3.6.4.
   This message would only show up under certain circumstances when using Ice
   on macOS Sierra (10.2).
 
+- Fixed bug which would cause an IceUtil::NullHandleException to be raised when
+  using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
+
 ## JavaScript Changes
 
 - Fixed a bug in Ice.Long toNumber implementation where negative integers
