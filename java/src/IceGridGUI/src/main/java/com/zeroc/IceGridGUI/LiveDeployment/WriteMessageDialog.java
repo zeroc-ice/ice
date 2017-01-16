@@ -40,7 +40,7 @@ class WriteMessageDialog extends JDialog
 {
     WriteMessageDialog(final Root root)
     {
-        super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid Admin", true);
+        super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         _mainFrame = root.getCoordinator().getMainFrame();

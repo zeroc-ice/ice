@@ -451,7 +451,7 @@ class ShowIceLogDialog extends JDialog
     ShowIceLogDialog(TreeNode parent, String title, com.zeroc.Ice.LoggerAdminPrx loggerAdmin, String defaultFileName,
                      int maxMessages, int initialMessages)
     {
-        super(parent.getRoot().getCoordinator().getMainFrame(), title + " - IceGrid Admin", false);
+        super(parent.getRoot().getCoordinator().getMainFrame(), title + " - IceGrid GUI", false);
 
         _parent = parent;
         _title = title;
@@ -634,11 +634,11 @@ class ShowIceLogDialog extends JDialog
             _tableModel.setRowCount(0);
             if(_messageTypeFilter != null || _traceCategoryFilter != null)
             {
-                setTitle(_title + " (Filtered) - IceGrid Admin");
+                setTitle(_title + " (Filtered) - IceGrid GUI");
             }
             else
             {
-                setTitle(_title + " (No filter) - IceGrid Admin");
+                setTitle(_title + " (No filter) - IceGrid GUI");
             }
 
             _playItem.setSelected(true);

@@ -54,7 +54,7 @@ jar {
     doLast {
         antfx.application(
                 id: 'IceGridGUI',
-                name: 'IceGrid Admin',
+                name: 'IceGrid GUI',
                 mainClass: 'com.zeroc.IceGridGUI.Main',
                 fallbackClass: 'IceGridGUI.Fallback',
                 toolkit: 'swing')

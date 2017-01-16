@@ -156,7 +156,7 @@ public class SessionKeeper
                                 logout(true);
                                 JOptionPane.showMessageDialog(
                                     parent,
-                                    "This version of IceGrid Admin requires an IceGrid Registry version 3.3",
+                                    "This version of IceGrid GUI requires an IceGrid Registry version 3.3",
                                     "Login failed: Version Mismatch",
                                     JOptionPane.ERROR_MESSAGE);
                             });
@@ -1058,7 +1058,7 @@ public class SessionKeeper
         {
             super(parent, true);
             _x509CertificateDefault = true;
-            initialize("New Connection - IceGrid Admin", parent);
+            initialize("New Connection - IceGrid GUI", parent);
             _connectNow = true;
         }
 
@@ -1067,7 +1067,7 @@ public class SessionKeeper
             super(parent, true);
             _conf = inf;
             _x509CertificateDefault = false;
-            initialize("Edit Connection - IceGrid Admin", parent);
+            initialize("Edit Connection - IceGrid GUI", parent);
             _connectNow = false;
             _nextButton.requestFocusInWindow();
         }
@@ -3282,7 +3282,7 @@ public class SessionKeeper
     {
         ConnectionDetailDialog(ConnectionInfo inf)
         {
-            super(_coordinator.getMainFrame(), "Connection Details - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Connection Details - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             JPanel detailsPane = null;
             {
@@ -3394,7 +3394,7 @@ public class SessionKeeper
     {
         ConnectionManagerDialog()
         {
-            super(_coordinator.getMainFrame(), "Saved Connections - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Saved Connections - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
             JPanel connectionActionPanel = null;
@@ -3495,7 +3495,7 @@ public class SessionKeeper
 
                                 if(JOptionPane.showConfirmDialog(ConnectionManagerDialog.this,
                                         "Do you want to remove the selected configuration?",
-                                        "Remove Configuration - IceGrid admin",
+                                        "Remove Configuration - IceGrid GUI",
                                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                                 {
                                     try
@@ -4069,7 +4069,7 @@ public class SessionKeeper
                                     try
                                     {
                                         keyStore = KeyStore.getInstance("pkcs12");
-                                        RequestPasswordResult r = requestPassword("KeyStore Password - IceGrid Admin",
+                                        RequestPasswordResult r = requestPassword("KeyStore Password - IceGrid GUI",
                                                                                   "KeyStore password:");
                                         if(r.accepted)
                                         {
@@ -4137,7 +4137,7 @@ public class SessionKeeper
                                                     "<html>Your KeyStore already contains a certificate with alias `" +
                                                     newAlias + "'<br/>" +
                                                     "Do you want to update the certificate?</html>",
-                                                    "Confirm Certificate Update - IceGrid Admin",
+                                                    "Confirm Certificate Update - IceGrid GUI",
                                                     JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                                             {
                                                 continue;
@@ -4223,7 +4223,7 @@ public class SessionKeeper
                         {
                             if(JOptionPane.showConfirmDialog(KeyStorePanel.this,
                                     "Do you want to remove the certficate with alias `" + _aliases.get(index) + "'?",
-                                    "Remove Certificate - IceGrid admin",
+                                    "Remove Certificate - IceGrid GUI",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                             try
                             {
@@ -4272,7 +4272,7 @@ public class SessionKeeper
                     {
                         try
                         {
-                            r = requestPassword("Certificate Password For <" + alias + "> - IceGrid Admin",
+                            r = requestPassword("Certificate Password For <" + alias + "> - IceGrid GUI",
                                                 "Certificate password for <" + alias + ">:");
                             if(r.accepted)
                             {
@@ -4313,7 +4313,7 @@ public class SessionKeeper
                             KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin",
+                            "Confirm Certificate Update - IceGrid GUI",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4338,7 +4338,7 @@ public class SessionKeeper
                             KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin",
+                            "Confirm Certificate Update - IceGrid GUI",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4631,7 +4631,7 @@ public class SessionKeeper
         CertificateDetailDialog(X509Certificate cert)
             throws java.security.GeneralSecurityException, java.io.IOException, javax.naming.InvalidNameException
         {
-            super(_coordinator.getMainFrame(), "Certificate Details - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Certificate Details - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
             Container contentPane = getContentPane();
@@ -4673,7 +4673,7 @@ public class SessionKeeper
     {
         CertificateManagerDialog() throws java.security.KeyStoreException
         {
-            super(_coordinator.getMainFrame(), "Certificate Manager - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Certificate Manager - IceGrid GUI", true);
             _tabs = new JTabbedPane();
 
             _identityCertificatesPanel = new KeyStorePanel();
@@ -4819,7 +4819,7 @@ public class SessionKeeper
             {
                 UsernamePasswordAuthDialog()
                 {
-                    super(parent, "Login - IceGrid Admin");
+                    super(parent, "Login - IceGrid GUI");
 
                     Container contentPane = getContentPane();
                     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -5021,7 +5021,7 @@ public class SessionKeeper
             {
                 X509CertificateAuthDialog()
                 {
-                    super(parent, "Login - IceGrid Admin");
+                    super(parent, "Login - IceGrid GUI");
 
                     Container contentPane = getContentPane();
                     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -5239,7 +5239,7 @@ public class SessionKeeper
         {
             PermissionDeniedAuthDialog()
             {
-                super(parent, "Login - IceGrid Admin");
+                super(parent, "Login - IceGrid GUI");
 
                 Container contentPane = getContentPane();
                 contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));

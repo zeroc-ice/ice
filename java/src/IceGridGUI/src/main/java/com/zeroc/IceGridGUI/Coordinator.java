@@ -1964,8 +1964,8 @@ public class Coordinator
                                         {
                                             JOptionPane.showMessageDialog(
                                                 parent,
-                                                "This version of IceGrid Admin requires an IceGrid Registry "
-                                                + "version 3.3",
+                                                "This version of IceGrid GUI requires an IceGrid Registry "
+                                                + "version 3.3 or higher",
                                                 "Version Mismatch",
                                                 JOptionPane.ERROR_MESSAGE);
                                             cb.loginFailed();
@@ -3152,15 +3152,15 @@ public class Coordinator
         if(c1 == null)
         {
             JOptionPane.showMessageDialog(_mainFrame,
-                                          "IceGrid Admin was built without Metrics Graph Support",
-                                          "IceGrid Admin Info",
+                                          "IceGrid GUI was built without Metrics Graph Support",
+                                          "IceGrid GUI Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
         else if(com.zeroc.IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null) == null)
         {
             JOptionPane.showMessageDialog(_mainFrame,
                                           "The Metrics Graph view requires JavaFX 2",
-                                          "IceGrid Admin Info",
+                                          "IceGrid GUI Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
         else
@@ -3298,14 +3298,14 @@ public class Coordinator
 
     private void about()
     {
-        String text = "IceGrid Admin version "
+        String text = "IceGrid GUI version "
             + com.zeroc.Ice.Util.stringVersion() + "\n"
             + "Copyright \u00A9 2005-2016 ZeroC, Inc. All rights reserved.\n";
 
         JOptionPane.showMessageDialog(
             _mainFrame,
             text,
-            "About - IceGrid Admin",
+            "About - IceGrid GUI",
             JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -3638,7 +3638,7 @@ public class Coordinator
                                             throws java.security.GeneralSecurityException, java.io.IOException,
                                                    javax.naming.InvalidNameException
         {
-            super(owner, "Connection Security Warning - IceGrid Admin");
+            super(owner, "Connection Security Warning - IceGrid GUI");
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
             Container contentPane = getContentPane();

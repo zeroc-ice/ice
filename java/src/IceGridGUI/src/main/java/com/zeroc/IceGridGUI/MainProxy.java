@@ -23,7 +23,7 @@ public class MainProxy
         if(System.getProperty("os.name").startsWith("Mac OS"))
         {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid Admin");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid GUI");
 
             // To catch Command+Q
             System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
@@ -45,7 +45,7 @@ public class MainProxy
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(
                     null, "Unable to find method `main(String[] args)' in class `com.javafx.main.Main'",
-                    "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
+                    "IceGrid GUI Error", JOptionPane.ERROR_MESSAGE);
             }
             catch(IllegalAccessException ex)
             {
@@ -53,7 +53,7 @@ public class MainProxy
                 JOptionPane.showMessageDialog(
                     null,
                     "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
-                    "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
+                    "IceGrid GUI Error", JOptionPane.ERROR_MESSAGE);
             }
             catch(java.lang.reflect.InvocationTargetException ex)
             {
@@ -63,7 +63,7 @@ public class MainProxy
         if(cls == null)
         {
             JOptionPane.showMessageDialog(null, "Unable to find class `com.zeroc.IceGridGUI.Main'",
-                                          "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
+                                          "IceGrid GUI Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try
@@ -77,14 +77,14 @@ public class MainProxy
             ex.printStackTrace();
             JOptionPane.showMessageDialog(
                 null, "Unable to find method `main(String[] args)' in class `com.javafx.main.Main'",
-                "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
+                "IceGrid GUI Error", JOptionPane.ERROR_MESSAGE);
         }
         catch(IllegalAccessException ex)
         {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(
                 null, "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
-                "IceGrid Admin Error", JOptionPane.ERROR_MESSAGE);
+                "IceGrid GUI Error", JOptionPane.ERROR_MESSAGE);
         }
         catch(java.lang.reflect.InvocationTargetException ex)
         {

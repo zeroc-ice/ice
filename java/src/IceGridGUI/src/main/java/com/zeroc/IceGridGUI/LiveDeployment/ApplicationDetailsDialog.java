@@ -26,7 +26,7 @@ class ApplicationDetailsDialog extends JDialog
 {
     ApplicationDetailsDialog(final Root root)
     {
-        super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid Admin", true);
+        super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
 

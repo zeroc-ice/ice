@@ -261,7 +261,7 @@ class ShowLogFileDialog extends JDialog
                         _textArea.appendLines(new String[]
                             {
                                 "---------------------------",
-                                "IceGridAdmin caught: " + e.toString(),
+                                "IceGrid GUI caught: " + e.toString(),
                                 "---------------------------"
                             }, maxLines, maxSize);
                         SwingUtilities.invokeLater(() -> stopReading());
@@ -273,7 +273,7 @@ class ShowLogFileDialog extends JDialog
                         _textArea.appendLines(new String[]
                             {
                                 "---------------------------",
-                                "IceGridAdmin caught: " + e.toString(),
+                                "IceGrid GUI caught: " + e.toString(),
                                 "---------------------------"
                             }, maxLines, maxSize);
                         SwingUtilities.invokeLater(() -> stopReading());
@@ -529,7 +529,7 @@ class ShowLogFileDialog extends JDialog
     ShowLogFileDialog(Root root, FileIteratorFactory factory, int maxLines, int maxSize, int initialLines,
                       int maxReadSize, int period)
     {
-        super(root.getCoordinator().getMainFrame(), factory.getTitle() + " - IceGrid Admin", false);
+        super(root.getCoordinator().getMainFrame(), factory.getTitle() + " - IceGrid GUI", false);
 
         _maxLines = maxLines;
         _maxSize = maxSize;

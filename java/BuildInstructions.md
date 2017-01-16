@@ -25,16 +25,15 @@ generated Java files to your target platform.
 
 ### Java Version
 
-Ice for Java requires J2SE 1.7.0 or later.
-
-The Metrics Graph feature of the graphical IceGrid administrative tool requires
-J2SE 7u6 or later with JavaFX support. This feature will not be available if you
-build the source with a JVM that lacks support for JavaFX. Alternatively,
-building the source using J2SE 7u6 or later with JavaFX produces a JAR file that
-can be used in JVMs with or without JavaFX support, as the Metrics Graph feature
-is enabled dynamically.
+Ice for Java requires J2SE 1.8 or later.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
+
+The Metrics Graph feature of the IceGrid GUI tool requires JavaFX support. This
+feature will not be available if you build the source with a JVM that lacks support
+for JavaFX. Alternatively, building the source in an environment with JavaFX
+produces an IceGrid GUI JAR file that can be used in JVMs with or without JavaFX
+support, as the Metrics Graph feature is enabled dynamically.
 
 ### Gradle
 
@@ -64,8 +63,8 @@ therefore add significant latency to Ice requests.*
 
 ### JGoodies
 
-The graphical IceGrid administrative tool uses the JGoodies libraries Forms,
-and Looks. The following versions were tested:
+The IceGrid GUI tool uses the JGoodies libraries Forms and Looks. The following
+versions were tested:
 
     JGoodies Forms 1.9.0
     JGoodies Looks 2.7.0
@@ -77,8 +76,8 @@ The Maven package ids for the JGoodies packages are as follows:
 
 ### ProGuard
 
-Gradle uses [ProGuard][4] to create the standalone JAR file for the graphical
-IceGrid administrative tool.
+Gradle uses [ProGuard][4] to create the standalone JAR file for the IceGrid
+GUI tool.
 
 The Maven package id for the ProGuard package is as follows:
 
@@ -86,8 +85,8 @@ The Maven package id for the ProGuard package is as follows:
 
 ### Java Application Bundler
 
-Under OS X Gradle uses the Java Application Bundler to create an application
-bundle for the graphical IceGrid administrative tool.
+Under macOS Gradle uses the Java Application Bundler to create an application
+bundle for the IceGrid GUI tool.
 
 The Maven package id for the application bundler package is as follows:
 
@@ -180,18 +179,18 @@ window and change to the top-level directory. At the command prompt, execute:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-## IceGrid Admin Tool
+## IceGrid GUI Tool
 
-Ice for Java includes a graphical administrative tool for IceGrid. It can be
-found in the file `lib/icegridgui.jar`.
+Ice for Java includes the IceGrid GUI tool. It can be found in the file
+`lib/icegridgui.jar`.
 
-The JAR file is completely self-contained and has no external dependencies.
+This JAR file is completely self-contained and has no external dependencies.
 You can start the tool with the following command:
 
     > java -jar icegridgui.jar
 
-In OS X there is also an application bundle named IceGrid Admin. You can start
-the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
+On macOS, there is also an application bundle named IceGrid GUI. You can start
+the IceGrid GUI tool by double-clicking the IceGrid GUI icon in Finder.
 
 
 [1]: https://zeroc.com/distributions/ice

@@ -27,7 +27,7 @@ public class XMLWriter
             assert false;
         }
         _writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + _newline);
-        _writer.write("<!-- This file was written by IceGrid Admin -->" + _newline);
+        _writer.write("<!-- This file was written by IceGrid GUI -->" + _newline);
     }
 
     public void writeElement(String name, java.util.List<String[]> attributes)

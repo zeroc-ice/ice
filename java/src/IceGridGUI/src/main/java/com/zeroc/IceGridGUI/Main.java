@@ -73,7 +73,7 @@ public class Main extends JFrame
 
     Main(String[] args)
     {
-        super("IceGrid Admin");
+        super("IceGrid GUI");
         javax.swing.ImageIcon icon = Utils.getIcon("/icons/16x16/grid.png");
         if(icon != null)
         {

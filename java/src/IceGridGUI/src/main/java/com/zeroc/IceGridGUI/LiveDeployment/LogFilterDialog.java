@@ -35,7 +35,7 @@ class LogFilterDialog extends JDialog
 {
     LogFilterDialog(final ShowIceLogDialog dialog)
     {
-        super(dialog, "Ice log filter - IceGrid Admin", true);
+        super(dialog, "Ice log filter - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
  
         java.util.Set<com.zeroc.Ice.LogMessageType> messageTypeFilterSet = null;

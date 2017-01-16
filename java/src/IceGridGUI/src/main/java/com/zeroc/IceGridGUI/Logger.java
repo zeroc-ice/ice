@@ -18,7 +18,7 @@ public class Logger extends com.zeroc.Ice.LoggerI
     public
     Logger(JFrame mainFrame)
     {
-        super("IceGrid Admin", "");
+        super("IceGrid GUI", "");
 
         _mainFrame = mainFrame;
     }
@@ -36,7 +36,7 @@ public class Logger extends com.zeroc.Ice.LoggerI
         }
         SwingUtilities.invokeLater(() ->
             {
-                JOptionPane.showMessageDialog(_mainFrame, message, "Warning - IceGrid Admin Logger",
+                JOptionPane.showMessageDialog(_mainFrame, message, "Warning - IceGrid GUI Logger",
                                               JOptionPane.WARNING_MESSAGE);
             });
     }
@@ -47,7 +47,7 @@ public class Logger extends com.zeroc.Ice.LoggerI
     {
         SwingUtilities.invokeLater(() ->
             {
-                JOptionPane.showMessageDialog(_mainFrame, message, "Error - IceGrid Admin Logger",
+                JOptionPane.showMessageDialog(_mainFrame, message, "Error - IceGrid GUI Logger",
                                               JOptionPane.ERROR_MESSAGE);
             });
     }

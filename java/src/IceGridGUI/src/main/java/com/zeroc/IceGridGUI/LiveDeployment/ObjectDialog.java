@@ -37,7 +37,7 @@ class ObjectDialog extends JDialog
     ObjectDialog(final Root root, boolean readOnly)
     {
         super(root.getCoordinator().getMainFrame(),
-              (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid Admin", true);
+              (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI", true);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();

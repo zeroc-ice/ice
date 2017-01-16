@@ -30,7 +30,7 @@ class LogPrefsDialog extends JDialog
 {
     LogPrefsDialog(final ShowLogFileDialog dialog)
     {
-        super(dialog, "Preferences - IceGrid Admin", true);
+        super(dialog, "Preferences - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final JTextField maxLinesField = new JTextField(10);
@@ -123,7 +123,7 @@ class LogPrefsDialog extends JDialog
     
     LogPrefsDialog(final ShowIceLogDialog dialog)
     {
-        super(dialog, "Preferences - IceGrid Admin", true);
+        super(dialog, "Preferences - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final JTextField maxMessagesField = new JTextField(10);
