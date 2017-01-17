@@ -48,9 +48,6 @@ install:: $$(foreach p,$$(platforms),$(install_libdir)/IceSDK/$$p.sdk/SDKSetting
 clean::
 	$(Q)$(RM) $(top_srcdir)/IceSDK/bin/$(notdir $1)
 
-distclean::
-	$(Q)$(RM) -r $(top_srcdir)/IceSDK
-
 endef
 
 #
@@ -121,7 +118,10 @@ $$(foreach p,$$(filter $(platforms),$$($1_platforms)),\
 
 $1::
 $1_clean::
+$1_distclean::
+	$(Q)$(RM) -r $1/build
 
 all:: $1
 clean:: $1_clean
+distclean:: $1_distclean
 endef

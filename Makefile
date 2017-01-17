@@ -51,3 +51,11 @@ $(DESTDIR)$(prefix)/share/slice:
 	$(Q)ln -s ice/slice $(DESTDIR)$(prefix)/share/slice
 endif
 endif
+
+#
+# Remove IceSDK directory on macOS
+#
+ifneq ($(filter Darwin,$(os)),)
+distclean::
+	$(Q)$(RM) -r $(top_srcdir)/IceSDK
+endif

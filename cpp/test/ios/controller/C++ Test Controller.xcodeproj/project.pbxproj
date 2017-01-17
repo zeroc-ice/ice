@@ -346,15 +346,14 @@
 						ProvisioningStyle = Automatic;
 					};
 					148ABA401DFEEAEE00594F70 = {
-						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
 					};
 					14905C501DF98FD8002AE61B = {
 						CreatedOnToolsVersion = 8.1;
-						DevelopmentTeam = U4TBVKNQ7F;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Push = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};
@@ -600,7 +599,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ICE_STATIC_LIBS,
@@ -624,7 +623,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ICE_STATIC_LIBS,
@@ -734,7 +733,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -754,7 +753,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "C++ Test Controller.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
