@@ -364,6 +364,26 @@ public class AllTests : TestCommon.AllTests
 
         WriteLine("ok");
 
+        Write("testing proxyToString... ");
+        Flush();
+        b1 = communicator.stringToProxy(rf);
+        Ice.ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        test(b1.Equals(b2));
+
+        if(b1.ice_getConnection() != null) // not colloc-optimized target
+        {
+            b2 = b1.ice_getConnection().createProxy(Ice.Util.stringToIdentity("fixed"));
+            String str = communicator.proxyToString(b2);
+            test(b2.ToString() == str);
+            String str2 = b1.ice_identity(b2.ice_getIdentity()).ToString();
+
+            // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+            // but without endpoints
+            test(str2.StartsWith(str));
+            test(str2[str.Length] == ':');
+        }
+        WriteLine("ok");
+
         Write("testing propertyToProxy... ");
         Flush();
         Ice.Properties prop = communicator.getProperties();

@@ -1106,9 +1106,33 @@
         ).then(() =>
             {
                 out.writeLine("ok");
-                var derived = Test.MyDerivedClassPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
-                return derived.shutdown();
-            });
+
+                out.write("testing proxyToString... ");
+                b1 = communicator.stringToProxy(ref);
+                b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+                test(b1.equals(b2));
+
+                return b1.ice_getConnection();
+            }
+        ).then(con =>
+               {
+                   b2 = con.createProxy(Ice.stringToIdentity("fixed"));
+                   str = communicator.proxyToString(b2);
+                   test(b2.toString() === str);
+                   str2 = b1.ice_identity(b2.ice_getIdentity()).toString();
+
+                   // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+                   // but without endpoints
+                   test(str2.startsWith(str));
+                   test(str2.charAt(str.length) === ':');
+
+                   out.writeLine("ok");
+               }
+        ).then(() =>
+               {
+                    var derived = Test.MyDerivedClassPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
+                    return derived.shutdown();
+               });
     }
 
     var run = function(out, id)

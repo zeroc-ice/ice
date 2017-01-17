@@ -734,15 +734,6 @@ IceInternal::FixedReference::streamWrite(OutputStream*) const
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
-string
-IceInternal::FixedReference::toString() const
-{
-    throw FixedProxyException(__FILE__, __LINE__);
-
-    assert(false);   // Cannot be reached.
-    return string(); // To keep the compiler from complaining.
-}
-
 PropertyDict
 IceInternal::FixedReference::toProperty(const string&) const
 {

@@ -1592,11 +1592,6 @@ class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
-    toString()
-    {
-        throw new Ice.FixedProxyException();
-    }
-
     toProperty(prefix)
     {
         throw new Ice.FixedProxyException();

@@ -196,14 +196,6 @@ public class FixedReference extends Reference
     }
 
     @Override
-    public String
-    toString()
-        throws com.zeroc.Ice.MarshalException
-    {
-        throw new com.zeroc.Ice.FixedProxyException();
-    }
-
-    @Override
     public java.util.Map<String, String>
     toProperty(String prefix)
     {

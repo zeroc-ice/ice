@@ -93,6 +93,10 @@ These are the changes since Ice 3.6.3.
   and universal character names (\unnnn and \Unnnnnnnn). See the property
   Ice.ToStringMode and the static function/method identityToString.
 
+- Fixed proxies stringification: `Communicator::proxyToString` and equivalent
+  "to string" methods on fixed proxies no longer raise a `FixedProxyException`;
+  the proxy is just stringified without endpoints.
+
 - An empty endpoint in an Object Adapter endpoint list is now rejected with an
   `EndpointParseException`; such an endpoint was ignored in previous releases.
 

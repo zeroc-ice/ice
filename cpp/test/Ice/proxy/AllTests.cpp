@@ -380,6 +380,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing proxyToString... " << flush;
+    b1 = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1));
+    test(Ice::targetEqualTo(b1, b2));
+
+    if(b1->ice_getConnection()) // not colloc-optimized target
+    {
+        b2 = b1->ice_getConnection()->createProxy(Ice::stringToIdentity("fixed"));
+        string str = communicator->proxyToString(b2);
+        test(b2->ice_toString() == str);
+        string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_toString();
+
+        // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+        // but without endpoints
+        test(str2.substr(0, str.size()) == str);
+        test(str2[str.size()] == ':');
+    }
+    cout << "ok" << endl;
+
     cout << "testing propertyToProxy... " << flush;
     Ice::PropertiesPtr prop = communicator->getProperties();
     string propertyPrefix = "Foo.Proxy";

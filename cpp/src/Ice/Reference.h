@@ -212,7 +212,6 @@ public:
     virtual bool isWellKnown() const;
 
     virtual void streamWrite(Ice::OutputStream*) const;
-    virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
     virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;

@@ -657,11 +657,6 @@ namespace IceInternal
             throw new Ice.FixedProxyException();
         }
 
-        public override string ToString()
-        {
-            throw new Ice.FixedProxyException();
-        }
-
         public override Dictionary<string, string> toProperty(string prefix)
         {
             throw new Ice.FixedProxyException();
