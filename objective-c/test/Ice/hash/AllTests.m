@@ -94,9 +94,9 @@ hashAllTests()
         NSMutableDictionary* seenObject = [[NSMutableDictionary alloc] init];
         for(int i = 0; collisions < maxCollisions && i < maxIterations; ++i)
         {
-            TestHashPointF* obj = [TestHashPointF pointF:(arc4random() % 1000)/3
-                                                       y:(arc4random() % 1000)/5
-                                                       z:(arc4random() % 1000)/7];
+            TestHashPointF* obj = [TestHashPointF pointF:(arc4random() % 1000)/3.0
+                                                       y:(arc4random() % 1000)/5.0
+                                                       z:(arc4random() % 1000)/7.0];
 
             NSNumber* hash = [NSNumber numberWithUnsignedInteger:[obj hash]];
             if([seenObject objectForKey:hash])
@@ -126,9 +126,9 @@ hashAllTests()
         NSMutableDictionary* seenObject = [[NSMutableDictionary alloc] init];
         for(int i = 0; collisions < maxCollisions && i < maxIterations; ++i)
         {
-            TestHashPointD* obj = [TestHashPointD pointD:(arc4random() % 1000)/3
-                                                       y:(arc4random() % 1000)/5
-                                                       z:(arc4random() % 1000)/7];
+            TestHashPointD* obj = [TestHashPointD pointD:(arc4random() % 1000)/3.0
+                                                       y:(arc4random() % 1000)/5.0
+                                                       z:(arc4random() % 1000)/7.0];
             NSNumber* hash = [NSNumber numberWithUnsignedInteger:[obj hash]];
             if([seenObject objectForKey:hash])
             {

@@ -2046,7 +2046,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
                     case Builtin::KindDouble:
                     {
                         _M << sb;
-                        _M << nl << "unsigned long long bits_ = (unsigned long long)" << name << ";";
+                        _M << nl << "unsigned long long bits_ = *(unsigned long long*)&" << name << ";";
                         _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)(bits_ ^ (bits_ >> 32));";
                         _M << eb;
                         break;
