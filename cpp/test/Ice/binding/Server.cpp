@@ -86,7 +86,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.logger = new NullLogger();
+        initData.logger = ICE_MAKE_SHARED(NullLogger);
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
