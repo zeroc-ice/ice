@@ -20,7 +20,11 @@ namespace IceInternal
     {
         public virtual void close()
         {
-            Debug.Assert(_acceptFd == null);
+            if(_acceptFd != null)
+            {
+                Network.closeSocketNoThrow(_acceptFd);
+                _acceptFd = null;
+            }
             if(_fd != null)
             {
                 Network.closeSocketNoThrow(_fd);

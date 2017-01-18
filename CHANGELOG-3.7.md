@@ -17,6 +17,11 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- Ice no longer halt the program if can't accept new incoming connections when
+  the system runs out of file descriptors. Instead, it rejects queued pending
+  connections and temporarily stops accepting new connections. An error message
+  is also printed on the Ice logger.
+
 - Added Bluetooth transport plug-in for C++ and Android. The C++ plug-in
   requires BlueZ 5.40 or later.
 

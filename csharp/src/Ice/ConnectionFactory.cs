@@ -1109,6 +1109,43 @@ namespace IceInternal
 
     public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.StartCallback
     {
+        private class StartAcceptor : TimerTask
+        {
+            public StartAcceptor(IncomingConnectionFactory factory)
+            {
+                _factory = factory;
+            }
+
+            public void runTimerTask()
+            {
+                _factory.startAcceptor();
+            }
+
+            private IncomingConnectionFactory _factory;
+        }
+
+        public void startAcceptor()
+        {
+            lock(this)
+            {
+                if(_state >= StateClosed || _acceptorStarted)
+                {
+                    return;
+                }
+
+                try
+                {
+                    createAcceptor();
+                }
+                catch(Exception ex)
+                {
+                    string s = "acceptor creation failed:\n" + ex + '\n' + _acceptor.ToString();
+                    _instance.initializationData().logger.error(s);
+                    _instance.timer().schedule(new StartAcceptor(this), 1000);
+                }
+            }
+        }
+
         public void activate()
         {
             lock(this)
@@ -1290,16 +1327,8 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                string s = "can't accept connections:\n" + ex + '\n' + _acceptor.ToString();
-                try
-                {
-                    _instance.initializationData().logger.error(s);
-                }
-                finally
-                {
-                    Environment.FailFast(s);
-                }
-                return false;
+                _acceptorException = ex;
+                completedSynchronously = true;
             }
             return true;
         }
@@ -1308,29 +1337,20 @@ namespace IceInternal
         {
             try
             {
+                if(_acceptorException != null)
+                {
+                    throw _acceptorException;
+                }
                 _acceptor.finishAccept();
             }
             catch(Ice.LocalException ex)
             {
-                if(Network.noMoreFds(ex.InnerException))
-                {
-                    string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                    try
-                    {
-                        _instance.initializationData().logger.error(s);
-                    }
-                    finally
-                    {
-                        Environment.FailFast(s);
-                    }
-                    return false;
-                }
-                else
-                {
-                    string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
-                    _instance.initializationData().logger.error(s);
-                    return false;
-                }
+                _acceptorException = null;
+
+                string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
+                _instance.initializationData().logger.error(s);
+                _adapter.getThreadPool().finish(this);
+                closeAcceptor();
             }
             return _state < StateClosed;
         }
@@ -1371,6 +1391,11 @@ namespace IceInternal
                         }
                     }
 
+                    if(!_acceptorStarted)
+                    {
+                        return;
+                    }
+
                     //
                     // Now accept a new connection.
                     //
@@ -1393,14 +1418,9 @@ namespace IceInternal
                         if(Network.noMoreFds(ex.InnerException))
                         {
                             string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
-                            try
-                            {
-                                _instance.initializationData().logger.error(s);
-                            }
-                            finally
-                            {
-                                Environment.FailFast(s);
-                            }
+                            _instance.initializationData().logger.error(s);
+                            _adapter.getThreadPool().finish(this);
+                            closeAcceptor();
                         }
 
                         // Ignore socket exceptions.
@@ -1457,6 +1477,10 @@ namespace IceInternal
         {
             lock(this)
             {
+                if(_state < StateClosed)
+                {
+                    return;
+                }
                 Debug.Assert(_state == StateClosed);
                 setState(StateFinished);
             }
@@ -1512,6 +1536,7 @@ namespace IceInternal
             _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.ConnectionI>();
             _state = StateHolding;
+            _acceptorStarted = false;
             _monitor = new FactoryACMMonitor(instance, ((Ice.ObjectAdapterI)adapter).getACM());
 
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -1652,7 +1677,7 @@ namespace IceInternal
 
                 case StateClosed:
                 {
-                    if(_acceptor != null)
+                    if(_acceptorStarted)
                     {
                         _adapter.getThreadPool().finish(this);
                         closeAcceptor();
@@ -1684,6 +1709,7 @@ namespace IceInternal
         {
             try
             {
+                Debug.Assert(!_acceptorStarted);
                 _acceptor = _endpoint.acceptor(_adapter.getName());
                 Debug.Assert(_acceptor != null);
 
@@ -1710,8 +1736,10 @@ namespace IceInternal
 
                 if(_state == StateActive)
                 {
-                    _adapter.getThreadPool().unregister(this, SocketOperation.Read);
+                    _adapter.getThreadPool().register(this, SocketOperation.Read);
                 }
+
+                _acceptorStarted = true;
             }
             catch(SystemException)
             {
@@ -1725,6 +1753,8 @@ namespace IceInternal
 
         private void closeAcceptor()
         {
+            Debug.Assert(_acceptor != null);
+
             if(_instance.traceLevels().network >= 1)
             {
                 StringBuilder s = new StringBuilder("stopping to accept ");
@@ -1734,13 +1764,22 @@ namespace IceInternal
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
             }
 
+            _acceptorStarted = false;
             _acceptor.close();
+
+            //
+            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+            // because of an unexpected error), try to restart the acceptor in 5 seconds.
+            //
+            if(_state == StateHolding || _state == StateActive)
+            {
+                _instance.timer().schedule(new StartAcceptor(this), 1000);
+            }
         }
 
         private void warning(Ice.LocalException ex)
         {
-            _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' +
-                                                          _acceptor.ToString());
+            _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
         }
 
         private Instance _instance;
@@ -1757,6 +1796,8 @@ namespace IceInternal
         private HashSet<Ice.ConnectionI> _connections;
 
         private int _state;
+        private bool _acceptorStarted;
+        private Ice.LocalException _acceptorException;
     }
 
 }

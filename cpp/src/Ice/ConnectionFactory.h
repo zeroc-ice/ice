@@ -181,10 +181,8 @@ public:
     void hold();
     void destroy();
 
-#if TARGET_OS_IPHONE != 0
     void startAcceptor();
     void stopAcceptor();
-#endif
 
     void updateConnectionObservers();
 
@@ -247,14 +245,17 @@ private:
     const TransceiverPtr _transceiver;
     EndpointIPtr _endpoint;
 
-#if TARGET_OS_IPHONE != 0
     bool _acceptorStarted;
-#endif
+    bool _acceptorStopped;
 
     Ice::ObjectAdapterIPtr _adapter;
     const bool _warn;
     std::set<Ice::ConnectionIPtr> _connections;
     State _state;
+
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+    IceInternal::UniquePtr<Ice::LocalException> _acceptorException;
+#endif
 };
 
 }

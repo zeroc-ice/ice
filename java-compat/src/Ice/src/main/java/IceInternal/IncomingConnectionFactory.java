@@ -12,6 +12,32 @@ package IceInternal;
 public final class IncomingConnectionFactory extends EventHandler implements Ice.ConnectionI.StartCallback
 {
     public synchronized void
+    startAcceptor()
+    {
+        if(_state >= StateClosed || _acceptorStarted)
+        {
+            return;
+        }
+
+        try
+        {
+            createAcceptor();
+        }
+        catch(Exception ex)
+        {
+            String s = "acceptor creation failed:\n" + ex.getCause().getMessage() + '\n' + _acceptor.toString();
+            _instance.initializationData().logger.error(s);
+            _instance.timer().schedule(new Runnable()
+                                       {
+                                            public void run()
+                                            {
+                                                startAcceptor();
+                                            }
+                                       }, 1, java.util.concurrent.TimeUnit.SECONDS);
+        }
+    }
+
+    public synchronized void
     activate()
     {
         setState(StateActive);
@@ -218,6 +244,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
             }
 
+            if(!_acceptorStarted)
+            {
+                return;
+            }
+
             //
             // Now accept a new connection.
             //
@@ -241,13 +272,25 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 {
                     try
                     {
-                        String s = "fatal error: can't accept more connections:\n" + ex.getCause().getMessage();
+                        String s = "can't accept more connections:\n" + ex.getCause().getMessage();
                         s += '\n' + _acceptor.toString();
-                        _instance.initializationData().logger.error(s);
+                        try
+                        {
+                            _instance.initializationData().logger.error(s);
+                        }
+                        catch(Throwable ex1)
+                        {
+                            System.out.println(s);
+                        }
                     }
-                    finally
+                    catch(Throwable ex2)
                     {
-                        Runtime.getRuntime().halt(1);
+                        // Ignore, could be a class loading error.
+                    }
+
+                    if(_adapter.getThreadPool().finish(this, true))
+                    {
+                        closeAcceptor();
                     }
                 }
 
@@ -300,10 +343,19 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     public synchronized void
     finished(ThreadPoolCurrent current, boolean close)
     {
+        if(_state < StateClosed)
+        {
+            if(_acceptorStarted && close)
+            {
+                closeAcceptor();
+            }
+            return;
+        }
+
         assert(_state == StateClosed);
         setState(StateFinished);
 
-        if(close)
+        if(_acceptorStarted && close)
         {
             closeAcceptor();
         }
@@ -375,6 +427,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         _adapter = adapter;
         _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
+        _acceptorStarted = false;
         _monitor = new FactoryACMMonitor(instance, adapter.getACM());
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -539,7 +592,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
             case StateClosed:
             {
-                if(_acceptor != null)
+                if(_acceptorStarted)
                 {
                     //
                     // If possible, close the acceptor now to prevent new connections from
@@ -580,6 +633,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     {
         try
         {
+            assert(!_acceptorStarted);
             _acceptor = _endpoint.acceptor(_adapter.getName());
             assert(_acceptor != null);
 
@@ -609,6 +663,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 _adapter.getThreadPool().register(this, SocketOperation.Read);
             }
+
+            _acceptorStarted = true;
         }
         catch(Exception ex)
         {
@@ -623,6 +679,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     private void
     closeAcceptor()
     {
+        assert(_acceptor != null);
+
         if(_instance.traceLevels().network >= 1)
         {
             StringBuffer s = new StringBuffer("stopping to accept ");
@@ -631,7 +689,20 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             s.append(_acceptor.toString());
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
+
+        _acceptorStarted = false;
         _acceptor.close();
+
+        if(_state == StateHolding || _state == StateActive)
+        {
+            _instance.timer().schedule(new Runnable()
+                                       {
+                                            public void run()
+                                            {
+                                                startAcceptor();
+                                            }
+                                       }, 1, java.util.concurrent.TimeUnit.SECONDS);
+        }
     }
 
     private void
@@ -655,4 +726,5 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     private java.util.Set<Ice.ConnectionI> _connections = new java.util.HashSet<Ice.ConnectionI>();
 
     private int _state;
+    private boolean _acceptorStarted;
 }

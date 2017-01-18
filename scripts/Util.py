@@ -920,7 +920,8 @@ class Process(Runnable):
 
     processType = None
 
-    def __init__(self, exe=None, outfilters=None, quiet=False, args=None, props=None, envs=None, desc=None, mapping=None):
+    def __init__(self, exe=None, outfilters=None, quiet=False, args=None, props=None, envs=None, desc=None,
+                 mapping=None, preexec_fn=None):
         Runnable.__init__(self, desc)
         self.exe = exe
         self.outfilters = outfilters or []
@@ -929,6 +930,7 @@ class Process(Runnable):
         self.props = props or {}
         self.envs = envs or {}
         self.mapping = mapping
+        self.preexec_fn = preexec_fn
 
     def __str__(self):
         if not self.exe:
@@ -1701,8 +1703,15 @@ class LocalProcessController(ProcessController):
 
         env = os.environ.copy()
         env.update(envs)
-        cwd = process.getMapping(current).getTestCwd(process, current)
-        process = LocalProcessController.LocalProcess(cmd, startReader=False, env=env, cwd=cwd, desc=process.desc)
+        mapping = process.getMapping(current)
+        cwd = mapping.getTestCwd(process, current)
+        process = LocalProcessController.LocalProcess(cmd,
+                                                      startReader=False,
+                                                      env=env,
+                                                      cwd=cwd,
+                                                      desc=process.desc,
+                                                      preexec_fn=process.preexec_fn,
+                                                      mapping=str(mapping))
         process.startReader(watchDog)
         return process
 

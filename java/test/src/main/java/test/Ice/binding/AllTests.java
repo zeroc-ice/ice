@@ -932,6 +932,72 @@ public class AllTests
             out.println("ok");
         }
 
+        //
+        // On Windows, the FD limit is very high and there's no way to limit the number of FDs
+        // for the server so we don't run this test.
+        //
+        if(!System.getProperty("os.name").startsWith("Windows"))
+        {
+            out.print("testing FD limit... ");
+            out.flush();
+
+            RemoteObjectAdapterPrx adapter = rcom.createObjectAdapter("Adapter", "default");
+
+            TestIntfPrx test = adapter.getTestIntf();
+            int i = 0;
+            while(true)
+            {
+                try
+                {
+                    test.ice_connectionId(Integer.toString(i)).ice_ping();
+                    ++i;
+                }
+                catch(com.zeroc.Ice.LocalException ex)
+                {
+                    break;
+                }
+            }
+
+            try
+            {
+                test.ice_connectionId(Integer.toString(i)).ice_ping();
+                test(false);
+            }
+            catch(com.zeroc.Ice.ConnectionRefusedException ex)
+            {
+                //
+                // The server closed the acceptor, wait one second and retry after freeing a FD.
+                //
+                try
+                {
+                    Thread.sleep(1100);
+                }
+                catch(InterruptedException ex1)
+                {
+                }
+
+                // Free a FD in the server
+                test.ice_connectionId("0").ice_getConnection().close(false);
+
+                try
+                {
+                    test.ice_connectionId(Integer.toString(i)).ice_ping();
+                }
+                catch(com.zeroc.Ice.LocalException ex1)
+                {
+                    test(false);
+                }
+            }
+            catch(com.zeroc.Ice.LocalException ex)
+            {
+                // The server didn't close the acceptor but we still get a failure (it's possible
+                // that the client reached the FD limit depending on the server we are running
+                // against...).
+            }
+
+            out.println("ok");
+        }
+
         rcom.shutdown();
     }
 }

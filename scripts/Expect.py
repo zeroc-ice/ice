@@ -354,7 +354,8 @@ def signal_handler(signal, frame):
 #signal.signal(signal.SIGTERM, signal_handler)
 
 class Expect (object):
-    def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
+    def __init__(self, command, startReader=True, timeout=30, logfile=None, mapping=None, desc=None, cwd=None, env=None,
+                 preexec_fn=None):
         self.buf = "" # The part before the match
         self.before = "" # The part before the match
         self.after = "" # The part after the match
@@ -384,12 +385,13 @@ class Expect (object):
             # command.
             #
             CREATE_NEW_PROCESS_GROUP = 512
-            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
+            self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                       creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
         else:
-            self.p = subprocess.Popen(splitCommand(command), env = env, cwd = cwd, shell=False, bufsize=0,
-                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
+                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      preexec_fn=preexec_fn)
         global processes
         processes[self.p.pid] = self.p
 

@@ -29,6 +29,33 @@ public class Server extends test.Util.Application
         GetInitDataResult r = super.getInitData(args);
         r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
         r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
+        r.initData.logger = new com.zeroc.Ice.Logger() {
+            @Override public void print(String message)
+            {
+            }
+
+            @Override public void trace(String category, String message)
+            {
+            }
+
+            @Override public void warning(String message)
+            {
+            }
+
+            @Override public void error(String message)
+            {
+            }
+
+            @Override public String getPrefix()
+            {
+                return "NullLogger";
+            }
+
+            @Override public com.zeroc.Ice.Logger cloneWithPrefix(String prefix)
+            {
+                return this;
+            }
+        };
         return r;
     }
 

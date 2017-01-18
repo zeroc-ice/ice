@@ -68,6 +68,13 @@ IceInternal::TcpAcceptor::close()
     }
 #endif
 
+#if defined(ICE_USE_IOCP)
+    if(_acceptFd != INVALID_SOCKET)
+    {
+        closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+    }
+#endif
     if(_fd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_fd);

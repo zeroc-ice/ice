@@ -163,12 +163,10 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
             }
             else
             {
-                {
-                    Ice::SocketException ex(__FILE__, __LINE__, err);
-                    Ice::Error out(_instance->initializationData().logger);
-                    out << "fatal error: couldn't dequeue packet from completion port:\n" << ex;
-                }
-                abort();
+                Ice::SocketException ex(__FILE__, __LINE__, err);
+                Ice::Error out(_instance->initializationData().logger);
+                out << "couldn't dequeue packet from completion port:\n" << ex;
+                IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
@@ -832,12 +830,10 @@ Selector::select(int timeout)
                 continue;
             }
 
-            {
-                Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
-                Ice::Error out(_instance->initializationData().logger);
-                out << "fatal error: selector failed:\n" << ex;
-            }
-            abort();
+            Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
+            Ice::Error out(_instance->initializationData().logger);
+            out << "selector failed:\n" << ex;
+            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
         }
         break;
     }

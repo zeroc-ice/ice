@@ -15,6 +15,49 @@ DEFINE_TEST("server")
 
 using namespace std;
 
+namespace
+{
+
+//
+// A no-op Logger, used when testing the Logger Admin
+//
+
+class NullLogger : public Ice::Logger
+#ifdef ICE_CPP11_MAPPING
+                 , public std::enable_shared_from_this<NullLogger>
+#endif
+{
+public:
+
+    virtual void print(const string&)
+    {
+    }
+
+    virtual void trace(const string&, const string&)
+    {
+    }
+
+    virtual void warning(const string&)
+    {
+    }
+
+    virtual void error(const string&)
+    {
+    }
+
+    virtual string getPrefix()
+    {
+        return "NullLogger";
+    }
+
+    virtual Ice::LoggerPtr cloneWithPrefix(const string&)
+    {
+        return ICE_SHARED_FROM_THIS;
+    }
+};
+
+}
+
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
@@ -42,6 +85,8 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
+        initData.properties->setProperty("Ice.Warn.Connections", "0");
+        initData.logger = new NullLogger();
         Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }

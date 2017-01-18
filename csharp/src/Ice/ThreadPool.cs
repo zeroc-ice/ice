@@ -297,7 +297,12 @@ namespace IceInternal
 
         public void initialize(EventHandler handler)
         {
-            // Nothing to do.
+            handler._ready = 0;
+            handler._pending = 0;
+            handler._started = 0;
+            handler._finish = false;
+            handler._hasMoreData = false;
+            handler._registered = 0;
         }
 
         public void register(EventHandler handler, int op)
@@ -355,12 +360,13 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
 
+                handler._registered = SocketOperation.None;
+
                 //
                 // If there are no pending asynchronous operations, we can call finish on the handler now.
                 //
                 if(handler._pending == 0)
                 {
-                    handler._registered = SocketOperation.None;
                     executeNonBlocking(() =>
                        {
                            ThreadPoolCurrent current = new ThreadPoolCurrent(this, handler, SocketOperation.None);

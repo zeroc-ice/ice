@@ -108,7 +108,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     RandomNumberGenerator rng;
 
-    cout << "testing binding with single endpoint... " << flush;
+	cout << "testing binding with single endpoint... " << flush;
     {
         RemoteObjectAdapterPrxPtr adapter = com->createObjectAdapter("Adapter", "default");
 
@@ -1031,6 +1031,71 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         cout << "ok" << endl;
     }
+
+    //
+    // On Windows, the FD limit is very high and there's no way to limit the number of FDs
+    // for the server so we don't run this test.
+    //
+#if !defined(_WIN32) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+    {
+        cout << "testing FD limit... " << flush;
+
+        RemoteObjectAdapterPrxPtr adapter = com->createObjectAdapter("Adapter", "default");
+
+        TestIntfPrxPtr test = adapter->getTestIntf();
+        int i = 0;
+        while(true)
+        {
+            try
+            {
+                ostringstream os;
+                os << i;
+                test->ice_connectionId(os.str())->ice_ping();
+                ++i;
+            }
+            catch(const Ice::LocalException&)
+            {
+                break;
+            }
+        }
+
+        try
+        {
+            ostringstream os;
+            os << i;
+            test->ice_connectionId(os.str())->ice_ping();
+            test(false);
+        }
+        catch(const Ice::ConnectionRefusedException&)
+        {
+            //
+            // The server closed the acceptor, wait one second and retry after freeing a FD.
+            //
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
+
+            test->ice_connectionId("0")->ice_getConnection()->close(false);
+
+            try
+            {
+                ostringstream os;
+                os << i;
+                test->ice_connectionId(os.str())->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // The server didn't close the acceptor but we still get a failure (it's possible
+            // that the client reached the FD limit depending on the server we are running
+            // against...).
+        }
+
+        cout << "ok" << endl;
+    }
+#endif
 
     com->shutdown();
 }
