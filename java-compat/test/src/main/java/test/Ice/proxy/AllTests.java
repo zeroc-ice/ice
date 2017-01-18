@@ -393,7 +393,7 @@ public class AllTests
             b2 = b1.ice_getConnection().createProxy(Ice.Util.stringToIdentity("fixed"));
             String str = communicator.proxyToString(b2);
             test(b2.toString().equals(str));
-            String str2 = b1.ice_identity(b2.ice_getIdentity()).toString();
+            String str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
 
             // Verify that the stringified fixed proxy is the same as a regular stringified proxy
             // but without endpoints

@@ -390,7 +390,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         b2 = b1->ice_getConnection()->createProxy(Ice::stringToIdentity("fixed"));
         string str = communicator->proxyToString(b2);
         test(b2->ice_toString() == str);
-        string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_toString();
+        string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_secure(b2->ice_isSecure())->ice_toString();
 
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
         // but without endpoints

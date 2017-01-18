@@ -1119,7 +1119,7 @@
                    b2 = con.createProxy(Ice.stringToIdentity("fixed"));
                    str = communicator.proxyToString(b2);
                    test(b2.toString() === str);
-                   str2 = b1.ice_identity(b2.ice_getIdentity()).toString();
+                   str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
 
                    // Verify that the stringified fixed proxy is the same as a regular stringified proxy
                    // but without endpoints
