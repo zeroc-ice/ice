@@ -797,10 +797,17 @@ Slice::JavaCompatVisitor::writeMarshalUnmarshalParams(Output& out, const string&
 }
 
 void
-Slice::JavaCompatVisitor::writeThrowsClause(const string& package, const ExceptionList& throws)
+Slice::JavaCompatVisitor::writeThrowsClause(const string& package, const ExceptionList& throws, const OperationPtr& op)
 {
     Output& out = output();
-    if(throws.size() > 0)
+
+    if(op && (op->hasMetaData("java:UserException") || op->hasMetaData("UserException")))
+    {
+        out.inc();
+        out << nl << "throws Ice.UserException";
+        out.dec();
+    }
+    else if(throws.size() > 0)
     {
         out.inc();
         out << nl << "throws ";
@@ -1224,16 +1231,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
                                 optionalMapping && op->returnIsOptional())
                 << ' ' << opName << spar << params << epar;
-            if(op->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws Ice.UserException";
-                out.dec();
-            }
-            else
-            {
-                writeThrowsClause(package, throws);
-            }
+            writeThrowsClause(package, throws, op);
+
             out << sb << nl;
             if(ret)
             {
@@ -2519,16 +2518,7 @@ Slice::GenCompat::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurre
             out << "Ice.Current " + currentParamName;
         }
         out << epar;
-        if(op->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
+        writeThrowsClause(package, throws, op);
         out << ';';
     }
 
@@ -2738,16 +2728,8 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "public abstract ";
             }
             out << retS << ' ' << fixKwd(opname) << spar << params << epar;
-            if(op->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws Ice.UserException";
-                out.dec();
-            }
-            else
-            {
-                writeThrowsClause(package, throws);
-            }
+            writeThrowsClause(package, throws, op);
+
             out << ';';
 
             //
@@ -5796,19 +5778,11 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << epar;
 
-            if((*r)->hasMetaData("UserException"))
-            {
-                out.inc();
-                out << nl << "throws Ice.UserException";
-                out.dec();
-            }
-            else
-            {
-                ExceptionList throws = (*r)->throws();
-                throws.sort();
-                throws.unique();
-                writeThrowsClause(package, throws);
-            }
+            ExceptionList throws = (*r)->throws();
+            throws.sort();
+            throws.unique();
+            writeThrowsClause(package, throws, *r);
+
             out << sb;
             out << nl;
             if(ret && !hasAMD)
@@ -6054,7 +6028,7 @@ Slice::GenCompat::BaseImplVisitor::writeOperation(Output& out, const string& pac
 #else
         throws.sort(Slice::DerivedToBaseCompare());
 #endif
-        writeThrowsClause(package, throws);
+        writeThrowsClause(package, throws, op);
 
         out << sb;
 
@@ -6116,17 +6090,7 @@ Slice::GenCompat::BaseImplVisitor::writeOperation(Output& out, const string& pac
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
-
-        if(op->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
+        writeThrowsClause(package, throws, op);
 
         out << sb;
 

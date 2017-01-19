@@ -4609,18 +4609,6 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ami = true;
     }
 
-    if(p->hasMetaData("UserException"))
-    {
-        if(!cl->isLocal())
-        {
-            ostringstream ostr;
-            ostr << "ignoring invalid metadata `UserException': directive applies only to local operations "
-                 << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-                 << "' is not local";
-            emitWarning(p->file(), p->line(), ostr.str());
-        }
-    }
-
     StringList metaData = p->getMetaData();
     metaData.remove("cpp:const");
 

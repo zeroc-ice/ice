@@ -139,9 +139,9 @@ public final class ThrowerI extends _ThrowerDisp
     @Override
     public void
     throwUndeclaredC(int a, int b, int c, Ice.Current current)
+        throws Ice.UserException
     {
-        // Not possible in Java.
-        throw new Ice.UnknownUserException();
+        throw new C(a, b, c);
     }
 
     @Override

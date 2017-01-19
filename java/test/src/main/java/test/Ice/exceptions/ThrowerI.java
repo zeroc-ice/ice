@@ -126,9 +126,9 @@ public final class ThrowerI implements Thrower
 
     @Override
     public void throwUndeclaredC(int a, int b, int c, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.UserException
     {
-        // Not possible in Java.
-        throw new com.zeroc.Ice.UnknownUserException();
+        throw new C(a, b, c);
     }
 
     @Override

@@ -707,14 +707,10 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p, bool isUserImplemente
     userImplementedOnly.push_back("cpp:const");
     userImplementedOnly.push_back("cpp:ice_print");
     userImplementedOnly.push_back("java:serialVersionUID");
+    userImplementedOnly.push_back("java:UserException");
     userImplementedOnly.push_back("UserException");
 
-    if (isUserImplemented)
-    {
-
-    }
-
-    if (!metaData.empty())
+    if(!metaData.empty())
     {
         string outString = "";
         StringList::const_iterator q = metaData.begin();

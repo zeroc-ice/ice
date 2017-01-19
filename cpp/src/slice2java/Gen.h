@@ -70,9 +70,10 @@ protected:
                                     const std::string&);
 
     //
-    // Generate a throws clause containing only non-local exceptions.
+    // Generate a throws clause containing only checked exceptions.
+    // op is provided only when we want to check for the java:UserException metadata
     //
-    void writeThrowsClause(const std::string&, const ExceptionList&);
+    void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
 
     //
     // Generate code to compute a hash code for a type.

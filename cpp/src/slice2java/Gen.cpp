@@ -1008,10 +1008,17 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
 }
 
 void
-Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList& throws)
+Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList& throws, const OperationPtr& op)
 {
     Output& out = output();
-    if(throws.size() > 0)
+
+    if(op && (op->hasMetaData("java:UserException") || op->hasMetaData("UserException")))
+    {
+        out.inc();
+        out << nl << "throws com.zeroc.Ice.UserException";
+        out.dec();
+    }
+    else if(throws.size() > 0)
     {
         out.inc();
         out << nl << "throws ";
@@ -1137,14 +1144,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         {
             out << nl << "java.util.concurrent.CompletionStage<" << getResultType(op, package, true, true) << "> "
                 << op->name() << "Async" << spar << params << currentParam << epar;
-            writeThrowsClause(package, throws);
+            writeThrowsClause(package, throws, op);
             out << ';';
         }
         else
         {
             out << nl << getResultType(op, package, false, true) << ' ' << fixKwd(op->name()) << spar << params
                 << currentParam << epar;
-            writeThrowsClause(package, throws);
+            writeThrowsClause(package, throws, op);
             out << ';';
         }
     }
@@ -1227,7 +1234,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << '_' << p->name() << "Disp";
         }
         out << " obj, final com.zeroc.IceInternal.Incoming inS, com.zeroc.Ice.Current current)";
-        if(!op->throws().empty())
+        if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
         {
             out.inc();
             out << nl << "throws com.zeroc.Ice.UserException";
@@ -2263,11 +2270,17 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
-    // TBD: Check for UserException metadata
-    for(map<string, string>::const_iterator i = dc->exceptions.begin(); i != dc->exceptions.end(); ++i)
+    if(p->hasMetaData("java:UserException") || p->hasMetaData("UserException"))
     {
-        out << nl << " * @throws " << fixKwd(i->first) << ' ';
-        writeDocCommentLines(out, i->second);
+        out << nl << " * @throws com.zeroc.Ice.UserException";
+    }
+    else
+    {
+        for(map<string, string>::const_iterator i = dc->exceptions.begin(); i != dc->exceptions.end(); ++i)
+        {
+            out << nl << " * @throws " << fixKwd(i->first) << ' ';
+            writeDocCommentLines(out, i->second);
+        }
     }
 
     if(!dc->misc.empty())
@@ -2816,16 +2829,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
             out << "public abstract ";
         }
         out << retS << ' ' << fixKwd(opname) << spar << params << epar;
-        if(p->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws com.zeroc.Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
+        writeThrowsClause(package, throws, p);
         out << ';';
 
         //
@@ -5338,16 +5342,8 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
         out << nl << "@Override";
         out << nl << "public " << getResultType(op, package, false, false) << ' ' << fixKwd(opName) << spar << params
             << epar;
-        if(op->hasMetaData("UserException"))
-        {
-            out.inc();
-            out << nl << "throws com.zeroc.Ice.UserException";
-            out.dec();
-        }
-        else
-        {
-            writeThrowsClause(package, throws);
-        }
+        writeThrowsClause(package, throws, op);
+
         out << sb;
         if(initResult(out, package, op))
         {
@@ -5376,7 +5372,7 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
             out << nl << "@Override";
             out << nl << "public java.util.concurrent.CompletionStage<" << retS << "> " << opName << "Async" << spar
                 << params << currentParam << epar;
-            writeThrowsClause(package, throws);
+            writeThrowsClause(package, throws, op);
             out << sb;
             if(initResult(out, package, op))
             {
@@ -5394,7 +5390,7 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
             out << nl << "@Override";
             out << nl << "public " << getResultType(op, package, false, true) << ' ' << fixKwd(opName) << spar << params
                 << currentParam << epar;
-            writeThrowsClause(package, throws);
+            writeThrowsClause(package, throws, op);
             out << sb;
             if(initResult(out, package, op))
             {

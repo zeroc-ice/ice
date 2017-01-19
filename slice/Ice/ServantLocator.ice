@@ -73,7 +73,7 @@ local interface ServantLocator
      * @see #finished
      *
      **/
-    ["UserException"] Object locate(Current curr, out LocalObject cookie);
+    ["java:UserException"] Object locate(Current curr, out LocalObject cookie);
 
     /**
      *
@@ -106,7 +106,7 @@ local interface ServantLocator
      * @see #locate
      *
      **/
-    ["UserException"] void finished(Current curr, Object servant, LocalObject cookie);
+    ["java:UserException"] void finished(Current curr, Object servant, LocalObject cookie);
 
     /**
      *

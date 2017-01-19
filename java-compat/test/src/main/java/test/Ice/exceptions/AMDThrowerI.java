@@ -176,12 +176,14 @@ public final class AMDThrowerI extends _ThrowerDisp
     @Override
     public void
     throwUndeclaredC_async(AMD_Thrower_throwUndeclaredC cb, int a, int b, int c, Ice.Current current)
+        throws Ice.UserException
     {
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        cb.ice_exception(ex);
+        throw ex;
+        // cb.ice_exception(ex);
     }
 
     @Override

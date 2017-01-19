@@ -2400,18 +2400,6 @@ Slice::CsGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    if(p->hasMetaData("UserException"))
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-        if(!cl->isLocal())
-        {
-            ostringstream os;
-            os << "ignoring invalid metadata `UserException': directive applies only to local operations "
-               << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-               << "' is not local";
-            emitWarning(p->file(), p->line(), os.str());
-        }
-    }
     validate(p);
 
     ParamDeclList params = p->parameters();
