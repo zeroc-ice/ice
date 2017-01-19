@@ -15,8 +15,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-      <IceBuilderPhpProps Condition="!Exists('$(IceBuilderPhpProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.props', SearchOption.AllDirectories))</IceBuilderPhpProps>
-      <IceBuilderPhpTargets Condition="!Exists('$(IceBuilderPhpTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Php.targets', SearchOption.AllDirectories))</IceBuilderPhpTargets>
+      <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
+      <IceBuilderPhpProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.props</IceBuilderPhpProps>
+      <IceBuilderPhpTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.targets</IceBuilderPhpTargets>
   </PropertyGroup>
 
   <ItemGroup>
