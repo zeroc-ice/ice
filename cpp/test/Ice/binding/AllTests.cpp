@@ -1068,13 +1068,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Ice::ConnectionRefusedException&)
         {
+            // Close the connection now to free a FD (it could be done after the sleep but
+            // there could be race condiutation since the connection might not be closed
+            // immediately due to threading).
+            test->ice_connectionId("0")->ice_getConnection()->close(false);
+
             //
             // The server closed the acceptor, wait one second and retry after freeing a FD.
             //
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
-
-            test->ice_connectionId("0")->ice_getConnection()->close(false);
-
             try
             {
                 ostringstream os;
