@@ -551,6 +551,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         tprintf("ok\n");
     }
 
+    @try
     {
         NSString* ref = @"test:default -p 12010";
         id<TestObjectsTestIntfPrx> p = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
@@ -576,6 +577,10 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
             }
             tprintf("ok\n");
         }
+    }
+    @catch(ICEObjectNotExistException*)
+    {
+        // cross-test server does not implement this object
     }
 
 
