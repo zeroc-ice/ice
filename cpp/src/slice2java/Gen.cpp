@@ -113,6 +113,35 @@ bool isValue(const TypePtr& type)
     return (b && b->usesClasses()) || cl;
 }
 
+
+// Returns java.util.OptionalXXX.ofYYY depending on the type
+string ofFactory(const TypePtr& type)
+{
+    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+
+    if(b)
+    {
+        if(b->kind() == Builtin::KindInt)
+        {
+            return "java.util.OptionalInt.of";
+        }
+        else if(b->kind() == Builtin::KindLong)
+        {
+            return "java.util.OptionalLong.of";
+        }
+        else if(b->kind() == Builtin::KindDouble)
+        {
+            return "java.util.OptionalDouble.of";
+        }
+        else if(b->kind() < Builtin::KindString)
+        {
+            return "java.util.Optional.of";
+        }
+    }
+
+    return "java.util.Optional.ofNullable";
+}
+
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
@@ -228,55 +257,101 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     // One-shot constructor.
     //
-    out << sp;
-    if(dc)
-    {
-        //
-        // Emit a doc comment for the constructor if necessary.
-        //
-        out << nl << "/**";
-        out << nl << " * This constructor makes shallow copies of the results for operation " << opName << '.';
 
-        if(ret && !dc->returns.empty())
+    bool needMandatoryOnly = false;
+    bool generateMandatoryOnly = false;
+
+    do
+    {
+        out << sp;
+
+        if(needMandatoryOnly)
         {
-            out << nl << " * @param " << retval << ' ';
-            writeDocCommentLines(out, dc->returns);
+            generateMandatoryOnly = true;
+            needMandatoryOnly = false;
+        }
+
+        if(dc)
+        {
+            //
+            // Emit a doc comment for the constructor if necessary.
+            //
+            out << nl << "/**";
+            out << nl << " * This constructor makes shallow copies of the results for operation " << opName;
+            if(generateMandatoryOnly)
+            {
+                out << " (overload without Optional parameters).";
+            }
+            else
+            {
+                out << '.';
+            }
+
+            if(ret && !dc->returns.empty())
+            {
+                out << nl << " * @param " << retval << ' ';
+                writeDocCommentLines(out, dc->returns);
+            }
+            for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+            {
+                const string name = (*p)->name();
+                map<string, string>::const_iterator q = dc->params.find(name);
+                if(q != dc->params.end() && !q->second.empty())
+                {
+                    out << nl << " * @param " << fixKwd(q->first) << ' ';
+                    writeDocCommentLines(out, q->second);
+                }
+            }
+            out << nl << " **/";
+        }
+
+        out << nl << "public " << opName << "Result" << spar;
+
+        if(ret)
+        {
+            out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, !generateMandatoryOnly && op->returnIsOptional(),
+                                 cl->isLocal()) + " " + retval);
+            needMandatoryOnly = !generateMandatoryOnly && op->returnIsOptional();
         }
         for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
         {
-            const string name = (*p)->name();
-            map<string, string>::const_iterator q = dc->params.find(name);
-            if(q != dc->params.end() && !q->second.empty())
+            out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true,
+                                 !generateMandatoryOnly && (*p)->optional(), cl->isLocal()) + " " + fixKwd((*p)->name()));
+            if(!generateMandatoryOnly)
             {
-                out << nl << " * @param " << fixKwd(q->first) << ' ';
-                writeDocCommentLines(out, q->second);
+                needMandatoryOnly = needMandatoryOnly || (*p)->optional();
             }
         }
-        out << nl << " **/";
-    }
-    out << nl << "public " << opName << "Result" << spar;
-    if(ret)
-    {
-        out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
-            + " " + retval);
-    }
-    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
-    {
-        out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true, (*p)->optional(),
-                             cl->isLocal()) + " " + fixKwd((*p)->name()));
-    }
-    out << epar;
-    out << sb;
-    if(ret)
-    {
-        out << nl << "this." << retval << " = " << retval << ';';
-    }
-    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
-    {
-        const string name = fixKwd((*p)->name());
-        out << nl << "this." << name << " = " << name << ';';
-    }
-    out << eb;
+        out << epar;
+        out << sb;
+        if(ret)
+        {
+            out << nl << "this." << retval << " = ";
+            if(op->returnIsOptional() && generateMandatoryOnly)
+            {
+                out << ofFactory(ret) << "(" << retval << ");";
+            }
+            else
+            {
+                out << retval << ';';
+            }
+
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            const string name = fixKwd((*p)->name());
+            out << nl << "this." << name << " = ";
+            if((*p)->optional() && generateMandatoryOnly)
+            {
+                out << ofFactory((*p)->type()) << "(" << name << ");";
+            }
+            else
+            {
+                out << name << ';';
+            }
+        }
+        out << eb;
+    } while(needMandatoryOnly);
 
     //
     // Members.
@@ -463,16 +538,20 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
         out << nl << " **/";
     }
 
+    bool hasOpt = false;
     out << nl << "public " << opName << "MarshaledResult" << spar;
     if(ret)
     {
         out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional(), cl->isLocal())
             + " " + retval);
+        hasOpt = op->returnIsOptional();
     }
     for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
     {
         out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true, (*p)->optional(),
                              cl->isLocal()) + " " + fixKwd((*p)->name()));
+
+        hasOpt = hasOpt || (*p)->optional();
     }
     out << currentParam << epar;
     out << sb;
@@ -528,6 +607,80 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     out << nl << "_ostr.endEncapsulation();";
 
     out << eb;
+
+    if(hasOpt)
+    {
+        out << sp;
+
+        //
+        // Emit a doc comment for the constructor if necessary.
+        //
+        if(dc)
+        {
+            out << nl << "/**";
+            out << nl << " * This constructor marshals the results of operation " << opName
+                << " immediately (overload without Optional parameters).";
+
+            if(ret && !dc->returns.empty())
+            {
+                out << nl << " * @param " << retval << ' ';
+                writeDocCommentLines(out, dc->returns);
+            }
+            for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+            {
+                const string name = (*p)->name();
+                map<string, string>::const_iterator q = dc->params.find(name);
+                if(q != dc->params.end() && !q->second.empty())
+                {
+                    out << nl << " * @param " << fixKwd(q->first) << ' ';
+                    writeDocCommentLines(out, q->second);
+                }
+            }
+            out << nl << " * @param " << currentParamName << " The Current object for the invocation.";
+            out << nl << " **/";
+        }
+
+        out << nl << "public " << opName << "MarshaledResult" << spar;
+        if(ret)
+        {
+            out << (typeToString(ret, TypeModeIn, package, op->getMetaData(), true, false, cl->isLocal())
+                    + " " + retval);
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            out << (typeToString((*p)->type(), TypeModeIn, package, (*p)->getMetaData(), true, false,
+                                 cl->isLocal()) + " " + fixKwd((*p)->name()));
+        }
+
+        out << currentParam << epar;
+        out << sb;
+        out << nl << "this" << spar;
+        if(ret)
+        {
+            if(op->returnIsOptional())
+            {
+                out << ofFactory(ret) + "(" + retval + ")";
+            }
+            else
+            {
+                out << retval;
+            }
+        }
+        for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
+        {
+            if((*p)->optional())
+            {
+                out << ofFactory((*p)->type()) + "(" + fixKwd((*p)->name()) + ")";
+            }
+            else
+            {
+                out << fixKwd((*p)->name());
+            }
+        }
+
+        out << currentParamName << epar << ';';
+        out << eb;
+    }
 
     out << sp;
     out << nl << "@Override"
@@ -2850,7 +3003,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 //
                 if(allDataMembers.size() < 254)
                 {
-                    const string causeParamName = getEscapedParamName(allDataMembers, "cause"); 
+                    const string causeParamName = getEscapedParamName(allDataMembers, "cause");
 
                     paramDecl.push_back("Throwable " + causeParamName);
                     out << sp << nl << "public " << name << spar;
