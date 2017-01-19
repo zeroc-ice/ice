@@ -584,7 +584,6 @@
 		14B7DEA71E041173001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DEA91E04119D001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DF7D1E043085001D0109 /* Objective-C ARC Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C ARC Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		14B7DF7E1E043086001D0109 /* Objective-C Test Controller copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Objective-C Test Controller copy-Info.plist"; path = "/Users/benoit/Devel/GitHub/ice/objective-c/test/ios/controller/Objective-C Test Controller copy-Info.plist"; sourceTree = "<absolute>"; };
 		14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -1098,7 +1097,6 @@
 				148ABA151DFB12A500594F70 /* Resources */,
 				14905C531DF98FD8002AE61B /* Classes */,
 				14905C521DF98FD8002AE61B /* Products */,
-				14B7DF7E1E043086001D0109 /* Objective-C Test Controller copy-Info.plist */,
 				14FFBA9E1E29361A00EA55AF /* Frameworks */,
 			);
 			sourceTree = "<group>";
