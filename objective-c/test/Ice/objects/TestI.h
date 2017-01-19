@@ -74,3 +74,8 @@
 
 @interface UnexpectedObjectExceptionTestI : ICEBlobject<ICEBlobject>
 @end
+
+@interface TestObjectsTestIntfI : TestObjectsTestIntf<TestObjectsTestIntf>
+-(TestObjectsBase*) opDerived:(ICECurrent *)current;
+-(void) throwDerived:(ICECurrent *)current;
+@end

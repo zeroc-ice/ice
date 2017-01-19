@@ -24,6 +24,17 @@ class Base
     string str;
 };
 
+exception BaseEx
+{
+    string reason;
+};
+
+class AbstractBase extends Base
+{
+    void op();
+};
+
+
 class B;
 class C;
 
@@ -214,6 +225,12 @@ class Initial
     ObjectPrxDict getObjectPrxDict(ObjectPrxDict d);
     BaseDict getBaseDict(BaseDict d);
     BasePrxDict getBasePrxDict(BasePrxDict d);
+};
+
+interface TestIntf
+{
+    Base opDerived();
+    void throwDerived() throws BaseEx;
 };
 
 class Empty

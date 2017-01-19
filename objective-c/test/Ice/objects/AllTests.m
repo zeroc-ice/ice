@@ -51,6 +51,16 @@ void breakRetainCycleD(TestObjectsD* d1)
     breakRetainCycleB(d1.theB);
 }
 
+@interface TestObjectsAbstractBaseI : TestObjectsAbstractBase<TestObjectsAbstractBase>
+-(void) op:(ICECurrent *)current;
+@end
+
+@implementation TestObjectsAbstractBaseI
+-(void) op:(ICECurrent *)current;
+{
+}
+@end
+
 id<TestObjectsInitialPrx>
 objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 {
@@ -86,6 +96,15 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(ba3.theS == ba2.theS);
     test(ba3.str == ba2.str);
     ba3.theS = nil;
+
+    TestObjectsAbstractBase *abp1 = ICE_AUTORELEASE([[TestObjectsAbstractBaseI alloc] init]);
+    abp1.theS = s;
+    abp1.str = @"foo";
+    TestObjectsAbstractBase *abp2 = ICE_AUTORELEASE([abp1 copy]);
+    test(abp1 != abp2);
+    test(abp1.str == abp2.str);
+    test(abp1.theS == abp2.theS);
+    abp2.theS = nil;
 
 #if 0
     // Can't override assignment operator in Objective-C.
@@ -531,6 +550,34 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         test([[communicator getValueFactoryManager] find:@"TestOF"] != nil);
         tprintf("ok\n");
     }
+
+    {
+        NSString* ref = @"test:default -p 12010";
+        id<TestObjectsTestIntfPrx> p = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
+
+        {
+               tprintf("testing getting ObjectFactory registration... ");
+               TestObjectsBase *base = [p opDerived];
+               test(base);
+               test([[base ice_id] isEqualToString:@"::Test::Derived"]);
+               tprintf("ok\n");
+        }
+
+        {
+            tprintf("testing getting ExceptionFactory registration... ");
+            @try
+            {
+                [p throwDerived];
+                test(NO);
+            }
+            @catch(TestObjectsBaseEx* ex)
+            {
+                test([[ex ice_id] isEqualToString:@"::Test::DerivedEx"]);
+            }
+            tprintf("ok\n");
+        }
+    }
+
 
     return initial;
 }
