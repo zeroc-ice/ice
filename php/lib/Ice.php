@@ -56,31 +56,8 @@ abstract class Ice_LocalException extends Ice_Exception
     }
 }
 
-interface Ice_Object
+class Ice_Value
 {
-    public function ice_isA($id);
-    public function ice_ping();
-    public function ice_ids();
-    public function ice_id();
-
-    //
-    // No need to define these here; the marshaling code will invoke them if defined by a subclass.
-    //
-    //public function ice_preMarshal();
-    //public function ice_postUnmarshal();
-}
-
-abstract class Ice_ObjectImpl implements Ice_Object
-{
-    public function ice_isA($id)
-    {
-        return array_search($id, ice_ids());
-    }
-
-    public function ice_ping()
-    {
-    }
-
     public function ice_ids()
     {
         return array(ice_id());
@@ -89,6 +66,19 @@ abstract class Ice_ObjectImpl implements Ice_Object
     public function ice_id()
     {
         return "::Ice::Object";
+    }
+}
+
+class Ice_InterfaceByValue extends Ice_Value
+{
+    public function __construct($id)
+    {
+        $this->id =$id;
+    }
+    
+    public function ice_id()
+    {
+        return $this->id;
     }
 }
 
@@ -110,13 +100,13 @@ class Ice_ObjectPrxHelper
     }
 }
 
-$Ice__t_Object = IcePHP_defineClass('::Ice::Object', "Ice_Object", -1, true, false, null, null, null);
-$Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Object);
-$Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "Ice_LocalObject", -1, true, false, null, null, null);
-$Ice__t_ObjectPrx = IcePHP_defineProxy($Ice__t_Object);
+$Ice__t_Value = IcePHP_defineClass('::Ice::Object', "Ice_Value", -1, false, false, null, null);
+$Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Value);
+$Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "Ice_LocalObject", -1, false, false, null, null);
+$Ice__t_ObjectPrx = IcePHP_defineProxy('::Ice::Object', null, null);
 $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_ObjectPrx);
 
-class Ice_UnknownSlicedObject extends Ice_ObjectImpl
+class Ice_UnknownSlicedValue extends Ice_Value
 {
     public function __construct()
     {
@@ -125,7 +115,7 @@ class Ice_UnknownSlicedObject extends Ice_ObjectImpl
     public $unknownTypeId;
 }
 
-$Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', 'Ice_UnknownSlicedObject', -1, false, true, $Ice__t_Object, null, null);
+$Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', 'Ice_UnknownSlicedValue', -1, true, false, $Ice__t_Value, null);
 
 interface Ice_ObjectFactory
 {
@@ -193,10 +183,10 @@ $Ice_Protocol_1_0 = new Ice_ProtocolVersion(1, 0);
 $Ice_Encoding_1_0 = new Ice_EncodingVersion(1, 0);
 $Ice_Encoding_1_1 = new Ice_EncodingVersion(1, 1);
 
-IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string, false, 0)), null, array($IcePHP__t_bool, false, 0), null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_ping', 2, 1, 0, null, null, null, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_id', 2, 1, 0, null, null, array($IcePHP__t_string, false, 0), null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_ids', 2, 1, 0, null, null, array($Ice__t_StringSeq, false, 0), null);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string)), null, array($IcePHP__t_bool), null);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 2, 1, 0, null, null, null, null);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 2, 1, 0, null, null, array($IcePHP__t_string), null);
+IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 2, 1, 0, null, null, array($Ice__t_StringSeq), null);
 
 //
 // Proxy comparison functions.

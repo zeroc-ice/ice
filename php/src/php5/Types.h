@@ -45,7 +45,10 @@ class AbortMarshaling
 
 class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
-typedef std::vector<ClassInfoPtr> ClassInfoList;
+
+class ProxyInfo;
+typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
+typedef std::vector<ProxyInfoPtr> ProxyInfoList;
 
 typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
 
@@ -417,7 +420,7 @@ public:
 
     ClassInfo(const std::string& TSRMLS_DC);
 
-    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*, zval* TSRMLS_DC);
+    void define(const std::string&, Ice::Int, bool, bool, zval*, zval* TSRMLS_DC);
 
     virtual std::string getId() const;
 
@@ -441,23 +444,16 @@ public:
 
     bool isA(const std::string&) const;
 
-    void addOperation(const std::string&, const OperationPtr&);
-    OperationPtr getOperation(const std::string&) const;
-
     const std::string id;
     const std::string name; // PHP class name
     const Ice::Int compactId;
-    const bool isAbstract;
     const bool preserve;
+    const bool interface;
     const ClassInfoPtr base;
-    const ClassInfoList interfaces;
     const DataMemberList members;
     const DataMemberList optionalMembers;
     const zend_class_entry* zce;
     bool defined;
-
-    typedef std::map<std::string, OperationPtr> OperationMap;
-    OperationMap operations;
 };
 
 //
@@ -469,7 +465,7 @@ public:
 
     ProxyInfo(const std::string& TSRMLS_DC);
 
-    void define(const ClassInfoPtr& TSRMLS_DC);
+    void define(zval*, zval* TSRMLS_DC);
 
     virtual std::string getId() const;
 
@@ -487,9 +483,17 @@ public:
 
     virtual void destroy();
 
+    bool isA(const std::string&) const;
+
+    void addOperation(const std::string&, const OperationPtr&);
+    OperationPtr getOperation(const std::string&) const;
+
     const std::string id;
-    const ClassInfoPtr cls;
+    const ProxyInfoPtr base;
+    const ProxyInfoList interfaces;
     bool defined;
+    typedef std::map<std::string, OperationPtr> OperationMap;
+    OperationMap operations;
 };
 typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
@@ -519,6 +523,7 @@ public:
 
 ClassInfoPtr getClassInfoById(const std::string& TSRMLS_DC);
 ClassInfoPtr getClassInfoByName(const std::string& TSRMLS_DC);
+ProxyInfoPtr getProxyInfo(const std::string& TSRMLS_DC);
 ExceptionInfoPtr getExceptionInfo(const std::string& TSRMLS_DC);
 
 bool isUnset(zval* TSRMLS_DC);
@@ -550,6 +555,7 @@ private:
     zval* _object;
     ObjectMap* _map;
     ClassInfoPtr _info;
+    ClassInfoPtr _formal;
 #if ZTS
     TSRMLS_D;
 #endif

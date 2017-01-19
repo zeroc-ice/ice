@@ -390,19 +390,19 @@ IcePHP::OperationI::convertParam(zval* p, int pos TSRMLS_DC)
 {
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
-    assert(zend_hash_num_elements(arr) == 3);
 
     ParamInfoPtr param = new ParamInfo;
     zval** m;
 
     zend_hash_index_find(arr, 0, reinterpret_cast<void**>(&m));
     param->type = Wrapper<TypeInfoPtr>::value(*m TSRMLS_CC);
-    zend_hash_index_find(arr, 1, reinterpret_cast<void**>(&m));
-    assert(Z_TYPE_PP(m) == IS_BOOL);
-    param->optional = Z_BVAL_PP(m) ? true : false;
-    zend_hash_index_find(arr, 2, reinterpret_cast<void**>(&m));
-    assert(Z_TYPE_PP(m) == IS_LONG);
-    param->tag = Z_LVAL_PP(m);
+    param->optional = zend_hash_num_elements(arr) > 1;
+    if(param->optional)
+    {
+        zend_hash_index_find(arr, 1, reinterpret_cast<void**>(&m));
+        assert(Z_TYPE_PP(m) == IS_LONG);
+        param->tag = Z_LVAL_PP(m);
+    }
     param->pos = pos;
 
     return param;
@@ -875,11 +875,13 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     }
 
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls TSRMLS_CC);
-    ClassInfoPtr c = ClassInfoPtr::dynamicCast(type);
+    ProxyInfoPtr c = ProxyInfoPtr::dynamicCast(type);
     assert(c);
 
-    OperationIPtr op = new OperationI(name, static_cast<Ice::OperationMode>(mode),
-                                      static_cast<Ice::OperationMode>(sendMode), static_cast<Ice::FormatType>(format),
+    OperationIPtr op = new OperationI(name, 
+                                      static_cast<Ice::OperationMode>(mode),
+                                      static_cast<Ice::OperationMode>(sendMode), 
+                                      static_cast<Ice::FormatType>(format),
                                       inParams, outParams, returnType, exceptions TSRMLS_CC);
 
     c->addOperation(name, op);
@@ -888,17 +890,17 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 ZEND_FUNCTION(IcePHP_Operation_call)
 {
     Ice::ObjectPrx proxy;
-    ClassInfoPtr cls;
+    ProxyInfoPtr info;
     CommunicatorInfoPtr comm;
 #ifndef NDEBUG
     bool b =
 #endif
-    fetchProxy(getThis(), proxy, cls, comm TSRMLS_CC);
+    fetchProxy(getThis(), proxy, info, comm TSRMLS_CC);
     assert(b);
     assert(proxy);
-    assert(cls);
+    assert(info);
 
-    OperationPtr op = cls->getOperation(get_active_function_name(TSRMLS_C));
+    OperationPtr op = info->getOperation(get_active_function_name(TSRMLS_C));
     assert(op); // handleGetMethod should have already verified the operation's existence.
     OperationIPtr opi = OperationIPtr::dynamicCast(op);
     assert(opi);

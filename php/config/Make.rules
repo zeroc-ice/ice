@@ -18,6 +18,11 @@ PHP_CONFIG      ?= php-config
 
 php_cppflags            = $(shell $(PHP_CONFIG) --includes)
 
+ifeq ($(USE_NAMESPACES),yes)
+php_cppflags            := $(php_cppflags) -DICEPHP_USE_NAMESPACES
+slice2php_flags         = --namespace
+endif
+
 ifeq ($(os),Darwin)
     php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
@@ -81,9 +86,9 @@ endif
 
 $2/$3/%.php: $1/$3/%.ice $2/$3/.depend/%.ice.d $(slice2php_path)
 	$(E) "Compiling $$<"
-	$(Q)$(slice2php_path) -I$1 --output-dir $2/$3 $4 --depend $$< | \
+	$(Q)$(slice2php_path) $(slice2php_flags) -I$1 --output-dir $2/$3 $4 --depend $$< | \
 		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/$3/.depend/$$(*F).ice.d
-	$(Q)$(slice2php_path) -I$1 --output-dir $2/$3 $4 $$<
+	$(Q)$(slice2php_path) $(slice2php_flags) -I$1 --output-dir $2/$3 $4 $$<
 
 distclean clean::
 	$(E) "Cleaning package $3"
@@ -117,9 +122,9 @@ endif
 
 $1/%.php: $1/%.ice $1/.depend/%.ice.d $(slice2php_path)
 	$(E) "Compiling $$<"
-	$(Q)$(slice2php_path) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
+	$(Q)$(slice2php_path) $(slice2php_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
 		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/$$(*F).ice.d
-	$(Q)$(slice2php_path) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) $$<
+	$(Q)$(slice2php_path) $(slice2php_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) $$<
 
 distclean clean::
 	$(E) "Cleaning $1"

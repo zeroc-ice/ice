@@ -414,7 +414,7 @@ public:
 
     ClassInfo(const std::string&);
 
-    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*, zval*);
+    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*);
 
     virtual std::string getId() const;
 
@@ -438,35 +438,33 @@ public:
 
     bool isA(const std::string&) const;
 
-    void addOperation(const std::string&, const OperationPtr&);
-    OperationPtr getOperation(const std::string&) const;
-
     const std::string id;
     const std::string name; // PHP class name
     const Ice::Int compactId;
-    const bool isAbstract;
     const bool preserve;
+    const bool interface;
     const ClassInfoPtr base;
-    const ClassInfoList interfaces;
     const DataMemberList members;
     const DataMemberList optionalMembers;
     const zend_class_entry* zce;
     bool defined;
-
-    typedef std::map<std::string, OperationPtr> OperationMap;
-    OperationMap operations;
 };
 
 //
 // Proxy information.
 //
+
+class ProxyInfo;
+typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
+typedef std::vector<ProxyInfoPtr> ProxyInfoList;
+
 class ProxyInfo : public TypeInfo
 {
 public:
 
     ProxyInfo(const std::string&);
 
-    void define(const ClassInfoPtr&);
+    void define(zval*, zval*);
 
     virtual std::string getId() const;
 
@@ -483,12 +481,18 @@ public:
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
+    bool isA(const std::string&) const;
+
+    void addOperation(const std::string&, const OperationPtr&);
+    OperationPtr getOperation(const std::string&) const;
 
     const std::string id;
-    const ClassInfoPtr cls;
+    const ProxyInfoPtr base;
+    const ProxyInfoList interfaces;
     bool defined;
+    typedef std::map<std::string, OperationPtr> OperationMap;
+    OperationMap operations;
 };
-typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
 //
 // Exception information.
@@ -516,6 +520,7 @@ public:
 
 ClassInfoPtr getClassInfoById(const std::string&);
 ClassInfoPtr getClassInfoByName(const std::string&);
+ProxyInfoPtr getProxyInfo(const std::string&);
 ExceptionInfoPtr getExceptionInfo(const std::string&);
 
 bool isUnset(zval*);
@@ -547,6 +552,7 @@ private:
     zval _object;
     ObjectMap* _map;
     ClassInfoPtr _info;
+    ClassInfoPtr _formal;
 };
 
 //

@@ -36,6 +36,7 @@ function allTests($communicator)
     global $Ice_Encoding_1_0;
     global $Ice_Encoding_1_1;
 
+    $identity = $NS ? "Ice\\Identity" : "Ice_Identity";
     $random = $NS ? constant("Ice\\EndpointSelectionType::Random") : constant("Ice_EndpointSelectionType::Random");
     $ordered = $NS ? constant("Ice\\EndpointSelectionType::Ordered") : constant("Ice_EndpointSelectionType::Ordered");
     $encodingVersion = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
@@ -455,7 +456,7 @@ function allTests($communicator)
     //
     // Verify that ToStringMode is passed correctly
     //
-    $ident = new Ice_Identity("test", "\x7F\xE2\x82\xAC");
+    $ident = eval("return new " . $identity . "('test', '\x7F\xE2\x82\xAC');");
 
     $idStr = $identityToString($ident, $modeUnicode);
     test($idStr == "\\u007f\xE2\x82\xAC/test");

@@ -28,7 +28,7 @@ module Ice
  * with the communicator.
  *
  **/
-["delegate"]
+["delegate", "php:internal"]
 local interface ValueFactory
 {
     /**
@@ -59,6 +59,7 @@ local interface ValueFactory
  * @see ValueFactory
  *
  **/
+["php:internal"]
 local interface ValueFactoryManager
 {
     /**

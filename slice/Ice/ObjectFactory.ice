@@ -27,7 +27,7 @@ module Ice
  *
  **/
 
-["deprecate:ObjectFactory has been deprecated, use ValueFactory instead."]
+["deprecate:ObjectFactory has been deprecated, use ValueFactory instead.", "php:internal"]
 local interface ObjectFactory
 {
     /**

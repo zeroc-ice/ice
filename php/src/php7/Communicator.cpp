@@ -21,7 +21,7 @@
 #include <fstream>
 
 #ifdef getcwd
-#undef getcwd
+#  undef getcwd
 #endif
 #include <IceUtil/FileUtil.h>
 
@@ -360,7 +360,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         if(zv)
         {
             Ice::ObjectPrx prx;
-            ClassInfoPtr info;
+            ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
                 RETURN_NULL();
@@ -426,7 +426,7 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
         if(zv)
         {
             Ice::ObjectPrx prx;
-            ClassInfoPtr info;
+            ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
                 RETURN_NULL();
@@ -670,7 +670,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
         Ice::RouterPrx router = _this->getCommunicator()->getDefaultRouter();
         if(router)
         {
-            ClassInfoPtr info = getClassInfoById("::Ice::Router");
+            ProxyInfoPtr info = getProxyInfo("::Ice::Router");
             if(!info)
             {
                 runtimeError("no definition for Ice::Router");
@@ -706,7 +706,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr info;
+    ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
         RETURN_NULL();
@@ -748,7 +748,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
         Ice::LocatorPrx locator = _this->getCommunicator()->getDefaultLocator();
         if(locator)
         {
-            ClassInfoPtr info = getClassInfoById("::Ice::Locator");
+            ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
             if(!info)
             {
                 runtimeError("no definition for Ice::Locator");
@@ -784,7 +784,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr info;
+    ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
         RETURN_NULL();
@@ -1855,7 +1855,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        cls = getClassInfoById("::Ice::UnknownSlicedObject");
+        cls = getClassInfoById("::Ice::UnknownSlicedValue");
     }
     else
     {
@@ -1940,7 +1940,6 @@ IcePHP::DefaultValueFactory::create(const string& id)
     //
     // Get the TSRM id for the current request.
     //
-
     if(_delegate)
     {
         Ice::ValuePtr v = _delegate->create(id);
@@ -1960,7 +1959,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        cls = getClassInfoById("::Ice::UnknownSlicedObject");
+        cls = getClassInfoById("::Ice::UnknownSlicedValue");
     }
     else
     {
@@ -1968,14 +1967,6 @@ IcePHP::DefaultValueFactory::create(const string& id)
     }
 
     if(!cls)
-    {
-        return 0;
-    }
-
-    //
-    // If the requested type is an abstract class, then we give up.
-    //
-    if(cls->isAbstract)
     {
         return 0;
     }
@@ -2068,7 +2059,6 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id, bool isOb
             throwException(ex);
             return false;
         }
-
         _factories.insert(FactoryMap::value_type(id, new FactoryWrapper(factory, isObjectFactory, this)));
     }
 
@@ -2091,7 +2081,6 @@ IcePHP::CommunicatorInfoI::findFactory(const string& id) const
             return p->second;
         }
     }
-
     return 0;
 }
 

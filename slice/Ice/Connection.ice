@@ -27,6 +27,7 @@ module Ice
  *
  * Base class providing access to the connection details. *
  **/
+["php:internal"]
 local class ConnectionInfo
 {
     /**
@@ -135,6 +136,7 @@ local struct ACM
  * The user-level interface to a connection.
  *
  **/
+["php:internal"]
 local interface Connection
 {
     /**
@@ -322,6 +324,7 @@ local interface Connection
  * Provides access to the connection details of an IP connection
  *
  **/
+["php:internal"]
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
@@ -342,6 +345,7 @@ local class IPConnectionInfo extends ConnectionInfo
  * Provides access to the connection details of a TCP connection
  *
  **/
+["php:internal"]
 local class TCPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -364,6 +368,7 @@ local class TCPConnectionInfo extends IPConnectionInfo
  * Provides access to the connection details of a UDP connection
  *
  **/
+["php:internal"]
 local class UDPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -402,6 +407,7 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
+["php:internal"]
 local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */

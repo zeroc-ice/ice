@@ -29,6 +29,7 @@ module Ice
  * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
+["php:internal"]
 local interface Properties
 {
     /**

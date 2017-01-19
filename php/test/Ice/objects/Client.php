@@ -30,10 +30,9 @@ if($NS)
         class Test_D1 extends Test\D1 {}
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
-        interface Test_I extends Test\I {}
-        interface Test_J extends Test\J {}
         class Test_H extends Test\H {}
-        class Ice_ObjectImpl extends Ice\ObjectImpl {}
+        class Ice_Value extends Ice\Value {}
+        class Ice_InterfaceByValue extends Ice\InterfaceByValue {}
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
         interface Ice_ValueFactory extends Ice\ValueFactory {}
 EOT;
@@ -107,12 +106,20 @@ class FI extends Test_F
     }
 }
 
-class II extends Ice_ObjectImpl implements Test_I
+class II extends Ice_InterfaceByValue
 {
+    public function __construct()
+    {
+        parent::__construct("::Test::I");
+    }
 }
 
-class JI extends Ice_ObjectImpl implements Test_J
+class JI extends Ice_InterfaceByValue
 {
+    public function __construct()
+    {
+        parent::__construct("::Test::J");
+    }
 }
 
 class HI extends Test_H
@@ -349,9 +356,9 @@ function allTests($communicator)
     $i = $initial->getI();
     test($i != null);
     $j = $initial->getJ();
-    test($j != null and $j instanceof Test_J);
+    test($j != null and $j instanceof JI);
     $h = $initial->getH();
-    test($h != null and $h instanceof Test_H);
+    test($h != null and $h instanceof HI);
     echo "ok\n";
 
     echo "getting D1... ";

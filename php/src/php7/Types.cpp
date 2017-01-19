@@ -75,8 +75,8 @@ addProxyInfo(const ProxyInfoPtr& p)
 //
 // getProxyInfo()
 //
-static IcePHP::ProxyInfoPtr
-getProxyInfo(const string& id)
+IcePHP::ProxyInfoPtr
+IcePHP::getProxyInfo(const string& id)
 {
     if(ICE_G(proxyInfoMap))
     {
@@ -2386,38 +2386,23 @@ IcePHP::DictionaryInfo::destroy()
 // ClassInfo implementation.
 //
 IcePHP::ClassInfo::ClassInfo(const string& ident) :
-    id(ident), compactId(-1), isAbstract(false), preserve(false), zce(0), defined(false)
+    id(ident), compactId(-1), preserve(false), interface(false), zce(0), defined(false)
 {
 }
 
 void
-IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool isAbs, bool pres, zval* b, zval* i, zval* m)
+IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool pres, bool intf, zval* b, zval* m)
 {
     const_cast<string&>(name) = n;
     const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(compact);
-    const_cast<bool&>(isAbstract) = isAbs;
     const_cast<bool&>(preserve) = pres;
+    const_cast<bool&>(interface) = intf;
 
     if(b)
     {
         TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b);
         const_cast<ClassInfoPtr&>(base) = ClassInfoPtr::dynamicCast(p);
         assert(base);
-    }
-
-    if(i)
-    {
-        HashTable* interfacesArray = Z_ARRVAL_P(i);
-        zval* interfaceType;
-
-        ZEND_HASH_FOREACH_VAL(interfacesArray, interfaceType)
-        {
-            TypeInfoPtr t = Wrapper<TypeInfoPtr>::value(interfaceType);
-            ClassInfoPtr c = ClassInfoPtr::dynamicCast(t);
-            assert(c);
-            const_cast<ClassInfoList&>(interfaces).push_back(c);
-        }
-        ZEND_HASH_FOREACH_END();
     }
 
     if(m)
@@ -2427,8 +2412,13 @@ IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool isAbs, bool pr
     }
 
     const_cast<bool&>(defined) = true;
-    const_cast<zend_class_entry*&>(zce) = nameToClass(name);
-    assert(zce || id == "::Ice::LocalObject"); // LocalObject does not have a native PHP equivalent.
+#ifdef ICEPHP_USE_NAMESPACES
+    const string valueClass = "Ice\\Value";
+#else
+    const string valueClass = "Ice_Value";
+#endif
+    const_cast<zend_class_entry*&>(zce) = nameToClass(interface ? valueClass : name);
+    assert(zce || id == "::Ice::LocalObject" || interface); // LocalObject and interfaces does not have a native PHP equivalent.
 }
 
 string
@@ -2586,7 +2576,6 @@ void
 IcePHP::ClassInfo::destroy()
 {
     const_cast<ClassInfoPtr&>(base) = 0;
-    const_cast<ClassInfoList&>(interfaces).clear();
     if(!members.empty())
     {
         DataMemberList ml = members;
@@ -2660,49 +2649,7 @@ IcePHP::ClassInfo::isA(const string& typeId) const
         return true;
     }
 
-    if(base && base->isA(typeId))
-    {
-        return true;
-    }
-
-    for(ClassInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
-    {
-        if((*p)->isA(typeId))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void
-IcePHP::ClassInfo::addOperation(const string& name, const OperationPtr& op)
-{
-    operations.insert(OperationMap::value_type(Slice::PHP::fixIdent(name), op));
-}
-
-IcePHP::OperationPtr
-IcePHP::ClassInfo::getOperation(const string& name) const
-{
-    OperationPtr op;
-    OperationMap::const_iterator p = operations.find(name);
-    if(p != operations.end())
-    {
-        op = p->second;
-    }
-    if(!op && base)
-    {
-        op = base->getOperation(name);
-    }
-    if(!op && !interfaces.empty())
-    {
-        for(ClassInfoList::const_iterator q = interfaces.begin(); q != interfaces.end() && !op; ++q)
-        {
-            op = (*q)->getOperation(name);
-        }
-    }
-    return op;
+    return base && base->isA(typeId);
 }
 
 //
@@ -2714,9 +2661,30 @@ IcePHP::ProxyInfo::ProxyInfo(const string& ident) :
 }
 
 void
-IcePHP::ProxyInfo::define(const ClassInfoPtr& c)
+IcePHP::ProxyInfo::define(zval* b, zval* i)
 {
-    const_cast<ClassInfoPtr&>(cls) = c;
+    if(b)
+    {
+        TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b);
+        const_cast<ProxyInfoPtr&>(base) = ProxyInfoPtr::dynamicCast(p);
+        assert(base);
+    }
+
+    if(i)
+    {
+        HashTable* interfacesArray = Z_ARRVAL_P(i);
+        zval* interfaceType;
+
+        ZEND_HASH_FOREACH_VAL(interfacesArray, interfaceType)
+        {
+            TypeInfoPtr t = Wrapper<TypeInfoPtr>::value(interfaceType);
+            ProxyInfoPtr c = ProxyInfoPtr::dynamicCast(t);
+            assert(c);
+            const_cast<ProxyInfoList&>(interfaces).push_back(c);
+        }
+        ZEND_HASH_FOREACH_END();
+    }
+    
     const_cast<bool&>(defined) = true;
 }
 
@@ -2780,7 +2748,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
     {
         assert(Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == proxyClassEntry); // validate() should have caught this.
         Ice::ObjectPrx proxy;
-        ClassInfoPtr info;
+        ProxyInfoPtr info;
         if(!fetchProxy(zv, proxy, info))
         {
             throw AbortMarshaling();
@@ -2821,13 +2789,13 @@ IcePHP::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
         return;
     }
 
-    if(!cls->defined)
+    if(!defined)
     {
-        runtimeError("class or interface %s is declared but not defined", id.c_str());
+        runtimeError("proxy %s is declared but not defined" TSRMLS_CC, id.c_str());
         throw AbortMarshaling();
     }
 
-    if(!createProxy(&zv, proxy, cls, comm))
+    if(!createProxy(&zv, proxy, this, comm))
     {
         throw AbortMarshaling();
     }
@@ -2850,8 +2818,8 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
     else
     {
         Ice::ObjectPrx proxy;
-        ClassInfoPtr cls;
-        if(!fetchProxy(zv, proxy, cls))
+        ProxyInfoPtr info;
+        if(!fetchProxy(zv, proxy, info))
         {
             return;
         }
@@ -2862,27 +2830,83 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
 void
 IcePHP::ProxyInfo::destroy()
 {
-    const_cast<ClassInfoPtr&>(cls) = 0;
+    const_cast<ProxyInfoPtr&>(base) = 0;
+    const_cast<ProxyInfoList&>(interfaces).clear();
+}
+
+bool
+IcePHP::ProxyInfo::isA(const string& typeId) const
+{
+    if(id == typeId)
+    {
+        return true;
+    }
+
+    if(base && base->isA(typeId))
+    {
+        return true;
+    }
+
+    for(ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+    {
+        if((*p)->isA(typeId))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void
+IcePHP::ProxyInfo::addOperation(const string& name, const OperationPtr& op)
+{
+    operations.insert(OperationMap::value_type(Slice::PHP::fixIdent(name), op));
+}
+
+IcePHP::OperationPtr
+IcePHP::ProxyInfo::getOperation(const string& name) const
+{
+    OperationPtr op;
+    OperationMap::const_iterator p = operations.find(name);
+    if(p != operations.end())
+    {
+        op = p->second;
+    }
+    if(!op && base)
+    {
+        op = base->getOperation(name);
+    }
+    if(!op && !interfaces.empty())
+    {
+        for(ProxyInfoList::const_iterator q = interfaces.begin(); q != interfaces.end() && !op; ++q)
+        {
+            op = (*q)->getOperation(name);
+        }
+    }
+    return op;
 }
 
 //
 // ObjectWriter implementation.
 //
 IcePHP::ObjectWriter::ObjectWriter(zval* object, ObjectMap* objectMap, const ClassInfoPtr& formal) :
-    _map(objectMap)
+    _map(objectMap), _formal(formal)
 {
     // Copy zval and increase ref count
     ZVAL_COPY(&_object, object);
-
-    //
-    // We need to determine the most-derived Slice type supported by this object.
-    // This is typically a Slice class, but it can also be an interface.
-    //
-    // The caller may have provided a ClassInfo representing the formal type, in
-    // which case we ensure that the actual type is compatible with the formal type.
-    //
-    _info = getClassInfoByClass(Z_OBJCE_P(object), formal ? const_cast<zend_class_entry*>(formal->zce) : 0);
-    assert(_info);
+    if(!_formal || !_formal->interface)
+    {
+        //
+        // For non interface types we need to determine the most-derived Slice type supported by 
+        // this object. This is typically a Slice class, but it can also be an interface.
+        //
+        // The caller may have provided a ClassInfo representing the formal type, in
+        // which case we ensure that the actual type is compatible with the formal type.
+        //
+        _info = getClassInfoByClass(Z_OBJCE_P(object), formal ? const_cast<zend_class_entry*>(formal->zce) : 0);
+        assert(_info);
+    }
 }
 
 IcePHP::ObjectWriter::~ObjectWriter()
@@ -2908,7 +2932,7 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
-    if(_info->preserve)
+    if(_info && _info->preserve)
     {
         //
         // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
@@ -2917,25 +2941,66 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
     }
 
     os->startValue(slicedData);
-
-    if(_info->id != "::Ice::UnknownSlicedObject")
+    
+    if(_formal && _formal->interface)
     {
-        ClassInfoPtr info = _info;
-        while(info && info->id != Ice::Object::ice_staticId())
+        //
+        // For an interface by value we just marshal the Ice type id
+        // of the object in its own slice.
+        //
+        zval ret;
+        ZVAL_UNDEF(&ret);
+
+        zend_try
         {
-            assert(info->base); // All classes have the Ice::Object base type.
-            const bool lastSlice = info->base->id == Ice::Object::ice_staticId();
-            os->startSlice(info->id, info->compactId, lastSlice);
+            assert(Z_TYPE(_object) == IS_OBJECT);
+            zend_call_method(const_cast<zval*>(&_object), 0, 0, const_cast<char*>("ice_id"), sizeof("ice_id") - 1, &ret, 0, 0, 0);
+        }
+        zend_catch
+        {
+            // ret;
+        }
+        zend_end_try();
+        
+        //
+        // Bail out if an exception has already been thrown.
+        //
+        if(Z_ISUNDEF(ret) || EG(exception))
+        {
+            throw AbortMarshaling();
+        }
 
-            writeMembers(os, info->members);
-            writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
+        AutoDestroy destroy(&ret);
+        
+        if(Z_TYPE(ret) != IS_STRING)
+        {
+            throw AbortMarshaling();
+        }
+        
+        string id(Z_STRVAL(ret), Z_STRLEN(ret));
+        os->startSlice(id, -1, true);
+        os->endSlice();
+    }
+    else
+    {
+        if(_info->id != "::Ice::UnknownSlicedValue")
+        {
+            ClassInfoPtr info = _info;
+            while(info && info->id != Ice::Object::ice_staticId())
+            {
+                assert(info->base); // All classes have the Ice::Object base type.
+                const bool lastSlice = info->base->id == Ice::Object::ice_staticId();
+                os->startSlice(info->id, info->compactId, lastSlice);
 
-            os->endSlice();
+                writeMembers(os, info->members);
+                writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
 
-            info = info->base;
+                os->endSlice();
+
+                info = info->base;
+            }
         }
     }
-
     os->endValue();
 }
 
@@ -3022,8 +3087,7 @@ void
 IcePHP::ObjectReader::_iceRead(Ice::InputStream* is)
 {
     is->startValue();
-
-    const bool unknown = _info->id == "::Ice::UnknownSlicedObject";
+    const bool unknown = _info->id == "::Ice::UnknownSlicedValue";
 
     //
     // Unmarshal the slices of a user-defined class.
@@ -3144,7 +3208,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         // Verify that the unmarshaled object is compatible with the formal type.
         //
         zval* obj = reader->getObject();
-        if(!reader->getInfo()->isA(_info->id))
+        if(!_info->interface && !reader->getInfo()->isA(_info->id))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
             ex.reason = "unmarshaled object is not an instance of " + _info->id;
@@ -3573,25 +3637,23 @@ ZEND_FUNCTION(IcePHP_declareProxy)
 
 ZEND_FUNCTION(IcePHP_defineProxy)
 {
-    zval* cls;
+    char* id;
+    size_t idLen;
+    zval* base;
+    zval* interfaces;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("o"), &cls) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) == FAILURE)
     {
         return;
     }
 
-    TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(cls);
-    ClassInfoPtr c = ClassInfoPtr::dynamicCast(p);
-    assert(c);
-
-    ProxyInfoPtr type = getProxyInfo(c->id);
+    ProxyInfoPtr type = getProxyInfo(id);
     if(!type)
     {
-        type = new ProxyInfo(c->id);
+        type = new ProxyInfo(id);
         addProxyInfo(type);
     }
-
-    type->define(c);
+    type->define(base, interfaces);
 
     if(!createTypeInfo(return_value, type))
     {
@@ -3629,14 +3691,13 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     size_t nameLen;
     long compactId;
-    zend_bool isAbstract;
     zend_bool preserve;
+    zend_bool interface;
     zval* base;
-    zval* interfaces;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!a!"), &id, &idLen, &name, &nameLen,
-                             &compactId, &isAbstract, &preserve, &base, &interfaces, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen,
+                             &compactId, &preserve, &interface, &base, &members) == FAILURE)
     {
         return;
     }
@@ -3648,17 +3709,23 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<Ice::Int>(compactId), isAbstract ? true : false, preserve ? true : false, base,
-                 interfaces, members);
-    addClassInfoByName(type);
-
-    CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-    if(!m)
+    type->define(name, static_cast<Ice::Int>(compactId), preserve ? true : false, interface ? true : false, base, members);
+    
+    if(!interface)
     {
-        m = new CompactIdMap;
-        ICE_G(compactIdToClassInfoMap) = m;
+        addClassInfoByName(type);
     }
-    m->insert(CompactIdMap::value_type(type->compactId, type));
+
+    if(type->compactId != -1)
+    {
+        CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
+        if(!m)
+        {
+            m = new CompactIdMap;
+            ICE_G(compactIdToClassInfoMap) = m;
+        }
+        m->insert(CompactIdMap::value_type(type->compactId, type));
+    }
 
     if(!createTypeInfo(return_value, type))
     {

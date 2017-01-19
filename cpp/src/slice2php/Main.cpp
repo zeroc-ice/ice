@@ -30,11 +30,9 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
-#endif
-
-#ifndef _WIN32
-#include <unistd.h>
+#  include <direct.h>
+#else
+#  include <unistd.h>
 #endif
 
 using namespace std;
@@ -155,21 +153,22 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     // Handle forward declarations.
     //
     string scoped = p->scoped();
-    string abs = getAbsolute(p, _ns);
     if(_classHistory.count(scoped) == 0)
     {
         startNamespace(p);
 
         string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
-        if(!p->isLocal())
+        
+        bool isInterface = p->isInterface();    
+        if(!p->isLocal() && (isInterface || p->definition()->allOperations().size() > 0))
         {
             _out << nl << "global " << type << "Prx;";
         }
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal())
+        if(!p->isLocal() && (isInterface || p->definition()->allOperations().size() > 0))
         {
             _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -184,6 +183,16 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -201,7 +210,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    if(!p->isLocal())
+    if(!p->isLocal() && isAbstract)
     {
         _out << nl << "global " << prxType << ';';
     }
@@ -211,50 +220,49 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(isInterface)
     {
-        _out << sp << nl << "if(!interface_exists('" << escapeName(abs) << "'))";
-        _out << sb;
-        _out << nl << "interface " << name;
-        if(bases.empty())
+        if(p->isLocal())
         {
-            if(!p->isLocal())
+            _out << nl << "interface " << name;
+            if(bases.empty())
             {
-                _out << " extends " << scopedToName("::Ice::Object", _ns);
-            }
-        }
-        else
-        {
-            _out << " extends ";
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-            {
-                if(q != bases.begin())
+                if(!p->isLocal())
                 {
-                    _out << ", ";
+                    _out << " extends " << scopedToName("::Ice::Object", _ns);
                 }
-                _out << getAbsolute(*q, _ns);
             }
-        }
-        _out << sb;
-        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-        {
-            _out << nl << "public function " << fixIdent((*oli)->name()) << '(';
-            ParamDeclList params = (*oli)->parameters();
-            for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+            else
             {
-                if(q != params.begin())
+                _out << " extends ";
+                for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
                 {
-                    _out << ", ";
+                    if(q != bases.begin())
+                    {
+                        _out << ", ";
+                    }
+                    _out << getAbsolute(*q, _ns);
                 }
-                _out << '$' << fixIdent((*q)->name());
             }
-            _out << ");";
-        }
+            _out << sb;
+            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+            {
+                _out << nl << "public function " << fixIdent((*oli)->name()) << '(';
+                ParamDeclList params = (*oli)->parameters();
+                for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+                {
+                    if(q != params.begin())
+                    {
+                        _out << ", ";
+                    }
+                    _out << '$' << fixIdent((*q)->name());
+                }
+                _out << ");";
+            }
 
-        _out << eb;
+            _out << eb;
+        }
     }
     else
     {
-        _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
-        _out << sb;
         _out << nl;
         if(isAbstract)
         {
@@ -274,10 +282,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(!p->isLocal())
             {
-                _out << " extends " << scopedToName("::Ice::ObjectImpl", _ns);
+                _out << " extends " << scopedToName("::Ice::Value", _ns);
             }
         }
-        if(!bases.empty())
+
+        //
+        // Value objects don't implement any interfaces.
+        //
+        if(p->isLocal() && !bases.empty())
         {
             _out << " implements ";
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
@@ -352,6 +364,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!p->isLocal())
         {
             //
+            // ice_ice
+            //
+            _out << sp << nl << "public function ice_id()";
+            _out << sb;
+            _out << nl << "return '" << scoped << "';";
+            _out << eb;
+
+            //
             // ice_staticId
             //
             _out << sp << nl << "public static function ice_staticId()";
@@ -423,7 +443,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Emit a forward declaration for the class in case a data member refers to this type.
         //
         _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal())
+        if(!p->isLocal() && isAbstract)
         {
             _out << nl << prxType << " = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -434,35 +454,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << sp << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
-         << p->compactId() << ", " << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
-    if(!base)
+        << p->compactId() << ", " << (preserved ? "true" : "false") << ", " 
+        << (isInterface ? "true" : "false") << ", ";
+    if(!base || (isInterface && !p->isLocal()))
     {
-        _out << "$Ice__t_Object";
+        _out << "$Ice__t_Value";
     }
     else
     {
         _out << getTypeVar(base);
-    }
-    _out << ", ";
-    //
-    // Interfaces
-    //
-    if(!bases.empty())
-    {
-        _out << "array(";
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            if(q != bases.begin())
-            {
-                _out << ", ";
-            }
-            _out << getTypeVar(*q);
-        }
-        _out << ')';
-    }
-    else
-    {
-        _out << "null";
     }
     _out << ", ";
     //
@@ -498,9 +498,39 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ");";
 
-    if(!p->isLocal())
+    if(!p->isLocal() && isAbstract)
     {
-        _out << sp << nl << prxType << " = IcePHP_defineProxy(" << type << ");";
+        _out << sp << nl << prxType << " = IcePHP_defineProxy('" << scoped << "', ";
+        if(!base || base->allOperations().empty())
+        {
+            _out << "$Ice__t_ObjectPrx";
+        }
+        else
+        {
+            _out << getTypeVar(base, "Prx");
+        }
+        _out << ", ";
+        //
+        // Interfaces
+        //
+        if(!bases.empty())
+        {
+            _out << "array(";
+            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                if(q != bases.begin())
+                {
+                    _out << ", ";
+                }
+                _out << getTypeVar(*q, "Prx");
+            }
+            _out << ')';
+        }
+        else
+        {
+            _out << "null";
+        }
+        _out << ");";
 
         //
         // Define each operation. The arguments to IcePHP_defineOperation are:
@@ -519,7 +549,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ParamDeclList::iterator t;
                 int count;
 
-                _out << nl << "IcePHP_defineOperation(" << type << ", '" << (*oli)->name() << "', "
+                _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << (*oli)->name() << "', "
                      << getOperationMode((*oli)->mode(), _ns) << ", " << getOperationMode((*oli)->sendMode(), _ns)
                      << ", " << static_cast<int>((*oli)->format()) << ", ";
                 for(t = params.begin(), count = 0; t != params.end(); ++t)
@@ -536,8 +566,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                         _out << "array(";
                         writeType((*t)->type());
-                        _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
-                             << ((*t)->optional() ? (*t)->tag() : 0) << ')';
+                        if((*t)->optional())
+                        {
+                            _out << ", " << (*t)->tag();
+                        }
+                        _out << ')';
                         ++count;
                     }
                 }
@@ -564,8 +597,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                         _out << "array(";
                         writeType((*t)->type());
-                        _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
-                             << ((*t)->optional() ? (*t)->tag() : 0) << ')';
+                        if((*t)->optional())
+                        {
+                            _out << ", " << (*t)->tag();
+                        } 
+                        _out << ')';
                         ++count;
                     }
                 }
@@ -588,8 +624,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     //
                     _out << "array(";
                     writeType(returnType);
-                    _out << ", " << ((*oli)->returnIsOptional() ? "true" : "false") << ", "
-                         << ((*oli)->returnIsOptional() ? (*oli)->returnTag() : 0) << ')';
+                    if((*oli)->returnIsOptional())
+                    {
+                        _out << ", " << (*oli)->returnTag();
+                    }
+                    _out << ')';
                 }
                 else
                 {
@@ -619,8 +658,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    _out << eb;
-
     endNamespace();
 
     if(_classHistory.count(scoped) == 0)
@@ -634,6 +671,16 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -642,8 +689,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
-    _out << sb;
     _out << nl << "class " << name << " extends ";
     ExceptionPtr base = p->base();
     string baseName;
@@ -774,8 +819,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << ");";
 
-    _out << eb;
-
     endNamespace();
 
     return false;
@@ -784,6 +827,16 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -804,8 +857,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
-    _out << sb;
 
     _out << nl << "class " << name;
     _out << sb;
@@ -863,9 +914,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
     }
     _out << "));";
-
-    _out << eb;
-
     endNamespace();
 
     return false;
@@ -874,6 +922,16 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return;
+    }
+
     string type = getTypeVar(p);
     TypePtr content = p->type();
 
@@ -897,6 +955,16 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return;
+    }
+
     TypePtr keyType = p->keyType();
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
     if(b)
@@ -955,6 +1023,16 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -964,8 +1042,6 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    _out << sp << nl << "if(!class_exists('" << escapeName(abs) << "'))";
-    _out << sb;
     _out << nl << "class " << name;
     _out << sb;
 
@@ -993,14 +1069,22 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     }
     _out << "));";
 
-    _out << eb;
-
     endNamespace();
 }
 
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
+    //
+    // Do not generate any code for php:internal types, those are provided by
+    // IcePHP C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
+    {
+        return;
+    }
+
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
@@ -1118,7 +1202,7 @@ CodeVisitor::writeType(const TypePtr& p)
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                _out << "$Ice__t_Object";
+                _out << "$Ice__t_Value";
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -1138,7 +1222,15 @@ CodeVisitor::writeType(const TypePtr& p)
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-        _out << getTypeVar(prx->_class(), "Prx");
+        ClassDefPtr def = prx->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
+        {
+            _out << getTypeVar(prx->_class(), "Prx");
+        }
+        else
+        {
+            _out << "$Ice__t_ObjectPrx";
+        }
         return;
     }
 

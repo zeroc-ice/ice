@@ -54,7 +54,7 @@ module Ice
  * @see ValueFactory
  *
  **/
-["clr:implements:_System.IDisposable"]
+["clr:implements:_System.IDisposable", "php:internal"]
 local interface Communicator
 {
     /**

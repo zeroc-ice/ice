@@ -110,7 +110,7 @@ function allTests($communicator)
     echo "unknown with Object as Object... ";
     flush();
     {
-        $usocls = $NS ? "Ice\\UnknownSlicedObject" : "Ice_UnknownSlicedObject";
+        $usocls = $NS ? "Ice\\UnknownSlicedValue" : "Ice_UnknownSlicedValue";
         try
         {
             $o = $test->SUnknownAsObject();

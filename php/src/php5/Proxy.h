@@ -20,9 +20,9 @@ namespace IcePHP
 bool proxyInit(TSRMLS_D);
 
 bool createProxy(zval*, const Ice::ObjectPrx&, const CommunicatorInfoPtr& TSRMLS_DC);
-bool createProxy(zval*, const Ice::ObjectPrx&, const ClassInfoPtr&, const CommunicatorInfoPtr& TSRMLS_DC);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ClassInfoPtr& TSRMLS_DC);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ClassInfoPtr&, CommunicatorInfoPtr& TSRMLS_DC);
+bool createProxy(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr& TSRMLS_DC);
+bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr& TSRMLS_DC);
+bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr&, CommunicatorInfoPtr& TSRMLS_DC);
 
 //
 // Class entry.
