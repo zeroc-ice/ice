@@ -226,7 +226,7 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sent
 
-    def sent_synchronously(self):
+    def is_sent_synchronously(self):
         with self._condition:
             return self._sentSynchronously
 

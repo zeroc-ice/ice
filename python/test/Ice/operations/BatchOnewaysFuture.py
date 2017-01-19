@@ -45,7 +45,7 @@ def batchOneways(p):
 
     test(batch.ice_flushBatchRequestsAsync().is_sent()) # Empty flush
     test(batch.ice_flushBatchRequestsAsync().done()) # Empty flush
-    test(batch.ice_flushBatchRequestsAsync().sent_synchronously()) # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().is_sent_synchronously()) # Empty flush
 
     for i in range(30):
         batch.opByteSOnewayAsync(bs1)

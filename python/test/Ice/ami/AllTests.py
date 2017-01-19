@@ -1373,7 +1373,7 @@ def allTestsFuture(communicator, collocated):
             f = p.opWithPayloadAsync(seq)
             f.add_sent_callback(cb.sent)
             cbs.append(cb)
-            if not f.sent_synchronously():
+            if not f.is_sent_synchronously():
                 break
             cb = FutureSentCallback()
     except Exception as ex:
@@ -1576,17 +1576,17 @@ def allTestsFuture(communicator, collocated):
             seq = bytes(b)
         while(True):
             f2 = p.opWithPayloadAsync(seq)
-            if not f2.sent_synchronously():
+            if not f2.is_sent_synchronously():
                 break
 
         test(f1 == f1)
         test(f1 != f2)
 
         if p.ice_getConnection():
-            test((f1.sent_synchronously() and f1.is_sent() and not f1.done()) or
-                 (not f1.sent_synchronously() and not f1.done()))
+            test((f1.is_sent_synchronously() and f1.is_sent() and not f1.done()) or
+                 (not f1.is_sent_synchronously() and not f1.done()))
 
-            test(not f2.sent_synchronously() and not f2.done())
+            test(not f2.is_sent_synchronously() and not f2.done())
     except Exception as ex:
         testController.resumeAdapter()
         raise ex
