@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <SessionI.h>

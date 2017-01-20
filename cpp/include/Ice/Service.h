@@ -10,7 +10,8 @@
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
-#include <Ice/Ice.h>
+#include <Ice/Initialize.h>
+#include <Ice/LoggerUtil.h>
 
 #ifdef _WIN32
 #   include <winsvc.h>

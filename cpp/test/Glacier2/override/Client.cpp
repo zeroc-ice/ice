@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <CallbackI.h>

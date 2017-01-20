@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
-#include <Ice/Locator.h>
+#include <Ice/Ice.h>
 #include <BackendI.h>
 
 using namespace std;
