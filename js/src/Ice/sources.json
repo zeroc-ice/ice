@@ -63,7 +63,6 @@
         "Object.js",
         "ObjectAdapterFactory.js",
         "ObjectAdapterI.js",
-        "ObjectFactory.js",
         "ObjectPrx.js",
         "OpaqueEndpointI.js",
         "Operation.js",

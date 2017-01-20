@@ -898,6 +898,13 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    //
+    // Don't need to generate any code for local interfaces.
+    //
+    if(p->isInterface() && p->isLocal())
+    {
+        return false;
+    }
     const string scope = p->scope();
     const string scoped = p->scoped();
     const string localScope = getLocalScope(scope);

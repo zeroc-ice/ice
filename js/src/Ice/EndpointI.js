@@ -9,7 +9,7 @@
 
 const Ice = require("../Ice/Endpoint").Ice;
 
-class EndpointI extends Ice.Endpoint
+class EndpointI
 {
     toString()
     {

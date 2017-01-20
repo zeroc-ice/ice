@@ -129,7 +129,7 @@
         return null;
     }
 
-    class MyObjectFactory extends Ice.ObjectFactory
+    class MyObjectFactory
     {
 
         create(type)
