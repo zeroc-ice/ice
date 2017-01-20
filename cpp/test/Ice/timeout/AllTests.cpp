@@ -459,7 +459,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             timeout->ice_invocationTimeout(-2)->ice_ping();
             #ifdef ICE_CPP11_MAPPING
-            timeout->ice_invocationTimeout(-2)->ice_pingAsync()->waitForCompleted();
+            timeout->ice_invocationTimeout(-2)->ice_pingAsync().get();
             #else
             timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
             #endif
