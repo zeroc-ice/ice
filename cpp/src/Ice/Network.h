@@ -264,7 +264,7 @@ ICE_API std::string errorToStringDNS(int);
 ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool,
                                           bool);
 ICE_API ProtocolSupport getProtocolSupport(const Address&);
-ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool);
+ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool, bool);
 ICE_API int compareAddress(const Address&, const Address&);
 
 ICE_API bool isIPv6Supported();

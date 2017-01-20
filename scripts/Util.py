@@ -1667,14 +1667,14 @@ class LocalProcessController(ProcessController):
 
     def getHost(self, current):
         # Depending on the configuration, either use an IPv4, IPv6 or BT address for Ice.Default.Host
-        if current.config.ipv6:
-            return current.driver.hostIPv6
-        elif current.config.protocol == "bt":
+        if current.config.protocol == "bt":
             if not current.driver.hostBT:
                 raise Test.Common.TestCaseFailedException("no Bluetooth address set with --host-bt")
             return current.driver.hostBT
+        elif current.config.ipv6:
+            return current.driver.hostIPv6 or "::1"
         else:
-            return current.driver.host if current.driver.host else current.driver.interface
+            return current.driver.host or "127.0.0.1"
 
     def start(self, process, current, args, props, envs, watchDog):
 
@@ -2355,12 +2355,13 @@ class Driver:
 
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
-        initData.properties.setProperty("IceDiscovery.Interface", self.interface or "127.0.0.1")
-        initData.properties.setProperty("Ice.Default.Host", self.interface or "127.0.0.1")
+        initData.properties.setProperty("IceDiscovery.Interface", self.interface)
+        initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         #initData.properties.setProperty("Ice.Trace.Protocol", "1")
         #initData.properties.setProperty("Ice.Trace.Network", "2")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
+        initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
         self.communicator = Ice.initialize(initData)
 
         self.ctrlCHandler = Ice.CtrlCHandler()
@@ -2898,10 +2899,8 @@ Mapping.add("python", PythonMapping())
 Mapping.add("ruby", RubyMapping())
 Mapping.add("php", PhpMapping())
 Mapping.add("js", JavaScriptMapping())
-if isinstance(platform, Windows):
-    Mapping.add("csharp", CSharpMapping())
-if isinstance(platform, Darwin):
-    Mapping.add("objective-c", ObjCMapping())
+Mapping.add("csharp", CSharpMapping())
+Mapping.add("objective-c", ObjCMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])

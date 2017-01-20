@@ -139,7 +139,7 @@ IceInternal::UdpTransceiver::bind()
         // address won't be the multicast address and the client will
         // therefore reject the datagram.
         //
-        const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false);
+        const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false, false);
 #endif
 
         const_cast<Address&>(_addr) = doBind(_fd, _addr, _mcastInterface);
@@ -771,7 +771,12 @@ IceInternal::UdpTransceiver::toDetailedString() const
 {
     ostringstream os;
     os << toString();
-    vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
+    string addr = isAddressValid(_mcastAddr) ? _mcastInterface : inetAddrToString(_addr);
+    vector<string> intfs = getHostsForEndpointExpand(addr, _instance->protocolSupport(), true);
+    if(isAddressValid(_mcastAddr) && intfs.empty())
+    {
+        intfs.push_back(_mcastInterface);
+    }
     if(!intfs.empty())
     {
         os << "\nlocal interfaces = ";
@@ -952,7 +957,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, con
     _instance(instance),
     _incoming(true),
     _bound(false),
-    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6())),
+    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
     _mcastInterface(mcastInterface),
     _port(port),
     _state(connect ? StateNeedConnect : StateNotConnected)

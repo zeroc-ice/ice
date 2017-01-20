@@ -17,6 +17,10 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- The UDP server endpoint now supports specifying `--interface *` to join the
+  multicast group on using all the local interfaces. It's also now the default
+  behavior if no `--interface` option is specified.
+
 - Ice no longer halt the program if can't accept new incoming connections when
   the system runs out of file descriptors. Instead, it rejects queued pending
   connections and temporarily stops accepting new connections. An error message

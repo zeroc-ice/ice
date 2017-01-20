@@ -161,6 +161,25 @@ final class UdpEndpointI extends IPEndpointI
                                 _connect, _connectionId, _compress);
     }
 
+    @Override
+    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
+    {
+        super.initWithOptions(args, oaEndpoint);
+
+        if(_mcastInterface.equals("*"))
+        {
+            if(oaEndpoint)
+            {
+                _mcastInterface = "";
+            }
+            else
+            {
+                throw new com.zeroc.Ice.EndpointParseException("`--interface *' not valid for proxy endpoint `" +
+                                                               toString() + "'");
+            }
+        }
+    }
+
     //
     // Convert the endpoint to its string form
     //

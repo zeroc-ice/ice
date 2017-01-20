@@ -63,8 +63,7 @@ final class UdpTransceiver implements Transceiver
         {
             Network.setReuseAddress(_fd, true);
             _mcastAddr = _addr;
-            if(System.getProperty("os.name").startsWith("Windows") ||
-               System.getProperty("java.vm.name").startsWith("OpenJDK"))
+            if(System.getProperty("os.name").startsWith("Windows"))
             {
                 //
                 // Windows does not allow binding to the mcast address itself
@@ -73,17 +72,15 @@ final class UdpTransceiver implements Transceiver
                 // address won't be the multicast address and the client will
                 // therefore reject the datagram.
                 //
-                int protocol =
-                    _mcastAddr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
-                _addr = Network.getAddressForServer("", _port, protocol, _instance.preferIPv6());
+                int protocolSupport = Network.getProtocolSupport(_mcastAddr);
+                _addr = Network.getAddressForServer("", _port, protocolSupport, _instance.preferIPv6());
             }
             _addr = Network.doBind(_fd, _addr);
-            configureMulticast(_mcastAddr, _mcastInterface, -1);
-
             if(_port == 0)
             {
                 _mcastAddr = new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
             }
+            Network.setMcastGroup(_fd, _mcastAddr, _mcastInterface);
         }
         else
         {
@@ -285,8 +282,12 @@ final class UdpTransceiver implements Transceiver
     public String toDetailedString()
     {
         StringBuilder s = new StringBuilder(toString());
-        java.util.List<String> intfs =
-            Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(), true);
+        String addr = _mcastAddr != null ? _mcastInterface : _addr.getAddress().getHostAddress();
+        java.util.List<String> intfs = Network.getHostsForEndpointExpand(addr, _instance.protocolSupport(), true);
+        if(_mcastAddr != null && intfs.isEmpty())
+        {
+            intfs.add(_mcastInterface);
+        }
         if(!intfs.isEmpty())
         {
             s.append("\nlocal interfaces = ");
@@ -380,7 +381,14 @@ final class UdpTransceiver implements Transceiver
             //
             if(_addr.getAddress().isMulticastAddress())
             {
-                configureMulticast(null, mcastInterface, mcastTtl);
+                if(mcastInterface.length() > 0)
+                {
+                    Network.setMcastInterface(_fd, mcastInterface);
+                }
+                if(mcastTtl != -1)
+                {
+                    Network.setMcastTtl(_fd, mcastTtl);
+                }
             }
             Network.doConnect(_fd, _addr, sourceAddr);
             _state = StateConnected; // We're connected now
@@ -511,99 +519,6 @@ final class UdpTransceiver implements Transceiver
                     }
                 }
             }
-        }
-    }
-
-    private void configureMulticast(java.net.InetSocketAddress group, String interfaceAddr, int ttl)
-    {
-        try
-        {
-            java.net.NetworkInterface intf = null;
-
-            if(interfaceAddr.length() != 0)
-            {
-                intf = java.net.NetworkInterface.getByName(interfaceAddr);
-                if(intf == null)
-                {
-                    try
-                    {
-                        intf = java.net.NetworkInterface.getByInetAddress(
-                            java.net.InetAddress.getByName(interfaceAddr));
-                    }
-                    catch(Exception ex)
-                    {
-                    }
-                }
-            }
-
-            if(group != null)
-            {
-                //
-                // Join multicast group.
-                //
-                if(intf != null)
-                {
-                    _fd.join(group.getAddress(), intf);
-                }
-                else
-                {
-                    boolean join = false;
-                    //
-                    // If the user doesn't specify an interface, we join to the multicast group with every
-                    // interface that supports multicast and has a configured address with the same protocol
-                    // as the group address protocol.
-                    //
-                    int protocol = group.getAddress().getAddress().length == 4 ? Network.EnableIPv4 :
-                                                                                 Network.EnableIPv6;
-
-                    java.util.List<java.net.NetworkInterface> interfaces =
-                                java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces());
-                    for(java.net.NetworkInterface iface : interfaces)
-                    {
-                        boolean hasProtocolAddress = false;
-                        java.util.List<java.net.InetAddress> addresses =
-                            java.util.Collections.list(iface.getInetAddresses());
-                        for(java.net.InetAddress address : addresses)
-                        {
-                            if(address.getAddress().length == 4 && protocol == Network.EnableIPv4 ||
-                               address.getAddress().length != 4 && protocol == Network.EnableIPv6)
-                            {
-                                hasProtocolAddress = true;
-                                break;
-                            }
-                        }
-
-                        if(hasProtocolAddress)
-                        {
-                            _fd.join(group.getAddress(), iface);
-                            join = true;
-                        }
-                    }
-
-                    if(!join)
-                    {
-                        throw new com.zeroc.Ice.SocketException(new IllegalArgumentException(
-                                            "There are no interfaces that are configured for the group protocol.\n" +
-                                            "Cannot join the multicast group."));
-                    }
-                }
-            }
-            else if(intf != null)
-            {
-                //
-                // Otherwise, set the multicast interface if specified.
-                //
-                _fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_IF, intf);
-            }
-
-            if(ttl != -1)
-            {
-                _fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
-            }
-        }
-        catch(Exception ex)
-        {
-            throw new com.zeroc.Ice.SocketException(ex);
         }
     }
 

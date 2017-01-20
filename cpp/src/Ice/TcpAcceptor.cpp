@@ -290,7 +290,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
                                       int port) :
     _endpoint(endpoint),
     _instance(instance),
-    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6()))
+    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET), _info(SocketOperationRead)
 #endif

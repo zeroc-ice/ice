@@ -255,6 +255,82 @@ public final class Network
         }
     }
 
+    public static java.net.NetworkInterface
+    getInterface(String intf)
+    {
+        java.net.NetworkInterface iface;
+        try
+        {
+            iface = java.net.NetworkInterface.getByName(intf);
+            if(iface != null)
+            {
+                return iface;
+            }
+        }
+        catch(Exception ex)
+        {
+        }
+        try
+        {
+            iface = java.net.NetworkInterface.getByInetAddress(java.net.InetAddress.getByName(intf));
+            if(iface != null)
+            {
+                return iface;
+            }
+        }
+        catch(Exception ex)
+        {
+        }
+        throw new IllegalArgumentException("couldn't find interface `" + intf + "'");
+    }
+
+    public static void
+    setMcastInterface(java.nio.channels.DatagramChannel fd, String intf)
+    {
+        try
+        {
+            fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_IF, getInterface(intf));
+        }
+        catch(Exception ex)
+        {
+            throw new com.zeroc.Ice.SocketException(ex);
+        }
+    }
+
+    public static void
+    setMcastGroup(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress group, String intf)
+    {
+        try
+        {
+            java.util.List<String> interfaces = getHostsForEndpointExpand(intf, getProtocolSupport(group), true);
+            if(interfaces.isEmpty())
+            {
+                interfaces.add(intf);
+            }
+            for(String intf2 : interfaces)
+            {
+                fd.join(group.getAddress(), getInterface(intf2));
+            }
+        }
+        catch(Exception ex)
+        {
+            throw new com.zeroc.Ice.SocketException(ex);
+        }
+    }
+
+    public static void
+    setMcastTtl(java.nio.channels.DatagramChannel fd, int ttl)
+    {
+        try
+        {
+            fd.setOption(java.net.StandardSocketOptions.IP_MULTICAST_TTL, ttl);
+        }
+        catch(Exception ex)
+        {
+            throw new com.zeroc.Ice.SocketException(ex);
+        }
+    }
+
     public static void
     setBlock(java.nio.channels.SelectableChannel fd, boolean block)
     {
@@ -666,6 +742,12 @@ public final class Network
             throw new SocketException(ex);
         }
         return size;
+    }
+
+    public static int
+    getProtocolSupport(java.net.InetSocketAddress addr)
+    {
+        return addr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
     }
 
     public static java.net.InetSocketAddress

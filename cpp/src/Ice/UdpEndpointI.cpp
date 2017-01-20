@@ -156,6 +156,26 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
                            _mcastTtl, _connect, _connectionId, _compress);
 }
 
+void
+IceInternal::UdpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
+{
+    IPEndpointI::initWithOptions(args, oaEndpoint);
+
+    if(_mcastInterface == "*")
+    {
+        if(oaEndpoint)
+        {
+            const_cast<string&>(_mcastInterface) = string();
+        }
+        else
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "`--interface *' not valid for proxy endpoint `" + toString() + "'";
+            throw ex;
+        }
+    }
+}
+
 string
 IceInternal::UdpEndpointI::options() const
 {

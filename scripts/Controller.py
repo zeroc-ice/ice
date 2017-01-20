@@ -45,7 +45,7 @@ class ControllerDriver(Driver):
         parseOptions(self, options, { "clean" : "clean" })
 
         if not self.endpoints:
-            self.endpoints = "tcp -h " + (self.interface or "127.0.0.1")
+            self.endpoints = ("tcp -h " + self.interface) if self.interface else "tcp"
 
     def run(self, mappings, testSuiteIds):
 

@@ -435,19 +435,6 @@ namespace IceInternal
             try
             {
                 int ifaceIndex = getInterfaceIndex(iface, family);
-                if(ifaceIndex == -1)
-                {
-                    try
-                    {
-                        ifaceIndex = int.Parse(iface, CultureInfo.InvariantCulture);
-                    }
-                    catch(FormatException ex)
-                    {
-                        closeSocketNoThrow(socket);
-                        throw new Ice.SocketException(ex);
-                    }
-                }
-
                 if(family == AddressFamily.InterNetwork)
                 {
                     ifaceIndex = IPAddress.HostToNetworkOrder(ifaceIndex);
@@ -469,33 +456,41 @@ namespace IceInternal
         {
             try
             {
-                int index = getInterfaceIndex(iface, group.AddressFamily);
-                if(group.AddressFamily == AddressFamily.InterNetwork)
+                int protocolSupport = group.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+                List<string> interfaces = getHostsForEndpointExpand(iface, protocolSupport, true);
+                if(interfaces.Count == 0)
                 {
-                    MulticastOption option;
-                    if(index == -1)
-                    {
-                        option = new MulticastOption(group);
-                    }
-
-                    else
-                    {
-                        option = new MulticastOption(group, index);
-                    }
-                    s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                    interfaces.Add(iface);
                 }
-                else
+                foreach(string intf in interfaces)
                 {
-                    IPv6MulticastOption option;
-                    if(index == -1)
+                    int index = getInterfaceIndex(intf, group.AddressFamily);
+                    if(group.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        option = new IPv6MulticastOption(group);
+                        MulticastOption option;
+                        if(index == -1)
+                        {
+                            option = new MulticastOption(group);
+                        }
+                        else
+                        {
+                            option = new MulticastOption(group, index);
+                        }
+                        s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
                     }
                     else
                     {
-                        option = new IPv6MulticastOption(group, index);
+                        IPv6MulticastOption option;
+                        if(index == -1)
+                        {
+                            option = new IPv6MulticastOption(group);
+                        }
+                        else
+                        {
+                            option = new IPv6MulticastOption(group, index);
+                        }
+                        s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                     }
-                    s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                 }
             }
             catch(Exception ex)
@@ -841,18 +836,6 @@ namespace IceInternal
                         }
                     }
                 }
-
-                foreach(IPAddress a in Dns.GetHostAddresses(Dns.GetHostName()))
-                {
-                    if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
-                    {
-                        if(includeLoopback || !IPAddress.IsLoopback(a))
-                        {
-                            addresses.Add(a);
-                        }
-                    }
-                }
             }
             catch(SocketException ex)
             {
@@ -1178,7 +1161,8 @@ namespace IceInternal
                     }
                 }
             }
-            return -1;
+
+            throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
         public static EndPoint
@@ -1187,7 +1171,7 @@ namespace IceInternal
             EndPoint addr = null;
             if(!string.IsNullOrEmpty(sourceAddress))
             {
-                List<EndPoint> addrs = getAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered, 
+                List<EndPoint> addrs = getAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
                                                     false, false);
                 if(addrs.Count != 0)
                 {

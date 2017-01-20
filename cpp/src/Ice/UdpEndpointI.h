@@ -53,6 +53,8 @@ public:
 
     using IPEndpointI::connectionId;
 
+    virtual void initWithOptions(std::vector<std::string>&, bool);
+
 protected:
 
     virtual void hashInit(Ice::Int&) const;

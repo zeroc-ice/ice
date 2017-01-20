@@ -477,11 +477,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 bool
 isLinklocal(const Address& addr)
 {
-    if (addr.saStorage.ss_family == AF_INET6)
+    if(addr.saStorage.ss_family == AF_INET6)
     {
         return IN6_IS_ADDR_LINKLOCAL(&addr.saIn6.sin6_addr);
     }
-    else if (addr.saStorage.ss_family == AF_INET)
+    else if(addr.saStorage.ss_family == AF_INET)
     {
         // Check for 169.254.X.X in network order
         return (addr.saIn.sin_addr.s_addr & 0xFF) == 169 && ((addr.saIn.sin_addr.s_addr & 0xFF00)>>8) == 254;
@@ -492,28 +492,22 @@ isLinklocal(const Address& addr)
 bool
 isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
 {
-    try
+    Address addr = getAddressForServer(host, 0, protocol, true, false);
+    if(addr.saStorage.ss_family == AF_INET)
     {
-        Address addr = getAddressForServer(host, 0, protocol, true);
-        if(addr.saStorage.ss_family == AF_INET)
+        if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
         {
-            if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
-            {
-                ipv4 = true;
-                return true;
-            }
-        }
-        else if(addr.saStorage.ss_family)
-        {
-            if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
-            {
-                ipv4 = false;
-                return true;
-            }
+            ipv4 = true;
+            return true;
         }
     }
-    catch(const DNSException&)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
+        if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+        {
+            ipv4 = false;
+            return true;
+        }
     }
     return false;
 }
@@ -526,7 +520,7 @@ getInterfaceIndex(const string& name)
         return 0;
     }
 
-    int index = 0;
+    int index = -1;
 
     //
     // First check if index
@@ -594,6 +588,10 @@ getInterfaceIndex(const string& name)
             }
         }
         delete[] buf;
+    }
+    if(index < 0) // interface not found
+    {
+        throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
     }
 #elif !defined(__hpux)
 
@@ -692,6 +690,11 @@ getInterfaceIndex(const string& name)
     {
         index = if_nametoindex(name.c_str());
     }
+    if(index <= 0)
+    {
+        // index == 0 if if_nametoindex returned 0, < 0 if name wasn't found
+        throw Ice::SocketException(__FILE__, __LINE__, index == 0 ? getSocketErrno() : ENXIO);
+    }
 #endif
 
     return index;
@@ -733,14 +736,15 @@ getInterfaceAddress(const string& name)
                     struct sockaddr_in addrin;
                     memcpy(&addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
                            paddrs->FirstUnicastAddress->Address.iSockaddrLength);
-                    addr =  addrin.sin_addr;
-                    break;
+                    delete[] buf;
+                    return addrin.sin_addr;
                 }
                 paddrs = paddrs->Next;
             }
         }
         delete[] buf;
     }
+    throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
 #else
     ifreq if_address;
     strcpy(if_address.ifr_name, name.c_str());
@@ -748,14 +752,12 @@ getInterfaceAddress(const string& name)
     SOCKET fd = createSocketImpl(false, AF_INET);
     int rc = ioctl(fd, SIOCGIFADDR, &if_address);
     closeSocketNoThrow(fd);
-
-    if(rc != SOCKET_ERROR)
+    if(rc == SOCKET_ERROR)
     {
-        addr = reinterpret_cast<struct sockaddr_in*>(&if_address.ifr_addr)->sin_addr;
+        throw Ice::SocketException(__FILE__, __LINE__, getSocketErrno());
     }
+    return reinterpret_cast<struct sockaddr_in*>(&if_address.ifr_addr)->sin_addr;
 #endif
-
-    return addr;
 }
 
 int
@@ -1025,7 +1027,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::En
 #else
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, Ice::EndpointSelectionType selType,
-                          bool preferIPv6, bool blocking)
+                          bool preferIPv6, bool canBlock)
 {
     vector<Address> result;
     Address addr;
@@ -1073,7 +1075,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         hints.ai_family = PF_UNSPEC;
     }
 
-    if(!blocking)
+    if(!canBlock)
     {
         hints.ai_flags = AI_NUMERICHOST;
     }
@@ -1090,12 +1092,12 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     // address. However on some platforms (e.g. OS X 10.4.x)
     // EAI_NODATA is also returned so we also check for it.
 #  ifdef EAI_NODATA
-    if(!blocking && (rs == EAI_NONAME || rs == EAI_NODATA))
+    if(!canBlock && (rs == EAI_NONAME || rs == EAI_NODATA))
 #  else
-    if(!blocking && rs == EAI_NONAME)
+    if(!canBlock && rs == EAI_NONAME)
 #  endif
     {
-        return result; // Empty result indicates that a blocking lookup is necessary.
+        return result; // Empty result indicates that a canBlock lookup is necessary.
     }
     else if(rs != 0)
     {
@@ -1161,7 +1163,7 @@ IceInternal::getProtocolSupport(const Address& addr)
 #endif
 
 Address
-IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6)
+IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
 {
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -1196,7 +1198,8 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 #endif
         return addr;
     }
-    return getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, true)[0];
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, canBlock);
+    return addrs.empty() ? Address() : addrs[0];
 }
 
 int
@@ -2016,32 +2019,41 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-    int rc;
-    if(group.saStorage.ss_family == AF_INET)
+    vector<string> interfaces = getHostsForEndpointExpand(intf, getProtocolSupport(group), true);
+    if(interfaces.empty())
     {
-        struct ip_mreq mreq;
-        mreq.imr_multiaddr = group.saIn.sin_addr;
-        mreq.imr_interface = getInterfaceAddress(intf);
-        rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+        interfaces.push_back(intf);
     }
-    else
+
+    for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
     {
-        struct ipv6_mreq mreq;
-        mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-        mreq.ipv6mr_interface = getInterfaceIndex(intf);
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
-    }
-    if(rc == SOCKET_ERROR)
-    {
-        closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        int rc;
+        if(group.saStorage.ss_family == AF_INET)
+        {
+            struct ip_mreq mreq;
+            mreq.imr_multiaddr = group.saIn.sin_addr;
+            mreq.imr_interface = getInterfaceAddress(*p);
+            rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+        }
+        else
+        {
+            struct ipv6_mreq mreq;
+            mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
+            mreq.ipv6mr_interface = getInterfaceIndex(*p);
+            rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+        }
+        if(rc == SOCKET_ERROR)
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
     }
 }
 #else
 void
-IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
+IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&, int)
 {
     try
     {
@@ -2051,7 +2063,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
         safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
 
         //
-        // BUGFIX DatagramSocket will not recive any messages from a multicast group if the 
+        // BUGFIX DatagramSocket will not recive any messages from a multicast group if the
         // messages originate in the same host until the socket is used to send at least one
         // message. We send a valiate connection message that the peers will ignore to workaround
         // the issue.
@@ -2179,7 +2191,7 @@ checkResultAndWait(IAsyncAction^ action)
                     {
                         p.set_value(status != Windows::Foundation::AsyncStatus::Completed ? action->ErrorCode.Value : 0);
                     });
-            
+
             HRESULT result = p.get_future().get();
             if(result)
             {
