@@ -22,9 +22,9 @@
     <PropertyGroup>
       <NugetExe>$(MSBuildThisFileDirectory)nuget.exe</NugetExe>
     </PropertyGroup>
-    
+
     <!-- Download nuget.exe if not present -->
     <Target Name="GetNuget" Condition="!Exists('$(NugetExe)')">
-      <DownloadFile Address="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" FileName="$(NugetExe)" />
+      <DownloadFile Address="https://dist.nuget.org/win-x86-commandline/v3.4.4/NuGet.exe" FileName="$(NugetExe)" />
     </Target>
 </Project>
