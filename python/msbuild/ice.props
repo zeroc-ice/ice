@@ -11,8 +11,9 @@
     <PythonHome>C:\Python35-amd64</PythonHome>
   </PropertyGroup>
   <PropertyGroup>
-    <IceBuilderPythonProps Condition="!Exists('$(IceBuilderPythonProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.props', SearchOption.AllDirectories))</IceBuilderPythonProps>
-    <IceBuilderPythonTargets Condition="!Exists('$(IceBuilderPythonTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.targets', SearchOption.AllDirectories))</IceBuilderPythonTargets>
+    <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
+    <IceBuilderPythonProps>$(IceBuilderInstallDir)\IceBuilder.Python.targets</IceBuilderPythonProps>
+    <IceBuilderPythonTargets>$(IceBuilderInstallDir)\IceBuilder.Python.props</IceBuilderPythonTargets>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">
