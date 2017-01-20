@@ -458,14 +458,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             timeout->ice_invocationTimeout(-2)->ice_ping();
+            #ifdef ICE_CPP11_MAPPING
+            timeout->ice_invocationTimeout(-2)->ice_pingAsync()->waitForCompleted();
+            #else
             timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
+            #endif
         }
         catch(const Ice::Exception&)
         {
             test(false);
         }
 
-        TimeoutPrx batchTimeout = timeout->ice_batchOneway();
+        TimeoutPrxPtr batchTimeout = timeout->ice_batchOneway();
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();
