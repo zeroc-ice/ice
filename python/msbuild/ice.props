@@ -12,8 +12,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
-    <IceBuilderPythonProps>$(IceBuilderInstallDir)\IceBuilder.Python.targets</IceBuilderPythonProps>
-    <IceBuilderPythonTargets>$(IceBuilderInstallDir)\IceBuilder.Python.props</IceBuilderPythonTargets>
+    <IceBuilderPythonProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Python.props</IceBuilderPythonProps>
+    <IceBuilderPythonTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Python.targets</IceBuilderPythonTargets>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">
