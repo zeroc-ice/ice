@@ -384,7 +384,7 @@ libs.forEach(
             function(){
                 return gulp.src(libFile(lib))
                     .pipe(newer(libFileMin(lib)))
-                    .pipe(sourcemaps.init({loadMaps:true, sourceRoot:"./"}))
+                    .pipe(sourcemaps.init({loadMaps:true}))
                     //.pipe(uglify({compress:false})) // TODO: uglify doesn't support ES6
                     .pipe(extreplace(".min.js"))
                     .pipe(sourcemaps.write("../lib", {includeContent: false, addComment: false}))

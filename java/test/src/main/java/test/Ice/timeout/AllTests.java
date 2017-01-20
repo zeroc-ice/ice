@@ -435,7 +435,20 @@ public class AllTests
                 test(ex.getCause() instanceof com.zeroc.Ice.InvocationTimeoutException);
             }
 
-            proxy.ice_invocationTimeout(-1).ice_ping();
+            try
+            {
+                ((TimeoutPrx)timeout.ice_invocationTimeout(-2)).ice_ping();
+                ((TimeoutPrx)timeout.ice_invocationTimeout(-2)).ice_pingAsync().whenComplete((result, ex) ->
+                    {
+                        test(ex != null);
+                    });
+            }
+            catch(com.zeroc.Ice.Exception ex)
+            {
+                test(false);
+            }
+
+            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).ice_ping();
 
             TimeoutPrx batchTimeout = proxy.ice_batchOneway();
             batchTimeout.ice_ping();

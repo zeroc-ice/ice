@@ -455,7 +455,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-        TimeoutPrxPtr batchTimeout = timeout->ice_batchOneway();
+        try
+        {
+            timeout->ice_invocationTimeout(-2)->ice_ping();
+            timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
+        }
+        catch(const Ice::Exception&)
+        {
+            test(false);
+        }
+
+        TimeoutPrx batchTimeout = timeout->ice_batchOneway();
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();
         batchTimeout->ice_ping();

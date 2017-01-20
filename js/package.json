@@ -29,7 +29,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-ext-replace": "^0.3.0",
     "gulp-gzip": "^1.4.0",
-    "gulp-ice-builder": "^1.0.3",
+    "gulp-ice-builder": "^1.0.4",
     "gulp-jshint": "^2.0.1",
     "gulp-newer": "^1.2.0",
     "gulp-open": "^2.0.0",
