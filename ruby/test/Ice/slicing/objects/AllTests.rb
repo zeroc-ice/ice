@@ -110,7 +110,7 @@ def allTests(communicator)
     begin
         o = t.SUnknownAsObject()
         test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)
-        test(o.is_a?(Ice::UnknownSlicedObject))
+        test(o.is_a?(Ice::UnknownSlicedValue))
         test(o.unknownTypeId == "::Test::SUnknown")
         test(o._ice_slicedData != nil)
         t.checkSUnknown(o)

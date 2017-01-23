@@ -7,8 +7,6 @@
 #
 # **********************************************************************
 
-Ice::loadSlice('Test.ice')
-
 def test(b)
     if !b
         raise RuntimeError, 'test assertion failed'

@@ -31,7 +31,7 @@ getClassInfo(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        info = lookupClassInfo("::Ice::UnknownSlicedObject");
+        info = lookupClassInfo("::Ice::UnknownSlicedValue");
     }
     else
     {

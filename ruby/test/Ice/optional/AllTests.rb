@@ -75,13 +75,13 @@ def allTests(communicator)
     fs = Test::FixedStruct.new(78)
     vs = Test::VarStruct.new("hello")
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
-                                  Test::MultiOptionalPrx::uncheckedCast(communicator.stringToProxy("test")), \
+                                  communicator.stringToProxy("test"), \
                                   nil, [5], ["test", "test2"], {4=>3}, {"test"=>10}, fs, vs, [1], \
                                   [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], \
                                   [ fs ], [ vs ], [ oo1 ], \
-                                  [ Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")) ], \
-                                  {4=>Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, {5=>Test::OneOptional.new(15)}, \
-                                  {5=>Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test"))}, \
+                                  [ communicator.stringToProxy("test") ], \
+                                  {4=> Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, {5=>Test::OneOptional.new(15)}, \
+                                  {5=> communicator.stringToProxy("test")}, \
                                   [false, true, false])
 
     test(mo1.a == 15)
@@ -93,7 +93,7 @@ def allTests(communicator)
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test::MyEnum::MyEnumMember)
-    test(mo1.j == Test::MultiOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo1.j == communicator.stringToProxy("test"))
     test(mo1.k == nil)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
@@ -107,13 +107,13 @@ def allTests(communicator)
     test(mo1.fss[0] == Test::FixedStruct.new(78))
     test(mo1.vss[0] == Test::VarStruct.new("hello"))
     test(mo1.oos[0] == oo1)
-    test(mo1.oops[0] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo1.oops[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo1.ifsd[4] == Test::FixedStruct.new(78))
     test(mo1.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo1.iood[5].a == 15)
-    test(mo1.ioopd[5] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo1.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [false, true, false])
 
@@ -185,13 +185,13 @@ def allTests(communicator)
     test(mo5.fss[0] == Test::FixedStruct.new(78))
     test(mo5.vss[0] == Test::VarStruct.new("hello"))
     test(mo5.oos[0].a == 15)
-    test(mo5.oops[0] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo5.oops[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo5.ifsd[4] == Test::FixedStruct.new(78))
     test(mo5.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo5.iood[5].a == 15)
-    test(mo5.ioopd[5] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo5.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -290,13 +290,13 @@ def allTests(communicator)
     test(mo9.fss == Ice::Unset)
     test(mo9.vss[0] == Test::VarStruct.new("hello"))
     test(mo9.oos == Ice::Unset)
-    test(mo9.oops[0] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo9.oops[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo9.ifsd == Ice::Unset)
     test(mo9.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo9.iood == Ice::Unset)
-    test(mo9.ioopd[5] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
+    test(mo9.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo9.bos == Ice::Unset)
 
@@ -524,7 +524,7 @@ def allTests(communicator)
 
     p2, p3 = initial.opOneOptionalProxy(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)
-    p1 = Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test"))
+    p1 = communicator.stringToProxy("test")
     p2, p3 = initial.opOneOptionalProxy(p1)
     test(p2 == p1 && p3 == p1)
 

@@ -68,12 +68,12 @@ public:
 private:
 
     //
-    // Return a Python symbol for the given parser element.
+    // Return a Ruby symbol for the given parser element.
     //
     string getSymbol(const ContainedPtr&);
 
     //
-    // Emit Python code to assign the given symbol in the current module.
+    // Emit Ruby code to assign the given symbol in the current module.
     //
     void registerName(const string&);
 
@@ -234,225 +234,58 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return false;
+    }
+
+    bool isInterface = p->isInterface();
+    bool isLocal = p->isLocal();
+    bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
+
+
+    //
+    // Do not generate any code for local interfaces.
+    //
+    if(isLocal && isInterface)
+    {
+        return false;
+    }
+
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << (isInterface ? "Prx)" : ")");
+    _out.inc();
+    
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     ClassList bases = p->bases();
     ClassDefPtr base;
     OperationList ops = p->operations();
 
-    //
-    // Define a mix-in module for the class.
-    //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_mixin)";
-    _out.inc();
-    _out << nl << "module " << name << "_mixin";
-    _out.inc();
+    //bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
+    DataMemberList members = p->dataMembers();
 
-    if(!p->isLocal())
+    if(isLocal || !isInterface)
     {
         if(!bases.empty() && !bases.front()->isInterface())
         {
             base = bases.front();
-            _out << nl << "include " << getAbsolute(bases.front(), IdentToUpper) << "_mixin";
-        }
-        else
-        {
-            _out << nl << "include ::Ice::Object_mixin";
         }
 
-        //
-        // ice_ids
-        //
-        ClassList allBases = p->allBases();
-        StringList ids;
-        transform(allBases.begin(), allBases.end(), back_inserter(ids), IceUtil::constMemFun(&Contained::scoped));
-        StringList other;
-        other.push_back(scoped);
-        other.push_back("::Ice::Object");
-        other.sort();
-        ids.merge(other);
-        ids.unique();
-        _out << sp << nl << "def ice_ids(current=nil)";
-        _out.inc();
-        _out << nl << "[";
-        for(StringList::iterator q = ids.begin(); q != ids.end(); ++q)
-        {
-            if(q != ids.begin())
-            {
-                _out << ", ";
-            }
-            _out << "'" << *q << "'";
-        }
-        _out << ']';
-        _out.dec();
-        _out << nl << "end";
-
-        //
-        // ice_id
-        //
-        _out << sp << nl << "def ice_id(current=nil)";
-        _out.inc();
-        _out << nl << "'" << scoped << "'";
-        _out.dec();
-        _out << nl << "end";
-    }
-
-    if(!ops.empty())
-    {
-        //
-        // Emit a comment for each operation.
-        //
-        _out << sp
-             << nl << "#"
-             << nl << "# Operation signatures."
-             << nl << "#";
-        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-        {
-            string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
-/* If AMI/AMD is ever implemented...
-            if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
-            {
-                _out << nl << "# def " << fixedOpName << "_async(_cb";
-
-                ParamDeclList params = (*oli)->parameters();
-
-                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-                {
-                    if(!(*pli)->isOutParam())
-                    {
-                        _out << ", " << fixIdent((*pli)->name(), IdentToLower);
-                    }
-                }
-                if(!p->isLocal())
-                {
-                    _out << ", current=nil";
-                }
-                _out << ")";
-            }
-            else
-*/
-            {
-                _out << nl << "# def " << fixedOpName << "(";
-
-                ParamDeclList params = (*oli)->parameters();
-
-                bool first = true;
-                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-                {
-                    if(!(*pli)->isOutParam())
-                    {
-                        if(first)
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            _out << ", ";
-                        }
-                        _out << fixIdent((*pli)->name(), IdentToLower);
-                    }
-                }
-                if(!p->isLocal())
-                {
-                    if(!first)
-                    {
-                        _out << ", ";
-                    }
-                    _out << "current=nil";
-                }
-                _out << ")";
-            }
-        }
-    }
-
-    //
-    // inspect
-    //
-    _out << sp << nl << "def inspect";
-    _out.inc();
-    _out << nl << "::Ice::__stringify(self, T_" << name << ")";
-    _out.dec();
-    _out << nl << "end";
-
-    //
-    // read/write accessors for data members.
-    //
-    DataMemberList members = p->dataMembers();
-    if(!members.empty())
-    {
-        bool prot = p->hasMetaData("protected");
-        DataMemberList protectedMembers;
-
-        _out << sp << nl << "attr_accessor ";
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
-        {
-            if(q != members.begin())
-            {
-                _out << ", ";
-            }
-            _out << ":" << fixIdent((*q)->name(), IdentNormal);
-            if(prot || (*q)->hasMetaData("protected"))
-            {
-                protectedMembers.push_back(*q);
-            }
-        }
-
-        if(!protectedMembers.empty())
-        {
-            _out << nl << "protected ";
-            for(DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
-            {
-                if(q != protectedMembers.begin())
-                {
-                    _out << ", ";
-                }
-                //
-                // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
-                //
-                _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :"
-                     << fixIdent((*q)->name(), IdentNormal) << '=';
-            }
-        }
-    }
-
-    _out.dec();
-    _out << nl << "end"; // End of mix-in module for class.
-
-    if(p->isInterface())
-    {
-        //
-        // Class.
-        //
-        _out << nl << "class " << name;
-        _out.inc();
-        _out << nl << "include " << name << "_mixin";
-        _out << nl;
-        _out << nl << "def " << name << ".ice_staticId()";
-        _out.inc();
-        _out << nl << "'" << scoped << "'";
-        _out.dec();
-        _out << nl << "end";
-        _out.dec();
-        _out << nl << "end";
-    }
-    else
-    {
-        //
-        // Class.
-        //
         _out << nl << "class " << name;
         if(base)
         {
             _out << " < " << getAbsolute(base, IdentToUpper);
         }
+        else if(!isLocal)
+        {
+            _out << " < ::Ice::Value";
+        }
         _out.inc();
-        _out << nl << "include " << name << "_mixin";
-        _out << nl;
-        _out << nl << "def " << name << ".ice_staticId()";
-        _out.inc();
-        _out << nl << "'" << scoped << "'";
-        _out.dec();
-        _out << nl << "end";
 
         //
         // initialize
@@ -500,6 +333,47 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
             _out << nl << "end";
         }
+        
+        //
+        // read/write accessors for data members.
+        //
+        DataMemberList members = p->dataMembers();
+        if(!members.empty())
+        {
+            bool prot = p->hasMetaData("protected");
+            DataMemberList protectedMembers;
+
+            _out << sp << nl << "attr_accessor ";
+            for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+            {
+                if(q != members.begin())
+                {
+                    _out << ", ";
+                }
+                _out << ":" << fixIdent((*q)->name(), IdentNormal);
+                if(prot || (*q)->hasMetaData("protected"))
+                {
+                    protectedMembers.push_back(*q);
+                }
+            }
+
+            if(!protectedMembers.empty())
+            {
+                _out << nl << "protected ";
+                for(DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+                {
+                    if(q != protectedMembers.begin())
+                    {
+                        _out << ", ";
+                    }
+                    //
+                    // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
+                    //
+                    _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :"
+                        << fixIdent((*q)->name(), IdentNormal) << '=';
+                }
+            }
+        }
 
         _out.dec();
         _out << nl << "end"; // End of class.
@@ -509,13 +383,17 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Generate proxy support. This includes a mix-in module for the proxy's
     // operations and a class for the proxy itself.
     //
-    if(!p->isLocal())
+    if(!p->isLocal() && isAbstract)
     {
         _out << nl << "module " << name << "Prx_mixin";
         _out.inc();
         for(ClassList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
         {
-            _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
+            ClassDefPtr def = *cli;
+            if(def->isInterface() || def->allOperations().size() > 0)
+            {
+                _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
+            }
         }
         for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
@@ -548,7 +426,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             const string contextParamName = getEscapedParamName(*oli, "context");
             _out << contextParamName << "=nil)";
             _out.inc();
-            _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
+            _out << nl << name << "Prx_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
             _out << "], " << contextParamName << ")";
             _out.dec();
             _out << nl << "end";
@@ -556,28 +434,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "end"; // End of mix-in module for proxy.
 
-        _out << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
+        _out << sp << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
         _out.inc();
+        _out << nl << "include ::Ice::Proxy_mixin";
         _out << nl << "include " << name << "Prx_mixin";
-
-        _out << sp << nl << "def " << name << "Prx.checkedCast(proxy, facetOrContext=nil, context=nil)";
-        _out.inc();
-        _out << nl << "ice_checkedCast(proxy, '" << scoped << "', facetOrContext, context)";
-        _out.dec();
-        _out << nl << "end";
-
-        _out << sp << nl << "def " << name << "Prx.uncheckedCast(proxy, facet=nil)";
-        _out.inc();
-        _out << nl << "ice_uncheckedCast(proxy, facet)";
-        _out.dec();
-        _out << nl << "end";
-
-        _out << nl << "def " << name << "Prx.ice_staticId()";
-        _out.inc();
-        _out << nl << "'" << scoped << "'";
-        _out.dec();
-        _out << nl << "end";
-
         _out.dec();
         _out << nl << "end"; // End of proxy class.
     }
@@ -585,7 +445,12 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Emit type descriptions.
     //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
+    if(isInterface)
+    {
+        _out << "Prx";
+    }
+    _out << ')';
     _out.inc();
     if(p->isLocal())
     {
@@ -594,16 +459,23 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-        _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+        if(isAbstract)
+        {
+            _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+        }
     }
     _out.dec();
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() here - see bug 3739
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
-         << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
+
+
+    _out << sp << nl << "T_" << name << ".defineClass(" 
+         << (isInterface ? "::Ice::Value" : name) << ", " 
+         << p->compactId() << ", "
+         << (preserved ? "true" : "false") << ", " 
+         << (isInterface ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "nil";
@@ -612,25 +484,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << getAbsolute(base, IdentToUpper, "T_");
     }
-    _out << ", [";
-    //
-    // Interfaces
-    //
-    {
-        int interfaceCount = 0;
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            if((*q)->isInterface())
-            {
-                if(interfaceCount > 0)
-                {
-                    _out << ", ";
-                }
-                _out << getAbsolute(*q, IdentToUpper, "T_");
-                ++interfaceCount;
-            }
-        }
-    }
+    _out << ", ";
     //
     // Members
     //
@@ -640,7 +494,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    _out << "], [";
+    _out << "[";
     if(members.size() > 1)
     {
         _out.inc();
@@ -665,7 +519,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl;
     }
     _out << "])";
-    _out << nl << name << "_mixin::ICE_TYPE = T_" << name;
+
 
     //
     // Define each operation. The arguments to __defineOperation are:
@@ -675,10 +529,39 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
     //
-    if(!p->isLocal())
+    if(!p->isLocal() && isAbstract)
     {
-        _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, T_" << name << ')';
-        _out << nl << name << "Prx::ICE_TYPE = T_" << name << "Prx";
+        _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, ";
+        
+        if(!base || (!base->isInterface() && base->allOperations().size() == 0))
+        {
+            _out << "nil";
+        }
+        else
+        {
+            _out << getAbsolute(base, IdentToUpper, "T_") << "Prx";
+        }
+
+        //
+        // Interfaces
+        //
+        _out << ", [";
+        {
+            int interfaceCount = 0;
+            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                if((*q)->isInterface())
+                {
+                    if(interfaceCount > 0)
+                    {
+                        _out << ", ";
+                    }
+                    _out << getAbsolute(*q, IdentToUpper, "T_") << "Prx";
+                    ++interfaceCount;
+                }
+            }
+        }
+        _out << "])";
 
         if(!ops.empty())
         {
@@ -703,7 +586,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 break;
             }
 
-            _out << nl << name << "_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
+            _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
                  << (*s)->name() << "', ";
             switch((*s)->mode())
             {
@@ -802,11 +685,11 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     msg = deprecateMetadata.substr(pos + 1);
                 }
-                _out << nl << name << "_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
+                _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
             }
         }
     }
-
+    
     _out.dec();
     _out << nl << "end"; // if not defined?()
 
@@ -816,6 +699,16 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
 
@@ -959,7 +852,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl;
     }
     _out << "])";
-    _out << nl << name << "::ICE_TYPE = T_" << name;
 
     _out.dec();
     _out << nl << "end"; // if not defined?()
@@ -970,6 +862,16 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     MemberInfoList memberList;
@@ -990,6 +892,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "class " << name;
     _out.inc();
+    _out << nl << "include ::Ice::Inspect_mixin";
     if(!memberList.empty())
     {
         _out << nl << "def initialize(";
@@ -1047,15 +950,6 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << sp << nl << "def eql?(other)";
     _out.inc();
     _out << nl << "return other.class == self.class && other == self";
-    _out.dec();
-    _out << nl << "end";
-
-    //
-    // inspect
-    //
-    _out << sp << nl << "def inspect";
-    _out.inc();
-    _out << nl << "::Ice::__stringify(self, T_" << name << ")";
     _out.dec();
     _out << nl << "end";
 
@@ -1121,6 +1015,16 @@ void
 Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 {
     //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return;
+    }
+
+    //
     // Emit the type information.
     //
     string name = fixIdent(p->name(), IdentToUpper);
@@ -1137,6 +1041,16 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return;
+    }
+
     //
     // Emit the type information.
     //
@@ -1156,6 +1070,16 @@ Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return;
+    }
+
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     EnumeratorList enums = p->getEnumerators();
@@ -1223,15 +1147,6 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "end";
 
     //
-    // inspect
-    //
-    _out << sp << nl << "def inspect";
-    _out.inc();
-    _out << nl << "@name + \"(#{@value})\"";
-    _out.dec();
-    _out << nl << "end";
-
-    //
     // each
     //
     _out << sp << nl << "def " << name << ".each(&block)";
@@ -1288,6 +1203,16 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
 {
+    //
+    // Do not generate any code for ruby:internal types, those are provided by
+    // IceRuby C++ extension.
+    //
+    StringList metadata = p->getMetaData();
+    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
+    {
+        return;
+    }
+
     Slice::TypePtr type = p->type();
     string name = fixIdent(p->name(), IdentToUpper);
 
@@ -1346,7 +1271,7 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
             case Builtin::KindValue:
             case Builtin::KindObject:
             {
-                _out << "::Ice::T_Object";
+                _out << "::Ice::T_Value";
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -1362,11 +1287,19 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
         }
         return;
     }
-
+    
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-        _out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
+        ClassDefPtr def = prx->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
+        {
+            _out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
+        }
+        else
+        {
+            _out << "::Ice::T_ObjectPrx";
+        }
         return;
     }
 

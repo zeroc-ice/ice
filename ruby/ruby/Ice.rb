@@ -63,7 +63,7 @@ module Ice
         def ice_name
             to_s[2..-1]
         end
-        
+
         def ice_id
             to_s
         end
@@ -80,53 +80,89 @@ module Ice
     end
 
     #
-    # Object.
+    # Ice::Object
     #
-    T_Object = Ice.__declareClass('::Ice::Object')
+    T_Value = Ice.__declareClass('::Ice::Object')
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
+    
+    #
+    # Provide some common functionality for structs
+    #
+    module Inspect_mixin
+        def inspect
+            ::Ice::__stringify(self, self.class::ICE_TYPE)
+        end
+    end
+    
+    #
+    # Provide some common functionality for proxy classes
+    #
+    module Proxy_mixin
+        module ClassMethods
+            def inspect
+                ::Ice::__stringify(self, self.class::ICE_TYPE)
+            end
 
-    module Object_mixin
-        def ice_isA(id, current=nil)
-            return ice_ids().include?(id)
+            def ice_staticId()
+                self::ICE_ID
+            end
+            
+            def checkedCast(proxy, facetOrContext=nil, context=nil)
+                ice_checkedCast(proxy, self::ICE_ID, facetOrContext, context)
+            end
+            
+            def uncheckedCast(proxy, facet=nil)
+                ice_uncheckedCast(proxy, facet)
+            end
         end
 
-        def ice_ping(current=nil)
+        def self.included(base)
+            base.extend(ClassMethods)
+        end
+    end
+
+    #
+    # Base class for Value types
+    #
+    class Value
+        def inspect
+            ::Ice::__stringify(self, self.class::ICE_TYPE)
+        end
+
+        def ice_id()
+            self.class::ICE_ID
+        end
+
+        def Value.ice_staticId()
+            self::ICE_ID
         end
 
         attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
     end
 
-    class Object
-        include Object_mixin
+    T_Value.defineClass(Value, -1, false, false, nil, [])
 
-        def Object.ice_staticId()
-            '::Ice::Object'
+    T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
+    
+    
+    class InterfaceByValue < Value
+        def initialize(id)
+            @id = id
+        end
+        
+        def ice_id
+            @id
         end
     end
 
-    T_Object.defineClass(nil, -1, true, false, nil, [], [])
-    Object_mixin::ICE_TYPE = T_Object
-
-    T_ObjectPrx.defineProxy(ObjectPrx, T_Object)
-    ObjectPrx::ICE_TYPE = T_ObjectPrx
-
     #
-    # LocalObject.
+    # UnknownSlicedValue.
     #
-    T_LocalObject = Ice.__declareLocalClass('::Ice::LocalObject')
-    T_LocalObject.defineClass(nil, -1, true, false, nil, [], [])
-
-    #
-    # UnknownSlicedObject.
-    #
-    class UnknownSlicedObject
-        include ::Ice::Object_mixin
-
+    class UnknownSlicedValue < Value
         attr_accessor :unknownTypeId
     end
-    T_UnknownSlicedObject = Ice.__declareClass('::Ice::UnknownSlicedObject')
-    T_UnknownSlicedObject.defineClass(UnknownSlicedObject, -1, false, true, nil, [], [])
-    UnknownSlicedObject::ICE_TYPE = T_UnknownSlicedObject
+    T_UnknownSlicedValue = Ice.__declareClass('::Ice::UnknownSlicedValue')
+    T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, true, false, T_Value, [])
 
     #
     # InitializationData.
@@ -659,8 +695,3 @@ module Ice
     Encoding_1_0 = EncodingVersion.new(1, 0)
     Encoding_1_1 = EncodingVersion.new(1, 1)
 end
-
-Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [[::Ice::T_string, false, 0]], [], [::Ice::T_bool, false, 0], [])
-Ice::Object_mixin::OP_ice_ping = ::Ice::__defineOperation('ice_ping', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], nil, [])
-Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_StringSeq, false, 0], [])
-Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_string, false, 0], [])

@@ -264,10 +264,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         _out << nl;
-        if(isAbstract)
-        {
-            _out << "abstract ";
-        }
         _out << "class " << name;
         if(!bases.empty() && !bases.front()->isInterface())
         {

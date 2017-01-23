@@ -9,6 +9,20 @@
 
 require './TestI.rb'
 
+
+class II < ::Ice::InterfaceByValue
+    def initialize()
+        super("::Test::I")
+    end
+end
+
+class JI < ::Ice::InterfaceByValue
+    def initialize()
+        super("::Test::J")
+    end
+end
+
+
 #
 # Ice for Ruby behaves differently than Ice for C++, because
 # collocated invocations are still sent "over the wire". Therefore
@@ -28,9 +42,15 @@ class MyValueFactory
         #elsif type == '::Test::D'
         #      return DI.new
         elsif type == '::Test::E'
-              return EI.new
+            return EI.new
         elsif type == '::Test::F'
-              return FI.new
+            return FI.new
+        elsif type == '::Test::I'
+            puts "create ::Test::I"
+            return II.new
+        elsif type == '::Test::J'
+            puts "create ::Test::J"
+            return JI.new
         end
         fail "unknown type"
     end
@@ -60,6 +80,8 @@ def allTests(communicator)
     #communicator.getValueFactoryManager().add(factory, '::Test::D')
     communicator.getValueFactoryManager().add(factory, '::Test::E')
     communicator.getValueFactoryManager().add(factory, '::Test::F')
+    communicator.getValueFactoryManager().add(factory, '::Test::I')
+    communicator.getValueFactoryManager().add(factory, '::Test::J')
 
     communicator.addObjectFactory(MyObjectFactory.new, 'TestOF')
 

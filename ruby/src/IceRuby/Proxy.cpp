@@ -49,9 +49,9 @@ IceRuby_ObjectPrx_free(Ice::ObjectPrx* p)
 }
 
 //
-// Returns true if a context was provided.
+// If a context was provided set it to ::Ice::noExplicitContext.
 //
-static bool
+static void
 checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ctx)
 {
     if(argc < numArgs || argc > numArgs + 1)
@@ -65,9 +65,11 @@ checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ct
         {
             throw RubyException(rb_eArgError, "%s: invalid context hash", name);
         }
-        return true;
     }
-    return false;
+    else
+    {
+        ctx = ::Ice::noExplicitContext;
+    }
 }
 
 extern "C"
@@ -120,20 +122,10 @@ IceRuby_ObjectPrx_ice_isA(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_isA", 1, argc, argv, ctx);
-
+        checkArgs("ice_isA", 1, argc, argv, ctx);
         string id = getString(argv[0]);
 
-        bool result;
-        if(haveContext)
-        {
-            result = p->ice_isA(id, ctx);
-        }
-        else
-        {
-            result = p->ice_isA(id);
-        }
-        return result ? Qtrue : Qfalse;
+        return p->ice_isA(id, ctx) ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -148,16 +140,8 @@ IceRuby_ObjectPrx_ice_ping(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_ping", 0, argc, argv, ctx);
-
-        if(haveContext)
-        {
-            p->ice_ping(ctx);
-        }
-        else
-        {
-            p->ice_ping();
-        }
+        checkArgs("ice_ping", 0, argc, argv, ctx);
+        p->ice_ping(ctx);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -172,18 +156,9 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_ids", 0, argc, argv, ctx);
+        checkArgs("ice_ids", 0, argc, argv, ctx);
 
-        vector<string> ids;
-        if(haveContext)
-        {
-            ids = p->ice_ids(ctx);
-        }
-        else
-        {
-            ids = p->ice_ids();
-        }
-
+        vector<string> ids = p->ice_ids(ctx);
         volatile VALUE result = createArray(ids.size());
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
@@ -206,18 +181,8 @@ IceRuby_ObjectPrx_ice_id(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_id", 0, argc, argv, ctx);
-
-        string id;
-        if(haveContext)
-        {
-            id = p->ice_id(ctx);
-        }
-        else
-        {
-            id = p->ice_id();
-        }
-
+        checkArgs("ice_id", 0, argc, argv, ctx);
+        string id = p->ice_id(ctx);
         return createString(id);
     }
     ICE_RUBY_CATCH
