@@ -1033,7 +1033,7 @@ static_ldflags		+= $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call 
 
 # Shared configuration for shared builds
 shared_projects		= %
-shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/nopic)
+shared_objdir		= $(if $(filter-out program,$($1_target)),shared/pic,shared/pie)
 shared_targetrule	= $(if $(filter-out program,$($1_target)),shared)
 shared_cppflags		+= $(strip $(call make-lib-cppflags,$4))
 shared_ldflags		+= $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\

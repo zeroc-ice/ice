@@ -223,7 +223,12 @@ int main(int argc, char* argv[])
 
     if(!optimized && IceUtilInternal::stackTraceImpl() == IceUtilInternal::STLibbacktracePlus)
     {
+        // Libbacktrace with GCC 4.8 and pie return a smaller backtrace
+#   if defined(__pie__) && defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ == 408)
+        filename += ".libbacktrace+48pie";
+#   else
         filename += ".libbacktrace+";
+#   endif
     }
 
 #endif
@@ -240,6 +245,9 @@ int main(int argc, char* argv[])
             cout << "cannot open `" << filename << "`, failed!" << endl;
             return EXIT_FAILURE;
         }
+
+        // Show which template we use:
+        cout << filename << "... ";
 
         stringstream sstr;
         sstr << ifs.rdbuf();
