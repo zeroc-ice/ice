@@ -771,11 +771,14 @@ IceInternal::UdpTransceiver::toDetailedString() const
 {
     ostringstream os;
     os << toString();
-    string addr = isAddressValid(_mcastAddr) ? _mcastInterface : inetAddrToString(_addr);
-    vector<string> intfs = getHostsForEndpointExpand(addr, _instance->protocolSupport(), true);
-    if(isAddressValid(_mcastAddr) && intfs.empty())
+    vector<string> intfs;
+    if(isAddressValid(_mcastAddr))
     {
-        intfs.push_back(_mcastInterface);
+        intfs = getInterfacesForMulticast(_mcastInterface, _mcastAddr);
+    }
+    else
+    {
+        intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
     }
     if(!intfs.empty())
     {

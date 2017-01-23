@@ -282,11 +282,15 @@ final class UdpTransceiver implements Transceiver
     public String toDetailedString()
     {
         StringBuilder s = new StringBuilder(toString());
-        String addr = _mcastAddr != null ? _mcastInterface : _addr.getAddress().getHostAddress();
-        java.util.List<String> intfs = Network.getHostsForEndpointExpand(addr, _instance.protocolSupport(), true);
-        if(_mcastAddr != null && intfs.isEmpty())
+        java.util.List<String> intfs;
+        if(_mcastAddr == null)
         {
-            intfs.add(_mcastInterface);
+            intfs = Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(),
+                                                      true);
+        }
+        else
+        {
+            intfs = Network.getInterfacesForMulticast(_mcastInterface, _mcastAddr);
         }
         if(!intfs.isEmpty())
         {

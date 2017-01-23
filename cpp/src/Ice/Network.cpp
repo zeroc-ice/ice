@@ -513,30 +513,44 @@ isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
 }
 
 int
-getInterfaceIndex(const string& name)
+getInterfaceIndex(const string& intf)
 {
-    if(name.empty())
+    if(intf.empty())
     {
         return 0;
     }
 
-    int index = -1;
+    string name;
+    bool isAddr;
+    in6_addr addr;
+    string::size_type pos = intf.find("%");
+    if(pos != string::npos)
+    {
+        //
+        // If it's a link-local address, use the zone indice.
+        //
+        isAddr = false;
+        name = intf.substr(pos + 1);
+    }
+    else
+    {
+        //
+        // Then check if it's an IPv6 address. If it's an address we'll
+        // look for the interface index by address.
+        //
+        isAddr = inet_pton(AF_INET6, intf.c_str(), &addr) > 0;
+        name = intf;
+    }
 
     //
-    // First check if index
+    // Check if index
     //
+    int index = -1;
     istringstream p(name);
     if((p >> index) && p.eof())
     {
         return index;
     }
-
-    //
-    // Then check if it's an IPv6 address. If it's an address we'll
-    // look for the interface index by address.
-    //
-    in6_addr addr;
-    bool isAddr = inet_pton(AF_INET6, name.c_str(), &addr) > 0;
 
 #ifdef _WIN32
     IP_ADAPTER_ADDRESSES addrs;
@@ -1627,8 +1641,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             HostName^ h = it->Current;
             if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
             {
-                hosts.push_back(wstringToString(h->CanonicalName->Data(),
-                                                getProcessStringConverter()));
+                hosts.push_back(wstringToString(h->CanonicalName->Data(), getProcessStringConverter()));
             }
         }
         if(includeLoopback)
@@ -1644,6 +1657,18 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
         }
     }
     return hosts;
+}
+
+vector<string>
+IceInternal::getInterfacesForMulticast(const string& interface, const Address& mcastAddr)
+{
+    int protocolSupport = getProtocolSupport(mcastAddr);
+    vector<string> interfaces = getHostsForEndpointExpand(interface, protocolSupport, true);
+    if(interfaces.empty())
+    {
+        interfaces.push_back(interface);
+    }
+    return interfaces;
 }
 #else
 vector<string>
@@ -1668,6 +1693,27 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
         }
     }
     return hosts; // An empty host list indicates to just use the given host.
+}
+
+vector<string>
+IceInternal::getInterfacesForMulticast(const string& interface, const Address& mcastAddr)
+{
+    ProtocolSupport protocolSupport = getProtocolSupport(mcastAddr);
+    vector<string> interfaces;
+    bool ipv4Wildcard = false;
+    if(isWildcard(interface, protocolSupport, ipv4Wildcard))
+    {
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true);
+        for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        {
+            interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast
+        }
+    }
+    if(interfaces.empty())
+    {
+        interfaces.push_back(interface);
+    }
+    return interfaces;
 }
 #endif
 
@@ -2019,15 +2065,11 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-    vector<string> interfaces = getHostsForEndpointExpand(intf, getProtocolSupport(group), true);
-    if(interfaces.empty())
-    {
-        interfaces.push_back(intf);
-    }
-
+    vector<string> interfaces = getInterfacesForMulticast(intf, group);
+    set<int> indexes;
     for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
     {
-        int rc;
+        int rc = 0;
         if(group.saStorage.ss_family == AF_INET)
         {
             struct ip_mreq mreq;
@@ -2037,10 +2079,15 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
         }
         else
         {
-            struct ipv6_mreq mreq;
-            mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-            mreq.ipv6mr_interface = getInterfaceIndex(*p);
-            rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+            int index = getInterfaceIndex(*p);
+            if(indexes.find(index) == indexes.end()) // Don't join twice the same interface (if it has multiple IPs)
+            {
+                indexes.insert(index);
+                struct ipv6_mreq mreq;
+                mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
+                mreq.ipv6mr_interface = index;
+                rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+            }
         }
         if(rc == SOCKET_ERROR)
         {

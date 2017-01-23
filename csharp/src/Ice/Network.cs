@@ -456,40 +456,39 @@ namespace IceInternal
         {
             try
             {
-                int protocolSupport = group.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
-                List<string> interfaces = getHostsForEndpointExpand(iface, protocolSupport, true);
-                if(interfaces.Count == 0)
-                {
-                    interfaces.Add(iface);
-                }
-                foreach(string intf in interfaces)
+                var indexes = new HashSet<int>();
+                foreach(string intf in getInterfacesForMulticast(iface, group))
                 {
                     int index = getInterfaceIndex(intf, group.AddressFamily);
-                    if(group.AddressFamily == AddressFamily.InterNetwork)
+                    if(!indexes.Contains(index))
                     {
-                        MulticastOption option;
-                        if(index == -1)
+                        indexes.Add(index);
+                        if(group.AddressFamily == AddressFamily.InterNetwork)
                         {
-                            option = new MulticastOption(group);
+                            MulticastOption option;
+                            if(index == -1)
+                            {
+                                option = new MulticastOption(group);
+                            }
+                            else
+                            {
+                                option = new MulticastOption(group, index);
+                            }
+                            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
                         }
                         else
                         {
-                            option = new MulticastOption(group, index);
+                            IPv6MulticastOption option;
+                            if(index == -1)
+                            {
+                                option = new IPv6MulticastOption(group);
+                            }
+                            else
+                            {
+                                option = new IPv6MulticastOption(group, index);
+                            }
+                            s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                         }
-                        s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
-                    }
-                    else
-                    {
-                        IPv6MulticastOption option;
-                        if(index == -1)
-                        {
-                            option = new IPv6MulticastOption(group);
-                        }
-                        else
-                        {
-                            option = new IPv6MulticastOption(group, index);
-                        }
-                        s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                     }
                 }
             }
@@ -936,23 +935,9 @@ namespace IceInternal
 
         public static List<string> getHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
         {
-            bool wildcard = host.Length == 0;
-            bool ipv4Wildcard = false;
-            if(!wildcard)
-            {
-                try
-                {
-                    IPAddress addr = IPAddress.Parse(host);
-                    ipv4Wildcard = addr.Equals(IPAddress.Any);
-                    wildcard = ipv4Wildcard || addr.Equals(IPAddress.IPv6Any);
-                }
-                catch(Exception)
-                {
-                }
-            }
-
             List<string> hosts = new List<string>();
-            if(wildcard)
+            bool ipv4Wildcard = false;
+            if(isWildcard(host, out ipv4Wildcard))
             {
                 IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback);
                 foreach(IPAddress a in addrs)
@@ -964,6 +949,26 @@ namespace IceInternal
                 }
             }
             return hosts;
+        }
+
+        public static List<string> getInterfacesForMulticast(string intf, IPAddress group)
+        {
+            List<string> interfaces = new List<string>();
+            bool ipv4Wildcard = false;
+            int protocol = group.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+            if(isWildcard(intf, out ipv4Wildcard))
+            {
+                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true);
+                foreach(IPAddress a in addrs)
+                {
+                    interfaces.Add(a.ToString());
+                }
+            }
+            if(interfaces.Count == 0)
+            {
+                interfaces.Add(intf);
+            }
+            return interfaces;
         }
 
         public static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
@@ -1179,6 +1184,32 @@ namespace IceInternal
                 }
             }
             return addr;
+        }
+
+        private static bool
+        isWildcard(string address, out bool ipv4Wildcard)
+        {
+            ipv4Wildcard = false;
+            if(address.Length == 0)
+            {
+                return true;
+            }
+
+            try
+            {
+                IPAddress addr = IPAddress.Parse(address);
+                if(addr.Equals(IPAddress.Any))
+                {
+                    ipv4Wildcard = true;
+                    return true;
+                }
+                return addr.Equals(IPAddress.IPv6Any);
+            }
+            catch(Exception)
+            {
+            }
+
+            return false;
         }
 
         public static bool

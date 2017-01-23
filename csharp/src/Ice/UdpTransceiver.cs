@@ -652,11 +652,15 @@ namespace IceInternal
         public string toDetailedString()
         {
             StringBuilder s = new StringBuilder(ToString());
-            string addr = _mcastAddr != null ? _mcastInterface : Network.endpointAddressToString(_addr);
-            List<string> intfs = Network.getHostsForEndpointExpand(addr, _instance.protocolSupport(), true);
-            if(_mcastAddr != null && intfs.Count == 0)
+            List<string> intfs;
+            if(_mcastAddr == null)
             {
-                intfs.Add(_mcastInterface);
+                intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
+                                                          _instance.protocolSupport(), true);
+            }
+            else
+            {
+                intfs = Network.getInterfacesForMulticast(_mcastInterface, _mcastAddr.Address);
             }
             if(intfs.Count != 0)
             {

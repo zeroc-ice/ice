@@ -302,14 +302,15 @@ public final class Network
     {
         try
         {
-            java.util.List<String> interfaces = getHostsForEndpointExpand(intf, getProtocolSupport(group), true);
-            if(interfaces.isEmpty())
+            java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
+            for(String address : getInterfacesForMulticast(intf, group))
             {
-                interfaces.add(intf);
-            }
-            for(String intf2 : interfaces)
-            {
-                fd.join(group.getAddress(), getInterface(intf2));
+                java.net.NetworkInterface intf2 = getInterface(address);
+                if(!interfaces.contains(intf2))
+                {
+                    interfaces.add(intf2);
+                    fd.join(group.getAddress(), intf2);
+                }
             }
         }
         catch(Exception ex)
@@ -1026,24 +1027,8 @@ public final class Network
     public static java.util.ArrayList<String>
     getHostsForEndpointExpand(String host, int protocolSupport, boolean includeLoopback)
     {
-        boolean wildcard = (host == null || host.length() == 0);
-        if(!wildcard)
-        {
-            try
-            {
-                wildcard = java.net.InetAddress.getByName(host).isAnyLocalAddress();
-            }
-            catch(java.net.UnknownHostException ex)
-            {
-            }
-            catch(java.lang.SecurityException ex)
-            {
-                throw new SocketException(ex);
-            }
-        }
-
         java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
-        if(wildcard)
+        if(isWildcard(host))
         {
             java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport);
             for(java.net.InetAddress addr : addrs)
@@ -1072,6 +1057,34 @@ public final class Network
             }
         }
         return hosts;
+    }
+
+    public static java.util.ArrayList<String>
+    getInterfacesForMulticast(String intf, java.net.InetSocketAddress mcastAddr)
+    {
+        int protocolSupport = getProtocolSupport(mcastAddr);
+        java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
+        if(isWildcard(intf))
+        {
+            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport);
+            for(java.net.InetAddress addr : addrs)
+            {
+                interfaces.add(addr.getHostAddress());
+            }
+            if(protocolSupport != EnableIPv6)
+            {
+                interfaces.add("127.0.0.1");
+            }
+            if(protocolSupport != EnableIPv4)
+            {
+                interfaces.add("0:0:0:0:0:0:0:1");
+            }
+        }
+        if(interfaces.isEmpty())
+        {
+            interfaces.add(intf);
+        }
+        return interfaces;
     }
 
     public static void
@@ -1405,6 +1418,27 @@ public final class Network
             }
         }
         return addr;
+    }
+
+    private static boolean
+    isWildcard(String host)
+    {
+        if(host == null || host.length() == 0)
+        {
+            return true;
+        }
+        try
+        {
+            return java.net.InetAddress.getByName(host).isAnyLocalAddress();
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+        }
+        catch(java.lang.SecurityException ex)
+        {
+            throw new SocketException(ex);
+        }
+        return false;
     }
 
     static class IPAddressComparator implements java.util.Comparator<java.net.InetSocketAddress>
