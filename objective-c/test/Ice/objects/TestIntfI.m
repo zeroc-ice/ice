@@ -9,8 +9,8 @@
 
 #import <objc/Ice.h>
 #import <objects/TestI.h>
-#import <Derived.h>
-#import <DerivedEx.h>
+#import <ObjectsDerived.h>
+#import <ObjectsDerivedEx.h>
 
 @implementation TestObjectsTestIntfI
 -(TestObjectsBase*) opDerived:(ICECurrent *)current

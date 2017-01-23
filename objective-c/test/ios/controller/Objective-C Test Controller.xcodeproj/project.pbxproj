@@ -162,6 +162,14 @@
 		140C3E1E1E03EAD000142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1D1E03EAD000142503 /* Collocated.m */; };
 		140C3E201E03EAF300142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1F1E03EAF300142503 /* Collocated.m */; };
 		140C3E221E03EBE000142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E211E03EBE000142503 /* Collocated.m */; };
+		145C4BE61E36061900A855C7 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE31E36061900A855C7 /* TestIntfI.m */; };
+		145C4BE71E36061900A855C7 /* ObjectsDerived.ice in Resources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
+		145C4BE81E36061900A855C7 /* ObjectsDerivedEx.ice in Resources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
+		145C4BE91E36064B00A855C7 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
+		145C4BEA1E36064B00A855C7 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
+		145C4BEB1E36069B00A855C7 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
+		145C4BEC1E36069B00A855C7 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
+		145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE31E36061900A855C7 /* TestIntfI.m */; };
 		148ABA191DFB12C800594F70 /* cacert.der in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA161DFB12C800594F70 /* cacert.der */; };
 		148ABA1A1DFB12C800594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA1B1DFB12C800594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
@@ -563,6 +571,9 @@
 		140C3E1D1E03EAD000142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E1F1E03EAF300142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E211E03EBE000142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
+		145C4BE31E36061900A855C7 /* TestIntfI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestIntfI.m; sourceTree = "<group>"; };
+		145C4BE41E36061900A855C7 /* ObjectsDerived.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectsDerived.ice; sourceTree = "<group>"; };
+		145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectsDerivedEx.ice; sourceTree = "<group>"; };
 		148ABA161DFB12C800594F70 /* cacert.der */ = {isa = PBXFileReference; lastKnownFileType = file; name = cacert.der; path = ../../../../certs/cacert.der; sourceTree = "<group>"; };
 		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
 		148ABA181DFB12C800594F70 /* server.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = server.p12; path = ../../../../certs/server.p12; sourceTree = "<group>"; };
@@ -660,6 +671,9 @@
 		140C3B871E02FCE000142503 /* objects */ = {
 			isa = PBXGroup;
 			children = (
+				145C4BE31E36061900A855C7 /* TestIntfI.m */,
+				145C4BE41E36061900A855C7 /* ObjectsDerived.ice */,
+				145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */,
 				140C3E1D1E03EAD000142503 /* Collocated.m */,
 				140C3B881E02FCE000142503 /* AllTests.m */,
 				140C3B891E02FCE000142503 /* Client.m */,
@@ -1240,6 +1254,8 @@
 				148ABA1B1DFB12C800594F70 /* server.p12 in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
+				145C4BE81E36061900A855C7 /* ObjectsDerivedEx.ice in Resources */,
+				145C4BE71E36061900A855C7 /* ObjectsDerived.ice in Resources */,
 				148ABA191DFB12C800594F70 /* cacert.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1264,6 +1280,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				145C4BEB1E36069B00A855C7 /* ObjectsDerived.ice in Sources */,
+				145C4BEC1E36069B00A855C7 /* ObjectsDerivedEx.ice in Sources */,
 				140C3E0F1E03005200142503 /* InheritanceTest.ice in Sources */,
 				140C3DED1E02FF0900142503 /* MetricsTest.ice in Sources */,
 				140C3DEE1E02FF0900142503 /* ObjectsTest.ice in Sources */,
@@ -1279,6 +1297,7 @@
 				140C3DF71E02FF0900142503 /* ACMTest.ice in Sources */,
 				140C3DF81E02FF0900142503 /* AdapterDeactivationTest.ice in Sources */,
 				140C3DF91E02FF0900142503 /* AdminTest.ice in Sources */,
+				145C4BE61E36061900A855C7 /* TestIntfI.m in Sources */,
 				140C3DFA1E02FF0900142503 /* AMITest.ice in Sources */,
 				140C3DFB1E02FF0900142503 /* BindingTest.ice in Sources */,
 				140C3DFC1E02FF0900142503 /* DefaultServantTest.ice in Sources */,
@@ -1435,6 +1454,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */,
+				145C4BE91E36064B00A855C7 /* ObjectsDerived.ice in Sources */,
+				145C4BEA1E36064B00A855C7 /* ObjectsDerivedEx.ice in Sources */,
 				14B7DEAD1E043085001D0109 /* InheritanceTest.ice in Sources */,
 				14B7DEAE1E043085001D0109 /* MetricsTest.ice in Sources */,
 				14B7DEAF1E043085001D0109 /* ObjectsTest.ice in Sources */,
