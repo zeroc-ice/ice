@@ -805,6 +805,7 @@ $1_targetdir	:= $(call bindir,$1)
 # Only build the translator with the static configuration
 #
 $1_configs	:= static
+$1_platforms    := $(build-platform)
 $(notdir $1)_always_enable_configs := static
 $(notdir $1)_always_enable_platforms := $(build-platform)
 
