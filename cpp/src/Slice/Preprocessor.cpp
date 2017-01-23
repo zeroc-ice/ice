@@ -392,7 +392,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     // /foo/A.ice /foo/B.ice becomes
     // /foo/A.ice
     // /foo/B.ice
-    // 
+    //
     // C:\foo\A.ice C:\foo\B.ice becomes
     // C:\foo\A.ice
     // C:\foo\B.ice
@@ -717,7 +717,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
         }
         default:
         {
-            abort();
+            assert(false);
             break;
         }
     }
