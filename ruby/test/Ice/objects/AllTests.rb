@@ -46,10 +46,8 @@ class MyValueFactory
         elsif type == '::Test::F'
             return FI.new
         elsif type == '::Test::I'
-            puts "create ::Test::I"
             return II.new
         elsif type == '::Test::J'
-            puts "create ::Test::J"
             return JI.new
         end
         fail "unknown type"

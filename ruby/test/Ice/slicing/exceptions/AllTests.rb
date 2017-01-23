@@ -23,8 +23,6 @@ def allTests(communicator)
         t.baseAsBase()
         test(false)
     rescue Test::Base => b
-        print(b.b)
-        print(b.ice_id())
         test(b.b == "Base.b")
         test(b.ice_id() == "::Test::Base")
     rescue

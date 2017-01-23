@@ -234,16 +234,6 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return false;
-    }
-
     bool isInterface = p->isInterface();
     bool isLocal = p->isLocal();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
@@ -257,8 +247,15 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << (isInterface ? "Prx)" : ")");
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
     _out.inc();
+
+    //
+    // Marker to avoid redefinitions, we don't use the actual class names at those might
+    // be defined by IceRuby for some internal classes
+    //
+    _out << sp << nl << "module " << getAbsolute(p, IdentToUpper) << "_Mixin";
+    _out << nl << "end";
     
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
@@ -266,7 +263,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base;
     OperationList ops = p->operations();
 
-    //bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
     DataMemberList members = p->dataMembers();
 
     if(isLocal || !isInterface)
@@ -699,16 +695,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
 
@@ -862,16 +848,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     MemberInfoList memberList;
@@ -1015,16 +991,6 @@ void
 Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 {
     //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return;
-    }
-
-    //
     // Emit the type information.
     //
     string name = fixIdent(p->name(), IdentToUpper);
@@ -1041,16 +1007,6 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return;
-    }
-
     //
     // Emit the type information.
     //
@@ -1070,16 +1026,6 @@ Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     EnumeratorList enums = p->getEnumerators();
@@ -1203,16 +1149,6 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
 {
-    //
-    // Do not generate any code for ruby:internal types, those are provided by
-    // IceRuby C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "ruby:internal") != metadata.end())
-    {
-        return;
-    }
-
     Slice::TypePtr type = p->type();
     string name = fixIdent(p->name(), IdentToUpper);
 
