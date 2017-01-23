@@ -338,25 +338,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << eb;
 
-        if(!ops.empty())
-        {
-            _out << sp;
-            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-            {
-                _out << nl << "abstract public function " << fixIdent((*oli)->name()) << '(';
-                ParamDeclList params = (*oli)->parameters();
-                for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
-                {
-                    if(q != params.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << '$' << fixIdent((*q)->name());
-                }
-                _out << ");";
-            }
-        }
-
         if(!p->isLocal())
         {
             //
