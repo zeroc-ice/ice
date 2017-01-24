@@ -569,11 +569,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // ice_staticId
         //
-        _out << sp << nl << "def ice_staticId():";
+        _out << sp << nl << "@staticmethod";
+        _out << nl << "def ice_staticId():";
         _out.inc();
         _out << nl << "return '" << scoped << "'";
         _out.dec();
-        _out << nl << "ice_staticId = staticmethod(ice_staticId)";
     }
 
     if(!ops.empty())
@@ -761,27 +761,27 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
         }
 
-        _out << sp << nl << "def checkedCast(proxy, facetOrContext=None, context=None):";
+        _out << sp << nl << "@staticmethod";
+        _out << nl << "def checkedCast(proxy, facetOrContext=None, context=None):";
         _out.inc();
         _out << nl << "return _M_" << prxAbs << ".ice_checkedCast(proxy, '" << scoped << "', facetOrContext, context)";
         _out.dec();
-        _out << nl << "checkedCast = staticmethod(checkedCast)";
 
-        _out << sp << nl << "def uncheckedCast(proxy, facet=None):";
+        _out << sp << nl << "@staticmethod";
+        _out << nl << "def uncheckedCast(proxy, facet=None):";
         _out.inc();
         _out << nl << "return _M_" << prxAbs << ".ice_uncheckedCast(proxy, facet)";
         _out.dec();
-        _out << nl << "uncheckedCast = staticmethod(uncheckedCast)";
 
 
         //
         // ice_staticId
         //
-        _out << sp << nl << "def ice_staticId():";
+        _out << sp << nl << "@staticmethod";
+        _out << nl << "def ice_staticId():";
         _out.inc();
         _out << nl << "return '" << scoped << "'";
         _out.dec();
-        _out << nl << "ice_staticId = staticmethod(ice_staticId)";
 
         _out.dec();
 

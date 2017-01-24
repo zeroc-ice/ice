@@ -77,7 +77,7 @@ AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
 def Python35():
-    return sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] >= 5)
+    return sys.version_info[:2] >= (3, 5)
 
 if Python35():
     from IceFuture import FutureBase, wrap_future
@@ -175,11 +175,11 @@ class Future(FutureBase):
 
         self._callCallbacks(callbacks)
 
+    @staticmethod
     def completed(result):
         f = Future()
         f.set_result(result)
         return f
-    completed = staticmethod(completed)
 
     def _wait(self, timeout, testFn=None):
         # Must be called with _condition acquired
@@ -322,13 +322,13 @@ Returns:
 '''
         return '::Ice::Object'
 
+    @staticmethod
     def ice_staticId():
         '''Obtains the type id of this Slice class or interface.
 Returns:
     The type id.
 '''
         return '::Ice::Object'
-    ice_staticId = staticmethod(ice_staticId)
 
     #
     # Do not define these here. They will be invoked if defined by a subclass.
