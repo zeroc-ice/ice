@@ -99,17 +99,13 @@ function allTests($communicator)
     $vscls = $NS ? "Test\\VarStruct" : "Test_VarStruct";
     $vs = new $vscls("hello");
     $prx = $communicator->stringToProxy("test");
-    $moprx = $NS ? eval("return Test\\MultiOptionalPrxHelper::uncheckedCast(\$prx);") :
-                   eval("return Test_MultiOptionalPrxHelper::uncheckedCast(\$prx);");
-    $ooprx = $NS ? eval("return Test\\OneOptionalPrxHelper::uncheckedCast(\$prx);") :
-                   eval("return Test_OneOptionalPrxHelper::uncheckedCast(\$prx);");
     $oo15 = new $oocls(15);
     $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
     $mo1 = new $mocls(15, true, 19, 78, 99, 5.5, 1.0, 'test', $enum,
-                      $moprx, null, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
+                      $prx, null, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
                       $fs, $vs, array(1), array($enum, $enum), array($fs), array($vs), array($oo1),
-                      array($ooprx), array(4=>$enum), array(4=>$fs), array(5=>$vs),
-                      array(5=>$oo15), array(5=>$ooprx), array(false, true, false));
+                      array($prx), array(4=>$enum), array(4=>$fs), array(5=>$vs),
+                      array(5=>$oo15), array(5=>$prx), array(false, true, false));
 
     test($mo1->a == 15);
     test($mo1->b == true);
@@ -120,7 +116,7 @@ function allTests($communicator)
     test($mo1->g == 1.0);
     test($mo1->h == "test");
     test($mo1->i == $enum);
-    test($mo1->j == $moprx);
+    test($mo1->j == $prx);
     test($mo1->k == null);
     test($mo1->bs == array(5));
     test($mo1->ss == array("test", "test2"));
@@ -134,13 +130,13 @@ function allTests($communicator)
     test($mo1->fss[0] == $fs);
     test($mo1->vss[0] == $vs);
     test($mo1->oos[0] == $oo1);
-    test($mo1->oops[0] == $ooprx);
+    test($mo1->oops[0] == $prx);
 
     test($mo1->ied[4] == $enum);
     test($mo1->ifsd[4] == $fs);
     test($mo1->ivsd[5] == $vs);
     test($mo1->iood[5]->a == 15);
-    test($mo1->ioopd[5] == $ooprx);
+    test($mo1->ioopd[5] == $prx);
 
     test($mo1->bos == array(false, true, false));
 
@@ -212,13 +208,13 @@ function allTests($communicator)
     test($mo5->fss[0] == $fs);
     test($mo5->vss[0] == $vs);
     test($mo5->oos[0]->a == 15);
-    test($mo5->oops[0] == $ooprx);
+    test($mo5->oops[0] == $prx);
 
     test($mo5->ied[4] == $enum);
     test($mo5->ifsd[4] == $fs);
     test($mo5->ivsd[5] == $vs);
     test($mo5->iood[5]->a == 15);
-    test($mo5->ioopd[5] == $ooprx);
+    test($mo5->ioopd[5] == $prx);
 
     test($mo5->bos == $mo1->bos);
 
@@ -317,13 +313,13 @@ function allTests($communicator)
     test($mo9->fss == Ice_Unset);
     test($mo9->vss[0] == $vs);
     test($mo9->oos == Ice_Unset);
-    test($mo9->oops[0] == $ooprx);
+    test($mo9->oops[0] == $prx);
 
     test($mo9->ied[4] == $enum);
     test($mo9->ifsd == Ice_Unset);
     test($mo9->ivsd[5] == $vs);
     test($mo9->iood == Ice_Unset);
-    test($mo9->ioopd[5] == $ooprx);
+    test($mo9->ioopd[5] == $prx);
 
     test($mo9->bos == Ice_Unset);
 
@@ -562,8 +558,8 @@ function allTests($communicator)
 
     $p3 = $initial->opOneOptionalProxy(Ice_Unset, $p2);
     test($p2 == Ice_Unset && $p3 == Ice_Unset);
-    $p3 = $initial->opOneOptionalProxy($ooprx, $p2);
-    test($p2 == $ooprx && $p3 == $ooprx);
+    $p3 = $initial->opOneOptionalProxy($prx, $p2);
+    test($p2 == $prx && $p3 == $prx);
 
     $p3 = $initial->opByteSeq(Ice_Unset, $p2);
     test($p2 == Ice_Unset && $p3 == Ice_Unset);

@@ -391,7 +391,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the proxy class.
     //
-    if(!p->isLocal())
+    if(!p->isLocal() && isAbstract)
     {
         _out << sp << nl << "class " << prxName << "Helper";
         _out << sb;
