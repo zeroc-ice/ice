@@ -1128,49 +1128,60 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
         }
         _out << eb << ";";
-
-        const string baseProxy =
-            !p->isInterface() && base ? (getLocalScope(base->scope()) + "." + base->name() + "Prx") : "Ice.ObjectPrx";
-
-        _out << sp;
-        _out << nl << localScope << '.' << prxName << " = class extends " << baseProxy;
-        _out << sb;
-
-
-        if(!bases.empty())
-        {
-            _out << sp;
-            _out << nl << "static get _implements()";
-            _out << sb;
-            _out << nl << "return [";
         
-            _out.inc();
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
+        //
+        // Generate a proxy class for interfaces or classes with operations.
+        //
+        string proxyType = "undefined";
+        if(p->isInterface() || p->allOperations().size() > 0)
+        {
+            proxyType = localScope + '.' + prxName;
+            string baseProxy = "Ice.ObjectPrx";
+            if(!p->isInterface() && base && base->allOperations().size() > 0)
             {
-                ClassDefPtr base = *q;
-                if(base->isInterface())
+                baseProxy = (getLocalScope(base->scope()) + "." + base->name() + "Prx");
+            }
+
+            _out << sp;
+            _out << nl << proxyType << " = class extends " << baseProxy;
+            _out << sb;
+
+
+            if(!bases.empty())
+            {
+                _out << sp;
+                _out << nl << "static get _implements()";
+                _out << sb;
+                _out << nl << "return [";
+            
+                _out.inc();
+                for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
                 {
-                    _out << nl << getLocalScope(base->scope()) << "." << base->name() << "Prx";
-                    if(++q != bases.end())
+                    ClassDefPtr base = *q;
+                    if(base->isInterface())
                     {
-                        _out << ", ";
+                        _out << nl << getLocalScope(base->scope()) << "." << base->name() << "Prx";
+                        if(++q != bases.end())
+                        {
+                            _out << ", ";
+                        }
+                    }
+                    else
+                    {
+                        q++;
                     }
                 }
-                else
-                {
-                    q++;
-                }
+                _out.dec();
+                _out << "];";
+                _out << eb;
             }
-            _out.dec();
-            _out << "];";
-            _out << eb;
-        }
 
-        _out << eb << ";";
+            _out << eb << ";";
+        }
 
         _out << sp << nl << "Slice.defineOperations("
              << localScope << "._" << p->name() << "Disp, "
-             << localScope << '.' << prxName << ", "
+             << proxyType << ", "
              << "iceC_" << getLocalScope(scoped, "_") << "_ids, "
              << scopedPos;
 
@@ -1783,7 +1794,15 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return "\"" + fixId(proxy->_class()->scoped() + "Prx") + "\"";
+        ClassDefPtr def = proxy->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
+        {
+            return "\"" + fixId(proxy->_class()->scoped() + "Prx") + "\"";
+        }
+        else
+        {
+            return "Ice.ObjectPrx";
+        }
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);

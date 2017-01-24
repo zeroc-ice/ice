@@ -123,7 +123,7 @@
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
-                mo1.j = Test.MultiOptionalPrx.uncheckedCast(communicator.stringToProxy("test"));
+                mo1.j = communicator.stringToProxy("test");
                 mo1.k = mo1;
                 mo1.bs = Ice.Buffer.createNative([5]);
                 mo1.ss = ["test", "test2"];
@@ -141,7 +141,7 @@
                 mo1.fss = [mo1.fs];
                 mo1.vss = [mo1.vs];
                 mo1.oos = [oo1];
-                mo1.oops = [Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))];
+                mo1.oops = [communicator.stringToProxy("test")];
 
                 mo1.ied = new Map();
                 mo1.ied.set(4, Test.MyEnum.MyEnumMember);
@@ -152,7 +152,7 @@
                 mo1.iood = new Map();
                 mo1.iood.set(5, new Test.OneOptional(15));
                 mo1.ioopd = new Map();
-                mo1.ioopd.set(5, Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test")));
+                mo1.ioopd.set(5, communicator.stringToProxy("test"));
 
                 mo1.bos = [false, true, false];
 
@@ -182,13 +182,13 @@
                 test(mo5.fss[0].equals(new Test.FixedStruct(78)));
                 test(mo5.vss[0].equals(new Test.VarStruct("hello")));
                 test(mo5.oos[0].a == 15);
-                test(mo5.oops[0].equals(Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))));
+                test(mo5.oops[0].equals(communicator.stringToProxy("test")));
 
                 test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
                 test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
                 test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
                 test(mo5.iood.get(5).a == 15);
-                test(mo5.ioopd.get(5).equals(Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))));
+                test(mo5.ioopd.get(5).equals(communicator.stringToProxy("test")));
 
                 test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
@@ -292,13 +292,13 @@
                 test(mo9.fss === undefined);
                 test(mo9.vss[0].equals(new Test.VarStruct("hello")));
                 test(mo9.oos === undefined);
-                test(mo9.oops[0].equals(Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))));
+                test(mo9.oops[0].equals(communicator.stringToProxy("test")));
 
                 test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
                 test(mo9.ifsd === undefined);
                 test(mo9.ivsd.get(5).equals(new Test.VarStruct("hello")));
                 test(mo9.iood === undefined);
-                test(mo9.ioopd.get(5).equals(Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"))));
+                test(mo9.ioopd.get(5).equals(communicator.stringToProxy("test")));
 
                 test(mo9.bos === undefined);
 
@@ -630,13 +630,12 @@
                 var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
-                return initial.opOneOptionalProxy(
-                    Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test")));
+                return initial.opOneOptionalProxy(communicator.stringToProxy("test"));
             }
         ).then(r =>
             {
                 var [p1, p2] = r;
-                var p3 = Test.OneOptionalPrx.uncheckedCast(communicator.stringToProxy("test"));
+                var p3 = communicator.stringToProxy("test");
                 test(p1.equals(p3));
                 test(p2.equals(p3));
                 return initial.opByteSeq();
@@ -1059,8 +1058,7 @@
             {
                 out.writeLine("ok");
                 return initial.shutdown();
-            },
-            ex => console.log(ex)).then(p.resolve, p.reject);
+            }).then(p.resolve, p.reject);
 
         return p;
     };

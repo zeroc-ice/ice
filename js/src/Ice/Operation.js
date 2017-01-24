@@ -605,35 +605,38 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
         return classType._iceId;
     };
 
-    if(ops)
+    if(proxyType !== undefined)
     {
-        for(let name in ops)
+        if(ops)
         {
-            addProxyOperation(proxyType, name, ops[name]);
-        }
-    }
-
-    //
-    // Copy proxy methods from super-interfaces.
-    //
-    if(proxyType._implements)
-    {
-        for(let intf in proxyType._implements)
-        {
-            let proto = proxyType._implements[intf].prototype;
-            for(let f in proto)
+            for(let name in ops)
             {
-                if(typeof proto[f] == "function" && proxyType.prototype[f] === undefined)
+                addProxyOperation(proxyType, name, ops[name]);
+            }
+        }
+
+        //
+        // Copy proxy methods from super-interfaces.
+        //
+        if(proxyType._implements)
+        {
+            for(let intf in proxyType._implements)
+            {
+                let proto = proxyType._implements[intf].prototype;
+                for(let f in proto)
                 {
-                    proxyType.prototype[f] = proto[f];
+                    if(typeof proto[f] == "function" && proxyType.prototype[f] === undefined)
+                    {
+                        proxyType.prototype[f] = proto[f];
+                    }
                 }
             }
         }
-    }
 
-    Object.defineProperty(proxyType, "_id", {
-        get: function(){ return ids[pos]; }
-    });
+        Object.defineProperty(proxyType, "_id", {
+            get: function(){ return ids[pos]; }
+        });
+    }
 };
 
 //
