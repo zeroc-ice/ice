@@ -292,6 +292,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
         {
             for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != ICE_NULLPTR; aa = aa->Next)
             {
+                if(aa->OperStatus != IfOperStatusUp)
+                {
+                    continue;
+                }
                 for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != ICE_NULLPTR; ua = ua->Next)
                 {
                     Address addr;
