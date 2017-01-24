@@ -466,7 +466,6 @@ class IncomingAsync
         try
         {
             Debug.assert(this._servant !== null);
-
             let promise = this._servant._iceDispatch(this, this._current);
             if(promise !== null)
             {

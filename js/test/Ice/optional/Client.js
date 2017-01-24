@@ -11,7 +11,7 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var ClientPrivate = require("../optional/ClientPrivate").Test;
+    var ClientPrivate = require("ClientPrivate").Test;
 
     var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;

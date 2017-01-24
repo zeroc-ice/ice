@@ -20,7 +20,7 @@
         }
     };
 
-    class AMDInitialI extends Test.Initial
+    class AMDInitialI extends Test._InitialDisp
     {
         shutdown(current)
         {
