@@ -122,9 +122,17 @@ mkshlibname     = lib$(1).so
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
 
+
+#
+# With GCC < 6.1, libbacktrace crash with a SEGV for -pie exes linked with debug-stripped libs
+# See https://gcc.gnu.org/ml/gcc-patches/2016-03/msg00132.html
+# Here we assume only release builds occasionally get -g and later get stripped
+# TODO: enable libbacktrace for release builds with GCC >= 6.1
+ifneq ($(OPTIMIZE),yes)
 libbacktrace_fullpath := $(shell $(CXX) --print-file-name=libbacktrace.a)
 ifneq ($(libbacktrace_fullpath),libbacktrace.a)
    libbacktrace = yes
+endif
 endif
 
 IceUtil_system_libs     			= -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
