@@ -266,6 +266,8 @@ public:
         }
         Ice::EncodingVersion encoding;
         read(encoding);
+        IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported
+
         if(encoding == Ice::Encoding_1_0)
         {
             if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)

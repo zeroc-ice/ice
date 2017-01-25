@@ -651,6 +651,8 @@ public class InputStream
         }
 
         EncodingVersion encoding = EncodingVersion.ice_read(this, null);
+        IceInternal.Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+
         if(encoding.equals(Ice.Util.Encoding_1_0))
         {
             if(sz != 6)

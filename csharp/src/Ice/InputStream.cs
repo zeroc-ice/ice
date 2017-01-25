@@ -628,6 +628,8 @@ namespace Ice
 
             var encoding = new EncodingVersion();
             encoding.ice_readMembers(this);
+            Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+
             if(encoding.Equals(Util.Encoding_1_0))
             {
                 if(sz != 6)

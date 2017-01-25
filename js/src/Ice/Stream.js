@@ -37,11 +37,11 @@ const TraceUtil = Ice.TraceUtil;
 const ArrayUtil = Ice.ArrayUtil;
 const SlicedData = Ice.SlicedData;
 
-const SliceType = 
+const SliceType =
 {
     NoSlice: 0,
     ValueSlice: 1,
-    ExceptionSlice: 2    
+    ExceptionSlice: 2
 };
 
 //
@@ -1266,7 +1266,7 @@ class InputStream
     swap(other)
     {
         Debug.assert(this._instance === other._instance);
-            
+
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
         [other._traceSlicing, this._traceSlicing] = [this._traceSlicing, other._traceSlicing];
@@ -1422,6 +1422,8 @@ class InputStream
 
         const encoding = new Ice.EncodingVersion();
         encoding._read(this);
+        Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+
         if(encoding.equals(Ice.Encoding_1_0))
         {
             if(sz != 6)
@@ -2094,7 +2096,7 @@ class InputStream
                                    this._logger);
         }
     }
-    
+
     //
     // Sets the value factory manager to use when marshaling value instances. If the stream
     // was initialized with a communicator, the communicator's value factory manager will
@@ -2124,7 +2126,7 @@ class InputStream
     {
         this._logger = value !== undefined ? value : null;
     }
-    
+
     //
     // Sets the compact ID resolver to use when unmarshaling value and exception
     // instances. If the stream was initialized with a communicator, the communicator's
@@ -2158,7 +2160,7 @@ class InputStream
     {
         this._sliceValues = value;
     }
-    
+
     //
     // Determines whether the stream logs messages about slicing instances of Slice values.
     //
@@ -2171,7 +2173,7 @@ class InputStream
     {
         this._traceSlicing = value;
     }
-    
+
     get pos()
     {
         return this._buf.position;
@@ -2196,7 +2198,7 @@ class InputStream
     {
         return this._type;
     }
-    
+
     set closure(value)
     {
         this._type = value;
@@ -3326,7 +3328,7 @@ class OutputStream
             }
         }
     }
-    
+
     //
     // Sets the encoding format for class and exception instances.
     //
@@ -3384,7 +3386,7 @@ const defineBuiltinHelper = function(write, read, sz, format, min, max)
         {
             return write.call(os, v);
         }
-        
+
         static read(is)
         {
             return read.call(is);
@@ -3399,7 +3401,7 @@ const defineBuiltinHelper = function(write, read, sz, format, min, max)
         {
             return is.readOptionalHelper(tag, format, read);
         }
-        
+
         static get minWireSize()
         {
             return sz;
