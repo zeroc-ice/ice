@@ -990,16 +990,7 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             removeAdminFacets("IceBox.Service." + service + ".");
-
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Exception e)
-            {
-                _logger.warning("ServiceManager: exception while destroying communicator for service "
-                                + service + "\n" + e.ToString());
-            }
+            communicator.destroy();
         }
     }
 

@@ -85,15 +85,7 @@ namespace TestCommon
 
             if(_communicator != null)
             {
-                try
-                {
-                    _communicator.destroy();
-                }
-                catch(Exception ex)
-                {
-                    Console.Out.WriteLine(_testName + ": " + ex);
-                    status = 1;
-                }
+                _communicator.destroy();
                 _communicator = null;
             }
             return status;

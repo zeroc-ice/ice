@@ -294,15 +294,7 @@ public class Client
 
         if(communicator != null)
         {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
+            communicator.destroy();
         }
 
         return status;

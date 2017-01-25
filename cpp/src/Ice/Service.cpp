@@ -883,13 +883,7 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
 
     if(_communicator)
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(...)
-        {
-        }
+        _communicator->destroy();
     }
 
     return status;
@@ -1386,14 +1380,8 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
 
     delete[] args;
 
-    try
-    {
-        assert(_communicator);
-        _communicator->destroy();
-    }
-    catch(...)
-    {
-    }
+    assert(_communicator);
+    _communicator->destroy();
 
     terminateService(status);
 }
@@ -1883,13 +1871,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
 
     if(_communicator)
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(...)
-        {
-        }
+        _communicator->destroy();
     }
 
     return status;

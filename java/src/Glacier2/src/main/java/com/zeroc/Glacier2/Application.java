@@ -455,20 +455,7 @@ public abstract class Application extends com.zeroc.Ice.Application
 
         if(_communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                Util.getProcessLogger().error(Ex.toString(ex));
-                r.returnValue = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                Util.getProcessLogger().error("unknown exception:\n" + Ex.toString(ex));
-                r.returnValue = 1;
-            }
+            _communicator.destroy();
             _communicator = null;
         }
 

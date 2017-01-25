@@ -3376,13 +3376,7 @@ public class Coordinator
     {
         if(_communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-            }
+            _communicator.destroy();
             _communicator = null;
         }
     }

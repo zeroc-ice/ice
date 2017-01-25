@@ -31,7 +31,7 @@ def run(args, communicator):
 
     adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
     #adapter.activate() # Collocated test doesn't need to active the OA
-    
+
     adapter2.add(testController, Ice.stringToIdentity("testController"))
     #adapter2.activate() # Collocated test doesn't need to active the OA
 
@@ -57,10 +57,6 @@ except:
     status = False
 
 if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
+    communicator.destroy()
 
 sys.exit(not status)

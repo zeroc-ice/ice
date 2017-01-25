@@ -62,7 +62,7 @@ def run(args, communicator)
     g._or = 0
     # TODO: Test local interface
     #h = BEGIN_::ExtendPrx::uncheckedCast(communicator.stringToProxy("test:tcp"))
-    i = BEGIN_::Redo 
+    i = BEGIN_::Redo
     puts "ok"
 
     return true
@@ -80,13 +80,7 @@ rescue => ex
 end
 
 if communicator
-    begin
-        communicator.destroy()
-    rescue => ex
-        puts $!
-        print ex.backtrace.join("\n")
-        status = false
-    end
+    communicator.destroy()
 end
 
 exit(status ? 0 : 1)

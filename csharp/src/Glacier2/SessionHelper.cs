@@ -361,13 +361,7 @@ public class SessionHelper
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
 
-        try
-        {
-            communicator.destroy();
-        }
-        catch(Exception)
-        {
-        }
+        communicator.destroy();
 
         // Notify the callback that the session is gone.
         dispatchCallback(() =>
@@ -384,13 +378,8 @@ public class SessionHelper
         {
             communicator = _communicator;
         }
-        try
-        {
-            communicator.destroy();
-        }
-        catch(Exception)
-        {
-        }
+
+        communicator.destroy();
     }
 
     delegate SessionPrx ConnectStrategy(RouterPrx router);
@@ -459,13 +448,8 @@ public class SessionHelper
             }
             catch(Exception ex)
             {
-                try
-                {
-                    _communicator.destroy();
-                }
-                catch(Exception)
-                {
-                }
+                _communicator.destroy();
+
                 dispatchCallback(() =>
                     {
                         _callback.connectFailed(this, ex);

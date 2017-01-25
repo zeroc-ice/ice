@@ -199,15 +199,7 @@ public class Client
 
         if(communicator != null)
         {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
+            communicator.destroy();
         }
 
         System.gc();

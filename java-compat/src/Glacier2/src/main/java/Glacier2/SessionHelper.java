@@ -426,13 +426,7 @@ public class SessionHelper
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
 
-        try
-        {
-            communicator.destroy();
-        }
-        catch(Throwable ex)
-        {
-        }
+        communicator.destroy();
 
         //
         // Notify the callback that the session is gone.
@@ -458,13 +452,7 @@ public class SessionHelper
 
         if(communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(Throwable ex)
-            {
-            }
+            communicator.destroy();
         }
     }
 
@@ -552,13 +540,7 @@ public class SessionHelper
                 }
                 catch(final Exception ex)
                 {
-                    try
-                    {
-                        _communicator.destroy();
-                    }
-                    catch(Throwable ex1)
-                    {
-                    }
+                    _communicator.destroy();
 
                     dispatchCallback(new Runnable()
                     {

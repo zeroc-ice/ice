@@ -36,10 +36,6 @@ except:
     status = False
 
 if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
+    communicator.destroy()
 
 sys.exit(not status)

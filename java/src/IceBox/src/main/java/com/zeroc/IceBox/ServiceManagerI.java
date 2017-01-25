@@ -1095,20 +1095,7 @@ public class ServiceManagerI implements ServiceManager
         }
 
         removeAdminFacets("IceBox.Service." + service + ".");
-
-        try
-        {
-            communicator.destroy();
-        }
-        catch(java.lang.Exception e)
-        {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            e.printStackTrace(pw);
-            pw.flush();
-            _logger.warning("ServiceManager: exception in destroying communicator for service "
-                            + service + "\n" + sw.toString());
-        }
+        communicator.destroy();
     }
 
     private boolean configureAdmin(Properties properties, String prefix)

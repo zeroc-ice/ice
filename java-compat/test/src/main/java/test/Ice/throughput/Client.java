@@ -28,14 +28,7 @@ public class Client extends test.Util.Application
         public void
         run()
         {
-            try
-            {
-                communicator().destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
+            communicator().destroy();
         }
     }
 

@@ -469,20 +469,7 @@ public abstract class Application extends Ice.Application
 
         if(_communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Ice.Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
-                status.value = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                Ice.Util.getProcessLogger().error("unknown exception:\n" + IceInternal.Ex.toString(ex));
-                status.value = 1;
-            }
+            _communicator.destroy();
             _communicator = null;
         }
 

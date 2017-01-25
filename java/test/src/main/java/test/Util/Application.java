@@ -138,22 +138,7 @@ public abstract class Application
 
         if(_communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(LocalException ex)
-            {
-                writer.println(_testName + ": " + ex);
-                ex.printStackTrace(writer);
-                status = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                writer.println(_testName + ": unknown exception");
-                ex.printStackTrace(writer);
-                status = 1;
-            }
+            _communicator.destroy();
             _communicator = null;
         }
         writer.flush();

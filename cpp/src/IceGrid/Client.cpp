@@ -354,18 +354,7 @@ Client::main(StringSeq& args)
 
     if(_communicator)
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(const CommunicatorDestroyedException&)
-        {
-        }
-        catch(const Exception& ex)
-        {
-            consoleErr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        _communicator->destroy();
     }
 
     _ctrlCHandler.setCallback(0);
@@ -392,13 +381,7 @@ Client::interrupted()
         // Otherwise, destroy the communicator.
         //
         assert(_communicator);
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(const Exception&)
-        {
-        }
+        _communicator->destroy();
     }
 }
 

@@ -676,7 +676,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
       // xlC warns when casting a void* to function pointer
 #   pragma report(disable, "1540-0216")
 #endif
-      
+
         SERVICE_FACTORY factory = reinterpret_cast<SERVICE_FACTORY>(sym);
         try
         {
@@ -860,17 +860,8 @@ IceBox::ServiceManagerI::stopAll()
         {
             removeAdminFacets("IceBox.Service." + info.name + ".");
 
-            try
-            {
-                info.communicator->destroy();
-                info.communicator = 0;
-            }
-            catch(const Exception& ex)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: exception while stopping service " << info.name << ":\n";
-                out << ex;
-            }
+            info.communicator->destroy();
+            info.communicator = 0;
         }
 
         try
@@ -1126,17 +1117,7 @@ IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const
     }
 
     removeAdminFacets("IceBox.Service." + service + ".");
-
-    try
-    {
-        communicator->destroy();
-    }
-    catch(const Exception& ex)
-    {
-        Warning out(_logger);
-        out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
-        out << ex;
-    }
+    communicator->destroy();
 }
 
 bool

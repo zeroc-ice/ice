@@ -89,7 +89,7 @@ class ServerManagerI(Test.ServerManager):
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
     def startServer(self, current=None):
-      
+
         #
         # Simulate a server: create a new communicator and object
         # adapter. The object adapter is started on a system allocated
@@ -190,10 +190,6 @@ except:
     status = False
 
 if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
+    communicator.destroy()
 
 sys.exit(not status)

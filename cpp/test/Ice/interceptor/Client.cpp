@@ -39,14 +39,7 @@ public:
     {
         if(_communicator)
         {
-            try
-            {
-                _communicator->destroy();
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cout << ex << endl;
-            }
+            _communicator->destroy();
         }
     }
 

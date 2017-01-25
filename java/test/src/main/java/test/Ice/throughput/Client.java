@@ -26,14 +26,7 @@ public class Client extends test.Util.Application
         @Override
         public void run()
         {
-            try
-            {
-                communicator().destroy();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
+            communicator().destroy();
         }
     }
 

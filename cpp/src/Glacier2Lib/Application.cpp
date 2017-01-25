@@ -340,22 +340,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
 
     if(_communicator)
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            Error out(getProcessLogger());
-            out << _appName << ": " << ex;
-            status = 1;
-        }
-        catch(const exception& ex)
-        {
-            Error out(getProcessLogger());
-            out << "unknown exception:\n" << ex;
-            status = 1;
-        }
+        _communicator->destroy();
         _communicator = 0;
     }
 

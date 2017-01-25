@@ -70,13 +70,7 @@ rescue => ex
 end
 
 if communicator
-    begin
-        communicator.destroy()
-    rescue => ex
-        puts $!
-        print ex.backtrace.join("\n")
-        status = false
-    end
+    communicator.destroy()
 end
 
 exit(status ? 0 : 1)

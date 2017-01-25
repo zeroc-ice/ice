@@ -459,14 +459,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(...)
-        {
-        }
-        communicator = ICE_NULLPTR;
+        communicator->destroy();
     }
     dispatchCallback(disconnected, ICE_NULLPTR);
 }
@@ -482,14 +475,7 @@ SessionHelperI::destroyCommunicator()
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(...)
-        {
-        }
-        communicator = ICE_NULLPTR;
+        communicator->destroy();
     }
 }
 
@@ -504,13 +490,7 @@ SessionHelperI::connectFailed()
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(...)
-        {
-        }
+        communicator->destroy();
     }
 }
 

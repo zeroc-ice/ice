@@ -102,14 +102,7 @@ int main(int argc, char** argv)
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            cerr << ex << endl;
-        }
+        communicator->destroy();
     }
     return EXIT_SUCCESS;
 }

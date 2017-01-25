@@ -84,7 +84,7 @@ module Ice
     #
     T_Value = Ice.__declareClass('::Ice::Object')
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
-    
+
     #
     # Provide some common functionality for structs
     #
@@ -93,7 +93,7 @@ module Ice
             ::Ice::__stringify(self, self.class::ICE_TYPE)
         end
     end
-    
+
     #
     # Provide some common functionality for proxy classes
     #
@@ -106,11 +106,11 @@ module Ice
             def ice_staticId()
                 self::ICE_ID
             end
-            
+
             def checkedCast(proxy, facetOrContext=nil, context=nil)
                 ice_checkedCast(proxy, self::ICE_ID, facetOrContext, context)
             end
-            
+
             def uncheckedCast(proxy, facet=nil)
                 ice_uncheckedCast(proxy, facet)
             end
@@ -143,13 +143,13 @@ module Ice
     T_Value.defineClass(Value, -1, false, false, nil, [])
 
     T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
-    
-    
+
+
     class InterfaceByValue < Value
         def initialize(id)
             @id = id
         end
-        
+
         def ice_id
             @id
         end
@@ -455,13 +455,7 @@ module Ice
             }
 
             if @@_communicator
-                begin
-                    @@_communicator.destroy()
-                rescue => ex
-                    Ice::getProcessLogger().error($!.inspect + "\n" + ex.backtrace.join("\n"))
-                    status = 1
-                end
-
+                @@_communicator.destroy()
                 @@_communicator = nil
             end
 
@@ -601,11 +595,8 @@ module Ice
                 @@_destroyed = true
             }
 
-            begin
-                @@_communicator.destroy()
-            rescue => ex
-                Ice::getProcessLogger().error($!.inspect + "\n" + @@_appName + " (while destroying in response to signal " + sig + "):\n" + ex.backtrace.join("\n"))
-            end
+            @@_communicator.destroy()
+
             @@_mutex.synchronize {
                 @@_callbackInProcess = false
                 @@_condVar.signal

@@ -423,15 +423,7 @@ public class Client extends test.Util.Application
 
             if(communicator != null)
             {
-                try
-                {
-                    communicator.destroy();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    System.out.println(ex.toString());
-                    status = 1;
-                }
+                communicator.destroy();
             }
         }
         catch(Exception ex)

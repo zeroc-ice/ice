@@ -503,22 +503,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
 
     if(_communicator != 0)
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(const std::exception& ex)
-        {
-            Error out(getProcessLogger());
-            out << ex;
-            status = EXIT_FAILURE;
-        }
-        catch(...)
-        {
-            Error out(getProcessLogger());
-            out << "unknown exception";
-            status = EXIT_FAILURE;
-        }
+        _communicator->destroy();
         _communicator = 0;
     }
 
@@ -580,31 +565,8 @@ Ice::Application::destroyOnInterruptCallback(int signal)
         _destroyed = true;
     }
 
-    try
-    {
-        assert(_communicator != 0);
-        _communicator->destroy();
-    }
-    catch(const std::exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): " << ex;
-    }
-    catch(const std::string& msg)
-    {
-        Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): " << msg;
-    }
-    catch(const char* msg)
-    {
-        Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): " << msg;
-    }
-    catch(...)
-    {
-        Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): unknown exception";
-    }
+    assert(_communicator != 0);
+    _communicator->destroy();
 
     {
         Mutex::Lock lock(_mutex);
@@ -635,31 +597,8 @@ Ice::Application::shutdownOnInterruptCallback(int signal)
         _interrupted = true;
     }
 
-    try
-    {
-        assert(_communicator != 0);
-        _communicator->shutdown();
-    }
-    catch(const std::exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex;
-    }
-    catch(const std::string& msg)
-    {
-        Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): " << msg;
-    }
-    catch(const char* msg)
-    {
-        Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): " << msg;
-    }
-    catch(...)
-    {
-        Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): unknown exception";
-    }
+    assert(_communicator != 0);
+    _communicator->shutdown();
 
     {
         Mutex::Lock lock(_mutex);
