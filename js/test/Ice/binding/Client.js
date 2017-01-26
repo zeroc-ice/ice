@@ -27,6 +27,9 @@
     };
 
     var isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
+    var isConnectionFailed = ex => (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+                                   (isBrowser && ex instanceof Ice.ConnectFailedException) ||
+                                   (ex instanceof Ice.ConnectTimeoutException);
 
     var communicator;
     var com;
@@ -185,11 +188,7 @@
             },
             function(ex)
             {
-                if(!(!isBrowser && ex instanceof Ice.ConnectionRefusedException) &&
-                   !(isBrowser && ex instanceof Ice.ConnectFailedException))
-                {
-                    throw ex;
-                }
+                test(isConnectionFailed(ex))
                 out.writeLine("ok");
                 return initialize();
             }
@@ -775,8 +774,7 @@
             },
             function(ex)
             {
-                test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
-                     (isBrowser && ex instanceof Ice.ConnectFailedException));
+                test(isConnectionFailed(ex));
                 return prx.ice_getEndpoints();
             }
         ).then(
@@ -880,8 +878,7 @@
                         },
                         function(ex)
                         {
-                            test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
-                                 (isBrowser && ex instanceof Ice.ConnectFailedException));
+                            test(isConnectionFailed(ex))
                         });
                 };
                 return f1();
@@ -1048,8 +1045,7 @@
                     },
                     function(ex)
                     {
-                        test((!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
-                             (isBrowser && ex instanceof Ice.ConnectFailedException));
+                        test(isConnectionFailed(ex))
                         return prx.ice_getEndpoints();
                     }
                 ).then(
