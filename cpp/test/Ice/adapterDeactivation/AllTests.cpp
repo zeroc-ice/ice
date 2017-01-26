@@ -92,6 +92,9 @@ allTests(const CommunicatorPtr& communicator)
     cout << "testing whether server is gone... " << flush;
     try
     {
+#ifdef _WIN32
+        obj = obj->ice_timeout(100); // Workaround to speed up testing
+#endif
         obj->ice_ping();
         test(false);
     }

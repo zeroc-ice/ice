@@ -24,7 +24,7 @@ public class Client extends test.Util.Application
         myClass.shutdown();
         try
         {
-            myClass.opVoid();
+            myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new RuntimeException();
         }
         catch(com.zeroc.Ice.LocalException ex)

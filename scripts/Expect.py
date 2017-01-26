@@ -110,6 +110,7 @@ class reader(threading.Thread):
                 c = self.p.stdout.read(1)
                 if not c:
                     self.cv.acquire()
+                    self.trace(None)
                     self._finish = True # We have finished processing output
                     self.cv.notify()
                     self.cv.release()
@@ -135,8 +136,9 @@ class reader(threading.Thread):
     def trace(self, c):
         if self._trace:
             if self._tracesuppress:
-                self._tbuf.write(c)
-                if c == '\n':
+                if not c is None:
+                    self._tbuf.write(c)
+                if c == '\n' or c is None:
                     content = self._tbuf.getvalue()
                     suppress = False
                     for p in self._tracesuppress:
@@ -149,7 +151,7 @@ class reader(threading.Thread):
                         sys.stdout.write(content)
                     self._tbuf.truncate(0)
                     self._tbuf.seek(0)
-            else:
+            elif not c is None:
                 sys.stdout.write(c)
                 sys.stdout.flush()
 

@@ -1664,13 +1664,13 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& interface, const Address& mcastAddr)
+IceInternal::getInterfacesForMulticast(const string& intf, const Address& mcastAddr)
 {
-    int protocolSupport = getProtocolSupport(mcastAddr);
-    vector<string> interfaces = getHostsForEndpointExpand(interface, protocolSupport, true);
+    ProtocolSupport protocolSupport = getProtocolSupport(mcastAddr);
+    vector<string> interfaces = getHostsForEndpointExpand(intf, protocolSupport, true);
     if(interfaces.empty())
     {
-        interfaces.push_back(interface);
+        interfaces.push_back(intf);
     }
     return interfaces;
 }
@@ -1700,12 +1700,12 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& interface, const Address& mcastAddr)
+IceInternal::getInterfacesForMulticast(const string& intf, const Address& mcastAddr)
 {
     ProtocolSupport protocolSupport = getProtocolSupport(mcastAddr);
     vector<string> interfaces;
     bool ipv4Wildcard = false;
-    if(isWildcard(interface, protocolSupport, ipv4Wildcard))
+    if(isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
@@ -1715,7 +1715,7 @@ IceInternal::getInterfacesForMulticast(const string& interface, const Address& m
     }
     if(interfaces.empty())
     {
-        interfaces.push_back(interface);
+        interfaces.push_back(intf);
     }
     return interfaces;
 }
@@ -2104,7 +2104,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 }
 #else
 void
-IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&, int)
+IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
 {
     try
     {

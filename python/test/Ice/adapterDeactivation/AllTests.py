@@ -64,7 +64,7 @@ def allTests(communicator):
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
     try:
-        obj.ice_ping()
+        obj.ice_timeout(100).ice_ping() # Use timeout to speed up testing on Windows
         test(False)
     except Ice.LocalException:
         print("ok")

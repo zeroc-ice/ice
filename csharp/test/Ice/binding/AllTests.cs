@@ -123,6 +123,9 @@ public class AllTests : TestCommon.AllTests
             catch(Ice.ConnectFailedException)
             {
             }
+            catch(Ice.ConnectTimeoutException)
+            {
+            }
         }
         WriteLine("ok");
 
@@ -233,7 +236,7 @@ public class AllTests : TestCommon.AllTests
             while(--count > 0)
             {
                 TestIntfPrx[] proxies;
-                if(count == 10)
+                if(count == 1)
                 {
                     com.deactivateObjectAdapter(adapters[4]);
                     --adapterCount;
@@ -462,6 +465,9 @@ public class AllTests : TestCommon.AllTests
             catch(Ice.ConnectFailedException)
             {
             }
+            catch(Ice.ConnectTimeoutException)
+            {
+            }
 
             Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
 
@@ -510,6 +516,9 @@ public class AllTests : TestCommon.AllTests
                 test(false);
             }
             catch(Ice.ConnectFailedException)
+            {
+            }
+            catch(Ice.ConnectTimeoutException)
             {
             }
         }
@@ -628,6 +637,9 @@ public class AllTests : TestCommon.AllTests
             catch(Ice.ConnectFailedException)
             {
             }
+            catch(Ice.ConnectTimeoutException)
+            {
+            }
 
             Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
 
@@ -686,6 +698,9 @@ public class AllTests : TestCommon.AllTests
                 obj.getAdapterName();
             }
             catch(Ice.ConnectFailedException)
+            {
+            }
+            catch(Ice.ConnectTimeoutException)
             {
             }
 
@@ -780,6 +795,9 @@ public class AllTests : TestCommon.AllTests
                     test(false);
                 }
                 catch(Ice.ConnectFailedException)
+                {
+                }
+                catch(Ice.ConnectTimeoutException)
                 {
                 }
 

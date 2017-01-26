@@ -136,6 +136,12 @@ public class AllTests
                 // but not always. See bug 3179.
                 //
             }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                //
+                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
+                //
+            }
         }
         out.println("ok");
 
@@ -252,11 +258,11 @@ public class AllTests
             int count;
             if(shortenTest)
             {
-                count = 60;
+                count = 20;
             }
             else
             {
-                count = 20;
+                count = 60;
             }
 
             int adapterCount = adapters.length;
@@ -265,7 +271,7 @@ public class AllTests
                 TestIntfPrx[] proxies;
                 if(shortenTest)
                 {
-                    if(count == 10)
+                    if(count == 1)
                     {
                         com.deactivateObjectAdapter(adapters[4]);
                         --adapterCount;
@@ -507,6 +513,12 @@ public class AllTests
                 // but not always. See bug 3179.
                 //
             }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                //
+                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
+                //
+            }
 
             Ice.Endpoint[] endpoints = test.ice_getEndpoints();
 
@@ -559,6 +571,12 @@ public class AllTests
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
+                //
+            }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                //
+                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
                 //
             }
         }
@@ -679,6 +697,12 @@ public class AllTests
                 // but not always. See bug 3179.
                 //
             }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                //
+                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
+                //
+            }
 
             Ice.Endpoint[] endpoints = test.ice_getEndpoints();
 
@@ -741,6 +765,12 @@ public class AllTests
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
+                //
+            }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                //
+                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
                 //
             }
 
@@ -840,6 +870,12 @@ public class AllTests
                     //
                     // Usually the actual type of this exception is ConnectionRefusedException,
                     // but not always. See bug 3179.
+                    //
+                }
+                catch(Ice.ConnectTimeoutException ex)
+                {
+                    //
+                    // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
                     //
                 }
 

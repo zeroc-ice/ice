@@ -133,6 +133,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
+#ifdef _WIN32
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
+#endif
     }
     cout << "ok" << endl;
 
@@ -237,15 +242,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapters.push_back(com->createObjectAdapter("AdapterRandom15", "default"));
 
 #ifdef _WIN32
-        int count = 60;
-#else
         int count = 20;
+#else
+        int count = 60;
 #endif
         int adapterCount = static_cast<int>(adapters.size());
         while(--count > 0)
         {
 #ifdef _WIN32
-            if(count == 10)
+            if(count == 1)
             {
                 com->deactivateObjectAdapter(adapters[4]);
                 --adapterCount;
@@ -502,7 +507,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
-
+#ifdef _WIN32
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
+#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -572,6 +581,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
+#ifdef _WIN32
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
+#endif
     }
     cout << "ok" << endl;
 
@@ -695,7 +709,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
-
+#ifdef _WIN32
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
+#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -778,7 +796,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
-
+#ifdef _WIN32
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
+#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -879,6 +901,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             catch(const Ice::ConnectFailedException&)
             {
             }
+#ifdef _WIN32
+            catch(const Ice::ConnectTimeoutException&)
+            {
+            }
+#endif
 
             deactivate(com, adapters);
         }

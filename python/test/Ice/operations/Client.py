@@ -31,7 +31,7 @@ def run(args, communicator):
     sys.stdout.flush()
     myClass.shutdown()
     try:
-        myClass.opVoid()
+        myClass.ice_timeout(100).ice_ping(); # Use timeout to speed up testing on Windows
         test(False)
     except Ice.LocalException:
         print("ok")

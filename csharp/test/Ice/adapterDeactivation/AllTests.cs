@@ -81,7 +81,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         try
         {
-            obj.ice_ping();
+            obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             test(false);
         }
         catch(Ice.LocalException)

@@ -27,7 +27,7 @@ public class Client : TestCommon.Application
         myClass.shutdown();
         try
         {
-            myClass.opVoid();
+            myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new System.Exception();
         }
         catch(Ice.LocalException)

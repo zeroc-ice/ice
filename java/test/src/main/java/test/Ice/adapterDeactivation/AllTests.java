@@ -91,7 +91,7 @@ public class AllTests
         out.flush();
         try
         {
-            obj.ice_ping();
+            obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             throw new RuntimeException();
         }
         catch(com.zeroc.Ice.LocalException ex)

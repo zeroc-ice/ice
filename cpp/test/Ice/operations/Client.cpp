@@ -21,11 +21,13 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrxPtr myClass = allTests(communicator);
 
-#ifndef ICE_OS_UWP
     myClass->shutdown();
     cout << "testing server shutdown... " << flush;
     try
     {
+#ifdef _WIN32
+        myClass = myClass->ice_timeout(100); // Workaround to speed up testing
+#endif
         myClass->opVoid();
         test(false);
     }
@@ -33,13 +35,6 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     {
         cout << "ok" << endl;
     }
-#else
-    //
-    // When using SSL the run.py script starts a new server after shutdown
-    // and the call to opVoid will succeed.
-    //
-    myClass->shutdown();
-#endif
 
     return EXIT_SUCCESS;
 }
