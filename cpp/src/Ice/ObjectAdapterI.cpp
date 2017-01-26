@@ -346,7 +346,7 @@ Ice::ObjectAdapterI::isDeactivated() const
 }
 
 void
-Ice::ObjectAdapterI::destroy()
+Ice::ObjectAdapterI::destroy() ICE_NOEXCEPT
 {
     //
     // Deactivate and wait for completion.

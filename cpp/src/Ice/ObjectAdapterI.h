@@ -57,7 +57,7 @@ public:
     virtual void deactivate();
     virtual void waitForDeactivate();
     virtual bool isDeactivated() const;
-    virtual void destroy();
+    virtual void destroy() ICE_NOEXCEPT;
 
     virtual ObjectPrxPtr add(const ObjectPtr&, const Identity&);
     virtual ObjectPrxPtr addFacet(const ObjectPtr&, const Identity&, const std::string&);

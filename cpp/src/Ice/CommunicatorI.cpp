@@ -30,7 +30,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-Ice::CommunicatorI::destroy()
+Ice::CommunicatorI::destroy() ICE_NOEXCEPT
 {
     if(_instance)
     {

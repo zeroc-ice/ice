@@ -2987,6 +2987,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     argsAMD += "current)";
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
+    string noExcept = (cl->isLocal() && p->hasMetaData("cpp:noexcept")) ? " throw()" : "";
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
@@ -2994,11 +2995,13 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     if(!amd)
     {
-        H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << " = 0;";
+        H << nl << deprecateSymbol
+          << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << noExcept << " = 0;";
     }
     else
     {
-        H << nl << deprecateSymbol << "virtual void " << name << "_async" << paramsAMD << isConst << " = 0;";
+        H << nl << deprecateSymbol
+          << "virtual void " << name << "_async" << paramsAMD << isConst << noExcept << " = 0;";
     }
 
     if(!cl->isLocal())
@@ -4611,6 +4614,10 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     StringList metaData = p->getMetaData();
     metaData.remove("cpp:const");
+    if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
+    {
+        emitWarning(p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
+    }
 
     TypePtr returnType = p->returnType();
     if(!metaData.empty())
@@ -6532,11 +6539,12 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     args += ')';
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
+    string noExcept = p->hasMetaData("cpp:noexcept") ? " noexcept" : "";
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
 
     H << sp;
-    H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << " = 0;";
+    H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << noExcept << " = 0;";
 
     if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
     {

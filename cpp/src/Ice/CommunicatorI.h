@@ -31,7 +31,7 @@ class CommunicatorI : public Communicator
 {
 public:
 
-    virtual void destroy();
+    virtual void destroy() ICE_NOEXCEPT;
     virtual void shutdown();
     virtual void waitForShutdown();
     virtual bool isShutdown() const;

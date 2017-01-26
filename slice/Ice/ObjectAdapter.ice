@@ -169,7 +169,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    void destroy();
+    ["cpp:noexcept"] void destroy();
 
     /**
      *

@@ -113,6 +113,9 @@ These are the changes since Ice 3.6.3.
 
 ## C++ Changes
 
+- The Ice::Communicator and Ice::ObjectAdapter destroy methods are now
+  declared as `noexcept` (C++11) or `throw()` (C++98).
+
 - The --dll-export option of slice2cpp is now deprecated, and replaced by the global
   Slice metadata cpp:dll-export:SYMBOL.
 
@@ -139,7 +142,7 @@ These are the changes since Ice 3.6.3.
 
 ## JavaScript Changes
 
-- Improve Ice.Long class to allow creating Ice.Long instance from 
+- Improve Ice.Long class to allow creating Ice.Long instance from
   JavaScript Numbers.
 
 ## Objective-C Changes
