@@ -12,4 +12,4 @@ class EchoServerTestCase(ClientServerTestCase):
     def runClientSide(self, current):
         pass
 
-TestSuite(__name__, [EchoServerTestCase(name="server", server=Server(waitForShutdown=False))])
+TestSuite(__name__, [EchoServerTestCase(name="server", server=Server(quiet=True, waitForShutdown=False))])
