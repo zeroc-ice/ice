@@ -9,7 +9,7 @@
 
 import Ice, Test, threading
 
-class RemoteCommunicatorI(Test.RemoteCommunicator):
+class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
     def createObjectAdapter(self, timeout, close, heartbeat, current=None):
         com = current.adapter.getCommunicator()
         properties = com.getProperties()
@@ -29,7 +29,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
+class RemoteObjectAdapterI(Test._RemoteObjectAdapterDisp):
     def __init__(self, adapter):
         self._adapter = adapter
         self._testIntf = Test.TestIntfPrx.uncheckedCast(adapter.add(TestIntfI(),
@@ -51,7 +51,7 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
         except Ice.ObjectAdapterDeactivatedException:
             pass
 
-class TestIntfI(Test.TestIntf):
+class TestIntfI(Test._TestIntfDisp):
     def __init__(self):
         self.m = threading.Condition()
 

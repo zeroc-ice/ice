@@ -18,7 +18,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestI(Test.TestIntf):
+class TestI(Test._TestIntfDisp):
     def SBaseAsObject(self, current=None):
         sb = Test.SBase()
         sb.sb = "SBase.sb"

@@ -13,11 +13,11 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestFacetI(Test.TestFacet):
+class TestFacetI(Test._TestFacetDisp):
     def op(self, current = None):
         return
 
-class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCallback):
+class RemoteCommunicatorI(Test._RemoteCommunicatorDisp, Ice.PropertiesAdminUpdateCallback):
     def __init__(self, communicator):
         self.communicator = communicator
         self.called = False
@@ -61,7 +61,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
             self.called = True
             self.m.notify()
 
-class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
+class RemoteCommunicatorFactoryI(Test._RemoteCommunicatorFactoryDisp):
 
     def createCommunicator(self, props, current = None):
         #

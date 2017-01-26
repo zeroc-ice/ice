@@ -76,7 +76,7 @@ class Callback(CallbackBase):
 
     def response_SUnknownAsObject11(self, f):
         o = f.result()
-        test(isinstance(o, Ice.UnknownSlicedObject))
+        test(isinstance(o, Ice.UnknownSlicedValue))
         test(o.unknownTypeId == "::Test::SUnknown")
         self.called()
 
@@ -532,7 +532,7 @@ def allTests(communicator):
     try:
         o = t.SUnknownAsObject()
         test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
-        test(isinstance(o, Ice.UnknownSlicedObject))
+        test(isinstance(o, Ice.UnknownSlicedValue))
         test(o.unknownTypeId == "::Test::SUnknown")
         t.checkSUnknown(o)
     except Ice.NoValueFactoryException:

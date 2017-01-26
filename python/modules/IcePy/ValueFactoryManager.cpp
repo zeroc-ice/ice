@@ -32,25 +32,10 @@ struct ValueFactoryManagerObject
 namespace
 {
 
-ClassInfoPtr
-getClassInfo(const string& id)
+ValueInfoPtr
+getValueInfo(const string& id)
 {
-    ClassInfoPtr info;
-
-    if(id == Ice::Object::ice_staticId())
-    {
-        //
-        // When the ID is that of Ice::Object, it indicates that the stream has not
-        // found a factory and is providing us an opportunity to preserve the object.
-        //
-        info = lookupClassInfo("::Ice::UnknownSlicedObject");
-    }
-    else
-    {
-        info = lookupClassInfo(id);
-    }
-
-    return info;
+    return id == Ice::Object::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
 }
 
 }
@@ -229,7 +214,7 @@ IcePy::FactoryWrapper::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = getClassInfo(id);
+    ValueInfoPtr info = getValueInfo(id);
 
     if(!info)
     {
@@ -298,17 +283,9 @@ IcePy::DefaultValueFactory::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = getClassInfo(id);
+    ValueInfoPtr info = getValueInfo(id);
 
     if(!info)
-    {
-        return 0;
-    }
-
-    //
-    // If the requested type is an abstract class, then we give up.
-    //
-    if(info->isAbstract)
     {
         return 0;
     }

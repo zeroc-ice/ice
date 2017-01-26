@@ -9,7 +9,7 @@
 
 import Ice, Test, threading
 
-class TestIntfI(Test.TestIntf):
+class TestIntfI(Test._TestIntfDisp):
     def __init__(self):
         self._cond = threading.Condition()
         self._batchCount = 0
@@ -52,7 +52,7 @@ class TestIntfI(Test.TestIntf):
     def supportsFunctionalTests(self, current=None):
         return False
 
-class TestIntfControllerI(Test.TestIntfController):
+class TestIntfControllerI(Test._TestIntfControllerDisp):
     def __init__(self, adapter):
         self._adapter = adapter
 

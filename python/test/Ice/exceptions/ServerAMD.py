@@ -23,7 +23,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class ThrowerI(Test.Thrower):
+class ThrowerI(Test._ThrowerDisp):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

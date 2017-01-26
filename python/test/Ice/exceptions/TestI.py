@@ -9,7 +9,7 @@
 
 import Ice, Test, array, sys
 
-class ThrowerI(Test.Thrower):
+class ThrowerI(Test._ThrowerDisp):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

@@ -29,7 +29,7 @@ class ActivateAdapterThread(threading.Thread):
         time.sleep(self._timeout / 1000.0)
         self._adapter.activate()
 
-class TimeoutI(Test.Timeout):
+class TimeoutI(Test._TimeoutDisp):
     def op(self, current=None):
         pass
 

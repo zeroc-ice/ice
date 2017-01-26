@@ -56,16 +56,18 @@ class FI(Test.F):
     def checkValues(self, current=None):
         return self._e1 != None and self._e1 == self.e2
 
-class II(Test.I):
-    pass
+class II(Ice.InterfaceByValue):
+    def __init__(self):
+        Ice.InterfaceByValue.__init__(self, "::Test::I")
 
-class JI(Test.J):
-    pass
+class JI(Ice.InterfaceByValue):
+    def __init__(self):
+        Ice.InterfaceByValue.__init__(self, "::Test::J")
 
 class HI(Test.H):
     pass
 
-class InitialI(Test.Initial):
+class InitialI(Test._InitialDisp):
     def __init__(self, adapter):
         self._adapter = adapter
         self._b1 = BI()
@@ -172,6 +174,6 @@ class InitialI(Test.Initial):
     def throwInnerSubEx(self, current=None):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
-class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
+class UnexpectedObjectExceptionTestI(Test._UnexpectedObjectExceptionTestDisp):
     def op(self, current=None):
         return Test.AlsoEmpty()

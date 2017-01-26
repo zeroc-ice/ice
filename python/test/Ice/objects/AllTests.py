@@ -106,7 +106,7 @@ def allTests(communicator):
     i = initial.getI()
     test(i)
     j = initial.getJ()
-    test(isinstance(j, Test.J))
+    test(isinstance(j, TestI.JI))
     h = initial.getH()
     test(isinstance(h, Test.H))
     print("ok")

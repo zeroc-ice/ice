@@ -9,7 +9,7 @@
 
 import Ice, Test
 
-class MyObjectI(Test.MyObject):
+class MyObjectI(Test._MyObjectDisp):
     def ice_ping(self, current=None):
         name = current.id.name
 

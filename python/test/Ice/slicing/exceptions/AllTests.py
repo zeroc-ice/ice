@@ -189,7 +189,7 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-class RelayI(Test.Relay):
+class RelayI(Test._RelayDisp):
     def knownPreservedAsBase(self, current=None):
         ex = Test.KnownPreservedDerived()
         ex.b = "base"

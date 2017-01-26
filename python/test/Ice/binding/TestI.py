@@ -9,7 +9,7 @@
 
 import Ice, Test
 
-class RemoteCommunicatorI(Test.RemoteCommunicator):
+class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
 
     def __init__(self):
         self._nextPort = 10001
@@ -32,7 +32,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
+class RemoteObjectAdapterI(Test._RemoteObjectAdapterDisp):
     def __init__(self, adapter):
         self._adapter = adapter
         self._testIntf = Test.TestIntfPrx.uncheckedCast(self._adapter.add(TestI(), Ice.stringToIdentity("test")))
@@ -47,6 +47,6 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
         except Ice.ObjectAdapterDeactivatedException:
             pass
 
-class TestI(Test.TestIntf):
+class TestI(Test._TestIntfDisp):
     def getAdapterName(self, current=None):
         return current.adapter.getName()

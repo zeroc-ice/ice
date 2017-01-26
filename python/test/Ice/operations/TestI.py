@@ -13,26 +13,26 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class MyDerivedClassI(Test.MyDerivedClass):
+class MyDerivedClassI(Test._MyDerivedClassDisp):
     def __init__(self):
         self.lock = threading.Lock()
         self.opByteSOnewayCount = 0
 
     def ice_isA(self, id, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_isA(self, id, current)
+        return Test._MyDerivedClassDisp.ice_isA(self, id, current)
 
     def ice_ping(self, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
-        Test.MyDerivedClass.ice_ping(self, current)
+        Test._MyDerivedClassDisp.ice_ping(self, current)
 
     def ice_ids(self, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_ids(self, current)
+        return Test._MyDerivedClassDisp.ice_ids(self, current)
 
     def ice_id(self, current=None):
         test(current.mode == Ice.OperationMode.Nonmutating)
-        return Test.MyDerivedClass.ice_id(self, current)
+        return Test._MyDerivedClassDisp.ice_id(self, current)
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

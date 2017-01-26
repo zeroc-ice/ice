@@ -14,7 +14,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestI(Test.TestIntf):
+class TestI(Test._TestIntfDisp):
 
     def requestFailedException(self, current=None):
         pass

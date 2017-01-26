@@ -14,7 +14,7 @@ import Ice
 Ice.loadSlice('TestAMD.ice')
 import Test
 
-class InitialI(Test.Initial):
+class InitialI(Test._InitialDisp):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

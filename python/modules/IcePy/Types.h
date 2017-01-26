@@ -30,6 +30,10 @@ class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
 typedef std::vector<ClassInfoPtr> ClassInfoList;
 
+
+class ValueInfo;
+typedef IceUtil::Handle<ValueInfo> ValueInfoPtr;
+
 //
 // This class is raised as an exception when object marshaling needs to be aborted.
 //
@@ -73,14 +77,14 @@ class ReadObjectCallback : public IceUtil::Shared
 {
 public:
 
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+    ReadObjectCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     ~ReadObjectCallback();
 
     void invoke(const ::Ice::ObjectPtr&);
 
 private:
 
-    ClassInfoPtr _info;
+    ValueInfoPtr _info;
     UnmarshalCallbackPtr _cb;
     PyObject* _target;
     void* _closure;
@@ -448,7 +452,45 @@ public:
 
     ClassInfo(const std::string&);
 
-    void define(PyObject*, int, bool, bool, PyObject*, PyObject*, PyObject*);
+    void define(PyObject*, PyObject*, PyObject*);
+
+    virtual std::string getId() const;
+
+    virtual bool validate(PyObject*);
+
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
+
+    virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0);
+    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
+                           const Ice::StringSeq* = 0);
+
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+    virtual void destroy();
+
+    const std::string id;
+    const ClassInfoPtr base;
+    const ClassInfoList interfaces;
+    const PyObjectHandle pythonType;
+    const PyObjectHandle typeObj;
+    const bool defined;
+};
+
+//
+// Value type information
+//
+
+class ValueInfo : public TypeInfo
+{
+public:
+
+    ValueInfo(const std::string&);
+
+    void define(PyObject*, int, bool, bool, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -472,10 +514,9 @@ public:
 
     const std::string id;
     const Ice::Int compactId;
-    const bool isAbstract;
     const bool preserve;
-    const ClassInfoPtr base;
-    const ClassInfoList interfaces;
+    const bool interface;
+    const ValueInfoPtr base;
     const DataMemberList members;
     const DataMemberList optionalMembers;
     const PyObjectHandle pythonType;
@@ -549,7 +590,7 @@ class ObjectWriter : public Ice::Object
 {
 public:
 
-    ObjectWriter(PyObject*, ObjectMap*);
+    ObjectWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
     ~ObjectWriter();
 
     virtual void ice_preMarshal();
@@ -563,7 +604,8 @@ private:
 
     PyObject* _object;
     ObjectMap* _map;
-    ClassInfoPtr _info;
+    ValueInfoPtr _info;
+    ValueInfoPtr _formal;
 };
 
 //
@@ -573,7 +615,7 @@ class ObjectReader : public Ice::Object
 {
 public:
 
-    ObjectReader(PyObject*, const ClassInfoPtr&);
+    ObjectReader(PyObject*, const ValueInfoPtr&);
     ~ObjectReader();
 
     virtual void ice_postUnmarshal();
@@ -581,7 +623,7 @@ public:
     virtual void _iceWrite(Ice::OutputStream*) const;
     virtual void _iceRead(Ice::InputStream*);
 
-    virtual ClassInfoPtr getInfo() const;
+    virtual ValueInfoPtr getInfo() const;
 
     PyObject* getObject() const; // Borrowed reference.
 
@@ -590,7 +632,7 @@ public:
 private:
 
     PyObject* _object;
-    ClassInfoPtr _info;
+    ValueInfoPtr _info;
     Ice::SlicedDataPtr _slicedData;
 };
 
@@ -672,6 +714,7 @@ public:
 };
 
 ClassInfoPtr lookupClassInfo(const std::string&);
+ValueInfoPtr lookupValueInfo(const std::string&);
 ExceptionInfoPtr lookupExceptionInfo(const std::string&);
 
 extern PyObject* Unset;
@@ -695,6 +738,8 @@ extern "C" PyObject* IcePy_declareProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareClass(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineClass(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_declareValue(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineValue(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineException(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringify(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringifyException(PyObject*, PyObject*);

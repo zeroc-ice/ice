@@ -291,6 +291,40 @@ _struct_marker = object()
 #
 # Core Ice types.
 #
+class Value(object):
+    def ice_id():
+        '''Obtains the type id corresponding to the most-derived Slice
+interface supported by the target object.
+Returns:
+    The type id.
+'''
+        return '::Ice::Object'
+
+    @staticmethod
+    def ice_staticId():
+        '''Obtains the type id of this Slice class or interface.
+Returns:
+    The type id.
+'''
+        return '::Ice::Object'
+
+    #
+    # Do not define these here. They will be invoked if defined by a subclass.
+    #
+    #def ice_preMarshal(self):
+    #    pass
+    #
+    #def ice_postUnmarshal(self):
+    #    pass
+
+class InterfaceByValue(Value):
+    
+    def __init__(self, id):
+        self.id = id
+    
+    def ice_id(self):
+        return self.id
+
 class Object(object):
     def ice_isA(self, id, current=None):
         '''Determines whether the target object supports the interface denoted
@@ -329,15 +363,6 @@ Returns:
     The type id.
 '''
         return '::Ice::Object'
-
-    #
-    # Do not define these here. They will be invoked if defined by a subclass.
-    #
-    #def ice_preMarshal(self):
-    #    pass
-    #
-    #def ice_postUnmarshal(self):
-    #    pass
 
     def _iceDispatch(self, cb, method, args):
         # Invoke the given servant method. Exceptions can propagate to the caller.
@@ -511,7 +536,7 @@ class SliceInfo(object):
     # typeId - string
     # compactId - int
     # bytes - string
-    # objects - tuple of Ice.Object
+    # objects - tuple of Ice.Value
     pass
 
 #
@@ -526,7 +551,7 @@ class PropertiesAdminUpdateCallback(object):
     def updated(self, props):
         pass
 
-class UnknownSlicedObject(Object):
+class UnknownSlicedValue(Value):
     #
     # Members:
     #
@@ -658,6 +683,7 @@ FormatType.SlicedFormat = FormatType(2)
 # Forward declarations.
 #
 IcePy._t_Object = IcePy.declareClass('::Ice::Object')
+IcePy._t_Value = IcePy.declareValue('::Ice::Object')
 IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 IcePy._t_LocalObject = IcePy.declareClass('::Ice::LocalObject')
 
@@ -1743,7 +1769,8 @@ signal, or False otherwise.'''
 #
 # Define Ice::Object and Ice::ObjectPrx.
 #
-IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, -1, (), False, False, None, (), ())
+IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), None, ())
+IcePy._t_Value = IcePy.defineValue('::Ice::Object', Value, -1, (), False, False, None, ())
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 Object._ice_type = IcePy._t_Object
 
@@ -1752,10 +1779,10 @@ Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, Oper
 Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), _t_StringSeq, False, 0), ())
 Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), IcePy._t_string, False, 0), ())
 
-IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, -1, (), False, False, None, (), ())
+IcePy._t_LocalObject = IcePy.defineValue('::Ice::LocalObject', object, -1, (), False, False, None, ())
 
-IcePy._t_UnknownSlicedObject = IcePy.defineClass('::Ice::UnknownSlicedObject', UnknownSlicedObject, -1, (), False, True, None, (), ())
-UnknownSlicedObject._ice_type = IcePy._t_UnknownSlicedObject
+IcePy._t_UnknownSlicedValue = IcePy.defineValue('::Ice::UnknownSlicedValue', UnknownSlicedValue, -1, (), True, False, None, ())
+UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
 
 #
 # Annotate some exceptions.

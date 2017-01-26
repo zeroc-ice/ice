@@ -11,7 +11,7 @@ import os, sys, traceback, time
 import Ice, Test, TestAMDI
 
 
-class TestActivationAMDI(Test.TestActivation):
+class TestActivationAMDI(Test._TestActivationDisp):
 
     def activateServantLocator(self, activate, current=None):
         if(activate):

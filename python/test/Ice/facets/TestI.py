@@ -9,31 +9,31 @@
 
 import Test
 
-class AI(Test.A):
+class AI(Test._ADisp):
     def callA(self, current=None):
         return "A"
 
-class BI(Test.B, AI):
+class BI(Test._BDisp, AI):
     def callB(self, current=None):
         return "B"
 
-class CI(Test.C, AI):
+class CI(Test._CDisp, AI):
     def callC(self, current=None):
         return "C"
 
-class DI(Test.D, BI, CI):
+class DI(Test._DDisp, BI, CI):
     def callD(self, current=None):
         return "D"
 
-class EI(Test.E):
+class EI(Test._EDisp):
     def callE(self, current=None):
         return "E"
 
-class FI(Test.F, EI):
+class FI(Test._FDisp, EI):
     def callF(self, current=None):
         return "F"
 
-class GI(Test.G):
+class GI(Test._GDisp):
     def __init__(self, communicator):
         self._communicator = communicator
 
@@ -43,7 +43,7 @@ class GI(Test.G):
     def callG(self, current=None):
         return "G"
 
-class HI(Test.H, GI):
+class HI(Test._HDisp, GI):
     def __init__(self, communicator):
         GI.__init__(self, communicator)
 

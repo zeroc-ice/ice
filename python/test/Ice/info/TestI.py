@@ -22,7 +22,7 @@ def getIPConnectionInfo(info):
             return info
         info = info.underlying
 
-class MyDerivedClassI(Test.TestIntf):
+class MyDerivedClassI(Test._TestIntfDisp):
     def __init__(self):
         self.ctx = None
 
