@@ -8,8 +8,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'ClientPrivate.php';
+require_once('Ice.php');
+require_once('ClientPrivate.php');
 
 function test($b)
 {
@@ -1059,7 +1059,8 @@ function allTests($communicator)
     return $test;
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+                      eval("return Ice_initialize(\$argv);");
 $test = allTests($communicator);
 $test->shutdown();
 $communicator->destroy();

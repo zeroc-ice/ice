@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 if($NS)
 {
@@ -480,7 +480,8 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+                      eval("return Ice_initialize(\$argv);");
 $factory = new MyValueFactory();
 $communicator->getValueFactoryManager()->add($factory, "::Test::B");
 $communicator->getValueFactoryManager()->add($factory, "::Test::C");

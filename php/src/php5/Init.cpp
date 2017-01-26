@@ -28,39 +28,35 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
 ZEND_END_ARG_INFO()
 
-#define ICEPHP_COMMUNICATOR_FUNCTIONS \
+#ifdef ICEPHP_USE_NAMESPACES
+#  define ICEPHP_COMMUNICATOR_FUNCTIONS \
+    ZEND_NS_NAMED_FE("Ice", initialize, ZEND_FN(Ice_initialize), Ice_initialize_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", register, ZEND_FN(Ice_register), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", unregister, ZEND_FN(Ice_unregister), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", find, ZEND_FN(Ice_find), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", getProperties, ZEND_FN(Ice_getProperties), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", identityToString, ZEND_FN(Ice_identityToString), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", stringToIdentity, ZEND_FN(Ice_stringToIdentity), ICE_NULLPTR)
+#else
+#  define ICEPHP_COMMUNICATOR_FUNCTIONS \
     ZEND_FE(Ice_initialize, Ice_initialize_arginfo) \
     ZEND_FE(Ice_register, ICE_NULLPTR) \
     ZEND_FE(Ice_unregister, ICE_NULLPTR) \
     ZEND_FE(Ice_find, ICE_NULLPTR) \
     ZEND_FE(Ice_getProperties, ICE_NULLPTR) \
     ZEND_FE(Ice_identityToString, ICE_NULLPTR) \
-    ZEND_FE(Ice_stringToIdentity, ICE_NULLPTR) \
-
-#ifdef ICEPHP_USE_NAMESPACES
-#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS \
-    ZEND_NS_FALIAS("Ice", initialize, Ice_initialize, Ice_initialize_arginfo) \
-    ZEND_NS_FALIAS("Ice", register, Ice_register, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", unregister, Ice_unregister, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", find, Ice_find, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", getProperties, Ice_getProperties, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", identityToString, Ice_identityToString, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", stringToIdentity, Ice_stringToIdentity, ICE_NULLPTR)
-#else
-#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS
+    ZEND_FE(Ice_stringToIdentity, ICE_NULLPTR)
 #endif
 
 #define ICEPHP_OPERATION_FUNCTIONS \
     ZEND_FE(IcePHP_defineOperation,  ICE_NULLPTR)
 
-#define ICEPHP_PROPERTIES_FUNCTIONS \
-    ZEND_FE(Ice_createProperties, Ice_createProperties_arginfo)
-
 #ifdef ICEPHP_USE_NAMESPACES
-#   define ICEPHP_PROPERTIES_NS_FUNCTIONS \
-    ZEND_NS_FALIAS("Ice", createProperties, Ice_createProperties, Ice_createProperties_arginfo)
+#  define ICEPHP_PROPERTIES_FUNCTIONS \
+    ZEND_NS_NAMED_FE("Ice", createProperties, ZEND_FN(Ice_createProperties), Ice_createProperties_arginfo)
 #else
-#   define ICEPHP_PROPERTIES_NS_FUNCTIONS
+#  define ICEPHP_PROPERTIES_FUNCTIONS \
+    ZEND_FE(Ice_createProperties, Ice_createProperties_arginfo)
 #endif
 
 #define ICEPHP_TYPE_FUNCTIONS \
@@ -76,7 +72,20 @@ ZEND_END_ARG_INFO()
     ZEND_FE(IcePHP_stringify,           ICE_NULLPTR) \
     ZEND_FE(IcePHP_stringifyException,  ICE_NULLPTR)
 
-#define ICEPHP_UTIL_FUNCTIONS \
+#ifdef ICEPHP_USE_NAMESPACES
+#  define ICEPHP_UTIL_FUNCTIONS \
+    ZEND_NS_NAMED_FE("Ice", stringVersion, ZEND_FN(Ice_stringVersion), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", intVersion, ZEND_FN(Ice_intVersion), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", generateUUID, ZEND_FN(Ice_generateUUID), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", currentProtocol, ZEND_FN(Ice_currentProtocol), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", currentProtocolEncoding, ZEND_FN(Ice_currentProtocolEncoding), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", currentEncoding, ZEND_FN(Ice_currentEncoding), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", protocolVersionToString, ZEND_FN(Ice_protocolVersionToString), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", stringToProtocolVersion, ZEND_FN(Ice_stringToProtocolVersion), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", encodingVersionToString, ZEND_FN(Ice_encodingVersionToString), ICE_NULLPTR) \
+    ZEND_NS_NAMED_FE("Ice", stringToEncodingVersion, ZEND_FN(Ice_stringToEncodingVersion), ICE_NULLPTR)
+#else
+#  define ICEPHP_UTIL_FUNCTIONS \
     ZEND_FE(Ice_stringVersion, ICE_NULLPTR) \
     ZEND_FE(Ice_intVersion, ICE_NULLPTR) \
     ZEND_FE(Ice_generateUUID, ICE_NULLPTR) \
@@ -87,21 +96,6 @@ ZEND_END_ARG_INFO()
     ZEND_FE(Ice_stringToProtocolVersion, ICE_NULLPTR) \
     ZEND_FE(Ice_encodingVersionToString, ICE_NULLPTR) \
     ZEND_FE(Ice_stringToEncodingVersion, ICE_NULLPTR)
-
-#ifdef ICEPHP_USE_NAMESPACES
-#   define ICEPHP_UTIL_NS_FUNCTIONS \
-    ZEND_NS_FALIAS("Ice", stringVersion, Ice_stringVersion, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", intVersion, Ice_intVersion, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", generateUUID, Ice_generateUUID, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", currentProtocol, Ice_currentProtocol, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", currentProtocolEncoding, Ice_currentProtocolEncoding, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", currentEncoding, Ice_currentEncoding, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", protocolVersionToString, Ice_protocolVersionToString, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", stringToProtocolVersion, Ice_stringToProtocolVersion, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", encodingVersionToString, Ice_encodingVersionToString, ICE_NULLPTR) \
-    ZEND_NS_FALIAS("Ice", stringToEncodingVersion, Ice_stringToEncodingVersion, ICE_NULLPTR)
-#else
-#   define ICEPHP_UTIL_NS_FUNCTIONS
 #endif
 
 //
@@ -117,13 +111,10 @@ ZEND_END_ARG_INFO()
 zend_function_entry ice_functions[] =
 {
     ICEPHP_COMMUNICATOR_FUNCTIONS
-    ICEPHP_COMMUNICATOR_NS_FUNCTIONS
     ICEPHP_OPERATION_FUNCTIONS
     ICEPHP_PROPERTIES_FUNCTIONS
-    ICEPHP_PROPERTIES_NS_FUNCTIONS
     ICEPHP_TYPE_FUNCTIONS
     ICEPHP_UTIL_FUNCTIONS
-    ICEPHP_UTIL_NS_FUNCTIONS
     {0, 0, 0}
 };
 //

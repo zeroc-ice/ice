@@ -8,8 +8,8 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderOutputDir>..</IceBuilderOutputDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'yes'">
-    <IceBuilderNamespace>yes</IceBuilderNamespace>
+  <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'no'">
+    <IceBuilderAdditionalOptions>--no-namespace</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup>
     <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>

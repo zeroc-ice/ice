@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 function test($b)
 {
@@ -28,6 +28,13 @@ function test($b)
         echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
         exit(1);
     }
+}
+
+function currentEncodingToString()
+{
+    global $NS;
+    return $NS ? eval("return Ice\\encodingVersionToString(Ice\\currentEncoding());") :
+                 eval("return Ice_encodingVersionToString(Ice_currentEncoding());");
 }
 
 function allTests($communicator)
@@ -428,14 +435,14 @@ function allTests($communicator)
     test($proxyProps["Test.EndpointSelection"] == "Ordered");
     test($proxyProps["Test.LocatorCacheTimeout"] == "100");
 
-    test($proxyProps["Test.Locator"] == "locator -t -e " . Ice_encodingVersionToString(Ice_currentEncoding()));
+    test($proxyProps["Test.Locator"] == "locator -t -e " . currentEncodingToString());
     //test($proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test($proxyProps["Test.Locator.ConnectionCached"] == "0");
     test($proxyProps["Test.Locator.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.EndpointSelection"] == "Random");
     test($proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
 
-    test($proxyProps["Test.Locator.Router"] == "router -t -e " . Ice_encodingVersionToString(Ice_currentEncoding()));
+    test($proxyProps["Test.Locator.Router"] == "router -t -e " . currentEncodingToString());
     //test($proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test($proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test($proxyProps["Test.Locator.Router.PreferSecure"] == "1");
@@ -808,7 +815,8 @@ function allTests($communicator)
     return $cl;
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+                      eval("return Ice_initialize(\$argv);");
 $myClass = allTests($communicator);
 $myClass->shutdown();
 $communicator->destroy();

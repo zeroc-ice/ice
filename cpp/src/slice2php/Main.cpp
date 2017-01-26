@@ -1605,7 +1605,7 @@ usage(const string& n)
         "-d, --debug          Print debug messages.\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
-        "-n, --namespace      Use PHP namespaces (requires PHP 5.3 or later).\n"
+        "--no-namespace       Do not use PHP namespaces (deprecated).\n"
         "--ice                Allow reserved Ice prefix in Slice identifiers\n"
         "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore         Allow underscores in Slice identifiers\n"
@@ -1633,7 +1633,7 @@ compile(const vector<string>& argv)
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
-    opts.addOpt("n", "namespace");
+    opts.addOpt("n", "no-namespace");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -1703,7 +1703,7 @@ compile(const vector<string>& argv)
 
     bool checksum = opts.isSet("checksum");
 
-    bool ns = opts.isSet("namespace");
+    bool ns = !opts.isSet("no-namespace");
 
     if(args.empty())
     {

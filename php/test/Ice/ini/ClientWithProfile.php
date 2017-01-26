@@ -27,12 +27,11 @@ function test($b)
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
+require_once ('Ice.php');
 
 //
 // Load the Demo profile.
 //
-
 
 $communicator = null;
 

@@ -18,9 +18,8 @@ if(!extension_loaded("ice"))
 
 function foo()
 {
-    $NS = function_exists("Ice\\initialize");
-    require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-    require_once 'IceGrid.php';
+    require_once('Ice.php');
+    require_once('IceGrid.php');
 }
 
 echo "testing generated code in a non-global scope... ";

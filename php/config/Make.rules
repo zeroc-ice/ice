@@ -18,9 +18,10 @@ PHP_CONFIG      ?= php-config
 
 php_cppflags            = $(shell $(PHP_CONFIG) --includes)
 
-ifeq ($(USE_NAMESPACES),yes)
+ifeq ($(USE_NAMESPACES),no)
+slice2php_flags         = --no-namespace
+else
 php_cppflags            := $(php_cppflags) -DICEPHP_USE_NAMESPACES
-slice2php_flags         = --namespace
 endif
 
 ifeq ($(os),Darwin)

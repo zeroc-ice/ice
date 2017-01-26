@@ -11,7 +11,7 @@
     <BuildWithPhpVersion>7.0</BuildWithPhpVersion>
 
     <!-- Determines whether the extension uses PHP namespaces (requires PHP 5.3 or later). -->
-    <PhpUseNamespaces>no</PhpUseNamespaces>
+    <PhpUseNamespaces Condition="'$(PhpUseNamespaces)' == ''">yes</PhpUseNamespaces>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -51,7 +51,7 @@
       <PreprocessorDefinitions>ICEPHP_USE_NAMESPACES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'yes'">
-    <IceBuilderNamespace>yes</IceBuilderNamespace>
+  <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'no'">
+    <IceBuilderAdditionalOptions>--no-namespace</IceBuilderAdditionalOptions>
   </PropertyGroup>
 </Project>

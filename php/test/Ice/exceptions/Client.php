@@ -9,8 +9,8 @@
 // **********************************************************************
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 error_reporting(E_ALL | E_STRICT);
 
@@ -430,9 +430,10 @@ function allTests($communicator)
 }
 
 $initData = $NS ? eval("return new Ice\\InitializationData;") : eval("return new Ice_InitializationData;");
-$initData->properties = Ice_getProperties();
+$initData->properties = $NS ? eval("return Ice\\getProperties();") : eval("return Ice_getProperties();");
 $initData->properties->setProperty("Ice.MessageSizeMax", "10");
-$communicator = Ice_initialize($argv, $initData);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv, \$initData);") : 
+                      eval("return Ice_initialize(\$argv, \$initData);");
 
 // This property is set by the test suite, howerver we need to override it for this test.
 // Unlike C++, we can not pass $argv into Ice::createProperties, so we just set it after.

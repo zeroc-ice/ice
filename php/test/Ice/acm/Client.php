@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 function test($b)
 {
@@ -48,7 +48,11 @@ function allTests($communicator)
     $initData->properties->setProperty("Ice.ACM.Client.Timeout", "15");
     $initData->properties->setProperty("Ice.ACM.Client.Close", "4");
     $initData->properties->setProperty("Ice.ACM.Client.Heartbeat", "2");
-    $testCommunicator = $NS ? eval("return Ice\\initialize(\$initData);") : Ice_initialize($initData);
+    
+    $testCommunicator = $NS ? eval("return Ice\\initialize(\$initData);") : 
+                              eval("return Ice_initialize(\$initData);");
+    
+    
     $proxy = $testCommunicator->stringToProxy($adapter->getTestIntf()->ice_toString())->ice_uncheckedCast(
         "::Test::TestIntf");
     $proxy->ice_getConnection();
@@ -91,7 +95,9 @@ function allTests($communicator)
     echo "ok\n";
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+                      eval("return Ice_initialize(\$argv);");
+
 allTests($communicator);
 $communicator->destroy();
 

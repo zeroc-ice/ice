@@ -113,7 +113,7 @@ need access to the shared libraries for IceSSL and OpenSSL.
 In addition to the binary Ice extension module and its library dependencies, you
 will also need to make the Ice for PHP source files available to your scripts.
 These files are located in the `lib` subdirectory and consist of the Ice run
-time definitions (`Ice.php` or `Ice_ns.php`) along with PHP source files
+time definitions (`Ice.php`) along with PHP source files
 generated from the Slice files included in the Ice distribution.
 
 The Ice extension makes no assumptions about the location of these files, so you
