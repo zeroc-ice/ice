@@ -679,9 +679,9 @@ public class TwowaysAMI
 
         public void opACVPrxSI(Ice.AsyncResult result)
         {
-            CVPrx[] i = (CVPrx[])result.AsyncState;
-            CVPrx[] o;
-            CVPrx[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opACVPrxS(out o, result);
+            Ice.ObjectPrx[] i = (Ice.ObjectPrx[])result.AsyncState;
+            Ice.ObjectPrx[] o;
+            Ice.ObjectPrx[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opACVPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -689,9 +689,9 @@ public class TwowaysAMI
 
         public void opLCVPrxSI(Ice.AsyncResult result)
         {
-            List<CVPrx> i = (List<CVPrx>)result.AsyncState;
-            List<CVPrx> o;
-            List<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLCVPrxS(out o, result);
+            List<Ice.ObjectPrx> i = (List<Ice.ObjectPrx>)result.AsyncState;
+            List<Ice.ObjectPrx> o;
+            List<Ice.ObjectPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLCVPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -699,9 +699,9 @@ public class TwowaysAMI
 
         public void opKCVPrxSI(Ice.AsyncResult result)
         {
-            LinkedList<CVPrx> i = (LinkedList<CVPrx>)result.AsyncState;
-            LinkedList<CVPrx> o;
-            LinkedList<CVPrx> r =
+            LinkedList<Ice.ObjectPrx> i = (LinkedList<Ice.ObjectPrx>)result.AsyncState;
+            LinkedList<Ice.ObjectPrx> o;
+            LinkedList<Ice.ObjectPrx> r =
                 MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opKCVPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
@@ -710,9 +710,9 @@ public class TwowaysAMI
 
         public void opQCVPrxSI(Ice.AsyncResult result)
         {
-            Queue<CVPrx> i = (Queue<CVPrx>)result.AsyncState;
-            Queue<CVPrx> o;
-            Queue<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opQCVPrxS(out o, result);
+            Queue<Ice.ObjectPrx> i = (Queue<Ice.ObjectPrx>)result.AsyncState;
+            Queue<Ice.ObjectPrx> o;
+            Queue<Ice.ObjectPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opQCVPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -720,9 +720,9 @@ public class TwowaysAMI
 
         public void opSCVPrxSI(Ice.AsyncResult result)
         {
-            Stack<CVPrx> i = (Stack<CVPrx>)result.AsyncState;
-            Stack<CVPrx> o;
-            Stack<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSCVPrxS(out o, result);
+            Stack<Ice.ObjectPrx> i = (Stack<Ice.ObjectPrx>)result.AsyncState;
+            Stack<Ice.ObjectPrx> o;
+            Stack<Ice.ObjectPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSCVPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -1646,10 +1646,10 @@ public class TwowaysAMI
         }
 
         {
-            CVPrx[] i = new CVPrx[_length];
+            Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
-                i[c] = CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
+                i[c] = communicator.stringToProxy(c.ToString());
             }
 
             Callback cb = new Callback();
@@ -1658,10 +1658,10 @@ public class TwowaysAMI
         }
 
         {
-            List<CVPrx> i = new List<CVPrx>();
+            List<Ice.ObjectPrx> i = new List<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Add(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Add(communicator.stringToProxy(c.ToString()));
             }
 
             Callback cb = new Callback();
@@ -1670,10 +1670,10 @@ public class TwowaysAMI
         }
 
         {
-            LinkedList<CVPrx> i = new LinkedList<CVPrx>();
+            LinkedList<Ice.ObjectPrx> i = new LinkedList<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.AddLast(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.AddLast(communicator.stringToProxy(c.ToString()));
             }
 
             Callback cb = new Callback();
@@ -1682,10 +1682,10 @@ public class TwowaysAMI
         }
 
         {
-            Queue<CVPrx> i = new Queue<CVPrx>();
+            Queue<Ice.ObjectPrx> i = new Queue<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Enqueue(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Enqueue(communicator.stringToProxy(c.ToString()));
             }
 
             Callback cb = new Callback();
@@ -1694,10 +1694,10 @@ public class TwowaysAMI
         }
 
         {
-            Stack<CVPrx> i = new Stack<CVPrx>();
+            Stack<Ice.ObjectPrx> i = new Stack<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Push(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Push(communicator.stringToProxy(c.ToString()));
             }
 
             Callback cb = new Callback();

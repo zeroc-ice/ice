@@ -141,9 +141,8 @@ public class InitialI : Test.InitialDisp_
         return p1;
     }
 
-    public override Ice.Optional<Test.OneOptionalPrx> opOneOptionalProxy(Ice.Optional<Test.OneOptionalPrx> p1,
-                                                                         out Ice.Optional<Test.OneOptionalPrx> p3,
-                                                                         Ice.Current current)
+    public override Ice.Optional<Ice.ObjectPrx>
+    opOneOptionalProxy(Ice.Optional<Ice.ObjectPrx> p1, out Ice.Optional<Ice.ObjectPrx> p3, Ice.Current current)
     {
         p3 = p1;
         return p1;

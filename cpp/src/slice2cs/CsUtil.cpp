@@ -17,11 +17,9 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
-#endif
-
-#ifndef _WIN32
-#include <unistd.h>
+#  include <direct.h>
+#else
+#  include <unistd.h>
 #endif
 
 using namespace std;
@@ -329,7 +327,15 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return fixId(proxy->_class()->scoped() + "Prx");
+        ClassDefPtr def = proxy->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
+        {
+            return fixId(proxy->_class()->scoped() + "Prx");
+        }
+        else
+        {
+            return "Ice.ObjectPrx";
+        }
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -655,14 +661,29 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        string typeS = typeToString(type);
-        if(marshal)
+        ClassDefPtr def = prx->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
         {
-            out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
+            string typeS = typeToString(type);
+            if (marshal)
+            {
+                out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
+            }
         }
         else
         {
-            out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
+            if(marshal)
+            {
+                out << nl << stream << ".writeProxy(" << param << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << stream << ".readProxy()" << ';';
+            }
         }
         return;
     }
@@ -1164,9 +1185,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     const string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    ClassDefPtr def = proxy ? proxy->_class()->definition() : 0;
+    bool isObjectProxySeq = def && !def->isInterface() && def->allOperations().size() == 0;
+    Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
+
+    if(builtin || isObjectProxySeq)
     {
-        switch(builtin->kind())
+        switch(kind)
         {
             case Builtin::KindValue:
             case Builtin::KindObject:
@@ -1201,8 +1227,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                                 << "> e = " << param << ".GetEnumerator();";
                             out << nl << "while(e.MoveNext())";
                             out << sb;
-                            string func = (builtin->kind() == Builtin::KindObject ||
-                                           builtin->kind() == Builtin::KindValue) ? "writeValue" : "writeProxy";
+                            string func = (kind == Builtin::KindObject ||
+                                           kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
                             out << nl << stream << '.' << func << "(e.Current);";
                             out << eb;
                         }
@@ -1211,8 +1237,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
                         out << sb;
-                        string func = (builtin->kind() == Builtin::KindObject ||
-                                       builtin->kind() == Builtin::KindValue) ? "writeValue" : "writeProxy";
+                        string func = (kind == Builtin::KindObject ||
+                                       kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
                         out << nl << stream << '.' << func << '(' << param << "[ix]);";
                         out << eb;
                     }
@@ -1221,9 +1247,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 else
                 {
                     out << nl << "int " << param << "_lenx = " << stream << ".readAndCheckSeqSize("
-                        << static_cast<unsigned>(builtin->minWireSize()) << ");";
-                    out << nl << param << " = new ";
-                    if((builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+                        << static_cast<unsigned>(type->minWireSize()) << ");";
+                    if(!isStack)
+                    {
+                        out << nl << param << " = new ";
+                    }
+                    if((kind == Builtin::KindObject || kind == Builtin::KindValue))
                     {
                         if(isArray)
                         {
@@ -1271,7 +1300,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        if(isArray)
+                        if(isStack)
+                        {
+                            out << nl << "Ice.ObjectPrx[] " << param << "_tmp = new Ice.ObjectPrx[" << param << "_lenx];";
+                        }
+                        else if(isArray)
                         {
                             out << "Ice.ObjectPrx[" << param << "_lenx];";
                         }
@@ -1288,11 +1321,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             out << typeToString(seq) << "(" << param << "_lenx);";
                         }
+
                         out << nl << "for(int ix = 0; ix < " << param << "_lenx; ++ix)";
                         out << sb;
-                        if(isArray)
+                        if(isArray || isStack)
                         {
-                            out << nl << param << "[ix] = " << stream << ".readProxy();";
+                            string v = isArray ? param : param + "_tmp";
+                            out << nl << v << "[ix] = " << stream << ".readProxy();";
                         }
                         else
                         {
@@ -1302,6 +1337,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                     }
                     out << eb;
+
+                    if(isStack)
+                    {
+                        out << nl << "_System.Array.Reverse(" << param << "_tmp);";
+                        out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">("
+                            << param << "_tmp);";
+                    }
                 }
                 break;
             }

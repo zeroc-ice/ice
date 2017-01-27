@@ -269,7 +269,7 @@ public class AllTests : TestCommon.AllTests
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            s.p = communicator.stringToProxy("test:default");
             SmallStruct.ice_write(outS, s);
             var data = outS.finished();
             var s2 = SmallStruct.ice_read(new Ice.InputStream(communicator, data));
@@ -518,7 +518,7 @@ public class AllTests : TestCommon.AllTests
             smallStructArray[i].d = 6.0;
             smallStructArray[i].str = "7";
             smallStructArray[i].e = MyEnum.enum2;
-            smallStructArray[i].p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            smallStructArray[i].p = communicator.stringToProxy("test:default");
         }
 
         var myClassArray = new MyClass[4];
@@ -805,11 +805,11 @@ public class AllTests : TestCommon.AllTests
         }
 
         {
-            var arr = new MyClassPrx[2];
-            arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-            arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            var arr = new Ice.ObjectPrx[2];
+            arr[0] = communicator.stringToProxy("zero");
+            arr[1] = communicator.stringToProxy("one");
             outS = new Ice.OutputStream(communicator);
-            var l = new List<MyClassPrx>(arr);
+            var l = new List<Ice.ObjectPrx>(arr);
             MyClassProxyListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
@@ -905,11 +905,11 @@ public class AllTests : TestCommon.AllTests
         }
 
         {
-            var arr = new MyClassPrx[2];
-            arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-            arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            var arr = new Ice.ObjectPrx[2];
+            arr[0] = communicator.stringToProxy("zero");
+            arr[1] = communicator.stringToProxy("one");
             outS = new Ice.OutputStream(communicator);
-            var l = new Stack<MyClassPrx>(arr);
+            var l = new Stack<Ice.ObjectPrx>(arr);
             MyClassProxyStackHelper.write(outS, l);
             var data = outS.finished();
             inS = new Ice.InputStream(communicator, data);

@@ -374,31 +374,31 @@ public sealed class MyClassI : MyClassDisp_
     }
 
     public override Task<MyClass_OpACVPrxSResult>
-    opACVPrxSAsync(CVPrx[] i, Ice.Current current)
+    opACVPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current)
     {
         return Task.FromResult<MyClass_OpACVPrxSResult>(new MyClass_OpACVPrxSResult(i, i));
     }
 
     public override Task<MyClass_OpLCVPrxSResult>
-    opLCVPrxSAsync(List<CVPrx> i, Ice.Current current)
+    opLCVPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current)
     {
         return Task.FromResult<MyClass_OpLCVPrxSResult>(new MyClass_OpLCVPrxSResult(i, i));
     }
 
     public override Task<MyClass_OpKCVPrxSResult>
-    opKCVPrxSAsync(LinkedList<CVPrx> i, Ice.Current current)
+    opKCVPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current)
     {
         return Task.FromResult<MyClass_OpKCVPrxSResult>(new MyClass_OpKCVPrxSResult(i, i));
     }
 
     public override Task<MyClass_OpQCVPrxSResult>
-    opQCVPrxSAsync(Queue<CVPrx> i, Ice.Current current)
+    opQCVPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current)
     {
         return Task.FromResult<MyClass_OpQCVPrxSResult>(new MyClass_OpQCVPrxSResult(i, i));
     }
 
     public override Task<MyClass_OpSCVPrxSResult>
-    opSCVPrxSAsync(Stack<CVPrx> i, Ice.Current current)
+    opSCVPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current)
     {
         return Task.FromResult<MyClass_OpSCVPrxSResult>(new MyClass_OpSCVPrxSResult(i, i));
     }

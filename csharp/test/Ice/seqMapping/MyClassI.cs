@@ -413,31 +413,31 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override CVPrx[] opACVPrxS(CVPrx[] i, out CVPrx[] o, Ice.Current current)
+    public override Ice.ObjectPrx[] opACVPrxS(Ice.ObjectPrx[] i, out Ice.ObjectPrx[] o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override List<CVPrx> opLCVPrxS(List<CVPrx> i, out List<CVPrx> o, Ice.Current current)
+    public override List<Ice.ObjectPrx> opLCVPrxS(List<Ice.ObjectPrx> i, out List<Ice.ObjectPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override LinkedList<CVPrx> opKCVPrxS(LinkedList<CVPrx> i, out LinkedList<CVPrx> o, Ice.Current current)
+    public override LinkedList<Ice.ObjectPrx> opKCVPrxS(LinkedList<Ice.ObjectPrx> i, out LinkedList<Ice.ObjectPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override Queue<CVPrx> opQCVPrxS(Queue<CVPrx> i, out Queue<CVPrx> o, Ice.Current current)
+    public override Queue<Ice.ObjectPrx> opQCVPrxS(Queue<Ice.ObjectPrx> i, out Queue<Ice.ObjectPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override Stack<CVPrx> opSCVPrxS(Stack<CVPrx> i, out Stack<CVPrx> o, Ice.Current current)
+    public override Stack<Ice.ObjectPrx> opSCVPrxS(Stack<Ice.ObjectPrx> i, out Stack<Ice.ObjectPrx> o, Ice.Current current)
     {
         o = i;
         return i;

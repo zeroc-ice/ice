@@ -70,7 +70,7 @@ public class AllTests : TestCommon.AllTests
         Write("testing serialization... ");
         Flush();
 
-        MyClassPrx proxy = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+        Ice.ObjectPrx proxy = communicator.stringToProxy("test");
 
         MyException ex, ex2;
         ex = new MyException();
@@ -89,7 +89,7 @@ public class AllTests : TestCommon.AllTests
         ex.optValStruct = new Ice.Optional<ValStruct>();
         ex.optRefStruct = new Ice.Optional<RefStruct>();
         ex.optEnum = new Ice.Optional<MyEnum>();
-        ex.optProxy = new Ice.Optional<MyClassPrx>();
+        ex.optProxy = new Ice.Optional<Ice.ObjectPrx>();
         ex2 = inOut(ex, communicator);
         test(ex.Equals(ex2));
 
@@ -99,7 +99,7 @@ public class AllTests : TestCommon.AllTests
         ex.i = 3;
         ex.l = 4;
         ex.vs = new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2);
-        ex.rs = new RefStruct("RefStruct", "prop", proxy, new MyClassPrx[] { proxy, null, proxy });
+        ex.rs = new RefStruct("RefStruct", "prop", proxy, new Ice.ObjectPrx[] { proxy, null, proxy });
         ex.vss = new ValStruct[1];
         ex.vss[0] = ex.vs;
         ex.vsl = new List<ValStruct>();
@@ -114,7 +114,7 @@ public class AllTests : TestCommon.AllTests
         ex.isd[5] = "five";
         ex.ivd = new Dictionary<int, ValStruct>();
         ex.ivd[1] = ex.vs;
-        ex.ipd = new Dictionary<int, MyClassPrx>() { { 1, proxy}, { 2, null}, {3, proxy } };
+        ex.ipd = new Dictionary<int, Ice.ObjectPrx>() { { 1, proxy }, { 2, null }, { 3, proxy } };
         ex.issd = new SortedDictionary<int, string>();
         ex.issd[3] = "three";
         ex.optName = new Ice.Optional<string>("MyException");
@@ -122,7 +122,7 @@ public class AllTests : TestCommon.AllTests
         ex.optValStruct = new Ice.Optional<ValStruct>(ex.vs);
         ex.optRefStruct = new Ice.Optional<RefStruct>(ex.rs);
         ex.optEnum = new Ice.Optional<MyEnum>(MyEnum.enum3);
-        ex.optProxy = new Ice.Optional<MyClassPrx>(proxy);
+        ex.optProxy = new Ice.Optional<Ice.ObjectPrx>(proxy);
         ex2 = inOut(ex, communicator);
         test(ex.Equals(ex2));
 
@@ -130,8 +130,8 @@ public class AllTests : TestCommon.AllTests
         rs = new RefStruct();
         rs.s = "RefStruct";
         rs.sp = "prop";
-        rs.p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-        rs.seq = new MyClassPrx[] { rs.p };
+        rs.p = communicator.stringToProxy("test");
+        rs.seq = new Ice.ObjectPrx[] { rs.p };
         rs2 = inOut(rs, communicator);
         test(rs.Equals(rs2));
 

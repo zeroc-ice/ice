@@ -3951,7 +3951,7 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().size() == 0))
     {
         return false;
     }
@@ -3963,20 +3963,28 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << "Prx : ";
-    if(bases.empty())
+
+    vector<string> baseInterfaces;
+    for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
     {
-        _out << "Ice.ObjectPrx";
-    }
-    else
-    {
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
+        ClassDefPtr def = *q;
+        if(def->isInterface() || def->allOperations().size() > 0)
         {
-            _out << fixId((*q)->scoped() + "Prx");
-            if(++q != bases.end())
-            {
-                _out << ", ";
-            }
+            baseInterfaces.push_back(fixId((*q)->scoped() + "Prx"));
+        }
+    }
+
+    if(baseInterfaces.empty())
+    {
+        baseInterfaces.push_back("Ice.ObjectPrx");
+    }
+    
+    for(vector<string>::const_iterator q = baseInterfaces.begin(); q != baseInterfaces.end();)
+    {
+        _out << *q;
+        if(++q != baseInterfaces.end())
+        {
+            _out << ", ";
         }
     }
     _out << sb;
@@ -4286,7 +4294,7 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().size() == 0))
     {
         return false;
     }
@@ -5540,7 +5548,7 @@ Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isAbstract())
+    if(p->allOperations().size() == 0)
     {
         return false;
     }

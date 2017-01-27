@@ -1061,13 +1061,13 @@ class Twoways
         }
 
         {
-            CVPrx[] i = new CVPrx[_length];
+            Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
-                i[c] = CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
+                i[c] = communicator.stringToProxy(c.ToString());
             }
-            CVPrx[] o;
-            CVPrx[] r;
+            Ice.ObjectPrx[] o;
+            Ice.ObjectPrx[] r;
 
             r = p.opACVPrxS(i, out o);
 
@@ -1076,13 +1076,13 @@ class Twoways
         }
 
         {
-            List<CVPrx> i = new List<CVPrx>(_length);
+            List<Ice.ObjectPrx> i = new List<Ice.ObjectPrx>(_length);
             for(int c = 0; c < _length; ++c)
             {
-                i.Add(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Add(communicator.stringToProxy(c.ToString()));
             }
-            List<CVPrx> o;
-            List<CVPrx> r;
+            List<Ice.ObjectPrx> o;
+            List<Ice.ObjectPrx> r;
 
             r = p.opLCVPrxS(i, out o);
 
@@ -1091,13 +1091,13 @@ class Twoways
         }
 
         {
-            LinkedList<CVPrx> i = new LinkedList<CVPrx>();
+            LinkedList<Ice.ObjectPrx> i = new LinkedList<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.AddLast(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.AddLast(communicator.stringToProxy(c.ToString()));
             }
-            LinkedList<CVPrx> o;
-            LinkedList<CVPrx> r;
+            LinkedList<Ice.ObjectPrx> o;
+            LinkedList<Ice.ObjectPrx> r;
 
             r = p.opKCVPrxS(i, out o);
 
@@ -1106,13 +1106,13 @@ class Twoways
         }
 
         {
-            Queue<CVPrx> i = new Queue<CVPrx>();
+            Queue<Ice.ObjectPrx> i = new Queue<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Enqueue(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Enqueue(communicator.stringToProxy(c.ToString()));
             }
-            Queue<CVPrx> o;
-            Queue<CVPrx> r;
+            Queue<Ice.ObjectPrx> o;
+            Queue<Ice.ObjectPrx> r;
 
             r = p.opQCVPrxS(i, out o);
 
@@ -1121,13 +1121,13 @@ class Twoways
         }
 
         {
-            Stack<CVPrx> i = new Stack<CVPrx>();
+            Stack<Ice.ObjectPrx> i = new Stack<Ice.ObjectPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Push(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Push(communicator.stringToProxy(c.ToString()));
             }
-            Stack<CVPrx> o;
-            Stack<CVPrx> r;
+            Stack<Ice.ObjectPrx> o;
+            Stack<Ice.ObjectPrx> r;
 
             r = p.opSCVPrxS(i, out o);
 
