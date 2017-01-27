@@ -8,6 +8,6 @@
 //
 // **********************************************************************
 
-require_once(function_exists("Ice\\initialize") ? "Ice/Ice_ns.php" : "Ice/Ice.php");
+require_once(function_exists("Ice\\initialize") ? "Ice_ns.php" : "Ice_no_ns.php");
 
 ?>
