@@ -77,11 +77,12 @@ class ControllerDriver(Driver):
                     print("ok")
                     print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
+        self.initCommunicator()
         import Ice
         Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
         import Test
 
-        class TestCaseI(Test.Common.TestCase):
+        class TestCaseI(Test.Common._TestCaseDisp):
             def __init__(self, driver, current):
                 self.driver = driver
                 self.current = current
@@ -129,7 +130,7 @@ class ControllerDriver(Driver):
                             self.current.config.parsedOptions.append(a)
                         setattr(self.current.config, a, v)
 
-        class ControllerI(Test.Common.Controller):
+        class ControllerI(Test.Common._ControllerDisp):
             def __init__(self, driver):
                 self.driver = driver
                 self.testcase = None

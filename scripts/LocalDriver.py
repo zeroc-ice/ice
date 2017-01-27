@@ -340,17 +340,13 @@ class LocalDriver(Driver):
         self.results = []
         self.threadlocal = threading.local()
 
-        try:
-            if self.clientCtlPrx or self.serverCtlPrx:
-                self.initCommunicator()
-                self.runner = RemoteTestCaseRunner(self.communicator, self.clientCtlPrx, self.serverCtlPrx)
-            else:
-                self.runner = TestCaseRunner()
-        except:
-            self.destroy()
-            raise
-
     def run(self, mappings, testSuiteIds):
+
+        if self.clientCtlPrx or self.serverCtlPrx:
+            self.initCommunicator()
+            self.runner = RemoteTestCaseRunner(self.communicator, self.clientCtlPrx, self.serverCtlPrx)
+        else:
+            self.runner = TestCaseRunner()
 
         while True:
             executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)

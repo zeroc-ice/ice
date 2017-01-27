@@ -1768,7 +1768,7 @@ class RemoteProcessController(ProcessController):
             comm = current.driver.getCommunicator()
             import Test
 
-            class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
+            class ProcessControllerRegistryI(Test.Common._ProcessControllerRegistryDisp):
 
                 def __init__(self, remoteProcessController):
                     self.remoteProcessController = remoteProcessController
