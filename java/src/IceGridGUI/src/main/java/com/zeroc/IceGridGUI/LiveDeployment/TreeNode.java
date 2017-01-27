@@ -64,7 +64,10 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int ENABLE_METRICS_VIEW = 21;
     public static final int DISABLE_METRICS_VIEW = 22;
 
-    public static final int ACTION_COUNT = 23;
+    public static final int START_ALL_SERVERS = 23;
+    public static final int STOP_ALL_SERVERS = 24;
+
+    public static final int ACTION_COUNT = 25;
 
     public boolean[] getAvailableActions()
     {
@@ -127,8 +130,15 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-
     public void enableMetricsView(boolean enabled)
+    {
+        assert false;
+    }
+    public void startAllServers()
+    {
+        assert false;
+    }
+    public void stopAllServers()
     {
         assert false;
     }

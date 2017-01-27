@@ -36,6 +36,8 @@ class Node extends ListTreeNode
         actions[RETRIEVE_ICE_LOG] = _up;
         actions[RETRIEVE_STDOUT] = _up;
         actions[RETRIEVE_STDERR] = _up;
+        actions[START_ALL_SERVERS] = _up;
+        actions[STOP_ALL_SERVERS] = _up;
         return actions;
     }
 
@@ -160,6 +162,32 @@ class Node extends ListTreeNode
     }
 
     @Override
+    public void startAllServers()
+    {
+        for(Object obj : _children)
+        {
+            Server server = (Server)obj;
+            if(server.getAvailableActions()[START])
+            {
+                server.start();
+            }
+        }
+    }
+
+    @Override
+    public void stopAllServers()
+    {
+        for(Object obj : _children)
+        {
+            Server server = (Server)obj;
+            if(server.getAvailableActions()[STOP])
+            {
+                server.stop();
+            }
+        }
+    }
+
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
@@ -170,6 +198,9 @@ class Node extends ListTreeNode
             _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
             _popup.add(la.get(RETRIEVE_STDERR));
+            _popup.addSeparator();
+            _popup.add(la.get(START_ALL_SERVERS));
+            _popup.add(la.get(STOP_ALL_SERVERS));
             _popup.addSeparator();
             _popup.add(la.get(SHUTDOWN_NODE));
         }

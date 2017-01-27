@@ -124,7 +124,7 @@ public class LiveActions
             };
         _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, "Write message to stdout or stderr");
 
-        
+
         _array[TreeNode.RETRIEVE_ICE_LOG] = new AbstractAction("Retrieve Ice log")
         {
             @Override
@@ -226,6 +226,24 @@ public class LiveActions
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.enableMetricsView(false);
+                }
+            };
+
+        _array[TreeNode.START_ALL_SERVERS] =  new AbstractAction("Start All Servers")
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    _target.startAllServers();
+                }
+            };
+
+        _array[TreeNode.STOP_ALL_SERVERS] =  new AbstractAction("Stop All Servers")
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    _target.stopAllServers();
                 }
             };
     }
