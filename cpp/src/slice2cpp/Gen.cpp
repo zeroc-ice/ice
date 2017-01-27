@@ -2987,7 +2987,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     argsAMD += "current)";
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
-    string noExcept = (cl->isLocal() && p->hasMetaData("cpp:noexcept")) ? " throw()" : "";
+    string noExcept = (cl->isLocal() && p->hasMetaData("cpp:noexcept")) ? " ICE_NOEXCEPT" : "";
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
