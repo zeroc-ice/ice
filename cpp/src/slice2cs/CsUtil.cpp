@@ -1186,8 +1186,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    ClassDefPtr def = proxy ? proxy->_class()->definition() : ICE_NULLPTR;
-    bool isObjectProxySeq = def && !def->isInterface() && def->allOperations().size() == ICE_NULLPTR;
+    ClassDefPtr clsDef;
+    if(proxy)
+    {
+        clsDef = proxy->_class()->definition();
+    }
+    bool isObjectProxySeq = clsDef && !clsDef->isInterface() && clsDef->allOperations().size() == 0;
     Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
 
     if(builtin || isObjectProxySeq)
