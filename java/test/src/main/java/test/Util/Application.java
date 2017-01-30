@@ -94,9 +94,8 @@ public abstract class Application
 
         int status = 0;
 
-        try
+        try(Util.InitializeResult ir = Util.initialize(cpr.args, initData))
         {
-            Util.InitializeResult ir = Util.initialize(cpr.args, initData);
             _communicator = ir.communicator;
             if(_communicatorListener != null)
             {
@@ -134,11 +133,8 @@ public abstract class Application
             err.printStackTrace(writer);
             status = 1;
         }
-        writer.flush();
-
-        if(_communicator != null)
+        finally
         {
-            _communicator.destroy();
             _communicator = null;
         }
         writer.flush();

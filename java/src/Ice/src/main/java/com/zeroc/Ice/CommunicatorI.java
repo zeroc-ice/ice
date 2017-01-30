@@ -13,9 +13,16 @@ public final class CommunicatorI implements Communicator
 {
     @Override
     public void
+    close()
+    {
+        _instance.destroy(false); // Don't allow destroy to be interrupted if called from try with statement.
+    }
+
+    @Override
+    public void
     destroy()
     {
-        _instance.destroy();
+        _instance.destroy(true); // Destroy is interruptible when call explicitly.
     }
 
     @Override
@@ -315,7 +322,7 @@ public final class CommunicatorI implements Communicator
         }
         catch(RuntimeException ex)
         {
-            _instance.destroy();
+            _instance.destroy(false);
             throw ex;
         }
     }

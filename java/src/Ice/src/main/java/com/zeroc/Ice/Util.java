@@ -84,8 +84,21 @@ public final class Util
     /**
      * Encapsulates the results of a call to initialize().
      **/
-    public static class InitializeResult
+    public static class InitializeResult implements java.lang.AutoCloseable
     {
+        @Override
+        public void close()
+        {
+            try
+            {
+                communicator.close();
+            }
+            catch(java.lang.Exception ex)
+            {
+                assert(false);
+            }
+        }
+
         /** The new communicator. */
         public Communicator communicator;
 

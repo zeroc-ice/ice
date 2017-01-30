@@ -396,6 +396,11 @@ private:
                         result.push_back(s);
                         continue;
                     }
+                    else if(s.substr(prefix.size(), pos - prefix.size()) == "implements")
+                    {
+                        result.push_back(s);
+                        continue;
+                    }
 
                     emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
                 }
@@ -455,7 +460,7 @@ private:
             else if(i->find("java:protobuf:") == 0 || i->find("java:serializable:") == 0)
             {
                 //
-                // Only valid in sequence defintion which is checked in visitSequence
+                // Only valid in sequence definition which is checked in visitSequence
                 //
                 emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
             }
@@ -463,6 +468,14 @@ private:
             {
                 ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
                 if(cl && cl->isDelegate())
+                {
+                    continue;
+                }
+                emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+            }
+            else if(i->find("java:implements:") == 0)
+            {
+                if(ClassDefPtr::dynamicCast(p) || StructPtr::dynamicCast(p))
                 {
                     continue;
                 }

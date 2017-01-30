@@ -2445,6 +2445,20 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
+    //
+    // Check for java:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "java:implements:";
+    StringList implements;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(prefix) == 0)
+        {
+            implements.push_back(q->substr(prefix.size()));
+        }
+    }
+
     DocCommentPtr dc = parseDocComment(p);
 
     //
@@ -2459,61 +2473,79 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(p->isInterface())
     {
         out << nl << "public interface " << fixKwd(name);
-        if(!p->isLocal())
+        ClassList::const_iterator q = bases.begin();
+        StringList::const_iterator r = implements.begin();
+
+        if(!p->isLocal() || !bases.empty() || !implements.empty())
         {
             out << " extends ";
-            out.useCurrentPosAsIndent();
+        }
+        out.useCurrentPosAsIndent();
+        if(!p->isLocal() && bases.empty())
+        {
             out << "com.zeroc.Ice.Object";
         }
-        else
-        {
-            if(!bases.empty())
-            {
-                out << " extends ";
-            }
-            out.useCurrentPosAsIndent();
-        }
-
-        ClassList::const_iterator q = bases.begin();
-        if(p->isLocal() && q != bases.end())
+        else if(q != bases.end())
         {
             out << getAbsolute(*q++, package);
         }
-        while(q != bases.end())
+        else if(r != implements.end())
+        {
+            out << *r++;
+        }
+
+        for(;q != bases.end(); ++q)
         {
             out << ',' << nl << getAbsolute(*q, package);
-            q++;
+        }
+        for(; r != implements.end(); ++r)
+        {
+            out << ',' << nl << *r;
         }
         out.restoreIndent();
     }
     else
     {
         out << nl << "public ";
-        if(p->isLocal() && !p->allOperations().empty())
+        if((p->isLocal() && !p->allOperations().empty()) || !implements.empty())
         {
             out << "abstract ";
         }
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
 
-        StringList implements;
-
-        if(bases.empty() || bases.front()->isInterface())
+        if(baseClass)
         {
-            if(p->isLocal())
-            {
-                implements.push_back("java.lang.Cloneable");
-            }
-            else
-            {
-                out << " extends com.zeroc.Ice.Value";
-            }
+            out << " extends " << getAbsolute(baseClass, package);
+            bases.pop_front();
+        }
+        else if(!p->isLocal())
+        {
+            out << " extends com.zeroc.Ice.Value";
         }
         else
         {
-            out << " extends ";
-            out << getAbsolute(baseClass, package);
-            bases.pop_front();
+            implements.push_back("java.lang.Cloneable");
+        }
+
+        if(!implements.empty())
+        {
+            if(baseClass || !p->isLocal())
+            {
+                out << nl;
+            }
+
+            out << " implements ";
+            out.useCurrentPosAsIndent();
+            for(StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
+            {
+                if(q != implements.begin())
+                {
+                    out << ',' << nl;
+                }
+                out << *q;
+            }
+            out.restoreIndent();
         }
 
         out.restoreIndent();
@@ -3296,6 +3328,20 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
+    //
+    // Check for java:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "java:implements:";
+    StringList implements;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(prefix) == 0)
+        {
+            implements.push_back(q->substr(prefix.size()));
+        }
+    }
+
     out << sp;
 
     DocCommentPtr dc = parseDocComment(p);
@@ -3305,10 +3351,16 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "@Deprecated";
     }
 
-    out << nl << "public class " << name << " implements java.lang.Cloneable";
+    out << nl << "public class " << name << " implements ";
+    out.useCurrentPosAsIndent();
+    out << "java.lang.Cloneable";
     if(!p->isLocal())
     {
-        out << ", java.io.Serializable";
+        out << "," << nl << "java.io.Serializable";
+    }
+    for(StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
+    {
+        out << "," << nl << *q;
     }
     out << sb;
 

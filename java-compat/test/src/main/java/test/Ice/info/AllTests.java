@@ -196,6 +196,12 @@ public class AllTests
             test(info.rcvSize >= 1024);
             test(info.sndSize >= 2048);
 
+            //
+            // Make sure the local slice class is cloneable
+            //
+            java.lang.Cloneable cloneable = info;
+            Ice.TCPConnectionInfo info2 = (Ice.TCPConnectionInfo)info.clone();
+
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
             test(ctx.get("adapterName").equals("TestAdapter"));

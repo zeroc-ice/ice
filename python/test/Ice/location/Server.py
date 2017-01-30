@@ -183,13 +183,10 @@ def run(args, communicator, initData):
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator, initData)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator, initData)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    communicator.destroy()
 
 sys.exit(not status)

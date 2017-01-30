@@ -1171,7 +1171,7 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
-            destroy();
+            destroy(false);
             throw ex;
         }
     }
@@ -1401,9 +1401,9 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     //
     @SuppressWarnings("deprecation")
     public void
-    destroy()
+    destroy(boolean interruptible)
     {
-        if(Thread.interrupted())
+        if(interruptible && Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -1423,7 +1423,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new com.zeroc.Ice.OperationInterruptedException();
+                    if(interruptible)
+                    {
+                        throw new com.zeroc.Ice.OperationInterruptedException();
+                    }
                 }
             }
 
@@ -1532,7 +1535,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
             }
             catch(InterruptedException ex)
             {
-                throw new com.zeroc.Ice.OperationInterruptedException();
+                if(interruptible)
+                {
+                    throw new com.zeroc.Ice.OperationInterruptedException();
+                }
             }
 
             //
@@ -1624,6 +1630,7 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
             {
                 if(_state == StateDestroyInProgress)
                 {
+                    assert(interruptible);
                     _state = StateActive;
                     notifyAll();
                 }

@@ -92,9 +92,9 @@ public abstract class Application
 
         int status = 0;
 
-        try
+        try(Ice.Communicator communicator = Util.initialize(argHolder, initData))
         {
-            _communicator = Util.initialize(argHolder, initData);
+            _communicator = communicator;
             if(_communicatorListener != null)
             {
                 _communicatorListener.communicatorInitialized(_communicator);
@@ -131,15 +131,11 @@ public abstract class Application
             err.printStackTrace(writer);
             status = 1;
         }
-        writer.flush();
-
-        if(_communicator != null)
+        finally
         {
-            _communicator.destroy();
             _communicator = null;
         }
         writer.flush();
-
         return status;
     }
 

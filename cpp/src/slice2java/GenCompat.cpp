@@ -2578,6 +2578,20 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     //
+    // Check for java:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "java:implements:";
+    StringList implements;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(prefix) == 0)
+        {
+            implements.push_back(q->substr(prefix.size()));
+        }
+    }
+
+    //
     // Slice interfaces map to Java interfaces.
     //
     out << sp;
@@ -2585,108 +2599,91 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(p->isInterface())
     {
         out << nl << "public interface " << fixKwd(name);
-        if(!p->isLocal())
+        ClassList::const_iterator q = bases.begin();
+        StringList::const_iterator r = implements.begin();
+        if(!p->isLocal() || !bases.empty() || !implements.empty())
         {
             out << " extends ";
-            out.useCurrentPosAsIndent();
-            out << "Ice.Object";
-            out << "," << nl << '_' << name;
-            out << "Operations, _" << name << "OperationsNC";
         }
-        else
+        out.useCurrentPosAsIndent();
+        if(!p->isLocal())
         {
-            if(!bases.empty())
+            out << '_' << name << "Operations, _" << name << "OperationsNC";
+            if(bases.empty())
             {
-                out << " extends ";
+                out << "," << nl << "Ice.Object";
             }
-            out.useCurrentPosAsIndent();
         }
-
-        ClassList::const_iterator q = bases.begin();
-        if(p->isLocal() && q != bases.end())
+        else if(q != bases.end())
         {
             out << getAbsolute(*q++, package);
         }
-        while(q != bases.end())
+        else if(r != implements.end())
+        {
+            out << *r++;
+        }
+
+        for(;q != bases.end(); ++q)
         {
             out << ',' << nl << getAbsolute(*q, package);
-            q++;
+        }
+        for(; r != implements.end(); ++r)
+        {
+            out << ',' << nl << *r;
         }
         out.restoreIndent();
     }
     else
     {
         out << nl << "public ";
-        if(p->allOperations().size() > 0) // Don't use isAbstract() - see bug 3739
+        if(p->allOperations().size() > 0 || !implements.empty()) // Don't use isAbstract() - see bug 3739
         {
             out << "abstract ";
         }
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
 
-        StringList implements;
-        bool implementsOnNewLine = true;
-
-        if(bases.empty() || bases.front()->isInterface())
+        if(baseClass)
         {
-            if(p->isLocal())
-            {
-                implementsOnNewLine = false;
-                implements.push_back("java.lang.Cloneable");
-            }
-            else
-            {
-                out << " extends Ice.ObjectImpl";
-            }
+            out << " extends " << getAbsolute(baseClass, package);
+            bases.pop_front();
+        }
+        else if(!p->isLocal())
+        {
+            out << " extends Ice.ObjectImpl";
         }
         else
         {
-            out << " extends ";
-            out << getAbsolute(baseClass, package);
-            bases.pop_front();
+            implements.push_back("java.lang.Cloneable");
         }
 
-        //
-        // Implement interfaces
-        //
-
-        if(p->isAbstract())
+        if(p->isAbstract() && !p->isLocal())
         {
-            if(!p->isLocal())
-            {
-                implements.push_back("_" + name + "Operations");
-                implements.push_back("_" + name + "OperationsNC");
-            }
+            implements.push_back("_" + name + "Operations");
+            implements.push_back("_" + name + "OperationsNC");
         }
-        if(!bases.empty())
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
-            {
-                implements.push_back(getAbsolute(*q, package));
-                q++;
-            }
+            implements.push_back(getAbsolute(*q, package));
         }
 
         if(!implements.empty())
         {
-            if(implementsOnNewLine)
+            if(baseClass || !p->isLocal())
             {
                 out << nl;
             }
 
             out << " implements ";
             out.useCurrentPosAsIndent();
-
-            for(StringList::const_iterator q = implements.begin(); q != implements.end();)
+            for(StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
             {
                 if(q != implements.begin())
                 {
                     out << ',' << nl;
                 }
                 out << *q;
-                q++;
             }
-
             out.restoreIndent();
         }
 
@@ -3480,15 +3477,37 @@ Slice::GenCompat::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
+    //
+    // Check for java:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "java:implements:";
+    StringList implements;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(prefix) == 0)
+        {
+            implements.push_back(q->substr(prefix.size()));
+        }
+    }
+
     out << sp;
 
     writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
 
-    out << nl << "public class " << name << " implements java.lang.Cloneable";
+    out << nl << "public class " << name << " implements ";
+    out.useCurrentPosAsIndent();
+    out << "java.lang.Cloneable";
     if(!p->isLocal())
     {
-        out << ", java.io.Serializable";
+        out << "," << nl << "java.io.Serializable";
     }
+    for(StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
+    {
+        out << "," << nl << *q;
+    }
+    out.restoreIndent();
+
     out << sb;
 
     return true;

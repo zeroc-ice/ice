@@ -50,13 +50,10 @@ try:
     #
     initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    communicator.destroy()
 
 sys.exit(not status)

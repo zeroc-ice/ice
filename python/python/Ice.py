@@ -318,10 +318,10 @@ Returns:
     #    pass
 
 class InterfaceByValue(Value):
-    
+
     def __init__(self, id):
         self.id = id
-    
+
     def ice_id(self):
         return self.id
 
@@ -837,6 +837,12 @@ class CommunicatorI(Communicator):
     def __init__(self, impl):
         self._impl = impl
         impl._setWrapper(self)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._impl.destroy()
 
     def destroy(self):
         self._impl.destroy()
