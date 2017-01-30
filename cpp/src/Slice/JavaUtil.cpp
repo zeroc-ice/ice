@@ -154,34 +154,30 @@ public:
             DefinitionContextPtr dc = p->findDefinitionContext(file);
             assert(dc);
             StringList globalMetaData = dc->getMetaData();
-            for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+            for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
             {
-                string s = *r;
-                if(_history.count(s) == 0)
+                string s = *r++;
+                if(s.find(prefix) == 0)
                 {
-                    if(s.find(prefix) == 0)
+                    static const string packagePrefix = "java:package:";
+                    static const string checksumPrefix = "java:checksum:";
+                    if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
                     {
-                        bool ok = false;
-
-                        static const string packagePrefix = "java:package:";
-                        static const string checksumPrefix = "java:checksum:";
-                        if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
-                        {
-                            ok = true;
-                        }
-                        else if(s.find(checksumPrefix) == 0 && s.size() > checksumPrefix.size())
-                        {
-                            ok = true;
-                        }
-
-                        if(!ok)
-                        {
-                            emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
-                        }
+                        continue;
                     }
-                    _history.insert(s);
-                }
+                    else if(s.find(checksumPrefix) == 0 && s.size() > checksumPrefix.size())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
+                        globalMetaData.remove(s);
+                        continue;
+                    }
+                };
             }
+            dc->setMetaData(globalMetaData);
         }
         return true;
     }
@@ -189,81 +185,89 @@ public:
     virtual bool visitModuleStart(const ModulePtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
         return true;
     }
 
     virtual void visitClassDecl(const ClassDeclPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
     }
 
     virtual bool visitClassDefStart(const ClassDefPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
         return true;
     }
 
     virtual bool visitExceptionStart(const ExceptionPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
         return true;
     }
 
     virtual bool visitStructStart(const StructPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
         return true;
     }
 
     virtual void visitOperation(const OperationPtr& p)
     {
-        StringList metaData = getMetaData(p);
         TypePtr returnType = p->returnType();
-        if(!metaData.empty())
+        StringList metaData = getMetaData(p);
+
+        if(!returnType)
         {
-            if(!returnType)
+            for(StringList::const_iterator q = metaData.begin(); q != metaData.end();)
             {
-                for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+                string s = *q++;
+                if(s.find("java:type:", 0) == 0)
                 {
-                    if(q->find("java:type:", 0) == 0)
-                    {
-                        emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
-                                    "' for operation with void return type");
-                        break;
-                    }
+                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
+                                "' for operation with void return type");
+                    metaData.remove(s);
+                    continue;
                 }
             }
-            else
-            {
-                validateType(returnType, metaData, p->file(), p->line());
-            }
         }
+        else
+        {
+            metaData = validateType(returnType, metaData, p->file(), p->line());
+            metaData = validateGetSet(p, metaData, p->file(), p->line());
+        }
+        p->setMetaData(metaData);
 
         ParamDeclList params = p->parameters();
         for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
         {
             metaData = getMetaData(*q);
-            validateType((*q)->type(), metaData, p->file(), (*q)->line());
+            metaData = validateType((*q)->type(), metaData, p->file(), (*q)->line());
+            metaData = validateGetSet((*q)->type(), metaData, p->file(), (*q)->line());
+            (*q)->setMetaData(metaData);
         }
-
-        validateGetSet(p, metaData, p->file(), p->line());
     }
 
     virtual void visitDataMember(const DataMemberPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p->type(), metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p->type(), metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
     }
 
     virtual void visitSequence(const SequencePtr& p)
@@ -272,69 +276,75 @@ public:
         static const string serializable = "java:serializable:";
         static const string bytebuffer = "java:buffer";
         StringList metaData = getMetaData(p);
+        StringList newMetaData;
+
         const string file =  p->file();
         const string line = p->line();
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
         {
             string s = *q++;
-            if(_history.count(s) == 0) // Don't complain about the same metadata more than once.
+
+            if(s.find(protobuf) == 0 || s.find(serializable) == 0)
             {
-                if(s.find(protobuf) == 0 || s.find(serializable) == 0)
+                //
+                // Remove from list so validateType does not try to handle as well.
+                //
+                metaData.remove(s);
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
-                    //
-                    // Remove from list so validateType does not try to handle as well.
-                    //
-                    metaData.remove(s);
-
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-                    if(!builtin || builtin->kind() != Builtin::KindByte)
-                    {
-                        _history.insert(s);
-                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                    "this metadata can only be used with a byte sequence");
-                    }
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
+                                "this metadata can only be used with a byte sequence");
+                    continue;
                 }
-                else if(s.find(bytebuffer) == 0)
+                newMetaData.push_back(s);
+            }
+            else if(s.find(bytebuffer) == 0)
+            {
+                metaData.remove(s);
+
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin ||
+                   (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
+                    builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
+                    builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                 {
-                    metaData.remove(s);
-
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-                    if(!builtin ||
-                       (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
-                        builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
-                        builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
-                    {
-                        _history.insert(s);
-                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                    "this metadata can not be used with this type");
-                    }
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
+                                "this metadata can not be used with this type");
+                    continue;
                 }
+                newMetaData.push_back(s);
             }
         }
 
-        validateType(p, metaData, file, line);
-        validateGetSet(p, metaData, file, line);
+        metaData = validateType(p, metaData, file, line);
+        metaData = validateGetSet(p, metaData, file, line);
+        newMetaData.insert(newMetaData.begin(), metaData.begin(), metaData.end());
+        p->setMetaData(newMetaData);
     }
 
     virtual void visitDictionary(const DictionaryPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
     }
 
     virtual void visitEnum(const EnumPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
     }
 
     virtual void visitConst(const ConstPtr& p)
     {
         StringList metaData = getMetaData(p);
-        validateType(p, metaData, p->file(), p->line());
-        validateGetSet(p, metaData, p->file(), p->line());
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
     }
 
 private:
@@ -349,76 +359,77 @@ private:
         for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
         {
             string s = *p;
-            if(_history.count(s) == 0) // Don't complain about the same metadata more than once.
+            if(s.find(prefix) == 0)
             {
-                if(s.find(prefix) == 0)
+                string::size_type pos = s.find(':', prefix.size());
+                if(pos == string::npos)
                 {
-                    string::size_type pos = s.find(':', prefix.size());
-                    if(pos == string::npos)
+                    if(s.size() > prefix.size())
                     {
-                        if(s.size() > prefix.size())
+                        string rest = s.substr(prefix.size());
+                        if(rest == "getset")
                         {
-                            string rest = s.substr(prefix.size());
-                            if(rest == "getset")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if(rest == "buffer")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
-                            else if(rest == "tie")
-                            {
-                                result.push_back(s);
-                                continue;
-                            }
+                            result.push_back(s);
+                        }
+                        else if(rest == "buffer")
+                        {
+                            result.push_back(s);
+                        }
+                        else if(rest == "tie")
+                        {
+                            result.push_back(s);
+                        }
+                        else if(rest == "UserException")
+                        {
+                            result.push_back(s);
+                        }
+                        else if(rest == "optional")
+                        {
+                            result.push_back(s);
                         }
                     }
-                    else if(s.substr(prefix.size(), pos - prefix.size()) == "type")
-                    {
-                        result.push_back(s);
-                        continue;
-                    }
-                    else if(s.substr(prefix.size(), pos - prefix.size()) == "serializable")
-                    {
-                        result.push_back(s);
-                        continue;
-                    }
-                    else if(s.substr(prefix.size(), pos - prefix.size()) == "protobuf")
-                    {
-                        result.push_back(s);
-                        continue;
-                    }
-                    else if(s.substr(prefix.size(), pos - prefix.size()) == "serialVersionUID")
-                    {
-                        result.push_back(s);
-                        continue;
-                    }
-                    else if(s.substr(prefix.size(), pos - prefix.size()) == "implements")
-                    {
-                        result.push_back(s);
-                        continue;
-                    }
-
-                    emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
                 }
-                else if(s == "delegate")
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "type")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "serializable")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "protobuf")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "serialVersionUID")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "implements")
                 {
                     result.push_back(s);
                     continue;
                 }
 
-                _history.insert(s);
+                emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            }
+            else
+            {
+                result.push_back(s);
+                continue;
             }
         }
 
         return result;
     }
 
-    void validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
+    StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
     {
+        StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
             //
@@ -451,6 +462,7 @@ private:
                         builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
                         builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble))
                     {
+                        newMetaData.push_back(*i);
                         continue;
                     }
 
@@ -469,23 +481,35 @@ private:
                 ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
                 if(cl && cl->isDelegate())
                 {
-                    continue;
+                    newMetaData.push_back(*i);
                 }
-                emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                else
+                {
+                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                }
             }
             else if(i->find("java:implements:") == 0)
             {
                 if(ClassDefPtr::dynamicCast(p) || StructPtr::dynamicCast(p))
                 {
-                    continue;
+                    newMetaData.push_back(*i);
                 }
-                emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                else
+                {
+                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                }
+            }
+            else
+            {
+                newMetaData.push_back(*i);
             }
         }
+        return newMetaData;
     }
 
-    void validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
+    StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
     {
+        StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
             //
@@ -508,11 +532,12 @@ private:
                     str = b->typeId();
                 }
                 emitWarning(file, line, "invalid metadata for " + str);
+                continue;
             }
+            newMetaData.push_back(*i);
         }
+        return newMetaData;
     }
-
-    StringSet _history;
 };
 
 }
