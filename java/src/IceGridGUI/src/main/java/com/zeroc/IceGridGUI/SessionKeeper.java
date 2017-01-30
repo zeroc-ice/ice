@@ -1072,7 +1072,7 @@ public class SessionKeeper
             _nextButton.requestFocusInWindow();
         }
 
-        public void destroyDisconveryAdapter()
+        public void destroyDiscoveryAdapter()
         {
             synchronized(SessionKeeper.this)
             {
@@ -1224,7 +1224,7 @@ public class SessionKeeper
                             catch(final com.zeroc.Ice.LocalException ex)
                             {
                                 ex.printStackTrace();
-                                destroyDisconveryAdapter();
+                                destroyDiscoveryAdapter();
                                 SwingUtilities.invokeLater(() ->
                                     {
                                         JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
@@ -1244,7 +1244,7 @@ public class SessionKeeper
                                 @Override
                                 public void run()
                                 {
-                                    destroyDisconveryAdapter();
+                                    destroyDiscoveryAdapter();
                                 }
                             };
                             new java.util.Timer().schedule(_discoveryFinishTask, 2000);
@@ -1383,7 +1383,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
+                        destroyDiscoveryAdapter();
                         _directDiscoveryEndpointList.setEnabled(false);
                         _discoveryStatus.setEnabled(false);
                         _discoveryRefresh.setEnabled(false);
@@ -2416,7 +2416,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
+                        destroyDiscoveryAdapter();
 
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
@@ -2590,7 +2590,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
+                        destroyDiscoveryAdapter();
                         dispose();
                     }
                 };

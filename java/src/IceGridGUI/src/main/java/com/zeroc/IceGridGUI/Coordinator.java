@@ -2479,16 +2479,17 @@ public class Coordinator
         _initData = new com.zeroc.Ice.InitializationData();
 
         _initData.logger = new Logger(mainFrame);
-        _initData.properties = createProperties(args).properties;
+        com.zeroc.Ice.Util.CreatePropertiesResult cpr = createProperties(args);
+        _initData.properties = cpr.properties;
         //
         // We enable IceSSL so the communicator knows how to parse ssl endpoints.
         //
         _initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
 
-        if(args.length > 0)
+        if(cpr.args.length > 0)
         {
             String msg = "Extra command-line arguments: ";
-            for(String arg : args)
+            for(String arg : cpr.args)
             {
                 msg += arg + " ";
             }
