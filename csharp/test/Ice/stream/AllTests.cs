@@ -1227,6 +1227,25 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
+            //
+            // Ensure ObjectPrx Stack is correcly marshal and unmarshal
+            //
+            Ice.ObjectPrx[] arr = new Ice.ObjectPrx[2];
+            arr[0] = communicator.stringToProxy("zero");
+            arr[1] = communicator.stringToProxy("one");
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<Ice.ObjectPrx> l = new Stack<Ice.ObjectPrx>(arr);
+            Test.ObjectProxyStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<Ice.ObjectPrx> l2 = Test.ObjectProxyStackHelper.read(@in);
+
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
             double[] arr =
             {
                 (double)1,

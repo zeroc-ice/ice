@@ -1189,7 +1189,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << "int " << param << "_lenx = " << stream << ".readAndCheckSeqSize("
                         << static_cast<unsigned>(builtin->minWireSize()) << ");";
-                    out << nl << param << " = new ";
+                    if(!isStack)
+                    {
+                        out << nl << param << " = new ";
+                    }
                     if(builtin->kind() == Builtin::KindObject)
                     {
                         if(isArray)
@@ -1238,7 +1241,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        if(isArray)
+                        if(isStack)
+                        {
+                            out << nl << "Ice.ObjectPrx[] " << param << "_tmp = new Ice.ObjectPrx[" << param << "_lenx];";
+                        }
+                        else if(isArray)
                         {
                             out << "Ice.ObjectPrx[" << param << "_lenx];";
                         }
@@ -1257,9 +1264,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                         out << nl << "for(int ix__ = 0; ix__ < " << param << "_lenx; ++ix__)";
                         out << sb;
-                        if(isArray)
+                        if(isArray || isStack)
                         {
-                            out << nl << param << "[ix__] = " << stream << ".readProxy();";
+                            string v = isArray ? param : param + "_tmp";
+                            out << nl << v << "[ix__] = " << stream << ".readProxy();";
                         }
                         else
                         {
@@ -1269,6 +1277,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                     }
                     out << eb;
+
+                    if(isStack)
+                    {
+                        out << nl << "_System.Array.Reverse(" << param << "_tmp);";
+                        out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">("
+                            << param << "_tmp);";
+                    }
                 }
                 break;
             }
@@ -2351,31 +2366,34 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
+        StringList newGlobalMetaData;
 
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
             string s = *r;
-            if(_history.count(s) == 0)
+
+            if(s.find(csPrefix) == 0)
             {
-                if(s.find(csPrefix) == 0)
+                static const string csAttributePrefix = csPrefix + "attribute:";
+                if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
                 {
-                    static const string csAttributePrefix = csPrefix + "attribute:";
-                    if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-                    {
-                        continue;
-                    }
-                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-                    _history.insert(s);
+                    newGlobalMetaData.push_back(s);
+                    continue;
                 }
-                else if(s.find(clrPrefix) == 0)
-                {
-                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-                    _history.insert(s);
-                }
+                emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
+            }
+            else if(s.find(clrPrefix) == 0)
+            {
+                emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
+            }
+            else
+            {
+                newGlobalMetaData.push_back(s);
             }
         }
+        dc->setMetaData(newGlobalMetaData);
     }
     return true;
 }
@@ -2501,129 +2519,142 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     const string msg = "ignoring invalid metadata";
 
     StringList localMetaData = cont->getMetaData();
+    StringList newMetaData;
 
     for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
         string s = *p;
 
         string prefix = "clr:";
-        if(_history.count(s) == 0)
+
+        if(s.find(prefix) == 0)
         {
-            if(s.find(prefix) == 0)
+            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            if(seq)
             {
-                SequencePtr seq = SequencePtr::dynamicCast(cont);
-                if(seq)
+                if(s.substr(prefix.size()) == "collection")
                 {
-                    if(s.substr(prefix.size()) == "collection")
+                    if(collectionWarnings.find(cont->file()) == collectionWarnings.end())
                     {
-                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
-                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
-                            collectionWarnings.insert(cont->file());
-                        }
-                        continue;
+                        emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
+                        collectionWarnings.insert(cont->file());
                     }
-                    static const string clrGenericPrefix = prefix + "generic:";
-                    if(s.find(clrGenericPrefix) == 0)
+                    newMetaData.push_back(s);
+                    continue;
+                }
+                static const string clrGenericPrefix = prefix + "generic:";
+                if(s.find(clrGenericPrefix) == 0)
+                {
+                    string type = s.substr(clrGenericPrefix.size());
+                    if(type == "LinkedList" || type == "Queue" || type == "Stack")
                     {
-                        string type = s.substr(clrGenericPrefix.size());
-                        if(type == "LinkedList" || type == "Queue" || type == "Stack")
-                        {
-                            ClassDeclPtr cd = ClassDeclPtr::dynamicCast(seq->type());
-                            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                            if(!cd && !(builtin && builtin->kind() == Builtin::KindObject))
-                            {
-                                continue;
-                            }
-                        }
-                        else if(!type.empty())
-                        {
-                            continue; // Custom type or List<T>
-                        }
-                    }
-                    static const string clrSerializablePrefix = prefix + "serializable:";
-                    if(s.find(clrSerializablePrefix) == 0)
-                    {
-                        string meta;
-                        if(cont->findMetaData(prefix + "collection", meta)
-                           || cont->findMetaData(prefix + "generic:", meta))
-                        {
-                            emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                        "serialization can only be used with the array mapping for byte sequences");
-                        }
-                        string type = s.substr(clrSerializablePrefix.size());
+                        ClassDeclPtr cd = ClassDeclPtr::dynamicCast(seq->type());
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                        if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
+                        if(!cd && !(builtin && builtin->kind() == Builtin::KindObject))
                         {
+                            newMetaData.push_back(s);
                             continue;
                         }
                     }
+                    else if(!type.empty())
+                    {
+                        newMetaData.push_back(s);
+                        continue; // Custom type or List<T>
+                    }
                 }
-                else if(StructPtr::dynamicCast(cont))
+                static const string clrSerializablePrefix = prefix + "serializable:";
+                if(s.find(clrSerializablePrefix) == 0)
                 {
-                    if(s.substr(prefix.size()) == "class")
+                    string meta;
+                    if(cont->findMetaData(prefix + "collection", meta) ||
+                       cont->findMetaData(prefix + "generic:", meta))
                     {
+                        emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
+                                    "serialization can only be used with the array mapping for byte sequences");
                         continue;
                     }
-                    if(s.substr(prefix.size()) == "property")
+                    string type = s.substr(clrSerializablePrefix.size());
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                    if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
                     {
-                        continue;
-                    }
-                    static const string clrImplementsPrefix = prefix + "implements:";
-                    if(s.find(clrImplementsPrefix) == 0)
-                    {
-                        continue;
-                    }
-                }
-                else if(ClassDefPtr::dynamicCast(cont))
-                {
-                    if(s.substr(prefix.size()) == "property")
-                    {
-                        continue;
-                    }
-                    static const string clrImplementsPrefix = prefix + "implements:";
-                    if(s.find(clrImplementsPrefix) == 0)
-                    {
+                        newMetaData.push_back(s);
                         continue;
                     }
                 }
-                else if(DictionaryPtr::dynamicCast(cont))
-                {
-                    if(s.substr(prefix.size()) == "collection")
-                    {
-                        if(collectionWarnings.find(cont->file()) == collectionWarnings.end()) {
-                            emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
-                            collectionWarnings.insert(cont->file());
-                        }
-                        continue;
-                    }
-                    static const string clrGenericPrefix = prefix + "generic:";
-                    if(s.find(clrGenericPrefix) == 0)
-                    {
-                        string type = s.substr(clrGenericPrefix.size());
-                        if(type == "SortedDictionary" ||  type == "SortedList")
-                        {
-                            continue;
-                        }
-                    }
-                }
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
-                _history.insert(s);
             }
+            else if(StructPtr::dynamicCast(cont))
+            {
+                if(s.substr(prefix.size()) == "class")
+                {
+                    newMetaData.push_back(s);
+                    continue;
+                }
+                if(s.substr(prefix.size()) == "property")
+                {
+                    newMetaData.push_back(s);
+                    continue;
+                }
+                static const string clrImplementsPrefix = prefix + "implements:";
+                if(s.find(clrImplementsPrefix) == 0)
+                {
+                    newMetaData.push_back(s);
+                    continue;
+                }
+            }
+            else if(ClassDefPtr::dynamicCast(cont))
+            {
+                if(s.substr(prefix.size()) == "property")
+                {
+                    newMetaData.push_back(s);
+                    continue;
+                }
+                static const string clrImplementsPrefix = prefix + "implements:";
+                if(s.find(clrImplementsPrefix) == 0)
+                {
+                    newMetaData.push_back(s);
+                    continue;
+                }
+            }
+            else if(DictionaryPtr::dynamicCast(cont))
+            {
+                if(s.substr(prefix.size()) == "collection")
+                {
+                    if(collectionWarnings.find(cont->file()) == collectionWarnings.end())
+                    {
+                        emitWarning(cont->file(), cont->line(), "the \"" + s + "\" metadata has been deprecated");
+                        collectionWarnings.insert(cont->file());
+                    }
+                    newMetaData.push_back(s);
+                    continue;
+                }
+                static const string clrGenericPrefix = prefix + "generic:";
+                if(s.find(clrGenericPrefix) == 0)
+                {
+                    string type = s.substr(clrGenericPrefix.size());
+                    if(type == "SortedDictionary" ||  type == "SortedList")
+                    {
+                        newMetaData.push_back(s);
+                        continue;
+                    }
+                }
+            }
+            emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+            continue;
         }
 
         prefix = "cs:";
-        if(_history.count(s) == 0)
+        if(s.find(prefix) == 0)
         {
-            if(s.find(prefix) == 0)
+            static const string csAttributePrefix = prefix + "attribute:";
+            if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
             {
-                static const string csAttributePrefix = prefix + "attribute:";
-                if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-                {
-                    continue;
-                }
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
-                _history.insert(s);
+                newMetaData.push_back(s);
+                continue;
             }
+            emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+            continue;
         }
+        newMetaData.push_back(s);
     }
+    cont->setMetaData(newMetaData);
 }

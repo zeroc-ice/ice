@@ -96,6 +96,25 @@ sequence<SmallStruct> SmallStructStack;
 ["clr:generic:Stack"]
 sequence<MyClass*> MyClassProxyStack;
 
+["clr:generic:Stack"]
+sequence<Object*> ObjectProxyStack;
+
+//
+// This will produce a warning and use the default 
+// sequence mapping. The generic:Stack metadata cannot be use
+// with object sequences.
+//
+["clr:generic:Stack"]
+sequence<Object> ObjectStack;
+
+//
+// This will produce a warning and use the default 
+// sequence mapping. The generic:Stack metadata cannot be use
+// with object sequences.
+//
+["clr:generic:Stack"]
+sequence<MyClass> MyClassStack;
+
 ["clr:generic:Queue"]
 sequence<double> DoubleQueue;
 ["clr:generic:Queue"]
