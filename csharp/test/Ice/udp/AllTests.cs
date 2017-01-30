@@ -126,7 +126,7 @@ public class AllTests
                 //
                 test(seq.Length > 16384);
             }
-            obj.ice_getConnection().close(false);
+            obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             seq = new byte[50000];
             try

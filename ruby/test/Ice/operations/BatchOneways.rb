@@ -33,7 +33,7 @@ def batchOneways(p)
     batch.ice_ping()
     batch2.ice_ping()
     batch.ice_flushBatchRequests()
-    batch.ice_getConnection().close(false)
+    batch.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
     batch.ice_ping()
     batch2.ice_ping()
 
@@ -41,7 +41,7 @@ def batchOneways(p)
     batch2.ice_getConnection()
 
     batch.ice_ping()
-    batch.ice_getConnection().close(false)
+    batch.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
 
     batch.ice_ping()
     batch2.ice_ping()

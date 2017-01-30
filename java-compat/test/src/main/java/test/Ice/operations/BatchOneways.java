@@ -115,7 +115,7 @@ class BatchOneways
             batch1.ice_ping();
             batch2.ice_ping();
             batch1.ice_flushBatchRequests();
-            batch1.ice_getConnection().close(false);
+            batch1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
             batch1.ice_ping();
             batch2.ice_ping();
 
@@ -123,7 +123,7 @@ class BatchOneways
             batch2.ice_getConnection();
 
             batch1.ice_ping();
-            batch1.ice_getConnection().close(false);
+            batch1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
             batch1.ice_ping();
             batch2.ice_ping();
         }

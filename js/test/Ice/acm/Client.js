@@ -391,6 +391,37 @@
         }
     }
 
+    class HeartbeatManualTest extends TestCase
+    {
+        constructor(com, out)
+        {
+            super("manual heartbeats", com, out);
+            //
+            // Disable heartbeats.
+            //
+            this.setClientACM(10, -1, 0);
+            this.setServerACM(10, -1, 0);
+        }
+
+        runTestCase(adapter, proxy)
+        {
+            function sendHeartbeats(con)
+            {
+                var p = Promise.resolve();
+                for(var i = 0; i < 5; ++i)
+                {
+                    p = p.then(con.heartbeat());
+                }
+                return p;
+            }
+
+            return proxy.startHeartbeatCount().then(
+                () => proxy.ice_getConnection()).then(
+                    con => sendHeartbeats(con)).then(
+                        () => proxy.waitForHeartbeatCount(5));
+        }
+    }
+
     class SetACMTest extends TestCase
     {
         constructor(com, out)
@@ -421,7 +452,7 @@
             test(acm.close === Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatAlways);
 
-            return proxy.waitForHeartbeat(2);
+            return proxy.startHeartbeatCount().then(() => proxy.waitForHeartbeatCount(2));
         }
     }
 
@@ -459,6 +490,7 @@
 
             tests.push(new HeartbeatOnIdleTest(com, out));
             tests.push(new HeartbeatAlwaysTest(com, out));
+            tests.push(new HeartbeatManualTest(com, out));
             tests.push(new SetACMTest(com, out));
         }
 

@@ -206,7 +206,7 @@ public class AllTests
                 {
                     result.waitForSent();
                     holdSerialized.ice_ping(); // Ensure everything's dispatched
-                    holdSerialized.ice_getConnection().close(false);
+                    holdSerialized.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                 }
             }
             result.waitForCompleted();

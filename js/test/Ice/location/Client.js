@@ -1110,7 +1110,7 @@
         ).then(
             function(con)
             {
-                return con.close(false);
+                return con.close(Ice.ConnectionClose.CloseGracefullyAndWait);
             }
         ).then(
             function()

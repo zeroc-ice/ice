@@ -98,7 +98,7 @@ def allTests(communicator)
     to = Test::TimeoutPrx.checkedCast(obj.ice_timeout(100))
     connection = to.ice_getConnection()
     timeout.holdAdapter(500)
-    connection.close(false)
+    connection.close(Ice::ConnectionClose::CloseGracefullyAndWait)
     begin
         connection.getInfo() # getInfo() doesn't throw in the closing state.
     rescue Ice::LocalException
@@ -108,8 +108,9 @@ def allTests(communicator)
     begin
         connection.getInfo()
         test(false)
-    rescue Ice::CloseConnectionException
+    rescue Ice::ConnectionManuallyClosedException => ex
         # Expected.
+        test(ex.graceful)
     end
     timeout.op() # Ensure adapter is active.
     puts "ok"

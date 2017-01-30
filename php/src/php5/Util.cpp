@@ -618,6 +618,10 @@ convertLocalException(const Ice::LocalException& ex, zval* zex TSRMLS_DC)
     {
         setStringMember(zex, "reason", e.reason TSRMLS_CC);
     }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        add_property_bool(zex, "graceful", e.graceful ? 1 : 0);
+    }
     catch(const Ice::LocalException&)
     {
         //

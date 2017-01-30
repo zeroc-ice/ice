@@ -34,7 +34,8 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         }
         properties.setProperty(name + ".ThreadPool.Size", "2");
         Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-        return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+        return RemoteObjectAdapterPrxHelper.uncheckedCast(
+            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 
     public override void
@@ -42,7 +43,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
     {
         current.adapter.getCommunicator().shutdown();
     }
-};
+}
 
 public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
 {
@@ -82,7 +83,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
 
     private Ice.ObjectAdapter _adapter;
     private TestIntfPrx _testIntf;
-};
+}
 
 public class TestI : TestIntfDisp_
 {
@@ -117,7 +118,7 @@ public class TestI : TestIntfDisp_
         {
             lock(this)
             {
-                --_count;
+                ++_count;
                 System.Threading.Monitor.PulseAll(this);
             }
         }
@@ -126,8 +127,7 @@ public class TestI : TestIntfDisp_
         {
             lock(this)
             {
-                _count = count;
-                while(_count > 0)
+                while(_count < count)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -135,14 +135,19 @@ public class TestI : TestIntfDisp_
         }
 
         private int _count = 0;
-    };
-
-    public override void waitForHeartbeat(int count, Ice.Current current)
-    {
-
-
-        HeartbeatCallbackI callback = new HeartbeatCallbackI();
-        current.con.setHeartbeatCallback(callback.heartbeat);
-        callback.waitForCount(count);
     }
-};
+
+    public override void startHeartbeatCount(Ice.Current current)
+    {
+        _callback = new HeartbeatCallbackI();
+        current.con.setHeartbeatCallback(_callback.heartbeat);
+    }
+
+    public override void waitForHeartbeatCount(int count, Ice.Current current)
+    {
+        System.Diagnostics.Debug.Assert(_callback != null);
+        _callback.waitForCount(count);
+    }
+
+    private HeartbeatCallbackI _callback;
+}

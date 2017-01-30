@@ -266,12 +266,12 @@ private:
 }
 
 @implementation ICEConnection
--(void) close:(BOOL)force
+-(void) close:(ICEConnectionClose)mode
 {
     NSException* nsex = nil;
     try
     {
-        CONNECTION->close(force);
+        CONNECTION->close((Ice::ConnectionClose)mode);
     }
     catch(const std::exception& ex)
     {
@@ -378,6 +378,52 @@ private:
 -(void) setHeartbeatCallback:(ICEHeartbeatCallback)callback
 {
     CONNECTION->setHeartbeatCallback(new HeartbeatCallbackI(self, callback));
+}
+-(void) heartbeat
+{
+    NSException* nsex = nil;
+    try
+    {
+        CONNECTION->heartbeat();
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+-(id<ICEAsyncResult>) begin_heartbeat
+{
+    return beginCppCall(^(Ice::AsyncResultPtr& result)
+                        {
+                            result = CONNECTION->begin_heartbeat();
+                        });
+}
+-(id<ICEAsyncResult>) begin_heartbeat:(void(^)(ICEException*))exception
+{
+    return [self begin_heartbeat:exception sent:nil];
+}
+-(id<ICEAsyncResult>) begin_heartbeat:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+{
+    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
+                        {
+                            result = CONNECTION->begin_heartbeat(cb);
+                        },
+                        ^(const Ice::AsyncResultPtr& result)
+                        {
+                            CONNECTION->end_heartbeat(result);
+                        },
+                        exception, sent);
+}
+-(void) end_heartbeat:(id<ICEAsyncResult>)result
+{
+    endCppCall(^(const Ice::AsyncResultPtr& r)
+               {
+                   CONNECTION->end_heartbeat(r);
+               }, result);
 }
 -(void) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat
 {

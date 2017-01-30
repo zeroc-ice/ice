@@ -24,7 +24,7 @@ public final class RetryI implements Retry
         {
             if(current.con != null)
             {
-                current.con.close(true);
+                current.con.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
             }
             else
             {

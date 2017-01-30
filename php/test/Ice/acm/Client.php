@@ -30,15 +30,12 @@ function test($b)
     }
 }
 
-function allTests($communicator)
+function testSetACM($communicator, $com)
 {
     global $NS;
 
     echo "testing setACM/getACM... ";
     flush();
-
-    $ref = "communicator:default -p 12010";
-    $com = $communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
 
     $adapter = $com->createObjectAdapter(-1, -1, -1);
 
@@ -83,21 +80,60 @@ function allTests($communicator)
     test($acm->close == $CloseOnInvocationAndIdle);
     test($acm->heartbeat == $HeartbeatAlways);
 
-    $proxy->waitForHeartbeat(2);
+    $proxy->startHeartbeatCount();
+    $proxy->waitForHeartbeatCount(2);
 
     $adapter->deactivate();
     $testCommunicator->destroy();
     echo "ok\n";
+}
 
-    echo "shutting down... ";
+function testHeartbeatManual($communicator, $com)
+{
+    global $NS;
+
+    echo "testing manual heartbeats... ";
     flush();
-    $com->shutdown();
+
+    $adapter = $com->createObjectAdapter(10, -1, 0);
+
+    $initData = $NS ? eval("return new Ice\\InitializationData;") : new Ice_InitializationData;
+    $initData->properties = $communicator->getProperties()->clone();
+    $initData->properties->setProperty("Ice.ACM.Timeout", "10");
+    $initData->properties->setProperty("Ice.ACM.Client.Timeout", "10");
+    $initData->properties->setProperty("Ice.ACM.Client.Close", "0");
+    $initData->properties->setProperty("Ice.ACM.Client.Heartbeat", "0");
+    $testCommunicator = $NS ? eval("return Ice\\initialize(\$initData);") : Ice_initialize($initData);
+    $proxy = $testCommunicator->stringToProxy($adapter->getTestIntf()->ice_toString())->ice_uncheckedCast(
+        "::Test::TestIntf");
+    $con = $proxy->ice_getConnection();
+
+    $proxy->startHeartbeatCount();
+    $con->heartbeat();
+    $con->heartbeat();
+    $con->heartbeat();
+    $con->heartbeat();
+    $con->heartbeat();
+    $proxy->waitForHeartbeatCount(5);
+
+    $adapter->deactivate();
+    $testCommunicator->destroy();
     echo "ok\n";
+}
+
+function allTests($communicator)
+{
+    $ref = "communicator:default -p 12010";
+    $com = $communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
+
+    testSetACM($communicator, $com);
+    testHeartbeatManual($communicator, $com);
+
+    $com->shutdown();
 }
 
 $communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
                       eval("return Ice_initialize(\$argv);");
-
 allTests($communicator);
 $communicator->destroy();
 

@@ -85,9 +85,15 @@ public class TestI : TestIntfDisp_
     }
 
     override public void
-    close(bool force, Ice.Current current)
+    close(CloseMode mode, Ice.Current current)
     {
-        current.con.close(force);
+        current.con.close((Ice.ConnectionClose)((int)mode));
+    }
+
+    override public void
+    sleep(int ms, Ice.Current current)
+    {
+        Thread.Sleep(ms);
     }
 
     override public void

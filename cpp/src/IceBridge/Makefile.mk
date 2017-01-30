@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # **********************************************************************
 #
 # Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
@@ -8,4 +7,9 @@
 #
 # **********************************************************************
 
-TestSuite(__name__, options = { "compress" : [False], "serialize" : [False] })
+$(project)_programs		:= icebridge
+$(project)_dependencies		:= Ice
+
+icebridge_targetdir	:= $(bindir)
+
+projects += $(project)

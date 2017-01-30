@@ -37,6 +37,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.AMICallback", "0");
+        initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         //
         // Limit the send buffer size, this test relies on the socket

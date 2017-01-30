@@ -9,6 +9,7 @@
 
 package test.Ice.ami;
 
+import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
 
@@ -123,9 +124,22 @@ public class TestI implements TestIntf
 
     @Override
     public void
-    close(boolean force, com.zeroc.Ice.Current current)
+    close(CloseMode mode, com.zeroc.Ice.Current current)
     {
-        current.con.close(force);
+        current.con.close(com.zeroc.Ice.ConnectionClose.valueOf(mode.value()));
+    }
+
+    @Override
+    public void
+    sleep(int ms, com.zeroc.Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
     }
 
     @Override

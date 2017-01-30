@@ -107,7 +107,7 @@ class BatchOnewaysAMI
             batch.begin_ice_ping();
             batch2.begin_ice_ping();
             batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
             batch.begin_ice_ping();
             batch2.begin_ice_ping();
 
@@ -115,7 +115,7 @@ class BatchOnewaysAMI
             batch2.ice_getConnection();
 
             batch.begin_ice_ping();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
             batch.begin_ice_ping().throwLocalException();
             batch2.begin_ice_ping().throwLocalException();
         }

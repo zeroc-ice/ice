@@ -533,7 +533,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
-        hello.ice_getConnection().close(false);
+        hello.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
         hello.sayHello();
         obj.migrateHello();
         hello.sayHello();

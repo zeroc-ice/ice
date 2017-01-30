@@ -578,9 +578,42 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
     }
 }
 
+class HeartbeatAsync extends OutgoingAsyncBase
+{
+    constructor(con, communicator)
+    {
+        super(communicator, "heartbeat", con, null, null);
+    }
+
+    invoke()
+    {
+        try
+        {
+            this._os.writeBlob(Protocol.magic);
+            Protocol.currentProtocol._write(this._os);
+            Protocol.currentProtocolEncoding._write(this._os);
+            this._os.writeByte(Protocol.validateConnectionMsg);
+            this._os.writeByte(0);
+            this._os.writeInt(Protocol.headerSize); // Message size.
+
+            let status = this._connection.sendAsyncRequest(this, false, false, 0);
+
+            if((status & AsyncStatus.Sent) > 0)
+            {
+                this._sentSynchronously = true;
+            }
+        }
+        catch(ex)
+        {
+            this.completedEx(ex);
+        }
+    }
+}
+
 Ice.OutgoingAsync = OutgoingAsync;
 Ice.ProxyFlushBatch = ProxyFlushBatch;
 Ice.ProxyGetConnection = ProxyGetConnection;
 Ice.ConnectionFlushBatch = ConnectionFlushBatch;
+Ice.HeartbeatAsync = HeartbeatAsync;
 
 module.exports.Ice = Ice;

@@ -32,7 +32,8 @@ public:
     virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
                             Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, const Ice::Current&);
     virtual bool waitForBatch(Ice::Int, const Ice::Current&);
-    virtual void close(bool, const Ice::Current&);
+    virtual void close(Test::CloseMode, const Ice::Current&);
+    virtual void sleep(Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
     virtual bool supportsFunctionalTests(const Ice::Current&);

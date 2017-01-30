@@ -205,7 +205,7 @@ public class AllTests
                 {
                     f.waitForSent();
                     holdSerialized.ice_ping(); // Ensure everything's dispatched
-                    holdSerialized.ice_getConnection().close(false);
+                    holdSerialized.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                 }
             }
             r.join();

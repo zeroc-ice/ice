@@ -28,6 +28,8 @@ public class Client : TestCommon.Application
     {
         Ice.InitializationData initData = base.getInitData(ref args);
         initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.

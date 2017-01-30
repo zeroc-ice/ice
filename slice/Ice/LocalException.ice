@@ -814,14 +814,16 @@ local exception CloseConnectionException extends ProtocolException
 /**
  *
  * This exception is raised by an operation call if the application
- * forcefully closes the connection {@link Connection#close}.
+ * closes the connection locally using {@link Connection#close}.
  *
  * @see Connection#close
  *
  **/
 ["cpp:ice_print"]
-local exception ForcedCloseConnectionException extends ProtocolException
+local exception ConnectionManuallyClosedException
 {
+    /** True if the connection was closed gracefully, false otherwise. **/
+    bool graceful;
 };
 
 /**
@@ -1031,6 +1033,5 @@ local exception FixedProxyException
 local exception ResponseSentException
 {
 };
-
 
 };

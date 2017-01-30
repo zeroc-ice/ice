@@ -78,15 +78,22 @@ ZEND_METHOD(Ice_Connection, close)
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
 
-    zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("b"), &b) != SUCCESS)
+    zval* mode;
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &mode) != SUCCESS)
     {
         RETURN_NULL();
     }
 
+    if(Z_TYPE_P(mode) != IS_LONG)
+    {
+        invalidArgument("value for 'mode' argument must be an enumerator of ConnectionClose");
+        RETURN_NULL();
+    }
+    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(Z_LVAL_P(mode));
+
     try
     {
-        _this->close(b ? true : false);
+        _this->close(cc);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -132,6 +139,27 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     try
     {
         _this->flushBatchRequests();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Connection, heartbeat)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
+
+    try
+    {
+        _this->heartbeat();
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -331,6 +359,27 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     }
 }
 
+ZEND_METHOD(Ice_Connection, throwException)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
+
+    try
+    {
+        _this->throwException();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
 #ifdef _WIN32
 extern "C"
 #endif
@@ -406,6 +455,7 @@ static zend_function_entry _connectionClassMethods[] =
     ZEND_ME(Ice_Connection, close, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getEndpoint, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, heartbeat, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, setACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, type, ICE_NULLPTR, ZEND_ACC_PUBLIC)
@@ -413,6 +463,7 @@ static zend_function_entry _connectionClassMethods[] =
     ZEND_ME(Ice_Connection, toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getInfo, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, setBufferSize, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, throwException, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

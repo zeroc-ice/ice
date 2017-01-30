@@ -565,6 +565,10 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
     {
         setStringMember(zex, "reason", e.reason);
     }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        add_property_bool(zex, "graceful", e.graceful ? 1 : 0);
+    }
     catch(const Ice::LocalException&)
     {
         //

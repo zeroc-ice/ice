@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, threading
+import Ice, Test, threading, time
 
 class TestIntfI(Test._TestIntfDisp):
     def __init__(self):
@@ -43,8 +43,11 @@ class TestIntfI(Test._TestIntfDisp):
             self._batchCount = 0
             return result
 
-    def close(self, force, current=None):
-        current.con.close(force)
+    def close(self, mode, current=None):
+        current.con.close(Ice.ConnectionClose.valueOf(mode.value))
+
+    def sleep(self, ms, current=None):
+        time.sleep(ms / 1000.0)
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

@@ -17,6 +17,7 @@ import java.util.concurrent.CompletionException;
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
 
+import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfPrx;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfException;
@@ -347,7 +348,7 @@ public class AMI
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = p.ice_batchOneway();
                 b1.opBatch();
-                b1.ice_getConnection().close(false);
+                b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                 CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
                 Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
@@ -395,7 +396,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
                         ice_batchOneway();
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                     CompletableFuture<Void> r = b1.ice_getConnection().flushBatchRequestsAsync();
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
@@ -444,7 +445,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity())).
                         ice_batchOneway();
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                     CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
@@ -500,7 +501,7 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                     CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
@@ -528,8 +529,8 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
-                    b2.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b2.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                     CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
@@ -756,9 +757,35 @@ public class AMI
 
         if(p.ice_getConnection() != null)
         {
-            out.print("testing close connection with sending queue... ");
+            out.print("testing graceful close connection with wait... ");
             out.flush();
             {
+                //
+                // Local case: begin several requests, close the connection gracefully, and make sure it waits
+                // for the requests to complete.
+                //
+                java.util.List<CompletableFuture<Void>> results = new java.util.ArrayList<>();
+                for(int i = 0; i < 3; ++i)
+                {
+                    results.add(p.sleepAsync(50));
+                }
+                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                for(CompletableFuture<Void> f : results)
+                {
+                    try
+                    {
+                        f.join();
+                    }
+                    catch(Throwable ex)
+                    {
+                        test(false);
+                    }
+                }
+            }
+            {
+                //
+                // Remote case.
+                //
                 byte[] seq = new byte[1024 * 10];
 
                 //
@@ -777,7 +804,7 @@ public class AMI
                     {
                         results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
-                    if(!Util.getInvocationFuture(p.closeAsync(false)).isSent())
+                    if(!Util.getInvocationFuture(p.closeAsync(CloseMode.CloseGracefullyAndWait)).isSent())
                     {
                         for(int i = 0; i < maxQueue; i++)
                         {
@@ -800,6 +827,98 @@ public class AMI
                     {
                         q.join();
                     }
+                }
+            }
+            out.println("ok");
+
+            out.print("testing graceful close connection without wait... ");
+            out.flush();
+            {
+                //
+                // Local case: start a lengthy operation and then close the connection gracefully on the client side
+                // without waiting for the pending invocation to complete. There will be no retry and we expect the
+                // invocation to fail with ConnectionManuallyClosedException.
+                //
+                // This test requires two threads in the server's thread pool: one will block in sleep() and the other
+                // will process the CloseConnection message.
+                //
+                p.ice_ping();
+                com.zeroc.Ice.Connection con = p.ice_getConnection();
+                CompletableFuture<Void> f = p.sleepAsync(100);
+                con.close(com.zeroc.Ice.ConnectionClose.CloseGracefully);
+                try
+                {
+                    f.join();
+                    test(false);
+                }
+                catch(CompletionException ex)
+                {
+                    test(ex.getCause() instanceof com.zeroc.Ice.ConnectionManuallyClosedException);
+                    test(((com.zeroc.Ice.ConnectionManuallyClosedException)ex.getCause()).graceful);
+                }
+                catch(Throwable ex)
+                {
+                    test(false);
+                }
+
+                //
+                // Remote case: the server closes the connection gracefully. Our call to TestIntf::close()
+                // completes successfully and then the connection should be closed immediately afterward,
+                // despite the fact that there's a pending call to sleep(). The call to sleep() should be
+                // automatically retried and complete successfully.
+                //
+                p.ice_ping();
+                con = p.ice_getConnection();
+                Callback cb = new Callback();
+                con.setCloseCallback(c -> cb.called());
+                f = p.sleepAsync(100);
+                p.close(CloseMode.CloseGracefully);
+                cb.check();
+                f.join();
+                p.ice_ping();
+                test(p.ice_getConnection() != con);
+            }
+            out.println("ok");
+
+            out.print("testing forceful close connection... ");
+            out.flush();
+            {
+                //
+                // Local case: start a lengthy operation and then close the connection forcefully on the client side.
+                // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                //
+                p.ice_ping();
+                com.zeroc.Ice.Connection con = p.ice_getConnection();
+                CompletableFuture<Void> f = p.sleepAsync(100);
+                con.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
+                try
+                {
+                    f.join();
+                    test(false);
+                }
+                catch(CompletionException ex)
+                {
+                    test(ex.getCause() instanceof com.zeroc.Ice.ConnectionManuallyClosedException);
+                    test(!((com.zeroc.Ice.ConnectionManuallyClosedException)ex.getCause()).graceful);
+                }
+                catch(Throwable ex)
+                {
+                    test(false);
+                }
+
+                //
+                // Remote case: the server closes the connection forcefully. This causes the request to fail
+                // with a ConnectionLostException. Since the close() operation is not idempotent, the client
+                // will not retry.
+                //
+                try
+                {
+                    p.close(CloseMode.CloseForcefully);
+                    test(false);
+                }
+                catch(com.zeroc.Ice.ConnectionLostException ex)
+                {
+                    // Expected.
                 }
             }
             out.println("ok");

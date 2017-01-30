@@ -1585,7 +1585,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         verifier->reset();
         verifier->returnValue(false);
-        server->ice_getConnection()->close(false);
+        server->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
         try
         {
             server->ice_ping();

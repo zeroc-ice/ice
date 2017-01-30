@@ -25,7 +25,7 @@ public final class MetricsI implements Metrics
     @Override
     public void fail(com.zeroc.Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
     }
 
     @Override

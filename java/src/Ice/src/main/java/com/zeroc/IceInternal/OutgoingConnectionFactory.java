@@ -138,7 +138,7 @@ public final class OutgoingConnectionFactory
                     {
                         for(ConnectionI c : l)
                         {
-                            c.close(true);
+                            c.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
                         }
                     }
                     throw new com.zeroc.Ice.OperationInterruptedException();

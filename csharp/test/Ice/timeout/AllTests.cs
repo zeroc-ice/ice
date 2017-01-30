@@ -248,7 +248,7 @@ public class AllTests : TestCommon.AllTests
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(100));
             Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(500);
-            connection.close(false);
+            connection.close(Ice.ConnectionClose.CloseGracefullyAndWait);
             try
             {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.
@@ -263,9 +263,10 @@ public class AllTests : TestCommon.AllTests
                 connection.getInfo();
                 test(false);
             }
-            catch(Ice.CloseConnectionException)
+            catch(Ice.ConnectionManuallyClosedException ex)
             {
                 // Expected.
+                test(ex.graceful);
             }
             timeout.op(); // Ensure adapter is active.
         }

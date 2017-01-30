@@ -100,7 +100,7 @@ class BatchOnewaysAMI
             batch.ice_pingAsync();
             batch2.ice_pingAsync();
             batch.ice_flushBatchRequestsAsync().join();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
             batch.ice_pingAsync();
             batch2.ice_pingAsync();
 
@@ -108,7 +108,7 @@ class BatchOnewaysAMI
             batch2.ice_getConnection();
 
             batch.ice_pingAsync();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
             test(!batch.ice_pingAsync().isCompletedExceptionally());
             test(!batch2.ice_pingAsync().isCompletedExceptionally());
         }

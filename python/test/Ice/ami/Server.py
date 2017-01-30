@@ -44,13 +44,13 @@ try:
     #
     # This test kills connections, so we don't want warnings.
     #
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
+    initData.properties.setProperty("Ice.Warn.Connections", "0")
 
     #
     # Limit the recv buffer size, this test relies on the socket
     # send() blocking after sending a given amount of data.
     #
-    initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+    initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
     with Ice.initialize(sys.argv, initData) as communicator:
         status = run(sys.argv, communicator)

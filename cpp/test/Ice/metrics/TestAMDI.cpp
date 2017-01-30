@@ -22,7 +22,7 @@ MetricsI::opAsync(function<void()> response, function<void(exception_ptr)>, cons
 void
 MetricsI::failAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
-    current.con->close(true);
+    current.con->close(Ice::CloseForcefully);
     response();
 }
 
@@ -87,7 +87,7 @@ MetricsI::op_async(const Test::AMD_Metrics_opPtr& cb, const Ice::Current&)
 void
 MetricsI::fail_async(const Test::AMD_Metrics_failPtr& cb, const Ice::Current& current)
 {
-    current.con->close(true);
+    current.con->close(Ice::CloseForcefully);
     cb->ice_response();
 }
 

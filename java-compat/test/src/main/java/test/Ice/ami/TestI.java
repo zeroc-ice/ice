@@ -10,6 +10,7 @@
 package test.Ice.ami;
 
 import test.Ice.ami.Test._TestIntfDisp;
+import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfException;
 
 public class TestI extends _TestIntfDisp
@@ -129,9 +130,22 @@ public class TestI extends _TestIntfDisp
 
     @Override
     public void
-    close(boolean force, Ice.Current current)
+    close(CloseMode mode, Ice.Current current)
     {
-        current.con.close(force);
+        current.con.close(Ice.ConnectionClose.valueOf(mode.value()));
+    }
+
+    @Override
+    public void
+    sleep(int ms, Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
     }
 
     @Override

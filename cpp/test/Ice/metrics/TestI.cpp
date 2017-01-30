@@ -18,7 +18,7 @@ MetricsI::op(const Ice::Current&)
 void
 MetricsI::fail(const Ice::Current& current)
 {
-    current.con->close(true);
+    current.con->close(Ice::CloseForcefully);
 }
 
 void

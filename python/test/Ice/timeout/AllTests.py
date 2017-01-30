@@ -116,58 +116,58 @@ def allTests(communicator):
 
     sys.stdout.write("testing invocation timeout... ")
     sys.stdout.flush()
-    connection = obj.ice_getConnection();
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100));
-    test(connection == to.ice_getConnection());
+    connection = obj.ice_getConnection()
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100))
+    test(connection == to.ice_getConnection())
     try:
-        to.sleep(750);
-        test(False);
+        to.sleep(750)
+        test(False)
     except Ice.InvocationTimeoutException:
         pass
-    obj.ice_ping();
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
-    test(connection == to.ice_getConnection());
+    obj.ice_ping()
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    test(connection == to.ice_getConnection())
     try:
-        to.sleep(250);
+        to.sleep(250)
     except Ice.InvocationTimeoutException:
-        test(False);
-    test(connection == to.ice_getConnection());
+        test(False)
+    test(connection == to.ice_getConnection())
 
     # #
     # # Expect InvocationTimeoutException.
     # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250));
-    # cb = new Callback();
-    # to.begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx));
-    # cb.check();
+    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250))
+    # cb = new Callback()
+    # to.begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx))
+    # cb.check()
 
     # #
     # # Expect success.
     # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
-    # cb = new Callback();
-    # to.begin_sleep(250, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception));
-    # cb.check();
+    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    # cb = new Callback()
+    # to.begin_sleep(250, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception))
+    # cb.check()
     print("ok")
 
     sys.stdout.write("testing close timeout... ")
     sys.stdout.flush()
-    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(100));
-    connection = to.ice_getConnection();
-    timeout.holdAdapter(500);
-    connection.close(False);
+    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(100))
+    connection = to.ice_getConnection()
+    timeout.holdAdapter(500)
+    connection.close(Ice.ConnectionClose.CloseGracefullyAndWait)
     try:
         connection.getInfo(); # getInfo() doesn't throw in the closing state.
     except Ice.LocalException:
-        test(False);
-    time.sleep(0.5);
+        test(False)
+    time.sleep(0.5)
     try:
-        connection.getInfo();
-        test(False);
-    except Ice.CloseConnectionException:
+        connection.getInfo()
+        test(False)
+    except Ice.ConnectionManuallyClosedException, ex:
         # Expected.
-        pass
-    timeout.op(); # Ensure adapter is active.
+        test(ex.graceful)
+    timeout.op() # Ensure adapter is active.
     print("ok")
 
     sys.stdout.write("testing timeout overrides... ")
@@ -193,7 +193,7 @@ def allTests(communicator):
     #
     timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.checkedCast(to.ice_timeout(1000))
-    timeout.holdAdapter(500);
+    timeout.holdAdapter(500)
     try:
         to.sendData(seq)
         test(False)
@@ -229,9 +229,9 @@ def allTests(communicator):
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250));
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
     to.ice_getConnection(); # Establish connection
-    timeout.holdAdapter(750);
+    timeout.holdAdapter(750)
     try:
         to.sendData(seq)
         test(False)
@@ -246,11 +246,11 @@ def allTests(communicator):
     initData.properties = communicator.getProperties().clone()
     initData.properties.setProperty("Ice.Override.CloseTimeout", "100")
     comm = Ice.initialize(initData)
-    connection = comm.stringToProxy(sref).ice_getConnection();
-    timeout.holdAdapter(800);
-    now = time.clock();
-    comm.destroy();
-    test((time.clock() - now) < 0.7);
+    connection = comm.stringToProxy(sref).ice_getConnection()
+    timeout.holdAdapter(800)
+    now = time.clock()
+    comm.destroy()
+    test((time.clock() - now) < 0.7)
 
     print("ok")
 

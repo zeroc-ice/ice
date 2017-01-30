@@ -535,6 +535,32 @@ public:
     }
 };
 
+class HeartbeatManualTest : public TestCase
+{
+public:
+
+    HeartbeatManualTest(const RemoteCommunicatorPrxPtr& com) : TestCase("manual heartbeats", com)
+    {
+        //
+        // Disable heartbeats.
+        //
+        setClientACM(10, -1, 0);
+        setServerACM(10, -1, 0);
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        proxy->startHeartbeatCount();
+        Ice::ConnectionPtr con = proxy->ice_getConnection();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        proxy->waitForHeartbeatCount(5);
+    }
+};
+
 class SetACMTest : public TestCase
 {
 public:
@@ -564,8 +590,9 @@ public:
         test(acm.close == Ice::CloseOnInvocationAndIdle);
         test(acm.heartbeat == Ice::HeartbeatAlways);
 
-        // Make sure the client sends few heartbeats to the server
-        proxy->waitForHeartbeat(2);
+        // Make sure the client sends a few heartbeats to the server.
+        proxy->startHeartbeatCount();
+        proxy->waitForHeartbeatCount(2);
     }
 };
 
@@ -591,6 +618,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tests.push_back(ICE_MAKE_SHARED(HeartbeatOnIdleTest, com));
     tests.push_back(ICE_MAKE_SHARED(HeartbeatAlwaysTest, com));
+    tests.push_back(ICE_MAKE_SHARED(HeartbeatManualTest, com));
     tests.push_back(ICE_MAKE_SHARED(SetACMTest, com));
 
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)

@@ -25,7 +25,7 @@ public final class RetryI extends _RetryDisp
         {
             if(current.con != null)
             {
-                current.con.close(true);
+                current.con.close(Ice.ConnectionClose.CloseForcefully);
             }
             else
             {

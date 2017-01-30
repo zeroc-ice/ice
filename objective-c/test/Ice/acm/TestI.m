@@ -17,7 +17,6 @@
 -(void) waitForCount:(int)count;
 @end
 
-
 @implementation ACMConnectionCallbackI
 -(id) init
 {
@@ -33,17 +32,16 @@
 -(void) heartbeat:(id<ICEConnection>)c
 {
     [_cond lock];
-    --_count;
+    ++_count;
     [_cond signal];
     [_cond unlock];
 }
 -(void) waitForCount:(int)count
 {
     [_cond lock];
-    _count = count;
     @try
     {
-        while(_count > 0)
+        while(_count < count)
         {
             [_cond wait];
         }
@@ -192,15 +190,18 @@
     [_cond signal];
     [_cond unlock];
 }
--(void) waitForHeartbeat:(int)count current:(ICECurrent*)current
+-(void) startHeartbeatCount:(ICECurrent*)current
 {
-    ACMConnectionCallbackI* callback = [ACMConnectionCallbackI new];
+    _callback = [ACMConnectionCallbackI new];
 
     [current.con setHeartbeatCallback:^(id<ICEConnection> c)
     {
-        [callback heartbeat:c];
+        [_callback heartbeat:c];
     }];
-    [callback waitForCount:count];
-    ICE_RELEASE(callback);
+}
+-(void) waitForHeartbeatCount:(int)count current:(ICECurrent*)current
+{
+    [_callback waitForCount:count];
+    ICE_RELEASE(_callback);
 }
 @end

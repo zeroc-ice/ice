@@ -28,7 +28,7 @@ public final class AMDMetricsI extends _MetricsDisp
     public void
     fail_async(AMD_Metrics_fail cb, Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(Ice.ConnectionClose.CloseForcefully);
         cb.ice_response();
     }
 

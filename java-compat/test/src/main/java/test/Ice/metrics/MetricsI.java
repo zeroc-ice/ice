@@ -27,7 +27,7 @@ public final class MetricsI extends _MetricsDisp
     public void
     fail(Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(Ice.ConnectionClose.CloseForcefully);
     }
 
     @Override

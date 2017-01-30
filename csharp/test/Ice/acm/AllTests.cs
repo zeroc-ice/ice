@@ -93,7 +93,7 @@ class LoggerI : Ice.Logger
 
     private bool _started;
     private List<string> _messages = new List<string>();
-};
+}
 
 abstract class TestCase
 {
@@ -251,7 +251,7 @@ abstract class TestCase
 
     protected int _heartbeat;
     protected bool _closed;
-};
+}
 
 public class AllTests : TestCommon.AllTests
 {
@@ -270,7 +270,7 @@ public class AllTests : TestCommon.AllTests
                 test(_heartbeat >= 2);
             }
         }
-    };
+    }
 
     class InvocationHeartbeatOnHoldTest : TestCase
     {
@@ -298,7 +298,7 @@ public class AllTests : TestCommon.AllTests
                 waitForClosed();
             }
         }
-    };
+    }
 
     class InvocationNoHeartbeatTest : TestCase
     {
@@ -328,7 +328,7 @@ public class AllTests : TestCommon.AllTests
                 }
             }
         }
-    };
+    }
 
     class InvocationHeartbeatCloseOnIdleTest : TestCase
     {
@@ -351,7 +351,7 @@ public class AllTests : TestCommon.AllTests
                 test(!_closed);
             }
         }
-    };
+    }
 
     class CloseOnIdleTest : TestCase
     {
@@ -370,7 +370,7 @@ public class AllTests : TestCommon.AllTests
                 test(_heartbeat == 0);
             }
         }
-    };
+    }
 
     class CloseOnInvocationTest : TestCase
     {
@@ -389,7 +389,7 @@ public class AllTests : TestCommon.AllTests
                 test(!_closed);
             }
         }
-    };
+    }
 
     class CloseOnIdleAndInvocationTest : TestCase
     {
@@ -419,7 +419,7 @@ public class AllTests : TestCommon.AllTests
 
             waitForClosed();
         }
-    };
+    }
 
     class ForcefulCloseOnIdleAndInvocationTest : TestCase
     {
@@ -440,7 +440,7 @@ public class AllTests : TestCommon.AllTests
                 test(_heartbeat == 0);
             }
         }
-    };
+    }
 
     class HeartbeatOnIdleTest : TestCase
     {
@@ -458,7 +458,7 @@ public class AllTests : TestCommon.AllTests
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
 
     class HeartbeatAlwaysTest : TestCase
     {
@@ -480,7 +480,31 @@ public class AllTests : TestCommon.AllTests
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
+
+    class HeartbeatManualTest : TestCase
+    {
+        public HeartbeatManualTest(RemoteCommunicatorPrx com) : base("manual heartbeats", com)
+        {
+            //
+            // Disable heartbeats.
+            //
+            setClientACM(10, -1, 0);
+            setServerACM(10, -1, 0);
+        }
+
+        public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
+        {
+            proxy.startHeartbeatCount();
+            Ice.Connection con = proxy.ice_getConnection();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            proxy.waitForHeartbeatCount(5);
+        }
+    }
 
     class SetACMTest : TestCase
     {
@@ -511,9 +535,10 @@ public class AllTests : TestCommon.AllTests
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
 
-            proxy.waitForHeartbeat(2);
+            proxy.startHeartbeatCount();
+            proxy.waitForHeartbeatCount(2);
         }
-    };
+    }
 
     public static void allTests(TestCommon.Application app)
     {
@@ -535,6 +560,7 @@ public class AllTests : TestCommon.AllTests
 
         tests.Add(new HeartbeatOnIdleTest(com));
         tests.Add(new HeartbeatAlwaysTest(com));
+        tests.Add(new HeartbeatManualTest(com));
         tests.Add(new SetACMTest(com));
 
         foreach(TestCase test in tests)

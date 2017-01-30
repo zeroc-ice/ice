@@ -142,7 +142,7 @@
                 connection = con;
                 return timeout.holdAdapter(1500);
             }
-        ).then(() => connection.close(false)
+        ).then(() => connection.close(Ice.ConnectionClose.CloseGracefullyAndWait)
         ).then(() =>
             {
                 try
@@ -163,7 +163,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.CloseConnectionException); // Expected
+                    test(ex instanceof Ice.ConnectionManuallyClosedException); // Expected
                 }
                 return timeout.op();
             }

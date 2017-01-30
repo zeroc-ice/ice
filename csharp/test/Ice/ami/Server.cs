@@ -47,11 +47,16 @@ public class Server : TestCommon.Application
         initData.properties.setProperty("Ice.Default.CollocationOptimized", "0");
 
         //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+        //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-         return initData;
+        return initData;
     }
 
     public static int Main(string[] args)

@@ -22,7 +22,7 @@ RetryI::op(bool kill, const Ice::Current& current)
     {
         if(current.con)
         {
-            current.con->close(true);
+            current.con->close(Ice::CloseForcefully);
         }
         else
         {

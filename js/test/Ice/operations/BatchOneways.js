@@ -82,7 +82,7 @@
         ).then(count => batch.ice_flushBatchRequests()
         ).then(() => prx.opByteSOnewayCallCount()
         ).then(() => batch.ice_getConnection()
-        ).then(con => bidir ? undefined : con.close(false)
+        ).then(con => bidir ? undefined : con.close(Ice.ConnectionClose.CloseGracefullyAndWait)
         ).then(() => Promise.all([batch.ice_ping(), batch2.ice_ping()])
         ).then(() =>
             {

@@ -163,7 +163,7 @@ public:
         if(!_done && (IceUtilInternal::random(10) == 1 || ++_count == _total))
         {
             _done = true;
-            current.con->close(true);
+            current.con->close(CloseForcefully);
             // Deactivate the OA. This ensures that the subscribers
             // that have subscribed with oneway QoS will be booted.
             current.adapter->deactivate();

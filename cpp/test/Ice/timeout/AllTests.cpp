@@ -294,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
         Ice::ConnectionPtr connection = to->ice_getConnection();
         timeout->holdAdapter(600);
-        connection->close(false);
+        connection->close(Ice::CloseGracefullyAndWait);
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.
@@ -309,9 +309,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             connection->getInfo();
             test(false);
         }
-        catch(const Ice::CloseConnectionException&)
+        catch(const Ice::ConnectionManuallyClosedException& ex)
         {
             // Expected.
+            test(ex.graceful);
         }
         timeout->op(); // Ensure adapter is active.
     }

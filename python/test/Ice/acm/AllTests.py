@@ -294,6 +294,25 @@ def allTests(communicator):
             with self.m:
                 test(self._heartbeat >= 3)
 
+    class HeartbeatManualTest(TestCase):
+        def __init__(self, com):
+            TestCase.__init__(self, "manual heartbeats", com)
+            #
+            # Disable heartbeats.
+            #
+            self.setClientACM(10, -1, 0)
+            self.setServerACM(10, -1, 0)
+
+        def runTestCase(self, adapter, proxy):
+            proxy.startHeartbeatCount()
+            con = proxy.ice_getConnection()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            proxy.waitForHeartbeatCount(5)
+
     class SetACMTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "setACM/getACM", com)
@@ -318,7 +337,8 @@ def allTests(communicator):
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle)
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways)
 
-            proxy.waitForHeartbeat(2)
+            proxy.startHeartbeatCount()
+            proxy.waitForHeartbeatCount(2)
 
     tests.append(InvocationHeartbeatTest(com))
     tests.append(InvocationHeartbeatOnHoldTest(com))
@@ -332,6 +352,7 @@ def allTests(communicator):
 
     tests.append(HeartbeatOnIdleTest(com))
     tests.append(HeartbeatAlwaysTest(com))
+    tests.append(HeartbeatManualTest(com))
     tests.append(SetACMTest(com))
 
     for p in tests:

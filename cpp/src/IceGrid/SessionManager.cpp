@@ -58,7 +58,7 @@ SessionManager::findAllQueryObjects(bool cached)
             {
                 try
                 {
-                    connection->close(false);
+                    connection->close(Ice::CloseGracefullyAndWait);
                 }
                 catch(const Ice::LocalException&)
                 {

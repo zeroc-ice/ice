@@ -379,7 +379,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 #ifdef ICE_CPP11_MAPPING
         background->opAsync();
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         background->opAsync();
 
         vector<future<void>> results;
@@ -407,7 +407,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         background->begin_op();
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         background->begin_op();
 
         vector<Ice::AsyncResultPtr> results;
@@ -452,7 +452,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
     {
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     int i;
     for(i = 0; i < 4; ++i)
@@ -560,7 +560,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
 
         configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         configuration->connectException(0);
         try
@@ -592,7 +592,7 @@ initializeTests(const ConfigurationPtr& configuration,
     {
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     int i;
     for(i = 0; i < 4; i++)
@@ -682,7 +682,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     try
     {
@@ -695,7 +695,7 @@ initializeTests(const ConfigurationPtr& configuration,
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 #endif
 
     //
@@ -728,7 +728,7 @@ initializeTests(const ConfigurationPtr& configuration,
     {
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     try
     {
@@ -764,7 +764,7 @@ initializeTests(const ConfigurationPtr& configuration,
         }
 
         configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         configuration->initializeException(0);
         try
@@ -784,12 +784,12 @@ initializeTests(const ConfigurationPtr& configuration,
         }
 
         configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         background->ice_ping();
         configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
 
         ctl->initializeException(true);
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
         ctl->initializeException(false);
         try
@@ -812,11 +812,11 @@ initializeTests(const ConfigurationPtr& configuration,
         {
 #if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
             ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
-            background->ice_getCachedConnection()->close(true);
+            background->ice_getCachedConnection()->close(Ice::CloseForcefully);
             background->op();
             ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
 #else
-            background->ice_getCachedConnection()->close(true);
+            background->ice_getCachedConnection()->close(Ice::CloseForcefully);
             background->op();
 #endif
         }
@@ -847,7 +847,7 @@ validationTests(const ConfigurationPtr& configuration,
     {
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     try
     {
@@ -921,7 +921,7 @@ validationTests(const ConfigurationPtr& configuration,
             cerr << ex << endl;
             test(false);
         }
-        background->ice_getConnection()->close(false);
+        background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
         try
         {
@@ -1081,7 +1081,7 @@ validationTests(const ConfigurationPtr& configuration,
         cerr << ex << endl;
         test(false);
     }
-    background->ice_getConnection()->close(false);
+    background->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     try
     {
@@ -1163,7 +1163,7 @@ validationTests(const ConfigurationPtr& configuration,
 #else
     backgroundBatchOneway->begin_ice_flushBatchRequests();
 #endif
-    backgroundBatchOneway->ice_getConnection()->close(false);
+    backgroundBatchOneway->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
     ctl->holdAdapter();
     backgroundBatchOneway->opWithPayload(seq);
@@ -1183,10 +1183,10 @@ validationTests(const ConfigurationPtr& configuration,
     // in the flush to report a CloseConnectionException). Instead we
     // wait for the first flush to complete.
     //
-    //backgroundBatchOneway->ice_getConnection()->close(false);
+    //backgroundBatchOneway->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
     backgroundBatchOneway->end_ice_flushBatchRequests(r);
 #endif
-    backgroundBatchOneway->ice_getConnection()->close(false);
+    backgroundBatchOneway->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 }
 
 void
@@ -1775,10 +1775,10 @@ readWriteTests(const ConfigurationPtr& configuration,
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 
         background->ice_ping();
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 
-        background->ice_getCachedConnection()->close(true);
+        background->ice_getCachedConnection()->close(Ice::CloseForcefully);
     }
 
     thread1->destroy();

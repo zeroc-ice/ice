@@ -29,7 +29,7 @@ public final class AMDMetricsI implements Metrics
     @Override
     public CompletionStage<Void> failAsync(com.zeroc.Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
         return CompletableFuture.completedFuture((Void)null);
     }
 

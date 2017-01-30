@@ -287,7 +287,7 @@ struct Connect
     {
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(false);
+            proxy->ice_getCachedConnection()->close(Ice::CloseGracefullyAndWait);
         }
         try
         {
@@ -298,7 +298,7 @@ struct Connect
         }
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(false);
+            proxy->ice_getCachedConnection()->close(Ice::CloseGracefullyAndWait);
         }
     }
 
@@ -534,8 +534,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
     if(!collocated)
     {
-        metrics->ice_getConnection()->close(false);
-        metrics->ice_connectionId("Con1")->ice_getConnection()->close(false);
+        metrics->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        metrics->ice_connectionId("Con1")->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -645,7 +645,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["holding"]->current == 1);
 
-        metrics->ice_getConnection()->close(false);
+        metrics->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["closing"]->current == 1);
@@ -660,7 +660,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close(false);
+        metrics->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
         metrics->ice_timeout(500)->ice_ping();
         controller->hold();
@@ -717,7 +717,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastPort", "");
 
-        m->ice_getConnection()->close(false);
+        m->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -736,7 +736,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
         test(m1->current == 0 && m1->total == 1 && m1->id == hostAndPort);
 
-        metrics->ice_getConnection()->close(false);
+        metrics->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
         controller->hold();
         try
         {
@@ -788,7 +788,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         try
         {
             prx->ice_ping();
-            prx->ice_getConnection()->close(false);
+            prx->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
         }
         catch(const Ice::LocalException&)
         {
