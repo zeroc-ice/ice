@@ -4616,13 +4616,7 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-
-    bool ami = false;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
-    {
-        ami = true;
-    }
 
     StringList metaData = p->getMetaData();
 
