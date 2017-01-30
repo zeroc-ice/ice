@@ -635,10 +635,8 @@ private:
 
     private:
 
-        void validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&,
-                      bool = false);
-
-        StringSet _history;
+        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&,
+                            bool = false);
     };
 
     class NormalizeMetaDataVisitor : public ParserVisitor
