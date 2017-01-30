@@ -68,6 +68,14 @@ These are the changes since Ice 3.6.4.
 - Fixed a bug in Ice.Long toNumber implementation where negative integers
   smaller than -(2^52 - 1) where not correctly handle.
 
+## CSharp Changes
+
+- Fixed a bug that affect Stack sequence mapping, when using the Stack mapping
+with a element of type Object* items where unmarshal in reverse order.
+
+- Fixed a bug where metadata was not correctly ignored and can result in bogus
+code being generated if applying invalid metadata directives. 
+
 # Changes in Ice 3.6.3
 
 These are the changes since Ice 3.6.2.

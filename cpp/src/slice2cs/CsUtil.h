@@ -88,7 +88,6 @@ private:
         void validate(const ContainedPtr&);
 
         std::string _fileName;
-        StringSet _history;
     };
 };
 

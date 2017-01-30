@@ -2355,6 +2355,7 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
+        StringList newGlobalMetaData;
 
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
@@ -2369,22 +2370,19 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 s.replace(0, clrPrefix.size(), csPrefix);
             }
 
-            if(_history.count(s) == 0)
+            if(s.find(csPrefix) == 0)
             {
-                if(s.find(csPrefix) == 0)
+                static const string csAttributePrefix = csPrefix + "attribute:";
+                if(s.find(csAttributePrefix) != 0 || s.size() == csAttributePrefix.size())
                 {
-                    static const string csAttributePrefix = csPrefix + "attribute:";
-                    if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-                    {
-                        continue;
-                    }
                     emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
-                    _history.insert(s);
+                    continue;
                 }
             }
+            newGlobalMetaData.push_back(oldS);
         }
 
-        dc->setMetaData(globalMetaData);
+        dc->setMetaData(newGlobalMetaData);
     }
     return true;
 }
@@ -2497,6 +2495,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     const string msg = "ignoring invalid metadata";
 
     StringList localMetaData = cont->getMetaData();
+    StringList newLocalMetaData;
 
     for(StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
@@ -2511,113 +2510,125 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             s.replace(0, clrPrefix.size(), csPrefix);
         }
 
-        if(_history.count(s) == 0)
+
+        if(s.find(csPrefix) == 0)
         {
-            if(s.find(csPrefix) == 0)
+            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            if(seq)
             {
-                SequencePtr seq = SequencePtr::dynamicCast(cont);
-                if(seq)
+                static const string csGenericPrefix = csPrefix + "generic:";
+                if(s.find(csGenericPrefix) == 0)
                 {
-                    static const string csGenericPrefix = csPrefix + "generic:";
-                    if(s.find(csGenericPrefix) == 0)
+                    string type = s.substr(csGenericPrefix.size());
+                    if(type == "LinkedList" || type == "Queue" || type == "Stack")
                     {
-                        string type = s.substr(csGenericPrefix.size());
-                        if(type == "LinkedList" || type == "Queue" || type == "Stack")
+                        if(!isClassType(seq->type()))
                         {
-                            if(!isClassType(seq->type()))
-                            {
-                                continue;
-                            }
-                        }
-                        else if(!type.empty())
-                        {
-                            continue; // Custom type or List<T>
-                        }
-                    }
-                    static const string csSerializablePrefix = csPrefix + "serializable:";
-                    if(s.find(csSerializablePrefix) == 0)
-                    {
-                        string meta;
-                        if(cont->findMetaData(csPrefix + "generic:", meta))
-                        {
-                            emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                        "serialization can only be used with the array mapping for byte sequences");
-                        }
-                        string type = s.substr(csSerializablePrefix.size());
-                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                        if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
-                        {
+                            newLocalMetaData.push_back(s);
                             continue;
                         }
                     }
-                }
-                else if(StructPtr::dynamicCast(cont))
-                {
-                    if(s.substr(csPrefix.size()) == "class")
+                    else if(!type.empty())
                     {
-                        continue;
-                    }
-                    if(s.substr(csPrefix.size()) == "property")
-                    {
-                        continue;
-                    }
-                    static const string csImplementsPrefix = csPrefix + "implements:";
-                    if(s.find(csImplementsPrefix) == 0)
-                    {
-                        continue;
+                        newLocalMetaData.push_back(s);
+                        continue; // Custom type or List<T>
                     }
                 }
-                else if(ClassDefPtr::dynamicCast(cont))
+                static const string csSerializablePrefix = csPrefix + "serializable:";
+                if(s.find(csSerializablePrefix) == 0)
                 {
-                    if(s.substr(csPrefix.size()) == "property")
+                    string meta;
+                    if(cont->findMetaData(csPrefix + "generic:", meta))
                     {
+                        emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
+                                    "serialization can only be used with the array mapping for byte sequences");
                         continue;
                     }
-                    static const string csImplementsPrefix = csPrefix + "implements:";
-                    if(s.find(csImplementsPrefix) == 0)
+                    string type = s.substr(csSerializablePrefix.size());
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                    if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
                     {
+                        newLocalMetaData.push_back(s);
                         continue;
                     }
                 }
-                else if(DictionaryPtr::dynamicCast(cont))
-                {
-                    static const string csGenericPrefix = csPrefix + "generic:";
-                    if(s.find(csGenericPrefix) == 0)
-                    {
-                        string type = s.substr(csGenericPrefix.size());
-                        if(type == "SortedDictionary" ||  type == "SortedList")
-                        {
-                            continue;
-                        }
-                    }
-                }
-
-                static const string csAttributePrefix = csPrefix + "attribute:";
-                static const string csTie = csPrefix + "tie";
-                if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
-                {
-                    continue;
-                }
-                else if(s.find(csTie) == 0 && s.size() == csTie.size())
-                {
-                    continue;
-                }
-
-                emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
-                _history.insert(s);
             }
-            else if(s == "delegate")
+            else if(StructPtr::dynamicCast(cont))
             {
-                ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-                if(cl && cl->isDelegate())
+                if(s.substr(csPrefix.size()) == "class")
                 {
+                    newLocalMetaData.push_back(s);
                     continue;
                 }
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
-                _history.insert(s);
+                if(s.substr(csPrefix.size()) == "property")
+                {
+                    newLocalMetaData.push_back(s);
+                    continue;
+                }
+                static const string csImplementsPrefix = csPrefix + "implements:";
+                if(s.find(csImplementsPrefix) == 0)
+                {
+                    newLocalMetaData.push_back(s);
+                    continue;
+                }
             }
+            else if(ClassDefPtr::dynamicCast(cont))
+            {
+                if(s.substr(csPrefix.size()) == "property")
+                {
+                    newLocalMetaData.push_back(s);
+                    continue;
+                }
+                static const string csImplementsPrefix = csPrefix + "implements:";
+                if(s.find(csImplementsPrefix) == 0)
+                {
+                    newLocalMetaData.push_back(s);
+                    continue;
+                }
+            }
+            else if(DictionaryPtr::dynamicCast(cont))
+            {
+                static const string csGenericPrefix = csPrefix + "generic:";
+                if(s.find(csGenericPrefix) == 0)
+                {
+                    string type = s.substr(csGenericPrefix.size());
+                    if(type == "SortedDictionary" ||  type == "SortedList")
+                    {
+                        newLocalMetaData.push_back(s);
+                        continue;
+                    }
+                }
+            }
+
+            static const string csAttributePrefix = csPrefix + "attribute:";
+            static const string csTie = csPrefix + "tie";
+            if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
+            {
+                newLocalMetaData.push_back(s);
+                continue;
+            }
+            else if(s.find(csTie) == 0 && s.size() == csTie.size())
+            {
+                newLocalMetaData.push_back(s);
+                continue;
+            }
+
+            emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
+            continue;
         }
+        else if(s == "delegate")
+        {
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
+            if(cl && cl->isDelegate())
+            {
+                newLocalMetaData.push_back(s);
+                continue;
+            }
+            emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+            continue;
+        }
+        newLocalMetaData.push_back(s);
     }
 
-    cont->setMetaData(localMetaData);
+    cont->setMetaData(newLocalMetaData);
 }
