@@ -106,12 +106,11 @@ private:
         void validate(const ContainedPtr&);
 
         static Slice::StringList getMetaData(const ContainedPtr&);
+        static void setMetaData(const ContainedPtr&, const Slice::StringList&);
         static void modulePrefixError(const ModulePtr&, const std::string&);
 
         static const std::string _objcPrefix; // "objc:"
         static const std::string _msg; // "ignoring invalid metadata"
-
-        StringSet _history;
     };
 
 

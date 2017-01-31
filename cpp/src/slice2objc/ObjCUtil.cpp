@@ -1072,48 +1072,47 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         StringList globalMetaData = dc->getMetaData();
         int headerDir = 0;
         int dllExport = 0;
-        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
-            string s = *r;
-            if(_history.count(s) == 0)
+            string s = *r++;
+
+            if(s.find(_objcPrefix) == 0)
             {
-                if(s.find(_objcPrefix) == 0)
+                static const string objcHeaderDirPrefix = "objc:header-dir:";
+                static const string objcDllExportPrefix = "objc:dll-export:";
+                if(s.find(objcHeaderDirPrefix) == 0 && s.size() > objcHeaderDirPrefix.size())
                 {
-                    static const string objcHeaderDirPrefix = "objc:header-dir:";
-                    static const string objcDllExportPrefix = "objc:dll-export:";
-                    if(s.find(objcHeaderDirPrefix) == 0 && s.size() > objcHeaderDirPrefix.size())
+                    headerDir++;
+                    if(headerDir > 1)
                     {
-                        headerDir++;
-                        if(headerDir > 1)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                 << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                            _history.insert(s);
-                        }
-                        continue;
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        emitWarning(file, -1, ostr.str());
+                        globalMetaData.remove(s);
                     }
-                    else if(s.find(objcDllExportPrefix) == 0 && s.size() > objcDllExportPrefix.size())
-                    {
-                        dllExport++;
-                        if(dllExport > 1)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                 << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                            _history.insert(s);
-                        }
-                        continue;
-                    }
-                    ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
-                    emitWarning(file, -1, ostr.str());
+                    continue;
                 }
-                _history.insert(s);
+                else if(s.find(objcDllExportPrefix) == 0 && s.size() > objcDllExportPrefix.size())
+                {
+                    dllExport++;
+                    if(dllExport > 1)
+                    {
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        emitWarning(file, -1, ostr.str());
+                        globalMetaData.remove(s);
+                    }
+                    continue;
+                }
+                ostringstream ostr;
+                ostr << "ignoring invalid global metadata `" << s << "'";
+                emitWarning(file, -1, ostr.str());
+                globalMetaData.remove(s);
             }
         }
+        dc->setMetaData(globalMetaData);
     }
 
     return true;
@@ -1227,47 +1226,43 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         StringList meta = getMetaData(m);
         StringList::const_iterator p;
 
-        for(p = meta.begin(); p != meta.end(); ++p)
+        for(p = meta.begin(); p != meta.end();)
         {
-            const string prefix = "prefix:";
+            string s = *p++;
+            const string prefix = "objc:prefix:";
             string name;
-            if(p->substr(_objcPrefix.size(), prefix.size()) == prefix)
+            if(s.find(prefix) == 0)
             {
                 foundPrefix = true;
-                name = trim(p->substr(_objcPrefix.size() + prefix.size()));
+                name = trim(s.substr(prefix.size()));
                 if(name.empty())
                 {
-                    if(_history.count(*p) == 0)
-                    {
-                        string file = m->definitionContext()->filename();
-                        ostringstream os;
-                        os << _msg << " `" << *p << "'" << endl;
-                        emitWarning(file, m->line(), os.str());
-                        _history.insert(*p);
-                    }
+                    string file = m->definitionContext()->filename();
+                    ostringstream os;
+                    os << _msg << " `" << s << "'" << endl;
+                    emitWarning(file, m->line(), os.str());
+                    meta.remove(s);
                     error = true;
                 }
                 else
                 {
                     if(!addModule(m, name))
                     {
-                        modulePrefixError(m, *p);
+                        modulePrefixError(m, s);
                     }
                 }
             }
             else
             {
-                if(_history.count(*p) == 0)
-                {
-                    string file = m->definitionContext()->filename();
-                    ostringstream os;
-                    os << _msg << " `" << *p << "'" << endl;
-                    emitWarning(file, m->line(), os.str());
-                    _history.insert(*p);
-                }
+                string file = m->definitionContext()->filename();
+                ostringstream os;
+                os << _msg << " `" << s << "'" << endl;
+                emitWarning(file, m->line(), os.str());
+                meta.remove(s);
                 error = true;
             }
         }
+        setMetaData(m, meta);
 
         if(!error && !foundPrefix)
         {
@@ -1288,19 +1283,32 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 StringList
 Slice::ObjCGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
 {
-    StringList ret;
     StringList localMetaData = cont->getMetaData();
-    StringList::const_iterator p;
-
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
     {
-        if(p->find(_objcPrefix) != string::npos)
+        string s = *p++;
+        if(s.find(_objcPrefix) != 0)
         {
-            ret.push_back(*p);
+            localMetaData.remove(s);
         }
     }
+    return localMetaData;
+}
 
-    return ret;
+void
+Slice::ObjCGenerator::MetaDataVisitor::setMetaData(const ContainedPtr& cont, const StringList& metadata)
+{
+    StringList localMetaData = cont->getMetaData();
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
+    {
+        string s = *p++;
+        if(s.find(_objcPrefix) == 0)
+        {
+            localMetaData.remove(s);
+        }
+    }
+    localMetaData.insert(localMetaData.end(), metadata.begin(), metadata.end());
+    cont->setMetaData(localMetaData);
 }
 
 void
