@@ -68,7 +68,7 @@ private:
     //
     // Validates sequence metadata.
     //
-    void validateSequence(const string&, const string&, const TypePtr&, const StringList&);
+    StringList validateSequence(const string&, const string&, const TypePtr&, const StringList&);
 
     //
     // Checks a definition that doesn't currently support Python metadata.
@@ -2997,23 +2997,21 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
-        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
-            string s = *r;
-            if(_history.count(s) == 0)
+            string s = *r++;
+            if(s.find(prefix) == 0)
             {
-                _history.insert(s);
-                if(s.find(prefix) == 0)
+                static const string packagePrefix = "python:package:";
+                if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
                 {
-                    static const string packagePrefix = "python:package:";
-                    if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
-                    {
-                        continue;
-                    }
-                    emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                    continue;
                 }
+                emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                globalMetaData.remove(s);
             }
         }
+        dc->setMetaData(globalMetaData);
     }
     return true;
 }
@@ -3081,6 +3079,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = p->getMetaData();
     const string file = p->file();
     const string line = p->line();
+    StringList protobufMetaData;
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
     {
         string s = *q++;
@@ -3090,17 +3089,22 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             // Remove from list so validateSequence does not try to handle as well.
             //
             metaData.remove(s);
-
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
                 emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
                             "`protobuf' encoding must be a byte sequence");
             }
+            else
+            {
+                protobufMetaData.push_back(s);
+            }
         }
     }
 
-    validateSequence(file, line, p, metaData);
+    metaData = validateSequence(file, line, p, metaData);
+    metaData.insert(metaData.end(), protobufMetaData.begin(), protobufMetaData.end());
+    p->setMetaData(metaData);
 }
 
 void
@@ -3121,15 +3125,15 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
     reject(p);
 }
 
-void
+StringList
 Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
-                                                 const TypePtr& type, const StringList& meta)
+                                                 const TypePtr& type, const StringList& metaData)
 {
     static const string prefix = "python:";
-
-    for(StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
+    StringList newMetaData = metaData;
+    for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
     {
-        string s = *p;
+        string s = *p++;
         if(s.find(prefix) == 0)
         {
             string::size_type pos = s.find(':', prefix.size());
@@ -3146,8 +3150,10 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                 }
             }
             emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+            newMetaData.remove(s);
         }
     }
+    return newMetaData;
 }
 
 void
@@ -3155,11 +3161,14 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
 {
     StringList localMetaData = cont->getMetaData();
     static const string prefix = "python:";
-    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
     {
-        if(p->find(prefix) == 0)
+        string s = *p++;
+        if(s.find(prefix) == 0)
         {
-            emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + *p + "'");
+            emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            localMetaData.remove(s);
         }
     }
+    cont->setMetaData(localMetaData);
 }
