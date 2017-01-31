@@ -94,7 +94,8 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
-            if(!($ex instanceof $cre))
+            $cte = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
+            if(!($ex instanceof $cre) && !($ex instanceof $cte))
             {
                 throw $ex;
             }
@@ -271,7 +272,8 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
-            if(!($ex instanceof $cre))
+            $cte = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
+            if(!($ex instanceof $cre) && !($ex instanceof $cte))
             {
                 throw $ex;
             }
@@ -325,7 +327,8 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
-            if(!($ex instanceof $cre))
+            $cte = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
+            if(!($ex instanceof $cre) && !($ex instanceof $cte))
             {
                 throw $ex;
             }
@@ -410,7 +413,8 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
-            if(!($ex instanceof $cre))
+            $cte = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
+            if(!($ex instanceof $cre) && !($ex instanceof $cte))
             {
                 throw $ex;
             }
@@ -515,7 +519,8 @@ function allTests($communicator)
             catch(Exception $ex)
             {
                 $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
-                if(!($ex instanceof $cre))
+                $cte = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
+                if(!($ex instanceof $cre) && !($ex instanceof $cte))
                 {
                     throw $ex;
                 }
@@ -529,7 +534,7 @@ function allTests($communicator)
     $com->shutdown();
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 
 allTests($communicator);
