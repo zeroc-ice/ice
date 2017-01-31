@@ -735,13 +735,6 @@ localExceptionToString(const Ice::LocalException& ex)
 }
 @end
 
-@implementation ICEForcedCloseConnectionException (ICEInternal)
--(void) rethrowCxx
-{
-    throw Ice::ForcedCloseConnectionException(file, line, fromNSString([self reason_]));
-}
-@end
-
 @implementation ICEIllegalMessageSizeException (ICEInternal)
 -(void) rethrowCxx
 {

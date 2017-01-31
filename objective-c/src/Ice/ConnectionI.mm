@@ -504,6 +504,23 @@ private:
     }
 }
 
+-(void) throwException
+{
+    NSException* nsex = nil;
+    try
+    {
+        CONNECTION->throwException();
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+
 -(ICEEndpoint*) getEndpoint
 {
     NSException* nsex = nil;

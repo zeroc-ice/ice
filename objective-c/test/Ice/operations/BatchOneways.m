@@ -52,7 +52,7 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         [batch1 ice_ping];
         [batch2 ice_ping];
         [batch1 ice_flushBatchRequests];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICECloseGracefullyAndWait];
         [batch1 ice_ping];
         [batch2 ice_ping];
 
@@ -60,7 +60,7 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         [batch2 ice_getConnection];
 
         [batch1 ice_ping];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICECloseGracefullyAndWait];
         [batch1 ice_ping];
         [batch2 ice_ping];
     }

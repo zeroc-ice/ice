@@ -23,7 +23,7 @@
 -(id) initWithAdapter:(id<ICEObjectAdapter>)adapter;
 @end
 
-@interface ConnectionCallbackI : NSObject
+@interface ACMConnectionCallbackI : NSObject
 {
     NSCondition* _cond;
     int _count;
@@ -34,6 +34,6 @@
 @interface TestACMTestIntfI : TestACMTestIntf<TestACMTestIntf>
 {
     NSCondition* _cond;
-    ConnectionCallbackI* _callback;
+    ACMConnectionCallbackI* _callback;
 }
 @end

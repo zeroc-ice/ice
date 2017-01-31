@@ -773,7 +773,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [proxy startHeartbeatCount];
-    id con = [proxy ice_getConnection];
+    id<ICEConnection> con = [proxy ice_getConnection];
     [con heartbeat];
     [con heartbeat];
     [con heartbeat];

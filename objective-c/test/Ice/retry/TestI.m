@@ -28,7 +28,7 @@
    {
         if([current con])
         {
-            [[current con] close:YES];
+            [[current con] close:ICECloseForcefully];
         }
         else
         {

@@ -24,7 +24,7 @@
 
 -(void) fail:(ICECurrent*)current
 {
-    [current.con close:YES];
+    [current.con close:ICECloseForcefully];
 }
 
 -(void) opWithUserException:(ICECurrent*)current

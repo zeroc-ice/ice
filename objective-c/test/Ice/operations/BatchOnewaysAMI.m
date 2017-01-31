@@ -48,7 +48,7 @@ batchOnewaysAMI(id<TestOperationsMyClassPrx> p)
         [batch1 end_ice_ping:[batch1 begin_ice_ping]];
         [batch2 end_ice_ping:[batch2 begin_ice_ping]];
         [batch1 end_ice_flushBatchRequests:[batch1 begin_ice_flushBatchRequests]];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICECloseGracefullyAndWait];
         [batch1 end_ice_ping:[batch1 begin_ice_ping]];
         [batch2 end_ice_ping:[batch2 begin_ice_ping]];
 
@@ -56,7 +56,7 @@ batchOnewaysAMI(id<TestOperationsMyClassPrx> p)
         [batch2 ice_getConnection];
 
         [batch1 end_ice_ping:[batch1 begin_ice_ping]];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICECloseGracefullyAndWait];
         [batch1 end_ice_ping:[batch1 begin_ice_ping]];
         [batch2 end_ice_ping:[batch2 begin_ice_ping]];
     }

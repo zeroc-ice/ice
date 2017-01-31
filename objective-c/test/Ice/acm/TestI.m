@@ -9,14 +9,6 @@
 
 #import <acm/TestI.h>
 
-@interface ACMConnectionCallbackI : NSObject
-{
-    NSCondition* _cond;
-    int _count;
-}
--(void) waitForCount:(int)count;
-@end
-
 @implementation ACMConnectionCallbackI
 -(id) init
 {
@@ -192,11 +184,11 @@
 }
 -(void) startHeartbeatCount:(ICECurrent*)current
 {
-    _callback = [ACMConnectionCallbackI new];
-
+    ACMConnectionCallbackI* callback = [ACMConnectionCallbackI new];
+    _callback = callback;
     [current.con setHeartbeatCallback:^(id<ICEConnection> c)
     {
-        [_callback heartbeat:c];
+        [callback heartbeat:c];
     }];
 }
 -(void) waitForHeartbeatCount:(int)count current:(ICECurrent*)current
