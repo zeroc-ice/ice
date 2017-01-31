@@ -1200,7 +1200,7 @@ def allTests(communicator, collocated):
         try:
             r.throwLocalException()
             test(False)
-        except Ice.ConnectionManuallyClosedException, ex:
+        except Ice.ConnectionManuallyClosedException as ex:
             test(ex.graceful)
 
         #
@@ -1241,7 +1241,7 @@ def allTests(communicator, collocated):
         try:
             r.throwLocalException()
             test(False)
-        except Ice.ConnectionManuallyClosedException, ex:
+        except Ice.ConnectionManuallyClosedException as ex:
             test(not ex.graceful)
 
         #

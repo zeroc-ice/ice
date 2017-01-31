@@ -164,7 +164,7 @@ def allTests(communicator):
     try:
         connection.getInfo()
         test(False)
-    except Ice.ConnectionManuallyClosedException, ex:
+    except Ice.ConnectionManuallyClosedException as ex:
         # Expected.
         test(ex.graceful)
     timeout.op() # Ensure adapter is active.
