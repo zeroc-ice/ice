@@ -613,7 +613,7 @@ class Mapping:
                                                       "Ice/faultTolerance",
                                                       "Ice/services",
                                                       "IceDiscovery/simple"]:
-                        props["Ice.Override.ConnectTimeout"] = "200"
+                        props["Ice.Override.ConnectTimeout"] = "400"
 
                 # Additional properties specified on the command line with --cprops or --sprops
                 additionalProps = []
