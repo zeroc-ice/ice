@@ -627,7 +627,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // ice_id
             //
-            _out << sp << nl << "def ice_id(self, current=None):";
+            _out << sp << nl << "def ice_id(self):";
             _out.inc();
             _out << nl << "return '" << scoped << "'";
             _out.dec();
