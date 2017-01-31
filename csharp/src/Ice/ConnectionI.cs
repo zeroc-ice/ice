@@ -658,8 +658,8 @@ namespace Ice
                 try
                 {
                     os_.writeBlob(IceInternal.Protocol.magic);
-                    Ice.Util.currentProtocol.write__(os_);
-                    Ice.Util.currentProtocolEncoding.write__(os_);
+                    ProtocolVersion.ice_write(os_, Ice.Util.currentProtocol);
+                    EncodingVersion.ice_write(os_, Ice.Util.currentProtocolEncoding);
                     os_.writeByte(IceInternal.Protocol.validateConnectionMsg);
                     os_.writeByte((byte)0);
                     os_.writeInt(IceInternal.Protocol.headerSize); // Message size.
