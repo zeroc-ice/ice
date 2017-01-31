@@ -1682,10 +1682,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
             }
             else
             {
-                if(PyTuple_SET_ITEM(results.get(), info->pos, Unset) < 0)
-                {
-                    return 0;
-                }
+                PyTuple_SET_ITEM(results.get(), info->pos, Unset);
                 Py_INCREF(Unset); // PyTuple_SET_ITEM steals a reference.
             }
         }
@@ -2546,10 +2543,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             throwPythonException();
         }
 
-        if(PyTuple_SET_ITEM(result.get(), 0, ok ? incTrue() : incFalse()) < 0)
-        {
-            throwPythonException();
-        }
+        PyTuple_SET_ITEM(result.get(), 0, ok ? incTrue() : incFalse());
 
 #if PY_VERSION_HEX >= 0x03000000
         PyObjectHandle op;
@@ -2586,10 +2580,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         }
 #endif
 
-        if(PyTuple_SET_ITEM(result.get(), 1, op.get()) < 0)
-        {
-            throwPythonException();
-        }
+        PyTuple_SET_ITEM(result.get(), 1, op.get());
         op.release(); // PyTuple_SET_ITEM steals a reference.
 
         return result.release();
@@ -2827,10 +2818,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
             return 0;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
-        {
-            return 0;
-        }
+        PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse());
 
 #if PY_VERSION_HEX >= 0x03000000
         Py_ssize_t sz = results.second - results.first;
@@ -2867,10 +2855,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
         memcpy(buf, results.first, sz);
 #endif
 
-        if(PyTuple_SET_ITEM(args.get(), 1, op.get()) < 0)
-        {
-            return 0;
-        }
+        PyTuple_SET_ITEM(args.get(), 1, op.get());
         op.release(); // PyTuple_SET_ITEM steals a reference.
 
         return args.release();
@@ -2910,12 +2895,7 @@ IcePy::AsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*, c
             return;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
-        {
-            assert(PyErr_Occurred());
-            PyErr_Print();
-            return;
-        }
+        PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse());
 
 #if PY_VERSION_HEX >= 0x03000000
         Py_ssize_t sz = results.second - results.first;
@@ -2958,12 +2938,7 @@ IcePy::AsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*, c
         memcpy(buf, results.first, sz);
 #endif
 
-        if(PyTuple_SET_ITEM(args.get(), 1, op.get()) < 0)
-        {
-            assert(PyErr_Occurred());
-            PyErr_Print();
-            return;
-        }
+        PyTuple_SET_ITEM(args.get(), 1, op.get());
         op.release(); // PyTuple_SET_ITEM steals a reference.
 
         PyObjectHandle tmp = PyObject_Call(_response, args.get(), 0);
@@ -3126,12 +3101,7 @@ IcePy::OldAsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*
             return;
         }
 
-        if(PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse()) < 0)
-        {
-            assert(PyErr_Occurred());
-            PyErr_Print();
-            return;
-        }
+        PyTuple_SET_ITEM(args.get(), 0, ok ? incTrue() : incFalse());
 
 #if PY_VERSION_HEX >= 0x03000000
         Py_ssize_t sz = results.second - results.first;
@@ -3174,12 +3144,7 @@ IcePy::OldAsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*
         memcpy(buf, results.first, sz);
 #endif
 
-        if(PyTuple_SET_ITEM(args.get(), 1, op.get()) < 0)
-        {
-            assert(PyErr_Occurred());
-            PyErr_Print();
-            return;
-        }
+        PyTuple_SET_ITEM(args.get(), 1, op.get());
         op.release(); // PyTuple_SET_ITEM steals a reference.
 
         const string methodName = "ice_response";
@@ -3302,10 +3267,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 }
                 else
                 {
-                    if(PyTuple_SET_ITEM(args.get(), info->pos + offset, Unset) < 0)
-                    {
-                        throwPythonException();
-                    }
+                    PyTuple_SET_ITEM(args.get(), info->pos + offset, Unset);
                     Py_INCREF(Unset); // PyTuple_SET_ITEM steals a reference.
                 }
             }
@@ -3329,10 +3291,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
     // Create an object to represent Ice::Current. We need to append this to the argument tuple.
     //
     PyObjectHandle curr = createCurrent(current);
-    if(PyTuple_SET_ITEM(args.get(), PyTuple_GET_SIZE(args.get()) - 1, curr.get()) < 0)
-    {
-        throwPythonException();
-    }
+    PyTuple_SET_ITEM(args.get(), PyTuple_GET_SIZE(args.get()) - 1, curr.get());
     curr.release(); // PyTuple_SET_ITEM steals a reference.
 
     if(_op->amd)
@@ -3347,11 +3306,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
         }
         obj->upcall = new UpcallPtr(this);
         obj->encoding = current.encoding;
-        if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
-        {
-            Py_DECREF(obj);
-            throwPythonException();
-        }
+        PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj); // PyTuple_SET_ITEM steals a reference.
     }
 
     //
@@ -3698,10 +3653,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
     }
 #endif
 
-    if(PyTuple_SET_ITEM(args.get(), start, ip.get()) < 0)
-    {
-        throwPythonException();
-    }
+    PyTuple_SET_ITEM(args.get(), start, ip.get());
     ++start;
     ip.release(); // PyTuple_SET_ITEM steals a reference.
 
@@ -3710,10 +3662,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
     // this to the argument tuple.
     //
     PyObjectHandle curr = createCurrent(current);
-    if(PyTuple_SET_ITEM(args.get(), start, curr.get()) < 0)
-    {
-        throwPythonException();
-    }
+    PyTuple_SET_ITEM(args.get(), start, curr.get());
     curr.release(); // PyTuple_SET_ITEM steals a reference.
 
     string dispatchName = "ice_invoke";
@@ -3730,11 +3679,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
         }
         obj->upcall = new UpcallPtr(this);
         obj->encoding = current.encoding;
-        if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
-        {
-            Py_DECREF(obj);
-            throwPythonException();
-        }
+        PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj); // PyTuple_SET_ITEM steals a reference.
     }
 
     //
