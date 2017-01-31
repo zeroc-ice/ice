@@ -62,9 +62,9 @@ abstract class Ice_LocalException extends Ice_Exception
 
 class Ice_Value
 {
-    public function ice_ids()
+    public static function ice_staticId()
     {
-        return array(ice_id());
+        return "::Ice::Object";
     }
 
     public function ice_id()
