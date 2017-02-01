@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iceutil", "..\src\IceUtil\msbuild\iceutil\iceutil.vcxproj", "{4D1A5110-3176-44BA-8BBB-57BF56519B9F}"
 EndProject
@@ -209,6 +209,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icegriddb", "..\src\icegrid
 		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 		{18BF13D3-85D3-43A5-8C96-E52EB0672F72} = {18BF13D3-85D3-43A5-8C96-E52EB0672F72}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icebridge", "..\src\IceBridge\msbuild\icebridge.vcxproj", "{1D6E8807-7C28-421F-B49E-BCB482FCB21D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
 	EndProjectSection
 EndProject
 Global
@@ -499,6 +504,14 @@ Global
 		{369524F4-D374-44F4-BCFD-408934595701}.Release|Win32.Build.0 = Release|Win32
 		{369524F4-D374-44F4-BCFD-408934595701}.Release|x64.ActiveCfg = Release|x64
 		{369524F4-D374-44F4-BCFD-408934595701}.Release|x64.Build.0 = Release|x64
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Debug|Win32.Build.0 = Debug|Win32
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Debug|x64.ActiveCfg = Debug|x64
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Debug|x64.Build.0 = Debug|x64
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Release|Win32.ActiveCfg = Release|Win32
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Release|Win32.Build.0 = Release|Win32
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Release|x64.ActiveCfg = Release|x64
+		{1D6E8807-7C28-421F-B49E-BCB482FCB21D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
