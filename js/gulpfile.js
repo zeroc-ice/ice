@@ -454,7 +454,15 @@ function runTestsWithBrowser(url)
     {
         cmd.push("--config=" + configuration);
     }
-    cmd = cmd.concat(process.argv.slice(3));
+
+    var i = process.argv.indexOf("--");
+    var argv = process.argv.filter(
+        function(element, index, argv)
+        {
+            return i !== -1 && index > i;
+        });
+    cmd = cmd.concat(argv);
+
     var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
     p.on("error", function(err)
         {
