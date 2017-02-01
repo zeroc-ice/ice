@@ -134,6 +134,10 @@ These are the changes since Ice 3.6.3.
 
 ## Java Changes
 
+- The Ice communicator now implements `java.lang.AutoCloseable`. This enables
+  the code to initialize the communicator within a `try-with-resources` block.
+  The communicator will implicitly be destroyed when the block exits.
+
 - Fixed a bug where unmarshaling Ice objects was really slow when using
   compact type IDs.
 
@@ -150,10 +154,14 @@ These are the changes since Ice 3.6.3.
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.
 
-- The --dll-export option of slice2objc is now deprecated, and replaced by the global
-  Slice metadata objc:dll-export:SYMBOL.
+- The --dll-export option of slice2objc is now deprecated, and replaced by the
+  global Slice metadata objc:dll-export:SYMBOL.
 
 ## Python Changes
+
+- The Ice communicator now implements context manager protocol. This enables
+  the code to initialize the communicator within a `with` block. The
+  communicator will implicitly be destroyed when the `with` block exits.
 
 - Added a new AMI mapping that returns Ice.Future. The Future class provides an API
   that is compatible with concurrent.futures.Future, with some additional Ice-specific
