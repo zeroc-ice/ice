@@ -142,7 +142,6 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-
     public void clearShowIceLogDialog()
     {
         assert false;
@@ -177,7 +176,7 @@ public abstract class TreeNode extends TreeNodeBase
         SwingUtilities.invokeLater(() -> success(prefix, detail));
     }
 
-    protected void amiFailure(String prefix, String title, com.zeroc.Ice.UserException e)
+    protected void amiFailure(String prefix, String title, Throwable e)
     {
         if(e instanceof com.zeroc.IceGrid.ServerNotExistException)
         {
@@ -227,7 +226,7 @@ public abstract class TreeNode extends TreeNodeBase
         }
         else
         {
-            amiFailure(prefix, title, e.toString());
+            amiFailure(prefix, title, title + ":\n" + e.toString());
         }
     }
 

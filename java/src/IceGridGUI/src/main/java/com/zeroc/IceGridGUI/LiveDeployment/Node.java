@@ -23,7 +23,7 @@ import java.text.NumberFormat;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-class Node extends ListTreeNode
+class Node extends Communicator
 {
     //
     // Actions
@@ -39,63 +39,6 @@ class Node extends ListTreeNode
         actions[START_ALL_SERVERS] = _up;
         actions[STOP_ALL_SERVERS] = _up;
         return actions;
-    }
-
-    @Override
-    public void retrieveIceLog()
-    {
-        if(_showIceLogDialog == null)
-        {
-            final String prefix = "Retrieving Admin proxy for Node " + _id + "...";
-            final String errorTitle = "Failed to retrieve Admin Proxy for Node " + _id;
-            getRoot().getCoordinator().getStatusBar().setText(prefix);
-
-            try
-            {
-                getRoot().getCoordinator().getSession().getAdmin().getNodeAdminAsync(_id).whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                                com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(result.ice_facet("Logger"));
-                            final String title = "Node " + _id + " Ice log";
-                            final String defaultFileName = "node-" + _id;
-
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    if(_showIceLogDialog == null)
-                                    {
-                                        _showIceLogDialog = new ShowIceLogDialog(Node.this, title, loggerAdmin,
-                                                                                 defaultFileName,
-                                                                                 getRoot().getLogMaxLines(),
-                                                                                 getRoot().getLogInitialLines());
-                                    }
-                                    else
-                                    {
-                                        _showIceLogDialog.toFront();
-                                    }
-                                });
-                        }
-                        else if(ex instanceof com.zeroc.Ice.UserException)
-                        {
-                            amiFailure(prefix, errorTitle, (com.zeroc.Ice.UserException)ex);
-                        }
-                        else
-                        {
-                            amiFailure(prefix, errorTitle, ex.toString());
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-                failure(prefix, errorTitle, e.toString());
-            }
-        }
-        else
-        {
-            _showIceLogDialog.toFront();
-        }
     }
 
     @Override
@@ -164,9 +107,8 @@ class Node extends ListTreeNode
     @Override
     public void startAllServers()
     {
-        for(Object obj : _children)
+        for(Server server : _servers)
         {
-            Server server = (Server)obj;
             if(server.getAvailableActions()[START])
             {
                 server.start();
@@ -177,9 +119,8 @@ class Node extends ListTreeNode
     @Override
     public void stopAllServers()
     {
-        for(Object obj : _children)
+        for(Server server : _servers)
         {
-            Server server = (Server)obj;
             if(server.getAvailableActions()[STOP])
             {
                 server.stop();
@@ -268,28 +209,56 @@ class Node extends ListTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+
+    //
+    // Implement Communicator abstract methods
+    //
+
     @Override
-    public void clearShowIceLogDialog()
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        _showIceLogDialog = null;
+        return getRoot().getCoordinator().getSession().getAdmin().getNodeAdminAsync(_id);
     }
 
+    @Override
+    protected String getServerDisplayName()
+    {
+        return "Node " + _id;
+    }
+
+    @Override
+    protected String getDisplayName()
+    {
+        return "Node " + _id;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return "node-" + _id;
+    }
 
     Node(Root parent, NodeDynamicInfo info)
     {
-        super(parent, info.info.name);
+        super(parent, info.info.name, 2);
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _servers;
         up(info, false);
     }
 
     Node(Root parent, ApplicationDescriptor appDesc, String nodeName, NodeDescriptor nodeDesc)
     {
-        super(parent, nodeName);
+        super(parent, nodeName, 2);
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _servers;
         add(appDesc, nodeDesc);
     }
 
     Node(Root parent, ApplicationDescriptor appDesc, NodeUpdateDescriptor update)
     {
-        super(parent, update.name);
+        super(parent, update.name, 2);
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _servers;
 
         NodeDescriptor nodeDesc = new NodeDescriptor(
             update.variables,
@@ -372,12 +341,12 @@ class Node extends ListTreeNode
         }
 
         java.util.List<Server> toRemove = new java.util.LinkedList<>();
-        int[] toRemoveIndices = new int[_children.size()];
+        int[] toRemoveIndices = new int[_servers.size()];
         int i = 0;
 
-        for(int index = 0; index < _children.size(); ++index)
+        for(int index = 0; index < _servers.size(); ++index)
         {
-            Server server = (Server)_children.get(index);
+            Server server = _servers.get(index);
             if(server.getApplication().name.equals(appName))
             {
                 toRemove.add(server);
@@ -385,7 +354,7 @@ class Node extends ListTreeNode
             }
         }
         toRemoveIndices = resize(toRemoveIndices, toRemove.size());
-        _children.removeAll(toRemove);
+        _servers.removeAll(toRemove);
         getRoot().getTreeModel().nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
 
         return false;
@@ -467,7 +436,7 @@ class Node extends ListTreeNode
                     server.removeCallbacks();
                     removeDescriptor(nodeDesc, server);
                     int index = getIndex(server);
-                    _children.remove(server);
+                    _servers.remove(server);
                     getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
                 }
             }
@@ -489,7 +458,8 @@ class Node extends ListTreeNode
                 else
                 {
                     removeDescriptor(nodeDesc, oldServer);
-                    oldServer.rebuild(server, true);
+                    oldServer.rebuild(server);
+                    oldServer.updateMetrics();
                     freshServers.add(oldServer);
                     nodeDesc.serverInstances.add(desc);
                 }
@@ -509,7 +479,8 @@ class Node extends ListTreeNode
                 else
                 {
                     removeDescriptor(nodeDesc, oldServer);
-                    oldServer.rebuild(server, true);
+                    oldServer.rebuild(server);
+                    oldServer.updateMetrics();
                     freshServers.add(oldServer);
                     nodeDesc.servers.add(desc);
                 }
@@ -521,9 +492,8 @@ class Node extends ListTreeNode
             //
             // Rebuild every other server in this application
             //
-            for(javax.swing.tree.TreeNode p : _children)
+            for(Server server : _servers)
             {
-                Server server = (Server)p;
                 if(server.getApplication() == appDesc)
                 {
                     if(!freshServers.contains(server))
@@ -586,9 +556,8 @@ class Node extends ListTreeNode
             {
                 String appName = data.resolver.find("application");
 
-                for(javax.swing.tree.TreeNode p : _children)
+                for(Server server : _servers)
                 {
-                    Server server = (Server)p;
                     if(server.getApplication().name.equals(appName))
                     {
                         server.rebuild(data.resolver, true, null, null);
@@ -610,9 +579,8 @@ class Node extends ListTreeNode
                 updatedServers.add(server);
             }
         }
-        for(javax.swing.tree.TreeNode p : _children)
+        for(Server server : _servers)
         {
-            Server server = (Server)p;
             if(!updatedServers.contains(server))
             {
                 server.update(ServerState.Inactive, 0, true, true);
@@ -622,11 +590,11 @@ class Node extends ListTreeNode
         //
         // Tell adapters
         //
-        java.util.Iterator<javax.swing.tree.TreeNode> p = _children.iterator();
+        java.util.Iterator<Server> p = _servers.iterator();
         int updateCount = 0;
         while(p.hasNext() && updateCount < _info.adapters.size())
         {
-            Server server = (Server)p.next();
+            Server server = p.next();
             updateCount += server.updateAdapters(_info.adapters);
         }
 
@@ -647,15 +615,14 @@ class Node extends ListTreeNode
             _showIceLogDialog.stopped();
         }
 
-        if(_children.isEmpty())
+        if(_servers.isEmpty())
         {
             return true;
         }
         else
         {
-            for(javax.swing.tree.TreeNode p : _children)
+            for(Server server : _servers)
             {
-                Server server = (Server)p;
                 server.nodeDown();
             }
 
@@ -724,9 +691,8 @@ class Node extends ListTreeNode
             }
         }
 
-        for(javax.swing.tree.TreeNode p : _children)
+        for(Server server : _servers)
         {
-            Server server = (Server)p;
             if(server.updateAdapter(updatedInfo))
             {
                 break;
@@ -772,16 +738,18 @@ class Node extends ListTreeNode
 
     void showLoad()
     {
-        try
+        com.zeroc.IceGrid.AdminPrx admin = getCoordinator().getAdmin();
+        if(admin == null)
         {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            _editor.setLoad("Unknown", this);
+        }
+        else
+        {
+            _editor.setLoad("", this);
+            final String prefix = "Retrieving load for " + getDisplayName() + "...";
+            getRoot().getCoordinator().getStatusBar().setText(prefix);
 
-            com.zeroc.IceGrid.AdminPrx admin = getCoordinator().getAdmin();
-            if(admin == null)
-            {
-                _editor.setLoad("Unknown", this);
-            }
-            else
+            try
             {
                 admin.getNodeLoadAsync(_id).whenComplete((result, ex) ->
                     {
@@ -806,38 +774,22 @@ class Node extends ListTreeNode
                                 format.format(result.avg5) + " " +
                                 format.format(result.avg15);
 
-                            SwingUtilities.invokeLater(() -> _editor.setLoad(load, Node.this));
+                            SwingUtilities.invokeLater(() ->
+                                {
+                                    success(prefix);
+                                    _editor.setLoad(load, Node.this);
+                                });
                         }
                         else
                         {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    if(ex instanceof com.zeroc.IceGrid.NodeNotExistException)
-                                    {
-                                        _editor.setLoad(
-                                            "Error: this node is not known to this IceGrid Registry",
-                                            Node.this);
-                                    }
-                                    else if(ex instanceof com.zeroc.IceGrid.NodeUnreachableException)
-                                    {
-                                        _editor.setLoad("Error: cannot reach this node", Node.this);
-                                    }
-                                    else
-                                    {
-                                        _editor.setLoad("Error: " + ex.toString(), Node.this);
-                                    }
-                                });
+                            amiFailure(prefix, "Failed to retrieve load for " + getDisplayName(), ex);
                         }
                     });
             }
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
-            _editor.setLoad("Error: " + e.toString(), this);
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            catch(com.zeroc.Ice.LocalException e)
+            {
+                getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + ".");
+            }
         }
     }
 
@@ -931,12 +883,12 @@ class Node extends ListTreeNode
 
     private void insertServer(Server server)
     {
-        insertSortedChild(server, _children, getRoot().getTreeModel());
+        insertSortedChild(server, _servers, getRoot().getTreeModel());
     }
 
     private Server findServer(String id)
     {
-        return (Server)find(id, _children);
+        return (Server)find(id, _servers);
     }
 
     private void removeDescriptor(NodeDescriptor nodeDesc, Server server)
@@ -992,12 +944,7 @@ class Node extends ListTreeNode
 
     public java.util.List<Server> getServers()
     {
-        java.util.List<Server> servers = new java.util.ArrayList<>();
-        for(Object obj : _children)
-        {
-            servers.add((Server)obj);
-        }
-        return servers;
+        return new java.util.ArrayList<Server>(_servers);
     }
 
     //
@@ -1009,7 +956,7 @@ class Node extends ListTreeNode
     private NodeDynamicInfo _info;
     private boolean _windows = false;
 
-    private ShowIceLogDialog _showIceLogDialog;
+    private java.util.LinkedList<Server> _servers = new java.util.LinkedList<>();
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUp;

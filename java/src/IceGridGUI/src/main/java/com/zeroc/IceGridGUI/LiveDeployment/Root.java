@@ -29,7 +29,7 @@ import com.zeroc.IceGridGUI.*;
 //
 // The Root node of the Live Deployment view
 //
-public class Root extends ListArrayTreeNode
+public class Root extends Communicator
 {
     //
     // A custom tree model to filter tree views.
@@ -150,18 +150,13 @@ public class Root extends ListArrayTreeNode
         return _applicationNameFilter;
     }
 
-    @Override
-    public void clearShowIceLogDialog()
-    {
-        _showIceLogDialog = null;
-    }
-
     public Root(Coordinator coordinator)
     {
-        super(null, "Root", 2);
+        super(null, "Root", 3);
         _coordinator = coordinator;
-        _childrenArray[0] = _slaves;
-        _childrenArray[1] = _nodes;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _slaves;
+        _childrenArray[2] = _nodes;
         _messageSizeMax = computeMessageSizeMax(_coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
 
         _treeModel = new FilteredTreeModel(this);
@@ -176,16 +171,12 @@ public class Root extends ListArrayTreeNode
                 public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
                 {
                     //
-                    // Fetch metrics when Server node is expanded.
+                    // Fetch metrics when Communicator node is expanded.
                     //
                     TreeNode node = (TreeNode)event.getPath().getLastPathComponent();
-                    if(node instanceof Server)
+                    if(node instanceof Communicator)
                     {
-                        ((Server)node).fetchMetricsViewNames();
-                    }
-                    else if(node instanceof Service)
-                    {
-                        ((Service)node).fetchMetricsViewNames();
+                        ((Communicator)node).fetchMetricsViewNames();
                     }
                 }
 
@@ -627,6 +618,7 @@ public class Root extends ListArrayTreeNode
         if(info.name.equals(_replicaName))
         {
             _info = info;
+            fetchMetricsViewNames();
         }
         else
         {
@@ -926,60 +918,26 @@ public class Root extends ListArrayTreeNode
         }
     }
 
+    //
+    // Implement Communicator abstract methods
+    //
+
     @Override
-    public void retrieveIceLog()
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        if(_showIceLogDialog == null)
-        {
-            final String prefix = "Retrieving Admin proxy for Registry...";
-            final String errorTitle = "Failed to retrieve Admin Proxy for Registry";
-            _coordinator.getStatusBar().setText(prefix);
+        return _coordinator.getSession().getAdmin().getRegistryAdminAsync(_replicaName);
+    }
 
-            try
-            {
-                _coordinator.getSession().getAdmin().getRegistryAdminAsync(_replicaName).whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                                com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(result.ice_facet("Logger"));
-                            final String title = "Registry " + _label + " Ice log";
-                            final String defaultFileName = "registry-" + _instanceName + "-" + _replicaName;
+    @Override
+    protected String getDisplayName()
+    {
+        return "Registry";
+    }
 
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    if(_showIceLogDialog == null)
-                                    {
-                                        _showIceLogDialog = new ShowIceLogDialog(Root.this, title, loggerAdmin,
-                                                                                 defaultFileName, getLogMaxLines(),
-                                                                                 getLogInitialLines());
-                                    }
-                                    else
-                                    {
-                                        _showIceLogDialog.toFront();
-                                    }
-                                });
-                        }
-                        else if(ex instanceof com.zeroc.Ice.UserException)
-                        {
-                            amiFailure(prefix, errorTitle, (com.zeroc.Ice.UserException)ex);
-                        }
-                        else
-                        {
-                            amiFailure(prefix, errorTitle, ex.toString());
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-                failure(prefix, errorTitle, e.toString());
-            }
-        }
-        else
-        {
-            _showIceLogDialog.toFront();
-        }
+    @Override
+    protected String getDefaultFileName()
+    {
+        return "registry-" + _instanceName + "-" + _replicaName;
     }
 
     @Override
@@ -1227,8 +1185,6 @@ public class Root extends ListArrayTreeNode
     int _logInitialLines;
     int _logMaxReadSize;
     int _logPeriod;
-
-    private ShowIceLogDialog _showIceLogDialog;
 
     private ApplicationDetailsDialog _applicationDetailsDialog;
 

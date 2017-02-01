@@ -21,7 +21,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-public class Service extends ListArrayTreeNode
+public class Service extends Communicator
 {
     //
     // Actions
@@ -58,15 +58,13 @@ public class Service extends ListArrayTreeNode
     @Override
     public void start()
     {
-        com.zeroc.Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
+            ((Server)_parent).getAdminFacet("IceBox.ServiceManager"));
 
-        if(serverAdmin != null)
+        if(serviceManager != null)
         {
             final String prefix = "Starting service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
-
-            com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-                serverAdmin.ice_facet("IceBox.ServiceManager"));
 
             try
             {
@@ -92,15 +90,13 @@ public class Service extends ListArrayTreeNode
     @Override
     public void stop()
     {
-        com.zeroc.Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
+            ((Server)_parent).getAdminFacet("IceBox.ServiceManager"));
 
-        if(serverAdmin != null)
+        if(serviceManager != null)
         {
             final String prefix = "Stopping service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
-
-            com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-                serverAdmin.ice_facet("IceBox.ServiceManager"));
 
             try
             {
@@ -120,30 +116,6 @@ public class Service extends ListArrayTreeNode
             {
                 failure(prefix, "Failed to stop service " + _id, e.toString());
             }
-        }
-    }
-
-    @Override
-    public void retrieveIceLog()
-    {
-        if(_showIceLogDialog == null)
-        {
-            com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(getAdminFacet("Logger"));
-            if(loggerAdmin == null)
-            {
-                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available",
-                        "No Admin for server " + _parent.getId(), JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String title = "Service " + _parent.getId() + "/" + _id + " Ice log";
-            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _parent.getId() + "-" + _id,
-                    getRoot().getLogMaxLines(), getRoot().getLogInitialLines());
-        }
-        else
-        {
-            _showIceLogDialog.toFront();
         }
     }
 
@@ -267,10 +239,51 @@ public class Service extends ListArrayTreeNode
         return _popup;
     }
 
+
+    //
+    // Implement Communicator abstract methods
+    //
+
     @Override
-    public void clearShowIceLogDialog()
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        _showIceLogDialog = null;
+        return java.util.concurrent.CompletableFuture.completedFuture(((Server)_parent).getAdmin());
+    }
+
+    @Override
+    protected String getServerDisplayName()
+    {
+        return "Server " + _parent.getId();
+    }
+
+    @Override
+    protected String getDisplayName()
+    {
+        return "Service " + _parent.getId() + "/" + _id;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return _parent.getId() + "-" + _id;
+    }
+
+    com.zeroc.Ice.ObjectPrx getAdminFacet(String facet)
+    {
+        String facetName = "IceBox.Service." + _id + "." + facet;
+
+        try
+        {
+            if(Integer.valueOf(((Server)_parent).getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
+            {
+                facetName = "IceBox.SharedCommunicator." + facet;
+            }
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+
+        return ((Server)_parent).getAdminFacet(facetName);
     }
 
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
@@ -367,56 +380,6 @@ public class Service extends ListArrayTreeNode
         }
     }
 
-    void showRuntimeProperties()
-    {
-        com.zeroc.Ice.PropertiesAdminPrx propAdmin =
-            com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(getAdminFacet("Properties"));
-        if(propAdmin == null)
-        {
-            _editor.setBuildId("", this);
-        }
-        else
-        {
-            try
-            {
-                propAdmin.getPropertiesForPrefixAsync("").whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    _editor.setRuntimeProperties((java.util.SortedMap<String, String>)result,
-                                                                 Service.this);
-                                });
-                        }
-                        else
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
-                                    {
-                                        _editor.setBuildId("Error: can't reach the icebox Admin object", Service.this);
-                                    }
-                                    else if(ex instanceof com.zeroc.Ice.FacetNotExistException)
-                                    {
-                                        _editor.setBuildId("Error: this icebox Admin object does not provide a " +
-                                                           "'Properties' facet for this service", Service.this);
-                                    }
-                                    else
-                                    {
-                                        _editor.setBuildId("Error: " + ex.toString(), Service.this);
-                                    }
-                                });
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-                _editor.setBuildId("Error: " + e.toString(), this);
-            }
-        }
-    }
-
     Utils.Resolver getResolver()
     {
         return _resolver;
@@ -481,71 +444,6 @@ public class Service extends ListArrayTreeNode
         }
     }
 
-    public void fetchMetricsViewNames()
-    {
-        if(_metricsRetrieved)
-        {
-            return; // Already loaded.
-        }
-
-        final com.zeroc.IceMX.MetricsAdminPrx metricsAdmin =
-            com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(getAdminFacet("Metrics"));
-        if(metricsAdmin == null)
-        {
-            return;
-        }
-        _metricsRetrieved = true;
-
-        try
-        {
-            metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) ->
-                {
-                    if(ex == null)
-                    {
-                        SwingUtilities.invokeLater(() ->
-                            {
-                                for(String name : result.returnValue)
-                                {
-                                    insertSortedChild(
-                                        new MetricsView(Service.this, name, metricsAdmin, true), _metrics, null);
-                                }
-                                for(String name : result.disabledViews)
-                                {
-                                    insertSortedChild(
-                                        new MetricsView(Service.this, name, metricsAdmin, false), _metrics, null);
-                                }
-                                rebuild(Service.this);
-                            });
-                    }
-                    else
-                    {
-                        _metricsRetrieved = false;
-                        if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
-                        {
-                            // Server is down.
-                        }
-                        else if(ex instanceof com.zeroc.Ice.FacetNotExistException)
-                        {
-                            // MetricsAdmin facet not present. Old server version?
-                        }
-                        else
-                        {
-                            ex.printStackTrace();
-                            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
-                                                          "Error: " + ex.toString(), "Error",
-                                                          JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                });
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
-            _metricsRetrieved = false;
-            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
-                                          JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     void rebuild(Service service)
     {
         _adapters = service._adapters;
@@ -576,27 +474,6 @@ public class Service extends ListArrayTreeNode
         getRoot().getTreeModel().nodeStructureChanged(this);
     }
 
-    private com.zeroc.Ice.ObjectPrx getAdminFacet(String facet)
-    {
-        Server parent = (Server)_parent;
-        com.zeroc.Ice.ObjectPrx serverAdmin = parent.getServerAdmin();
-        if(serverAdmin == null)
-        {
-            return null;
-        }
-        try
-        {
-            if(Integer.valueOf(parent.getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
-            {
-                return serverAdmin.ice_facet("IceBox.SharedCommunicator." + facet);
-            }
-        }
-        catch(NumberFormatException ex)
-        {
-        }
-        return serverAdmin.ice_facet("IceBox.Service." + _id + "." + facet);
-    }
-
     private final ServiceInstanceDescriptor _instanceDescriptor;
     private final ServiceDescriptor _serviceDescriptor;
     private final PropertySetDescriptor _serverInstancePSDescriptor;
@@ -604,12 +481,8 @@ public class Service extends ListArrayTreeNode
 
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
     private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<>();
-    private java.util.List<MetricsView> _metrics = new java.util.LinkedList<>();
 
     private boolean _started = false;
-    private boolean _metricsRetrieved = false;
-
-    private ShowIceLogDialog _showIceLogDialog;
 
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;
