@@ -31,25 +31,25 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        if(r.initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
         {
-            r.initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+            initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         }
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
 
-        r.initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
 
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we supress this warning.
         //
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

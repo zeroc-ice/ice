@@ -22,17 +22,17 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         //
         // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we suppress this warning.
         //
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        return r;
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        return initData;
     }
 
     public static void main(String[] args)

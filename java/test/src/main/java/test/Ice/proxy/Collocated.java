@@ -26,12 +26,12 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return initData;
     }
 
     public static void main(String[] args)

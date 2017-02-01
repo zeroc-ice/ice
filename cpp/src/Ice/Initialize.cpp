@@ -223,7 +223,6 @@ inline void checkIceVersion(Int version)
 
 }
 
-
 Ice::CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {

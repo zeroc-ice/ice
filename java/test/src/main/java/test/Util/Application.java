@@ -29,12 +29,6 @@ public abstract class Application
     {
     }
 
-    static public class GetInitDataResult
-    {
-        public InitializationData initData;
-        public String[] args;
-    }
-
     //
     // This main() must be called by the global main(). main()
     // initializes the Communicator, calls run(), and destroys
@@ -45,9 +39,7 @@ public abstract class Application
     //
     public final int main(String appName, String[] args)
     {
-        GetInitDataResult r = getInitData(args);
-        r.initData.classLoader = _classLoader;
-        return main(appName, r.args, r.initData);
+        return main(appName, args, null);
     }
 
     public final int main(String appName, String[] args, InitializationData initializationData)
@@ -66,9 +58,9 @@ public abstract class Application
         //
         if(initializationData == null)
         {
-            GetInitDataResult r = getInitData(args);
-            initializationData = r.initData;
-            args = r.args;
+            java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+            initializationData = getInitData(args, remainingArgs);
+            args = remainingArgs.toArray(new String[remainingArgs.size()]);
         }
 
         InitializationData initData;
@@ -80,8 +72,10 @@ public abstract class Application
         {
             initData = new InitializationData();
         }
-        Util.CreatePropertiesResult cpr = Util.createProperties(args, initData.properties);
-        initData.properties = cpr.properties;
+
+        java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+        initData.properties = Util.createProperties(args, initData.properties, remainingArgs);
+        args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
         //
         // If the process logger is the default logger, we replace it with a
@@ -94,14 +88,16 @@ public abstract class Application
 
         int status = 0;
 
-        try(Util.InitializeResult ir = Util.initialize(cpr.args, initData))
+        try(Communicator communicator = Util.initialize(args, initData, remainingArgs))
         {
-            _communicator = ir.communicator;
+            _communicator = communicator;
+            args = remainingArgs.toArray(new String[remainingArgs.size()]);
+
             if(_communicatorListener != null)
             {
                 _communicatorListener.communicatorInitialized(_communicator);
             }
-            status = run(ir.args);
+            status = run(args);
             if(status == WAIT)
             {
                 if(_cb != null)
@@ -180,14 +176,14 @@ public abstract class Application
     // necessary because some properties must be set prior to
     // communicator initialization.
     //
-    protected GetInitDataResult getInitData(String[] args)
+    protected InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = new GetInitDataResult();
-        r.initData = createInitializationData();
-        com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
-        r.initData.properties = cpr.properties;
-        r.args = r.initData.properties.parseCommandLineOptions("Test", cpr.args);
-        return r;
+        InitializationData initData = createInitializationData();
+        initData.properties = Util.createProperties(args, rArgs);
+        args = initData.properties.parseCommandLineOptions("Test", rArgs.toArray(new String[rArgs.size()]));
+        rArgs.clear();
+        rArgs.addAll(java.util.Arrays.asList(args));
+        return initData;
     }
 
     public java.io.PrintWriter getWriter()

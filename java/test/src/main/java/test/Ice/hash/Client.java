@@ -53,11 +53,9 @@ public class Client extends test.Util.Application
             int maxIterations = 10000;
 
             com.zeroc.Ice.InitializationData initData = createInitializationData();
-            com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
-            initData.properties = cpr.properties;
+            initData.properties = com.zeroc.Ice.Util.createProperties(args);
             initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-            com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
-            com.zeroc.Ice.Communicator communicator = ir.communicator;
+            com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, initData);
 
             out.print("testing proxy & endpoint hash algorithm collisions... ");
             out.flush();

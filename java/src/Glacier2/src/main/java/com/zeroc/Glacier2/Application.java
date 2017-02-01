@@ -274,8 +274,8 @@ public abstract class Application extends com.zeroc.Ice.Application
 
         try
         {
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            _communicator = ir.communicator;
+            java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+            _communicator = Util.initialize(args, initData, remainingArgs);
 
             _router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(communicator().getDefaultRouter());
             if(_router == null)
@@ -331,7 +331,7 @@ public abstract class Application extends com.zeroc.Ice.Application
                         connection.setCloseCallback(con -> sessionDestroyed());
                     }
                     _category = _router.getCategoryForClient();
-                    r.returnValue = runWithSession(ir.args);
+                    r.returnValue = runWithSession(remainingArgs.toArray(new String[remainingArgs.size()]));
                 }
             }
         }

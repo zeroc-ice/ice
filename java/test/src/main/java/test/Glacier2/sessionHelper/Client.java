@@ -30,10 +30,10 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        _initData = r.initData;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        _initData = initData;
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
                                          getTestEndpoint(_initData.properties, 10));
         _initData.dispatcher = new com.zeroc.Ice.Dispatcher()
@@ -44,7 +44,7 @@ public class Client extends test.Util.Application
                     SwingUtilities.invokeLater(runnable);
                 }
             };
-        return r;
+        return initData;
     }
 
     @Override

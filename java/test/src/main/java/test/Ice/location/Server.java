@@ -48,17 +48,17 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        r.initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        r.initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        r.initData.properties.setProperty("ServerManagerAdapter.Endpoints",
-                                          getTestEndpoint(r.initData.properties, 0) + ":udp");
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
+        initData.properties.setProperty("ServerManagerAdapter.Endpoints",
+                                          getTestEndpoint(initData.properties, 0) + ":udp");
 
-        _initData = r.initData;
-        return r;
+        _initData = initData;
+        return initData;
     }
 
     public static void main(String[] args)

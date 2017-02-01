@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Communicator;
 
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 import test.IceSSL.configuration.Test.ServerPrx;
@@ -130,8 +131,8 @@ public class AllTests
         {
             InitializationData initData = createClientProps(defaultProperties);
             initData.properties.setProperty("Ice.InitPlugins", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.Ice.ObjectPrx p = ir.communicator.stringToProxy("dummy:ssl -p 9999");
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
             try
             {
                 p.ice_ping();
@@ -145,17 +146,17 @@ public class AllTests
             {
                 test(false);
             }
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             InitializationData initData = createClientProps(defaultProperties);
             initData.properties.setProperty("Ice.InitPlugins", "0");
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = ir.communicator.getPluginManager();
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
             pm.initializePlugins();
-            com.zeroc.Ice.ObjectPrx obj = ir.communicator.stringToProxy(factoryRef);
+            com.zeroc.Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
             test(obj != null);
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(obj);
             java.util.Map<String, String> d = createServerProps(defaultProperties);
@@ -171,7 +172,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -187,8 +188,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "0");
@@ -204,15 +205,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
             // but it still verifies the server's.
             //
             initData = createClientProps(defaultProperties, "", "cacert1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "0");
@@ -227,14 +228,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
             //
             initData = createClientProps(defaultProperties, "", "cacert1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "1");
@@ -275,7 +276,7 @@ public class AllTests
             }
             fact.destroyServer(server);
 
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. Client has a certificate.
@@ -285,8 +286,8 @@ public class AllTests
             // able to provide the certificate chain).
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "1");
@@ -332,7 +333,7 @@ public class AllTests
             }
             fact.destroyServer(server);
 
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. This should fail because the
@@ -340,8 +341,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "0");
@@ -361,7 +362,7 @@ public class AllTests
             }
             fact.destroyServer(server);
 
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. This should fail because the
@@ -369,8 +370,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca2", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "");
             d.put("IceSSL.VerifyPeer", "1");
@@ -393,7 +394,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. This should fail because the server
@@ -402,8 +403,8 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties);
             d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
@@ -423,7 +424,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // This should succeed because the self signed certificate used by the server is
@@ -431,8 +432,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "", "cacert2");
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_cacert2", "");
             d.put("IceSSL.VerifyPeer", "0");
@@ -447,7 +448,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // This should fail because the self signed certificate used by the server is not
@@ -455,8 +456,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_cacert2", "");
             d.put("IceSSL.VerifyPeer", "0");
@@ -475,15 +476,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Verify that IceSSL.CheckCertName has no effect in a server.
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            ir = Util.initialize(args, initData);
+            comm = Util.initialize(args, initData);
 
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.CheckCertName", "1");
@@ -497,7 +498,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
@@ -512,9 +513,9 @@ public class AllTests
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                    ir = Util.initialize(args, initData);
+                    comm = Util.initialize(args, initData);
 
-                    fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+                    fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                     server = fact.createServer(d);
@@ -527,7 +528,7 @@ public class AllTests
                         test(false);
                     }
                     fact.destroyServer(server);
-                    ir.communicator.destroy();
+                    comm.destroy();
                 }
                 //
                 // Test common name.
@@ -535,9 +536,9 @@ public class AllTests
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                    ir = Util.initialize(args, initData);
+                    comm = Util.initialize(args, initData);
 
-                    fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+                    fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1_cn1", "cacert1");
                     server = fact.createServer(d);
@@ -550,7 +551,7 @@ public class AllTests
                         test(false);
                     }
                     fact.destroyServer(server);
-                    ir.communicator.destroy();
+                    comm.destroy();
                 }
                 //
                 // Test common name again. The certificate used in this test has "127.0.0.11" as its
@@ -559,9 +560,9 @@ public class AllTests
                 {
                     initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                    ir = Util.initialize(args, initData);
+                    comm = Util.initialize(args, initData);
 
-                    fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+                    fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
                     d = createServerProps(defaultProperties, "s_rsa_ca1_cn2", "cacert1");
                     server = fact.createServer(d);
@@ -575,7 +576,7 @@ public class AllTests
                         // Expected.
                     }
                     fact.destroyServer(server);
-                    ir.communicator.destroy();
+                    comm.destroy();
                 }
             }
         }
@@ -855,14 +856,13 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.IceSSL.Plugin plugin =
-                (com.zeroc.IceSSL.Plugin)ir.communicator.getPluginManager().getPlugin("IceSSL");
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
             test(plugin != null);
             CertificateVerifierI verifier = new CertificateVerifierI();
             plugin.setCertificateVerifier(verifier);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties);
             d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
@@ -907,7 +907,7 @@ public class AllTests
             test(!verifier.hadCert());
 
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
 
         {
@@ -915,14 +915,14 @@ public class AllTests
             // Verify that a server certificate is present.
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
             com.zeroc.IceSSL.Plugin plugin =
-                (com.zeroc.IceSSL.Plugin)ir.communicator.getPluginManager().getPlugin("IceSSL");
+                (com.zeroc.IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
             test(plugin != null);
             CertificateVerifierI verifier = new CertificateVerifierI();
             plugin.setCertificateVerifier(verifier);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -938,7 +938,7 @@ public class AllTests
             test(verifier.invoked());
             test(verifier.hadCert());
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -946,12 +946,12 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.CertVerifier", "test.IceSSL.configuration.CertificateVerifierI");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
             com.zeroc.IceSSL.Plugin plugin =
-                (com.zeroc.IceSSL.Plugin)ir.communicator.getPluginManager().getPlugin("IceSSL");
+                (com.zeroc.IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
             test(plugin != null);
             test(plugin.getCertificateVerifier() != null);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -964,8 +964,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.Protocols", "ssl3");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -989,7 +989,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // SSLv3 has been disabled by default in latests JDK updates.
@@ -1002,8 +1002,8 @@ public class AllTests
 //                 //
 //                 // This should succeed.
 //                 //
-//                 ir = Util.initialize(args, initData);
-//                 fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+//                 comm = Util.initialize(args, initData);
+//                 fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
 //                 test(fact != null);
 //                 d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
 //                 d.put("IceSSL.VerifyPeer", "2");
@@ -1019,7 +1019,7 @@ public class AllTests
 //                     test(false);
 //                 }
 //                 fact.destroyServer(server);
-//                 ir.communicator.destroy();
+//                 comm.destroy();
 //             }
         }
 
@@ -1030,8 +1030,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.Protocols", "ssl3");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1054,7 +1054,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
 
         {
@@ -1063,8 +1063,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.Protocols", "ssl3");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1087,7 +1087,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
 
         out.println("ok");
@@ -1099,8 +1099,8 @@ public class AllTests
             // This should fail because the server's certificate is expired.
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1_exp", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1119,15 +1119,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // This should fail because the client's certificate is expired.
             //
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1_exp.jks");
             initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1150,7 +1150,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -1158,8 +1158,8 @@ public class AllTests
         out.flush();
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacerts");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca2", "cacerts");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1173,7 +1173,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -1207,8 +1207,8 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
             initData.properties.setProperty("Ice.InitPlugins", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = ir.communicator.getPluginManager();
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
             com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
             test(plugin != null);
             PasswordCallbackI cb = new PasswordCallbackI("bogus");
@@ -1226,7 +1226,7 @@ public class AllTests
             {
                 test(false);
             }
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1235,8 +1235,8 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
             initData.properties.setProperty("Ice.InitPlugins", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = ir.communicator.getPluginManager();
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
             com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
             test(plugin != null);
             PasswordCallbackI cb = new PasswordCallbackI();
@@ -1250,7 +1250,7 @@ public class AllTests
             {
                 test(false);
             }
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1259,12 +1259,12 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
             initData.properties.setProperty("IceSSL.PasswordCallback", "test.IceSSL.configuration.PasswordCallbackI");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            com.zeroc.Ice.PluginManager pm = ir.communicator.getPluginManager();
+            Communicator comm = Util.initialize(args, initData);
+            com.zeroc.Ice.PluginManager pm = comm.getPluginManager();
             com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)pm.getPlugin("IceSSL");
             test(plugin != null);
             test(plugin.getPasswordCallback() != null);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -1278,8 +1278,8 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.Ciphers", "ALL");
@@ -1294,7 +1294,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1303,8 +1303,8 @@ public class AllTests
             // First try a client with a DSA certificate.
             //
             initData = createClientProps(defaultProperties, "c_dsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "1");
@@ -1318,14 +1318,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Next try a client with an RSA certificate.
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "1");
@@ -1339,15 +1339,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
 
             //
             // Next try a client with ADH. This should fail.
             //
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            ir = Util.initialize(args, initData);
-            fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            comm = Util.initialize(args, initData);
+            fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "1");
@@ -1370,7 +1370,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1378,8 +1378,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_dsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DSS.*)");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put("IceSSL.VerifyPeer", "2");
@@ -1402,7 +1402,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1411,8 +1411,8 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_dsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DSS.*)");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.Alias", "rsacert");
@@ -1436,7 +1436,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1444,8 +1444,8 @@ public class AllTests
             // Alias property to select the DSA certificate. This should succeed.
             //
             initData = createClientProps(defaultProperties, "cacert1", "");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.Alias", "dsacert");
@@ -1467,7 +1467,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -1477,9 +1477,9 @@ public class AllTests
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1492,15 +1492,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly",
                 "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1513,15 +1513,15 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly",
                 "C=US, ST=Florida, O=\"ZeroC, Inc.\", OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1534,13 +1534,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly",
@@ -1555,13 +1555,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly",
@@ -1576,14 +1576,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1596,14 +1596,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1616,13 +1616,13 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Client");
@@ -1636,13 +1636,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client");
@@ -1656,14 +1656,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "CN=Client");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1676,13 +1676,13 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "CN=Server");
@@ -1696,14 +1696,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1716,14 +1716,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1736,14 +1736,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1756,14 +1756,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1776,14 +1776,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1796,13 +1796,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "!CN=Client1"); // Should not match "Client"
@@ -1816,7 +1816,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1825,9 +1825,9 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties);
             d.put("IceSSL.TrustOnly",
@@ -1844,7 +1844,7 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1853,9 +1853,9 @@ public class AllTests
             initData = createClientProps(defaultProperties);
             initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties);
             d.put("IceSSL.TrustOnly",
@@ -1872,7 +1872,7 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
@@ -1880,9 +1880,9 @@ public class AllTests
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1895,16 +1895,16 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             //
             // Rejection takes precedence (server).
             //
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly", "ST=Florida;!CN=Client;C=US");
@@ -1918,7 +1918,7 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -1928,9 +1928,9 @@ public class AllTests
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly.Client",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             // Should have no effect.
@@ -1946,15 +1946,15 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly.Client",
                 "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -1967,13 +1967,13 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             // Should have no effect.
@@ -1988,14 +1988,14 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=Client");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -2008,14 +2008,14 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -2028,7 +2028,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -2039,9 +2039,9 @@ public class AllTests
             // Should have no effect.
             initData.properties.setProperty("IceSSL.TrustOnly.Server",
                 "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server",
@@ -2056,13 +2056,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server",
@@ -2077,15 +2077,15 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             // Should have no effect.
             initData.properties.setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             ServerPrx server = fact.createServer(d);
@@ -2098,13 +2098,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=Server");
@@ -2118,13 +2118,13 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "!CN=Client");
@@ -2138,7 +2138,7 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 
@@ -2146,9 +2146,9 @@ public class AllTests
         out.flush();
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
@@ -2164,13 +2164,13 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter",
@@ -2185,13 +2185,13 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
+            Communicator comm = Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "CN=bogus");
@@ -2205,12 +2205,12 @@ public class AllTests
             {
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-            Util.InitializeResult ir = Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(ir.communicator.stringToProxy(factoryRef));
+            Communicator comm = Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
             test(fact != null);
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.TrustOnly.Server.ServerAdapter", "!CN=bogus");
@@ -2224,7 +2224,7 @@ public class AllTests
                 test(false);
             }
             fact.destroyServer(server);
-            ir.communicator.destroy();
+            comm.destroy();
         }
         out.println("ok");
 

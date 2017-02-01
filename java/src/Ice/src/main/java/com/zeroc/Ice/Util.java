@@ -27,15 +27,41 @@ public final class Util
     }
 
     /**
-     * Encapsulates the results of a call to createProperties().
+     * Creates a property set initialized from an argument vector.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     *
+     * @return A new property set initialized with the property settings
+     * that were removed from the argument vector.
      **/
-    public static class CreatePropertiesResult
+    public static Properties createProperties(String[] args)
     {
-        /** The new property set. */
-        public Properties properties;
+        return createProperties(args, null, null);
+    }
 
-        /** The original command-line arguments with Ice-related arguments removed. */
-        public String[] args;
+    /**
+     * Creates a property set initialized from an argument vector and
+     * return the remaining arguments.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     *
+     * @param remainingArgs If non null, the given list will contain on
+     * return the command-line arguments that were not used to set properties.
+     *
+     * @return A new property set initialized with the property settings
+     * that were removed from the argument vector.
+     **/
+    public static Properties createProperties(String[] args, java.util.List<String> remainingArgs)
+    {
+        return createProperties(args, null, remainingArgs);
     }
 
     /**
@@ -47,17 +73,20 @@ public final class Util
      * files are parsed. If the same property is set in a configuration
      * file and in the argument vector, the argument vector takes precedence.
      *
+     * @param defaults Default values for the property set. Settings in
+     * configuration files and <code>args</code> override these defaults.
+     *
      * @return A new property set initialized with the property settings
-     * that were removed from the argument vector, along with the filtered
-     * argument vector.
+     * that were removed from the argument vector.
      **/
-    public static CreatePropertiesResult createProperties(String[] args)
+    public static Properties createProperties(String[] args, Properties defaults)
     {
-        return createProperties(args, null);
+        return createProperties(args, defaults, null);
     }
 
     /**
-     * Creates a property set initialized from an argument vector.
+     * Creates a property set initialized from an argument vector and
+     * return the remaining arguments.
      *
      * @param args A command-line argument vector, possibly containing
      * options to set properties. If the command-line options include
@@ -65,45 +94,32 @@ public final class Util
      * files are parsed. If the same property is set in a configuration
      * file and in the argument vector, the argument vector takes precedence.
      *
-     * @param defaults Default values for the property set. Settings in configuration
-     * files and <code>args</code> override these defaults.
+     * @param defaults Default values for the property set. Settings in
+     * configuration files and <code>args</code> override these defaults.
+     *
+     * @param remainingArgs If non null, the given list will contain on
+     * return the command-line arguments that were not used to set properties.
      *
      * @return A new property set initialized with the property settings
-     * that were removed from the argument vector, along with the filtered
-     * argument vector.
+     * that were removed from the argument vector.
      **/
-    public static CreatePropertiesResult createProperties(String[] args, Properties defaults)
+    public static Properties createProperties(String[] args,
+                                              Properties defaults,
+                                              java.util.List<String> remainingArgs)
     {
         PropertiesI properties = new PropertiesI();
-        CreatePropertiesResult cpr = new CreatePropertiesResult();
-        cpr.properties = properties;
-        cpr.args = properties.init(args, defaults);
-        return cpr;
+        properties.init(args, defaults, remainingArgs);
+        return properties;
     }
 
     /**
-     * Encapsulates the results of a call to initialize().
+     * Creates a communicator using a default configuration.
+     *
+     * @return A new communicator instance.
      **/
-    public static class InitializeResult implements java.lang.AutoCloseable
+    public static Communicator initialize()
     {
-        @Override
-        public void close()
-        {
-            try
-            {
-                communicator.close();
-            }
-            catch(java.lang.Exception ex)
-            {
-                assert(false);
-            }
-        }
-
-        /** The new communicator. */
-        public Communicator communicator;
-
-        /** The original command-line arguments with Ice-related arguments removed. */
-        public String[] args;
+        return initialize(new InitializationData());
     }
 
     /**
@@ -114,9 +130,52 @@ public final class Util
      *
      * @return The new communicator and a filtered argument vector.
      **/
-    public static InitializeResult initialize(String[] args)
+    public static Communicator initialize(String[] args)
     {
-        return initialize(args, null);
+        return initialize(args, null, null);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to initialize the communicator.
+     *
+     * @param remainingArgs If non null, the given list will contain on
+     * return the command-line arguments that were not used to set properties.
+     *
+     * @return The new communicator and a filtered argument vector.
+     **/
+    public static Communicator initialize(String[] args, java.util.List<String> remainingArgs)
+    {
+        return initialize(args, null, remainingArgs);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param initData Additional initialization data.
+     *
+     * @return The new communicator and a filtered argument vector.
+     **/
+    public static Communicator initialize(InitializationData initData)
+    {
+        return initialize(null, initData, null);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to initialize the communicator.
+     *
+     * @param initData Additional initialization data.
+     *
+     * @return The new communicator and a filtered argument vector.
+     **/
+    public static Communicator initialize(String[] args, InitializationData initData)
+    {
+        return initialize(args, initData, null);
     }
 
     /**
@@ -128,11 +187,16 @@ public final class Util
      * @param initData Additional initialization data. Property settings in <code>args</code>
      * override property settings in <code>initData</code>.
      *
+     * @param remainingArgs If non null, the given list will contain on
+     * return the command-line arguments that were not used to set properties.
+     *
      * @return The new communicator and a filtered argument vector.
      *
      * @see InitializationData
      **/
-    public static InitializeResult initialize(String[] args, InitializationData initData)
+    public static Communicator initialize(String[] args,
+                                          InitializationData initData,
+                                          java.util.List<String> remainingArgs)
     {
         if(initData == null)
         {
@@ -143,50 +207,16 @@ public final class Util
             initData = initData.clone();
         }
 
-        CreatePropertiesResult cpr = createProperties(args, initData.properties);
-        initData.properties = cpr.properties;
-
-        InitializeResult ir = new InitializeResult();
-
-        CommunicatorI c = new CommunicatorI(initData);
-        ir.communicator = c;
-        ir.args = c.finishSetup(cpr.args);
-        return ir;
-    }
-
-    /**
-     * Creates a communicator.
-     *
-     * @param initData Additional initialization data.
-     *
-     * @return The new communicator.
-     *
-     * @see InitializationData
-     **/
-    public static Communicator initialize(InitializationData initData)
-    {
-        if(initData == null)
+        if(args != null)
         {
-            initData = new InitializationData();
-        }
-        else
-        {
-            initData = initData.clone();
+            java.util.List<String> rArgs = new java.util.ArrayList<>();
+            initData.properties = createProperties(args, initData.properties, rArgs);
+            args = rArgs.toArray(new String[rArgs.size()]);
         }
 
-        CommunicatorI result = new CommunicatorI(initData);
-        result.finishSetup(new String[0]);
-        return result;
-    }
-
-    /**
-     * Creates a communicator using a default configuration.
-     *
-     * @return A new communicator instance.
-     **/
-    public static Communicator initialize()
-    {
-        return initialize(new InitializationData());
+        CommunicatorI communicator = new CommunicatorI(initData);
+        communicator.finishSetup(args != null ? args : new String[0], remainingArgs);
+        return communicator;
     }
 
     /**

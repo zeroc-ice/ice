@@ -28,17 +28,17 @@ public class AMDServer extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
-        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        r.initData.properties.setProperty("Ice.Admin.InstanceName", "server");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties.setProperty("Ice.Admin.InstanceName", "server");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        return initData;
     }
 
     public static void main(String[] args)

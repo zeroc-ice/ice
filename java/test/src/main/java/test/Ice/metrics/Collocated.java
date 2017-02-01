@@ -42,27 +42,27 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        if(r.initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             // With background IO, collocated invocations are
             // dispatched on the server thread pool. This test needs
             // at least 3 threads in the server thread pool to work.
-            r.initData.properties.setProperty("Ice.ThreadPool.Server.Size", "3");
+            initData.properties.setProperty("Ice.ThreadPool.Server.Size", "3");
         }
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
-        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        r.initData.properties.setProperty("Ice.Admin.InstanceName", "client");
-        r.initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        r.initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        r.initData.observer = _observer;
-        return r;
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
+        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties.setProperty("Ice.Admin.InstanceName", "client");
+        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        initData.observer = _observer;
+        return initData;
     }
 
     public static void main(String[] args)

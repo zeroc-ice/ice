@@ -36,10 +36,9 @@ class ServerFactoryI implements ServerFactory
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        String[] args = new String[0];
-        com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
-        com.zeroc.Ice.ObjectAdapter adapter = ir.communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-        ServerI server = new ServerI(ir.communicator);
+        com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        ServerI server = new ServerI(communicator);
         com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
         _servers.put(obj.ice_getIdentity(), server);
         adapter.activate();

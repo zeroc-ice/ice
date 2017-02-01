@@ -485,7 +485,7 @@ public final class PropertiesI implements Properties
     {
     }
 
-    String[] init(String[] args, Properties defaults)
+    void init(String[] args, Properties defaults, java.util.List<String> rArgs)
     {
         if(defaults != null)
         {
@@ -537,7 +537,15 @@ public final class PropertiesI implements Properties
             loadConfig();
         }
 
-        return parseIceCommandLineOptions(args);
+        args = parseIceCommandLineOptions(args);
+        if(rArgs != null)
+        {
+            rArgs.clear();
+            if(args.length > 0)
+            {
+                rArgs.addAll(java.util.Arrays.asList(args));
+            }
+        }
     }
 
     private void

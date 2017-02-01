@@ -28,7 +28,6 @@ public class Client extends test.Util.Application
             jarFile = "../../../../../../../lib/IceTestPlugins.jar";
         }
 
-        com.zeroc.Ice.Util.InitializeResult ir = null;
         com.zeroc.Ice.Communicator communicator = communicator();
         PrintWriter printWriter = getWriter();
         printWriter.print("testing a simple plug-in... ");
@@ -39,8 +38,7 @@ public class Client extends test.Util.Application
             initData.properties.setProperty("Ice.Plugin.Test",
                 jarFile + ":test.Ice.plugin.plugins.PluginFactory " +
                 "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
-            ir = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator = ir.communicator;
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
             communicator.destroy();
         }
         catch(com.zeroc.Ice.LocalException ex)
@@ -58,8 +56,7 @@ public class Client extends test.Util.Application
             com.zeroc.Ice.InitializationData initData = createInitData();
             initData.properties.setProperty("Ice.Plugin.Test",
                                             jarFile + ":test.Ice.plugin.plugins.PluginInitializeFailFactory");
-            ir = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator = ir.communicator;
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
             test(false);
         }
         catch(com.zeroc.Ice.PluginInitializationException ex)
@@ -81,8 +78,7 @@ public class Client extends test.Util.Application
             initData.properties.setProperty("Ice.Plugin.PluginThree",
                                             jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            ir = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator = ir.communicator;
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
             communicator.destroy();
         }
         catch(com.zeroc.Ice.LocalException ex)
@@ -105,8 +101,7 @@ public class Client extends test.Util.Application
                                             jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
             initData.properties.setProperty("Ice.InitPlugins", "0");
-            ir = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator = ir.communicator;
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
 
             com.zeroc.Ice.PluginManager pm = communicator.getPluginManager();
             test(pm.getPlugin("PluginOne") != null);
@@ -145,8 +140,7 @@ public class Client extends test.Util.Application
             initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
                                             jarFile + ":test.Ice.plugin.plugins.PluginThreeFailFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-            ir = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator = ir.communicator;
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
             test(false);
         }
         catch(com.zeroc.Ice.PluginInitializationException ex)

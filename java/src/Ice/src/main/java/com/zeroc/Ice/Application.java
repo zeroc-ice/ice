@@ -167,11 +167,10 @@ public abstract class Application
             initData = new InitializationData();
         }
 
-        Util.CreatePropertiesResult cpr = null;
+        java.util.List<String> remainingArgs = new java.util.ArrayList<>();
         try
         {
-            cpr = Util.createProperties(args, initData.properties);
-            initData.properties = cpr.properties;
+            initData.properties = Util.createProperties(args, initData.properties, remainingArgs);
         }
         catch(LocalException ex)
         {
@@ -194,7 +193,7 @@ public abstract class Application
             Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
         }
 
-        return doMain(cpr.args, initData);
+        return doMain(remainingArgs.toArray(new String[remainingArgs.size()]), initData);
     }
 
     protected int doMain(String[] args, InitializationData initData)
@@ -203,9 +202,8 @@ public abstract class Application
 
         try
         {
-            Util.InitializeResult ir = Util.initialize(args, initData);
-
-            _communicator = ir.communicator;
+            java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+            _communicator = Util.initialize(args, initData, remainingArgs);
 
             //
             // The default is to destroy when a signal is received.
@@ -215,7 +213,7 @@ public abstract class Application
                 destroyOnInterrupt();
             }
 
-            status = run(ir.args);
+            status = run(remainingArgs.toArray(new String[remainingArgs.size()]));
         }
         catch(LocalException ex)
         {

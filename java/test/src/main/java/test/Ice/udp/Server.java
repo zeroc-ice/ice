@@ -49,18 +49,18 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-        r.initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
 
         if(!isAndroid())
         {
             String endpoint;
-            if(r.initData.properties.getProperty("Ice.IPv6").equals("1"))
+            if(initData.properties.getProperty("Ice.IPv6").equals("1"))
             {
                 if(System.getProperty("os.name").contains("OS X"))
                 {
@@ -75,9 +75,9 @@ public class Server extends test.Util.Application
             {
                 endpoint = "udp -h 239.255.1.1 -p 12020";
             }
-            r.initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
+            initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
         }
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

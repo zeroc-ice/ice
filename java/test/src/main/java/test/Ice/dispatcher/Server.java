@@ -27,23 +27,23 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints",
-                                          getTestEndpoint(r.initData.properties, 1, "tcp"));
-        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints",
+                                          getTestEndpoint(initData.properties, 1, "tcp"));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        r.initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-        r.initData.dispatcher = _dispatcher;
-        return r;
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        initData.dispatcher = _dispatcher;
+        return initData;
     }
 
     public void terminate()

@@ -314,11 +314,19 @@ public final class CommunicatorI implements Communicator
     // Certain initialization tasks need to be completed after the
     // constructor.
     //
-    String[] finishSetup(String[] args)
+    void finishSetup(String[] args, java.util.List<String> rArgs)
     {
         try
         {
-            return _instance.finishSetup(args, this);
+            args = _instance.finishSetup(args, this);
+            if(rArgs != null)
+            {
+                rArgs.clear();
+                if(args.length > 0)
+                {
+                    rArgs.addAll(java.util.Arrays.asList(args));
+                }
+            }
         }
         catch(RuntimeException ex)
         {

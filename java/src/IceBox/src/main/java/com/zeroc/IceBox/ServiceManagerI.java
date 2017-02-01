@@ -329,8 +329,9 @@ public class ServiceManagerI implements ServiceManager
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    Util.CreatePropertiesResult cpr = Util.createProperties(service.args, initData.properties);
-                    service.args = cpr.args;
+                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    Properties serviceProps = Util.createProperties(service.args, initData.properties, remainingArgs);
+                    service.args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
@@ -338,7 +339,7 @@ public class ServiceManagerI implements ServiceManager
                     java.util.Map<String, String> allProps = initData.properties.getPropertiesForPrefix("");
                     for(String key : allProps.keySet())
                     {
-                        if(cpr.properties.getProperty(key).length() == 0)
+                        if(serviceProps.getProperty(key).length() == 0)
                         {
                             initData.properties.setProperty(key, "");
                         }
@@ -347,7 +348,7 @@ public class ServiceManagerI implements ServiceManager
                     //
                     // Add the service properties to the shared communicator properties.
                     //
-                    for(java.util.Map.Entry<String, String> p : cpr.properties.getPropertiesForPrefix("").entrySet())
+                    for(java.util.Map.Entry<String, String> p : serviceProps.getPropertiesForPrefix("").entrySet())
                     {
                         initData.properties.setProperty(p.getKey(), p.getValue());
                     }
@@ -590,14 +591,15 @@ public class ServiceManagerI implements ServiceManager
                     // Create the service properties with the given service arguments. This should
                     // read the service config file if it's specified with --Ice.Config.
                     //
-                    Util.CreatePropertiesResult cpr = Util.createProperties(serviceArgs, initData.properties);
-                    initData.properties = cpr.properties;
+                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    initData.properties = Util.createProperties(serviceArgs, initData.properties, remainingArgs);
+                    serviceArgs = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     //
                     // Next, parse the service "<service>.*" command line options (the Ice command
                     // line options were parsed by the createProperties above).
                     //
-                    serviceArgs = initData.properties.parseCommandLineOptions(service, cpr.args);
+                    serviceArgs = initData.properties.parseCommandLineOptions(service, serviceArgs);
                 }
 
                 //
@@ -623,9 +625,9 @@ public class ServiceManagerI implements ServiceManager
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
                 //
-                Util.InitializeResult ir = Util.initialize(serviceArgs, initData);
-                info.communicator = ir.communicator;
-                info.args = ir.args;
+                java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);
+                info.args = remainingArgs.toArray(new String[remainingArgs.size()]);
                 communicator = info.communicator;
 
                 if(addFacets)

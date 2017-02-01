@@ -23,18 +23,18 @@ public class Collocated extends test.Util.Application
         return 0;
     }
 
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
 
         //
         // 2 threads are necessary to dispatch the collocated transient() call with AMI
         //
-        r.initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
+        initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
 
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
-        return r;
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        return initData;
     }
 
     public static void main(String[] args)

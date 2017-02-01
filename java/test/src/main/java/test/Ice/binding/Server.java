@@ -24,12 +24,12 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0) + ":udp");
-        r.initData.logger = new com.zeroc.Ice.Logger() {
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.logger = new com.zeroc.Ice.Logger() {
             @Override public void print(String message)
             {
             }
@@ -56,7 +56,7 @@ public class Server extends test.Util.Application
                 return this;
             }
         };
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

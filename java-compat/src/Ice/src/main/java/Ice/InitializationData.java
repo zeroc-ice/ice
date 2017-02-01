@@ -44,7 +44,7 @@ public final class InitializationData implements Cloneable
         }
         catch(CloneNotSupportedException ex)
         {
-	    assert false;
+            assert false;
         }
         return c;
     }

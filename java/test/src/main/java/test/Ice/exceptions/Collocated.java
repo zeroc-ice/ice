@@ -25,22 +25,22 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         //
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
         //
-        r.initData.logger = new DummyLogger();
+        initData.logger = new DummyLogger();
 
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

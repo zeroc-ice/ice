@@ -172,9 +172,8 @@ public class Client
             // In this test, we need at least two threads in the
             // client side thread pool for nested AMI.
             //
-            com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-            initData.properties = cpr.properties;
+            initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
             initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
             initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
@@ -187,9 +186,8 @@ public class Client
             //
             initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
-            com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(cpr.args, initData);
-            communicator = ir.communicator;
-            status = run(ir.args, communicator);
+            communicator = com.zeroc.Ice.Util.initialize(args, initData);
+            status = run(args, communicator);
         }
         catch(Exception ex)
         {

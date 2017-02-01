@@ -31,19 +31,19 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
-        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        r.initData.properties.setProperty("Ice.Admin.InstanceName", "client");
-        r.initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        r.initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
+        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties.setProperty("Ice.Admin.InstanceName", "client");
+        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        r.initData.observer = _observer;
-        return r;
+        initData.observer = _observer;
+        return initData;
     }
 
     public static void main(String[] args)

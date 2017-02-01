@@ -2454,7 +2454,7 @@ public class Coordinator
         return _saveIceLogChooser;
     }
 
-    static private com.zeroc.Ice.Util.CreatePropertiesResult createProperties(String[] args)
+    static private com.zeroc.Ice.Properties createProperties(String[] args, java.util.List<String> rArgs)
     {
         com.zeroc.Ice.Properties properties = com.zeroc.Ice.Util.createProperties();
 
@@ -2468,7 +2468,7 @@ public class Coordinator
         //
         properties.setProperty("Ice.RetryIntervals", "-1");
 
-        return com.zeroc.Ice.Util.createProperties(args, properties);
+        return com.zeroc.Ice.Util.createProperties(args, properties, rArgs);
     }
 
     Coordinator(JFrame mainFrame, String[] args, Preferences prefs)
@@ -2479,17 +2479,17 @@ public class Coordinator
         _initData = new com.zeroc.Ice.InitializationData();
 
         _initData.logger = new Logger(mainFrame);
-        com.zeroc.Ice.Util.CreatePropertiesResult cpr = createProperties(args);
-        _initData.properties = cpr.properties;
+        java.util.List<String> rArgs = new java.util.ArrayList<>();
+        _initData.properties = createProperties(args, rArgs);
         //
         // We enable IceSSL so the communicator knows how to parse ssl endpoints.
         //
         _initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
 
-        if(cpr.args.length > 0)
+        if(!rArgs.isEmpty())
         {
             String msg = "Extra command-line arguments: ";
-            for(String arg : cpr.args)
+            for(String arg : rArgs)
             {
                 msg += arg + " ";
             }

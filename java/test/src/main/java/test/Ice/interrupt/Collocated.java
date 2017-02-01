@@ -36,31 +36,31 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
         // We need to enable the ThreadInterruptSafe property so that Ice is
         // interrupt safe for this test.
         //
-        r.initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
+        initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
         //
         // opIdempotent raises UnknownException, we disable dispatch
         // warnings to prevent warnings.
         //
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        r.initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(r.initData.properties, 0));
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(r.initData.properties, 1));
-        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

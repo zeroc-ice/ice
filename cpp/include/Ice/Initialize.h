@@ -108,7 +108,7 @@ ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = 
                                    Int = ICE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(),
-                                           Int = ICE_INT_VERSION);
+                                   Int = ICE_INT_VERSION);
 
 ICE_API LoggerPtr getProcessLogger();
 ICE_API void setProcessLogger(const LoggerPtr&);

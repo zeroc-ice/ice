@@ -45,21 +45,21 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.observer = instrumentation.getObserver();
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.observer = instrumentation.getObserver();
 
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
-        r.initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
 
         //
         // We don't want connection warnings because of the timeout
         //
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)
