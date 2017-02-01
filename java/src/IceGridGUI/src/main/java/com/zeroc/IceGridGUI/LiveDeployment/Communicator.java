@@ -156,7 +156,7 @@ abstract public class Communicator extends TreeNode
         {
             final String prefix = "Opening Ice Log file for " + getServerDisplayName() + "...";
 
-            forwardToAdmin(prefix, (admin) ->
+            provideAdmin(prefix, (admin) ->
                 {
                     final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
                         com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(admin.ice_facet("Logger"));
@@ -195,7 +195,7 @@ abstract public class Communicator extends TreeNode
     protected void showRuntimeProperties()
     {
         final String prefix = "Retrieving properties for " + getDisplayName() + "...";
-        forwardToAdmin(prefix, (admin) ->
+        provideAdmin(prefix, (admin) ->
             {
                 final com.zeroc.Ice.PropertiesAdminPrx propertiesAdmin =
                     com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(admin.ice_facet("Properties"));
@@ -210,6 +210,10 @@ abstract public class Communicator extends TreeNode
                                     ((CommunicatorEditor)getEditor()).setRuntimeProperties(
                                         (java.util.SortedMap<String, String>)result, Communicator.this);
                                 });
+                        }
+                        else if(ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof com.zeroc.Ice.FacetNotExistException)
+                        {
+                            SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
                         }
                         else
                         {
@@ -228,7 +232,7 @@ abstract public class Communicator extends TreeNode
         _metricsRetrieved = true;
 
         final String prefix = "Retrieving metrics for " + getDisplayName() + "...";
-        if(!forwardToAdmin(prefix, (admin) ->
+        if(!provideAdmin(prefix, (admin) ->
             {
                 final com.zeroc.IceMX.MetricsAdminPrx metricsAdmin =
                     com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(admin.ice_facet("Metrics"));
@@ -253,6 +257,10 @@ abstract public class Communicator extends TreeNode
                                     }
                                     getRoot().getTreeModel().nodeStructureChanged(this);
                                 });
+                        }
+                        else if(ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof com.zeroc.Ice.FacetNotExistException)
+                        {
+                            SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
                         }
                         else
                         {
@@ -289,7 +297,7 @@ abstract public class Communicator extends TreeNode
     protected abstract String getDefaultFileName();
 
 
-    private boolean forwardToAdmin(final String prefix, final java.util.function.Consumer<com.zeroc.Ice.ObjectPrx> consumer)
+    private boolean provideAdmin(final String prefix, final java.util.function.Consumer<com.zeroc.Ice.ObjectPrx> consumer)
     {
         getRoot().getCoordinator().getStatusBar().setText(prefix);
         try
@@ -307,13 +315,13 @@ abstract public class Communicator extends TreeNode
                             SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " " + e.toString() + "."));
                         }
                     }
-                    else if(adminEx != null)
+                    else if(adminEx == null || adminEx instanceof com.zeroc.Ice.ObjectNotExistException)
                     {
-                        amiFailure(prefix, "Failed to retrieve the Admin proxy for " + getServerDisplayName(), adminEx);
+                        SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
                     }
                     else
                     {
-                        SwingUtilities.invokeLater(() -> getRoot().getCoordinator().getStatusBar().setText(prefix + " Admin not available."));
+                        amiFailure(prefix, "Failed to retrieve the Admin proxy for " + getServerDisplayName(), adminEx);
                     }
                 });
         }
