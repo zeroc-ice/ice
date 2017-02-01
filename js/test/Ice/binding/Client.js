@@ -1123,7 +1123,7 @@
         return p;
     };
 
-    if(typeof(navigator) !== 'undefined' && isWorker() && (isSafari() || (isWindows() && isChrome())))
+    if(typeof(navigator) !== 'undefined' && isWorker() && isSafari())
     {
         //
         // BUGFIX:
@@ -1135,14 +1135,7 @@
         //
         exports._test = function(out, id)
         {
-            if(isSafari())
-            {
-                out.writeLine("Test not supported with Safari web workers.");
-            }
-            else if(isWindows() && isChrome())
-            {
-                out.writeLine("Test not supported with Chrome web workers.");
-            }
+            out.writeLine("Test not supported with Safari web workers.");   
         };
     }
     else
