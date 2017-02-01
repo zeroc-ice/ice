@@ -101,13 +101,13 @@ class PackageVisitor : public ParserVisitor
 {
 public:
 
-    static void createModules(const UnitPtr&, const string&, const string&);
+    static void createModules(const UnitPtr&, const string&, const string&, int);
 
     virtual void visitModuleEnd(const ModulePtr&);
 
 private:
 
-    PackageVisitor(StringList&);
+    PackageVisitor(StringList&, int);
 
     enum ReadState { PreModules, InModules, InSubmodules };
 
@@ -128,16 +128,17 @@ private:
 const char* PackageVisitor::_moduleTag = "# Modules:";
 const char* PackageVisitor::_submoduleTag = "# Submodules:";
 
-PackageVisitor::PackageVisitor(StringList& modules) :
+PackageVisitor::PackageVisitor(StringList& modules, int warningLevel) :
+    ParserVisitor(warningLevel),
     _modules(modules)
 {
 }
 
 void
-PackageVisitor::createModules(const UnitPtr& unit, const string& module, const string& dir)
+PackageVisitor::createModules(const UnitPtr& unit, const string& module, const string& dir, int warningLevel)
 {
     StringList modules;
-    PackageVisitor v(modules);
+    PackageVisitor v(modules, warningLevel);
     unit->visit(&v, false);
 
     for(StringList::iterator p = modules.begin(); p != modules.end(); ++p)
@@ -403,6 +404,7 @@ usage(const string& n)
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
+        "--no-warn            Disable all warnings.\n"
         ;
 }
 
@@ -430,6 +432,7 @@ Slice::Python::compile(const vector<string>& argv)
     opts.addOpt("", "build-package");
     opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "no-warn");
 
     vector<string> args;
     try
@@ -499,6 +502,8 @@ Slice::Python::compile(const vector<string>& argv)
     bool checksum = opts.isSet("checksum");
 
     string prefix = opts.optArg("prefix");
+
+    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
     if(args.empty())
     {
@@ -665,7 +670,7 @@ Slice::Python::compile(const vector<string>& argv)
                             //
                             // Generate Python code.
                             //
-                            generate(u, all, checksum, includePaths, out);
+                            generate(u, all, checksum, includePaths, out, warningLevel);
 
                             out.close();
                         }
@@ -675,7 +680,7 @@ Slice::Python::compile(const vector<string>& argv)
                         //
                         if(!noPackage)
                         {
-                            PackageVisitor::createModules(u, prefix + base + "_ice", output);
+                            PackageVisitor::createModules(u, prefix + base + "_ice", output, warningLevel);
                         }
                     }
                     catch(const Slice::FileException& ex)

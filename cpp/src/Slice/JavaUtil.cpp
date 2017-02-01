@@ -139,6 +139,10 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
+    MetaDataVisitor(int warningLevel) : ParserVisitor(warningLevel)
+    {
+    }
+
     virtual bool visitUnitStart(const UnitPtr& p)
     {
         static const string prefix = "java:";
@@ -171,7 +175,10 @@ public:
                     }
                     else
                     {
-                        emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
+                        if(warningLevel() > 0)
+                        {
+                            emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
+                        }
                         globalMetaData.remove(s);
                         continue;
                     }
@@ -238,8 +245,11 @@ public:
                 string s = *q++;
                 if(s.find("java:type:", 0) == 0)
                 {
-                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
-                                "' for operation with void return type");
+                    if(warningLevel() > 0)
+                    {
+                        emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
+                                    "' for operation with void return type");
+                    }
                     metaData.remove(s);
                     continue;
                 }
@@ -293,8 +303,11 @@ public:
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
                 if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
-                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                "this metadata can only be used with a byte sequence");
+                    if(warningLevel() > 0)
+                    {
+                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
+                                    "this metadata can only be used with a byte sequence");
+                    }
                     continue;
                 }
                 newMetaData.push_back(s);
@@ -309,8 +322,11 @@ public:
                     builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
                     builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                 {
-                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                "this metadata can not be used with this type");
+                    if(warningLevel() > 0)
+                    {
+                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
+                                    "this metadata can not be used with this type");
+                    }
                     continue;
                 }
                 newMetaData.push_back(s);
@@ -415,7 +431,10 @@ private:
                     continue;
                 }
 
-                emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+                if(warningLevel() > 0)
+                {
+                    emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+                }
             }
             else
             {
@@ -449,7 +468,10 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                emitWarning(file, line, "invalid metadata for " + str);
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, line, "invalid metadata for " + str);
+                }
             }
             else if(i->find("java:buffer") == 0)
             {
@@ -467,14 +489,21 @@ private:
                     }
 
                 }
-                emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                }
             }
             else if(i->find("java:protobuf:") == 0 || i->find("java:serializable:") == 0)
             {
                 //
                 // Only valid in sequence definition which is checked in visitSequence
                 //
-                emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                }
             }
             else if(i->find("delegate") == 0)
             {
@@ -483,7 +512,7 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else
+                else if(warningLevel() > 0)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -494,7 +523,7 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else
+                else if(warningLevel() > 0)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -531,7 +560,10 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                emitWarning(file, line, "invalid metadata for " + str);
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, line, "invalid metadata for " + str);
+                }
                 continue;
             }
             newMetaData.push_back(*i);
@@ -3187,9 +3219,9 @@ Slice::JavaCompatGenerator::createOutput()
 }
 
 void
-Slice::JavaCompatGenerator::validateMetaData(const UnitPtr& u)
+Slice::JavaCompatGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
 {
-    MetaDataVisitor visitor;
+    MetaDataVisitor visitor(warningLevel);
     u->visit(&visitor, true);
 }
 
@@ -5498,8 +5530,8 @@ Slice::JavaGenerator::createOutput()
 }
 
 void
-Slice::JavaGenerator::validateMetaData(const UnitPtr& u)
+Slice::JavaGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
 {
-    MetaDataVisitor visitor;
+    MetaDataVisitor visitor(warningLevel);
     u->visit(&visitor, true);
 }

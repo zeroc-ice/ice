@@ -20,7 +20,7 @@ class ObjCVisitor : public ObjCGenerator, public ParserVisitor
 {
 public:
 
-    ObjCVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+    ObjCVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
     virtual ~ObjCVisitor();
 
 protected:
@@ -54,7 +54,8 @@ public:
         const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        const std::string&);
+        const std::string&,
+        int);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -71,6 +72,7 @@ private:
     std::string _include;
     std::vector<std::string> _includePaths;
     std::string _dllExport;
+    int _warningLevel;
 
     void printHeader(::IceUtilInternal::Output&);
 
@@ -78,7 +80,7 @@ private:
     {
     public:
 
-        UnitVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        UnitVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitUnitEnd(const UnitPtr&);
@@ -92,7 +94,7 @@ private:
     {
     public:
 
-        ObjectDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ObjectDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual void visitClassDecl(const ClassDeclPtr&);
     };
@@ -101,7 +103,7 @@ private:
     {
     public:
 
-        ProxyDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ProxyDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual void visitClassDecl(const ClassDeclPtr&);
     };
@@ -110,7 +112,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -156,7 +158,7 @@ private:
     {
     public:
 
-        ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -167,7 +169,7 @@ private:
     {
     public:
 
-        HelperVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        HelperVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitEnum(const EnumPtr&);
@@ -180,7 +182,7 @@ private:
     {
     public:
 
-        DelegateMVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        DelegateMVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, int);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);

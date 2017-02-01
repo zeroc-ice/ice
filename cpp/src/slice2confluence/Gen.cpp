@@ -39,7 +39,8 @@ namespace Slice
 void
 generate(const UnitPtr& unit, const string& dir, const string& header, const string& footer,
          const string& indexHeader, const string& indexFooter, const string& imageDir, const string& logoURL,
-         const string& searchAction, unsigned indexCount, unsigned warnSummary, const vector<string>& sortOrder)
+         const string& searchAction, unsigned indexCount, unsigned warnSummary, const vector<string>& sortOrder,
+         int warningLevel)
 {
     unit->mergeModules();
 
@@ -68,19 +69,19 @@ generate(const UnitPtr& unit, const string& dir, const string& header, const str
     // to the symbol; if the latter, we cannot.
     //
     Files files;
-    FileVisitor tv(files);
+    FileVisitor tv(files, warningLevel);
     unit->visit(&tv, false);
 
     //
     // Generate the start page.
     //
-    StartPageVisitor spv(files);
+    StartPageVisitor spv(files, warningLevel);
     unit->visit(&spv, false);
 
     //
     // Generate the table of contents.
     //
-    TOCVisitor tocv(files, indexHeader, indexFooter);
+    TOCVisitor tocv(files, indexHeader, indexFooter, warningLevel);
     unit->visit(&tocv, false);
     tocv.generate();
 
@@ -88,7 +89,7 @@ generate(const UnitPtr& unit, const string& dir, const string& header, const str
     // Generate the individual HTML pages.
     //
     GeneratorBase::setSymbols(tocv.symbols());
-    PageVisitor v(files);
+    PageVisitor v(files, warningLevel);
     unit->visit(&v, false);
 }
 
@@ -1953,8 +1954,9 @@ Slice::StartPageGenerator::printHeaderFooter()
     // Do nothing
 }
 
-Slice::FileVisitor::FileVisitor(Files& files)
-    : _files(files)
+Slice::FileVisitor::FileVisitor(Files& files, int warningLevel) :
+    ParserVisitor(warningLevel),
+    _files(files)
 {
 }
 
@@ -2016,8 +2018,9 @@ Slice::FileVisitor::visitEnum(const EnumPtr& e)
     _files.insert(e->file());
 }
 
-Slice::StartPageVisitor::StartPageVisitor(const Files& files)
-    : _spg(files)
+Slice::StartPageVisitor::StartPageVisitor(const Files& files, int warningLevel) :
+    ParserVisitor(warningLevel),
+    _spg(files)
 {
 }
 
@@ -2173,8 +2176,9 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     end();
 }
 
-TOCVisitor::TOCVisitor(const Files& files, const string& header, const string& footer)
-    : _tg(files, header, footer)
+TOCVisitor::TOCVisitor(const Files& files, const string& header, const string& footer, int warningLevel) :
+    ParserVisitor(warningLevel),
+    _tg(files, header, footer)
 {
 }
 
@@ -3263,8 +3267,9 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     assert(_out.currIndent() == indent);
 }
 
-Slice::PageVisitor::PageVisitor(const Files& files)
-    : _files(files)
+Slice::PageVisitor::PageVisitor(const Files& files, int warningLevel) :
+    ParserVisitor(warningLevel),
+    _files(files)
 {
 }
 

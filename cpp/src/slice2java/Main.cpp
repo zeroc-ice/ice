@@ -87,6 +87,7 @@ usage(const string& n)
         "                        deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore            Allow underscores in Slice identifiers\n"
         "                        deprecated: use instead [[\"underscore\"]] metadata.\n"
+        "--no-warn               Disable all warnings.\n"
         ;
 }
 
@@ -115,6 +116,7 @@ compile(const vector<string>& argv)
     opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "compat");
+    opts.addOpt("", "no-warn");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string>args;
@@ -192,6 +194,8 @@ compile(const vector<string>& argv)
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
     bool compat = opts.isSet("compat");
+
+    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
     if(args.empty())
     {
@@ -350,7 +354,7 @@ compile(const vector<string>& argv)
                     {
                         if(compat)
                         {
-                            GenCompat gen(argv[0], icecpp->getBaseName(), includePaths, output, tie);
+                            GenCompat gen(argv[0], icecpp->getBaseName(), includePaths, output, tie, warningLevel);
                             gen.generate(p);
                             if(impl)
                             {
@@ -360,39 +364,28 @@ compile(const vector<string>& argv)
                             {
                                 gen.generateImplTie(p);
                             }
-                            if(!checksumClass.empty())
-                            {
-                                //
-                                // Calculate checksums for the Slice definitions in the unit.
-                                //
-                                ChecksumMap m = createChecksums(p);
-                                copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-                            }
-                            if(listGenerated)
-                            {
-                                FileTracker::instance()->setOutput(os.str(), false);
-                            }
                         }
                         else
                         {
-                            Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
+                            Gen gen(argv[0], icecpp->getBaseName(), includePaths, output, warningLevel);
                             gen.generate(p);
                             if(impl)
                             {
                                 gen.generateImpl(p);
                             }
-                            if(!checksumClass.empty())
-                            {
-                                //
-                                // Calculate checksums for the Slice definitions in the unit.
-                                //
-                                ChecksumMap m = createChecksums(p);
-                                copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-                            }
-                            if(listGenerated)
-                            {
-                                FileTracker::instance()->setOutput(os.str(), false);
-                            }
+                        }
+
+                        if(!checksumClass.empty())
+                        {
+                            //
+                            // Calculate checksums for the Slice definitions in the unit.
+                            //
+                            ChecksumMap m = createChecksums(p);
+                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                        }
+                        if(listGenerated)
+                        {
+                            FileTracker::instance()->setOutput(os.str(), false);
                         }
                     }
                     catch(const Slice::FileException& ex)

@@ -81,6 +81,7 @@ usage(const string& n)
         "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore         Allow underscores in Slice identifiers\n"
         "                     deprecated: use instead [[\"underscore\"]] metadata.\n"
+        "--no-warn            Disable all warnings.\n"
         ;
 }
 
@@ -105,6 +106,7 @@ Slice::Ruby::compile(const vector<string>& argv)
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
+    opts.addOpt("", "no-warn");
 
     vector<string> args;
     try
@@ -168,6 +170,8 @@ Slice::Ruby::compile(const vector<string>& argv)
     bool all = opts.isSet("all");
 
     bool checksum = opts.isSet("checksum");
+
+    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
     if(args.empty())
     {
@@ -311,7 +315,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         //
                         // Generate the Ruby mapping.
                         //
-                        generate(u, all, checksum, includePaths, out);
+                        generate(u, all, checksum, includePaths, out, warningLevel);
 
                         out.close();
                     }

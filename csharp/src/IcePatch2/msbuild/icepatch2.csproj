@@ -12,7 +12,7 @@
     <AssemblyName>IcePatch2</AssemblyName>
     <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\Assemblies\IcePatch2.XML</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;618</NoWarn>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.common.props" />
   <ItemGroup>

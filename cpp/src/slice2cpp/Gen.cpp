@@ -377,7 +377,7 @@ condString(bool ok, const string& str)
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool implCpp98, bool implCpp11, bool checksum, bool ice) :
+                bool implCpp98, bool implCpp11, bool checksum, bool ice, int warningLevel) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -390,7 +390,8 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _implCpp98(implCpp98),
     _implCpp11(implCpp11),
     _checksum(checksum),
-    _ice(ice)
+    _ice(ice),
+    _warningLevel(warningLevel)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -573,7 +574,7 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#define __" << s << "__";
     H << '\n';
 
-    validateMetaData(p);
+    validateMetaData(p, _warningLevel);
 
     writeExtraHeaders(C);
 
@@ -727,27 +728,27 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
     C.restoreIndent();
     {
-        normalizeMetaData(p, true);
+        normalizeMetaData(p, true, _warningLevel);
 
-        Cpp11DeclVisitor declVisitor(H, C, _dllExport);
+        Cpp11DeclVisitor declVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&declVisitor, false);
 
-        Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
+        Cpp11TypesVisitor typesVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&typesVisitor, false);
 
-        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport);
+        Cpp11LocalObjectVisitor localObjectVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&localObjectVisitor, false);
 
-        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport);
+        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&interfaceVisitor, false);
 
-        Cpp11ValueVisitor valueVisitor(H, C, _dllExport);
+        Cpp11ValueVisitor valueVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&valueVisitor, false);
 
-        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
+        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&proxyVisitor, false);
 
-        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
+        Cpp11StreamVisitor streamVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&streamVisitor, false);
 
         if(_implCpp11)
@@ -768,11 +769,11 @@ Slice::Gen::generate(const UnitPtr& p)
             }
             implC << _base << "I." << _implHeaderExtension << ">";
 
-            Cpp11ImplVisitor implVisitor(implH, implC, _dllExport);
+            Cpp11ImplVisitor implVisitor(implH, implC, _dllExport, _warningLevel);
             p->visit(&implVisitor, false);
         }
 
-        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
+        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&compatibilityVisitor, false);
 
         generateChecksumMap(p);
@@ -787,21 +788,21 @@ Slice::Gen::generate(const UnitPtr& p)
     C << nl << "#else // C++98 mapping";
     C.restoreIndent();
     {
-        normalizeMetaData(p, false);
+        normalizeMetaData(p, false, _warningLevel);
 
-        ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
+        ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&proxyDeclVisitor, false);
 
-        ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
+        ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&objectDeclVisitor, false);
 
-        TypesVisitor typesVisitor(H, C, _dllExport);
+        TypesVisitor typesVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&typesVisitor, false);
 
-        AsyncVisitor asyncVisitor(H, C, _dllExport);
+        AsyncVisitor asyncVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&asyncVisitor, false);
 
-        AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
+        AsyncImplVisitor asyncImplVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&asyncImplVisitor, false);
 
         //
@@ -810,16 +811,16 @@ Slice::Gen::generate(const UnitPtr& p)
         // the proxy relies on knowing the hierarchy to make the begin_
         // methods type-safe.
         //
-        AsyncCallbackVisitor asyncCallbackVisitor(H, C, _dllExport);
+        AsyncCallbackVisitor asyncCallbackVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&asyncCallbackVisitor, false);
 
-        ProxyVisitor proxyVisitor(H, C, _dllExport);
+        ProxyVisitor proxyVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&proxyVisitor, false);
 
-        ObjectVisitor objectVisitor(H, C, _dllExport);
+        ObjectVisitor objectVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&objectVisitor, false);
 
-        StreamVisitor streamVisitor(H, C, _dllExport);
+        StreamVisitor streamVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&streamVisitor, false);
 
         //
@@ -827,7 +828,7 @@ Slice::Gen::generate(const UnitPtr& p)
         // definition, because completed calls the begin_ method in the
         // proxy.
         //
-        AsyncCallbackTemplateVisitor asyncCallbackTemplateVisitor(H, C, _dllExport);
+        AsyncCallbackTemplateVisitor asyncCallbackTemplateVisitor(H, C, _dllExport, _warningLevel);
         p->visit(&asyncCallbackTemplateVisitor, false);
 
         if(_implCpp98)
@@ -848,7 +849,7 @@ Slice::Gen::generate(const UnitPtr& p)
             }
             implC << _base << "I." << _implHeaderExtension << ">";
 
-            ImplVisitor implVisitor(implH, implC, _dllExport);
+            ImplVisitor implVisitor(implH, implC, _dllExport, _warningLevel);
             p->visit(&implVisitor, false);
         }
 
@@ -902,7 +903,8 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
     }
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
@@ -1536,7 +1538,8 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
       << call;
 }
 
-Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output&, const string& dllExport) :
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output&, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h), _dllExport(dllExport)
 {
 }
@@ -1603,8 +1606,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "::IceProxy::Ice::Object* upCast(::IceProxy" << scoped << "*);";
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
     _dllMemberExport(toDllMemberExport(dllExport)), _useWstring(false)
 {
 }
@@ -2153,7 +2156,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h), C(c), _dllExport(dllExport)
 {
 }
@@ -2222,7 +2226,8 @@ Slice::Gen::ObjectDeclVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
@@ -3382,7 +3387,8 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     C << nl << (base ? fixKwd(base->scoped()) : string("::Ice::Object")) << call;
 }
 
-Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output&, const string& dllExport) :
+Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output&, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h), _dllExport(dllExport), _useWstring(false)
 {
 }
@@ -3441,8 +3447,8 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
     H << nl << "typedef ::IceUtil::Handle< " << delName << "_Base> " << delName << "Ptr;";
 }
 
-Slice::Gen::AsyncCallbackTemplateVisitor::AsyncCallbackTemplateVisitor(Output& h, Output&, const string& dllExport)
-    : H(h), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::AsyncCallbackTemplateVisitor::AsyncCallbackTemplateVisitor(Output& h, Output&, const string& dllExport, int warningLevel)
+    : ParserVisitor(warningLevel), H(h), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -3745,8 +3751,8 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     }
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -4037,8 +4043,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -4172,8 +4178,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::AsyncImplVisitor::AsyncImplVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::AsyncImplVisitor::AsyncImplVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -4337,7 +4343,8 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 }
 
-Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h),
     C(c),
     _dllExport(dllExport)
@@ -4468,10 +4475,14 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::validateMetaData(const UnitPtr& u)
+Slice::Gen::validateMetaData(const UnitPtr& u, int warningLevel)
 {
-    MetaDataVisitor visitor;
+    MetaDataVisitor visitor(warningLevel);
     u->visit(&visitor, false);
+}
+
+Slice::Gen::MetaDataVisitor::MetaDataVisitor(int warningLevel) : ParserVisitor(warningLevel)
+{
 }
 
 bool
@@ -4514,10 +4525,13 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     headerExtension++;
                     if(headerExtension > 1)
                     {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s
-                            << "': directive can appear only once per file";
-                        emitWarning(file, -1, ostr.str());
+                        if(warningLevel() > 0)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                << "': directive can appear only once per file";
+                            emitWarning(file, -1, ostr.str());
+                        }
                     }
                     else
                     {
@@ -4530,10 +4544,13 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     dllExport++;
                     if(dllExport > 1)
                     {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s
-                            << "': directive can appear only once per file";
-                        emitWarning(file, -1, ostr.str());
+                        if(warningLevel() > 0)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                << "': directive can appear only once per file";
+                            emitWarning(file, -1, ostr.str());
+                        }
                     }
                     else
                     {
@@ -4542,9 +4559,12 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     continue;
                 }
 
-                ostringstream ostr;
-                ostr << "ignoring invalid global metadata `" << s << "'";
-                emitWarning(file, -1, ostr.str());
+                if(warningLevel() > 0)
+                {
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    emitWarning(file, -1, ostr.str());
+                }
             }
 
         }
@@ -4622,7 +4642,10 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
     {
-        emitWarning(p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
+        if(warningLevel() > 0)
+        {
+            emitWarning(p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
+        }
         metaData.remove("cpp:noexcept");
     }
 
@@ -4634,9 +4657,11 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             if(q->find("cpp:type:") == 0 || q->find("cpp:view-type:") == 0 ||
                q->find("cpp:range") == 0 || (*q) == "cpp:array")
             {
-                emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
-                            "' for operation with void return type");
-
+                if(warningLevel() > 0)
+                {
+                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
+                                "' for operation with void return type");
+                }
                 metaData.remove(*q);
                 continue;
             }
@@ -4802,7 +4827,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
             }
-            emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+
+            if(warningLevel() > 0)
+            {
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+            }
             continue;
         }
 
@@ -4814,7 +4843,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 newMetaData.push_back(s);
                 continue;
             }
-            emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+
+            if(warningLevel() > 0)
+            {
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+            }
             continue;
         }
         newMetaData.push_back(s);
@@ -4824,13 +4857,14 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
 
 
 void
-Slice::Gen::normalizeMetaData(const UnitPtr& u, bool cpp11)
+Slice::Gen::normalizeMetaData(const UnitPtr& u, bool cpp11, int warningLevel)
 {
-    NormalizeMetaDataVisitor visitor(cpp11);
+    NormalizeMetaDataVisitor visitor(cpp11, warningLevel);
     u->visit(&visitor, false);
 }
 
-Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11) :
+Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11, int warningLevel) :
+	ParserVisitor(warningLevel),
     _cpp11(cpp11)
 {
 }
@@ -5105,8 +5139,8 @@ Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
 }
 
 // C++11 visitors
-Slice::Gen::Cpp11DeclVisitor::Cpp11DeclVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
+Slice::Gen::Cpp11DeclVisitor::Cpp11DeclVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -5261,8 +5295,8 @@ Slice::Gen::Cpp11DeclVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
+Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
     _dllMemberExport(toDllMemberExport(dllExport)), _doneStaticSymbol(false), _useWstring(false)
 {
 }
@@ -5659,8 +5693,9 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
 }
 
-Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
+Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllClassExport(toDllClassExport(dllExport)), 
+    _dllMemberExport(toDllMemberExport(dllExport)),
     _useWstring(false)
 {
 }
@@ -6248,7 +6283,9 @@ Slice::Gen::Cpp11TypesVisitor::emitUpcall(const ExceptionPtr& base, const string
 
 Slice::Gen::Cpp11ObjectVisitor::Cpp11ObjectVisitor(::IceUtilInternal::Output& h,
                                                    ::IceUtilInternal::Output& c,
-                                                   const std::string& dllExport) :
+                                                   const std::string& dllExport,
+                                                   int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h),
     C(c),
     _dllExport(dllExport),
@@ -6301,8 +6338,9 @@ Slice::Gen::Cpp11ValueVisitor::emitUpcall(const ClassDefPtr& base, const string&
 
 Slice::Gen::Cpp11LocalObjectVisitor::Cpp11LocalObjectVisitor(::IceUtilInternal::Output& h,
                                                              ::IceUtilInternal::Output& c,
-                                                             const std::string& dllExport) :
-    Cpp11ObjectVisitor(h, c, dllExport)
+                                                             const std::string& dllExport,
+                                                             int warningLevel) :
+    Cpp11ObjectVisitor(h, c, dllExport, warningLevel)
 {
 }
 
@@ -6649,8 +6687,9 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
 Slice::Gen::Cpp11InterfaceVisitor::Cpp11InterfaceVisitor(::IceUtilInternal::Output& h,
                                                          ::IceUtilInternal::Output& c,
-                                                         const std::string& dllExport) :
-    Cpp11ObjectVisitor(h, c, dllExport)
+                                                         const std::string& dllExport,
+                                                         int warningLevel) :
+    Cpp11ObjectVisitor(h, c, dllExport, warningLevel)
 {
 }
 
@@ -7103,8 +7142,9 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
 Slice::Gen::Cpp11ValueVisitor::Cpp11ValueVisitor(::IceUtilInternal::Output& h,
                                                  ::IceUtilInternal::Output& c,
-                                                 const std::string& dllExport) :
-    Cpp11ObjectVisitor(h, c, dllExport)
+                                                 const std::string& dllExport,
+                                                 int warningLevel) :
+    Cpp11ObjectVisitor(h, c, dllExport, warningLevel)
 {
 }
 
@@ -7457,7 +7497,8 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     }
 }
 
-Slice::Gen::Cpp11StreamVisitor::Cpp11StreamVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::Cpp11StreamVisitor::Cpp11StreamVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h),
     C(c),
     _dllExport(dllExport)
@@ -7569,7 +7610,8 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
 }
 
 
-Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output&, const string& dllExport) :
+Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output&, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel),
     H(h),
     _dllExport(dllExport)
 {
@@ -7619,8 +7661,8 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
+Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const string& dllExport, int warningLevel) :
+    ParserVisitor(warningLevel), H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 

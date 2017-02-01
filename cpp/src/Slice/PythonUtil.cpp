@@ -50,6 +50,8 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
+    MetaDataVisitor(int);
+
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
@@ -91,7 +93,7 @@ class ModuleVisitor : public ParserVisitor
 {
 public:
 
-    ModuleVisitor(Output&, set<string>&);
+    ModuleVisitor(Output&, set<string>&, int);
 
     virtual bool visitModuleStart(const ModulePtr&);
 
@@ -108,7 +110,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, set<string>&);
+    CodeVisitor(IceUtilInternal::Output&, set<string>&, int);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -291,7 +293,8 @@ getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string&
 //
 // ModuleVisitor implementation.
 //
-Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) :
+Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history, int warningLevel) :
+    ParserVisitor(warningLevel),
     _out(out), _history(history)
 {
 }
@@ -341,8 +344,10 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 //
 // CodeVisitor implementation.
 //
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
-    _out(out), _moduleHistory(moduleHistory)
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory, int warningLevel) :
+    ParserVisitor(warningLevel),
+    _out(out),
+    _moduleHistory(moduleHistory)
 {
 }
 
@@ -2830,9 +2835,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
 void
 Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths,
-                        Output& out)
+                        Output& out, int warningLevel)
 {
-    Slice::Python::MetaDataVisitor visitor;
+    Slice::Python::MetaDataVisitor visitor(warningLevel);
     un->visit(&visitor, false);
 
     out << nl << "from sys import version_info as _version_info_";
@@ -2857,10 +2862,10 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
 
     set<string> moduleHistory;
 
-    ModuleVisitor moduleVisitor(out, moduleHistory);
+    ModuleVisitor moduleVisitor(out, moduleHistory, warningLevel);
     un->visit(&moduleVisitor, true);
 
-    CodeVisitor codeVisitor(out, moduleHistory);
+    CodeVisitor codeVisitor(out, moduleHistory, warningLevel);
     un->visit(&codeVisitor, false);
 
     if(checksum)
@@ -2981,6 +2986,11 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
     out << "#\n";
 }
 
+Slice::Python::MetaDataVisitor::MetaDataVisitor(int warningLevel) :
+    ParserVisitor(warningLevel)
+{
+}
+
 bool
 Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
@@ -3007,7 +3017,11 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 {
                     continue;
                 }
-                emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                }
                 globalMetaData.remove(s);
             }
         }
@@ -3092,8 +3106,11 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
-                emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
-                            "`protobuf' encoding must be a byte sequence");
+                if(warningLevel() > 0)
+                {
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
+                                "`protobuf' encoding must be a byte sequence");
+                }
             }
             else
             {
@@ -3149,7 +3166,10 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                     }
                 }
             }
-            emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+            if(warningLevel() > 0)
+            {
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
+            }
             newMetaData.remove(s);
         }
     }

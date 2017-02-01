@@ -32,7 +32,7 @@ public:
     //
     // Validate all metadata in the unit with an "objc:" prefix.
     //
-    static void validateMetaData(const UnitPtr&);
+    static void validateMetaData(const UnitPtr&, int);
 
 protected:
     struct ModulePrefix
@@ -81,7 +81,7 @@ private:
     class MetaDataVisitor : public ParserVisitor
     {
     public:
-        MetaDataVisitor();
+        MetaDataVisitor(int);
 
         virtual bool visitUnitStart(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);

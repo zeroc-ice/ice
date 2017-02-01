@@ -2335,10 +2335,14 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
 }
 
 void
-Slice::CsGenerator::validateMetaData(const UnitPtr& u)
+Slice::CsGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
 {
-    MetaDataVisitor visitor;
+    MetaDataVisitor visitor(warningLevel);
     u->visit(&visitor, true);
+}
+
+Slice::CsGenerator::MetaDataVisitor::MetaDataVisitor(int warningLevel) : ParserVisitor(warningLevel)
+{
 }
 
 bool
@@ -2375,7 +2379,10 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 static const string csAttributePrefix = csPrefix + "attribute:";
                 if(s.find(csAttributePrefix) != 0 || s.size() == csAttributePrefix.size())
                 {
-                    emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
+                    if(warningLevel() > 0)
+                    {
+                        emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
+                    }
                     continue;
                 }
             }
@@ -2540,8 +2547,11 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string meta;
                     if(cont->findMetaData(csPrefix + "generic:", meta))
                     {
-                        emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                    "serialization can only be used with the array mapping for byte sequences");
+                        if(warningLevel() > 0)
+                        {
+                            emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
+                                        "serialization can only be used with the array mapping for byte sequences");
+                        }
                         continue;
                     }
                     string type = s.substr(csSerializablePrefix.size());
@@ -2613,7 +2623,10 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
+            if(warningLevel() > 0)
+            {
+                emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
+            }
             continue;
         }
         else if(s == "delegate")
@@ -2624,7 +2637,11 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 newLocalMetaData.push_back(s);
                 continue;
             }
-            emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+
+            if(warningLevel() > 0)
+            {
+                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+            }
             continue;
         }
         newLocalMetaData.push_back(s);

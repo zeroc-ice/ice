@@ -191,6 +191,8 @@ class ParserVisitor
 {
 public:
 
+    ParserVisitor(int warningLevel = 1);
+
     virtual ~ParserVisitor() { }
     virtual bool visitUnitStart(const UnitPtr&) { return true; }
     virtual void visitUnitEnd(const UnitPtr&) { }
@@ -210,6 +212,12 @@ public:
     virtual void visitDictionary(const DictionaryPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
     virtual void visitConst(const ConstPtr&) { }
+
+    int warningLevel();
+
+private:
+
+    int _warningLevel;
 };
 
 // ----------------------------------------------------------------------

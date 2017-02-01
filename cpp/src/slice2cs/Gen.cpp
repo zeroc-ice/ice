@@ -154,7 +154,8 @@ resultStructReturnValueName(const ParamDeclList& outParams)
 
 }
 
-Slice::CsVisitor::CsVisitor(Output& out) :
+Slice::CsVisitor::CsVisitor(Output& out, int warningLevel) :
+    ParserVisitor(warningLevel),
     _out(out)
 {
 }
@@ -2020,9 +2021,10 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir,
-                bool tie, bool impl, bool implTie) :
+                bool tie, bool impl, bool implTie, int warningLevel) :
     _includePaths(includePaths),
-    _tie(tie)
+    _tie(tie),
+	_warningLevel(warningLevel)
 {
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -2092,51 +2094,51 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    CsGenerator::validateMetaData(p);
+    CsGenerator::validateMetaData(p, _warningLevel);
 
-    UnitVisitor unitVisitor(_out);
+    UnitVisitor unitVisitor(_out, _warningLevel);
     p->visit(&unitVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_out);
+    CompactIdVisitor compactIdVisitor(_out, _warningLevel);
     p->visit(&compactIdVisitor, false);
 
-    TypesVisitor typesVisitor(_out);
+    TypesVisitor typesVisitor(_out, _warningLevel);
     p->visit(&typesVisitor, false);
 
     //
     // The async delegates are emitted before the proxy definition
     // because the proxy methods need to know the type.
     //
-    AsyncDelegateVisitor asyncDelegateVisitor(_out);
+    AsyncDelegateVisitor asyncDelegateVisitor(_out, _warningLevel);
     p->visit(&asyncDelegateVisitor, false);
 
-    ResultVisitor resultVisitor(_out);
+    ResultVisitor resultVisitor(_out, _warningLevel);
     p->visit(&resultVisitor, false);
 
-    ProxyVisitor proxyVisitor(_out);
+    ProxyVisitor proxyVisitor(_out, _warningLevel);
     p->visit(&proxyVisitor, false);
 
-    OpsVisitor opsVisitor(_out);
+    OpsVisitor opsVisitor(_out, _warningLevel);
     p->visit(&opsVisitor, false);
 
-    HelperVisitor helperVisitor(_out);
+    HelperVisitor helperVisitor(_out, _warningLevel);
     p->visit(&helperVisitor, false);
 
-    DispatcherVisitor dispatcherVisitor(_out, _tie);
+    DispatcherVisitor dispatcherVisitor(_out, _tie, _warningLevel);
     p->visit(&dispatcherVisitor, false);
 }
 
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
-    ImplVisitor implVisitor(_impl);
+    ImplVisitor implVisitor(_impl, _warningLevel);
     p->visit(&implVisitor, false);
 }
 
 void
 Slice::Gen::generateImplTie(const UnitPtr& p)
 {
-    ImplTieVisitor implTieVisitor(_impl);
+    ImplTieVisitor implTieVisitor(_impl, _warningLevel);
     p->visit(&implTieVisitor, false);
 }
 
@@ -2212,8 +2214,8 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    CsVisitor(out, warningLevel)
 {
 }
 
@@ -2244,8 +2246,8 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
     return false;
 }
 
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    CsVisitor(out, warningLevel)
 {
 }
 
@@ -2278,8 +2280,8 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    CsVisitor(out, warningLevel)
 {
 }
 
@@ -3765,8 +3767,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
     }
 }
 
-Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out)
-    : CsVisitor(out)
+Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out, int warningLevel)
+    : CsVisitor(out, warningLevel)
 {
 }
 
@@ -3924,8 +3926,8 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
+Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    CsVisitor(out, warningLevel)
 {
 }
 
@@ -4112,8 +4114,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
+Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out, int warningLevel)
+    : CsVisitor(out, warningLevel)
 {
 }
 
@@ -4169,8 +4171,8 @@ Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
     _out << paramDeclAMI << epar << ';';
 }
 
-Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
+Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out, int warningLevel)
+    : CsVisitor(out, warningLevel)
 {
 }
 
@@ -4267,8 +4269,8 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
+Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    CsVisitor(out, warningLevel)
 {
 }
 
@@ -5198,8 +5200,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out, bool tie) :
-    CsVisitor(out),
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out, bool tie, int warningLevel) :
+    CsVisitor(out, warningLevel),
     _tie(tie)
 {
 }
@@ -5412,8 +5414,8 @@ Slice::Gen::DispatcherVisitor::writeTieOperations(const ClassDefPtr& p, NameSet*
     }
 }
 
-Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
+Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtilInternal::Output& out, int warningLevel)
+    : CsVisitor(out, warningLevel)
 {
 }
 
@@ -5520,8 +5522,8 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     }
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out) :
-    BaseImplVisitor(out)
+Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out, int warningLevel) :
+    BaseImplVisitor(out, warningLevel)
 {
 }
 
@@ -5588,8 +5590,8 @@ Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
     _out << eb;
 }
 
-Slice::Gen::ImplTieVisitor::ImplTieVisitor(IceUtilInternal::Output& out)
-    : BaseImplVisitor(out)
+Slice::Gen::ImplTieVisitor::ImplTieVisitor(IceUtilInternal::Output& out, int warningLevel)
+    : BaseImplVisitor(out, warningLevel)
 {
 }
 

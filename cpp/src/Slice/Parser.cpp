@@ -122,6 +122,17 @@ Unit* unit;
 
 }
 
+Slice::ParserVisitor::ParserVisitor(int warningLevel) : 
+    _warningLevel(warningLevel)
+{
+}
+
+int
+Slice::ParserVisitor::warningLevel()
+{
+    return _warningLevel;
+}
+
 // ----------------------------------------------------------------------
 // DefinitionContext
 // ----------------------------------------------------------------------
