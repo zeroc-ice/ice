@@ -156,7 +156,7 @@ public class SessionKeeper
                                 logout(true);
                                 JOptionPane.showMessageDialog(
                                     parent,
-                                    "This version of IceGrid GUI requires an IceGrid Registry version 3.3",
+                                    "This version of IceGrid GUI requires a newer IceGrid Registry",
                                     "Login failed: Version Mismatch",
                                     JOptionPane.ERROR_MESSAGE);
                             });

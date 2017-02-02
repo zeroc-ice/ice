@@ -919,7 +919,7 @@ public class Root extends Communicator
     @Override
     protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        return _coordinator.getSession().getAdmin().getRegistryAdminAsync(_replicaName);
+        return _coordinator.getAdmin().getRegistryAdminAsync(_replicaName);
     }
 
     @Override

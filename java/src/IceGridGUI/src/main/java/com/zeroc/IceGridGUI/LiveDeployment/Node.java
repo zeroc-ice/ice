@@ -217,7 +217,7 @@ class Node extends Communicator
     @Override
     protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        return getRoot().getCoordinator().getSession().getAdmin().getNodeAdminAsync(_id);
+        return getRoot().getCoordinator().getAdmin().getNodeAdminAsync(_id);
     }
 
     @Override

@@ -494,10 +494,10 @@ public class Server extends Communicator
         _serverDescriptor = serverDescriptor;
         _application = application;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _services;
-        _childrenArray[3] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
+        _childrenArray[3] = _services;
 
         update(state, pid, enabled, false);
 
@@ -577,15 +577,15 @@ public class Server extends Communicator
         _serverDescriptor = server._serverDescriptor;
         _application = server._application;
 
+        _metrics = server._metrics;
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
         _services = server._services;
-        _metrics = server._metrics;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _services;
-        _childrenArray[3] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
+        _childrenArray[3] = _services;
 
         //
         // Need to re-parent all the children

@@ -296,9 +296,9 @@ public class Service extends Communicator
         _serviceDescriptor = serviceDescriptor;
         _serverInstancePSDescriptor = serverInstancePSDescriptor;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
 
         createAdapters();
         createDbEnvs();
@@ -450,9 +450,9 @@ public class Service extends Communicator
         _dbEnvs = service._dbEnvs;
         _metrics = service._metrics;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
 
         //
         // Need to re-parent all the children
