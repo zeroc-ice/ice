@@ -420,17 +420,20 @@ public class Root extends Communicator
         int[] toRemoveIndices = new int[_nodes.size()];
 
         int i = 0;
-        for(int index = 0; index < _nodes.size(); ++index)
+        for(Node node : _nodes)
         {
-            Node node = _nodes.get(index);
             if(node.remove(name))
             {
                 toRemove.add(node);
-                toRemoveIndices[i++] = _slaves.size() + index;
+                toRemoveIndices[i++] = getIndex(node);
             }
         }
 
-        removeNodes(resize(toRemoveIndices, toRemove.size()), toRemove);
+        if(toRemove.size() > 0)
+        {
+            _nodes.removeAll(toRemove);
+            _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
+        }
     }
 
     public void applicationUpdated(ApplicationUpdateInfo update)
@@ -1086,29 +1089,7 @@ public class Root extends Communicator
 
     private void insertNode(Node node)
     {
-        String nodeName = node.toString();
-        int i;
-        for(i = 0; i < _nodes.size(); ++i)
-        {
-            String otherNodeName = _nodes.get(i).toString();
-            if(nodeName.compareTo(otherNodeName) < 0)
-            {
-                break;
-            }
-        }
-
-        _nodes.add(i, node);
-        _treeModel.nodesWereInserted(this, new int[]{_slaves.size() + i});
-    }
-
-    @SuppressWarnings("rawtypes")
-    private void removeNodes(int[] toRemoveIndices, java.util.List toRemove)
-    {
-        if(toRemove.size() > 0)
-        {
-            _nodes.removeAll(toRemove);
-            _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
-        }
+        insertSortedChild(node, _nodes, _treeModel);
     }
 
     public static int computeMessageSizeMax(int num)
