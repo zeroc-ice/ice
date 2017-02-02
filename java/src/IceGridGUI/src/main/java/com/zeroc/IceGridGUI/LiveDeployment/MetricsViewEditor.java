@@ -271,19 +271,36 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         public MetricsViewInfo(MetricsView view)
         {
-            if(view.getParent() instanceof Server)
+            java.util.List<String> fullId = ((Communicator)view.getParent()).getFullId();
+
+            assert fullId.size() > 0;
+
+            if(fullId.size() == 1)
             {
-                this.node = ((Node)view.getParent().getParent()).getId();
-                this.server = ((Server)view.getParent()).getId();
+                component = "/";
             }
             else
             {
-                this.node = ((Node)view.getParent().getParent().getParent()).getId();
-                this.server = ((Server)view.getParent().getParent()).getId() + "/" +
-                              ((Service)view.getParent()).getId();
+                StringBuilder builder = null;
+                for(String s : fullId)
+                {
+                    if(builder == null)
+                    {
+                        builder = new StringBuilder();
+                        // Skip first element
+                    }
+                    else
+                    {
+                        builder.append('/');
+                        builder.append(s);
+                    }
+                }
+
+                component = builder.toString();
             }
+
             this.view = view.getId();
-            this.admin = view.getMetricsAdmin();
+            admin = view.getMetricsAdmin();
         }
 
         @Override
@@ -302,16 +319,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 return false;
             }
             MetricsViewInfo that = (MetricsViewInfo)other;
-            return this.node.equals(that.node) && this.server.equals(that.server) && this.view.equals(that.view);
+            return this.component.equals(that.component) && this.view.equals(that.view);
         }
 
         @Override
         public String toString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.append(node);
-            builder.append("/");
-            builder.append(server);
+            builder.append(component);
             builder.append("/");
             builder.append(view);
             return builder.toString();
@@ -320,13 +335,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         @Override
         public int hashCode()
         {
-            int h = com.zeroc.IceInternal.HashUtil.hashAdd(5381, node);
-            h = com.zeroc.IceInternal.HashUtil.hashAdd(h, server);
+            int h = com.zeroc.IceInternal.HashUtil.hashAdd(5381, component);
             return com.zeroc.IceInternal.HashUtil.hashAdd(h, view);
         }
 
-        public String node;
-        public String server;
+        public String component;
         public String view;
         public com.zeroc.IceMX.MetricsAdminPrx admin;
     }

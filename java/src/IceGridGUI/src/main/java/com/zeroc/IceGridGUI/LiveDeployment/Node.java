@@ -344,13 +344,12 @@ class Node extends Communicator
         int[] toRemoveIndices = new int[_servers.size()];
         int i = 0;
 
-        for(int index = 0; index < _servers.size(); ++index)
+        for(Server server : _servers)
         {
-            Server server = _servers.get(index);
             if(server.getApplication().name.equals(appName))
             {
                 toRemove.add(server);
-                toRemoveIndices[i++] = index;
+                toRemoveIndices[i++] = getIndex(server);
             }
         }
         toRemoveIndices = resize(toRemoveIndices, toRemove.size());

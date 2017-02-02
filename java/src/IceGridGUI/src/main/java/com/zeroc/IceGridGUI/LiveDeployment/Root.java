@@ -335,6 +335,8 @@ public class Root extends Communicator
         _infoMap.clear();
         _nodes.clear();
         _slaves.clear();
+        _metrics.clear();
+        _metricsRetrieved = false;
         _treeModel.nodeStructureChanged(this);
         _tree.setRootVisible(false);
     }
@@ -623,18 +625,7 @@ public class Root extends Communicator
         else
         {
             Slave newSlave = new Slave(this, info, _replicaName);
-
-            int i;
-            for(i = 0; i < _slaves.size(); ++i)
-            {
-                String otherName = _slaves.get(i).toString();
-                if(info.name.compareTo(otherName) < 0)
-                {
-                    break;
-                }
-            }
-            _slaves.add(i, newSlave);
-            _treeModel.nodesWereInserted(this, new int[]{i});
+            insertSortedChild(newSlave, _slaves, _treeModel);
         }
     }
 

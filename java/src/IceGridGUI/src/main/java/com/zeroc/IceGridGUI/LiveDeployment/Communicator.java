@@ -255,7 +255,7 @@ abstract public class Communicator extends TreeNode
                                         insertSortedChild(
                                             new MetricsView(Communicator.this, name, metricsAdmin, false), _metrics, null);
                                     }
-                                    getRoot().getTreeModel().nodeStructureChanged(this);
+                                    getRoot().getTreeModel().nodeStructureChanged(Communicator.this);
                                 });
                         }
                         else if(ex instanceof com.zeroc.Ice.ObjectNotExistException || ex instanceof com.zeroc.Ice.FacetNotExistException)

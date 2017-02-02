@@ -1171,55 +1171,51 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             {
             switch(columnIndex)
             {
-                case 0: // Node Name
+                case 0: // Visible
                 {
                     return Boolean.class;
                 }
-                case 1: // Node Name
+                case 1: // Component Name
                 {
                     return String.class;
                 }
-                case 2: // Server Name
+                case 2: // View Name
                 {
                     return String.class;
                 }
-                case 3: // View Name
+                case 3: // Metrics Name
                 {
                     return String.class;
                 }
-                case 4: // Metrics Name
+                case 4: // Metrics Id
                 {
                     return String.class;
                 }
-                case 5: // Metrics Id
+                case 5: // Column Name
                 {
                     return String.class;
                 }
-                case 6: // Column Name
-                {
-                    return String.class;
-                }
-                case 7: // Scale factor
+                case 6: // Scale factor
                 {
                     return Double.class;
                 }
-                case 8: // Last value
+                case 7: // Last value
                 {
                     return Double.class;
                 }
-                case 9: // Average value
+                case 8: // Average value
                 {
                     return Double.class;
                 }
-                case 10: // Min value
+                case 9: // Min value
                 {
                     return Double.class;
                 }
-                case 11: // Max value
+                case 10: // Max value
                 {
                     return Double.class;
                 }
-                case 12: // Color
+                case 11: // Color
                 {
                     return Color.class;
                 }
@@ -1246,49 +1242,45 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 }
                 case 1:
                 {
-                    return row.info.node;
+                    return row.info.component;
                 }
                 case 2:
                 {
-                    return row.info.server;
+                    return row.info.view;
                 }
                 case 3:
                 {
-                    return row.info.view;
+                    return row.cell.getField().getMetricsName();
                 }
                 case 4:
                 {
-                    return row.cell.getField().getMetricsName();
+                    return row.cell.getId();
                 }
                 case 5:
                 {
-                    return row.cell.getId();
+                    return row.cell.getField().getColumnName();
                 }
                 case 6:
                 {
-                    return row.cell.getField().getColumnName();
+                    return row.cell.getScaleFactor();
                 }
                 case 7:
                 {
-                    return row.cell.getScaleFactor();
+                    return row.cell.getLast();
                 }
                 case 8:
                 {
-                    return row.cell.getLast();
+                    return row.cell.getAverage();
                 }
                 case 9:
                 {
-                    return row.cell.getAverage();
+                    return row.cell.getMin();
                 }
                 case 10:
                 {
-                    return row.cell.getMin();
-                }
-                case 11:
-                {
                     return row.cell.getMax();
                 }
-                case 12:
+                case 11:
                 {
                     return new Color(Integer.parseInt(row.color.substring(1), 16));
                 }
@@ -1710,7 +1702,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private NumberAxis _xAxis;
     private NumberAxis _yAxis;
 
-    private final static String[] _columnNames = new String[]{"Show", "Node", "Server", "Metrics View Name",
+    private final static String[] _columnNames = new String[]{"Show", "Component", "Metrics View Name",
                                                               "Metrics Name", "Metrics Id", "Metrics Field", "Scale",
                                                               "Last", "Average", "Minimum", "Maximum", "Color"};
 

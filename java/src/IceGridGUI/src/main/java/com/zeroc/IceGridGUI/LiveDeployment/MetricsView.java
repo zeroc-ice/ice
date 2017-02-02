@@ -75,12 +75,11 @@ class MetricsView extends TreeNode
     @Override
     public void enableMetricsView(boolean enabled)
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             if(enabled)
             {
-                metricsAdmin.enableMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.enableMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
@@ -122,7 +121,7 @@ class MetricsView extends TreeNode
             }
             else
             {
-                metricsAdmin.disableMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.disableMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
@@ -200,12 +199,11 @@ class MetricsView extends TreeNode
     public java.util.concurrent.CompletableFuture<com.zeroc.IceMX.MetricsFailures> fetchMetricsFailures(String map,
                                                                                                         String id)
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             try
             {
-                return metricsAdmin.getMetricsFailuresAsync(_name, map, id);
+                return _admin.getMetricsFailuresAsync(_name, map, id);
             }
             catch(com.zeroc.Ice.LocalException e)
             {
@@ -218,12 +216,11 @@ class MetricsView extends TreeNode
 
     public void fetchMetricsView()
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             try
             {
-                metricsAdmin.getMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.getMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
