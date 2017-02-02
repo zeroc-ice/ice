@@ -423,7 +423,7 @@ Slice::Gen::generateChecksumMap(const UnitPtr& p)
 {
     if(_checksum)
     {
-        ChecksumMap map = createChecksums(p);
+        ChecksumMap map = createChecksums(p, _warningLevel);
         if(!map.empty())
         {
             C << sp << nl << "namespace";

@@ -2145,7 +2145,7 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 void
 Slice::Gen::generateChecksums(const UnitPtr& u)
 {
-    ChecksumMap map = createChecksums(u);
+    ChecksumMap map = createChecksums(u, _warningLevel);
     if(!map.empty())
     {
         string className = "X" + generateUUID();

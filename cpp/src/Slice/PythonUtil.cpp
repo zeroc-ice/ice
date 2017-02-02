@@ -2870,7 +2870,7 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(un);
+        ChecksumMap checksums = createChecksums(un, warningLevel);
         if(!checksums.empty())
         {
             out << sp;

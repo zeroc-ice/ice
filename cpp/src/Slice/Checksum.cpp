@@ -442,11 +442,11 @@ Slice::ChecksumVisitor::updateMap(const string& scoped, const string& data)
 }
 
 Slice::ChecksumMap
-Slice::createChecksums(const UnitPtr& u)
+Slice::createChecksums(const UnitPtr& u, int warningLevel)
 {
     ChecksumMap result;
 
-    ChecksumVisitor visitor(result, 0);
+    ChecksumVisitor visitor(result, warningLevel);
     u->visit(&visitor, false);
 
     return result;

@@ -380,7 +380,7 @@ compile(const vector<string>& argv)
                             //
                             // Calculate checksums for the Slice definitions in the unit.
                             //
-                            ChecksumMap m = createChecksums(p);
+                            ChecksumMap m = createChecksums(p, warningLevel);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
                         if(listGenerated)

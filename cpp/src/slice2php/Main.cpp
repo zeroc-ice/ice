@@ -1509,7 +1509,7 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(un);
+        ChecksumMap checksums = createChecksums(un, warningLevel);
         if(!checksums.empty())
         {
             out << sp;
