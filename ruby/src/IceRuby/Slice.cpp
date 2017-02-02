@@ -62,6 +62,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         opts.addOpt("", "underscore");
         opts.addOpt("", "checksum");
         opts.addOpt("", "all");
+        opts.addOpt("", "no-warn");
 
         vector<string> files;
         try
@@ -116,6 +117,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         debug = opts.isSet("d") || opts.isSet("debug");
         all = opts.isSet("all");
         checksum = opts.isSet("checksum");
+        int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
         bool ignoreRedefs = false;
 
@@ -149,7 +151,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             // Ruby magic comment to set the file encoding, it must be first or second line
             //
             out << "# encoding: utf-8\n";
-            generate(u, all, checksum, includePaths, out);
+            generate(u, all, checksum, includePaths, out, warningLevel);
             u->destroy();
 
             string code = codeStream.str();
