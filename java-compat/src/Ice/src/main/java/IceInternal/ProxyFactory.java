@@ -187,10 +187,12 @@ public final class ProxyFactory
         }
 
         //
-        // Don't retry if the communicator is destroyed or object adapter
-        // deactivated.
+        // Don't retry if the communicator is destroyed, object adapter is deactivated,
+        // or connection is manually closed.
         //
-        if(ex instanceof Ice.CommunicatorDestroyedException || ex instanceof Ice.ObjectAdapterDeactivatedException)
+        if(ex instanceof Ice.CommunicatorDestroyedException ||
+           ex instanceof Ice.ObjectAdapterDeactivatedException ||
+           ex instanceof Ice.ConnectionManuallyClosedException)
         {
             throw ex;
         }

@@ -185,11 +185,12 @@ public final class ProxyFactory
         }
 
         //
-        // Don't retry if the communicator is destroyed or object adapter
-        // deactivated.
+        // Don't retry if the communicator is destroyed, object adapter is deactivated,
+        // or connection is manually closed.
         //
         if(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException ||
-           ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException)
+           ex instanceof com.zeroc.Ice.ObjectAdapterDeactivatedException ||
+           ex instanceof com.zeroc.Ice.ConnectionManuallyClosedException)
         {
             throw ex;
         }

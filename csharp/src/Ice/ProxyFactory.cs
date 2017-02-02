@@ -170,12 +170,13 @@ namespace IceInternal
                 throw ex;
             }
 
-
             //
-            // Don't retry if the communicator is destroyed or object adapter
-            // deactivated.
+            // Don't retry if the communicator is destroyed, object adapter is deactivated,
+            // or connection is manually closed.
             //
-            if(ex is Ice.CommunicatorDestroyedException || ex is Ice.ObjectAdapterDeactivatedException)
+            if(ex is Ice.CommunicatorDestroyedException ||
+               ex is Ice.ObjectAdapterDeactivatedException ||
+               ex is Ice.ConnectionManuallyClosedException)
             {
                 throw ex;
             }
