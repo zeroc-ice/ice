@@ -21,7 +21,7 @@ class ChecksumVisitor : public ParserVisitor
 {
 public:
 
-    ChecksumVisitor(ChecksumMap&, int);
+    ChecksumVisitor(ChecksumMap&);
 
     virtual bool visitClassDefStart(const ClassDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
@@ -41,8 +41,7 @@ private:
 
 }
 
-Slice::ChecksumVisitor::ChecksumVisitor(ChecksumMap& m, int warningLevel) :
-    ParserVisitor(warningLevel),
+Slice::ChecksumVisitor::ChecksumVisitor(ChecksumMap& m) :
     _map(m)
 {
 }
@@ -442,11 +441,11 @@ Slice::ChecksumVisitor::updateMap(const string& scoped, const string& data)
 }
 
 Slice::ChecksumMap
-Slice::createChecksums(const UnitPtr& u, int warningLevel)
+Slice::createChecksums(const UnitPtr& u)
 {
     ChecksumMap result;
 
-    ChecksumVisitor visitor(result, warningLevel);
+    ChecksumVisitor visitor(result);
     u->visit(&visitor, false);
 
     return result;

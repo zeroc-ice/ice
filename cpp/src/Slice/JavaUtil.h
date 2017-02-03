@@ -68,7 +68,7 @@ public:
     //
     // Validate all metadata in the unit with a "java:" prefix.
     //
-    static void validateMetaData(const UnitPtr&, int);
+    static void validateMetaData(const UnitPtr&);
 
     void close();
 
@@ -235,7 +235,7 @@ public:
     //
     // Validate all metadata in the unit with a "java:" prefix.
     //
-    static void validateMetaData(const UnitPtr&, int);
+    static void validateMetaData(const UnitPtr&);
 
     void close();
 

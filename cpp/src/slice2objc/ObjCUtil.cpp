@@ -1043,19 +1043,14 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
 }
 
 void
-Slice::ObjCGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
+Slice::ObjCGenerator::validateMetaData(const UnitPtr& u)
 {
-    MetaDataVisitor visitor(warningLevel);
+    MetaDataVisitor visitor;
     u->visit(&visitor, true);
 }
 
 const string Slice::ObjCGenerator::MetaDataVisitor::_objcPrefix = "objc:";
 const string Slice::ObjCGenerator::MetaDataVisitor::_msg = "ignoring invalid metadata";
-
-Slice::ObjCGenerator::MetaDataVisitor::MetaDataVisitor(int warningLevel) :
-    ParserVisitor(warningLevel)
-{
-}
 
 bool
 Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
@@ -1071,6 +1066,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
+        bool emitWarnings = dc->suppressWarning("invalid-metadata");
         int headerDir = 0;
         int dllExport = 0;
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
@@ -1086,7 +1082,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     headerDir++;
                     if(headerDir > 1)
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             ostringstream ostr;
                             ostr << "ignoring invalid global metadata `" << s
@@ -1102,7 +1098,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     dllExport++;
                     if(dllExport > 1)
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             ostringstream ostr;
                             ostr << "ignoring invalid global metadata `" << s
@@ -1113,7 +1109,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     }
                     continue;
                 }
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     ostringstream ostr;
                     ostr << "ignoring invalid global metadata `" << s << "'";

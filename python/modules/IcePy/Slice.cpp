@@ -74,7 +74,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum");
     opts.addOpt("", "all");
-    opts.addOpt("", "no-warn");
 
     vector<string> files;
     try
@@ -133,8 +132,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     all = opts.isSet("all");
     checksum = opts.isSet("checksum");
 
-    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
-
     bool ignoreRedefs = false;
     bool keepComments = true;
 
@@ -172,7 +169,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         // It must be the first or second line.
         //
         out << "# -*- coding: utf-8 -*-\n";
-        generate(u, all, checksum, includePaths, out, warningLevel);
+        generate(u, all, checksum, includePaths, out);
         u->destroy();
 
         string code = codeStream.str();

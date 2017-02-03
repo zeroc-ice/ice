@@ -139,10 +139,6 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
-    MetaDataVisitor(int warningLevel) : ParserVisitor(warningLevel)
-    {
-    }
-
     virtual bool visitUnitStart(const UnitPtr& p)
     {
         static const string prefix = "java:";
@@ -157,6 +153,7 @@ public:
             string file = *q;
             DefinitionContextPtr dc = p->findDefinitionContext(file);
             assert(dc);
+            bool emitWarnings = !dc->suppressWarning("invalid-metadata");
             StringList globalMetaData = dc->getMetaData();
             for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
             {
@@ -175,7 +172,7 @@ public:
                     }
                     else
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
                         }
@@ -238,6 +235,11 @@ public:
         TypePtr returnType = p->returnType();
         StringList metaData = getMetaData(p);
 
+        UnitPtr unit = p->unit();
+        string file = p->file();
+        DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
         if(!returnType)
         {
             for(StringList::const_iterator q = metaData.begin(); q != metaData.end();)
@@ -245,7 +247,7 @@ public:
                 string s = *q++;
                 if(s.find("java:type:", 0) == 0)
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
                                     "' for operation with void return type");
@@ -290,6 +292,10 @@ public:
 
         const string file =  p->file();
         const string line = p->line();
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
         {
             string s = *q++;
@@ -303,7 +309,7 @@ public:
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
                 if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
                                     "this metadata can only be used with a byte sequence");
@@ -322,7 +328,7 @@ public:
                     builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
                     builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
                                     "this metadata can not be used with this type");
@@ -371,6 +377,12 @@ private:
 
         StringList metaData = cont->getMetaData();
         StringList result;
+
+        UnitPtr unit = cont->container()->unit();
+        string file = cont->file();
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
 
         for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
         {
@@ -431,7 +443,7 @@ private:
                     continue;
                 }
 
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
                 }
@@ -448,6 +460,10 @@ private:
 
     StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
@@ -468,7 +484,7 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, line, "invalid metadata for " + str);
                 }
@@ -490,7 +506,7 @@ private:
 
                 }
 
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -500,7 +516,7 @@ private:
                 //
                 // Only valid in sequence definition which is checked in visitSequence
                 //
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -512,7 +528,7 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else if(warningLevel() > 0)
+                else if(emitWarnings)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -523,7 +539,7 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else if(warningLevel() > 0)
+                else if(emitWarnings)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
                 }
@@ -538,6 +554,10 @@ private:
 
     StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, const string& line)
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc= unit->findDefinitionContext(file);
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
@@ -560,7 +580,7 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, line, "invalid metadata for " + str);
                 }
@@ -3219,9 +3239,9 @@ Slice::JavaCompatGenerator::createOutput()
 }
 
 void
-Slice::JavaCompatGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
+Slice::JavaCompatGenerator::validateMetaData(const UnitPtr& u)
 {
-    MetaDataVisitor visitor(warningLevel);
+    MetaDataVisitor visitor;
     u->visit(&visitor, true);
 }
 
@@ -5530,8 +5550,8 @@ Slice::JavaGenerator::createOutput()
 }
 
 void
-Slice::JavaGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
+Slice::JavaGenerator::validateMetaData(const UnitPtr& u)
 {
-    MetaDataVisitor visitor(warningLevel);
+    MetaDataVisitor visitor;
     u->visit(&visitor, true);
 }

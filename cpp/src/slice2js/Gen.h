@@ -19,7 +19,7 @@ class JsVisitor : public JsGenerator, public ParserVisitor
 {
 public:
 
-    JsVisitor(::IceUtilInternal::Output&, int);
+    JsVisitor(::IceUtilInternal::Output&);
     virtual ~JsVisitor();
 
 protected:
@@ -44,14 +44,12 @@ public:
 
     Gen(const std::string&,
         const std::vector<std::string>&,
-        const std::string&,
-        int);
+        const std::string&);
 
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        std::ostream&,
-        int);
+        std::ostream&);
 
     ~Gen();
 
@@ -66,7 +64,6 @@ private:
     std::vector<std::string> _includePaths;
     std::string _fileBase;
     bool _useStdout;
-    int _warningLevel;
 
     void printHeader();
 
@@ -74,7 +71,7 @@ private:
     {
     public:
 
-        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool, int);
+        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -106,7 +103,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, std::vector< std::string>, bool, int);
+        TypesVisitor(::IceUtilInternal::Output&, std::vector< std::string>, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -130,7 +127,7 @@ private:
     {
     public:
 
-        ExportVisitor(::IceUtilInternal::Output&, bool, bool, int);
+        ExportVisitor(::IceUtilInternal::Output&, bool, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
     private:

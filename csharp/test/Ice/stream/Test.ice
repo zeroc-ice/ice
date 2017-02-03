@@ -9,6 +9,11 @@
 
 #pragma once
 
+//
+// Suppress invalid metadata warnings
+//
+[["suppress-warning:invalid-metadata"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Test

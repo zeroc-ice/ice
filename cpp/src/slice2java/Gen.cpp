@@ -144,9 +144,8 @@ string ofFactory(const TypePtr& type)
 
 }
 
-Slice::JavaVisitor::JavaVisitor(const string& dir, int warningLevel) :
-    JavaGenerator(dir),
-    ParserVisitor(warningLevel)
+Slice::JavaVisitor::JavaVisitor(const string& dir) :
+    JavaGenerator(dir)
 {
 }
 
@@ -2299,12 +2298,10 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir,
-                int warningLevel) :
+Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir) :
     _base(base),
     _includePaths(includePaths),
-    _dir(dir),
-    _warningLevel(warningLevel)
+    _dir(dir)
 {
 }
 
@@ -2315,31 +2312,31 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    JavaGenerator::validateMetaData(p, _warningLevel);
+    JavaGenerator::validateMetaData(p);
 
-    PackageVisitor packageVisitor(_dir, _warningLevel);
+    PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
 
-    TypesVisitor typesVisitor(_dir, _warningLevel);
+    TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_dir, _warningLevel);
+    CompactIdVisitor compactIdVisitor(_dir);
     p->visit(&compactIdVisitor, false);
 
-    HelperVisitor helperVisitor(_dir, _warningLevel);
+    HelperVisitor helperVisitor(_dir);
     p->visit(&helperVisitor, false);
 
-    ProxyVisitor proxyVisitor(_dir, _warningLevel);
+    ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
 
-    DispatcherVisitor dispatcherVisitor(_dir, _warningLevel);
+    DispatcherVisitor dispatcherVisitor(_dir);
     p->visit(&dispatcherVisitor, false);
 }
 
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
-    ImplVisitor implVisitor(_dir, _warningLevel);
+    ImplVisitor implVisitor(_dir);
     p->visit(&implVisitor, false);
 }
 
@@ -2398,8 +2395,8 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     out << nl;
 }
 
-Slice::Gen::PackageVisitor::PackageVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -2423,8 +2420,8 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -2760,10 +2757,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         string serialVersionUID;
         if(p->findMetaData("java:serialVersionUID", serialVersionUID))
         {
+            const UnitPtr unit = p->unit();
+            const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+            assert(dc);
+            bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
             string::size_type pos = serialVersionUID.rfind(":") + 1;
             if(pos == string::npos)
             {
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
@@ -2779,7 +2781,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 {
                     if(!stringToInt64(serialVersionUID, v)) // conversion error
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             ostringstream os;
                             os << "ignoring invalid serialVersionUID for class `" << p->scoped()
@@ -3291,10 +3293,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
@@ -3310,7 +3317,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         ostringstream os;
                         os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
@@ -3610,10 +3617,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
@@ -3629,7 +3640,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         ostringstream os;
                         os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
@@ -4160,8 +4171,8 @@ Slice::Gen::TypesVisitor::validateMethod(const OperationList& ops, const std::st
     return true;
 }
 
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -4190,8 +4201,8 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -4355,8 +4366,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     close();
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -5110,8 +5121,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -5184,8 +5195,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(const string& dir, int warningLevel) :
-    JavaVisitor(dir, warningLevel)
+Slice::Gen::ImplVisitor::ImplVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 

@@ -18,7 +18,7 @@ namespace Slice
 
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
               const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
-              unsigned, unsigned, int);
+              unsigned, unsigned);
 
 typedef ::std::set< ::std::string> Files;
 
@@ -141,7 +141,7 @@ class FileVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    FileVisitor(Files&, int);
+    FileVisitor(Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -162,7 +162,7 @@ class StartPageVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    StartPageVisitor(const Files&, int);
+    StartPageVisitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -195,7 +195,7 @@ class TOCVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    TOCVisitor(const Files&, const ::std::string&, const ::std::string&, int);
+    TOCVisitor(const Files&, const ::std::string&, const ::std::string&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -255,7 +255,7 @@ class PageVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    PageVisitor(const Files&, int);
+    PageVisitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);

@@ -122,17 +122,6 @@ Unit* unit;
 
 }
 
-Slice::ParserVisitor::ParserVisitor(int warningLevel) : 
-    _warningLevel(warningLevel)
-{
-}
-
-int
-Slice::ParserVisitor::warningLevel()
-{
-    return _warningLevel;
-}
-
 // ----------------------------------------------------------------------
 // DefinitionContext
 // ----------------------------------------------------------------------
@@ -202,6 +191,13 @@ StringList
 Slice::DefinitionContext::getMetaData() const
 {
     return _metaData;
+}
+
+bool
+Slice::DefinitionContext::suppressWarning(const string& name) const
+{
+    string q = findMetaData("suppress-warning");
+    return q == "suppress-warning" || q == "supress-warning:all" || q == ("suppress-warning:" + name);
 }
 
 // ----------------------------------------------------------------------

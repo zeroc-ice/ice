@@ -2335,14 +2335,10 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
 }
 
 void
-Slice::CsGenerator::validateMetaData(const UnitPtr& u, int warningLevel)
+Slice::CsGenerator::validateMetaData(const UnitPtr& u)
 {
-    MetaDataVisitor visitor(warningLevel);
+    MetaDataVisitor visitor;
     u->visit(&visitor, true);
-}
-
-Slice::CsGenerator::MetaDataVisitor::MetaDataVisitor(int warningLevel) : ParserVisitor(warningLevel)
-{
 }
 
 bool
@@ -2352,7 +2348,6 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     // Validate global metadata in the top-level file and all included files.
     //
     StringList files = p->allFiles();
-
     for(StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
         string file = *q;
@@ -2360,7 +2355,7 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         StringList newGlobalMetaData;
-
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
 
@@ -2379,7 +2374,7 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 static const string csAttributePrefix = csPrefix + "attribute:";
                 if(s.find(csAttributePrefix) != 0 || s.size() == csAttributePrefix.size())
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
                     }
@@ -2504,6 +2499,11 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     StringList localMetaData = cont->getMetaData();
     StringList newLocalMetaData;
 
+    const UnitPtr unit = cont->unit();
+    const DefinitionContextPtr dc = unit->findDefinitionContext(cont->file());
+    assert(dc);
+    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
     for(StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
         string& s = *p;
@@ -2547,7 +2547,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string meta;
                     if(cont->findMetaData(csPrefix + "generic:", meta))
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
                                         "serialization can only be used with the array mapping for byte sequences");
@@ -2623,7 +2623,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
             }
@@ -2638,7 +2638,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
             }

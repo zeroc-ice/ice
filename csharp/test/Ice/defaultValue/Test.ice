@@ -9,6 +9,10 @@
 
 #pragma once
 
+//
+// Suppress invalid metadata warnings
+//
+[["suppress-warning:invalid-metadata"]]
 module Test
 {
 
@@ -265,8 +269,6 @@ struct StructProperty
 //
 // Exceptions don't support "clr:property" metadata, but
 // we want to ensure that the generated code compiles.
-// A warning "warning: ignoring invalid metadata `clr:property'"
-// is expected when compiling this file.
 //
 ["clr:property"]
 exception ExceptionProperty

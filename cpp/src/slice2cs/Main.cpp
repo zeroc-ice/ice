@@ -82,7 +82,6 @@ usage(const string& n)
         "                        deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore            Allow underscores in Slice identifiers\n"
         "                        deprecated: use instead [[\"underscore\"]] metadata.\n"
-        "--no-warn               Disable all warnings.\n"
         ;
 }
 
@@ -108,7 +107,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum");
-    opts.addOpt("", "no-warn");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -180,8 +178,6 @@ compile(const vector<string>& argv)
     bool underscore = opts.isSet("underscore");
 
     bool checksum = opts.isSet("checksum");
-
-    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
     if(args.empty())
     {
@@ -313,7 +309,7 @@ compile(const vector<string>& argv)
                 {
                     try
                     {
-                        Gen gen(icecpp->getBaseName(), includePaths, output, tie, impl, implTie, warningLevel);
+                        Gen gen(icecpp->getBaseName(), includePaths, output, tie, impl, implTie);
                         gen.generate(p);
                         if(impl)
                         {

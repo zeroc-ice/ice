@@ -89,7 +89,7 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
 
 }
 
-Slice::JsVisitor::JsVisitor(Output& out, int warningLevel) : ParserVisitor(warningLevel), _out(out)
+Slice::JsVisitor::JsVisitor(Output& out) : _out(out)
 {
 }
 
@@ -329,10 +329,9 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, int warningLevel) :
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
     _includePaths(includePaths),
-    _useStdout(false),
-    _warningLevel(warningLevel)
+    _useStdout(false)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -362,12 +361,10 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, ostream& out,
-                int warningLevel) :
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, ostream& out) :
     _out(out),
     _includePaths(includePaths),
-    _useStdout(true),
-    _warningLevel(warningLevel)
+    _useStdout(true)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -418,17 +415,17 @@ Slice::Gen::generate(const UnitPtr& p)
             _out.restoreIndent();
         }
     }
-    RequireVisitor requireVisitor(_out, _includePaths, icejs, es6module, _warningLevel);
+    RequireVisitor requireVisitor(_out, _includePaths, icejs, es6module);
     p->visit(&requireVisitor, false);
     vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    TypesVisitor typesVisitor(_out, seenModules, icejs, _warningLevel);
+    TypesVisitor typesVisitor(_out, seenModules, icejs);
     p->visit(&typesVisitor, false);
 
     //
     // Export the top-level modules.
     //
-    ExportVisitor exportVisitor(_out, icejs, es6module, _warningLevel);
+    ExportVisitor exportVisitor(_out, icejs, es6module);
     p->visit(&exportVisitor, false);
 
     if(!es6module)
@@ -481,8 +478,8 @@ Slice::Gen::printHeader()
 }
 
 Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths,
-                                           bool icejs, bool es6modules, int warningLevel) :
-    JsVisitor(out, warningLevel),
+                                           bool icejs, bool es6modules) :
+    JsVisitor(out),
     _icejs(icejs),
     _es6modules(es6modules),
     _seenClass(false),
@@ -843,9 +840,8 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     return seenModules;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules, bool icejs,
-                                       int warningLevel) :
-    JsVisitor(out, warningLevel),
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, vector<string> seenModules, bool icejs) :
+    JsVisitor(out),
     _seenModules(seenModules),
     _icejs(icejs)
 {
@@ -1849,8 +1845,8 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     return "???";
 }
 
-Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icejs, bool es6modules, int warningLevel) :
-    JsVisitor(out, warningLevel),
+Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icejs, bool es6modules) :
+    JsVisitor(out),
     _icejs(icejs),
     _es6modules(es6modules)
 {

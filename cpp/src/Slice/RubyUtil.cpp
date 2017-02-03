@@ -52,7 +52,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, int);
+    CodeVisitor(IceUtilInternal::Output&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -184,8 +184,7 @@ splitScopedName(const string& scoped)
 //
 // CodeVisitor implementation.
 //
-Slice::Ruby::CodeVisitor::CodeVisitor(Output& out, int warningLevel) :
-    ParserVisitor(warningLevel),
+Slice::Ruby::CodeVisitor::CodeVisitor(Output& out) :
     _out(out)
 {
 }
@@ -1446,8 +1445,7 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 }
 
 void
-Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out, 
-                      int warningLevel)
+Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
     out << nl << "require 'Ice'";
 
@@ -1467,12 +1465,12 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
         }
     }
 
-    CodeVisitor codeVisitor(out, warningLevel);
+    CodeVisitor codeVisitor(out);
     un->visit(&codeVisitor, false);
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(un, warningLevel);
+        ChecksumMap checksums = createChecksums(un);
         if(!checksums.empty())
         {
             out << sp;

@@ -191,9 +191,8 @@ writeParamList(Output& out, vector<string> params, bool end = true, bool newLine
 
 }
 
-Slice::JavaCompatVisitor::JavaCompatVisitor(const string& dir, int warningLevel) :
-    JavaCompatGenerator(dir),
-    ParserVisitor(warningLevel)
+Slice::JavaCompatVisitor::JavaCompatVisitor(const string& dir) :
+    JavaCompatGenerator(dir)
 {
 }
 
@@ -2280,12 +2279,11 @@ Slice::JavaCompatVisitor::writeDocCommentParam(Output& out, const OperationPtr& 
 }
 
 Slice::GenCompat::GenCompat(const string& /*name*/, const string& base, const vector<string>& includePaths, 
-                            const string& dir, bool tie, int warningLevel) :
+                            const string& dir, bool tie) :
     _base(base),
     _includePaths(includePaths),
     _dir(dir),
-    _tie(tie),
-    _warningLevel(warningLevel)
+    _tie(tie)
 {
 }
 
@@ -2296,47 +2294,47 @@ Slice::GenCompat::~GenCompat()
 void
 Slice::GenCompat::generate(const UnitPtr& p)
 {
-    JavaGenerator::validateMetaData(p, _warningLevel);
+    JavaGenerator::validateMetaData(p);
 
-    OpsVisitor opsVisitor(_dir, _warningLevel);
+    OpsVisitor opsVisitor(_dir);
     p->visit(&opsVisitor, false);
 
-    PackageVisitor packageVisitor(_dir, _warningLevel);
+    PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
 
-    TypesVisitor typesVisitor(_dir, _warningLevel);
+    TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_dir, _warningLevel);
+    CompactIdVisitor compactIdVisitor(_dir);
     p->visit(&compactIdVisitor, false);
 
-    HolderVisitor holderVisitor(_dir, _warningLevel);
+    HolderVisitor holderVisitor(_dir);
     p->visit(&holderVisitor, false);
 
-    HelperVisitor helperVisitor(_dir, _warningLevel);
+    HelperVisitor helperVisitor(_dir);
     p->visit(&helperVisitor, false);
 
-    ProxyVisitor proxyVisitor(_dir, _warningLevel);
+    ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
 
-    DispatcherVisitor dispatcherVisitor(_dir, _tie, _warningLevel);
+    DispatcherVisitor dispatcherVisitor(_dir, _tie);
     p->visit(&dispatcherVisitor, false);
 
-    AsyncVisitor asyncVisitor(_dir, _warningLevel);
+    AsyncVisitor asyncVisitor(_dir);
     p->visit(&asyncVisitor, false);
 }
 
 void
 Slice::GenCompat::generateImpl(const UnitPtr& p)
 {
-    ImplVisitor implVisitor(_dir, _warningLevel);
+    ImplVisitor implVisitor(_dir);
     p->visit(&implVisitor, false);
 }
 
 void
 Slice::GenCompat::generateImplTie(const UnitPtr& p)
 {
-    ImplTieVisitor implTieVisitor(_dir, _warningLevel);
+    ImplTieVisitor implTieVisitor(_dir);
     p->visit(&implTieVisitor, false);
 }
 
@@ -2395,8 +2393,8 @@ Slice::GenCompat::writeChecksumClass(const string& checksumClass, const string& 
     out << nl;
 }
 
-Slice::GenCompat::OpsVisitor::OpsVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::OpsVisitor::OpsVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -2530,8 +2528,8 @@ Slice::GenCompat::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurre
     close();
 }
 
-Slice::GenCompat::PackageVisitor::PackageVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::PackageVisitor::PackageVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -2555,8 +2553,8 @@ Slice::GenCompat::PackageVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::GenCompat::TypesVisitor::TypesVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::TypesVisitor::TypesVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -3014,10 +3012,14 @@ Slice::GenCompat::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
@@ -3033,7 +3035,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         ostringstream os;
                         os << "ignoring invalid serialVersionUID for class `" << p->scoped()
@@ -3440,10 +3442,14 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
@@ -3459,7 +3465,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         ostringstream os;
                         os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
@@ -3762,10 +3768,14 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
+        const UnitPtr unit = p->unit();
+        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 ostringstream os;
                 os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
@@ -3781,7 +3791,7 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(warningLevel() > 0)
+                    if(emitWarnings)
                     {
                         ostringstream os;
                         os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
@@ -4212,8 +4222,8 @@ Slice::GenCompat::TypesVisitor::validateMethod(const OperationList& ops, const s
     return true;
 }
 
-Slice::GenCompat::CompactIdVisitor::CompactIdVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::CompactIdVisitor::CompactIdVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -4242,8 +4252,8 @@ Slice::GenCompat::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::GenCompat::HolderVisitor::HolderVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::HolderVisitor::HolderVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -4391,8 +4401,8 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
     close();
 }
 
-Slice::GenCompat::HelperVisitor::HelperVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::HelperVisitor::HelperVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -5324,8 +5334,8 @@ Slice::GenCompat::HelperVisitor::writeOperation(const ClassDefPtr& p, const stri
     }
 }
 
-Slice::GenCompat::ProxyVisitor::ProxyVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::ProxyVisitor::ProxyVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -5644,8 +5654,8 @@ Slice::GenCompat::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::GenCompat::DispatcherVisitor::DispatcherVisitor(const string& dir, bool tie, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel),
+Slice::GenCompat::DispatcherVisitor::DispatcherVisitor(const string& dir, bool tie) :
+    JavaCompatVisitor(dir),
     _tie(tie)
 {
 }
@@ -5843,10 +5853,14 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         string serialVersionUID;
         if(p->findMetaData("java:serialVersionUID", serialVersionUID))
         {
+            const UnitPtr unit = p->unit();
+            const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+            assert(dc);
+            bool emitWarnings = !dc->suppressWarning("invalid-metadata");
             string::size_type pos = serialVersionUID.rfind(":") + 1;
             if(pos == string::npos)
             {
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
@@ -5862,7 +5876,7 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     if(!stringToInt64(serialVersionUID, v)) // conversion error
                     {
-                        if(warningLevel() > 0)
+                        if(emitWarnings)
                         {
                             ostringstream os;
                             os << "ignoring invalid serialVersionUID for class `" << p->scoped()
@@ -5887,8 +5901,8 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::GenCompat::BaseImplVisitor::BaseImplVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::BaseImplVisitor::BaseImplVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 
@@ -6152,8 +6166,8 @@ Slice::GenCompat::BaseImplVisitor::writeOperation(Output& out, const string& pac
     }
 }
 
-Slice::GenCompat::ImplVisitor::ImplVisitor(const string& dir, int warningLevel) :
-    BaseImplVisitor(dir, warningLevel)
+Slice::GenCompat::ImplVisitor::ImplVisitor(const string& dir) :
+    BaseImplVisitor(dir)
 {
 }
 
@@ -6208,8 +6222,8 @@ Slice::GenCompat::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::GenCompat::ImplTieVisitor::ImplTieVisitor(const string& dir, int warningLevel) :
-    BaseImplVisitor(dir, warningLevel)
+Slice::GenCompat::ImplTieVisitor::ImplTieVisitor(const string& dir) :
+    BaseImplVisitor(dir)
 {
 }
 
@@ -6297,8 +6311,8 @@ Slice::GenCompat::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::GenCompat::AsyncVisitor::AsyncVisitor(const string& dir, int warningLevel) :
-    JavaCompatVisitor(dir, warningLevel)
+Slice::GenCompat::AsyncVisitor::AsyncVisitor(const string& dir) :
+    JavaCompatVisitor(dir)
 {
 }
 

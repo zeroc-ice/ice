@@ -63,7 +63,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, bool, int);
+    CodeVisitor(IceUtilInternal::Output&, bool);
 
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -141,8 +141,7 @@ private:
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(Output& out, bool ns, int warningLevel) :
-    ParserVisitor(warningLevel),
+CodeVisitor::CodeVisitor(Output& out, bool ns) :
     _out(out),
     _ns(ns)
 {
@@ -946,6 +945,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     TypePtr keyType = p->keyType();
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
+
+	const UnitPtr unit = p->unit();
+	const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+	assert(dc);
+	bool emitWarnings = !dc->suppressWarning("invalid-metadata");
     if(b)
     {
         switch(b->kind())
@@ -964,7 +968,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         case Slice::Builtin::KindFloat:
         case Slice::Builtin::KindDouble:
         {
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 emitWarning(p->file(), p->line(), "dictionary key type not supported in PHP");
             }
@@ -980,7 +984,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else if(!EnumPtr::dynamicCast(keyType))
     {
-        if(warningLevel() > 0)
+        if(emitWarnings)
         {
             emitWarning(p->file(), p->line(), "dictionary key type not supported in PHP");
         }
@@ -1473,7 +1477,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 static void
-generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<string>& includePaths, Output& out, int warningLevel)
+generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<string>& includePaths, Output& out)
 {
     if(!all)
     {
@@ -1504,12 +1508,12 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
         }
     }
 
-    CodeVisitor codeVisitor(out, ns, warningLevel);
+    CodeVisitor codeVisitor(out, ns);
     un->visit(&codeVisitor, false);
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(un, warningLevel);
+        ChecksumMap checksums = createChecksums(un);
         if(!checksums.empty())
         {
             out << sp;
@@ -1620,7 +1624,6 @@ usage(const string& n)
         "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore         Allow underscores in Slice identifiers\n"
         "                     deprecated: use instead [[\"underscore\"]] metadata.\n"
-        "--no-warn            Disable all warnings.\n"
         ;
 }
 
@@ -1645,7 +1648,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
     opts.addOpt("n", "no-namespace");
-    opts.addOpt("", "no-warn");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -1716,8 +1718,6 @@ compile(const vector<string>& argv)
     bool checksum = opts.isSet("checksum");
 
     bool ns = !opts.isSet("no-namespace");
-
-    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
 
     if(args.empty())
     {
@@ -1870,7 +1870,7 @@ compile(const vector<string>& argv)
                         //
                         // Generate the PHP mapping.
                         //
-                        generate(u, all, checksum, ns, includePaths, out, warningLevel);
+                        generate(u, all, checksum, ns, includePaths, out);
 
                         out << "?>\n";
                         out.close();

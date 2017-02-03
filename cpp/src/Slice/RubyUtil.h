@@ -21,7 +21,7 @@ namespace Ruby
 //
 // Generate Ruby code for a translation unit.
 //
-void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&, int);
+void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
 
 //
 // Check the given identifier against Ruby's list of reserved words. If it matches

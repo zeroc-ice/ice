@@ -12,9 +12,9 @@
 #include <limits>
 #include <sys/stat.h>
 #ifndef _WIN32
-#include <unistd.h>
+#  include <unistd.h>
 #else
-#include <direct.h>
+#  include <direct.h>
 #endif
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
@@ -133,8 +133,7 @@ public:
 
 }
 
-Slice::ObjCVisitor::ObjCVisitor(Output& h, Output& m, const string& dllExport, int warningLevel) :
-    ParserVisitor(warningLevel), 
+Slice::ObjCVisitor::ObjCVisitor(Output& h, Output& m, const string& dllExport) :
     _H(h),
     _M(m),
     _dllExport(dllExport)
@@ -658,12 +657,11 @@ Slice::ObjCVisitor::getServerArgs(const OperationPtr& op) const
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const string& include, const vector<string>& includePaths,
-                const string& dir, const string& dllExport, int warningLevel) :
+                const string& dir, const string& dllExport) :
     _base(base),
     _include(include),
     _includePaths(includePaths),
-    _dllExport(dllExport),
-    _warningLevel(warningLevel)
+    _dllExport(dllExport)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -734,7 +732,7 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    ObjCGenerator::validateMetaData(p, _warningLevel);
+    ObjCGenerator::validateMetaData(p);
 
     //
     // Give precedence to --dll-export command-line option
@@ -834,25 +832,25 @@ Slice::Gen::generate(const UnitPtr& p)
     _M << nl << "#   pragma clang diagnostic ignored \"-Wshadow-ivar\"";
     _M << nl << "#endif";
 
-    UnitVisitor unitVisitor(_H, _M, _dllExport, _warningLevel);
+    UnitVisitor unitVisitor(_H, _M, _dllExport);
     p->visit(&unitVisitor, false);
 
-    ObjectDeclVisitor objectDeclVisitor(_H, _M, _dllExport, _warningLevel);
+    ObjectDeclVisitor objectDeclVisitor(_H, _M, _dllExport);
     p->visit(&objectDeclVisitor, false);
 
-    ProxyDeclVisitor proxyDeclVisitor(_H, _M, _dllExport, _warningLevel);
+    ProxyDeclVisitor proxyDeclVisitor(_H, _M, _dllExport);
     p->visit(&proxyDeclVisitor, false);
 
-    TypesVisitor typesVisitor(_H, _M, _dllExport, _warningLevel);
+    TypesVisitor typesVisitor(_H, _M, _dllExport);
     p->visit(&typesVisitor, false);
 
-    ProxyVisitor proxyVisitor(_H, _M, _dllExport, _warningLevel);
+    ProxyVisitor proxyVisitor(_H, _M, _dllExport);
     p->visit(&proxyVisitor, false);
 
-    DelegateMVisitor delegateMVisitor(_H, _M, _dllExport, _warningLevel);
+    DelegateMVisitor delegateMVisitor(_H, _M, _dllExport);
     p->visit(&delegateMVisitor, false);
 
-    HelperVisitor HelperVisitor(_H, _M, _dllExport, _warningLevel);
+    HelperVisitor HelperVisitor(_H, _M, _dllExport);
     p->visit(&HelperVisitor, false);
 }
 
@@ -881,8 +879,8 @@ Slice::Gen::printHeader(Output& o)
     o << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(Output& H, Output& M, const string& dllExport, int warningLevel) :
-    ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::UnitVisitor::UnitVisitor(Output& H, Output& M, const string& dllExport) :
+    ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -923,8 +921,8 @@ Slice::Gen::UnitVisitor::visitUnitEnd(const UnitPtr& unit)
     }
 }
 
-Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const string& dllExport, int warningLevel)
-    : ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -944,8 +942,8 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     _H << nl << "@protocol " << fixName(p) << ";";
 }
 
-Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M, const string& dllExport, int warningLevel)
-    : ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -959,8 +957,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(Output& H, Output& M, const string& dllExport, int warningLevel)
-    : ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::TypesVisitor::TypesVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2221,8 +2219,8 @@ Slice::Gen::TypesVisitor::writeMemberUnmarshal(const DataMemberList& dataMembers
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M, const string& dllExport, int warningLevel)
-    : ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2340,8 +2338,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _H << " response" << responseExceptionSentDecl << deprecateSymbol << ";";
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dllExport, int warningLevel) :
-    ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dllExport) :
+    ObjCVisitor(H, M, dllExport)
 {
 }
 
@@ -2643,8 +2641,8 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
     return false;
 }
 
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& H, Output& M, const string& dllExport, int warningLevel)
-    : ObjCVisitor(H, M, dllExport, warningLevel)
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& H, Output& M, const string& dllExport)
+    : ObjCVisitor(H, M, dllExport)
 {
 }
 

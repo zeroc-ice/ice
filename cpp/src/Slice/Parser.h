@@ -191,8 +191,6 @@ class ParserVisitor
 {
 public:
 
-    ParserVisitor(int warningLevel = 1);
-
     virtual ~ParserVisitor() { }
     virtual bool visitUnitStart(const UnitPtr&) { return true; }
     virtual void visitUnitEnd(const UnitPtr&) { }
@@ -212,12 +210,6 @@ public:
     virtual void visitDictionary(const DictionaryPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
     virtual void visitConst(const ConstPtr&) { }
-
-    int warningLevel();
-
-private:
-
-    int _warningLevel;
 };
 
 // ----------------------------------------------------------------------
@@ -241,6 +233,12 @@ public:
     void setMetaData(const StringList&);
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;
+
+    //
+    // Check if we need to suppress the given warnings based 
+    // on the [["supress-warning"]] global meta-data
+    //
+    bool suppressWarning(const std::string& = "") const;
 
 private:
 

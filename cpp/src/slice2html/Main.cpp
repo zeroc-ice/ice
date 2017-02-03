@@ -85,7 +85,6 @@ usage(const string& n)
         "                     deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore         Allow underscores in Slice identifiers\n"
         "                     deprecated: use instead [[\"underscore\"]] metadata.\n"
-        "--no-warn            Disable all warnings.\n"
         ;
 }
 
@@ -113,7 +112,6 @@ compile(const vector<string>& argv)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "no-warn");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -222,8 +220,6 @@ compile(const vector<string>& argv)
 
     bool underscore = opts.isSet("underscore");
 
-    int warningLevel = opts.isSet("no-warn") ? 0 : 1;
-
     if(args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
@@ -294,7 +290,7 @@ compile(const vector<string>& argv)
         try
         {
             Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
-                            searchAction, indexCount, summaryCount, warningLevel);
+                            searchAction, indexCount, summaryCount);
         }
         catch(const Slice::FileException& ex)
         {

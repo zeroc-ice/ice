@@ -25,7 +25,7 @@ public:
 
 protected:
 
-    JavaVisitor(const std::string&, int);
+    JavaVisitor(const std::string&);
 
     enum ParamDir { InParam, OutParam };
 
@@ -129,8 +129,7 @@ public:
     Gen(const std::string&,
         const std::string&,
         const std::vector<std::string>&,
-        const std::string&,
-        int);
+        const std::string&);
     ~Gen();
 
     void generate(const UnitPtr&);
@@ -143,13 +142,12 @@ private:
     std::string _base;
     std::vector<std::string> _includePaths;
     std::string _dir;
-    int _warningLevel;
 
     class PackageVisitor : public JavaVisitor
     {
     public:
 
-        PackageVisitor(const std::string&, int);
+        PackageVisitor(const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
     };
@@ -158,7 +156,7 @@ private:
     {
     public:
 
-        TypesVisitor(const std::string&, int);
+        TypesVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -183,7 +181,7 @@ private:
     {
     public:
 
-        CompactIdVisitor(const std::string&, int);
+        CompactIdVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
@@ -192,7 +190,7 @@ private:
     {
     public:
 
-        HelperVisitor(const std::string&, int);
+        HelperVisitor(const std::string&);
 
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
@@ -202,7 +200,7 @@ private:
     {
     public:
 
-        ProxyVisitor(const std::string&, int);
+        ProxyVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -213,7 +211,7 @@ private:
     {
     public:
 
-        DispatcherVisitor(const std::string&, int);
+        DispatcherVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
@@ -222,7 +220,7 @@ private:
     {
     public:
 
-        ImplVisitor(const std::string&, int);
+        ImplVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
 

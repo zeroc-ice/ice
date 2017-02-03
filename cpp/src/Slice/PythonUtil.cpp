@@ -50,8 +50,6 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
-    MetaDataVisitor(int);
-
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
@@ -93,7 +91,7 @@ class ModuleVisitor : public ParserVisitor
 {
 public:
 
-    ModuleVisitor(Output&, set<string>&, int);
+    ModuleVisitor(Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
 
@@ -110,7 +108,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, set<string>&, int);
+    CodeVisitor(IceUtilInternal::Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -293,8 +291,7 @@ getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string&
 //
 // ModuleVisitor implementation.
 //
-Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history, int warningLevel) :
-    ParserVisitor(warningLevel),
+Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) :
     _out(out), _history(history)
 {
 }
@@ -344,8 +341,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 //
 // CodeVisitor implementation.
 //
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory, int warningLevel) :
-    ParserVisitor(warningLevel),
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
     _out(out),
     _moduleHistory(moduleHistory)
 {
@@ -2835,9 +2831,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
 void
 Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths,
-                        Output& out, int warningLevel)
+                        Output& out)
 {
-    Slice::Python::MetaDataVisitor visitor(warningLevel);
+    Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
     out << nl << "from sys import version_info as _version_info_";
@@ -2862,15 +2858,15 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
 
     set<string> moduleHistory;
 
-    ModuleVisitor moduleVisitor(out, moduleHistory, warningLevel);
+    ModuleVisitor moduleVisitor(out, moduleHistory);
     un->visit(&moduleVisitor, true);
 
-    CodeVisitor codeVisitor(out, moduleHistory, warningLevel);
+    CodeVisitor codeVisitor(out, moduleHistory);
     un->visit(&codeVisitor, false);
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(un, warningLevel);
+        ChecksumMap checksums = createChecksums(un);
         if(!checksums.empty())
         {
             out << sp;
@@ -2986,11 +2982,6 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
     out << "#\n";
 }
 
-Slice::Python::MetaDataVisitor::MetaDataVisitor(int warningLevel) :
-    ParserVisitor(warningLevel)
-{
-}
-
 bool
 Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
@@ -3000,12 +2991,12 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     // Validate global metadata in the top-level file and all included files.
     //
     StringList files = p->allFiles();
-
     for(StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
         string file = *q;
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
+        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         StringList globalMetaData = dc->getMetaData();
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
@@ -3018,7 +3009,7 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     continue;
                 }
 
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
                 }
@@ -3094,6 +3085,11 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
     const string file = p->file();
     const string line = p->line();
     StringList protobufMetaData;
+    const UnitPtr unit = p->unit();
+    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
     {
         string s = *q++;
@@ -3106,7 +3102,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
-                if(warningLevel() > 0)
+                if(emitWarnings)
                 {
                     emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
                                 "`protobuf' encoding must be a byte sequence");
@@ -3146,6 +3142,11 @@ StringList
 Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
                                                  const TypePtr& type, const StringList& metaData)
 {
+    const UnitPtr unit = type->unit();
+    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
     static const string prefix = "python:";
     StringList newMetaData = metaData;
     for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
@@ -3166,7 +3167,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                     }
                 }
             }
-            if(warningLevel() > 0)
+            if(emitWarnings)
             {
                 emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
             }
@@ -3181,12 +3182,21 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
 {
     StringList localMetaData = cont->getMetaData();
     static const string prefix = "python:";
+
+    const UnitPtr unit = cont->unit();
+    const DefinitionContextPtr dc = unit->findDefinitionContext(cont->file());
+    assert(dc);
+    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
+
     for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
     {
         string s = *p++;
         if(s.find(prefix) == 0)
         {
-            emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            if(emitWarnings)
+            {
+                emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
+            }
             localMetaData.remove(s);
         }
     }
