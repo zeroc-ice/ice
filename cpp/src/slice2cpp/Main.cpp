@@ -266,6 +266,17 @@ compile(const vector<string>& argv)
 
             UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
+
+            string ext = headerExtension;
+            static const string headerExtPrefix = "cpp:header-ext:";
+            DefinitionContextPtr dc = u->findDefinitionContext(u->topLevelFile());
+            assert(dc);
+            string meta = dc->findMetaData(headerExtPrefix);
+            if(meta.size() > headerExtPrefix.size())
+            {
+                ext = meta.substr(headerExtPrefix.size());
+            }
+
             u->destroy();
 
             if(parseStatus == EXIT_FAILURE)
@@ -274,7 +285,7 @@ compile(const vector<string>& argv)
             }
 
             if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML,
-                                                  includePaths, "-D__SLICE2CPP__", sourceExtension, headerExtension))
+                                                  includePaths, "-D__SLICE2CPP__", sourceExtension, ext))
             {
                 return EXIT_FAILURE;
             }
