@@ -167,7 +167,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
         }
         else if(c == EOF)
         {
-            unit->warning("EOF in comment");
+            unit->warning(All, "EOF in comment");
             break;
         }
         else
@@ -424,7 +424,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 {
                     ostringstream os;
                     os << "unknown escape sequence `\\" << next << "'";
-                    unit->warning(os.str());
+                    unit->warning(All, os.str());
 
                     // Escape the \ in this unknown escape sequence
                     str->v += '\\';

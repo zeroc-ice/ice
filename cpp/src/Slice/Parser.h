@@ -66,6 +66,13 @@ enum FormatType
     SlicedFormat      // Full format.
 };
 
+enum WarningCategory
+{
+    All,
+    Deprecated,
+    InvalidMetaData
+};
+
 class GrammarBase;
 class SyntaxTreeBase;
 class Type;
@@ -235,17 +242,21 @@ public:
     StringList getMetaData() const;
 
     //
-    // Check if we need to suppress the given warnings based 
-    // on the [["supress-warning"]] global meta-data
+    // Emit warning unless filtered out by [["suppress-warning"]]
     //
-    bool suppressWarning(const std::string& = "") const;
+    void warning(WarningCategory, const std::string&, int, const std::string&) const;
+    void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
 
 private:
+
+    bool suppressWarning(WarningCategory) const;
+    void initSuppressedWarnings();
 
     int _includeLevel;
     StringList _metaData;
     std::string _filename;
     bool _seenDefinition;
+    std::set<WarningCategory> _suppressedWarnings;
 };
 typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
 
@@ -1025,11 +1036,8 @@ public:
 
     void setSeenDefinition();
 
-    void error(const char*); // Not const, because error count is increased.
-    void error(const std::string&); // Ditto.
-
-    void warning(const char*) const;
-    void warning(const std::string&) const;
+    void error(const std::string&); // Not const because error count is increased
+    void warning(WarningCategory, const std::string&) const;
 
     ContainerPtr currentContainer() const;
     void pushContainer(const ContainerPtr&);

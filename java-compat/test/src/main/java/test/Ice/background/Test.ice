@@ -10,7 +10,6 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/Endpoint.ice>
 
 [["java:package:test.Ice.background"]]
 module Test

@@ -129,6 +129,7 @@ Unit* unit;
 Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
     _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
 {
+    initSuppressedWarnings();
 }
 
 string
@@ -171,6 +172,7 @@ void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
     _metaData = metaData;
+    initSuppressedWarnings();
 }
 
 string
@@ -193,11 +195,72 @@ Slice::DefinitionContext::getMetaData() const
     return _metaData;
 }
 
-bool
-Slice::DefinitionContext::suppressWarning(const string& name) const
+void
+Slice::DefinitionContext::warning(WarningCategory category, const string& file, int line, const string& msg) const
 {
-    string q = findMetaData("suppress-warning");
-    return q == "suppress-warning" || q == "supress-warning:all" || q == ("suppress-warning:" + name);
+    if(!suppressWarning(category))
+    {
+        emitWarning(file, line, msg);
+    }
+}
+
+void
+Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg) const
+{
+    if(!suppressWarning(category))
+    {
+        emitWarning(file, line, msg);
+    }
+}
+
+bool
+Slice::DefinitionContext::suppressWarning(WarningCategory category) const
+{
+    return _suppressedWarnings.find(category) != _suppressedWarnings.end() ||
+        _suppressedWarnings.find(All) != _suppressedWarnings.end();
+}
+
+void
+Slice::DefinitionContext::initSuppressedWarnings()
+{
+    _suppressedWarnings.clear();
+    const string prefix = "suppress-warning";
+    string value = findMetaData(prefix);
+    if(value == prefix)
+    {
+        _suppressedWarnings.insert(All);
+    }
+    else if(!value.empty())
+    {
+        assert(value.length() > prefix.length());
+        if(value[prefix.length()] == ':')
+        {
+            value = value.substr(prefix.length() + 1);
+            vector<string> result;
+            IceUtilInternal::splitString(value, ",", result);
+            for(vector<string>::iterator p = result.begin(); p != result.end(); ++p)
+            {
+                string s = IceUtilInternal::trim(*p);
+                if(s == "all")
+                {
+                    _suppressedWarnings.insert(All);
+                }
+                else if(s == "deprecated")
+                {
+                    _suppressedWarnings.insert(Deprecated);
+                }
+                else if(s == "invalid-metadata")
+                {
+                    _suppressedWarnings.insert(InvalidMetaData);
+                }
+                else
+                {
+                    warning(InvalidMetaData, "", "", string("invalid category `") + s +
+                            "' in global metadata suppress-warning");
+                }
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1034,7 +1097,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         }
         if(containsSequence)
         {
-            _unit->warning("use of sequences in dictionary keys has been deprecated");
+            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
         }
     }
 
@@ -2125,7 +2188,7 @@ Slice::Container::mergeModules()
             metaData2.unique();
             if(!checkGlobalMetaData(metaData1, metaData2))
             {
-                unit()->warning("global metadata mismatch for module `" + mod1->name() + "' in files " +
+                unit()->warning(All, "global metadata mismatch for module `" + mod1->name() + "' in files " +
                                 dc1->filename() + " and " + dc2->filename());
             }
 
@@ -3320,6 +3383,12 @@ Slice::ClassDef::createOperation(const string& name,
         string msg = "non-local " + this->kindOf() + " `" + this->name() + "' cannot have operation `";
         msg += name + "' with local return type";
         _unit->error(msg);
+    }
+
+    if(!isInterface() && !isLocal() && !_hasOperations)
+    {
+        // Only warn for the first operation
+        _unit->warning(Deprecated, "classes with operations are deprecated");
     }
 
     _hasOperations = true;
@@ -5442,7 +5511,7 @@ Slice::Operation::attributes() const
         }
         if(i == 2)
         {
-            emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+            _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
         }
         else
         {
@@ -5463,7 +5532,7 @@ Slice::Operation::attributes() const
                 {
                     if(result != 0 && (i == int(Supports) || i == int(Never)))
                     {
-                        emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+                        _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
                     }
                     else
                     {
@@ -5477,7 +5546,7 @@ Slice::Operation::attributes() const
 
             if(i == 4)
             {
-                emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+                _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
 
                 //
                 // Set default
@@ -5960,13 +6029,6 @@ Slice::Unit::setSeenDefinition()
 }
 
 void
-Slice::Unit::error(const char* s)
-{
-    emitError(currentFile(), _currentLine, s);
-    _errors++;
-}
-
-void
 Slice::Unit::error(const string& s)
 {
     emitError(currentFile(), _currentLine, s);
@@ -5974,15 +6036,16 @@ Slice::Unit::error(const string& s)
 }
 
 void
-Slice::Unit::warning(const char* s) const
+Slice::Unit::warning(WarningCategory category, const string& msg) const
 {
-    emitWarning(currentFile(), _currentLine, s);
-}
-
-void
-Slice::Unit::warning(const string& s) const
-{
-    emitWarning(currentFile(), _currentLine, s);
+    if(_definitionContextStack.empty())
+    {
+        emitWarning(currentFile(), _currentLine, msg);
+    }
+    else
+    {
+        _definitionContextStack.top()->warning(category, currentFile(), _currentLine, msg);
+    }
 }
 
 ContainerPtr

@@ -1066,7 +1066,6 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
-        bool emitWarnings = dc->suppressWarning("invalid-metadata");
         int headerDir = 0;
         int dllExport = 0;
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
@@ -1082,13 +1081,10 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     headerDir++;
                     if(headerDir > 1)
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                 << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                        }
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
                     }
                     continue;
@@ -1098,23 +1094,19 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     dllExport++;
                     if(dllExport > 1)
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                 << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                        }
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
                     }
                     continue;
                 }
-                if(emitWarnings)
-                {
-                    ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
-                    emitWarning(file, -1, ostr.str());
-                }
+
+                ostringstream ostr;
+                ostr << "ignoring invalid global metadata `" << s << "'";
+                dc->warning(InvalidMetaData, file, -1, ostr.str());
+
                 globalMetaData.remove(s);
             }
         }

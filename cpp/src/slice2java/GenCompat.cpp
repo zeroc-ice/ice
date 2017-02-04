@@ -2278,7 +2278,7 @@ Slice::JavaCompatVisitor::writeDocCommentParam(Output& out, const OperationPtr& 
     }
 }
 
-Slice::GenCompat::GenCompat(const string& /*name*/, const string& base, const vector<string>& includePaths, 
+Slice::GenCompat::GenCompat(const string& /*name*/, const string& base, const vector<string>& includePaths,
                             const string& dir, bool tie) :
     _base(base),
     _includePaths(includePaths),
@@ -3015,16 +3015,12 @@ Slice::GenCompat::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(emitWarnings)
-            {
-                ostringstream os;
-                os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-                emitWarning("", "", os.str());
-            }
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+            dc->warning(InvalidMetaData, "", "", os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -3035,13 +3031,10 @@ Slice::GenCompat::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(emitWarnings)
-                    {
-                        ostringstream os;
-                        os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                           << "'; generating default value";
-                        emitWarning("", "", os.str());
-                    }
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                       << "'; generating default value";
+                    dc->warning(InvalidMetaData, "", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -3445,16 +3438,12 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(emitWarnings)
-            {
-                ostringstream os;
-                os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
-                emitWarning("", "", os.str());
-            }
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
+            dc->warning(InvalidMetaData, "", "", os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -3465,13 +3454,10 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(emitWarnings)
-                    {
-                        ostringstream os;
-                        os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
-                           << "'; generating default value";
-                        emitWarning("", "", os.str());
-                    }
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
+                       << "'; generating default value";
+                    dc->warning(InvalidMetaData, "", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -3771,16 +3757,12 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
         {
-            if(emitWarnings)
-            {
-                ostringstream os;
-                os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
-                emitWarning("", "", os.str());
-            }
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
+            dc->warning(InvalidMetaData, "", "", os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -3791,13 +3773,10 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
-                    if(emitWarnings)
-                    {
-                        ostringstream os;
-                        os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
-                           << "'; generating default value";
-                        emitWarning("", "", os.str());
-                    }
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
+                       << "'; generating default value";
+                    dc->warning(InvalidMetaData, "", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -5856,16 +5835,12 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             const UnitPtr unit = p->unit();
             const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
             assert(dc);
-            bool emitWarnings = !dc->suppressWarning("invalid-metadata");
             string::size_type pos = serialVersionUID.rfind(":") + 1;
             if(pos == string::npos)
             {
-                if(emitWarnings)
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-                    emitWarning("", "", os.str());
-                }
+                ostringstream os;
+                os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+                dc->warning(InvalidMetaData, "", "", os.str());
                 out << computeSerialVersionUUID(p);
             }
             else
@@ -5876,13 +5851,10 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     if(!stringToInt64(serialVersionUID, v)) // conversion error
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream os;
-                            os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                               << "'; generating default value";
-                            emitWarning("", "", os.str());
-                        }
+                        ostringstream os;
+                        os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                           << "'; generating default value";
+                        dc->warning(InvalidMetaData, "", "", os.str());
                         out << computeSerialVersionUUID(p);
                     }
                 }

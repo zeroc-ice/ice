@@ -153,7 +153,6 @@ public:
             string file = *q;
             DefinitionContextPtr dc = p->findDefinitionContext(file);
             assert(dc);
-            bool emitWarnings = !dc->suppressWarning("invalid-metadata");
             StringList globalMetaData = dc->getMetaData();
             for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
             {
@@ -172,10 +171,7 @@ public:
                     }
                     else
                     {
-                        if(emitWarnings)
-                        {
-                            emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
-                        }
+                        dc->warning(InvalidMetaData, file, "",  "ignoring invalid global metadata `" + s + "'");
                         globalMetaData.remove(s);
                         continue;
                     }
@@ -238,7 +234,6 @@ public:
         UnitPtr unit = p->unit();
         string file = p->file();
         DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
 
         if(!returnType)
         {
@@ -247,11 +242,8 @@ public:
                 string s = *q++;
                 if(s.find("java:type:", 0) == 0)
                 {
-                    if(emitWarnings)
-                    {
-                        emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
-                                    "' for operation with void return type");
-                    }
+                    dc->warning(InvalidMetaData, p->file(), p->line(), "ignoring invalid metadata `" + s +
+                                "' for operation with void return type");
                     metaData.remove(s);
                     continue;
                 }
@@ -294,7 +286,6 @@ public:
         const string line = p->line();
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
 
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
         {
@@ -309,11 +300,8 @@ public:
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
                 if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
-                    if(emitWarnings)
-                    {
-                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                    "this metadata can only be used with a byte sequence");
-                    }
+                    dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "': " +
+                                "this metadata can only be used with a byte sequence");
                     continue;
                 }
                 newMetaData.push_back(s);
@@ -328,11 +316,8 @@ public:
                     builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
                     builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                 {
-                    if(emitWarnings)
-                    {
-                        emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
-                                    "this metadata can not be used with this type");
-                    }
+                    dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "': " +
+                                "this metadata can not be used with this type");
                     continue;
                 }
                 newMetaData.push_back(s);
@@ -382,7 +367,6 @@ private:
         string file = cont->file();
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
 
         for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
         {
@@ -443,10 +427,7 @@ private:
                     continue;
                 }
 
-                if(emitWarnings)
-                {
-                    emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
-                }
+                dc->warning(InvalidMetaData, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
             }
             else
             {
@@ -463,7 +444,6 @@ private:
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc = unit->findDefinitionContext(file);
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
@@ -484,10 +464,7 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                if(emitWarnings)
-                {
-                    emitWarning(file, line, "invalid metadata for " + str);
-                }
+                dc->warning(InvalidMetaData, file, line, "invalid metadata for " + str);
             }
             else if(i->find("java:buffer") == 0)
             {
@@ -506,20 +483,14 @@ private:
 
                 }
 
-                if(emitWarnings)
-                {
-                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
-                }
+                dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
             }
             else if(i->find("java:protobuf:") == 0 || i->find("java:serializable:") == 0)
             {
                 //
                 // Only valid in sequence definition which is checked in visitSequence
                 //
-                if(emitWarnings)
-                {
-                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
-                }
+                dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
             }
             else if(i->find("delegate") == 0)
             {
@@ -528,9 +499,9 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else if(emitWarnings)
+                else
                 {
-                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                    dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
                 }
             }
             else if(i->find("java:implements:") == 0)
@@ -539,9 +510,9 @@ private:
                 {
                     newMetaData.push_back(*i);
                 }
-                else if(emitWarnings)
+                else
                 {
-                    emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
+                    dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
                 }
             }
             else
@@ -557,7 +528,6 @@ private:
         const UnitPtr unit = p->unit();
         const DefinitionContextPtr dc= unit->findDefinitionContext(file);
         assert(dc);
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
         {
@@ -580,10 +550,7 @@ private:
                     assert(b);
                     str = b->typeId();
                 }
-                if(emitWarnings)
-                {
-                    emitWarning(file, line, "invalid metadata for " + str);
-                }
+                dc->warning(InvalidMetaData, file, line, "invalid metadata for " + str);
                 continue;
             }
             newMetaData.push_back(*i);

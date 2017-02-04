@@ -16,10 +16,12 @@ CaseInsensitive.ice:73: operation `op' is already defined as an operation in a b
 CaseInsensitive.ice:78: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface or class
 CaseInsensitive.ice:88: operation `l' is already defined as a data member in a base interface or class
 CaseInsensitive.ice:93: operation `L' differs only in capitalization from data member `l', which is defined in a base interface or class
+CaseInsensitive.ice:93: warning: classes with operations are deprecated
 CaseInsensitive.ice:99: operation `L' differs only in capitalization from data member `l'
 CaseInsensitive.ice:99: redefinition of data member `l' as operation `L'
 CaseInsensitive.ice:104: data member `l' is already defined as a data member in a base interface or class
 CaseInsensitive.ice:109: data member `L' differs only in capitalization from data member `l', which is defined in a base interface or class
+CaseInsensitive.ice:114: warning: classes with operations are deprecated
 CaseInsensitive.ice:115: data member `l' differs only in capitalization from operation `L'
 CaseInsensitive.ice:121: redefinition of exception member `l'
 CaseInsensitive.ice:127: exception member `L' differs only in capitalization from exception member `l'
@@ -60,6 +62,7 @@ CaseInsensitive.ice:255: exception name `Test::xxx::xx::E1' is capitalized incon
 CaseInsensitive.ice:256: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:257: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:275: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
+CaseInsensitive.ice:290: warning: classes with operations are deprecated
 CaseInsensitive.ice:292: parameter `BASE1' differs only in capitalization from parameter `base1'
 CaseInsensitive.ice:292: `BASE1' has changed meaning
 CaseInsensitive.ice:322: data member `x' differs only in capitalization from data member `X', which is defined in a base interface or class

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-
+[["suppress-warning:deprecated"]] // for classes with operations
 
 module Test
 {
@@ -184,7 +184,7 @@ const ::Test::M1::M2::C MyConstant2 = Test::M1::M2::C2; // OK
 const Test::M1::M2::C MyConstant3 = ::Test::M1::M2::C2; // OK
 const ::Test::M1::M2::C MyConstant4 = ::Test::M1::M2::C2; // OK
 
-class smnpTest1Class
+interface smnpTest1Class
 {
     M1::smnpStruct smnpTest1Op1() throws M1::smnpException; // OK
 };

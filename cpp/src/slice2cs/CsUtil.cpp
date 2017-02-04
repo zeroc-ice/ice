@@ -2355,7 +2355,6 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         StringList newGlobalMetaData;
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
 
@@ -2374,10 +2373,7 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 static const string csAttributePrefix = csPrefix + "attribute:";
                 if(s.find(csAttributePrefix) != 0 || s.size() == csAttributePrefix.size())
                 {
-                    if(emitWarnings)
-                    {
-                        emitWarning(file, -1, "ignoring invalid global metadata `" + oldS + "'");
-                    }
+                    dc->warning(InvalidMetaData, file, -1, "ignoring invalid global metadata `" + oldS + "'");
                     continue;
                 }
             }
@@ -2502,7 +2498,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     const UnitPtr unit = cont->unit();
     const DefinitionContextPtr dc = unit->findDefinitionContext(cont->file());
     assert(dc);
-    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
 
     for(StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
@@ -2547,11 +2542,8 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     string meta;
                     if(cont->findMetaData(csPrefix + "generic:", meta))
                     {
-                        if(emitWarnings)
-                        {
-                            emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                        "serialization can only be used with the array mapping for byte sequences");
-                        }
+                        dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + meta + "':\n" +
+                                    "serialization can only be used with the array mapping for byte sequences");
                         continue;
                     }
                     string type = s.substr(csSerializablePrefix.size());
@@ -2623,10 +2615,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            if(emitWarnings)
-            {
-                emitWarning(cont->file(), cont->line(), msg + " `" + oldS + "'");
-            }
+            dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + oldS + "'");
             continue;
         }
         else if(s == "delegate")
@@ -2638,10 +2627,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 continue;
             }
 
-            if(emitWarnings)
-            {
-                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
-            }
+            dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + s + "'");
             continue;
         }
         newLocalMetaData.push_back(s);

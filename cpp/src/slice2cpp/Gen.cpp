@@ -462,7 +462,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         _headerExtension = headerExtension;
     }
-    
+
     string sourceExtension = getSourceExt(file, p);
     if(!sourceExtension.empty())
     {
@@ -690,7 +690,6 @@ Slice::Gen::generate(const UnitPtr& p)
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
-        bool emitWarnings = dc->suppressWarning("invalid-metadata");
         for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end();)
         {
             string s = *q++;
@@ -703,12 +702,9 @@ Slice::Gen::generate(const UnitPtr& p)
                 }
                 else
                 {
-                    if(emitWarnings)
-                    {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s << "'";
-                        emitWarning(file, -1, ostr.str());
-                    }
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    dc->warning(InvalidMetaData, file, -1, ostr.str());
                     globalMetaData.remove(s);
                 }
             }
@@ -4515,7 +4511,6 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         int headerExtension = 0;
         int sourceExtension = 0;
         int dllExport = 0;
-        bool emitWarnings = !dc->suppressWarning("invalid-metadata");
         for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
             string s = *r++;
@@ -4535,13 +4530,10 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     headerExtension++;
                     if(headerExtension > 1)
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                        }
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
                     }
                     continue;
@@ -4551,13 +4543,10 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     sourceExtension++;
                     if(sourceExtension > 1)
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                        }
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
                     }
                     continue;
@@ -4567,24 +4556,19 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     dllExport++;
                     if(dllExport > 1)
                     {
-                        if(emitWarnings)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                        }
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
+
                         globalMetaData.remove(s);
                     }
                     continue;
                 }
 
-                if(emitWarnings)
-                {
-                    ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
-                    emitWarning(file, -1, ostr.str());
-                }
+                ostringstream ostr;
+                ostr << "ignoring invalid global metadata `" << s << "'";
+                dc->warning(InvalidMetaData, file, -1, ostr.str());
                 globalMetaData.remove(s);
             }
 
@@ -4664,14 +4648,10 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     const UnitPtr unit = p->unit();
     const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
     assert(dc);
-    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
-
     if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
     {
-        if(emitWarnings)
-        {
-            emitWarning(p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
-        }
+        dc->warning(InvalidMetaData, p->file(), p->line(),
+                    "ignoring metadata `cpp:noexcept' for non local interface");
         metaData.remove("cpp:noexcept");
     }
 
@@ -4684,11 +4664,8 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             if(s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 ||
                s.find("cpp:range") == 0 || s == "cpp:array")
             {
-                if(emitWarnings)
-                {
-                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + s +
-                                "' for operation with void return type");
-                }
+                dc->warning(InvalidMetaData, p->file(), p->line(),
+                            "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metaData.remove(s);
                 continue;
             }
@@ -4755,8 +4732,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     const UnitPtr unit = cont->unit();
     const DefinitionContextPtr dc = unit->findDefinitionContext(file);
     assert(dc);
-    bool emitWarnings = !dc->suppressWarning("invalid-metadata");
-
     StringList newMetaData = metaData;
     for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
     {
@@ -4849,10 +4824,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 }
             }
 
-            if(emitWarnings)
-            {
-                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
-            }
+            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
             continue;
         }
@@ -4865,10 +4837,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 continue;
             }
 
-            if(emitWarnings)
-            {
-                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
-            }
+            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
             continue;
         }
@@ -5729,7 +5698,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 }
 
 Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)), 
+    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)),
     _dllMemberExport(toDllMemberExport(dllExport)),
     _useWstring(false)
 {
