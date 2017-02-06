@@ -25,10 +25,11 @@ interface TestIntf
     void opWithPayload(Ice::ByteSeq seq);
     int opWithResult();
     void opWithUE()
-        throws TestIntfException;    
+        throws TestIntfException;
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
+    void sleep(int ms);
     void shutdown();
 
     bool supportsFunctionalTests();

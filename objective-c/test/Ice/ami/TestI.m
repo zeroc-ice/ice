@@ -90,6 +90,18 @@
     }
     return NO;
 }
+-(void) sleep:(ICEInt)delay current:(ICECurrent *)current
+{
+    [_cond lock];
+    @try
+    {
+        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
+}
 -(BOOL) supportsFunctionalTests:(ICECurrent *)current
 {
     return NO;
