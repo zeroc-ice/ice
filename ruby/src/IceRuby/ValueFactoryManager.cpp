@@ -219,6 +219,13 @@ IceRuby::ValueFactoryManager::destroy()
 
     {
         Lock lock(*this);
+        if(_self == Qnil)
+        {
+            //
+            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
+            //
+            return;
+        }
 
         factories.swap(_factories);
 

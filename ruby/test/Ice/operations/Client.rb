@@ -50,6 +50,11 @@ begin
 
     communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)
+
+    # Test multiple destroy calls
+    communicator.destroy()
+    communicator.destroy()
+
 rescue => ex
     puts $!
     print ex.backtrace.join("\n")

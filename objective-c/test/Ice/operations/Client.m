@@ -77,6 +77,10 @@ main(int argc, char* argv[])
 #endif
             communicator = [ICEUtil createCommunicator:&argc argv:argv initData:initData];
             status = run(communicator);
+
+            // Test multiple communicator destroy calls.
+            [communicator destroy];
+            [communicator destroy];
         }
         @catch(ICEException* ex)
         {

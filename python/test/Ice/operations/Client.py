@@ -51,6 +51,9 @@ try:
 
     with Ice.initialize(sys.argv, initData) as communicator:
         status = run(sys.argv, communicator)
+        # Test multiple destroy calls
+        communicator.destroy()
+        communicator.destroy()
 except:
     traceback.print_exc()
     status = False

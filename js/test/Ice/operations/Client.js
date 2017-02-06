@@ -65,7 +65,7 @@
         var c = Ice.initialize(id);
         return Promise.try(() => allTests(out, c, Test, false)
             ).then(cl => cl.shutdown()
-            ).finally(() => c.destroy());
+            ).finally(() => c.destroy().then(() => c.destroy()).then(() => c.destroy())); // Test multiple destroy calls
     };
     exports._test = run;
     exports._clientAllTests = allTests;

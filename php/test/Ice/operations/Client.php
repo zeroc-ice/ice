@@ -1137,6 +1137,10 @@ catch(Exception $ex)
     echo "ok\n";
 }
 
+# Test multiple destroy calls
+$communicator->destroy();
+$communicator->destroy();
+
 $communicator->destroy();
 
 exit();

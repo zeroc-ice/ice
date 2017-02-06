@@ -169,7 +169,13 @@ IcePy::ValueFactoryManager::destroy()
 
     {
         Lock lock(*this);
-
+        if(_self == 0)
+        {
+            //
+            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
+            //
+            return;
+        }
         //
         // Break the cyclic reference.
         //
