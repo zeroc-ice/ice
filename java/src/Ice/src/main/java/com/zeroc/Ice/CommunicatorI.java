@@ -211,18 +211,18 @@ public final class CommunicatorI implements Communicator
     }
 
     @Override
-    public void flushBatchRequests()
+    public void flushBatchRequests(CompressBatch compressBatch)
     {
-        _iceI_flushBatchRequestsAsync().waitForResponse();
+        _iceI_flushBatchRequestsAsync(compressBatch).waitForResponse();
     }
 
     @Override
-    public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync()
+    public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compressBatch)
     {
-        return _iceI_flushBatchRequestsAsync();
+        return _iceI_flushBatchRequestsAsync(compressBatch);
     }
 
-    public com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync()
+    public com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch)
     {
         com.zeroc.IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
         com.zeroc.IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
@@ -234,8 +234,8 @@ public final class CommunicatorI implements Communicator
         com.zeroc.IceInternal.CommunicatorFlushBatch f =
             new com.zeroc.IceInternal.CommunicatorFlushBatch(this, _instance);
 
-        connectionFactory.flushAsyncBatchRequests(f);
-        adapterFactory.flushAsyncBatchRequests(f);
+        connectionFactory.flushAsyncBatchRequests(compressBatch, f);
+        adapterFactory.flushAsyncBatchRequests(compressBatch, f);
 
         //
         // Inform the callback that we have finished initiating all of the

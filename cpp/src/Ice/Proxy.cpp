@@ -14,6 +14,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Reference.h>
+#include <Ice/CollocatedRequestHandler.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
 #include <Ice/RouterInfo.h>
@@ -46,6 +47,93 @@ const string ice_invoke_name = "ice_invoke";
 const string ice_getConnection_name = "ice_getConnection";
 const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
+}
+
+ProxyFlushBatchAsync::ProxyFlushBatchAsync(const ObjectPrxPtr& proxy) : ProxyOutgoingAsyncBase(proxy)
+{
+}
+
+AsyncStatus
+ProxyFlushBatchAsync::invokeRemote(const ConnectionIPtr& connection, bool compress, bool)
+{
+    if(_batchRequestNum == 0)
+    {
+        if(sent())
+        {
+            return static_cast<AsyncStatus>(AsyncStatusSent | AsyncStatusInvokeSentCallback);
+        }
+        else
+        {
+            return AsyncStatusSent;
+        }
+    }
+    _cachedConnection = connection;
+    return connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, _batchRequestNum);
+}
+
+AsyncStatus
+ProxyFlushBatchAsync::invokeCollocated(CollocatedRequestHandler* handler)
+{
+    if(_batchRequestNum == 0)
+    {
+        if(sent())
+        {
+            return static_cast<AsyncStatus>(AsyncStatusSent | AsyncStatusInvokeSentCallback);
+        }
+        else
+        {
+            return AsyncStatusSent;
+        }
+    }
+    return handler->invokeAsyncRequest(this, _batchRequestNum, false);
+}
+
+void
+ProxyFlushBatchAsync::invoke(const string& operation)
+{
+    checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
+    _observer.attach(_proxy, operation, ::Ice::noExplicitContext);
+    bool compress; // Ignore for proxy flushBatchRequests
+    _batchRequestNum = _proxy->_getBatchRequestQueue()->swap(&_os, compress);
+    invokeImpl(true); // userThread = true
+}
+
+ProxyGetConnection::ProxyGetConnection(const ObjectPrxPtr& prx) : ProxyOutgoingAsyncBase(prx)
+{
+}
+
+AsyncStatus
+ProxyGetConnection::invokeRemote(const ConnectionIPtr& connection, bool, bool)
+{
+    _cachedConnection = connection;
+    if(responseImpl(true))
+    {
+        invokeResponseAsync();
+    }
+    return AsyncStatusSent;
+}
+
+AsyncStatus
+ProxyGetConnection::invokeCollocated(CollocatedRequestHandler*)
+{
+    if(responseImpl(true))
+    {
+        invokeResponseAsync();
+    }
+    return AsyncStatusSent;
+}
+
+Ice::ConnectionPtr
+ProxyGetConnection::getConnection() const
+{
+    return _cachedConnection;
+}
+
+void
+ProxyGetConnection::invoke(const string& operation)
+{
+    _observer.attach(_proxy, operation, ::Ice::noExplicitContext);
+    invokeImpl(true); // userThread = true
 }
 
 #ifdef ICE_CPP11_MAPPING // C++11 mapping

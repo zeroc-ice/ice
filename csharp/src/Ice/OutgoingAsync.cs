@@ -1140,7 +1140,8 @@ namespace IceInternal
         {
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
             observer_ = ObserverHelper.get(proxy_, operation, null);
-            _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_);
+            bool compress; // Not used for proxy flush batch requests.
+            _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_, out compress);
             invokeImpl(true); // userThread = true
         }
 
@@ -1198,13 +1199,14 @@ namespace IceInternal
             _connection = connection;
         }
 
-        public void invoke(string operation)
+        public void invoke(string operation, Ice.CompressBatch compressBatch)
         {
             observer_ = ObserverHelper.get(instance_, operation);
             try
             {
                 int status;
-                int batchRequestNum = _connection.getBatchRequestQueue().swap(os_);
+                bool compress;
+                int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out compress);
                 if(batchRequestNum == 0)
                 {
                     status = AsyncStatusSent;
@@ -1215,7 +1217,20 @@ namespace IceInternal
                 }
                 else
                 {
-                    status = _connection.sendAsyncRequest(this, false, false, batchRequestNum);
+                    bool comp;
+                    if(compressBatch == Ice.CompressBatch.Yes)
+                    {
+                        comp = true;
+                    }
+                    else if(compressBatch == Ice.CompressBatch.No)
+                    {
+                        comp = false;
+                    }
+                    else
+                    {
+                        comp = compress;
+                    }
+                    status = _connection.sendAsyncRequest(this, comp, false, batchRequestNum);
                 }
 
                 if((status & AsyncStatusSent) != 0)
@@ -1311,7 +1326,7 @@ namespace IceInternal
             _useCount = 1;
         }
 
-        public void flushConnection(Ice.ConnectionI con)
+        public void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
         {
             lock(this)
             {
@@ -1321,14 +1336,28 @@ namespace IceInternal
             try
             {
                 var flushBatch = new FlushBatch(this, instance_, _observer);
-                int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs());
+                bool compress;
+                int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out compress);
                 if(batchRequestNum == 0)
                 {
                     flushBatch.sent();
                 }
                 else
                 {
-                    con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                    bool comp;
+                    if(compressBatch == Ice.CompressBatch.Yes)
+                    {
+                        comp = true;
+                    }
+                    else if(compressBatch == Ice.CompressBatch.No)
+                    {
+                        comp = false;
+                    }
+                    else
+                    {
+                        comp = compress;
+                    }
+                    con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
                 }
             }
             catch(Ice.LocalException)
@@ -1338,15 +1367,15 @@ namespace IceInternal
             }
         }
 
-        public void invoke(string operation)
+        public void invoke(string operation, Ice.CompressBatch compressBatch)
         {
             _observer = ObserverHelper.get(instance_, operation);
             if(_observer != null)
             {
                 _observer.attach();
             }
-            instance_.outgoingConnectionFactory().flushAsyncBatchRequests(this);
-            instance_.objectAdapterFactory().flushAsyncBatchRequests(this);
+            instance_.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
+            instance_.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
             check(true);
         }
 

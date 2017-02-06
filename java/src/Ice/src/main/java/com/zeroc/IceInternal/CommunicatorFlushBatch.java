@@ -36,7 +36,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         complete(null);
     }
 
-    public void flushConnection(final com.zeroc.Ice.ConnectionI con)
+    public void flushConnection(final com.zeroc.Ice.ConnectionI con, final com.zeroc.Ice.CompressBatch compressBatch)
     {
         class FlushBatch extends OutgoingAsyncBaseI<Void>
         {
@@ -106,8 +106,8 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         try
         {
             final FlushBatch flushBatch = new FlushBatch();
-            final int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs());
-            if(batchRequestNum == 0)
+            final BatchRequestQueue.SwapResult r = con.getBatchRequestQueue().swap(flushBatch.getOs());
+            if(r == null)
             {
                 flushBatch.sent();
             }
@@ -118,14 +118,40 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                     @Override
                     public Void call() throws RetryException
                     {
-                        con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                        boolean comp = false;
+                        if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                        {
+                            comp = true;
+                        }
+                        else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                        {
+                            comp = false;
+                        }
+                        else
+                        {
+                            comp = r.compress;
+                        }
+                        con.sendAsyncRequest(flushBatch, comp, false, r.batchRequestNum);
                         return null;
                     }
                 });
             }
             else
             {
-                con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                boolean comp = false;
+                if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                {
+                    comp = true;
+                }
+                else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                {
+                    comp = false;
+                }
+                else
+                {
+                    comp = r.compress;
+                }
+                con.sendAsyncRequest(flushBatch, comp, false, r.batchRequestNum);
             }
         }
         catch(RetryException ex)

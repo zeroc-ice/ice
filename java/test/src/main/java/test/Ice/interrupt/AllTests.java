@@ -21,6 +21,7 @@ import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.CompressBatch;
 
 import test.Ice.interrupt.Test.CannotInterruptException;
 import test.Ice.interrupt.Test.TestIntfControllerPrx;
@@ -435,7 +436,7 @@ public class AllTests
                 p2.op();
                 p2.op();
 
-                r = p2.ice_getConnection().flushBatchRequestsAsync();
+                r = p2.ice_getConnection().flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 mainThread.interrupt();
                 try
                 {
@@ -462,7 +463,7 @@ public class AllTests
                 final Callback cb = new Callback();
                 com.zeroc.Ice.Connection con = p2.ice_getConnection();
                 mainThread.interrupt();
-                r = con.flushBatchRequestsAsync();
+                r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 r.whenComplete((result, ex) -> test(ex == null));
                 Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
@@ -486,7 +487,7 @@ public class AllTests
             p2.op();
             p2.op();
 
-            r = communicator.flushBatchRequestsAsync();
+            r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             mainThread.interrupt();
             try
             {
@@ -512,7 +513,7 @@ public class AllTests
 
             final Callback cb = new Callback();
             mainThread.interrupt();
-            r = communicator.flushBatchRequestsAsync();
+            r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                 {

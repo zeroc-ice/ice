@@ -2147,6 +2147,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     SentCallback cb = new SentCallback();
                     Task t = b1.ice_getConnection().flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         progress:new Progress(
                             sentSyncrhonously =>
                             {
@@ -2168,6 +2169,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     Task t = b1.ice_getConnection().flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         progress: new Progress(
                             sentSynchronously =>
                             {
@@ -2189,7 +2191,10 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
+                        cb.completedAsync,
+                        cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent());
@@ -2207,7 +2212,10 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushExCallback cb = new FlushExCallback(cookie);
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
+                        cb.completedAsync,
+                        cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(!r.isSent());
@@ -2225,7 +2233,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2244,7 +2252,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushExCallback cb = new FlushExCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2274,6 +2282,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2300,6 +2309,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushExCallback cb = new FlushExCallback(cookie);
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2325,7 +2335,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -2352,7 +2362,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushExCallback cb = new FlushExCallback();
-                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -2386,6 +2396,7 @@ public class AllTests : TestCommon.AllTests
 
                     SentCallback cb = new SentCallback();
                     Task t = communicator.flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         progress: new Progress(
                             sentSynchronously =>
                             {
@@ -2407,6 +2418,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     SentCallback cb = new SentCallback();
                     Task t = communicator.flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         progress:new Progress(
                             sentSynchronously =>
                             {
@@ -2435,6 +2447,7 @@ public class AllTests : TestCommon.AllTests
 
                     SentCallback cb = new SentCallback();
                     Task t = communicator.flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Progress(sentSynchronously =>
                             {
                                 cb.sent(sentSynchronously);
@@ -2462,6 +2475,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     SentCallback cb = new SentCallback();
                     Task t = communicator.flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Progress(
                             sentSynchronously =>
                             {
@@ -2490,6 +2504,7 @@ public class AllTests : TestCommon.AllTests
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     SentCallback cb = new SentCallback();
                     Task t = communicator.flushBatchRequestsAsync(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Progress(
                             sentSynchronously =>
                             {
@@ -2512,7 +2527,9 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                                              cb.completedAsync,
+                                                                              cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent());
@@ -2530,7 +2547,9 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                                              cb.completedAsync,
+                                                                              cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent()); // Exceptions are ignored!
@@ -2554,7 +2573,9 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b2.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                                              cb.completedAsync,
+                                                                              cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent());
@@ -2579,7 +2600,9 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                                              cb.completedAsync,
+                                                                              cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent()); // Exceptions are ignored!
@@ -2604,7 +2627,9 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                                              cb.completedAsync,
+                                                                              cookie);
                     r.whenSent(cb.sentAsync);
                     cb.check();
                     test(r.isSent()); // Exceptions are ignored!
@@ -2622,7 +2647,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2641,7 +2666,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2665,7 +2690,7 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b2.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2691,7 +2716,7 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2717,7 +2742,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(cb.exception);
                     r.whenSent(cb.sent);
                     cb.check();
@@ -2744,6 +2769,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2770,6 +2796,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2801,6 +2828,7 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2834,6 +2862,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2867,6 +2896,7 @@ public class AllTests : TestCommon.AllTests
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback(cookie);
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         (Ice.AsyncResult result) =>
                         {
                             cb.completedAsync(result);
@@ -2892,7 +2922,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -2919,7 +2949,7 @@ public class AllTests : TestCommon.AllTests
                     b1.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -2951,7 +2981,7 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b2.opBatch();
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -2985,7 +3015,7 @@ public class AllTests : TestCommon.AllTests
                     b2.opBatch();
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -3019,7 +3049,7 @@ public class AllTests : TestCommon.AllTests
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     FlushCallback cb = new FlushCallback();
-                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     r.whenCompleted(
                         (Ice.Exception ex) =>
                         {
@@ -3254,7 +3284,7 @@ public class AllTests : TestCommon.AllTests
                     Ice.Connection con = p.ice_getConnection();
                     p2 = p.ice_batchOneway() as Test.TestIntfPrx;
                     p2.ice_ping();
-                    r = con.begin_flushBatchRequests();
+                    r = con.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -3265,7 +3295,7 @@ public class AllTests : TestCommon.AllTests
                     //
                     p2 = p.ice_batchOneway() as Test.TestIntfPrx;
                     p2.ice_ping();
-                    r = communicator.begin_flushBatchRequests();
+                    r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected

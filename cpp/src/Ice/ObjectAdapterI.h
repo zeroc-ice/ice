@@ -92,7 +92,7 @@ public:
 
     bool isLocal(const ObjectPrxPtr&) const;
 
-    void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&);
+    void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
 
     void updateConnectionObservers();
     void updateThreadObservers();

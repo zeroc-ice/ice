@@ -476,7 +476,7 @@ public class AllTests
                 p2.op();
                 p2.op();
 
-                AsyncResult r = p2.ice_getConnection().begin_flushBatchRequests();
+                AsyncResult r = p2.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                 mainThread.interrupt();
                 try
                 {
@@ -495,7 +495,8 @@ public class AllTests
                 final CallbackBase cb = new CallbackBase();
                 Ice.Connection con = p2.ice_getConnection();
                 mainThread.interrupt();
-                con.begin_flushBatchRequests(new Callback_Connection_flushBatchRequests()
+                con.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                             new Callback_Connection_flushBatchRequests()
                 {
                     @Override
                     public void sent(boolean sentSynchronously)
@@ -525,7 +526,7 @@ public class AllTests
             p2.op();
             p2.op();
 
-            AsyncResult r = communicator.begin_flushBatchRequests();
+            AsyncResult r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
             mainThread.interrupt();
             try
             {
@@ -543,7 +544,8 @@ public class AllTests
 
             final CallbackBase cb = new CallbackBase();
             mainThread.interrupt();
-            communicator.begin_flushBatchRequests(new Callback_Communicator_flushBatchRequests()
+            communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                  new Callback_Communicator_flushBatchRequests()
             {
                 @Override
                 public void sent(boolean sentSynchronously)

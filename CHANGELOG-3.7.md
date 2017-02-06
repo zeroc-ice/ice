@@ -17,6 +17,12 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- The communicator and connection flushBatchRequests method now takes
+  an additional argument to specify whether or not the batch requests
+  to flush should be compressed. See the documentation of the
+  Ice::CompressBatch enumeration for the different options available
+  to specify whether or not the batch should be compressed.
+
 - The UDP server endpoint now supports specifying `--interface *` to join the
   multicast group on using all the local interfaces. It's also now the default
   behavior if no `--interface` option is specified.

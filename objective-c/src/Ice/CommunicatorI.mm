@@ -445,12 +445,12 @@
 {
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }
--(void) flushBatchRequests
+-(void) flushBatchRequests:(ICECompressBatch)compress
 {
     NSException* nsex = nil;
     try
     {
-        COMMUNICATOR->flushBatchRequests();
+        COMMUNICATOR->flushBatchRequests((Ice::CompressBatch)compress);
     }
     catch(const std::exception& ex)
     {
@@ -461,22 +461,24 @@
         @throw nsex;
     }
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests();
+                            result = COMMUNICATOR->begin_flushBatchRequests((Ice::CompressBatch)compress);
                         });
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress exception:(void(^)(ICEException*))exception
 {
-    return [self begin_flushBatchRequests:exception sent:nil];
+    return [self begin_flushBatchRequests:compress exception:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
+                                     exception:(void(^)(ICEException*))exception
+                                          sent:(void(^)(BOOL))sent
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests(cb);
+                            result = COMMUNICATOR->begin_flushBatchRequests((Ice::CompressBatch)compress, cb);
                         },
                         ^(const Ice::AsyncResultPtr& result) {
                             COMMUNICATOR->end_flushBatchRequests(result);

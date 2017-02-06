@@ -255,7 +255,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorFlushBatchAsync outAsync)
+        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
         {
             ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
 
@@ -280,7 +280,7 @@ namespace IceInternal
             {
                 try
                 {
-                    outAsync.flushConnection(conn);
+                    outAsync.flushConnection(conn, compressBatch);
                 }
                 catch(Ice.LocalException)
                 {
@@ -1292,7 +1292,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorFlushBatchAsync outAsync)
+        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
         {
             //
             // connections() is synchronized, no need to synchronize here.
@@ -1301,7 +1301,7 @@ namespace IceInternal
             {
                 try
                 {
-                    outAsync.flushConnection(connection);
+                    outAsync.flushConnection(connection, compressBatch);
                 }
                 catch(Ice.LocalException)
                 {

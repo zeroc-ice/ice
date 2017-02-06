@@ -221,7 +221,7 @@ public final class ObjectAdapterFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         java.util.List<ObjectAdapterI> adapters;
         synchronized(this)
@@ -231,7 +231,7 @@ public final class ObjectAdapterFactory
 
         for(ObjectAdapterI adapter : adapters)
         {
-            adapter.flushAsyncBatchRequests(outAsync);
+            adapter.flushAsyncBatchRequests(compressBatch, outAsync);
         }
     }
 

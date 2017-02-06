@@ -38,6 +38,49 @@ ICE_API extern const Context noExplicitContext;
 
 }
 
+namespace IceInternal
+{
+
+//
+// Class for handling the proxy's begin_ice_flushBatchRequest request.
+//
+class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
+{
+public:
+
+    ProxyFlushBatchAsync(const Ice::ObjectPrxPtr&);
+
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+
+    void invoke(const std::string&);
+
+private:
+
+    int _batchRequestNum;
+};
+typedef IceUtil::Handle<ProxyFlushBatchAsync> ProxyFlushBatchAsyncPtr;
+
+//
+// Class for handling the proxy's begin_ice_getConnection request.
+//
+class ICE_API ProxyGetConnection :  public ProxyOutgoingAsyncBase
+{
+public:
+
+    ProxyGetConnection(const Ice::ObjectPrxPtr&);
+
+    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
+    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+
+    virtual Ice::ConnectionPtr getConnection() const;
+
+    void invoke(const std::string&);
+};
+typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;
+
+}
+
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace IceInternal

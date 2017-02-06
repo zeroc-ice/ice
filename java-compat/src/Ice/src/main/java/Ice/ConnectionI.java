@@ -420,58 +420,62 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public void flushBatchRequests()
+    public void flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        end_flushBatchRequests(begin_flushBatchRequests());
+        end_flushBatchRequests(begin_flushBatchRequests(compressBatch));
     }
 
     private static final String _flushBatchRequests_name = "flushBatchRequests";
 
     @Override
-    public Ice.AsyncResult begin_flushBatchRequests()
+    public Ice.AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        return begin_flushBatchRequestsInternal(null);
+        return begin_flushBatchRequestsInternal(compressBatch, null);
     }
 
     @Override
-    public Ice.AsyncResult begin_flushBatchRequests(Callback cb)
+    public Ice.AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch, Callback cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
-    public Ice.AsyncResult begin_flushBatchRequests(Callback_Connection_flushBatchRequests cb)
+    public Ice.AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch,
+                                                    Callback_Connection_flushBatchRequests cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
-    public AsyncResult begin_flushBatchRequests(IceInternal.Functional_VoidCallback responseCb,
-            IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
-            IceInternal.Functional_BoolCallback sentCb)
+    public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch,
+                                                IceInternal.Functional_VoidCallback responseCb,
+                                                IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                                IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_flushBatchRequestsInternal(new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
-        {
-            @Override
-            public final void _iceCompleted(AsyncResult result)
-            {
-                try
-                {
-                    result.getConnection().end_flushBatchRequests(result);
-                }
-                catch(Exception ex)
-                {
-                    _exceptionCb.apply(ex);
-                }
-            }
-        });
+        return begin_flushBatchRequestsInternal(compressBatch,
+                                                new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
+                                                {
+                                                    @Override
+                                                    public final void _iceCompleted(AsyncResult result)
+                                                    {
+                                                        try
+                                                        {
+                                                            result.getConnection().end_flushBatchRequests(result);
+                                                        }
+                                                        catch(Exception ex)
+                                                        {
+                                                            _exceptionCb.apply(ex);
+                                                        }
+                                                    }
+                                                });
     }
 
-    private Ice.AsyncResult begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    private Ice.AsyncResult begin_flushBatchRequestsInternal(Ice.CompressBatch compressBatch,
+                                                             IceInternal.CallbackBase cb)
     {
         IceInternal.ConnectionFlushBatch result =
             new IceInternal.ConnectionFlushBatch(this, _communicator, _instance, _flushBatchRequests_name, cb);
-        result.invoke();
+        result.invoke(compressBatch);
         return result;
     }
 

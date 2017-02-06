@@ -9,6 +9,7 @@
 
 #include <Ice/UUID.h>
 #include <Ice/ObjectAdapterI.h>
+#include <Ice/CommunicatorI.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
@@ -786,7 +787,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
 }
 
 void
-Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync)
+Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync, CompressBatch compress)
 {
     vector<IncomingConnectionFactoryPtr> f;
     {
@@ -796,7 +797,7 @@ Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPt
 
     for(vector<IncomingConnectionFactoryPtr>::const_iterator p = f.begin(); p != f.end(); ++p)
     {
-        (*p)->flushAsyncBatchRequests(outAsync);
+        (*p)->flushAsyncBatchRequests(outAsync, compress);
     }
 }
 

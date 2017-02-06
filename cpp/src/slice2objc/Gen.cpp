@@ -1214,15 +1214,29 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->isLocal() && (cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway")))
     {
-        // TODO: add support for parameters when needed.
-        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << deprecateSymbol << ";";
-        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << ":(void(^)(ICEException*))exception"
-           << deprecateSymbol << ";";
-        _H << nl << "-(id<ICEAsyncResult>) begin_" << name
-           << ":(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent"
-           << deprecateSymbol << ";";
-        _H << nl << "-(void) end_" << name << ":(id<ICEAsyncResult>)result"
-           << deprecateSymbol << ";";
+        string marshalParams = getMarshalParams(p);
+        string unmarshalParams = getUnmarshalParams(p);
+
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << marshalParams << deprecateSymbol << ";";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << marshalParams;
+        if(!marshalParams.empty())
+        {
+            _H << " exception";
+        }
+        _H << ":(void(^)(ICEException*))exception" << deprecateSymbol << ";";
+        _H << nl << "-(id<ICEAsyncResult>) begin_" << name << marshalParams;
+        if(!marshalParams.empty())
+        {
+            _H << " exception";
+        }
+        _H << ":(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent" << deprecateSymbol << ";";
+
+        _H << nl << "-(void) end_" << name << unmarshalParams;
+        if(!unmarshalParams.empty())
+        {
+            _H << " result";
+        }
+        _H << ":(id<ICEAsyncResult>)result" << deprecateSymbol << ";";
     }
 }
 

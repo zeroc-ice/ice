@@ -250,7 +250,7 @@ public class FixedReference extends Reference
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        boolean compress;
+        boolean compress = false;
         if(defaultsAndOverrides.overrideCompress)
         {
             compress = defaultsAndOverrides.overrideCompressValue;
@@ -258,10 +258,6 @@ public class FixedReference extends Reference
         else if(_overrideCompress)
         {
             compress = _compress;
-        }
-        else
-        {
-            compress = _fixedConnection.endpoint().compress();
         }
 
         RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);

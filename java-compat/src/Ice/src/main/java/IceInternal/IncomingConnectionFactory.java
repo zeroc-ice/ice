@@ -196,13 +196,13 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         for(Ice.ConnectionI c : connections()) // connections() is synchronized, no need to synchronize here.
         {
             try
             {
-                outAsync.flushConnection(c);
+                outAsync.flushConnection(c, compressBatch);
             }
             catch(Ice.LocalException ex)
             {

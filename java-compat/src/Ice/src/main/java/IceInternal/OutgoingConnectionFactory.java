@@ -271,7 +271,7 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         java.util.List<Ice.ConnectionI> c = new java.util.LinkedList<Ice.ConnectionI>();
 
@@ -296,7 +296,7 @@ public final class OutgoingConnectionFactory
         {
             try
             {
-                outAsync.flushConnection(conn);
+                outAsync.flushConnection(conn, compressBatch);
             }
             catch(Ice.LocalException ex)
             {

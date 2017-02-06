@@ -746,7 +746,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public void
-    flushAsyncBatchRequests(IceInternal.CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(Ice.CompressBatch compressBatch, IceInternal.CommunicatorFlushBatch outAsync)
     {
         List<IncomingConnectionFactory> f;
         synchronized(this)
@@ -755,7 +755,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         for(IncomingConnectionFactory p : f)
         {
-            p.flushAsyncBatchRequests(outAsync);
+            p.flushAsyncBatchRequests(compressBatch, outAsync);
         }
     }
 

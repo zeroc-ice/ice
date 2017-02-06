@@ -1090,6 +1090,8 @@ function twoways($communicator, $p)
 
 function allTests($communicator)
 {
+    global $NS;
+
     $ref = "test:default -p 12010";
     $base = $communicator->stringToProxy($ref);
     $cl = $base->ice_checkedCast("::Test::MyClass");
@@ -1102,10 +1104,17 @@ function allTests($communicator)
     $derived->opDerived();
     echo "ok\n";
 
+    # Test flush batch requests methods
+    $BasedOnProxy = $NS ? constant("Ice\\CompressBatch::BasedOnProxy") : constant("Ice_CompressBatch::BasedOnProxy");
+
+    $derived->ice_flushBatchRequests();
+    $derived->ice_getConnection()->flushBatchRequests($BasedOnProxy);
+    $derived->ice_getCommunicator()->flushBatchRequests($BasedOnProxy);
+
     return $cl;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 
 $myClass = allTests($communicator);

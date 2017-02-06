@@ -41,7 +41,7 @@ class Reference : public IceUtil::Shared
 {
 public:
 
-    class GetConnectionCallback 
+    class GetConnectionCallback
 #ifndef ICE_CPP11_MAPPING
         : public virtual IceUtil::Shared
 #endif
@@ -115,6 +115,8 @@ public:
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
 
     int hash() const; // Conceptually const.
+
+    bool getCompressOverride(bool&) const;
 
     //
     // Utility methods.

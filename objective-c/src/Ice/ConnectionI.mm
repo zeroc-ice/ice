@@ -326,12 +326,12 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(void) flushBatchRequests
+-(void) flushBatchRequests:(ICECompressBatch)compress
 {
     NSException* nsex = nil;
     try
     {
-        CONNECTION->flushBatchRequests();
+        CONNECTION->flushBatchRequests((Ice::CompressBatch)compress);
     }
     catch(const std::exception& ex)
     {
@@ -342,22 +342,24 @@ private:
         @throw nsex;
     }
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = CONNECTION->begin_flushBatchRequests();
+                            result = CONNECTION->begin_flushBatchRequests((Ice::CompressBatch)compress);
                         });
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress exception:(void(^)(ICEException*))exception
 {
-    return [self begin_flushBatchRequests:exception sent:nil];
+    return [self begin_flushBatchRequests:compress exception:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
+                                     exception:(void(^)(ICEException*))exception
+                                          sent:(void(^)(BOOL))sent
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = CONNECTION->begin_flushBatchRequests(cb);
+                            result = CONNECTION->begin_flushBatchRequests((Ice::CompressBatch)compress, cb);
                         },
                         ^(const Ice::AsyncResultPtr& result) {
                             CONNECTION->end_flushBatchRequests(result);

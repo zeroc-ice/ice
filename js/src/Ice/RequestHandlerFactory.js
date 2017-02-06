@@ -50,9 +50,9 @@ class RequestHandlerFactory
 
         if(connect)
         {
-            ref.getConnection().then(values => 
+            ref.getConnection().then(connection =>
                                      {
-                                         handler.setConnection(values);
+                                         handler.setConnection(connection);
                                      },
                                      ex =>
                                      {

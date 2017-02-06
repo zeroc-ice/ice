@@ -16,6 +16,41 @@
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/CommunicatorAsync.h>
+#include <Ice/OutgoingAsync.h>
+
+namespace IceInternal
+{
+
+//
+// Class for handling Ice::Communicator::begin_flushBatchRequests
+//
+class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
+{
+public:
+
+    virtual ~CommunicatorFlushBatchAsync();
+
+    CommunicatorFlushBatchAsync(const InstancePtr&);
+
+    void flushConnection(const Ice::ConnectionIPtr&, Ice::CompressBatch);
+    void invoke(const std::string&, Ice::CompressBatch);
+
+#ifdef ICE_CPP11_MAPPING
+    std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
+    {
+        return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
+    }
+#endif
+
+private:
+
+    void check(bool);
+
+    int _useCount;
+    InvocationObserver _observer;
+};
+
+}
 
 namespace Ice
 {
@@ -68,16 +103,18 @@ public:
 
     virtual ValueFactoryManagerPtr getValueFactoryManager() const;
 
-    virtual void flushBatchRequests();
+    virtual void flushBatchRequests(CompressBatch);
 
 #ifdef ICE_CPP11_MAPPING
     virtual ::std::function<void()>
-    flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)>,
+    flushBatchRequestsAsync(CompressBatch,
+                            ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
 #else
-    virtual AsyncResultPtr begin_flushBatchRequests();
-    virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
-    virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr&,
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch);
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch, const CallbackPtr&, const LocalObjectPtr& = 0);
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch,
+                                                    const Callback_Communicator_flushBatchRequestsPtr&,
                                                     const LocalObjectPtr& = 0);
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
@@ -113,7 +150,9 @@ private:
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
 
 #ifndef ICE_CPP11_MAPPING
-    AsyncResultPtr _iceI_begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+    AsyncResultPtr _iceI_begin_flushBatchRequests(CompressBatch,
+                                                  const IceInternal::CallbackBasePtr&,
+                                                  const LocalObjectPtr&);
 #endif
 
     const ::IceInternal::InstancePtr _instance;

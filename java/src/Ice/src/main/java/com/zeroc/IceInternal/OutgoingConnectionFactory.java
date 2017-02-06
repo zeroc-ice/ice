@@ -277,7 +277,7 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         java.util.List<ConnectionI> c = new java.util.LinkedList<>();
 
@@ -302,7 +302,7 @@ public final class OutgoingConnectionFactory
         {
             try
             {
-                outAsync.flushConnection(conn);
+                outAsync.flushConnection(conn, compressBatch);
             }
             catch(LocalException ex)
             {

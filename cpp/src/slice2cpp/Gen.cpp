@@ -6620,7 +6620,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     {
         vector<string> paramsDeclAMI;
         vector<string> outParamsDeclAMI;
-
+        vector<string> paramsArgAMI;
         ParamDeclList paramList = p->parameters();
         for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
         {
@@ -6632,6 +6632,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
             {
                 typeString = inputTypeToString((*r)->type(), (*r)->optional(), metaData, typeCtx);
                 paramsDeclAMI.push_back(typeString + ' ' + paramName);
+                paramsArgAMI.push_back(paramName);
             }
         }
 
@@ -6663,11 +6664,11 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
         H << nl << name << "Async(";
         H.useCurrentPosAsIndent();
-        for(vector<string>::const_iterator i = paramsDeclAMI.begin(); i != paramsDeclAMI.end(); ++i)
+        for(vector<string>::const_iterator i = paramsArgAMI.begin(); i != paramsArgAMI.end(); ++i)
         {
             H << *i << ",";
         }
-        if(!paramsDeclAMI.empty())
+        if(!paramsArgAMI.empty())
         {
             H << nl;
         }

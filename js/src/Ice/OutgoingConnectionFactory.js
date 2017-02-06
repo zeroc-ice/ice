@@ -73,7 +73,7 @@ class OutgoingConnectionFactory
     }
 
     //
-    // Returns a promise, success callback receives (connection, compress)
+    // Returns a promise, success callback receives the connection
     //
     create(endpts, hasMore, selType)
     {
@@ -89,11 +89,10 @@ class OutgoingConnectionFactory
         //
         try
         {
-            const compress = { value: false };
-            const connection = this.findConnectionByEndpoint(endpoints, compress);
+            const connection = this.findConnectionByEndpoint(endpoints);
             if(connection !== null)
             {
-                return Ice.Promise.resolve([connection, compress.value]);
+                return Ice.Promise.resolve(connection);
             }
         }
         catch(ex)
@@ -217,7 +216,7 @@ class OutgoingConnectionFactory
             });
     }
 
-    findConnectionByEndpoint(endpoints, compress)
+    findConnectionByEndpoint(endpoints)
     {
         if(this._destroyed)
         {
@@ -246,14 +245,6 @@ class OutgoingConnectionFactory
             {
                 if(connectionList[j].isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if(defaultsAndOverrides.overrideCompress)
-                    {
-                        compress.value = defaultsAndOverrides.overrideCompressValue;
-                    }
-                    else
-                    {
-                        compress.value = endpoint.compress();
-                    }
                     return connectionList[j];
                 }
             }
@@ -289,7 +280,7 @@ class OutgoingConnectionFactory
         }
     }
 
-    getConnection(endpoints, cb, compress)
+    getConnection(endpoints, cb)
     {
         if(this._destroyed)
         {
@@ -322,7 +313,7 @@ class OutgoingConnectionFactory
             //
             // Search for a matching connection. If we find one, we're done.
             //
-            const connection = this.findConnectionByEndpoint(endpoints, compress);
+            const connection = this.findConnectionByEndpoint(endpoints);
             if(connection !== null)
             {
                 return connection;
@@ -447,12 +438,8 @@ class OutgoingConnectionFactory
 
         callbacks.forEach(cc => cc.removeFromPending());
 
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        const compress = defaultsAndOverrides.overrideCompress ? defaultsAndOverrides.overrideCompressValue :
-                                                                 endpoint.compress();
-
         callbacks.forEach(cc => cc.getConnection());
-        connectionCallbacks.forEach(cc => cc.setConnection(connection, compress));
+        connectionCallbacks.forEach(cc => cc.setConnection(connection));
 
         this.checkFinished();
     }
@@ -748,13 +735,13 @@ class ConnectCallback
         }
     }
 
-    setConnection(connection, compress)
+    setConnection(connection)
     {
         //
         // Callback from the factory: the connection to one of the callback
         // connectors has been established.
         //
-        this._promise.resolve([connection, compress]);
+        this._promise.resolve(connection);
         this._factory.decPendingConnectCount(); // Must be called last.
     }
 
@@ -824,8 +811,7 @@ class ConnectCallback
             //
             // Ask the factory to get a connection.
             //
-            const compress = { value: false };
-            const connection = this._factory.getConnection(this._endpoints, this, compress);
+            const connection = this._factory.getConnection(this._endpoints, this);
             if(connection === null)
             {
                 //
@@ -837,7 +823,7 @@ class ConnectCallback
                 return;
             }
 
-            this._promise.resolve([connection, compress.value]);
+            this._promise.resolve(connection);
             this._factory.decPendingConnectCount(); // Must be called last.
         }
         catch(ex)

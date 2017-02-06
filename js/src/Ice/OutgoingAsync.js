@@ -102,7 +102,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     {
         this.markFinishedEx(ex);
     }
-    
+
     invokeImpl(userThread)
     {
         try
@@ -182,7 +182,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
         super.markFinishedEx.call(this, ex);
     }
-    
+
     handleException(ex)
     {
         const interval = { value: 0 };
@@ -276,9 +276,9 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         this.markSent(!this._proxy.ice_isTwoway());
     }
 
-    invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
-        return connection.sendAsyncRequest(this, compress, response, 0);
+        return connection.sendAsyncRequest(this, response, 0);
     }
 
     abort(ex)
@@ -507,14 +507,14 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase
         this._batchRequestNum = prx._getBatchRequestQueue().swap(this._os);
     }
 
-    invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
         if(this._batchRequestNum === 0)
         {
             this.sent();
             return AsyncStatus.Sent;
         }
-        return connection.sendAsyncRequest(this, compress, response, this._batchRequestNum);
+        return connection.sendAsyncRequest(this, response, this._batchRequestNum);
     }
 
     invoke()
@@ -531,12 +531,12 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase
         super(prx, operation);
     }
 
-    invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
         this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }
-    
+
     invoke()
     {
         this.invokeImpl(true); // userThread = true
@@ -563,7 +563,7 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
             }
             else
             {
-                status = this._connection.sendAsyncRequest(this, false, false, batchRequestNum);
+                status = this._connection.sendAsyncRequest(this, false, batchRequestNum);
             }
 
             if((status & AsyncStatus.Sent) > 0)
@@ -596,7 +596,7 @@ class HeartbeatAsync extends OutgoingAsyncBase
             this._os.writeByte(0);
             this._os.writeInt(Protocol.headerSize); // Message size.
 
-            let status = this._connection.sendAsyncRequest(this, false, false, 0);
+            let status = this._connection.sendAsyncRequest(this, false, 0);
 
             if((status & AsyncStatus.Sent) > 0)
             {

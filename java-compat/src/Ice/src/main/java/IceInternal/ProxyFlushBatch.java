@@ -28,7 +28,7 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     {
         super(prx, operation, callback);
         _observer = ObserverHelper.get(prx, operation);
-        _batchRequestNum = prx._getBatchRequestQueue().swap(_os);
+        _batchRequestNum = prx._getBatchRequestQueue().swap(_os, null);
     }
 
     @Override

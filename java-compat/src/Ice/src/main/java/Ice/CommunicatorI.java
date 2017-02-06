@@ -212,39 +212,40 @@ public final class CommunicatorI implements Communicator
 
     @Override
     public void
-    flushBatchRequests()
+    flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        end_flushBatchRequests(begin_flushBatchRequests());
+        end_flushBatchRequests(begin_flushBatchRequests(compressBatch));
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests()
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        return begin_flushBatchRequestsInternal(null);
+        return begin_flushBatchRequestsInternal(compressBatch, null);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(Callback cb)
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch, Callback cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(Callback_Communicator_flushBatchRequests cb)
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch, Callback_Communicator_flushBatchRequests cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(IceInternal.Functional_VoidCallback responseCb,
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch,
+                             IceInternal.Functional_VoidCallback responseCb,
                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
                              IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_flushBatchRequestsInternal(
+        return begin_flushBatchRequestsInternal(compressBatch,
             new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
                 {
                     @Override
@@ -265,7 +266,7 @@ public final class CommunicatorI implements Communicator
     private static final String _flushBatchRequests_name = "flushBatchRequests";
 
     private Ice.AsyncResult
-    begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    begin_flushBatchRequestsInternal(Ice.CompressBatch compressBatch, IceInternal.CallbackBase cb)
     {
         IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
         IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
@@ -279,8 +280,8 @@ public final class CommunicatorI implements Communicator
                                                                                            _flushBatchRequests_name,
                                                                                            cb);
 
-        connectionFactory.flushAsyncBatchRequests(result);
-        adapterFactory.flushAsyncBatchRequests(result);
+        connectionFactory.flushAsyncBatchRequests(compressBatch, result);
+        adapterFactory.flushAsyncBatchRequests(compressBatch, result);
 
         //
         // Inform the callback that we have finished initiating all of the

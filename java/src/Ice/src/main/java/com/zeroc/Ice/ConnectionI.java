@@ -344,8 +344,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     synchronized public int
-    sendAsyncRequest(OutgoingAsyncBase out, boolean compress, boolean response,
-                     int batchRequestNum)
+    sendAsyncRequest(OutgoingAsyncBase out, boolean compress, boolean response, int batchRequestNum)
             throws com.zeroc.IceInternal.RetryException
     {
         final OutputStream os = out.getOs();
@@ -431,17 +430,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     @Override
-    public void flushBatchRequests()
+    public void flushBatchRequests(CompressBatch compressBatch)
     {
-        ObjectPrx.waitForResponseForCompletion(flushBatchRequestsAsync());
+        ObjectPrx.waitForResponseForCompletion(flushBatchRequestsAsync(compressBatch));
     }
 
     @Override
-    public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync()
+    public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compressBatch)
     {
         com.zeroc.IceInternal.ConnectionFlushBatch f =
             new com.zeroc.IceInternal.ConnectionFlushBatch(this, _communicator, _instance);
-        f.invoke();
+        f.invoke(compressBatch);
         return f;
     }
 

@@ -473,9 +473,9 @@ namespace Ice
             return _batchRequestQueue;
         }
 
-        public void flushBatchRequests()
+        public void flushBatchRequests(CompressBatch compressBatch)
         {
-            flushBatchRequestsAsync().Wait();
+            flushBatchRequestsAsync(compressBatch).Wait();
         }
 
         private class ConnectionFlushBatchCompletionCallback : AsyncResultCompletionCallback
@@ -517,21 +517,24 @@ namespace Ice
             private Connection _connection;
         }
 
-        public Task flushBatchRequestsAsync(IProgress<bool> progress = null,
+        public Task flushBatchRequestsAsync(CompressBatch compressBatch,
+                                            IProgress<bool> progress = null,
                                             CancellationToken cancel = new CancellationToken())
         {
             var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(_flushBatchRequests_name, compressBatch);
             return completed.Task;
         }
 
-        public AsyncResult begin_flushBatchRequests(AsyncCallback cb = null, object cookie = null)
+        public AsyncResult begin_flushBatchRequests(CompressBatch compressBatch,
+                                                    AsyncCallback cb = null,
+                                                    object cookie = null)
         {
             var result = new ConnectionFlushBatchCompletionCallback(this, _communicator, _instance,
                                                                     _flushBatchRequests_name, cookie, cb);
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, result);
-            outgoing.invoke(_flushBatchRequests_name);
+            outgoing.invoke(_flushBatchRequests_name, compressBatch);
             return result;
         }
 

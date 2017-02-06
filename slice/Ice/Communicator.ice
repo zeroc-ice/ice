@@ -23,6 +23,7 @@
 #include <Ice/Current.ice>
 #include <Ice/Properties.ice>
 #include <Ice/FacetMap.ice>
+#include <Ice/Connection.ice>
 
 /**
  *
@@ -493,8 +494,11 @@ local interface Communicator
      * for all connections associated with the communicator.
      * Any errors that occur while flushing a connection are ignored.
      *
+     * @param compress Specifies whether or not the queued batch requests
+     * should be compressed before being sent over the wire.
+     *
      **/
-    ["async-oneway"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
     /**
      *

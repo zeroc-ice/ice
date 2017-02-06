@@ -33,12 +33,12 @@ public:
     void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrxPtr&, const std::string&);
     void abortBatchRequest(Ice::OutputStream*);
 
-    int swap(Ice::OutputStream*);
+    int swap(Ice::OutputStream*, bool&);
 
     void destroy(const Ice::LocalException&);
     bool isEmpty();
 
-    void enqueueBatchRequest();
+    void enqueueBatchRequest(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -52,6 +52,7 @@ private:
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
     bool _batchStreamCanFlush;
+    bool _batchCompress;
     int _batchRequestNum;
     size_t _batchMarker;
     IceInternal::UniquePtr<Ice::LocalException> _exception;

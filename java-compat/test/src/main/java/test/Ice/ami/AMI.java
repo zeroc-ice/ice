@@ -1933,6 +1933,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -1964,6 +1965,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -1995,6 +1997,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Connection_flushBatchRequests()
                         {
                             @Override
@@ -2026,6 +2029,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Connection_flushBatchRequests()
                         {
                             @Override
@@ -2062,6 +2066,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2093,6 +2098,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2129,6 +2135,7 @@ public class AMI
                     b2.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2167,6 +2174,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2205,6 +2213,7 @@ public class AMI
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2236,6 +2245,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2267,6 +2277,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2303,6 +2314,7 @@ public class AMI
                     b2.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2341,6 +2353,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2379,6 +2392,7 @@ public class AMI
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2500,7 +2514,7 @@ public class AMI
                     Ice.Connection con = p.ice_getConnection();
                     p2 = (TestIntfPrx)p.ice_batchOneway();
                     p2.ice_ping();
-                    r = con.begin_flushBatchRequests();
+                    r = con.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -2511,7 +2525,7 @@ public class AMI
                     //
                     p2 = (TestIntfPrx)p.ice_batchOneway();
                     p2.ice_ping();
-                    r = communicator.begin_flushBatchRequests();
+                    r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected

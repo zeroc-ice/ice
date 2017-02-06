@@ -192,13 +192,13 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         for(ConnectionI c : connections()) // connections() is synchronized, no need to synchronize here.
         {
             try
             {
-                outAsync.flushConnection(c);
+                outAsync.flushConnection(c, compressBatch);
             }
             catch(com.zeroc.Ice.LocalException ex)
             {

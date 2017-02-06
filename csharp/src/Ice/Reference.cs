@@ -237,6 +237,25 @@ namespace IceInternal
             }
         }
 
+        public bool getCompressOverride(out bool compress)
+        {
+            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideCompress)
+            {
+                compress = defaultsAndOverrides.overrideCompressValue;
+            }
+            else if(overrideCompress_)
+            {
+                compress = compress_;
+            }
+            else
+            {
+                compress = false;
+                return false;
+            }
+            return true;
+        }
+
         public abstract bool isIndirect();
         public abstract bool isWellKnown();
 
@@ -709,7 +728,7 @@ namespace IceInternal
 
             _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-            bool compress;
+            bool compress = false;
             if(defaultsAndOverrides.overrideCompress)
             {
                 compress = defaultsAndOverrides.overrideCompressValue;
@@ -717,10 +736,6 @@ namespace IceInternal
             else if(overrideCompress_)
             {
                 compress = compress_;
-            }
-            else
-            {
-                compress = _fixedConnection.endpoint().compress();
             }
 
             return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));

@@ -805,7 +805,7 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback()
-        r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
+        r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent())
         test(r.isCompleted())
@@ -819,7 +819,8 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback(cookie)
-        r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+        r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                            lambda ex: cb.exceptionWC(ex, cookie),
                                                             lambda ss: cb.sentWC(ss, cookie))
         cb.check()
         test(p.waitForBatch(2))
@@ -832,7 +833,7 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FlushExCallback()
-        r = b1.ice_getConnection().begin_flushBatchRequests(cb.exception, cb.sent)
+        r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(not r.isSent())
         test(r.isCompleted())
@@ -846,7 +847,8 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FlushExCallback(cookie)
-        r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+        r = b1.ice_getConnection().begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy,
+                                                            lambda ex: cb.exceptionWC(ex, cookie),
                                                             lambda ss: cb.sentWC(ss, cookie))
         cb.check()
         test(p.opBatchCount() == 0)
@@ -864,7 +866,7 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.opBatch()
         cb = FlushCallback()
-        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent())
         test(r.isCompleted())
@@ -878,7 +880,7 @@ def allTests(communicator, collocated):
         b1.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FlushCallback()
-        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent()) # Exceptions are ignored!
         test(r.isCompleted())
@@ -897,7 +899,7 @@ def allTests(communicator, collocated):
         b2.opBatch()
         b2.opBatch()
         cb = FlushCallback()
-        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent())
         test(r.isCompleted())
@@ -918,7 +920,7 @@ def allTests(communicator, collocated):
         b2.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FlushCallback()
-        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent()) # Exceptions are ignored!
         test(r.isCompleted())
@@ -939,7 +941,7 @@ def allTests(communicator, collocated):
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FlushCallback()
-        r = communicator.begin_flushBatchRequests(cb.exception, cb.sent)
+        r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy, cb.exception, cb.sent)
         cb.check()
         test(r.isSent()) # Exceptions are ignored!
         test(r.isCompleted())
@@ -1041,7 +1043,7 @@ def allTests(communicator, collocated):
         con = p.ice_getConnection()
         p2 = p.ice_batchOneway()
         p2.ice_ping()
-        r = con.begin_flushBatchRequests()
+        r = con.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
         test(r.getConnection() == con)
         test(r.getCommunicator() == communicator)
         test(r.getProxy() == None) # Expected
@@ -1052,7 +1054,7 @@ def allTests(communicator, collocated):
     #
     p2 = p.ice_batchOneway()
     p2.ice_ping()
-    r = communicator.begin_flushBatchRequests()
+    r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
     test(r.getConnection() == None) # Expected
     test(r.getCommunicator() == communicator)
     test(r.getProxy() == None) # Expected
@@ -1191,7 +1193,7 @@ def allTests(communicator, collocated):
         #
         # This test requires two threads in the server's thread pool: one will block in sleep() and the other
         # will process the CloseConnection message.
-        # 
+        #
         p.ice_ping()
         con = p.ice_getConnection()
         r = p.begin_sleep(1000)
@@ -1232,7 +1234,7 @@ def allTests(communicator, collocated):
         #
         # Local case: start a lengthy operation and then close the connection forcefully on the client side.
         # There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
-        # 
+        #
         p.ice_ping()
         con = p.ice_getConnection()
         r = p.begin_sleep(100)
@@ -1520,7 +1522,7 @@ def allTestsFuture(communicator, collocated):
         b1.opBatch()
         b1.opBatch()
         cb = FutureFlushCallback()
-        f = b1.ice_getConnection().flushBatchRequestsAsync()
+        f = b1.ice_getConnection().flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1533,7 +1535,7 @@ def allTestsFuture(communicator, collocated):
         b1.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FutureFlushExCallback()
-        f = b1.ice_getConnection().flushBatchRequestsAsync()
+        f = b1.ice_getConnection().flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_done_callback(cb.exception)
         f.add_sent_callback(cb.sent)
         cb.check()
@@ -1554,7 +1556,7 @@ def allTestsFuture(communicator, collocated):
         b1.opBatch()
         b1.opBatch()
         cb = FutureFlushCallback()
-        f = communicator.flushBatchRequestsAsync()
+        f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1570,7 +1572,7 @@ def allTestsFuture(communicator, collocated):
         b1.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FutureFlushCallback()
-        f = communicator.flushBatchRequestsAsync()
+        f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1591,7 +1593,7 @@ def allTestsFuture(communicator, collocated):
         b2.opBatch()
         b2.opBatch()
         cb = FutureFlushCallback()
-        f = communicator.flushBatchRequestsAsync()
+        f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1614,7 +1616,7 @@ def allTestsFuture(communicator, collocated):
         b2.opBatch()
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FutureFlushCallback()
-        f = communicator.flushBatchRequestsAsync()
+        f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1637,7 +1639,7 @@ def allTestsFuture(communicator, collocated):
         b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
         cb = FutureFlushCallback()
-        f = communicator.flushBatchRequestsAsync()
+        f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result() # Wait until finished.
@@ -1740,7 +1742,7 @@ def allTestsFuture(communicator, collocated):
         con = p.ice_getConnection()
         p2 = p.ice_batchOneway()
         p2.ice_ping()
-        f = con.flushBatchRequestsAsync()
+        f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         test(f.connection() == con)
         test(f.communicator() == communicator)
         test(f.proxy() == None) # Expected
@@ -1751,7 +1753,7 @@ def allTestsFuture(communicator, collocated):
     #
     p2 = p.ice_batchOneway()
     p2.ice_ping()
-    f = communicator.flushBatchRequestsAsync()
+    f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
     test(f.connection() == None) # Expected
     test(f.communicator() == communicator)
     test(f.proxy() == None) # Expected

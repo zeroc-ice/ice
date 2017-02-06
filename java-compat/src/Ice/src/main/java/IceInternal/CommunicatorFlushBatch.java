@@ -43,7 +43,7 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
         _useCount = 1;
     }
 
-    public void flushConnection(final Ice.ConnectionI con)
+    public void flushConnection(final Ice.ConnectionI con, final Ice.CompressBatch compressBatch)
     {
         class FlushBatch extends OutgoingAsyncBase
         {
@@ -96,7 +96,8 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
         try
         {
             final FlushBatch flushBatch = new FlushBatch();
-            final int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs());
+            final Ice.BooleanHolder compress = new Ice.BooleanHolder();
+            final int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), compress);
             if(batchRequestNum == 0)
             {
                 flushBatch.sent();
@@ -108,14 +109,40 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
                     @Override
                     public Void call() throws RetryException
                     {
-                        con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                        boolean comp;
+                        if(compressBatch == Ice.CompressBatch.Yes)
+                        {
+                            comp = true;
+                        }
+                        else if(compressBatch == Ice.CompressBatch.No)
+                        {
+                            comp = false;
+                        }
+                        else
+                        {
+                            comp = compress.value;
+                        }
+                        con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
                         return null;
                     }
                 });
             }
             else
             {
-                con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                boolean comp;
+                if(compressBatch == Ice.CompressBatch.Yes)
+                {
+                    comp = true;
+                }
+                else if(compressBatch == Ice.CompressBatch.No)
+                {
+                    comp = false;
+                }
+                else
+                {
+                    comp = compress.value;
+                }
+                con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
             }
         }
         catch(RetryException ex)

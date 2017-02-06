@@ -134,7 +134,7 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
         adapters = _adapters;
     }
 #ifdef ICE_CPP11_MAPPING
-    for_each(adapters.begin(), adapters.end(), 
+    for_each(adapters.begin(), adapters.end(),
         [fn](const ObjectAdapterIPtr& adapter)
         {
             (adapter.get() ->* fn)();
@@ -231,7 +231,8 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync) const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
+                                                           CompressBatch compressBatch) const
 {
     list<ObjectAdapterIPtr> adapters;
     {
@@ -242,7 +243,7 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlu
 
     for(list<ObjectAdapterIPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-        (*p)->flushAsyncBatchRequests(outAsync);
+        (*p)->flushAsyncBatchRequests(outAsync, compressBatch);
     }
 }
 

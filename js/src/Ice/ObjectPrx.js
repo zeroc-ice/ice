@@ -44,7 +44,7 @@ class ObjectPrx
         this._reference = null;
         this._requestHandler = null;
     }
-    
+
     hashCode(r)
     {
         return this._reference.hashCode();
@@ -411,19 +411,6 @@ class ObjectPrx
         }
     }
 
-    ice_compress(co)
-    {
-        const ref = this._reference.changeCompress(co);
-        if(ref.equals(this._reference))
-        {
-            return this;
-        }
-        else
-        {
-            return this._newInstance(ref);
-        }
-    }
-
     ice_timeout(t)
     {
         if(t < 1 && t !== -1)
@@ -661,7 +648,7 @@ class ObjectPrx
         }
         return false;
     }
-    
+
     //
     // Generic invocation for operations that have input parameters.
     //
@@ -878,7 +865,7 @@ class ObjectPrx
 
         return false;
     }
-    
+
     static ice_staticId()
     {
         return this._id;

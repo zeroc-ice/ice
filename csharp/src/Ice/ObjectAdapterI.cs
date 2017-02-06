@@ -688,7 +688,7 @@ namespace Ice
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorFlushBatchAsync outAsync)
+        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
         {
             List<IncomingConnectionFactory> f;
             lock(this)
@@ -698,7 +698,7 @@ namespace Ice
 
             foreach(IncomingConnectionFactory factory in f)
             {
-                factory.flushAsyncBatchRequests(outAsync);
+                factory.flushAsyncBatchRequests(compressBatch, outAsync);
             }
         }
 

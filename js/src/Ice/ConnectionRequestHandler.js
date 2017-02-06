@@ -12,12 +12,11 @@ const ReferenceMode = Ice.ReferenceMode;
 
 class ConnectionRequestHandler
 {
-    constructor(ref, connection, compress)
+    constructor(ref, connection)
     {
         this._reference = ref;
         this._response = ref.getMode() == ReferenceMode.ModeTwoway;
         this._connection = connection;
-        this._compress = compress;
     }
 
     update(previousHandler, newHandler)
@@ -47,7 +46,7 @@ class ConnectionRequestHandler
 
     sendAsyncRequest(out)
     {
-        return out.invokeRemote(this._connection, this._compress, this._response);
+        return out.invokeRemote(this._connection, this._response);
     }
 
     asyncRequestCanceled(out)

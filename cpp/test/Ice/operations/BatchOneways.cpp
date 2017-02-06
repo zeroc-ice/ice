@@ -89,6 +89,11 @@ batchOneways(const Test::MyClassPrxPtr& p)
     Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
 
     batch->ice_flushBatchRequests(); // Empty flush
+    if(batch->ice_getConnection())
+    {
+        batch->ice_getConnection()->flushBatchRequests(Ice::BasedOnProxy);
+    }
+    batch->ice_getCommunicator()->flushBatchRequests(Ice::BasedOnProxy);
 
     int i;
     p->opByteSOnewayCallCount(); // Reset the call count
@@ -154,11 +159,10 @@ batchOneways(const Test::MyClassPrxPtr& p)
         BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
 #if defined(ICE_CPP11_MAPPING)
-        initData.batchRequestInterceptor =
-            [=](const Ice::BatchRequest& request, int count, int size)
-            {
-                interceptor->enqueue(request, count, size);
-            };
+        initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int count, int size)
+        {
+            interceptor->enqueue(request, count, size);
+        };
 #else
         initData.batchRequestInterceptor = interceptor;
 #endif
@@ -195,4 +199,38 @@ batchOneways(const Test::MyClassPrxPtr& p)
         ic->destroy();
     }
 
+    if(batch->ice_getConnection() &&
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
+    {
+        Ice::ObjectPrxPtr prx = batch->ice_getConnection()->createProxy(batch->ice_getIdentity())->ice_batchOneway();
+
+        Test::MyClassPrxPtr batch1 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_compress(false));
+        Test::MyClassPrxPtr batch2 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_compress(true));
+        Test::MyClassPrxPtr batch3 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_identity(identity));
+
+        batch1->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->ice_getConnection()->flushBatchRequests(Ice::Yes);
+
+        batch2->opByteSOneway(bs1);
+        batch2->opByteSOneway(bs1);
+        batch2->opByteSOneway(bs1);
+        batch1->ice_getConnection()->flushBatchRequests(Ice::No);
+
+        batch1->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->ice_getConnection()->flushBatchRequests(Ice::BasedOnProxy);
+
+        batch1->opByteSOneway(bs1);
+        batch2->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->ice_getConnection()->flushBatchRequests(Ice::BasedOnProxy);
+
+        batch1->opByteSOneway(bs1);
+        batch3->opByteSOneway(bs1);
+        batch1->opByteSOneway(bs1);
+        batch1->ice_getConnection()->flushBatchRequests(Ice::BasedOnProxy);
+    }
 }

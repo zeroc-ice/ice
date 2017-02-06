@@ -24,6 +24,30 @@ module Ice
 {
 
 /**
+ * The batch compression option when flushing queued batch requests.
+ *
+ **/
+["cpp:unscoped"]
+local enum CompressBatch
+{
+    /**
+     * Compress the batch requests.
+     **/
+    Yes,
+
+    /**
+     * Don't compress the batch requests.
+     **/
+    No,
+
+    /**
+     * Compress the batch requests if at least one request was
+     * made on a compressed proxy.
+     **/
+    BasedOnProxy
+};
+
+/**
  *
  * Base class providing access to the connection details. *
  **/
@@ -238,8 +262,11 @@ local interface Connection
      * This means all batch requests invoked on fixed proxies
      * associated with the connection.
      *
+     * @param compress Specifies whether or not the queued batch requests
+     * should be compressed before being sent over the wire.
+     *
      **/
-    ["async-oneway"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
     /**
      *

@@ -698,8 +698,9 @@
                 test(compObj.ice_connectionId("id1").ice_getConnectionId() === "id1");
                 test(compObj.ice_connectionId("id2").ice_getConnectionId() === "id2");
 
-                test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
-                test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
+                // Proxy doesn't support ice_compress
+                //test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
+                //test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
 
                 test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
                 test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));

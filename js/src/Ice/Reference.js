@@ -877,8 +877,6 @@ class Reference
         this._encoding = encoding;
         this._invocationTimeout = invocationTimeout;
         this._hashInitialized = false;
-        this._overrideCompress = false;
-        this._compress = false; // Only used if _overrideCompress == true
     }
 
     getMode()
@@ -1083,18 +1081,6 @@ class Reference
         return r;
     }
 
-    changeCompress(newCompress)
-    {
-        if(this._overrideCompress && this._compress === newCompress)
-        {
-            return this;
-        }
-        const r = this._instance.referenceFactory().copy(this);
-        r._compress = newCompress;
-        r._overrideCompress = true;
-        return r;
-    }
-
     changeAdapterId(newAdapterId)
     {
         // Abstract
@@ -1185,11 +1171,6 @@ class Reference
             }
         }
         h = HashUtil.addString(h, this._facet);
-        h = HashUtil.addBoolean(h, this._overrideCompress);
-        if(this._overrideCompress)
-        {
-            h = HashUtil.addBoolean(h, this._compress);
-        }
         h = HashUtil.addHashable(h, this._protocol);
         h = HashUtil.addHashable(h, this._encoding);
         h = HashUtil.addNumber(h, this._invocationTimeout);
@@ -1424,15 +1405,6 @@ class Reference
             return false;
         }
 
-        if(this._overrideCompress !== r._overrideCompress)
-        {
-            return false;
-        }
-        if(this._overrideCompress && this._compress !== r._compress)
-        {
-            return false;
-        }
-
         if(!this._protocol.equals(r._protocol))
         {
             return false;
@@ -1464,8 +1436,6 @@ class Reference
         // Copy the members that are not passed to the constructor.
         //
         r._context = this._context;
-        r._overrideCompress = this._overrideCompress;
-        r._compress = this._compress;
     }
 }
 
@@ -1644,23 +1614,9 @@ class FixedReference extends Reference
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        let compress;
-        if(defaultsAndOverrides.overrideCompress)
-        {
-            compress = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if(this._overrideCompress)
-        {
-            compress = this._compress;
-        }
-        else
-        {
-            compress = this._fixedConnection.endpoint().compress();
-        }
-
-        return proxy._setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
+        return proxy._setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection));
     }
-    
+
     getBatchRequestQueue()
     {
         return this._fixedConnection.getBatchRequestQueue();
@@ -1771,16 +1727,6 @@ class RoutableReference extends Reference
                 r._locatorInfo = this.getInstance().locatorManager().find(
                     r._locatorInfo.getLocator().ice_encodingVersion(newEncoding));
             }
-        }
-        return r;
-    }
-
-    changeCompress(newCompress)
-    {
-        const r = super.changeCompress(newCompress);
-        if(r !== this && this._endpoints.length > 0) // Also override the compress flag on the endpoints if it was updated.
-        {
-            r._endpoints = this._endpoints.map(endpoint => endpoint.changeCompress(newCompress));
         }
         return r;
     }
@@ -2094,7 +2040,7 @@ class RoutableReference extends Reference
 
     getConnection()
     {
-        const p = new Ice.Promise(); // success callback receives (connection, compress)
+        const p = new Ice.Promise(); // success callback receives (connection)
 
         if(this._routerInfo !== null)
         {
@@ -2225,10 +2171,6 @@ class RoutableReference extends Reference
         for(let i = 0; i < endpts.length; ++i)
         {
             endpts[i] = endpts[i].changeConnectionId(this._connectionId);
-            if(this._overrideCompress)
-            {
-                endpts[i] = endpts[i].changeCompress(this._compress);
-            }
             if(this._overrideTimeout)
             {
                 endpts[i] = endpts[i].changeTimeout(this._timeout);
@@ -2352,7 +2294,7 @@ class RoutableReference extends Reference
             //
             const cb = new CreateConnectionCallback(this, null, promise);
             factory.create(endpoints, false, this.getEndpointSelection()).then(
-                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
+                connection => cb.setConnection(connection)).catch(ex => cb.setException(ex));
         }
         else
         {
@@ -2365,7 +2307,7 @@ class RoutableReference extends Reference
             //
             const cb = new CreateConnectionCallback(this, endpoints, promise);
             factory.create([ endpoints[0] ], true, this.getEndpointSelection()).then(
-                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
+                connection => cb.setConnection(connection)).catch(ex => cb.setException(ex));
         }
         return promise;
     }
@@ -2385,9 +2327,8 @@ class CreateConnectionCallback
         this.exception = null;
     }
 
-    setConnection(values)
+    setConnection(connection)
     {
-        const [connection, compress] = values;
         //
         // If we have a router, set the object adapter for this router
         // (if any) to the new connection, so that callbacks from the
@@ -2397,7 +2338,7 @@ class CreateConnectionCallback
         {
             connection.setAdapter(this.ref.getRouterInfo().getAdapter());
         }
-        this.promise.resolve(values);
+        this.promise.resolve(connection);
     }
 
     setException(ex)
@@ -2414,9 +2355,9 @@ class CreateConnectionCallback
         }
 
         this.ref.getInstance().outgoingConnectionFactory().create(
-            [ this.endpoints[this.i] ], 
-            this.i != this.endpoints.length - 1, 
-            this.ref.getEndpointSelection()).then(values => this.setConnection(values))
+            [ this.endpoints[this.i] ],
+            this.i != this.endpoints.length - 1,
+            this.ref.getEndpointSelection()).then(connection => this.setConnection(connection))
                                             .catch(ex => this.setException(ex));
     }
 }

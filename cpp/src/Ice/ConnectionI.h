@@ -175,16 +175,18 @@ public:
 
     IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
 
-    virtual void flushBatchRequests();
+    virtual void flushBatchRequests(CompressBatch);
 
 #ifdef ICE_CPP11_MAPPING
     virtual std::function<void()>
-    flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)>,
-                             ::std::function<void(bool)> = nullptr);
+    flushBatchRequestsAsync(CompressBatch,
+                            ::std::function<void(::std::exception_ptr)>,
+                            ::std::function<void(bool)> = nullptr);
 #else
-    virtual AsyncResultPtr begin_flushBatchRequests();
-    virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
-    virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr&,
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch);
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch, const CallbackPtr&, const LocalObjectPtr& = 0);
+    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch,
+                                                    const Callback_Connection_flushBatchRequestsPtr&,
                                                     const LocalObjectPtr& = 0);
 
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
@@ -320,7 +322,9 @@ private:
     void reap();
 
 #ifndef ICE_CPP11_MAPPING
-    AsyncResultPtr _iceI_begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+    AsyncResultPtr _iceI_begin_flushBatchRequests(CompressBatch,
+                                                  const IceInternal::CallbackBasePtr&,
+                                                  const LocalObjectPtr&);
     AsyncResultPtr _iceI_begin_heartbeat(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 #endif
 

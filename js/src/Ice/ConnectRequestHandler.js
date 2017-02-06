@@ -36,7 +36,6 @@ class ConnectRequestHandler
         this._initialized = false;
 
         this._connection = null;
-        this._compress = false;
         this._exception = null;
         this._requests = [];
     }
@@ -67,7 +66,7 @@ class ConnectRequestHandler
             this._requests.push(out);
             return AsyncStatus.Queued;
         }
-        return out.invokeRemote(this._connection, this._compress, this._response);
+        return out.invokeRemote(this._connection, this._response);
     }
 
     asyncRequestCanceled(out, ex)
@@ -113,11 +112,11 @@ class ConnectRequestHandler
     //
     // Implementation of Reference_GetConnectionCallback
     //
-    setConnection(values)
+    setConnection(connection)
     {
         Debug.assert(this._exception === null && this._connection === null);
 
-        [this._connection, this._compress] = values;
+        this._connection = connection;
 
         //
         // If this proxy is for a non-local object, and we are using a router, then
@@ -213,7 +212,7 @@ class ConnectRequestHandler
             {
                 try
                 {
-                    request.invokeRemote(this._connection, this._compress, this._response);
+                    request.invokeRemote(this._connection, this._response);
                 }
                 catch(ex)
                 {
@@ -238,7 +237,7 @@ class ConnectRequestHandler
 
         if(this._reference.getCacheConnection() && exception === null)
         {
-            this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
+            this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection);
             this._proxies.forEach(proxy => proxy._updateRequestHandler(this, this._requestHandler));
         }
 

@@ -67,7 +67,6 @@ class MessageInfo
         this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this.invokeNum = 0;
         this.requestId = 0;
-        this.compress = false;
         this.servantManager = null;
         this.adapter = null;
         this.outAsync = null;
@@ -367,7 +366,7 @@ class ConnectionI
         }
     }
 
-    sendAsyncRequest(out, compress, response, batchRequestNum)
+    sendAsyncRequest(out, response, batchRequestNum)
     {
         let requestId = 0;
         const ostr = out.getOs();
@@ -424,7 +423,7 @@ class ConnectionI
         let status;
         try
         {
-            status = this.sendMessage(OutgoingMessage.create(out, out.getOs(), compress, requestId));
+            status = this.sendMessage(OutgoingMessage.create(out, out.getOs(), requestId));
         }
         catch(ex)
         {
@@ -572,7 +571,7 @@ class ConnectionI
         }
     }
 
-    sendResponse(os, compressFlag)
+    sendResponse(os)
     {
         Debug.assert(this._state > StateNotValidated);
 
@@ -593,7 +592,7 @@ class ConnectionI
                 throw this._exception;
             }
 
-            this.sendMessage(OutgoingMessage.createForStream(os, compressFlag !== 0, true));
+            this.sendMessage(OutgoingMessage.createForStream(os, true));
 
             if(this._state === StateClosing && this._dispatchCount === 0)
             {
@@ -927,8 +926,7 @@ class ConnectionI
 
             if(info.invokeNum > 0)
             {
-                this.invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
-                            info.adapter);
+                this.invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager, info.adapter);
 
                 //
                 // Don't increase count, the dispatch count is
@@ -1444,7 +1442,7 @@ class ConnectionI
             os.writeByte(0); // compression status: always report 0 for CloseConnection.
             os.writeInt(Protocol.headerSize); // Message size.
 
-            if((this.sendMessage(OutgoingMessage.createForStream(os, false, false)) & AsyncStatus.Sent) > 0)
+            if((this.sendMessage(OutgoingMessage.createForStream(os, false)) & AsyncStatus.Sent) > 0)
             {
                 //
                 // Schedule the close timeout to wait for the peer to close the connection.
@@ -1479,7 +1477,7 @@ class ConnectionI
             os.writeInt(Protocol.headerSize); // Message size.
             try
             {
-                this.sendMessage(OutgoingMessage.createForStream(os, false, false));
+                this.sendMessage(OutgoingMessage.createForStream(os, false));
             }
             catch(ex)
             {
@@ -1769,8 +1767,8 @@ class ConnectionI
             //
             info.stream.pos = 8;
             const messageType = info.stream.readByte();
-            info.compress = info.stream.readByte();
-            if(info.compress === 2)
+            const compress = info.stream.readByte();
+            if(compress === 2)
             {
                 throw new Ice.FeatureNotSupportedException("Cannot uncompress compressed message");
             }
@@ -1902,7 +1900,7 @@ class ConnectionI
         return info;
     }
 
-    invokeAll(stream, invokeNum, requestId, compress, servantManager, adapter)
+    invokeAll(stream, invokeNum, requestId, servantManager, adapter)
     {
         try
         {
@@ -1914,7 +1912,6 @@ class ConnectionI
                 let inc = new IncomingAsync(this._instance, this,
                                             adapter,
                                             !this._endpoint.datagram() && requestId !== 0, // response
-                                            compress,
                                             requestId);
 
                 //
@@ -2102,7 +2099,6 @@ class OutgoingMessage
     {
         this.stream = null;
         this.outAsync = null;
-        this.compress = false;
         this.requestId = 0;
         this.prepared = false;
     }
@@ -2140,11 +2136,10 @@ class OutgoingMessage
         }
     }
 
-    static createForStream(stream, compress, adopt)
+    static createForStream(stream, adopt)
     {
         const m = new OutgoingMessage();
         m.stream = stream;
-        m.compress = compress;
         m.adopt = adopt;
         m.isSent = false;
         m.requestId = 0;
@@ -2152,11 +2147,10 @@ class OutgoingMessage
         return m;
     }
 
-    static create(out, stream, compress, requestId)
+    static create(out, stream, requestId)
     {
         const m = new OutgoingMessage();
         m.stream = stream;
-        m.compress = compress;
         m.outAsync = out;
         m.requestId = requestId;
         m.isSent = false;

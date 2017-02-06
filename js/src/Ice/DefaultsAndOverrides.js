@@ -11,9 +11,9 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/FormatType", 
-        "../Ice/EndpointTypes", 
-        "../Ice/Protocol", 
+        "../Ice/FormatType",
+        "../Ice/EndpointTypes",
+        "../Ice/Protocol",
         "../Ice/LocalException"
     ]);
 
@@ -88,7 +88,6 @@ class DefaultsAndOverrides
             this.overrideCloseTimeoutValue = -1;
         }
 
-        this.overrideCompress = false;
         this.overrideSecure = false;
 
         value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");

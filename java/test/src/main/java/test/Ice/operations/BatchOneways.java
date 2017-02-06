@@ -73,6 +73,11 @@ class BatchOneways
 
         MyClassPrx batch = p.ice_batchOneway();
         batch.ice_flushBatchRequests(); // Empty flush
+        if(batch.ice_getConnection() != null)
+        {
+            batch.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
+        }
+        batch.ice_getCommunicator().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
 
         p.opByteSOnewayCallCount(); // Reset the call count
 
@@ -170,6 +175,42 @@ class BatchOneways
             test(interceptor.count() == 2);
 
             ic.destroy();
+        }
+
+        p.ice_ping();
+        if(p.ice_getConnection() != null &&
+           p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").equals(""))
+        {
+            com.zeroc.Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
+
+            MyClassPrx batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
+            MyClassPrx batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
+            MyClassPrx batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
+
+            batchC1.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.Yes);
+
+            batchC2.opByteSOneway(bs1);
+            batchC2.opByteSOneway(bs1);
+            batchC2.opByteSOneway(bs1);
+            batchC1.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.No);
+
+            batchC1.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
+
+            batchC1.opByteSOneway(bs1);
+            batchC2.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
+
+            batchC1.opByteSOneway(bs1);
+            batchC3.opByteSOneway(bs1);
+            batchC1.opByteSOneway(bs1);
+            batchC1.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace IceInternal
 
         public void enqueue()
         {
-            _queue.enqueueBatchRequest();
+            _queue.enqueueBatchRequest(_proxy);
         }
 
         public Ice.ObjectPrx getProxy()
@@ -118,6 +118,11 @@ namespace IceInternal
                 }
                 else
                 {
+                    bool compress;
+                    if(((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+                    {
+                        _batchCompress |= compress;
+                    }
                     _batchMarker = _batchStream.size();
                     ++_batchRequestNum;
                 }
@@ -150,12 +155,13 @@ namespace IceInternal
         }
 
         public int
-        swap(Ice.OutputStream os)
+        swap(Ice.OutputStream os, out bool compress)
         {
             lock(this)
             {
                 if(_batchRequestNum == 0)
                 {
+                    compress = false;
                     return 0;
                 }
 
@@ -172,12 +178,14 @@ namespace IceInternal
                 }
 
                 int requestNum = _batchRequestNum;
+                compress = _batchCompress;
                 _batchStream.swap(os);
 
                 //
                 // Reset the batch.
                 //
                 _batchRequestNum = 0;
+                _batchCompress = false;
                 _batchStream.writeBlob(Protocol.requestBatchHdr);
                 _batchMarker = _batchStream.size();
                 if(lastRequest != null)
@@ -221,9 +229,14 @@ namespace IceInternal
             }
         }
 
-        internal void enqueueBatchRequest()
+        internal void enqueueBatchRequest(Ice.ObjectPrx proxy)
         {
             Debug.Assert(_batchMarker < _batchStream.size());
+            bool compress;
+            if(((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+            {
+                _batchCompress |= compress;
+            }
             _batchMarker = _batchStream.size();
             ++_batchRequestNum;
         }
@@ -234,6 +247,7 @@ namespace IceInternal
         private bool _batchStreamCanFlush;
         private int _batchRequestNum;
         private int _batchMarker;
+        private bool _batchCompress;
         private BatchRequestI _request;
         private Ice.LocalException _exception;
         private int _maxSize;

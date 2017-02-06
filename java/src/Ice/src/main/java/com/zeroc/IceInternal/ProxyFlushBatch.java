@@ -15,7 +15,8 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     {
         super(prx, "ice_flushBatchRequests");
         _observer = ObserverHelper.get(prx, "ice_flushBatchRequests");
-        _batchRequestNum = prx._getBatchRequestQueue().swap(_os);
+        BatchRequestQueue.SwapResult r = prx._getBatchRequestQueue().swap(_os);
+        _batchRequestNum = r != null ? r.batchRequestNum : 0;
     }
 
     @Override

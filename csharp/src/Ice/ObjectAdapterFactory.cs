@@ -28,10 +28,10 @@ namespace IceInternal
                 }
 
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
-                
+
                 _instance = null;
                 _communicator = null;
-                
+
                 System.Threading.Monitor.PulseAll(this);
             }
 
@@ -44,7 +44,7 @@ namespace IceInternal
                 adapter.deactivate();
             }
         }
-        
+
         public void waitForShutdown()
         {
             List<Ice.ObjectAdapterI> adapters;
@@ -57,7 +57,7 @@ namespace IceInternal
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-                
+
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
@@ -110,13 +110,13 @@ namespace IceInternal
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
-            
+
             foreach(Ice.ObjectAdapterI adapter in adapters)
             {
                 adapter.updateConnectionObservers();
             }
         }
-        
+
         public void
         updateThreadObservers()
         {
@@ -125,13 +125,13 @@ namespace IceInternal
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
-            
+
             foreach(Ice.ObjectAdapterI adapter in adapters)
             {
                 adapter.updateThreadObservers();
             }
         }
-        
+
         public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
         {
             lock(this)
@@ -140,7 +140,7 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                
+
                 Ice.ObjectAdapterI adapter = null;
                 if(name.Length == 0)
                 {
@@ -163,7 +163,7 @@ namespace IceInternal
                 return adapter;
             }
         }
-        
+
         public Ice.ObjectAdapter findObjectAdapter(Ice.ObjectPrx proxy)
         {
             List<Ice.ObjectAdapterI> adapters;
@@ -173,10 +173,10 @@ namespace IceInternal
                 {
                     return null;
                 }
-                
+
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
-            
+
             foreach(Ice.ObjectAdapterI adapter in adapters)
             {
                 try
@@ -209,7 +209,7 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(CommunicatorFlushBatchAsync outAsync)
+        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
         {
             List<Ice.ObjectAdapterI> adapters;
             lock(this)
@@ -219,10 +219,10 @@ namespace IceInternal
 
             foreach(Ice.ObjectAdapterI adapter in adapters)
             {
-                adapter.flushAsyncBatchRequests(outAsync);
+                adapter.flushAsyncBatchRequests(compressBatch, outAsync);
             }
         }
-        
+
         //
         // Only for use by Instance.
         //
@@ -233,7 +233,7 @@ namespace IceInternal
             _adapterNamesInUse = new HashSet<string>();
             _adapters = new List<Ice.ObjectAdapterI>();
         }
-        
+
         private Instance _instance;
         private Ice.Communicator _communicator;
         private HashSet<string> _adapterNamesInUse;

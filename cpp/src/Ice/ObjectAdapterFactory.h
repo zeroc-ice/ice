@@ -38,7 +38,7 @@ public:
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrxPtr&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrxPtr&);
     void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&) const;
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, ::Ice::CompressBatch) const;
 
     ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     virtual ~ObjectAdapterFactory();

@@ -875,6 +875,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -885,6 +886,7 @@ public class AMI
 
                     final FlushCallback cb2 = new FlushCallback();
                     Ice.AsyncResult r2 = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb2.exception(ex),
                         (boolean sentSynchronously) -> cb2.sent(sentSynchronously));
@@ -904,6 +906,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -929,6 +932,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -949,6 +953,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -974,6 +979,7 @@ public class AMI
                     b2.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -1001,6 +1007,7 @@ public class AMI
                     b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));
@@ -1028,6 +1035,7 @@ public class AMI
                     b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         null,
                         (Ice.Exception ex) -> cb.exception(ex),
                         (boolean sentSynchronously) -> cb.sent(sentSynchronously));

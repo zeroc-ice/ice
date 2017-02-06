@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionException;
 
 import com.zeroc.Ice.InvocationFuture;
 import com.zeroc.Ice.Util;
+import com.zeroc.Ice.CompressBatch;
 
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfPrx;
@@ -375,7 +376,8 @@ public class AMI
                         ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
-                    CompletableFuture<Void> r = b1.ice_getConnection().flushBatchRequestsAsync();
+                    CompletableFuture<Void> r =
+                        b1.ice_getConnection().flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -397,7 +399,8 @@ public class AMI
                         ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
-                    CompletableFuture<Void> r = b1.ice_getConnection().flushBatchRequestsAsync();
+                    CompletableFuture<Void> r =
+                        b1.ice_getConnection().flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex != null);
@@ -424,7 +427,7 @@ public class AMI
                         ice_batchOneway();
                     b1.opBatch();
                     b1.opBatch();
-                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -446,7 +449,7 @@ public class AMI
                         ice_batchOneway();
                     b1.opBatch();
                     b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
-                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -473,7 +476,7 @@ public class AMI
                     b1.opBatch();
                     b2.opBatch();
                     b2.opBatch();
-                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -502,7 +505,7 @@ public class AMI
                     b1.opBatch();
                     b2.opBatch();
                     b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
-                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -531,7 +534,7 @@ public class AMI
                     b2.opBatch();
                     b1.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
                     b2.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
-                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync();
+                    CompletableFuture<Void> r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                     Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                         {
                             test(ex == null);
@@ -654,7 +657,8 @@ public class AMI
                     com.zeroc.Ice.Connection con = p.ice_getConnection();
                     TestIntfPrx p2 = p.ice_batchOneway();
                     p2.ice_ping();
-                    InvocationFuture<Void> r = Util.getInvocationFuture(con.flushBatchRequestsAsync());
+                    InvocationFuture<Void> r =
+                        Util.getInvocationFuture(con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy));
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -665,7 +669,7 @@ public class AMI
                     //
                     p2 = p.ice_batchOneway();
                     p2.ice_ping();
-                    r = Util.getInvocationFuture(communicator.flushBatchRequestsAsync());
+                    r = Util.getInvocationFuture(communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy));
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected

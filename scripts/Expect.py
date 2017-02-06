@@ -613,7 +613,7 @@ class Expect (object):
 
         try:
             self.wait(timeout)
-            if self.mapping == "java":
+            if self.mapping in ["java", "java-compat"]:
                 if self.killed is not None:
                     if win32:
                         test(self.exitstatus, -self.killed)

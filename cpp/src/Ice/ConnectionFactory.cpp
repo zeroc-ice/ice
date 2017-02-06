@@ -25,6 +25,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 #include <Ice/OutgoingAsync.h>
+#include <Ice/CommunicatorI.h>
 #include <IceUtil/Random.h>
 #include <iterator>
 
@@ -223,7 +224,8 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 void
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts, bool hasMore,
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts,
+                                               bool hasMore,
                                                Ice::EndpointSelectionType selType,
                                                const CreateConnectionCallbackPtr& callback)
 {
@@ -335,7 +337,8 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 void
-IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync)
+IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
+                                                                Ice::CompressBatch compress)
 {
     list<ConnectionIPtr> c;
 
@@ -355,7 +358,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const Communicat
     {
         try
         {
-            outAsync->flushConnection(*p);
+            outAsync->flushConnection(*p, compress);
         }
         catch(const LocalException&)
         {
@@ -1276,7 +1279,8 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 void
-IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync)
+IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
+                                                                Ice::CompressBatch compress)
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
@@ -1284,7 +1288,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const Communicat
     {
         try
         {
-            outAsync->flushConnection(*p);
+            outAsync->flushConnection(*p, compress);
         }
         catch(const LocalException&)
         {

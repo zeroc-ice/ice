@@ -613,12 +613,22 @@ IceRuby_Communicator_setDefaultLocator(VALUE self, VALUE locator)
 
 extern "C"
 VALUE
-IceRuby_Communicator_flushBatchRequests(VALUE self)
+IceRuby_Communicator_flushBatchRequests(VALUE self, VALUE compress)
 {
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        p->flushBatchRequests();
+
+        volatile VALUE type = callRuby(rb_path2class, "Ice::CompressBatch");
+        if(callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
+        {
+            throw RubyException(rb_eTypeError,
+                "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
+        }
+        volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
+        assert(TYPE(compressValue) == T_FIXNUM);
+        Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(FIX2LONG(compressValue));
+        p->flushBatchRequests(cb);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -651,7 +661,7 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "setDefaultRouter", CAST_METHOD(IceRuby_Communicator_setDefaultRouter), 1);
     rb_define_method(_communicatorClass, "getDefaultLocator", CAST_METHOD(IceRuby_Communicator_getDefaultLocator), 0);
     rb_define_method(_communicatorClass, "setDefaultLocator", CAST_METHOD(IceRuby_Communicator_setDefaultLocator), 1);
-    rb_define_method(_communicatorClass, "flushBatchRequests", CAST_METHOD(IceRuby_Communicator_flushBatchRequests), 0);
+    rb_define_method(_communicatorClass, "flushBatchRequests", CAST_METHOD(IceRuby_Communicator_flushBatchRequests), 1);
 }
 
 Ice::CommunicatorPtr

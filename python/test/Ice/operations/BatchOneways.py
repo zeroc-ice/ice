@@ -64,6 +64,9 @@ def batchOneways(p):
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests() # Empty flush
+    if batch.ice_getConnection():
+        batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+    batch.ice_getCommunicator().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
     p.opByteSOnewayCallCount() # Reset the call count
 

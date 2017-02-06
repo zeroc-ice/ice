@@ -247,6 +247,21 @@ public abstract class Reference implements Cloneable
         return _hashValue;
     }
 
+    public java.lang.Boolean
+    getCompressOverride()
+    {
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+        if(defaultsAndOverrides.overrideCompress)
+        {
+            return Boolean.valueOf(defaultsAndOverrides.overrideCompressValue);
+        }
+        else if(_overrideCompress)
+        {
+            return Boolean.valueOf(_compress);
+        }
+        return null; // Null indicates that compress is not overriden.
+    }
+
     //
     // Utility methods
     //

@@ -174,6 +174,25 @@ IceInternal::Reference::changeCompress(bool newCompress) const
     return r;
 }
 
+bool
+IceInternal::Reference::getCompressOverride(bool& compress) const
+{
+    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
+    if(defaultsAndOverrides->overrideCompress)
+    {
+        compress = defaultsAndOverrides->overrideCompressValue;
+    }
+    else if(_overrideCompress)
+    {
+        compress = _compress;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
 Int
 Reference::hash() const
 {
@@ -791,7 +810,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
-    bool compress;
+    bool compress = false;
     if(defaultsAndOverrides->overrideCompress)
     {
         compress = defaultsAndOverrides->overrideCompressValue;
@@ -799,10 +818,6 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     else if(_overrideCompress)
     {
         compress = _compress;
-    }
-    else
-    {
-        compress = _fixedConnection->endpoint()->compress();
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
