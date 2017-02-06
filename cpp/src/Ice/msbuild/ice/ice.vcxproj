@@ -78,6 +78,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -86,6 +87,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -94,6 +96,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -102,6 +105,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>advapi32.lib;ws2_32.lib;Iphlpapi.lib;rpcrt4.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -1768,6 +1772,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.3\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.3\build\native\bzip2.v141.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -1775,6 +1780,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v120.1.0.6.4\build\native\bzip2.v120.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.4\build\native\bzip2.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.3\build\native\bzip2.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.3\build\native\bzip2.v141.targets'))" />
   </Target>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">

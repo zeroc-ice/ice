@@ -384,6 +384,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\lmdb.v141.0.9.18.0\build\native\lmdb.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v141.0.9.18.0\build\native\lmdb.v141.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -391,6 +392,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v120.0.9.18.0\build\native\lmdb.v120.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v140.0.9.18.0\build\native\lmdb.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v141.0.9.18.0\build\native\lmdb.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v141.0.9.18.0\build\native\lmdb.v141.targets'))" />
   </Target>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">

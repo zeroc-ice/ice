@@ -444,7 +444,7 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
 
 #ifdef ICE_HAS_CODECVT_UTF8
 
-#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
 //
 // Workaround for compiler bug - see http://stackoverflow.com/questions/32055357
 //

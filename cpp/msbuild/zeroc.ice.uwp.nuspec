@@ -15,7 +15,6 @@
     <dependencies>
       <dependency id="zeroc.ice.uwp.x86" version="[3.7.0-alpha4]"/>
       <dependency id="zeroc.ice.uwp.x64" version="[3.7.0-alpha4]"/>
-      <dependency id="zeroc.ice.uwp.arm" version="[3.7.0-alpha4]"/>
     </dependencies>
   </metadata>
 </package>
