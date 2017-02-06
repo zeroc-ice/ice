@@ -165,16 +165,12 @@ NodeService::~NodeService()
 {
 }
 
-
 bool
 NodeService::shutdown()
 {
-    assert(_activator);
+    assert(_activator && _sessions.get());
     _activator->shutdown();
-    if(_sessions.get())
-    {
-        _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
-    }
+    _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
     return true;
 }
 
@@ -674,7 +670,6 @@ NodeService::stop()
         {
             assert(false);
         }
-        _activator = 0;
     }
 
     if(_timer)
