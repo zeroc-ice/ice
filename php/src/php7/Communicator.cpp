@@ -813,21 +813,29 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 
 ZEND_METHOD(Ice_Communicator, flushBatchRequests)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
-    assert(_this);
-
-    if(ZEND_NUM_ARGS() != 8)
+    zval* compress;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
     {
-        WRONG_PARAM_COUNT;
+        RETURN_NULL();
     }
+
+    if(Z_TYPE_P(compress) != IS_LONG)
+    {
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        RETURN_NULL();
+    }
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
+
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
 
     try
     {
-        _this->getCommunicator()->flushBatchRequests();
+        _this->getCommunicator()->flushBatchRequests(cb);
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }

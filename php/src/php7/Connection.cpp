@@ -128,21 +128,29 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
 
 ZEND_METHOD(Ice_Connection, flushBatchRequests)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    zval* compress;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
     {
-        WRONG_PARAM_COUNT;
+        RETURN_NULL();
     }
 
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    if(Z_TYPE_P(compress) != IS_LONG)
+    {
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        RETURN_NULL();
+    }
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
     try
     {
-        _this->flushBatchRequests();
+        _this->flushBatchRequests(cb);
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
