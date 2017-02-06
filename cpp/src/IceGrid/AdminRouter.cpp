@@ -28,13 +28,13 @@ public:
     {
         _cb->ice_response(ok, outParams);
     }
-    
+
     void exception(const Ice::Exception&)
     {
         // Admin object is unreachable
         _cb->ice_exception(ObjectNotExistException(__FILE__, __LINE__));
     }
-    
+
 private:
     AMD_Object_ice_invokePtr _cb;
 };
@@ -42,19 +42,19 @@ private:
 }
 
 void
-IceGrid::AdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb, 
-                                       const pair<const Byte*, const Byte*>& inParams,
-                                       const Current& current)
+IceGrid::AdminRouter::invokeOnTarget(const Ice::ObjectPrx& target,
+                                     const AMD_Object_ice_invokePtr& cb,
+                                     const pair<const Byte*, const Byte*>& inParams,
+                                     const Current& current)
 {
-    ObjectPrx target = getTarget(current);
     assert(target != 0);
 
     //
     // Call with AMI
     //
-    Callback_Object_ice_invokePtr amiCb = 
-        newCallback_Object_ice_invoke(new CallbackI(cb), &CallbackI::response, &CallbackI::exception);
-
+    Callback_Object_ice_invokePtr amiCb = newCallback_Object_ice_invoke(new CallbackI(cb),
+                                                                        &CallbackI::response,
+                                                                        &CallbackI::exception);
     target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCb);
 }
 

@@ -22,8 +22,10 @@ IceGrid::NodeServerAdminRouter::NodeServerAdminRouter(const NodeIPtr& node) :
 {
 }
 
-ObjectPrx
-IceGrid::NodeServerAdminRouter::getTarget(const Current& current)
+void
+IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
+                                                 const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                                                 const Current& current)
 {
     //
     // First, get the ServerI servant
@@ -34,7 +36,7 @@ IceGrid::NodeServerAdminRouter::getTarget(const Current& current)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-    
+
     //
     // Then get a proxy to the Process facet of the real admin object
     //
@@ -44,7 +46,7 @@ IceGrid::NodeServerAdminRouter::getTarget(const Current& current)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
-    
+
     //
     // If this is a legacy Process proxy with no facet, we keep target as is
     //
@@ -56,6 +58,6 @@ IceGrid::NodeServerAdminRouter::getTarget(const Current& current)
         target = target->ice_facet(current.facet);
     }
 
-    return target;
+    invokeOnTarget(target, cb, inParams, current);
 }
 

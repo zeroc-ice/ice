@@ -569,14 +569,7 @@ ServerEntry::getAdminProxy()
     Ice::Identity adminId;
     adminId.name = _id;
     adminId.category = _cache.getInstanceName() + "-NodeServerAdminRouter";
-    try
-    {
-        return getProxy(true)->ice_identity(adminId);
-    }
-    catch(const SynchronizationException&)
-    {
-    }
-    return 0;
+    return getProxy(true)->ice_identity(adminId);
 }
 
 AdapterPrx

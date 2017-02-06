@@ -19,10 +19,12 @@ namespace IceGrid
 class RegistryServerAdminRouter : public AdminRouter
 {
 public:
-    
+
     RegistryServerAdminRouter(const DatabasePtr&);
 
-    virtual Ice::ObjectPrx getTarget(const Ice::Current&);
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
+                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&);
 
 private:
 
@@ -35,9 +37,11 @@ class RegistryNodeAdminRouter : public AdminRouter
 public:
 
     RegistryNodeAdminRouter(const std::string&, const DatabasePtr&);
-    
-    virtual Ice::ObjectPrx getTarget(const Ice::Current&);
-    
+
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
+                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&);
+
 private:
 
     const std::string _collocNodeName;
@@ -49,9 +53,11 @@ class RegistryReplicaAdminRouter : public AdminRouter
 public:
 
     RegistryReplicaAdminRouter(const std::string&, const DatabasePtr&);
-    
-    virtual Ice::ObjectPrx getTarget(const Ice::Current&);
-    
+
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
+                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&);
+
 private:
 
     const std::string _name;
