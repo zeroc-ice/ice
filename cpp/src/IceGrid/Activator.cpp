@@ -1057,6 +1057,11 @@ void
 Activator::shutdown()
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    if(_deactivating)
+    {
+        return;
+    }
+
     //
     // Deactivation has been initiated. Set _deactivating to true to
     // prevent activation of new processes. This will also cause the
