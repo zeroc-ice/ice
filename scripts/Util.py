@@ -2914,15 +2914,25 @@ from LocalDriver import *
 #
 # Supported mappings
 #
-Mapping.add("cpp", CppMapping())
-Mapping.add("java", JavaMapping())
-Mapping.add("java-compat", JavaCompatMapping())
-Mapping.add("python", PythonMapping())
-Mapping.add("ruby", RubyMapping())
-Mapping.add("php", PhpMapping())
-Mapping.add("js", JavaScriptMapping())
-Mapping.add("csharp", CSharpMapping())
-Mapping.add("objective-c", ObjCMapping())
+for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(toplevel)):
+    if m == "cpp" or re.match("cpp-.*", m):
+        Mapping.add(m, CppMapping())
+    elif m == "java-compat" or re.match("java-compat-.*", m):
+        Mapping.add(m, JavaCompatMapping())
+    elif m == "java" or re.match("java-.*", m):
+        Mapping.add(m, JavaMapping())
+    elif m == "python" or re.match("python-.*", m):
+        Mapping.add(m, PythonMapping())
+    elif m == "ruby" or re.match("ruby-.*", m):
+        Mapping.add(m, RubyMapping())
+    elif m == "php" or re.match("php-.*", m):
+        Mapping.add(m, PhpMapping())
+    elif m == "js" or re.match("js-.*", m):
+        Mapping.add(m, JavaScriptMapping())
+    elif m == "csharp" or re.match("csharp-.*", m):
+        Mapping.add(m, CSharpMapping())
+    elif m == "objective-c" or re.match("objective-c-*", m):
+        Mapping.add(m, ObjCMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])

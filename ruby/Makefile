@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
+lang_srcdir	:= $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 top_srcdir	:= ..
-lang_srcdir	:= $(top_srcdir)/ruby
 
 ifeq ($(filter all ruby,$(ICE_BIN_DIST)),)
 

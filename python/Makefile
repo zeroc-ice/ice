@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
-top_srcdir 	:= ..
-lang_srcdir	:= $(top_srcdir)/python
+lang_srcdir	:= $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+top_srcdir	:= ..
 
 ifeq ($(PYTHON),)
     PYTHON = python
