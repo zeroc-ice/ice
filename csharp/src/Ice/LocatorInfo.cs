@@ -130,64 +130,6 @@ namespace IceInternal
                 }
             }
 
-            public EndpointI[]
-            getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
-            {
-                lock(this)
-                {
-                    if(!_response || _exception == null)
-                    {
-                        if(wellKnownRef != null)
-                        {
-                            // This request is to resolve the endpoints of a cached well-known object ref
-                            _wellKnownRefs.Add(wellKnownRef);
-                        }
-                        if(!_sent)
-                        {
-                            _sent = true;
-                            send();
-                        }
-
-                        while(!_response && _exception == null)
-                        {
-                            Monitor.Wait(this);
-                        }
-                    }
-
-                    if(_exception != null)
-                    {
-                        _locatorInfo.getEndpointsException(@ref, _exception); // This throws.
-                    }
-
-                    Debug.Assert(_response);
-                    EndpointI[] endpoints = null;
-                    if(_proxy != null)
-                    {
-                        Reference r = ((Ice.ObjectPrxHelperBase)_proxy).iceReference();
-                        if(!r.isIndirect())
-                        {
-                            endpoints = r.getEndpoints();
-                        }
-                        else if(@ref.isWellKnown() && !r.isWellKnown())
-                        {
-                            //
-                            // We're resolving the endpoints of a well-known object and the proxy returned
-                            // by the locator is an indirect proxy. We now need to resolve the endpoints
-                            // of this indirect proxy.
-                            //
-                            return _locatorInfo.getEndpoints(r, @ref, ttl, out cached);
-                        }
-                    }
-
-                    cached = false;
-                    if(_ref.getInstance().traceLevels().location >= 1)
-                    {
-                        _locatorInfo.getEndpointsTrace(@ref, endpoints, false);
-                    }
-                    return endpoints == null ? new EndpointI[0] : endpoints;
-                }
-            }
-
             public Request(LocatorInfo locatorInfo, Reference @ref)
             {
                 _locatorInfo = locatorInfo;
@@ -352,67 +294,6 @@ namespace IceInternal
                     Ice.EndpointSelectionType.Ordered);
                 return _locatorRegistry;
             }
-        }
-
-        public EndpointI[]
-        getEndpoints(Reference @ref, int ttl, out bool cached)
-        {
-            return getEndpoints(@ref, null, ttl, out cached);
-        }
-
-        public EndpointI[]
-        getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
-        {
-            Debug.Assert(@ref.isIndirect());
-            EndpointI[] endpoints = null;
-            cached = false;
-            if(!@ref.isWellKnown())
-            {
-                endpoints = _table.getAdapterEndpoints(@ref.getAdapterId(), ttl, out cached);
-                if(!cached)
-                {
-                    if(_background && endpoints != null)
-                    {
-                        getAdapterRequest(@ref).addCallback(@ref, wellKnownRef, ttl, null);
-                    }
-                    else
-                    {
-                        return getAdapterRequest(@ref).getEndpoints(@ref, wellKnownRef, ttl, out cached);
-                    }
-                }
-            }
-            else
-            {
-                Reference r = _table.getObjectReference(@ref.getIdentity(), ttl, out cached);
-                if(!cached)
-                {
-                    if(_background && r != null)
-                    {
-                        getObjectRequest(@ref).addCallback(@ref, null, ttl, null);
-                    }
-                    else
-                    {
-                        return getObjectRequest(@ref).getEndpoints(@ref, null, ttl, out cached);
-                    }
-                }
-
-                if(!r.isIndirect())
-                {
-                    endpoints = r.getEndpoints();
-                }
-                else if(!r.isWellKnown())
-                {
-                    return getEndpoints(r, @ref, ttl, out cached);
-                }
-            }
-
-            Debug.Assert(endpoints != null);
-            cached = true;
-            if(@ref.getInstance().traceLevels().location >= 1)
-            {
-                getEndpointsTrace(@ref, endpoints, true);
-            }
-            return endpoints;
         }
 
         public void

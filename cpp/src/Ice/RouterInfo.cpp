@@ -109,8 +109,7 @@ IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
     return info;
 }
 
-IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) :
-    _router(router)
+IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) : _router(router)
 {
     assert(_router);
 }
@@ -219,27 +218,6 @@ IceInternal::RouterInfo::getServerEndpoints()
     }
 
     return setServerEndpoints(_router->getServerProxy());
-}
-
-void
-IceInternal::RouterInfo::addProxy(const ObjectPrxPtr& proxy)
-{
-    assert(proxy); // Must not be called for null proxies.
-
-    {
-        IceUtil::Mutex::Lock sync(*this);
-        if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
-        {
-            //
-            // Only add the proxy to the router if it's not already in our local map.
-            //
-            return;
-        }
-    }
-
-    ObjectProxySeq proxies;
-    proxies.push_back(proxy);
-    addAndEvictProxies(proxy, _router->addProxies(proxies));
 }
 
 void

@@ -117,7 +117,6 @@ public:
     public:
 
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
-        std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
 
         void response(const Ice::ObjectPrxPtr&);
         void exception(const Ice::Exception&);
@@ -159,17 +158,11 @@ public:
     }
     Ice::LocatorRegistryPrxPtr getLocatorRegistry();
 
-    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr& ref, int ttl, bool& cached)
+    void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
     {
-        return getEndpoints(ref, 0, ttl, cached);
+        getEndpoints(ref, 0, ttl, cb);
     }
-    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
-
-    void getEndpointsWithCallback(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
-    {
-        getEndpointsWithCallback(ref, 0, ttl, cb);
-    }
-    void getEndpointsWithCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+    void getEndpoints(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
     void clearCache(const ReferencePtr&);
 

@@ -58,7 +58,7 @@ class LocatorInfo
 
         return false;
     }
-    
+
     hashCode()
     {
         return this._locator.hashCode();

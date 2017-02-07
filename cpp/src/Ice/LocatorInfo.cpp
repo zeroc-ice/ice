@@ -371,7 +371,7 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
             // by the locator is an indirect proxy. We now need to resolve the endpoints
             // of this indirect proxy.
             //
-            locatorInfo->getEndpointsWithCallback(r, _ref, _ttl, _callback);
+            locatorInfo->getEndpoints(r, _ref, _ttl, _callback);
             return;
         }
     }
@@ -444,66 +444,6 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
         assert(_exception);
         callback->exception(_locatorInfo, *_exception);
     }
-}
-
-vector<EndpointIPtr>
-IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
-                                                const ReferencePtr& wellKnownRef,
-                                                int ttl,
-                                                bool& cached)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(!_response && !_exception)
-    {
-        if(wellKnownRef) // This request is to resolve the endpoints of a cached well-known object reference
-        {
-            _wellKnownRefs.push_back(wellKnownRef);
-        }
-        if(!_sent)
-        {
-            _sent = true;
-            sync.release();
-            send(); // send() might call exception() from this thread so we need to release the mutex.
-            sync.acquire();
-        }
-
-        while(!_response && !_exception)
-        {
-            _monitor.wait();
-        }
-    }
-
-    if(_exception)
-    {
-        _locatorInfo->getEndpointsException(ref, *_exception); // This throws.
-    }
-
-    assert(_response);
-    vector<EndpointIPtr> endpoints;
-    if(_proxy)
-    {
-        ReferencePtr r = _proxy->_getReference();
-        if(!r->isIndirect())
-        {
-            endpoints = r->getEndpoints();
-        }
-        else if(ref->isWellKnown() && !r->isWellKnown())
-        {
-            //
-            // We're resolving the endpoints of a well-known object and the proxy returned
-            // by the locator is an indirect proxy. We now need to resolve the endpoints
-            // of this indirect proxy.
-            //
-            return _locatorInfo->getEndpoints(r, ref, ttl, cached);
-        }
-    }
-
-    cached = false;
-    if(_ref->getInstance()->traceLevels()->location >= 1)
-    {
-        _locatorInfo->getEndpointsTrace(ref, endpoints, false);
-    }
-    return endpoints;
 }
 
 IceInternal::LocatorInfo::Request::Request(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) :
@@ -606,64 +546,12 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     }
 }
 
-vector<EndpointIPtr>
-IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, const ReferencePtr& wellKnownRef, int ttl, bool& cached)
-{
-    assert(ref->isIndirect());
-    vector<EndpointIPtr> endpoints;
-    if(!ref->isWellKnown())
-    {
-        if(!_table->getAdapterEndpoints(ref->getAdapterId(), ttl, endpoints))
-        {
-            if(_background && !endpoints.empty())
-            {
-                getAdapterRequest(ref)->addCallback(ref, wellKnownRef, ttl, 0);
-            }
-            else
-            {
-                return getAdapterRequest(ref)->getEndpoints(ref, wellKnownRef, ttl, cached);
-            }
-        }
-    }
-    else
-    {
-        ReferencePtr r;
-        if(!_table->getObjectReference(ref->getIdentity(), ttl, r))
-        {
-            if(_background && r)
-            {
-                getObjectRequest(ref)->addCallback(ref, 0, ttl, 0);
-            }
-            else
-            {
-                return getObjectRequest(ref)->getEndpoints(ref, 0, ttl, cached);
-            }
-        }
-
-        if(!r->isIndirect())
-        {
-            endpoints = r->getEndpoints();
-        }
-        else if(!r->isWellKnown())
-        {
-            return getEndpoints(r, ref, ttl, cached);
-        }
-    }
-
-    assert(!endpoints.empty());
-    cached = true;
-    if(ref->getInstance()->traceLevels()->location >= 1)
-    {
-        getEndpointsTrace(ref, endpoints, true);
-    }
-    return endpoints;
-}
 
 void
-IceInternal::LocatorInfo::getEndpointsWithCallback(const ReferencePtr& ref,
-                                                   const ReferencePtr& wellKnownRef,
-                                                   int ttl,
-                                                   const GetEndpointsCallbackPtr& callback)
+IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
+                                       const ReferencePtr& wellKnownRef,
+                                       int ttl,
+                                       const GetEndpointsCallbackPtr& callback)
 {
     assert(ref->isIndirect());
     vector<EndpointIPtr> endpoints;
@@ -704,7 +592,7 @@ IceInternal::LocatorInfo::getEndpointsWithCallback(const ReferencePtr& ref,
         }
         else if(!r->isWellKnown())
         {
-            getEndpointsWithCallback(r, ref, ttl, callback);
+            getEndpoints(r, ref, ttl, callback);
             return;
         }
     }

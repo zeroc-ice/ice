@@ -128,7 +128,6 @@ public:
 
     void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
     void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
-    void addProxy(const Ice::ObjectPrxPtr&);
     bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
     void setAdapter(const Ice::ObjectAdapterPtr&);

@@ -230,7 +230,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         // limit is reached.
         //
         interval = 0;
-    } 
+    }
     else if(cnt > static_cast<int>(_retryIntervals.size()))
     {
         if(traceLevels->retry >= 1)
