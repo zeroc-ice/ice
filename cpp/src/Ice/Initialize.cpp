@@ -119,6 +119,51 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
     }
 }
 
+#ifdef _WIN32
+void
+Ice::stringSeqToArgs(const StringSeq& args, int& argc, wchar_t* argv[])
+{
+    //
+    // Don't need to use a wide string converter argv is expected to
+    // come from Windows API.
+    //
+    const StringConverterPtr converter = getProcessStringConverter();
+
+    //
+    // Shift all elements in argv which are present in args to the
+    // beginning of argv. We record the original value of argc so
+    // that we can know later if we've shifted the array.
+    //
+    const int argcOrig = argc;
+    int i = 0;
+    while(i < argc)
+    {
+        if(find(args.begin(), args.end(), wstringToString(argv[i], converter)) == args.end())
+        {
+            for(int j = i; j < argc - 1; j++)
+            {
+                argv[j] = argv[j + 1];
+            }
+            --argc;
+        }
+        else
+        {
+            ++i;
+        }
+    }
+
+    //
+    // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
+    // We can only do this if we've shifted the array, otherwise argv[argc]
+    // may point to an invalid address.
+    //
+    if(argv && argcOrig != argc)
+    {
+        argv[argc] = 0;
+    }
+}
+#endif
+
 PropertiesPtr
 Ice::createProperties()
 {
@@ -139,6 +184,17 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
     stringSeqToArgs(args, argc, argv);
     return properties;
 }
+
+#ifdef _WIN32
+PropertiesPtr
+Ice::createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults)
+{
+    StringSeq args = argsToStringSeq(argc, argv);
+    PropertiesPtr properties = createProperties(args, defaults);
+    stringSeqToArgs(args, argc, argv);
+    return properties;
+}
+#endif
 
 #ifdef ICE_CPP11_MAPPING
 Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator,
@@ -235,6 +291,17 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
     communicator->finishSetup(argc, argv);
     return communicator;
 }
+
+#ifdef _WIN32
+Ice::CommunicatorPtr
+Ice::initialize(int& argc, wchar_t* argv[], const InitializationData& initializationData, Int version)
+{
+    Ice::StringSeq args = argsToStringSeq(argc, argv);
+    CommunicatorPtr communicator = initialize(args, initializationData, version);
+    stringSeqToArgs(args, argc, argv);
+    return communicator;
+}
+#endif
 
 Ice::CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
