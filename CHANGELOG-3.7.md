@@ -152,9 +152,9 @@ These are the changes since Ice 3.6.3.
   declared as `noexcept` (C++11) or `throw()` (C++98).
 
 - The --dll-export option of slice2cpp is now deprecated, and replaced by the global
-  Slice metadata cpp:dll-export:SYMBOL.
+  Slice metadata `cpp:dll-export:SYMBOL`.
 
-- Added "cpp:scoped" metadata for enums in the C++98 mapping. The generated C++
+- Added `cpp:scoped` metadata for enums in the C++98 mapping. The generated C++
   enumerators for a "scoped enum" are prefixed with the enumeration's name. For
   example:
   ```
@@ -203,9 +203,9 @@ These are the changes since Ice 3.6.3.
   trigger an assert on marshaling.
 
 - The --dll-export option of slice2objc is now deprecated, and replaced by the
-  global Slice metadata objc:dll-export:SYMBOL.
+  global Slice metadata `objc:dll-export:SYMBOL`.
 
-- Added "objc:scoped" metadata for enums. The generated Objective-C enumerators
+- Added `objc:scoped` metadata for enums. The generated Objective-C enumerators
   for a "scoped enum" are prefixed with the enumeration's name. For example:
   ```
   // Slice
