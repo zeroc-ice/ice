@@ -1524,7 +1524,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixName(p);
     EnumeratorList enumerators = p->enumerators();
-    string enumeratorPrefix = p->hasMetaData("objc:scoped") ? name : "";
+    string enumeratorPrefix = p->hasMetaData("objc:scoped") ? p->name() : "";
 
     _H << sp;
 

@@ -17,6 +17,35 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- A Slice enumeration (enum) creates now a new namespace scope for its
+  enumerators. In previous releases, the enumerators were in the same
+  namespace scope as the enumeration. For example:
+  ```
+     enum Fruit { Apple, Orange, Pear };
+     enum ComputerBrands { Apple, Dell, HP }; // Ok as of Ice 3.7, error in prior releases
+  ```
+  The mapping of enum to C++, C#, Java etc. is not affected by this
+  change. Slice constants and data member default values that reference
+  enumerators should be updated to use only the enumerator's name when the
+  enclosing enum is in a different module. For example:
+  ```
+  module M1
+  {
+      enum Fruit { Apple, Orange, Pear };
+      enum ComputerBrands { Apple, Dell, HP };
+
+      const Fruit a = Apple; // Recommended syntax for all Ice releases
+  };
+
+  module M2
+  {
+      const M1::Fruit a1 = Apple;             // The recommended syntax as of Ice 3.7
+      const M1::Fruit a2 = M1::Fruit::Apple;  // Ok as well
+      const M1::Fruit a3 = M1::Apple;         // Supported for backwards compatibility
+                                              // with earlier Ice releases
+  };
+
+  ```
 - The communicator and connection flushBatchRequests method now takes
   an additional argument to specify whether or not the batch requests
   to flush should be compressed. See the documentation of the
@@ -125,6 +154,19 @@ These are the changes since Ice 3.6.3.
 - The --dll-export option of slice2cpp is now deprecated, and replaced by the global
   Slice metadata cpp:dll-export:SYMBOL.
 
+- Added "cpp:scoped" metadata for enums in the C++98 mapping. The generated C++
+  enumerators for a "scoped enum" are prefixed with the enumeration's name. For
+  example:
+  ```
+     // Slice
+     ["cpp:scoped"] enum Fruit { Apple, Orange, Pear };
+  ```
+  corresponds to:
+  ```
+     // C++98
+     enum Fruit { FruitApple, FruitOrange, FruitPear };
+  ```
+
 - Upgrade UWP IceSSL implementation to support client side certificates and custom
   certificate verification.
 
@@ -163,6 +205,26 @@ These are the changes since Ice 3.6.3.
 - The --dll-export option of slice2objc is now deprecated, and replaced by the
   global Slice metadata objc:dll-export:SYMBOL.
 
+- Added "objc:scoped" metadata for enums. The generated Objective-C enumerators
+  for a "scoped enum" are prefixed with the enumeration's name. For example:
+  ```
+  // Slice
+  module M
+  {
+     ["objc:scoped"] enum Fruit { Apple, Orange, Pear };
+  };
+
+  ```
+  corresponds to:
+  ```
+  // Objective-C
+  typedef enum : ICEInt
+  {
+      MFruitApple,
+      MFruitPear,
+      MFruitOrange
+  } MFruit;
+  ```
 ## Python Changes
 
 - The Ice communicator now implements context manager protocol. This enables
