@@ -4817,11 +4817,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             {
                 continue;
             }
-            if(EnumPtr::dynamicCast(cont) && ss == "scoped")
+            if(!cpp11 && EnumPtr::dynamicCast(cont) && ss == "scoped")
             {
                 continue;
             }
-            if(EnumPtr::dynamicCast(cont) && ss == "unscoped")
+            if(!cpp98 && EnumPtr::dynamicCast(cont) && ss == "unscoped")
             {
                 continue;
             }
