@@ -190,11 +190,7 @@ enum en1 { red };
 enum eN1 { lilac };
 enum m1 { green };
 enum M1 { blue };
-
-enum en2 { yellow, en1 };
-enum en3 { EN1 };
-enum en4 { amber, m1 };
-enum en5 { M1 };
+enum en2 { yellow, en1, EN1};
 
 module xxx
 {

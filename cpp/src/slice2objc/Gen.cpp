@@ -1523,7 +1523,9 @@ void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixName(p);
-    EnumeratorList enumerators = p->getEnumerators();
+    EnumeratorList enumerators = p->enumerators();
+    string enumeratorPrefix = p->hasMetaData("objc:scoped") ? name : "";
+
     _H << sp;
 
     //
@@ -1536,7 +1538,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList::const_iterator en = enumerators.begin();
     while(en != enumerators.end())
     {
-        _H << nl << fixName(*en);
+        _H << nl << moduleName(findModule(*en)) << enumeratorPrefix << (*en)->name();
         //
         // If any of the enumerators were assigned an explicit value, we emit
         // an explicit value for *all* enumerators.
@@ -1566,12 +1568,13 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
         _H << nl << "static const " << typeToString(p->type());
     }
     _H << " " << fixName(p) << " = ";
-    writeConstantValue(_H, p->type(), p->value());
+    writeConstantValue(_H, p->type(), p->valueType(), p->value());
     _H << ';';
 }
 
 void
-Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const string& val) const
+Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
+                                             const SyntaxTreeBasePtr& valueType, const string& val) const
 {
     if(isString(type))
     {
@@ -1582,7 +1585,10 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
         EnumPtr ep = EnumPtr::dynamicCast(type);
         if(ep)
         {
-            out  << moduleName(findModule(ep)) << val;
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            string enumeratorPrefix = ep->hasMetaData("objc:scoped") ? ep->name() : "";
+            out << moduleName(findModule(ep)) << enumeratorPrefix << lte->name();
         }
         else
         {
@@ -1868,7 +1874,7 @@ Slice::Gen::TypesVisitor::writeMemberDefaultValueInit(const DataMemberList& data
                 _M << nl << "self->has_" << name << "__ = YES;";
             }
             _M << nl << "self->" << name << " = ";
-            writeConstantValue(_M, (*p)->type(), (*p)->defaultValue());
+            writeConstantValue(_M, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _M << ";";
         }
         else
@@ -1882,7 +1888,7 @@ Slice::Gen::TypesVisitor::writeMemberDefaultValueInit(const DataMemberList& data
             EnumPtr en = EnumPtr::dynamicCast((*p)->type());
             if(en)
             {
-                string firstEnum = fixName(en->getEnumerators().front());
+                string firstEnum = fixName(en->enumerators().front());
                 _M << nl <<  "self->" << name << " = " << firstEnum << ';';
             }
 

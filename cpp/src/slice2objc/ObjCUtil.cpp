@@ -1222,9 +1222,7 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         bool foundPrefix = false;
 
         StringList meta = getMetaData(m);
-        StringList::const_iterator p;
-
-        for(p = meta.begin(); p != meta.end();)
+        for(StringList::iterator p = meta.begin(); p != meta.end();)
         {
             string s = *p++;
             const string prefix = "objc:prefix:";
@@ -1235,10 +1233,8 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 name = trim(s.substr(prefix.size()));
                 if(name.empty())
                 {
-                    string file = m->definitionContext()->filename();
-                    ostringstream os;
-                    os << _msg << " `" << s << "'" << endl;
-                    emitWarning(file, m->line(), os.str());
+                    m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
+                                                    m->line(), _msg + " `" + s + "'");
                     meta.remove(s);
                     error = true;
                 }
@@ -1252,10 +1248,8 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
             else
             {
-                string file = m->definitionContext()->filename();
-                ostringstream os;
-                os << _msg << " `" << s << "'" << endl;
-                emitWarning(file, m->line(), os.str());
+                m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
+                                                m->line(), _msg + " `" + s + "'");
                 meta.remove(s);
                 error = true;
             }
@@ -1275,6 +1269,27 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 modulePrefixError(m, "");
             }
         }
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(cont);
+    if(en)
+    {
+        StringList meta = getMetaData(en);
+        for(StringList::iterator p = meta.begin(); p != meta.end();)
+        {
+            string s = *p;
+            if(s != "objc:scoped")
+            {
+                en->definitionContext()->warning(InvalidMetaData, en->definitionContext()->filename(),
+                                                en->line(), _msg + " `" + s + "'");
+                meta.erase(p++);
+            }
+            else
+            {
+                ++p;
+            }
+        }
+        setMetaData(en, meta);
     }
 }
 
@@ -1333,5 +1348,5 @@ Slice::ObjCGenerator::MetaDataVisitor::modulePrefixError(const ModulePtr& m, con
     }
     os << line;
     os << " as `" << mp.name << "'" << endl;
-    emitWarning(file, line, os.str());
+    m->definitionContext()->warning(All, file, line, os.str());
 }

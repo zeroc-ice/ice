@@ -1679,7 +1679,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             //
             // The priority of the metadata is as follows:
             // 1: array, range (C++98 only), view-type for "view" parameters
-            // 2: class (C++98 only), unscoped (C++11 only)
+            // 2: class (C++98 only), scoped (C++98 only), unscoped (C++11 only)
             //
 
             if(pos != string::npos)
@@ -1716,7 +1716,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 }
             }
             //
-            // Otherwise if the data is "class", "unscoped" it is returned.
+            // Otherwise if the data is "class", "scoped" or "unscoped" it is returned.
             //
             else
             {
@@ -1724,6 +1724,10 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 if(ss == "class" && !(typeCtx & TypeContextCpp11))
                 {
                     return "%class";
+                }
+                else if(ss == "scoped" && !(typeCtx & TypeContextCpp11))
+                {
+                    return "%scoped";
                 }
                 else if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
                 {

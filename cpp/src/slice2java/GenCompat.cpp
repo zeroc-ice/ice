@@ -1764,7 +1764,6 @@ Slice::JavaCompatVisitor::writeConstantValue(Output& out, const TypePtr& type, c
     else
     {
         BuiltinPtr bp;
-        EnumPtr ep;
         if((bp = BuiltinPtr::dynamicCast(type)))
         {
             switch(bp->kind())
@@ -1809,15 +1808,11 @@ Slice::JavaCompatVisitor::writeConstantValue(Output& out, const TypePtr& type, c
             }
 
         }
-        else if((ep = EnumPtr::dynamicCast(type)))
+        else if(EnumPtr::dynamicCast(type))
         {
-            string val = value;
-            string::size_type pos = val.rfind(':');
-            if(pos != string::npos)
-            {
-                val.erase(0, pos + 1);
-            }
-            out << getAbsolute(ep, package) << '.' << fixKwd(val);
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            out << getAbsolute(lte, package);
         }
         else
         {
@@ -1860,7 +1855,7 @@ Slice::JavaCompatVisitor::writeDataMemberInitializers(Output& out, const DataMem
             EnumPtr en = EnumPtr::dynamicCast(t);
             if(en)
             {
-                string firstEnum = fixKwd(en->getEnumerators().front()->name());
+                string firstEnum = fixKwd(en->enumerators().front()->name());
                 out << nl << "this." << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
             }
 
@@ -4058,7 +4053,7 @@ Slice::GenCompat::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixKwd(p->name());
     string absolute = getAbsolute(p);
-    EnumeratorList enumerators = p->getEnumerators();
+    EnumeratorList enumerators = p->enumerators();
 
     open(absolute, p->file());
 
@@ -5947,7 +5942,7 @@ Slice::GenCompat::BaseImplVisitor::writeDecl(Output& out, const string& package,
             EnumPtr en = EnumPtr::dynamicCast(type);
             if(en)
             {
-                EnumeratorList enumerators = en->getEnumerators();
+                EnumeratorList enumerators = en->enumerators();
                 out << " = " << getAbsolute(en, package) << '.' << fixKwd(enumerators.front()->name());
             }
             else

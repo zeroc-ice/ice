@@ -27,7 +27,7 @@ const string stringconst = "X\aX\x01000\x100\rX\007\xff\xff\xff\x0ff\xfff\x1X";
 const string stringconst2 = "Hello World!";
 enum color { red, green, blue };
 const color colorconst = blue;
-const ::Test::color colorconst2 = ::Test::green;
+const ::Test::color colorconst2 = ::Test::color::green;
 
 //
 // Checks for number formats (all OK)

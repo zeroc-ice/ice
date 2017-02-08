@@ -18,6 +18,8 @@ const float C5 = 1.1;
 const long C6 = 2;
 
 enum E { e1, e2, e3 = 4 };
+enum Ebis { e2 };
+enum Eter { e2 };
 
 class C
 {
@@ -33,15 +35,15 @@ class C
     optional(C4) byte m10;          // out of range
     optional(C5) bool m11;          // invalid tag
     optional(C6) bool m12;          // ok
-    optional(e1) int m13;           // duplicate tag
-    optional(e2) int m14;           // ok
+    optional(E::e1) int m13;        // duplicate tag
+    optional(e2) int m14;           // ambiguous
     optional(e3) int m15;           // ok
     optional(4) int m16;            // duplicate tag
 };
 
 class Base
 {
-    optional(e2) int b1;
+    optional(E::e2) int b1;
 };
 
 class Derived extends Base
@@ -63,15 +65,15 @@ class Ex
     optional(C4) byte m10;          // out of range
     optional(C5) bool m11;          // invalid tag
     optional(C6) bool m12;          // ok
-    optional(e1) int m13;           // duplicate tag
-    optional(e2) int m14;           // ok
+    optional(E::e1) int m13;        // duplicate tag
+    optional(E::e2) int m14;        // ok
     optional(e3) int m15;           // ok
     optional(4) int m16;            // duplicate tag
 };
 
 class BaseEx
 {
-    optional(e2) int b1;
+    optional(E::e2) int b1;
 };
 
 class DerivedEx extends BaseEx

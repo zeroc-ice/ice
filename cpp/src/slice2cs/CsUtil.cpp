@@ -1029,7 +1029,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        size_t sz = en->getEnumerators().size();
+        size_t sz = en->enumerators().size();
         if(marshal)
         {
             out << nl << "if(" << param << ".HasValue)";

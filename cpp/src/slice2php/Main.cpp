@@ -1021,7 +1021,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
-    EnumeratorList enums = p->getEnumerators();
+    EnumeratorList enums = p->enumerators();
 
     startNamespace(p);
 
@@ -1271,7 +1271,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     EnumPtr en = EnumPtr::dynamicCast(p);
     if(en)
     {
-        EnumeratorList enums = en->getEnumerators();
+        EnumeratorList enums = en->enumerators();
         _out << getAbsolute(en, _ns) << "::" << fixIdent(enums.front()->name());
         return;
     }
@@ -1369,21 +1369,9 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         }
         else if(en)
         {
-            string val = value;
-            string::size_type colon = val.rfind(':');
-            if(colon != string::npos)
-            {
-                val = val.substr(colon + 1);
-            }
-            Slice::EnumeratorList l = en->getEnumerators();
-            for(Slice::EnumeratorList::iterator q = l.begin(); q != l.end(); ++q)
-            {
-                if((*q)->name() == val)
-                {
-                    _out << getAbsolute(en, _ns) << "::" << fixIdent(val);
-                    break;
-                }
-            }
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            _out << getAbsolute(en, _ns) << "::" << fixIdent(lte->name());
         }
         else
         {

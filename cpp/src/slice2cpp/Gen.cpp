@@ -146,28 +146,32 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         else
         {
             EnumPtr ep = EnumPtr::dynamicCast(type);
-            if(ep)
+            if(ep && valueType)
             {
-                bool unscoped = findMetaData(ep->getMetaData(), cpp11 ? TypeContextCpp11 : 0) == "%unscoped";
-                if(!cpp11 || unscoped)
+                EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+                assert(enumerator);
+
+                bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped") ||
+                    (!cpp11 && findMetaData(ep->getMetaData()) != "%scoped");
+
+                if(unscoped)
                 {
-                    out << fixKwd(value);
+                    out << fixKwd(ep->scope() + enumerator->name());
                 }
                 else
                 {
-                    string v = value;
-                    string scope;
-                    size_t pos = value.rfind("::");
-                    if(pos != string::npos)
+                    if(cpp11)
                     {
-                        v = value.substr(pos + 2);
-                        scope = value.substr(0, value.size() - v.size());
+                        out << fixKwd(enumerator->scoped());
                     }
-
-                    out << fixKwd(scope + ep->name() + "::" + v);
+                    else
+                    {
+                        out << fixKwd(ep->scope() + ep->name() + enumerator->name())
+;
+                    }
                 }
             }
-            else
+            else if(!ep)
             {
                 out << value;
             }
@@ -1506,7 +1510,9 @@ void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixKwd(p->name());
-    EnumeratorList enumerators = p->getEnumerators();
+    EnumeratorList enumerators = p->enumerators();
+
+    string enumeratorPrefix = findMetaData(p->getMetaData()) == "%scoped" ? name : "";
 
     //
     // Check if any of the enumerators were assigned an explicit value.
@@ -1519,7 +1525,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList::const_iterator en = enumerators.begin();
     while(en != enumerators.end())
     {
-        H << nl << fixKwd((*en)->name());
+        H << nl << fixKwd(enumeratorPrefix + (*en)->name());
         //
         // If any of the enumerators were assigned an explicit value, we emit
         // an explicit value for *all* enumerators.
@@ -3822,7 +3828,7 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const StringList& met
         EnumPtr en = EnumPtr::dynamicCast(type);
         if(en)
         {
-            EnumeratorList enumerators = en->getEnumerators();
+            EnumeratorList enumerators = en->enumerators();
             return fixKwd(en->scope() + enumerators.front()->name());
         }
 
@@ -4811,7 +4817,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             {
                 continue;
             }
-            if(!cpp98 && EnumPtr::dynamicCast(cont) && ss == "unscoped")
+            if(EnumPtr::dynamicCast(cont) && ss == "scoped")
+            {
+                continue;
+            }
+            if(EnumPtr::dynamicCast(cont) && ss == "unscoped")
             {
                 continue;
             }
@@ -4986,6 +4996,7 @@ Slice::Gen::NormalizeMetaDataVisitor::normalize(const StringList& metaData)
         "const",
         "ice_print",
         "range",
+        "scoped",
         "type:",
         "unscoped",
         "view-type:",
@@ -6243,7 +6254,7 @@ Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
     }
     H << sb;
 
-    EnumeratorList enumerators = p->getEnumerators();
+    EnumeratorList enumerators = p->enumerators();
     //
     // Check if any of the enumerators were assigned an explicit value.
     //
@@ -7719,7 +7730,7 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const StringList
         EnumPtr en = EnumPtr::dynamicCast(type);
         if(en)
         {
-            EnumeratorList enumerators = en->getEnumerators();
+            EnumeratorList enumerators = en->enumerators();
             return fixKwd(en->scoped() + "::" + enumerators.front()->name());
         }
 

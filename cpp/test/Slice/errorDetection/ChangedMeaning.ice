@@ -107,7 +107,7 @@ module B
 
     const color fc = blue;
 
-    interface blue {};          // Changed meaning
+    interface blue {};          // Ok as of 3.7: enums are now scoped
 
 };
 

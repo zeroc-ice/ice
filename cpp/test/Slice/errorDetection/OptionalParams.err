@@ -1,38 +1,40 @@
-OptionalParams.ice:24: missing tag for optional
 OptionalParams.ice:25: missing tag for optional
-OptionalParams.ice:26: `abc' is not defined
-OptionalParams.ice:27: tag for optional is out of range
+OptionalParams.ice:26: missing tag for optional
+OptionalParams.ice:27: `abc' is not defined
 OptionalParams.ice:28: tag for optional is out of range
 OptionalParams.ice:29: tag for optional is out of range
-OptionalParams.ice:31: tag for optional is out of range
-OptionalParams.ice:31: invalid tag `C3' for optional
+OptionalParams.ice:30: tag for optional is out of range
 OptionalParams.ice:32: tag for optional is out of range
-OptionalParams.ice:32: invalid tag `C4' for optional
-OptionalParams.ice:33: invalid tag `C5' for optional
-OptionalParams.ice:36: syntax error
-OptionalParams.ice:38: missing tag for optional
+OptionalParams.ice:32: invalid tag `C3' for optional
+OptionalParams.ice:33: tag for optional is out of range
+OptionalParams.ice:33: invalid tag `C4' for optional
+OptionalParams.ice:34: invalid tag `C5' for optional
+OptionalParams.ice:37: syntax error
 OptionalParams.ice:39: missing tag for optional
-OptionalParams.ice:40: `abc' is not defined
-OptionalParams.ice:41: tag for optional is out of range
+OptionalParams.ice:40: missing tag for optional
+OptionalParams.ice:41: `abc' is not defined
 OptionalParams.ice:42: tag for optional is out of range
 OptionalParams.ice:43: tag for optional is out of range
-OptionalParams.ice:45: tag for optional is out of range
-OptionalParams.ice:45: invalid tag `C3' for optional
+OptionalParams.ice:44: tag for optional is out of range
 OptionalParams.ice:46: tag for optional is out of range
-OptionalParams.ice:46: invalid tag `C4' for optional
-OptionalParams.ice:47: invalid tag `C5' for optional
-OptionalParams.ice:51: missing tag for optional
+OptionalParams.ice:46: invalid tag `C3' for optional
+OptionalParams.ice:47: tag for optional is out of range
+OptionalParams.ice:47: invalid tag `C4' for optional
+OptionalParams.ice:48: invalid tag `C5' for optional
+OptionalParams.ice:50: warning: referencing enumerator `::Test::E::e2' without its enumeration's scope is deprecated
 OptionalParams.ice:52: missing tag for optional
-OptionalParams.ice:53: `abc' is not defined
-OptionalParams.ice:54: tag for optional is out of range
+OptionalParams.ice:53: missing tag for optional
+OptionalParams.ice:54: `abc' is not defined
 OptionalParams.ice:55: tag for optional is out of range
 OptionalParams.ice:56: tag for optional is out of range
-OptionalParams.ice:58: tag for optional is out of range
-OptionalParams.ice:58: invalid tag `C3' for optional
+OptionalParams.ice:57: tag for optional is out of range
 OptionalParams.ice:59: tag for optional is out of range
-OptionalParams.ice:59: invalid tag `C4' for optional
-OptionalParams.ice:60: invalid tag `C5' for optional
-OptionalParams.ice:66: tag for optional parameter `o' is already in use
+OptionalParams.ice:59: invalid tag `C3' for optional
+OptionalParams.ice:60: tag for optional is out of range
+OptionalParams.ice:60: invalid tag `C4' for optional
+OptionalParams.ice:61: invalid tag `C5' for optional
+OptionalParams.ice:63: enumerator `e1' could designate `::Test::E::e1' or `::Test::Ebis::e1'
 OptionalParams.ice:67: tag for optional parameter `o' is already in use
 OptionalParams.ice:68: tag for optional parameter `o' is already in use
 OptionalParams.ice:69: tag for optional parameter `o' is already in use
+OptionalParams.ice:70: tag for optional parameter `o' is already in use

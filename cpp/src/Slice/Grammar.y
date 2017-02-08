@@ -50,7 +50,7 @@ slice_error(const char* s)
 
 %}
 
-%pure_parser
+%pure-parser
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this
@@ -401,7 +401,44 @@ optional
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
-    ContainedList cl = cont->lookupContained(scoped->v);
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+    if(cl.empty())
+    {
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if(enumerators.size() == 1)
+        {
+            // Found
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v 
+                          + "' without its enumeration's scope is deprecated");
+        }
+        else if(enumerators.size() > 1)
+        {
+            ostringstream os;
+            os << "enumerator `" << scoped->v << "' could designate";
+            bool first = true;
+            for(EnumeratorList::iterator p = enumerators.begin(); p != enumerators.end(); ++p)
+            {
+                if(first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    os << " or";
+                }
+                
+                os << " `" << (*p)->scoped() << "'";
+            }
+            unit->error(os.str());
+        }
+        else
+        {
+            unit->error(string("`") + scoped->v + "' is not defined");
+        }
+    }
+
     if(cl.empty())
     {
         YYERROR; // Can't continue, jump to next yyerrok
@@ -644,7 +681,44 @@ class_id
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
-    ContainedList cl = cont->lookupContained(scoped->v);
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+    if(cl.empty())
+    {
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if(enumerators.size() == 1)
+        {
+            // Found
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v 
+                          + "' without its enumeration's scope is deprecated");
+        }
+        else if(enumerators.size() > 1)
+        {
+            ostringstream os;
+            os << "enumerator `" << scoped->v << "' could designate";
+            bool first = true;
+            for(EnumeratorList::iterator p = enumerators.begin(); p != enumerators.end(); ++p)
+            {
+                if(first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    os << " or";
+                }
+                
+                os << " `" << (*p)->scoped() << "'";
+            }
+            unit->error(os.str());
+        }
+        else
+        {
+            unit->error(string("`") + scoped->v + "' is not defined");
+        }
+    }
+
     if(cl.empty())
     {
         YYERROR; // Can't continue, jump to next yyerrok
@@ -1495,7 +1569,15 @@ enum_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v, local->v);
-    cont->checkIntroduced(ident->v, en);
+    if(en)
+    {
+        cont->checkIntroduced(ident->v, en);
+    }
+    else
+    {
+        en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+    }
+    unit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
@@ -1503,25 +1585,29 @@ enum_def
     EnumPtr en = EnumPtr::dynamicCast($3);
     if(en)
     {
-    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-    if(enumerators->v.empty())
-    {
-        unit->error("enum `" + en->name() + "' must have at least one enumerator");
-    }
-    en->setEnumerators(enumerators->v); // Dummy
+        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+        if(enumerators->v.empty())
+        {
+            unit->error("enum `" + en->name() + "' must have at least one enumerator");
+        }
+        unit->popContainer();
     }
     $$ = $3;
 }
 |
-local_qualifier ICE_ENUM '{' enumerator_list '}'
+local_qualifier ICE_ENUM 
 {
     unit->error("missing enumeration name");
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy); // Dummy
-    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($4);
-    en->setEnumerators(enumerators->v); // Dummy
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+    unit->pushContainer(en);
     $$ = en;
+}
+'{' enumerator_list '}'
+{
+    unit->popContainer();
+    $$ = $2;
 }
 ;
 
@@ -1550,7 +1636,7 @@ enumerator
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
-    ens->v.push_front(en);
+        ens->v.push_front(en);
     }
     $$ = ens;
 }
@@ -1569,10 +1655,7 @@ enumerator
         else
         {
             EnumeratorPtr en = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
-            if(en)
-            {
-                ens->v.push_front(en);
-            }
+            ens->v.push_front(en);
         }
     }
     $$ = ens;
@@ -1963,9 +2046,10 @@ const_initializer
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok;
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v, false);
     if(cl.empty())
     {
+        // Could be an enumerator
         def->v.type = TypePtr(0);
         def->v.value = SyntaxTreeBasePtr(0);
         def->v.valueAsString = scoped->v;

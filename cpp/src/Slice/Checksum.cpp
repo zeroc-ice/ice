@@ -352,7 +352,7 @@ Slice::ChecksumVisitor::visitEnum(const EnumPtr& p)
     //
     const bool explicitValue = p->explicitValue();
 
-    EnumeratorList enums = p->getEnumerators();
+    EnumeratorList enums = p->enumerators();
     if(explicitValue)
     {
         //

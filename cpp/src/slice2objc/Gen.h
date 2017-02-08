@@ -131,7 +131,7 @@ private:
         enum Escape { NoEscape, WithEscape };
         enum ContainerType { LocalException, Other };
 
-        void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const std::string&) const;
+        void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&) const;
         void writeInit(const ContainedPtr&, const DataMemberList&, const DataMemberList&, const DataMemberList&, bool,
                        int, ContainerType) const;
         void writeFactory(const ContainedPtr&, const DataMemberList&, int, ContainerType) const;

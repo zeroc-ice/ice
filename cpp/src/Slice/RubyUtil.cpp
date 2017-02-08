@@ -1028,7 +1028,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
-    EnumeratorList enums = p->getEnumerators();
+    EnumeratorList enums = p->enumerators();
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
@@ -1286,7 +1286,7 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
     EnumPtr en = EnumPtr::dynamicCast(p);
     if(en)
     {
-        EnumeratorList enums = en->getEnumerators();
+        EnumeratorList enums = en->enumerators();
         return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
     }
 
@@ -1355,16 +1355,9 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
         }
         else if(en)
         {
-            _out << getAbsolute(en, IdentToUpper) << "::";
-            string::size_type colon = value.rfind(':');
-            if(colon != string::npos)
-            {
-                _out << fixIdent(value.substr(colon + 1), IdentToUpper);
-            }
-            else
-            {
-                _out << fixIdent(value, IdentToUpper);
-            }
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            _out << getAbsolute(lte, IdentToUpper);
         }
         else
         {

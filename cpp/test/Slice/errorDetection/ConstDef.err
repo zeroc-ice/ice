@@ -9,7 +9,7 @@ ConstDef.ice:85: initializer of type `double' is incompatible with the type `sho
 ConstDef.ice:86: type of initializer is incompatible with the type `int' of constant `ic7'
 ConstDef.ice:87: initializer of type `bool' is incompatible with the type `long' of constant `ic8'
 ConstDef.ice:89: missing constant name
-ConstDef.ice:92: enumerator `two' is not defined in enumeration `::Test::color'
+ConstDef.ice:92: `two' does not designate an enumerator of `::Test::color'
 ConstDef.ice:93: type of initializer is incompatible with the type of constant `ic10'
 ConstDef.ice:109: integer constant `-9223372036854775809' out of range
 ConstDef.ice:110: integer constant `+9223372036854775808' out of range

@@ -1282,7 +1282,7 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        return fixId(en->scoped()) + "." + fixId((*en->getEnumerators().begin())->name());
+        return fixId(en->scoped()) + "." + fixId((*en->enumerators().begin())->name());
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -1305,7 +1305,6 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     else
     {
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        EnumPtr ep;
         if(bp && bp->kind() == Builtin::KindString)
         {
             _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
@@ -1318,20 +1317,11 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             _out << value << "F";
         }
-        else if((ep = EnumPtr::dynamicCast(type)))
+        else if(EnumPtr::dynamicCast(type))
         {
-            string enumName = fixId(ep->scoped());
-            string::size_type colon = value.rfind(':');
-            string enumerator;
-            if(colon != string::npos)
-            {
-                enumerator = fixId(value.substr(colon + 1));
-            }
-            else
-            {
-                enumerator = fixId(value);
-            }
-            _out << enumName << '.' << enumerator;
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            _out << fixId(lte->scoped());
         }
         else
         {
@@ -3504,7 +3494,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixId(p->name());
     string scoped = fixId(p->scoped());
-    EnumeratorList enumerators = p->getEnumerators();
+    EnumeratorList enumerators = p->enumerators();
     const bool explicitValue = p->explicitValue();
 
     _out << sp;

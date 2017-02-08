@@ -66,7 +66,7 @@ enum local { a, b };
 enum LOCAL { c, e };
 
 enum e1 { long, byte, foo };
-enum e2 { LONG, BYTE, bar };
+enum e2 { LONG, BYTE, bar }; // Ok as of 3.7
 
 interface i1 { long module(); };
 interface i2 { long mODule(); };

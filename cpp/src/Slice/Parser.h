@@ -451,6 +451,8 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
+    EnumeratorList enumerators() const;
+    EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     ContainedList contents() const;
     bool hasNonLocalClassDecls() const;
@@ -492,8 +494,8 @@ protected:
     void checkIdentifier(const std::string&) const;
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
-    bool validateConstant(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, bool);
-    EnumeratorPtr validateEnumerator(const std::string&);
+    bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
+    void validateEnumerator(const std::string&);
 
     ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -855,13 +857,11 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class Enum : public virtual Constructed
+class Enum : public virtual Container, public virtual Constructed
 {
 public:
 
     virtual void destroy();
-    EnumeratorList getEnumerators();
-    void setEnumerators(const EnumeratorList&);
     bool explicitValue() const;
     int minValue() const;
     int maxValue() const;
@@ -877,12 +877,15 @@ public:
 protected:
 
     Enum(const ContainerPtr&, const std::string&, bool);
-    friend class Container;
+    int newEnumerator(const EnumeratorPtr&);
 
-    EnumeratorList _enumerators;
+    friend class Container;
+    friend class Enumerator;
+
     bool _explicitValue;
     IceUtil::Int64 _minValue;
     IceUtil::Int64 _maxValue;
+    int _lastValue;
 };
 
 // ----------------------------------------------------------------------
@@ -906,9 +909,7 @@ protected:
     Enumerator(const ContainerPtr&, const std::string&);
     Enumerator(const ContainerPtr&, const std::string&, int);
     friend class Container;
-    friend class Enum;
 
-    EnumPtr _type;
     bool _explicitValue;
     int _value;
 };

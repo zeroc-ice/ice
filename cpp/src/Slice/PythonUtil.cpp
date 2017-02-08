@@ -1653,7 +1653,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
-    EnumeratorList enums = p->getEnumerators();
+    EnumeratorList enums = p->enumerators();
     EnumeratorList::iterator q;
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
@@ -1876,7 +1876,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
     EnumPtr en = EnumPtr::dynamicCast(p);
     if(en)
     {
-        EnumeratorList enums = en->getEnumerators();
+        EnumeratorList enums = en->enumerators();
         _out << getSymbol(en) << "." << fixIdent(enums.front()->name());
         return;
     }
@@ -2042,18 +2042,9 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
         }
         else if(en)
         {
-            string enumName = getSymbol(en);
-            string::size_type colon = value.rfind(':');
-            string enumerator;
-            if(colon != string::npos)
-            {
-                enumerator = fixIdent(value.substr(colon + 1));
-            }
-            else
-            {
-                enumerator = fixIdent(value);
-            }
-            _out << enumName << '.' << enumerator;
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            _out << getSymbol(lte);
         }
         else
         {

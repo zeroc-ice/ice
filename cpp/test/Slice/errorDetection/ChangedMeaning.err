@@ -6,7 +6,6 @@ ChangedMeaning.ice:85: `e1' has changed meaning
 ChangedMeaning.ice:86: `e2' has changed meaning
 ChangedMeaning.ice:98: `c1' has changed meaning
 ChangedMeaning.ice:99: `c2' has changed meaning
-ChangedMeaning.ice:110: `blue' has changed meaning
 ChangedMeaning.ice:120: `CounterSeq' has changed meaning
 ChangedMeaning.ice:129: redefinition of parameter `param'
 ChangedMeaning.ice:147: `E' is not an exception

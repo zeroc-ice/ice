@@ -185,7 +185,7 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        return getReference(scope, en->scoped()) + '.' + fixId((*en->getEnumerators().begin())->name());
+        return getReference(scope, en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -238,17 +238,9 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
         }
         else if((ep = EnumPtr::dynamicCast(type)))
         {
-            string::size_type colon = value.rfind(':');
-            string enumerator;
-            if(colon != string::npos)
-            {
-                enumerator = fixId(value.substr(colon + 1));
-            }
-            else
-            {
-                enumerator = fixId(value);
-            }
-            os << getReference(scope, ep->scoped()) << '.' << enumerator;
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            os << getReference(scope, ep->scoped()) << '.' << fixId(lte->name());
         }
         else
         {
@@ -1723,7 +1715,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out.inc();
     _out << nl;
 
-    const EnumeratorList enumerators = p->getEnumerators();
+    const EnumeratorList enumerators = p->enumerators();
     int i = 0;
     for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
