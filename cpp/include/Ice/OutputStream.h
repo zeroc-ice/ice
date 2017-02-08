@@ -704,7 +704,7 @@ private:
 
     public:
 
-        Encaps() : format(DefaultFormat), encoder(0), previous(0)
+        Encaps() : format(ICE_ENUM(FormatType, DefaultFormat)), encoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }

@@ -25,7 +25,6 @@ module Ice
  * in a proxy when establishing a connection.
  *
  **/
-["cpp:unscoped"]
 local enum EndpointSelectionType
 {
     /**

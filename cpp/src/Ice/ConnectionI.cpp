@@ -153,14 +153,14 @@ private:
 typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 
 ConnectionState connectionStateMap[] = {
-    ConnectionStateValidating,   // StateNotInitialized
-    ConnectionStateValidating,   // StateNotValidated
-    ConnectionStateActive,       // StateActive
-    ConnectionStateHolding,      // StateHolding
-    ConnectionStateClosing,      // StateClosing
-    ConnectionStateClosing,      // StateClosingPending
-    ConnectionStateClosed,       // StateClosed
-    ConnectionStateClosed,       // StateFinished
+    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotInitialized
+    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotValidated
+    ICE_ENUM(ConnectionState, ConnectionStateActive),       // StateActive
+    ICE_ENUM(ConnectionState, ConnectionStateHolding),      // StateHolding
+    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosing
+    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosingPending
+    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateClosed
+    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateFinished
 };
 
 }
@@ -195,11 +195,11 @@ ConnectionFlushBatchAsync::invoke(const string& operation, Ice::CompressBatch co
         }
         else
         {
-            if(compressBatch == Ice::Yes)
+            if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, Yes))
             {
                 compress = true;
             }
-            else if(compressBatch == Ice::No)
+            else if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, No))
             {
                 compress = false;
             }
@@ -498,17 +498,17 @@ Ice::ConnectionI::close(ConnectionClose mode)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(mode == CloseForcefully)
+    if(mode == ICE_ENUM(ConnectionClose, CloseForcefully))
     {
         setState(StateClosed, ConnectionManuallyClosedException(__FILE__, __LINE__, false));
     }
-    else if(mode == CloseGracefully)
+    else if(mode == ICE_ENUM(ConnectionClose, CloseGracefully))
     {
         setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
     else
     {
-        assert(mode == CloseGracefullyAndWait);
+        assert(mode == ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
 
         //
         // Wait until all outstanding requests have been completed.
@@ -646,10 +646,10 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     // per timeout period because the monitor() method is still only
     // called every (timeout / 2) period.
     //
-    if(acm.heartbeat == HeartbeatAlways ||
-       (acm.heartbeat != HeartbeatOff && _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
+    if(acm.heartbeat == ICE_ENUM(ACMHeartbeat, HeartbeatAlways) ||
+       (acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOff) && _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
     {
-        if(acm.heartbeat != HeartbeatOnInvocation || _dispatchCount > 0)
+        if(acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOnInvocation) || _dispatchCount > 0)
         {
             sendHeartbeatNow();
         }
@@ -666,9 +666,9 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
         return;
     }
 
-    if(acm.close != CloseOff && now >= (_acmLastActivity + acm.timeout))
+    if(acm.close != ICE_ENUM(ACMClose, CloseOff) && now >= (_acmLastActivity + acm.timeout))
     {
-        if(acm.close == CloseOnIdleForceful || (acm.close != CloseOnIdle && !_asyncRequests.empty()))
+        if(acm.close == ICE_ENUM(ACMClose, CloseOnIdleForceful) || (acm.close != ICE_ENUM(ACMClose, CloseOnIdle) && !_asyncRequests.empty()))
         {
             //
             // Close the connection if we didn't receive a heartbeat in
@@ -676,7 +676,7 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             //
             setState(StateClosed, ConnectionTimeoutException(__FILE__, __LINE__));
         }
-        else if(acm.close != CloseOnInvocation && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
+        else if(acm.close != ICE_ENUM(ACMClose, CloseOnInvocation) && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
                 _asyncRequests.empty())
         {
             //
@@ -1180,8 +1180,8 @@ Ice::ConnectionI::getACM()
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     ACM acm;
     acm.timeout = 0;
-    acm.close = CloseOff;
-    acm.heartbeat = HeartbeatOff;
+    acm.close = ICE_ENUM(ACMClose, CloseOff);
+    acm.heartbeat = ICE_ENUM(ACMHeartbeat, HeartbeatOff);
     return _monitor ? _monitor->getACM() : acm;
 }
 

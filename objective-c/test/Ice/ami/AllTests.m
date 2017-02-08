@@ -585,7 +585,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
-                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICEBasedOnProxy
+                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICECompressBatchBasedOnProxy
                                             exception:^(ICEException* ex)
                                                       {
                                                           test(NO);
@@ -606,7 +606,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 [[b1 ice_getConnection] close:ICECloseGracefullyAndWait];
                 TestAMICallback* cb = [TestAMICallback create];
-                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICEBasedOnProxy
+                id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICECompressBatchBasedOnProxy
                                                         exception:^(ICEException* ex) { [cb called]; }
                                                         sent:^(BOOL sentSynchronously) { test(NO); }];
                 [cb check];
@@ -628,7 +628,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
-                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICEBasedOnProxy
+                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICECompressBatchBasedOnProxy
                                                            exception:^(ICEException* ex) { test(NO); }
                                                                 sent:^(BOOL sentSynchronously) { [cb called]; }];
                 [cb check];
@@ -646,7 +646,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 [[b1 ice_getConnection] close:ICECloseGracefullyAndWait];
                 TestAMICallback* cb = [TestAMICallback create];
-                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICEBasedOnProxy
+                id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICECompressBatchBasedOnProxy
                                                                  exception:^(ICEException* ex) { test(NO); }
                                                                       sent:^(BOOL sentSynchronously) { [cb called]; }];
                 [cb check];
@@ -761,7 +761,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 id<ICEConnection> con = [p ice_getConnection];
                 p2 = [p ice_batchOneway];
                 [p2 ice_ping];
-                r = [con begin_flushBatchRequests:ICEBasedOnProxy];
+                r = [con begin_flushBatchRequests:ICECompressBatchBasedOnProxy];
                 test([[r getConnection] isEqual:con]);
                 test([r getCommunicator] == communicator);
                 test([r getProxy] == nil); // Expected
@@ -772,7 +772,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 //
                 p2 = [p ice_batchOneway];
                 [p2 ice_ping];
-                r = [communicator begin_flushBatchRequests:ICEBasedOnProxy];
+                r = [communicator begin_flushBatchRequests:ICECompressBatchBasedOnProxy];
                 test([r getConnection] == nil); // Expected
                 test([r getCommunicator] == communicator);
                 test([r getProxy] == nil); // Expected

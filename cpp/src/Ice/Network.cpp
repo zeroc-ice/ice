@@ -128,7 +128,7 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
-    if(selType == Ice::Random)
+    if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
     {
         RandomNumberGenerator rng;
         random_shuffle(addrs.begin(), addrs.end(), rng);
@@ -1216,7 +1216,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 #endif
         return addr;
     }
-    vector<Address> addrs = getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, canBlock);
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered), preferIPv6, canBlock);
     return addrs.empty() ? Address() : addrs[0];
 }
 
@@ -2366,7 +2366,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::Ordered, false, false);
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false, false);
     if(addrs.empty())
     {
         return Address();

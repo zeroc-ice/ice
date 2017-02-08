@@ -1485,52 +1485,52 @@ Ice::InputStream::skipOptional(OptionalFormat type)
 {
     switch(type)
     {
-    case Ice::OptionalFormatF1:
-    {
-        skip(1);
-        break;
-    }
-    case Ice::OptionalFormatF2:
-    {
-        skip(2);
-        break;
-    }
-    case Ice::OptionalFormatF4:
-    {
-        skip(4);
-        break;
-    }
-    case Ice::OptionalFormatF8:
-    {
-        skip(8);
-        break;
-    }
-    case Ice::OptionalFormatSize:
-    {
-        skipSize();
-        break;
-    }
-    case Ice::OptionalFormatVSize:
-    {
-        skip(readSize());
-        break;
-    }
-    case Ice::OptionalFormatFSize:
-    {
-        Int sz;
-        read(sz);
-        if(sz < 0)
+        case ICE_SCOPED_ENUM(OptionalFormat, F1):
         {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            skip(1);
+            break;
         }
-        skip(sz);
-        break;
-    }
-    case Ice::OptionalFormatClass:
-    {
-        read(0, 0);
-        break;
-    }
+        case ICE_SCOPED_ENUM(OptionalFormat, F2):
+        {
+            skip(2);
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, F4):
+        {
+            skip(4);
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, F8):
+        {
+            skip(8);
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, Size):
+        {
+            skipSize();
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, VSize):
+        {
+            skip(readSize());
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, FSize):
+        {
+            Int sz;
+            read(sz);
+            if(sz < 0)
+            {
+                throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            skip(sz);
+            break;
+        }
+        case ICE_SCOPED_ENUM(OptionalFormat, Class):
+        {
+            read(0, 0);
+            break;
+        }
     }
 }
 

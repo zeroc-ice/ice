@@ -27,7 +27,7 @@ module Ice
  * The batch compression option when flushing queued batch requests.
  *
  **/
-["cpp:unscoped"]
+["cpp:scoped", "objc:scoped"]
 local enum CompressBatch
 {
     /**
@@ -130,7 +130,7 @@ local interface HeartbeatCallback
     void heartbeat(Connection con);
 };
 
-["cpp:unscoped"]
+
 local enum ACMClose
 {
     CloseOff,
@@ -140,7 +140,6 @@ local enum ACMClose
     CloseOnIdleForceful
 };
 
-["cpp:unscoped"]
 local enum ACMHeartbeat
 {
     HeartbeatOff,
@@ -159,7 +158,6 @@ local struct ACM
 /**
  * Determines the behavior when manually closing a connection.
  **/
-["cpp:unscoped"]
 local enum ConnectionClose
 {
     /**

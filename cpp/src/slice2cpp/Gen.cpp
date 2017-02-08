@@ -2033,7 +2033,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "::Ice::OutputStream* ostr = result->startWriteParams(" << opFormatTypeToString(p) <<");";
+        C << nl << "::Ice::OutputStream* ostr = result->startWriteParams(" << opFormatTypeToString(p, false) <<");";
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
         if(p->sendsClasses(false))
         {
@@ -3057,7 +3057,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }
         if(p->format() != DefaultFormat)
         {
-            C << nl << "inS.setFormat(" << opFormatTypeToString(p) << ");";
+            C << nl << "inS.setFormat(" << opFormatTypeToString(p, false) << ");";
         }
 
         if(!amd)
@@ -6107,7 +6107,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sp;
 
         C << nl << "outAsync->invoke(" << flatName << ", ";
-        C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p) << ", context, ";
+        C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context, ";
         C.inc();
         C << nl;
 
@@ -6178,7 +6178,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "_checkTwowayOnly(" << flatName << ");";
     }
     C << nl << "outAsync->invoke(" << flatName << ", ";
-    C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p) << ", context, ";
+    C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context, ";
     C.inc();
     C << nl;
 
@@ -7042,7 +7042,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "MarshaledResult(current)";
         C.dec();
         C << sb;
-        C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
+        C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p, true) << ");";
         writeMarshalCode(C, outParams, p, true, TypeContextCpp11, "ostr");
         if(p->returnsClasses(false))
         {
@@ -7085,7 +7085,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     if(p->format() != DefaultFormat)
     {
-        C << nl << "inS.setFormat(" << opFormatTypeToString(p) << ");";
+        C << nl << "inS.setFormat(" << opFormatTypeToString(p, true) << ");";
     }
 
     if(!amd)

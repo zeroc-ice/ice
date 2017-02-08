@@ -17,13 +17,18 @@
 namespace Ice
 {
 
-enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+#ifdef ICE_CPP11_MAPPING
+enum class SignalPolicy : unsigned char
+#else
+enum SignalPolicy
+#endif
+{ HandleSignals, NoSignalHandling };
 
 class ICE_API Application : private IceUtil::noncopyable
 {
 public:
 
-    Application(SignalPolicy = HandleSignals);
+    Application(SignalPolicy = ICE_ENUM(SignalPolicy, HandleSignals));
     virtual ~Application();
 
     //

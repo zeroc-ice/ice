@@ -43,7 +43,7 @@ std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringL
 std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
 std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
 std::string operationModeToString(Operation::Mode, bool = false);
-std::string opFormatTypeToString(const OperationPtr&);
+std::string opFormatTypeToString(const OperationPtr&, bool);
 
 std::string fixKwd(const std::string&);
 

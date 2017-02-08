@@ -872,7 +872,7 @@ Client::run(StringSeq& originalArgs)
 
         if(acmTimeout > 0)
         {
-            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
+            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
         }
         else if(sessionTimeout > 0)
         {

@@ -374,7 +374,7 @@ Glacier2::RequestQueue::flush()
 
     if(flushBatchRequests)
     {
-        Ice::AsyncResultPtr result = _connection->begin_flushBatchRequests(Ice::BasedOnProxy, _flushCallback);
+        Ice::AsyncResultPtr result = _connection->begin_flushBatchRequests(ICE_SCOPED_ENUM(CompressBatch, BasedOnProxy), _flushCallback);
         if(!result->sentSynchronously() && !result->isCompleted())
         {
             _pendingSend = true;

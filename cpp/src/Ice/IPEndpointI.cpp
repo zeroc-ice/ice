@@ -607,7 +607,7 @@ IceInternal::EndpointHostResolver::run()
 
         if(threadObserver)
         {
-            threadObserver->stateChanged(ThreadStateIdle, ThreadStateInUseForOther);
+            threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateIdle), ICE_ENUM(ThreadState, ThreadStateInUseForOther));
         }
 
         try
@@ -634,7 +634,7 @@ IceInternal::EndpointHostResolver::run()
 
             if(threadObserver)
             {
-                threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
+                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther), ICE_ENUM(ThreadState, ThreadStateIdle));
             }
 
         }
@@ -642,7 +642,7 @@ IceInternal::EndpointHostResolver::run()
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
+                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther), ICE_ENUM(ThreadState, ThreadStateIdle));
             }
             if(r.observer)
             {
@@ -678,7 +678,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
     {
-        _observer.attach(obsv->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+        _observer.attach(obsv->getThreadObserver("Communicator", name(), ICE_ENUM(ThreadState, ThreadStateIdle), _observer.get()));
     }
 }
 

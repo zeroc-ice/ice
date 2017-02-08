@@ -36,7 +36,7 @@ bool Ice::Application::_interrupted = false;
 
 string Ice::Application::_appName;
 Ice::CommunicatorPtr Ice::Application::_communicator;
-Ice::SignalPolicy Ice::Application::_signalPolicy = Ice::HandleSignals;
+Ice::SignalPolicy Ice::Application::_signalPolicy = ICE_ENUM(SignalPolicy, HandleSignals);
 Ice::Application* Ice::Application::_application = 0;
 
 namespace
@@ -177,7 +177,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
 
     _application = this;
 
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         try
         {
@@ -258,7 +258,7 @@ Ice::Application::communicator()
 void
 Ice::Application::destroyOnInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -281,7 +281,7 @@ Ice::Application::destroyOnInterrupt()
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -304,7 +304,7 @@ Ice::Application::shutdownOnInterrupt()
 void
 Ice::Application::ignoreInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -327,7 +327,7 @@ Ice::Application::ignoreInterrupt()
 void
 Ice::Application::callbackOnInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -350,7 +350,7 @@ Ice::Application::callbackOnInterrupt()
 void
 Ice::Application::holdInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -374,7 +374,7 @@ Ice::Application::holdInterrupt()
 void
 Ice::Application::releaseInterrupt()
 {
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         if(_ctrlCHandler != 0)
         {
@@ -437,7 +437,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
         //
         // The default is to destroy when a signal is received.
         //
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
         {
             destroyOnInterrupt();
         }
@@ -474,7 +474,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    if(_signalPolicy == HandleSignals)
+    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
     {
         ignoreInterrupt();
     }

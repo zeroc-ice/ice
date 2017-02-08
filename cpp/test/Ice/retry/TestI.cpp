@@ -22,7 +22,7 @@ RetryI::op(bool kill, const Ice::Current& current)
     {
         if(current.con)
         {
-            current.con->close(Ice::CloseForcefully);
+            current.con->close(Ice::ICE_ENUM(ConnectionClose, CloseForcefully));
         }
         else
         {

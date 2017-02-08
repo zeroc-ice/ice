@@ -161,7 +161,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
                           const Context& ctx)
 {
     _checkTwowayOnly(ice_isA_name);
-    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, DefaultFormat, ctx,
+    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx,
                      [&](Ice::OutputStream* os)
                      {
                          os->write(typeId, false);
@@ -172,14 +172,14 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& o
 void
 Ice::ObjectPrx::_iceI_ping(const shared_ptr<IceInternal::OutgoingAsyncT<void>>& outAsync, const Context& ctx)
 {
-    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr);
+    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr);
 }
 
 void
 Ice::ObjectPrx::_iceI_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
 {
     _checkTwowayOnly(ice_ids_name);
-    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr,
+    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr,
                      [](Ice::InputStream* stream)
                      {
                          vector<string> v;
@@ -192,7 +192,7 @@ void
 Ice::ObjectPrx::_iceI_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
 {
     _checkTwowayOnly(ice_id_name);
-    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, DefaultFormat, ctx, nullptr, nullptr,
+    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, ICE_ENUM(FormatType, DefaultFormat), ctx, nullptr, nullptr,
                      [](Ice::InputStream* stream)
                      {
                          string v;
@@ -292,7 +292,7 @@ IceProxy::Ice::Object::_iceI_begin_ice_isA(const string& typeId,
     try
     {
         result->prepare(ice_isA_name, Nonmutating, ctx);
-        ::Ice::OutputStream* ostr = result->startWriteParams(DefaultFormat);
+        ::Ice::OutputStream* ostr = result->startWriteParams(ICE_ENUM(FormatType, DefaultFormat));
         ostr->write(typeId, false);
         result->endWriteParams();
         result->invoke(ice_isA_name);

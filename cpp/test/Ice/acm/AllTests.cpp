@@ -575,20 +575,21 @@ public:
         Ice::ACM acm;
         acm = proxy->ice_getCachedConnection()->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::CloseOnIdleForceful);
-        test(acm.heartbeat == Ice::HeartbeatOff);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
         proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
         acm = proxy->ice_getCachedConnection()->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::CloseOnIdleForceful);
-        test(acm.heartbeat == Ice::HeartbeatOff);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
-        proxy->ice_getCachedConnection()->setACM(1, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatAlways);
+        proxy->ice_getCachedConnection()->setACM(1, Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle),
+                                                 Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
         acm = proxy->ice_getCachedConnection()->getACM();
         test(acm.timeout == 1);
-        test(acm.close == Ice::CloseOnInvocationAndIdle);
-        test(acm.heartbeat == Ice::HeartbeatAlways);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
         // Make sure the client sends a few heartbeats to the server.
         proxy->startHeartbeatCount();

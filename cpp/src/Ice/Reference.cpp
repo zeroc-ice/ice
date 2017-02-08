@@ -643,7 +643,7 @@ IceInternal::FixedReference::getPreferSecure() const
 Ice::EndpointSelectionType
 IceInternal::FixedReference::getEndpointSelection() const
 {
-    return Random;
+    return ICE_ENUM(EndpointSelectionType, Random);
 }
 
 int
@@ -1262,7 +1262,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
-    properties[prefix + ".EndpointSelection"] = _endpointSelection == Random ? "Random" : "Ordered";
+    properties[prefix + ".EndpointSelection"] = _endpointSelection == ICE_ENUM(EndpointSelectionType, Random) ? "Random" : "Ordered";
     {
         ostringstream s;
         s << _locatorCacheTimeout;
@@ -1916,13 +1916,13 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     switch(getEndpointSelection())
     {
-        case Random:
+        case ICE_ENUM(EndpointSelectionType, Random):
         {
             RandomNumberGenerator rng;
             random_shuffle(endpoints.begin(), endpoints.end(), rng);
             break;
         }
-        case Ordered:
+        case ICE_ENUM(EndpointSelectionType, Ordered):
         {
             // Nothing to do.
             break;

@@ -127,7 +127,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();
         batch1->ice_flushBatchRequestsAsync().get();
-        batch1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();
 
@@ -135,7 +135,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         batch2->ice_getConnection();
 
         batch1->ice_pingAsync().get();
-        batch1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
 
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();
@@ -182,7 +182,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         batch1->end_ice_ping(batch1->begin_ice_ping());
         batch2->end_ice_ping(batch2->begin_ice_ping());
         batch1->end_ice_flushBatchRequests(batch1->begin_ice_flushBatchRequests());
-        batch1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         batch1->end_ice_ping(batch1->begin_ice_ping());
         batch2->end_ice_ping(batch2->begin_ice_ping());
 
@@ -190,7 +190,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
         batch2->ice_getConnection();
 
         batch1->end_ice_ping(batch1->begin_ice_ping());
-        batch1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
 
         batch1->end_ice_ping(batch1->begin_ice_ping());
         batch2->end_ice_ping(batch2->begin_ice_ping());

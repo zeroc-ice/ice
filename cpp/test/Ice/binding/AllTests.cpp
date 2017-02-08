@@ -170,7 +170,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
         //
@@ -192,7 +192,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                (*q)->getTestIntf()->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             }
         }
 
@@ -217,7 +217,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
         //
@@ -314,7 +314,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 try
                 {
-                    (*q)->getTestIntf()->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                    (*q)->getTestIntf()->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
                 }
                 catch(const Ice::LocalException&)
                 {
@@ -354,7 +354,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(getAdapterNameWithAMI(test1));
-            test1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
         //
@@ -376,7 +376,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                (*q)->getTestIntf()->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             }
         }
 
@@ -401,7 +401,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
         //
@@ -424,7 +424,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapters.push_back(com->createObjectAdapter("Adapter23", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test(test->ice_getEndpointSelection() == Ice::Random);
+        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
 
         set<string> names;
         names.insert("Adapter21");
@@ -433,11 +433,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(!names.empty())
         {
             names.erase(test->getAdapterName());
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::Random));
-        test(test->ice_getEndpointSelection() == Ice::Random);
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)));
+        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
 
         names.insert("Adapter21");
         names.insert("Adapter22");
@@ -445,7 +445,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(!names.empty())
         {
             names.erase(test->getAdapterName());
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         }
 
         deactivate(com, adapters);
@@ -460,8 +460,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapters.push_back(com->createObjectAdapter("Adapter33", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::Ordered));
-        test(test->ice_getEndpointSelection() == Ice::Ordered);
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
+        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
         const int nRetry = 5;
         int i;
 
@@ -473,7 +473,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++);
         }
 #endif
@@ -483,7 +483,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++);
         }
 #endif
@@ -493,7 +493,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++);
         }
 #endif
@@ -525,29 +525,29 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
         }
 #endif
         test(i == nRetry);
-        test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         adapters.push_back(com->createObjectAdapter("Adapter35", endpoints[1]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
         }
 #endif
         test(i == nRetry);
-        test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+        test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
         adapters.push_back(com->createObjectAdapter("Adapter34", endpoints[0]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
         }
 #endif
@@ -669,8 +669,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapters.push_back(com->createObjectAdapter("Adapter63", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::Ordered));
-        test(test->ice_getEndpointSelection() == Ice::Ordered);
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
+        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
         test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_connectionCached(false));
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
@@ -756,8 +756,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapters.push_back(com->createObjectAdapter("AdapterAMI63", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::Ordered));
-        test(test->ice_getEndpointSelection() == Ice::Ordered);
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
+        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
         test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_connectionCached(false));
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
@@ -865,7 +865,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter82");
-                test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             }
 
             TestIntfPrxPtr testSecure = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_secure(true));
@@ -881,7 +881,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter81");
-                test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             }
 
             com->createObjectAdapter("Adapter83", (test->ice_getEndpoints()[1])->toString()); // Reactive tcp OA.
@@ -889,7 +889,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter83");
-                test->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+                test->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
             }
 
             com->deactivateObjectAdapter(adapters[0]);
@@ -1098,7 +1098,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Close the connection now to free a FD (it could be done after the sleep but
             // there could be race condiutation since the connection might not be closed
             // immediately due to threading).
-            test->ice_connectionId("0")->ice_getConnection()->close(Ice::CloseGracefullyAndWait);
+            test->ice_connectionId("0")->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
 
             //
             // The server closed the acceptor, wait one second and retry after freeing a FD.

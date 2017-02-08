@@ -238,7 +238,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
 
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     IceGrid::AdminPrx admin = session->getAdmin();
     test(admin);

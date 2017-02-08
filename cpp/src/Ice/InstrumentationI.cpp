@@ -36,17 +36,17 @@ getThreadStateMetric(ThreadState s)
 {
     switch(s)
     {
-    case ThreadStateIdle:
-        return 0;
-    case ThreadStateInUseForIO:
-        return &ThreadMetrics::inUseForIO;
-    case ThreadStateInUseForUser:
-        return &ThreadMetrics::inUseForUser;
-    case ThreadStateInUseForOther:
-        return &ThreadMetrics::inUseForOther;
-    default:
-        assert(false);
-        return 0;
+        case ICE_ENUM(ThreadState, ThreadStateIdle):
+            return 0;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForIO):
+            return &ThreadMetrics::inUseForIO;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForUser):
+            return &ThreadMetrics::inUseForUser;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForOther):
+            return &ThreadMetrics::inUseForOther;
+        default:
+            assert(false);
+            return 0;
     }
 }
 
@@ -58,11 +58,11 @@ struct ThreadStateChanged
 
     void operator()(const ThreadMetricsPtr& v)
     {
-        if(oldState != ThreadStateIdle)
+        if(oldState != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             --(v.get()->*getThreadStateMetric(oldState));
         }
-        if(newState != ThreadStateIdle)
+        if(newState != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             ++(v.get()->*getThreadStateMetric(newState));
         }
@@ -145,19 +145,19 @@ public:
     {
         switch(_state)
         {
-        case ConnectionStateValidating:
-            return "validating";
-        case ConnectionStateHolding:
-            return "holding";
-        case ConnectionStateActive:
-            return "active";
-        case ConnectionStateClosing:
-            return "closing";
-        case ConnectionStateClosed:
-            return "closed";
-        default:
-            assert(false);
-            return "";
+            case ICE_ENUM(ConnectionState, ConnectionStateValidating):
+                return "validating";
+            case ICE_ENUM(ConnectionState, ConnectionStateHolding):
+                return "holding";
+            case ICE_ENUM(ConnectionState, ConnectionStateActive):
+                return "active";
+            case ICE_ENUM(ConnectionState, ConnectionStateClosing):
+                return "closing";
+            case ICE_ENUM(ConnectionState, ConnectionStateClosed):
+                return "closed";
+            default:
+                assert(false);
+                return "";
         }
     }
 
@@ -686,7 +686,7 @@ public:
 
     virtual void initMetrics(const ThreadMetricsPtr& v) const
     {
-        if(_state != ThreadStateIdle)
+        if(_state != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             ++(v.get()->*getThreadStateMetric(_state));
         }

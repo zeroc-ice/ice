@@ -155,7 +155,7 @@ public:
 };
 
 MyApplication::MyApplication()
-    : Ice::Application(Ice::NoSignalHandling)
+    : Ice::Application(Ice::ICE_ENUM(SignalPolicy, NoSignalHandling))
 {
 }
 

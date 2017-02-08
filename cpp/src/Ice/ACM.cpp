@@ -24,14 +24,14 @@ IceUtil::Shared* IceInternal::upCast(FactoryACMMonitor* p) { return p; }
 #endif
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
-    timeout(IceUtil::Time::seconds(60)), 
-    heartbeat(Ice::HeartbeatOnInvocation), 
-    close(server ? Ice::CloseOnInvocation : Ice::CloseOnInvocationAndIdle)
+    timeout(IceUtil::Time::seconds(60)),
+    heartbeat(ICE_ENUM(ACMHeartbeat, HeartbeatOnInvocation)),
+    close(server ? ICE_ENUM(ACMClose, CloseOnInvocation) : ICE_ENUM(ACMClose, CloseOnInvocationAndIdle))
 {
 }
 
-IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p, 
-                                  const Ice::LoggerPtr& l, 
+IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
+                                  const Ice::LoggerPtr& l,
                                   const string& prefix,
                                   const ACMConfig& dflt)
 {
@@ -45,10 +45,10 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
         timeoutProperty = prefix + ".Timeout";
     };
 
-    this->timeout = IceUtil::Time::seconds(p->getPropertyAsIntWithDefault(timeoutProperty, 
+    this->timeout = IceUtil::Time::seconds(p->getPropertyAsIntWithDefault(timeoutProperty,
                                                                           static_cast<int>(dflt.timeout.toSeconds())));
-    int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat);
-    if(hb >= Ice::HeartbeatOff && hb <= Ice::HeartbeatAlways)
+    int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", static_cast<int>(dflt.heartbeat));
+    if(hb >= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatOff)) && hb <= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatAlways)))
     {
         this->heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
     }
@@ -58,8 +58,8 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
         this->heartbeat = dflt.heartbeat;
     }
 
-    int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", dflt.close);
-    if(cl >= Ice::CloseOff && cl <= Ice::CloseOnIdleForceful)
+    int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", static_cast<int>(dflt.close));
+    if(cl >= static_cast<int>(ICE_ENUM(ACMClose, CloseOff)) && cl <= static_cast<int>(ICE_ENUM(ACMClose, CloseOnIdleForceful)))
     {
         this->close = static_cast<Ice::ACMClose>(cl);
     }
@@ -138,8 +138,8 @@ IceInternal::FactoryACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout, 
-                                    const IceUtil::Optional<Ice::ACMClose>& close, 
+IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
+                                    const IceUtil::Optional<Ice::ACMClose>& close,
                                     const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     Lock sync(*this);
@@ -208,7 +208,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         }
     }
 
-        
+
     //
     // Monitor connections outside the thread synchronization, so
     // that connections can be added or removed during monitoring.
@@ -217,11 +217,11 @@ IceInternal::FactoryACMMonitor::runTimerTask()
     for(set<ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
         try
-        {          
+        {
             (*p)->monitor(now, _config);
         }
         catch(const exception& ex)
-        {   
+        {
             handleException(ex);
         }
         catch(...)
@@ -239,7 +239,7 @@ FactoryACMMonitor::handleException(const exception& ex)
     {
         return;
     }
-    
+
     Error out(_instance->initializationData().logger);
     out << "exception in connection monitor:\n" << ex.what();
 }
@@ -252,12 +252,12 @@ FactoryACMMonitor::handleException()
     {
         return;
     }
-    
+
     Error out(_instance->initializationData().logger);
     out << "unknown exception in connection monitor";
 }
 
-IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent, 
+IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent,
                                                         const IceUtil::TimerPtr& timer,
                                                         const ACMConfig& config) :
     _parent(parent), _timer(timer), _config(config)
@@ -300,8 +300,8 @@ IceInternal::ConnectionACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::ConnectionACMMonitor::acm(const IceUtil::Optional<int>& timeout, 
-                                       const IceUtil::Optional<Ice::ACMClose>& close, 
+IceInternal::ConnectionACMMonitor::acm(const IceUtil::Optional<int>& timeout,
+                                       const IceUtil::Optional<Ice::ACMClose>& close,
                                        const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     return _parent->acm(timeout, close, heartbeat);
@@ -329,13 +329,13 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
         }
         connection = _connection;
     }
-    
+
     try
-    {          
+    {
         connection->monitor(IceUtil::Time::now(IceUtil::Time::Monotonic), _config);
     }
     catch(const exception& ex)
-    {   
+    {
         _parent->handleException(ex);
     }
     catch(...)

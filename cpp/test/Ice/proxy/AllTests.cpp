@@ -477,13 +477,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".EndpointSelection";
-    test(b1->ice_getEndpointSelection() == Ice::Random);
+    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
     prop->setProperty(property, "Random");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getEndpointSelection() == Ice::Random);
+    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
     prop->setProperty(property, "Ordered");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getEndpointSelection() == Ice::Ordered);
+    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".CollocationOptimized";
@@ -516,7 +516,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     b1 = b1->ice_collocationOptimized(true);
     b1 = b1->ice_connectionCached(true);
     b1 = b1->ice_preferSecure(false);
-    b1 = b1->ice_endpointSelection(Ice::Ordered);
+    b1 = b1->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered));
     b1 = b1->ice_locatorCacheTimeout(100);
     b1 = b1->ice_invocationTimeout(1234);
     Ice::EncodingVersion v = { 1, 0 };
@@ -525,7 +525,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     router = router->ice_collocationOptimized(false);
     router = router->ice_connectionCached(true);
     router = router->ice_preferSecure(true);
-    router = router->ice_endpointSelection(Ice::Random);
+    router = router->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random));
     router = router->ice_locatorCacheTimeout(200);
     router = router->ice_invocationTimeout(1500);
 
@@ -533,7 +533,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     locator = locator->ice_collocationOptimized(true);
     locator = locator->ice_connectionCached(false);
     locator = locator->ice_preferSecure(true);
-    locator = locator->ice_endpointSelection(Ice::Random);
+    locator = locator->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random));
     locator = locator->ice_locatorCacheTimeout(300);
     locator = locator->ice_invocationTimeout(1500);
 
@@ -714,10 +714,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(Ice::targetLess(compObj->ice_connectionCached(false), compObj->ice_connectionCached(true)));
     test(Ice::targetGreaterEqual(compObj->ice_connectionCached(true), compObj->ice_connectionCached(false)));
 
-    test(Ice::targetEqualTo(compObj->ice_endpointSelection(Ice::Random), compObj->ice_endpointSelection(Ice::Random)));
-    test(Ice::targetNotEqualTo(compObj->ice_endpointSelection(Ice::Random), compObj->ice_endpointSelection(Ice::Ordered)));
-    test(Ice::targetLess(compObj->ice_endpointSelection(Ice::Random), compObj->ice_endpointSelection(Ice::Ordered)));
-    test(Ice::targetGreaterEqual(compObj->ice_endpointSelection(Ice::Ordered), compObj->ice_endpointSelection(Ice::Random)));
+    test(Ice::targetEqualTo(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random))));
+    test(Ice::targetNotEqualTo(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered))));
+    test(Ice::targetLess(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered))));
+    test(Ice::targetGreaterEqual(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random))));
 
     test(Ice::targetEqualTo(compObj->ice_connectionId("id2"), compObj->ice_connectionId("id2")));
     test(Ice::targetNotEqualTo(compObj->ice_connectionId("id1"), compObj->ice_connectionId("id2")));
@@ -884,10 +884,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_connectionCached(false) < compObj->ice_connectionCached(true));
     test(!(compObj->ice_connectionCached(true) < compObj->ice_connectionCached(false)));
 
-    test(compObj->ice_endpointSelection(Ice::Random) == compObj->ice_endpointSelection(Ice::Random));
-    test(compObj->ice_endpointSelection(Ice::Random) != compObj->ice_endpointSelection(Ice::Ordered));
-    test(compObj->ice_endpointSelection(Ice::Random) < compObj->ice_endpointSelection(Ice::Ordered));
-    test(!(compObj->ice_endpointSelection(Ice::Ordered) < compObj->ice_endpointSelection(Ice::Random)));
+    test(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)) == compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)));
+    test(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)) != compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
+    test(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)) < compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
+    test(!(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)) < compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random))));
 
     test(compObj->ice_connectionId("id2") == compObj->ice_connectionId("id2"));
     test(compObj->ice_connectionId("id1") != compObj->ice_connectionId("id2"));

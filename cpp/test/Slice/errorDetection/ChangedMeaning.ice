@@ -107,7 +107,7 @@ module B
 
     const color fc = blue;
 
-    interface blue {};          // Ok as of 3.7: enums are now scoped
+    interface blue {};          // OK as of Ice 3.7 (enumerators are in their enum's namespace)
 
 };
 

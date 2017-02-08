@@ -100,7 +100,7 @@ OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVer
 void
 IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 {
-    s->startEncapsulation(_rawEncoding, DefaultFormat);
+    s->startEncapsulation(_rawEncoding, ICE_ENUM(FormatType, DefaultFormat));
     s->writeBlob(_rawBytes);
     s->endEncapsulation();
 }

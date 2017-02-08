@@ -1112,23 +1112,23 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
 string
 Slice::operationModeToString(Operation::Mode mode, bool cpp11)
 {
+    string prefix = cpp11 ? "::Ice::OperationMode::" : "::Ice::";
     switch(mode)
     {
         case Operation::Normal:
         {
-            return cpp11 ? "::Ice::OperationMode::Normal" : "::Ice::Normal";
+            return prefix + "Normal";
         }
 
         case Operation::Nonmutating:
         {
-            return cpp11 ? "::Ice::OperationMode::Nonmutating" : "::Ice::Nonmutating";
+            return prefix + "Nonmutating";
         }
 
         case Operation::Idempotent:
         {
-            return cpp11 ? "::Ice::OperationMode::Idempotent" : "::Ice::Idempotent";
+            return prefix + "Idempotent";
         }
-
         default:
         {
             assert(false);
@@ -1139,16 +1139,18 @@ Slice::operationModeToString(Operation::Mode mode, bool cpp11)
 }
 
 string
-Slice::opFormatTypeToString(const OperationPtr& op)
+Slice::opFormatTypeToString(const OperationPtr& op, bool cpp11)
 {
+    string prefix = cpp11 ? "::Ice::FormatType::" : "::Ice::";
+
     switch(op->format())
     {
     case DefaultFormat:
-        return "::Ice::DefaultFormat";
+        return prefix + "DefaultFormat";
     case CompactFormat:
-        return "::Ice::CompactFormat";
+        return prefix + "CompactFormat";
     case SlicedFormat:
-        return "::Ice::SlicedFormat";
+        return prefix + "SlicedFormat";
 
     default:
         assert(false);

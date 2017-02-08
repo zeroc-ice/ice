@@ -541,7 +541,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
         // endpoint selection in case the locator returned a proxy
         // with some endpoints which are prefered to be tried first.
         //
-        _locatorRegistry = locatorRegistry->ice_locator(0)->ice_endpointSelection(Ice::Ordered);
+        _locatorRegistry = locatorRegistry->ice_locator(0)->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered));
         return _locatorRegistry;
     }
 }

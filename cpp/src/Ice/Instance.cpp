@@ -231,7 +231,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
-                                            Ice::Instrumentation::ThreadStateIdle,
+                                            Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
                                             _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
@@ -248,8 +248,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateIdle,
-                                         Ice::Instrumentation::ThreadStateInUseForOther);
+            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
+                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther));
         }
         try
         {
@@ -259,14 +259,14 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
-                                             Ice::Instrumentation::ThreadStateIdle);
+                threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                             Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
             }
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
-                                         Ice::Instrumentation::ThreadStateIdle);
+            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
         }
     }
     else
