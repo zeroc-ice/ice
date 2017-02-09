@@ -18,9 +18,9 @@ project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
 #
 # The platforms, configs and languages to build.
 #
-platforms 		= $(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS))
-configs 		= $(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS))
-languages 		= $(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES))
+platforms 		= $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS)))
+configs 		= $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS)))
+languages 		= $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES)))
 build-platform		:= $(or $(build-platform),$(firstword $(supported-platforms)))
 
 #
