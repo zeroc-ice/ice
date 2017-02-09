@@ -2861,7 +2861,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // But we do this only once per source file, because a single instance is sufficient to initialize
         // all of the globals in a compilation unit.
         //
-        H << nl << "static ::Ice::ValueFactoryPtr _iceS_" << p->name() << "_init = " << p->scoped() << "::ice_factory();";
+        H << nl << "static ::Ice::ValueFactoryPtr _iceS_" << p->name() << "_init = " << fixKwd(p->scoped()) << "::ice_factory();";
     }
 
     if(p->isLocal())
