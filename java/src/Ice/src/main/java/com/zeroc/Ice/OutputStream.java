@@ -738,6 +738,34 @@ public class OutputStream
     }
 
     /**
+     * Writes an optional serializable Java object to the stream.
+     *
+     * @param tag The optional tag.
+     * @param v The optional serializable object to write.
+     **/
+    public <T extends java.io.Serializable> void writeSerializable(int tag, java.util.Optional<T> v)
+    {
+        if(v != null && v.isPresent())
+        {
+            writeSerializable(tag, v.get());
+        }
+    }
+
+    /**
+     * Writes an optional serializable Java object to the stream.
+     *
+     * @param tag The optional tag.
+     * @param v The serializable object to write.
+     **/
+    public void writeSerializable(int tag, java.io.Serializable v)
+    {
+        if(writeOptional(tag, OptionalFormat.VSize))
+        {
+            writeSerializable(v);
+        }
+    }
+
+    /**
      * Writes a boolean to the stream.
      *
      * @param v The boolean to write to the stream.

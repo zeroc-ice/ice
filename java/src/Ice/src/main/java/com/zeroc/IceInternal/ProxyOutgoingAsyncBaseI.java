@@ -71,7 +71,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             case ReplyStatus.replyFacetNotExist:
             case ReplyStatus.replyOperationNotExist:
             {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Identity.ice_read(is, null);
+                com.zeroc.Ice.Identity id = com.zeroc.Ice.Identity.ice_read(is);
 
                 //
                 // For compatibility with the old FacetPath.

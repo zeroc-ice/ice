@@ -174,7 +174,7 @@ class Initial
     ["marshaled-result"] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();
 
-    void getAll(out B b1, out B b2, out C theC, out D theD);
+    void getAll(out B b1, out B b2, out C theC, out D theD, out D istr);
 
     I getI();
     I getJ();

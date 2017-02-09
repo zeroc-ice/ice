@@ -59,8 +59,7 @@ public final class ProxyFactory
     public com.zeroc.Ice.ObjectPrx
     streamToProxy(com.zeroc.Ice.InputStream s)
     {
-        com.zeroc.Ice.Identity ident = com.zeroc.Ice.Identity.ice_read(s, null);
-
+        com.zeroc.Ice.Identity ident = com.zeroc.Ice.Identity.ice_read(s);
         Reference ref = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(ref);
     }

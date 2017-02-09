@@ -650,7 +650,7 @@ public class InputStream
             throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-        EncodingVersion encoding = EncodingVersion.ice_read(this, null);
+        EncodingVersion encoding = EncodingVersion.ice_read(this);
         IceInternal.Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
 
         if(encoding.equals(Ice.Util.Encoding_1_0))

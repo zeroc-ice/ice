@@ -11,14 +11,6 @@ package test.Ice.stream;
 
 import java.io.PrintWriter;
 
-import com.zeroc.Ice.BoolSeqHelper;
-import com.zeroc.Ice.ByteSeqHelper;
-import com.zeroc.Ice.DoubleSeqHelper;
-import com.zeroc.Ice.FloatSeqHelper;
-import com.zeroc.Ice.ShortSeqHelper;
-import com.zeroc.Ice.IntSeqHelper;
-import com.zeroc.Ice.LongSeqHelper;
-import com.zeroc.Ice.StringSeqHelper;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
 import test.Ice.stream.Test.*;
@@ -75,15 +67,9 @@ public class Client extends test.Util.Application
         }
     }
 
-    private static class TestReadValueCallback implements com.zeroc.Ice.ReadValueCallback
+    private static class Wrapper<T extends com.zeroc.Ice.Value>
     {
-        @Override
-        public void valueReady(com.zeroc.Ice.Value obj)
-        {
-            this.obj = obj;
-        }
-
-        com.zeroc.Ice.Value obj;
+        T obj;
     }
 
     private static class MyClassFactoryWrapper implements com.zeroc.Ice.ValueFactory
@@ -252,7 +238,7 @@ public class Client extends test.Util.Application
             SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            SmallStruct s2 = SmallStruct.ice_read(in, null);
+            SmallStruct s2 = SmallStruct.ice_read(in);
             test(s2.equals(s));
         }
 
@@ -267,10 +253,10 @@ public class Client extends test.Util.Application
             out.writePendingValues();
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            TestReadValueCallback cb = new TestReadValueCallback();
-            in.readValue(cb);
+            final Wrapper<OptionalClass> cb = new Wrapper<>();
+            in.readValue(value -> cb.obj = value, OptionalClass.class);
             in.readPendingValues();
-            OptionalClass o2 = (OptionalClass)cb.obj;
+            OptionalClass o2 = cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
             if(comm.getProperties().getProperty("Ice.Default.EncodingVersion").equals("1.0"))
@@ -296,10 +282,10 @@ public class Client extends test.Util.Application
             out.writePendingValues();
             byte[] data = out.finished();
             in = new InputStream(comm, com.zeroc.Ice.Util.Encoding_1_0, data);
-            TestReadValueCallback cb = new TestReadValueCallback();
-            in.readValue(cb);
+            final Wrapper<OptionalClass> cb = new Wrapper<>();
+            in.readValue(value -> cb.obj = value, OptionalClass.class);
             in.readPendingValues();
-            OptionalClass o2 = (OptionalClass)cb.obj;
+            OptionalClass o2 = cb.obj;
             test(o2.bo == o.bo);
             test(o2.by == o.by);
             test(!o2.hasSh());
@@ -315,10 +301,10 @@ public class Client extends test.Util.Application
                 false
             };
             out = new OutputStream(comm);
-            BoolSeqHelper.write(out, arr);
+            out.writeBoolSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            boolean[] arr2 = BoolSeqHelper.read(in);
+            boolean[] arr2 = in.readBoolSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final boolean[][] arrS =
@@ -344,10 +330,10 @@ public class Client extends test.Util.Application
                 (byte)0x22
             };
             out = new OutputStream(comm);
-            ByteSeqHelper.write(out, arr);
+            out.writeByteSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            byte[] arr2 = ByteSeqHelper.read(in);
+            byte[] arr2 = in.readByteSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final byte[][] arrS =
@@ -371,7 +357,7 @@ public class Client extends test.Util.Application
             out.writeSerializable(small);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            test.Ice.stream.Serialize.Small small2 = (test.Ice.stream.Serialize.Small)in.readSerializable();
+            test.Ice.stream.Serialize.Small small2 = in.readSerializable(test.Ice.stream.Serialize.Small.class);
             test(small2.i == 99);
         }
 
@@ -384,10 +370,10 @@ public class Client extends test.Util.Application
                 (short)0x22
             };
             out = new OutputStream(comm);
-            ShortSeqHelper.write(out, arr);
+            out.writeShortSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            short[] arr2 = ShortSeqHelper.read(in);
+            short[] arr2 = in.readShortSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final short[][] arrS =
@@ -413,10 +399,10 @@ public class Client extends test.Util.Application
                 0x22
             };
             out = new OutputStream(comm);
-            IntSeqHelper.write(out, arr);
+            out.writeIntSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            int[] arr2 = IntSeqHelper.read(in);
+            int[] arr2 = in.readIntSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final int[][] arrS =
@@ -442,10 +428,10 @@ public class Client extends test.Util.Application
                 0x22
             };
             out = new OutputStream(comm);
-            LongSeqHelper.write(out, arr);
+            out.writeLongSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            long[] arr2 = LongSeqHelper.read(in);
+            long[] arr2 = in.readLongSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final long[][] arrS =
@@ -471,10 +457,10 @@ public class Client extends test.Util.Application
                 4
             };
             out = new OutputStream(comm);
-            FloatSeqHelper.write(out, arr);
+            out.writeFloatSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            float[] arr2 = FloatSeqHelper.read(in);
+            float[] arr2 = in.readFloatSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final float[][] arrS =
@@ -500,10 +486,10 @@ public class Client extends test.Util.Application
                 4
             };
             out = new OutputStream(comm);
-            DoubleSeqHelper.write(out, arr);
+            out.writeDoubleSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            double[] arr2 = DoubleSeqHelper.read(in);
+            double[] arr2 = in.readDoubleSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final double[][] arrS =
@@ -529,10 +515,10 @@ public class Client extends test.Util.Application
                 "string4"
             };
             out = new OutputStream(comm);
-            StringSeqHelper.write(out, arr);
+            out.writeStringSeq(arr);
             byte[] data = out.finished();
             in = new InputStream(comm, data);
-            String[] arr2 = StringSeqHelper.read(in);
+            String[] arr2 = in.readStringSeq();
             test(java.util.Arrays.equals(arr2, arr));
 
             final String[][] arrS =
@@ -667,12 +653,11 @@ public class Client extends test.Util.Application
             test(writer.called);
             factoryWrapper.setFactory(new TestValueFactory());
             in = new InputStream(comm, data);
-            TestReadValueCallback cb = new TestReadValueCallback();
-            in.readValue(cb);
+            final Wrapper<TestObjectReader> cb = new Wrapper<>();
+            in.readValue(value -> cb.obj = value, TestObjectReader.class);
             in.readPendingValues();
             test(cb.obj != null);
-            test(cb.obj instanceof TestObjectReader);
-            TestObjectReader reader = (TestObjectReader)cb.obj;
+            TestObjectReader reader = cb.obj;
             test(reader.called);
             test(reader.obj != null);
             test(reader.obj.s.e == MyEnum.enum2);

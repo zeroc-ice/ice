@@ -119,9 +119,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         OutgoingAsync<String[]> f =
             new OutgoingAsync<>(this, "ice_ids", OperationMode.Nonmutating, sync, null);
         f.invoke(true, context, null, null, istr -> {
-                       String[] ret;
-                       ret = StringSeqHelper.read(istr);
-                       return ret;
+                       return istr.readStringSeq();
                    });
         return f;
     }

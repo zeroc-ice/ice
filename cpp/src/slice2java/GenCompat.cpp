@@ -3732,12 +3732,9 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << nl << "ice_read(Ice.InputStream istr, " << name << " v)";
+        out << sp << nl << "static public " << name << nl << "ice_read(Ice.InputStream istr)";
         out << sb;
-        out << nl << "if(v == null)";
-        out << sb;
-        out << nl << " v = new " << name << "();";
-        out << eb;
+        out << nl << name << " v = new " << name << "();";
         out << nl << "v.ice_readMembers(istr);";
         out << nl << "return v;";
         out << eb;

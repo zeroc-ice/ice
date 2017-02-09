@@ -273,7 +273,7 @@ public class Client extends test.Util.Application
             SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            SmallStruct s2 = SmallStruct.ice_read(in, null);
+            SmallStruct s2 = SmallStruct.ice_read(in);
             test(s2.equals(s));
         }
 

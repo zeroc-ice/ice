@@ -1061,11 +1061,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                SmallStruct f = SmallStruct.ice_read(in, null);
+                SmallStruct f = SmallStruct.ice_read(in);
                 test(f.m == (byte)56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                SmallStruct.ice_read(in, f);
+                f = SmallStruct.ice_read(in);
                 test(f.m == (byte)56);
                 in.endEncapsulation();
 
@@ -1110,11 +1110,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                FixedStruct f = FixedStruct.ice_read(in, null);
+                FixedStruct f = FixedStruct.ice_read(in);
                 test(f.m == 56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                FixedStruct.ice_read(in, f);
+                f = FixedStruct.ice_read(in);
                 test(f.m == 56);
                 in.endEncapsulation();
 
@@ -1160,11 +1160,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                VarStruct v = VarStruct.ice_read(in, null);
+                VarStruct v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 test(in.readOptional(3, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                VarStruct.ice_read(in, v);
+                v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
 

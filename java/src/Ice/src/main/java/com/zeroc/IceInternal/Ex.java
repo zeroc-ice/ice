@@ -11,6 +11,33 @@ package com.zeroc.IceInternal;
 
 public class Ex
 {
+    public static <T extends com.zeroc.Ice.Value> void throwUOE(Class<T> expectedType, com.zeroc.Ice.Value v)
+    {
+        //
+        // If the object is an unknown sliced object, we didn't find an
+        // value factory, in this case raise a NoValueFactoryException
+        // instead.
+        //
+        if(v instanceof com.zeroc.Ice.UnknownSlicedValue)
+        {
+            com.zeroc.Ice.UnknownSlicedValue usv = (com.zeroc.Ice.UnknownSlicedValue)v;
+            throw new com.zeroc.Ice.NoValueFactoryException("", usv.getUnknownTypeId());
+        }
+
+        String type = v.ice_id();
+        String expected;
+        try
+        {
+            expected = (String)expectedType.getMethod("ice_staticId").invoke(null);
+        }
+        catch(Exception ex)
+        {
+            expected = "";
+            assert(false);
+        }
+        throw new com.zeroc.Ice.UnexpectedObjectException(
+            "expected element of type `" + expected + "' but received '" + type, type, expected);
+    }
     public static void throwUOE(String expectedType, com.zeroc.Ice.Value v)
     {
         //

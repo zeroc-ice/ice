@@ -46,8 +46,8 @@ protected:
     void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
                                   const DocCommentPtr&);
 
-    void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
-    std::string getPatcher(const TypePtr&, const std::string&, const std::string&, bool);
+    void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool);
+    std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
 
     std::string getFutureType(const OperationPtr&, const std::string&);
     std::string getFutureImplType(const OperationPtr&, const std::string&);

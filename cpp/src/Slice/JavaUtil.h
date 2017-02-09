@@ -334,6 +334,9 @@ protected:
         OptionalMember
     };
 
+    std::string getWriteFunction(const std::string&, const TypePtr&);
+    std::string getReadFunction(const std::string&, const TypePtr&);
+
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
                                    bool, int, const std::string&, bool, int&, const std::string& = "",
                                    const StringList& = StringList(), const std::string& = "");
