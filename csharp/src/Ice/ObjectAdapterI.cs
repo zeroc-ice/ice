@@ -554,6 +554,19 @@ namespace Ice
             }
         }
 
+        public Endpoint[] getEndpoints()
+        {
+            lock(this)
+            {
+                List<Endpoint> endpoints = new List<Endpoint>();
+                foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    endpoints.Add(factory.endpoint());
+                }
+                return endpoints.ToArray();
+            }
+        }
+
         public void refreshPublishedEndpoints()
         {
             LocatorInfo locatorInfo = null;
@@ -588,24 +601,52 @@ namespace Ice
             }
         }
 
-        public Endpoint[] getEndpoints()
-        {
-            lock(this)
-            {
-                List<Endpoint> endpoints = new List<Endpoint>();
-                foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    endpoints.Add(factory.endpoint());
-                }
-                return endpoints.ToArray();
-            }
-        }
-
         public Endpoint[] getPublishedEndpoints()
         {
             lock(this)
             {
                 return _publishedEndpoints.ToArray();
+            }
+        }
+
+        public void setPublishedEndpoints(Endpoint[] newEndpoints)
+        {
+            List<EndpointI> newPublishedEndpoints = new List<EndpointI>(newEndpoints.Length);
+
+            foreach(Endpoint e in newEndpoints)
+            {
+                newPublishedEndpoints.Add((EndpointI)e);
+            }
+
+            LocatorInfo locatorInfo = null;
+            List<EndpointI> oldPublishedEndpoints;
+
+            lock(this)
+            {
+                checkForDeactivation();
+
+                oldPublishedEndpoints = _publishedEndpoints;
+                _publishedEndpoints = newPublishedEndpoints;
+
+                locatorInfo = _locatorInfo;
+            }
+
+            try
+            {
+                Identity dummy = new Identity();
+                dummy.name = "dummy";
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+            }
+            catch(LocalException)
+            {
+                lock(this)
+                {
+                    //
+                    // Restore the old published endpoints.
+                    //
+                    _publishedEndpoints = oldPublishedEndpoints;
+                    throw;
+                }
             }
         }
 
