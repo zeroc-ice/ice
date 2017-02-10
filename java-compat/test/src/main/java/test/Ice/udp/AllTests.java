@@ -130,7 +130,7 @@ public class AllTests
             {
                 test(seq.length > 16384);
             }
-            obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             seq = new byte[50000];
             try

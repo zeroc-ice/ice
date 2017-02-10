@@ -185,7 +185,7 @@ NSCondition* cond;
 {
     if([proxy ice_getCachedConnection])
     {
-        [[proxy ice_getCachedConnection] close:ICECloseGracefullyAndWait];
+        [[proxy ice_getCachedConnection] close:ICEConnectionCloseGracefullyWithWait];
     }
     @try
     {
@@ -196,7 +196,7 @@ NSCondition* cond;
     }
     if([proxy ice_getCachedConnection])
     {
-        [[proxy ice_getCachedConnection] close:ICECloseGracefullyAndWait];
+        [[proxy ice_getCachedConnection] close:ICEConnectionCloseGracefullyWithWait];
     }
 }
 @end
@@ -606,7 +606,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     map = toMap([[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
     test([[map objectForKey:@"holding"] current] == 1);
 
-    [[metrics ice_getConnection] close:ICECloseGracefullyAndWait];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     map = toMap([[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
     test([[map objectForKey:@"closing"] current] == 1);
@@ -621,7 +621,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     [props setObject:@"none" forKey:@"IceMX.Metrics.View.Map.Connection.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"Connection");
 
-    [[metrics ice_getConnection] close:ICECloseGracefullyAndWait];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     [[metrics ice_timeout:500] ice_ping];
     [controller hold];
@@ -680,7 +680,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastHost", @"", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastPort", @"", nil);
 
-    [[m ice_getConnection] close:ICECloseGracefullyAndWait];
+    [[m ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     waitForCurrent(clientMetrics, @"View", @"Connection", 0);
     waitForCurrent(serverMetrics, @"View", @"Connection", 0);
@@ -703,7 +703,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     test(m1.current == 0 && m1.total == 1 && [m1.id_ isEqualToString:hostAndPort]);
 
-    [[metrics ice_getConnection] close:ICECloseGracefullyAndWait];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
     [controller hold];
     @try
     {
@@ -758,7 +758,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     @try
     {
         [prx ice_ping];
-        [[prx ice_getConnection] close:ICECloseGracefullyAndWait];
+        [[prx ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
     }
     @catch(ICELocalException*)
     {

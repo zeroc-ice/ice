@@ -223,19 +223,19 @@ class ConnectionI
     {
         const r = new AsyncResultBase(this._communicator, "close", this, null, null);
 
-        if(mode == ConnectionClose.CloseForcefully)
+        if(mode == ConnectionClose.Forcefully)
         {
             this.setState(StateClosed, new Ice.ConnectionManuallyClosedException(false));
             r.resolve();
         }
-        else if(mode == ConnectionClose.CloseGracefully)
+        else if(mode == ConnectionClose.Gracefully)
         {
             this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
             r.resolve();
         }
         else
         {
-            Debug.assert(mode == ConnectionClose.CloseGracefullyAndWait);
+            Debug.assert(mode == ConnectionClose.GracefullyWithWait);
 
             //
             // Wait until all outstanding requests have been completed.
@@ -250,7 +250,7 @@ class ConnectionI
     checkClose()
     {
         //
-        // If close(CloseGracefullyAndWait) has been called, then we need to check if all
+        // If close(GracefullyWithWait) has been called, then we need to check if all
         // requests have completed and we can transition to StateClosing.
         // We also complete outstanding promises.
         //

@@ -159,7 +159,7 @@ public class AllTests : TestCommon.AllTests
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(test1.getAdapterName());
-                test1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -181,7 +181,7 @@ public class AllTests : TestCommon.AllTests
 
                 foreach(RemoteObjectAdapterPrx adpt in adapters)
                 {
-                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
 
@@ -206,7 +206,7 @@ public class AllTests : TestCommon.AllTests
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(test1.getAdapterName());
-                test1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -290,7 +290,7 @@ public class AllTests : TestCommon.AllTests
                 {
                     try
                     {
-                        a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                        a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     }
                     catch(Ice.LocalException)
                     {
@@ -331,7 +331,7 @@ public class AllTests : TestCommon.AllTests
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(getAdapterNameWithAMI(test1));
-                test1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -353,7 +353,7 @@ public class AllTests : TestCommon.AllTests
 
                 foreach(RemoteObjectAdapterPrx adpt in adapters)
                 {
-                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
 
@@ -378,7 +378,7 @@ public class AllTests : TestCommon.AllTests
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(getAdapterNameWithAMI(test1));
-                test1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -411,7 +411,7 @@ public class AllTests : TestCommon.AllTests
             while(names.Count > 0)
             {
                 names.Remove(obj.getAdapterName());
-                obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
@@ -423,7 +423,7 @@ public class AllTests : TestCommon.AllTests
             while(names.Count > 0)
             {
                 names.Remove(obj.getAdapterName());
-                obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             deactivate(com, adapters);
@@ -480,11 +480,11 @@ public class AllTests : TestCommon.AllTests
             adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++);
             test(i == nRetry);
-            obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++);
             test(i == nRetry);
-            obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++);
             test(i == nRetry);
@@ -761,7 +761,7 @@ public class AllTests : TestCommon.AllTests
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter82"));
-                    obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
@@ -777,7 +777,7 @@ public class AllTests : TestCommon.AllTests
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter81"));
-                    obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
@@ -785,7 +785,7 @@ public class AllTests : TestCommon.AllTests
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter83"));
-                    obj.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);

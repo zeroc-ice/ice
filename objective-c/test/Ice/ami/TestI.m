@@ -90,6 +90,10 @@
     }
     return NO;
 }
+-(void) close:(TestAMICloseMode)mode current:(ICECurrent *)current
+{
+    [current.con close:(ICEConnectionClose)mode];
+}
 -(void) sleep:(ICEInt)delay current:(ICECurrent *)current
 {
     [_cond lock];
@@ -101,6 +105,16 @@
     {
         [_cond unlock];
     }
+}
+-(void) startDispatch:(ICECurrent*)current
+{
+}
+-(void) finishDispatch:(ICECurrent*)current
+{
+}
+-(BOOL) supportsAMD:(ICECurrent *)current
+{
+    return NO;
 }
 -(BOOL) supportsFunctionalTests:(ICECurrent *)current
 {

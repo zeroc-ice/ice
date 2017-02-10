@@ -294,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
         Ice::ConnectionPtr connection = to->ice_getConnection();
         timeout->holdAdapter(600);
-        connection->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.

@@ -61,14 +61,14 @@ def batchOneways(p):
         batch1.end_ice_ping(batch1.begin_ice_ping())
         batch2.end_ice_ping(batch2.begin_ice_ping())
         batch1.end_ice_flushBatchRequests(batch1.begin_ice_flushBatchRequests())
-        batch1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
+        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
         batch1.end_ice_ping(batch1.begin_ice_ping())
         batch2.end_ice_ping(batch2.begin_ice_ping())
 
         batch1.ice_getConnection()
         batch2.ice_getConnection()
 
-        batch1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
+        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
         batch1.end_ice_ping(batch1.begin_ice_ping())
         batch2.end_ice_ping(batch2.begin_ice_ping())

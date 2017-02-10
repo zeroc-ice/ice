@@ -28,7 +28,7 @@
    {
         if([current con])
         {
-            [[current con] close:ICECloseForcefully];
+            [[current con] close:ICEConnectionCloseForcefully];
         }
         else
         {

@@ -111,7 +111,7 @@
                         //
                         test(batchCount === 0);
                         b1.opBatch();
-                        b1.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                        b1.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         return communicator.flushBatchRequests().then(() => p.opBatchCount());
                     }
                 ).then(batchCount =>
@@ -156,7 +156,7 @@
                                 b2 = prx;
                                 b1.opBatch();
                                 b2.opBatch();
-                                b1.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                                b1.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                                 return communicator.flushBatchRequests();
                             }
                         ).then(() => p.waitForBatch(1)
@@ -181,8 +181,8 @@
                                 b2 = prx;
                                 b1.opBatch();
                                 b2.opBatch();
-                                b1.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-                                b2.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                                b1.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                                b2.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                                 return communicator.flushBatchRequests();
                             }
                         ).then(() => p.opBatchCount());

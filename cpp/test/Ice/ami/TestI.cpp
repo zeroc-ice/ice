@@ -105,10 +105,66 @@ TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
     timedWait(IceUtil::Time::milliSeconds(ms));
 }
 
+#ifdef ICE_CPP11_MAPPING
+void
+TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)> ex,
+                              const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _pending.push_back(move(response));
+}
+#else
+void
+TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _pending.push_back(cb);
+}
+#endif
+
+void
+TestIntfI::finishDispatch(const Ice::Current& current)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+#ifdef ICE_CPP11_MAPPING
+    for(vector<function<void()>>::iterator p = _pending.begin(); p != _pending.end(); ++p)
+    {
+        (*p)();
+    }
+#else
+    for(vector<Test::AMD_TestIntf_startDispatchPtr>::iterator p = _pending.begin(); p != _pending.end(); ++p)
+    {
+        (*p)->ice_response();
+    }
+#endif
+    _pending.clear();
+}
+
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
+    //
+    // Just in case a request arrived late.
+    //
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+#ifdef ICE_CPP11_MAPPING
+    for(vector<function<void()>>::iterator p = _pending.begin(); p != _pending.end(); ++p)
+    {
+        (*p)();
+    }
+#else
+    for(vector<Test::AMD_TestIntf_startDispatchPtr>::iterator p = _pending.begin(); p != _pending.end(); ++p)
+    {
+        (*p)->ice_response();
+    }
+#endif
     current.adapter->getCommunicator()->shutdown();
+}
+
+bool
+TestIntfI::supportsAMD(const Ice::Current&)
+{
+    return true;
 }
 
 bool
@@ -132,4 +188,3 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
 TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }
-

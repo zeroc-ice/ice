@@ -337,7 +337,7 @@ public class AllTests
             {
                 final Thread mainThread = Thread.currentThread();
 
-                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
                 CompletableFuture<com.zeroc.Ice.Connection> r = p.ice_getConnectionAsync();
                 mainThread.interrupt();
@@ -359,7 +359,7 @@ public class AllTests
                     // Expected
                 }
 
-                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
                 final Callback cb = new Callback();
                 mainThread.interrupt();

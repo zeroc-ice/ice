@@ -200,7 +200,7 @@ def allTests(communicator, ref):
     sys.stdout.flush()
     hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"))
     obj.migrateHello()
-    hello.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait)
+    hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()

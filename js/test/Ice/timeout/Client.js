@@ -142,7 +142,7 @@
                 connection = con;
                 return timeout.holdAdapter(1500);
             }
-        ).then(() => connection.close(Ice.ConnectionClose.CloseGracefullyAndWait)
+        ).then(() => connection.close(Ice.ConnectionClose.GracefullyWithWait)
         ).then(() =>
             {
                 try

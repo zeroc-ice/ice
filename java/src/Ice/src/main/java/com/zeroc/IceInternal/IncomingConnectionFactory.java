@@ -137,7 +137,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                     //
                     for(ConnectionI c : connections)
                     {
-                        c.close(com.zeroc.Ice.ConnectionClose.CloseForcefully);
+                        c.close(com.zeroc.Ice.ConnectionClose.Forcefully);
                     }
                     throw e;
                 }

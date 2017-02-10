@@ -498,17 +498,17 @@ Ice::ConnectionI::close(ConnectionClose mode)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(mode == ICE_ENUM(ConnectionClose, CloseForcefully))
+    if(mode == ICE_SCOPED_ENUM(ConnectionClose, Forcefully))
     {
         setState(StateClosed, ConnectionManuallyClosedException(__FILE__, __LINE__, false));
     }
-    else if(mode == ICE_ENUM(ConnectionClose, CloseGracefully))
+    else if(mode == ICE_SCOPED_ENUM(ConnectionClose, Gracefully))
     {
         setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
     else
     {
-        assert(mode == ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        assert(mode == ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
 
         //
         // Wait until all outstanding requests have been completed.

@@ -133,7 +133,7 @@ public final class OutgoingConnectionFactory
                     {
                         for(Ice.ConnectionI c : l)
                         {
-                            c.close(Ice.ConnectionClose.CloseForcefully);
+                            c.close(Ice.ConnectionClose.Forcefully);
                         }
                     }
                     throw new Ice.OperationInterruptedException();

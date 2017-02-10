@@ -287,7 +287,7 @@ struct Connect
     {
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+            proxy->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         }
         try
         {
@@ -298,7 +298,7 @@ struct Connect
         }
         if(proxy->ice_getCachedConnection())
         {
-            proxy->ice_getCachedConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+            proxy->ice_getCachedConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         }
     }
 
@@ -534,8 +534,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
 
     if(!collocated)
     {
-        metrics->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
-        metrics->ice_connectionId("Con1")->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        metrics->ice_connectionId("Con1")->ice_getConnection()->close(
+            Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -645,7 +646,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["holding"]->current == 1);
 
-        metrics->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["closing"]->current == 1);
@@ -660,7 +661,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
         updateProps(clientProps, serverProps, update.get(), props, "Connection");
 
-        metrics->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
 
         metrics->ice_timeout(500)->ice_ping();
         controller->hold();
@@ -717,7 +718,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastPort", "");
 
-        m->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        m->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -736,7 +737,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
         test(m1->current == 0 && m1->total == 1 && m1->id == hostAndPort);
 
-        metrics->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        metrics->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         controller->hold();
         try
         {
@@ -788,7 +789,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         try
         {
             prx->ice_ping();
-            prx->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+            prx->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         }
         catch(const Ice::LocalException&)
         {

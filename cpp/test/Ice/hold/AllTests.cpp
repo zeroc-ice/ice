@@ -290,7 +290,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
             }
         }
         completed->get_future().get();
@@ -305,7 +305,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 result->waitForSent();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
             }
         }
         result->waitForCompleted();

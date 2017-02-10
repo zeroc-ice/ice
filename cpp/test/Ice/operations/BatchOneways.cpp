@@ -126,7 +126,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
         batch1->ice_ping();
         batch2->ice_ping();
         batch1->ice_flushBatchRequests();
-        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        batch1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         batch1->ice_ping();
         batch2->ice_ping();
 
@@ -134,7 +134,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
         batch2->ice_getConnection();
 
         batch1->ice_ping();
-        batch1->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        batch1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         batch1->ice_ping();
         batch2->ice_ping();
     }

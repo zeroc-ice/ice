@@ -329,7 +329,7 @@ public class AllTests
             TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(100 * mult));
             Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(500);
-            connection.close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            connection.close(Ice.ConnectionClose.GracefullyWithWait);
             try
             {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.

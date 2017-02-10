@@ -637,7 +637,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing object migration... " << flush;
     hello = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy("hello"));
     obj->migrateHello();
-    hello->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+    hello->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();

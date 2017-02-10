@@ -229,7 +229,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:[test1 getAdapterName]];
-            [[test1 ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         //
@@ -251,7 +251,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
             for(id<TestBindingRemoteObjectAdapterPrx> a in adapters)
             {
-                [[[a getTestIntf] ice_getConnection] close:ICECloseGracefullyAndWait];
+                [[[a getTestIntf] ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             }
         }
 
@@ -276,7 +276,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:[test1 getAdapterName]];
-            [[test1 ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         //
@@ -320,7 +320,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:getAdapterNameWithAMI(test1)];
-            [[test1 ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         //
@@ -342,7 +342,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 
             for(id<TestBindingRemoteObjectAdapterPrx> a in adapters)
             {
-                [[[a getTestIntf] ice_getConnection] close:ICECloseGracefullyAndWait];
+                [[[a getTestIntf] ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             }
         }
 
@@ -367,7 +367,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             test([[test2 ice_getConnection] isEqual:[test3 ice_getConnection]]);
 
             [names removeObject:[test1 getAdapterName]];
-            [[test1 ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         //
@@ -399,7 +399,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         while([names count] != 0)
         {
             [names removeObject:[test getAdapterName]];
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         test = [TestBindingTestIntfPrx uncheckedCast:[test ice_endpointSelection:ICERandom]];
@@ -411,7 +411,7 @@ bindingAllTests(id<ICECommunicator> communicator)
         while([names count] != 0)
         {
             [names removeObject:[test getAdapterName]];
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         }
 
         deactivate(com, adapters);
@@ -439,7 +439,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter31"]; i++);
         }
 #endif
@@ -449,7 +449,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter32"]; i++);
         }
 #endif
@@ -459,7 +459,7 @@ bindingAllTests(id<ICECommunicator> communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter33"]; i++);
         }
 #endif
@@ -487,29 +487,29 @@ bindingAllTests(id<ICECommunicator> communicator)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter36"]; i++);
         }
 #endif
         test(i == nRetry);
-        [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+        [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         [adapters addObject:[com createObjectAdapter:@"Adapter35" endpoints:[endpoints objectAtIndex:1]]];
         for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter35"]; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter35"]; i++);
         }
 #endif
         test(i == nRetry);
-        [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+        [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         [adapters addObject:[com createObjectAdapter:@"Adapter34" endpoints:[endpoints objectAtIndex:0]]];
         for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter34"]; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+            [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             for(i = 0; i < nRetry && [[test getAdapterName] isEqualToString:@"Adapter34"]; i++);
         }
 #endif
@@ -818,7 +818,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             for(i = 0; i < 5; i++)
             {
                 test([[test getAdapterName] isEqualToString:@"Adapter82"]);
-                [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+                [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             }
 
             id<TestBindingTestIntfPrx> testSecure = [TestBindingTestIntfPrx uncheckedCast:[test ice_secure:YES]];
@@ -834,7 +834,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             for(i = 0; i < 5; i++)
             {
                 test([[test getAdapterName] isEqualToString:@"Adapter81"]);
-                [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+                [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             }
 
             [com createObjectAdapter:@"Adapter83" endpoints:[getEndpoints(test) objectAtIndex:1]]; // Reactive tcp OA.
@@ -842,7 +842,7 @@ bindingAllTests(id<ICECommunicator> communicator)
             for(i = 0; i < 5; i++)
             {
                 test([[test getAdapterName] isEqualToString:@"Adapter83"]);
-                [[test ice_getConnection] close:ICECloseGracefullyAndWait];
+                [[test ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
             }
 
             [com deactivateObjectAdapter:[adapters objectAtIndex:0]];

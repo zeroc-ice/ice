@@ -10,6 +10,7 @@
 package test.Ice.ami;
 
 import test.Ice.ami.Test._TestIntfDisp;
+import test.Ice.ami.Test.AMD_TestIntf_startDispatch;
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfException;
 
@@ -59,6 +60,12 @@ public class TestI extends _TestIntfDisp
     opBatchCount(Ice.Current current)
     {
         return _batchCount;
+    }
+
+    @Override
+    public boolean supportsAMD(Ice.Current current)
+    {
+        return true;
     }
 
     @Override
@@ -149,11 +156,37 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void
+    public synchronized void
+    startDispatch_async(AMD_TestIntf_startDispatch cb, Ice.Current current)
+    {
+        _pending.add(cb);
+    }
+
+    @Override
+    public synchronized void
+    finishDispatch(Ice.Current current)
+    {
+        for(AMD_TestIntf_startDispatch cb : _pending)
+        {
+            cb.ice_response();
+        }
+        _pending.clear();
+    }
+
+    @Override
+    public synchronized void
     shutdown(Ice.Current current)
     {
+        //
+        // Just in case a request arrived late.
+        //
+        for(AMD_TestIntf_startDispatch cb : _pending)
+        {
+            cb.ice_response();
+        }
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
+    private java.util.List<AMD_TestIntf_startDispatch> _pending = new java.util.LinkedList<>();
 }

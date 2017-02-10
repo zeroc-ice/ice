@@ -629,7 +629,6 @@ public class AMI
     run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
         TestIntfControllerPrx testController)
     {
-
         PrintWriter out = app.getWriter();
 
         out.print("testing begin/end invocation... ");
@@ -1830,7 +1829,7 @@ public class AMI
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
-                b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback()
@@ -1892,7 +1891,7 @@ public class AMI
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.ice_getConnection();
                 b1.opBatch();
-                b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback_Object_ice_flushBatchRequests()
@@ -1962,7 +1961,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2026,7 +2025,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2095,7 +2094,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2171,7 +2170,7 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2209,8 +2208,8 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-                    b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2274,7 +2273,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2350,7 +2349,7 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2388,8 +2387,8 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-                    b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -2613,33 +2612,30 @@ public class AMI
         }
         out.println("ok");
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && p.supportsAMD())
         {
             out.print("testing graceful close connection with wait... ");
             out.flush();
             {
                 //
-                // Local case: begin several requests, close the connection gracefully, and make sure it waits
-                // for the requests to complete.
+                // Local case: begin a request, close the connection gracefully, and make sure it waits
+                // for the request to complete.
                 //
-                java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<>();
-                for(int i = 0; i < 3; ++i)
+                CloseCallback cb = new CloseCallback();
+                Ice.Connection con = p.ice_getConnection();
+                con.setCloseCallback(cb);
+                Ice.AsyncResult r = p.begin_sleep(100);
+                con.close(Ice.ConnectionClose.GracefullyWithWait); // Blocks until the request completes.
+                r.waitForCompleted(); // Should complete successfully.
+                try
                 {
-                    results.add(p.begin_sleep(50));
+                    r.throwLocalException();
                 }
-                p.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-                for(Ice.AsyncResult r : results)
+                catch(Throwable ex)
                 {
-                    r.waitForCompleted();
-                    try
-                    {
-                        r.throwLocalException();
-                    }
-                    catch(Throwable ex)
-                    {
-                        test(false);
-                    }
+                    test(false);
                 }
+                cb.check();
             }
             {
                 //
@@ -2663,7 +2659,7 @@ public class AMI
                     {
                         results.add(p.begin_opWithPayload(seq));
                     }
-                    if(!p.begin_close(CloseMode.CloseGracefullyAndWait).isSent())
+                    if(!p.begin_close(CloseMode.GracefullyWithWait).isSent())
                     {
                         for(int i = 0; i < maxQueue; i++)
                         {
@@ -2702,17 +2698,15 @@ public class AMI
             out.flush();
             {
                 //
-                // Local case: start a lengthy operation and then close the connection gracefully on the client side
+                // Local case: start an operation and then close the connection gracefully on the client side
                 // without waiting for the pending invocation to complete. There will be no retry and we expect the
                 // invocation to fail with ConnectionManuallyClosedException.
                 //
-                // This test requires two threads in the server's thread pool: one will block in sleep() and the other
-                // will process the CloseConnection message.
-                //
-                p.ice_ping();
+                p = (TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
                 Ice.Connection con = p.ice_getConnection();
-                Ice.AsyncResult r = p.begin_sleep(100);
-                con.close(Ice.ConnectionClose.CloseGracefully);
+                Ice.AsyncResult r = p.begin_startDispatch();
+                r.waitForSent(); // Ensure the request was sent before we close the connection.
+                con.close(Ice.ConnectionClose.Gracefully);
                 r.waitForCompleted();
                 try
                 {
@@ -2723,20 +2717,18 @@ public class AMI
                 {
                     test(ex.graceful);
                 }
+                p.finishDispatch();
 
                 //
-                // Remote case: the server closes the connection gracefully. Our call to TestIntf::close()
-                // completes successfully and then the connection should be closed immediately afterward,
-                // despite the fact that there's a pending call to sleep(). The call to sleep() should be
-                // automatically retried and complete successfully.
+                // Remote case: the server closes the connection gracefully, which means the connection
+                // will not be closed until all pending dispatched requests have completed.
                 //
-                p.ice_ping();
                 con = p.ice_getConnection();
                 CloseCallback cb = new CloseCallback();
                 con.setCloseCallback(cb);
                 r = p.begin_sleep(100);
-                p.close(CloseMode.CloseGracefully);
-                cb.check();
+                p.close(CloseMode.Gracefully); // Close is delayed until sleep completes.
+                cb.check(); // Ensure connection was closed.
                 r.waitForCompleted();
                 try
                 {
@@ -2746,8 +2738,6 @@ public class AMI
                 {
                     test(false);
                 }
-                p.ice_ping();
-                test(p.ice_getConnection() != con);
             }
             out.println("ok");
 
@@ -2755,13 +2745,14 @@ public class AMI
             out.flush();
             {
                 //
-                // Local case: start a lengthy operation and then close the connection forcefully on the client side.
+                // Local case: start an operation and then close the connection forcefully on the client side.
                 // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
                 //
                 p.ice_ping();
                 Ice.Connection con = p.ice_getConnection();
-                Ice.AsyncResult r = p.begin_sleep(100);
-                con.close(Ice.ConnectionClose.CloseForcefully);
+                Ice.AsyncResult r = p.begin_startDispatch();
+                r.waitForSent(); // Ensure the request was sent before we close the connection.
+                con.close(Ice.ConnectionClose.Forcefully);
                 r.waitForCompleted();
                 try
                 {
@@ -2772,6 +2763,7 @@ public class AMI
                 {
                     test(!ex.graceful);
                 }
+                p.finishDispatch();
 
                 //
                 // Remote case: the server closes the connection forcefully. This causes the request to fail
@@ -2780,7 +2772,7 @@ public class AMI
                 //
                 try
                 {
-                    p.close(CloseMode.CloseForcefully);
+                    p.close(CloseMode.Forcefully);
                     test(false);
                 }
                 catch(Ice.ConnectionLostException ex)

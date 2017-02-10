@@ -271,7 +271,7 @@ public class AllTests : TestCommon.AllTests
     {
         if(proxy.ice_getCachedConnection() != null)
         {
-            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         }
 
         try
@@ -284,7 +284,7 @@ public class AllTests : TestCommon.AllTests
 
         if(proxy.ice_getCachedConnection() != null)
         {
-            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         }
     }
 
@@ -486,8 +486,8 @@ public class AllTests : TestCommon.AllTests
 
         if(!collocated)
         {
-            metrics.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-            metrics.ice_connectionId("Con1").ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.ice_connectionId("Con1").ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -590,7 +590,7 @@ public class AllTests : TestCommon.AllTests
             map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
             test(map["holding"].current == 1);
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);
             test(map["closing"].current == 1);
@@ -605,7 +605,7 @@ public class AllTests : TestCommon.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
             metrics.ice_timeout(500).ice_ping();
             controller.hold();
@@ -661,7 +661,7 @@ public class AllTests : TestCommon.AllTests
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "");
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "");
 
-            m.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            m.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -681,7 +681,7 @@ public class AllTests : TestCommon.AllTests
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.current == 0 && m1.total == 1 && m1.id.Equals(hostAndPort));
 
-            metrics.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             controller.hold();
             try
             {
@@ -733,7 +733,7 @@ public class AllTests : TestCommon.AllTests
             try
             {
                 prx.ice_ping();
-                prx.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
             catch(Ice.LocalException)
             {

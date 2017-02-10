@@ -260,7 +260,7 @@ public class AllTests
         {
             if(proxy.ice_getCachedConnection() != null)
             {
-                proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
 
             try
@@ -273,7 +273,7 @@ public class AllTests
 
             if(proxy.ice_getCachedConnection() != null)
             {
-                proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                proxy.ice_getCachedConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
         }
 
@@ -478,9 +478,9 @@ public class AllTests
 
         if(!collocated)
         {
-            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             metrics.ice_connectionId("Con1").ice_getConnection().close(
-                com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -583,7 +583,7 @@ public class AllTests
             map = toMap(serverMetrics.getMetricsView("View").returnValue.get("Connection"));
             test(map.get("holding").current == 1);
 
-            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
             map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));
             test(map.get("closing").current == 1);
@@ -598,7 +598,7 @@ public class AllTests
             props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
             updateProps(clientProps, serverProps, props, "Connection");
 
-            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
             metrics.ice_timeout(500).ice_ping();
             controller.hold();
@@ -660,7 +660,7 @@ public class AllTests
             testAttribute(clientMetrics, clientProps, "Connection", "mcastHost", "", out);
             testAttribute(clientMetrics, clientProps, "Connection", "mcastPort", "", out);
 
-            m.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            m.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
             waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -681,7 +681,7 @@ public class AllTests
                 clientMetrics.getMetricsView("View").returnValue.get("ConnectionEstablishment")[0];
             test(m1.current == 0 && m1.total == 1 && m1.id.equals(hostAndPort));
 
-            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            metrics.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             controller.hold();
             try
             {
@@ -738,7 +738,7 @@ public class AllTests
             try
             {
                 prx.ice_ping();
-                prx.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+                prx.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             }
             catch(com.zeroc.Ice.LocalException ex)
             {

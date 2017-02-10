@@ -19,6 +19,14 @@ exception TestIntfException
 {
 };
 
+["objc:scoped"]
+enum CloseMode
+{
+    Forcefully,
+    Gracefully,
+    GracefullyWithWait
+};
+
 interface TestIntf
 {
     void op();
@@ -29,9 +37,13 @@ interface TestIntf
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
+    void close(CloseMode mode);
     void sleep(int ms);
+    ["amd"] void startDispatch();
+    void finishDispatch();
     void shutdown();
 
+    bool supportsAMD();
     bool supportsFunctionalTests();
 };
 

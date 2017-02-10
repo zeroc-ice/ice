@@ -1585,7 +1585,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         //
         verifier->reset();
         verifier->returnValue(false);
-        server->ice_getConnection()->close(Ice::ICE_ENUM(ConnectionClose, CloseGracefullyAndWait));
+        server->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         try
         {
             server->ice_ping();

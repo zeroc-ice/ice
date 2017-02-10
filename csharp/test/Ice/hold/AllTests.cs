@@ -187,7 +187,7 @@ public class AllTests : TestCommon.AllTests
                 {
                     result.waitForSent();
                     holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                    holdSerialized.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    holdSerialized.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
             result.waitForCompleted();

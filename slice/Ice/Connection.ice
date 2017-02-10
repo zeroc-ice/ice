@@ -130,7 +130,6 @@ local interface HeartbeatCallback
     void heartbeat(Connection con);
 };
 
-
 local enum ACMClose
 {
     CloseOff,
@@ -158,21 +157,23 @@ local struct ACM
 /**
  * Determines the behavior when manually closing a connection.
  **/
+["cpp:scoped", "objc:scoped"]
 local enum ConnectionClose
 {
     /**
      * Close the connection immediately without sending a close connection protocol message to the peer
      * and waiting for the peer to acknowledge it.
      **/
-    CloseForcefully,
+    Forcefully,
     /**
-     * Close the connection by notifying the peer but do not wait for pending invocations to complete.
+     * Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete.
+     * On the server side, the connection will not be closed until all incoming invocations have completed.
      **/
-    CloseGracefully,
+    Gracefully,
     /**
      * Wait for all pending invocations to complete before closing the connection.
      **/
-    CloseGracefullyAndWait
+    GracefullyWithWait
 };
 
 /**

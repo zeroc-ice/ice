@@ -40,7 +40,7 @@ public sealed class MetricsI : MetricsDisp_
 
     override public void fail(Ice.Current current)
     {
-        current.con.close(Ice.ConnectionClose.CloseForcefully);
+        current.con.close(Ice.ConnectionClose.Forcefully);
     }
 
     override public void opWithUserException(Ice.Current current)

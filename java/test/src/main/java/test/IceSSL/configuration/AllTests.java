@@ -889,7 +889,7 @@ public class AllTests
             //
             verifier.reset();
             verifier.returnValue(false);
-            server.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            server.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             try
             {
                 server.ice_ping();

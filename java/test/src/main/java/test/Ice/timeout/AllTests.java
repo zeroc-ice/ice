@@ -262,7 +262,7 @@ public class AllTests
             TimeoutPrx to = TimeoutPrx.checkedCast(obj.ice_timeout(100 * mult));
             com.zeroc.Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(500);
-            connection.close(com.zeroc.Ice.ConnectionClose.CloseGracefullyAndWait);
+            connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             try
             {
                 connection.getInfo(); // getInfo() doesn't throw in the closing state.

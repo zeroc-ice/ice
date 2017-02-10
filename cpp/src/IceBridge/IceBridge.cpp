@@ -167,7 +167,7 @@ public:
                     // The incoming connection is already closed. There's no point in leaving the outgoing
                     // connection open.
                     //
-                    outgoing->close(CloseGracefully);
+                    outgoing->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
                 }
                 else
                 {
@@ -206,7 +206,7 @@ public:
             //
             if(_incoming)
             {
-                _incoming->close(CloseGracefully);
+                _incoming->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
             }
         }
     }
@@ -258,18 +258,19 @@ public:
             }
             catch(const Ice::CloseConnectionException&)
             {
-                toBeClosed->close(CloseGracefully);
+                toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
             }
             catch(const Ice::ConnectionManuallyClosedException& ex)
             {
                 //
                 // Connection was manually closed by the bridge.
                 //
-                toBeClosed->close(ex.graceful ? CloseGracefully : CloseForcefully);
+                toBeClosed->close(ex.graceful ? ICE_SCOPED_ENUM(ConnectionClose, Gracefully) :
+                                  ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             }
             catch(...)
             {
-                toBeClosed->close(CloseForcefully);
+                toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             }
         }
 

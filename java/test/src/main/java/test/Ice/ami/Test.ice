@@ -21,9 +21,9 @@ exception TestIntfException
 
 enum CloseMode
 {
-    CloseForcefully,
-    CloseGracefully,
-    CloseGracefullyAndWait
+    Forcefully,
+    Gracefully,
+    GracefullyWithWait
 };
 
 interface TestIntf
@@ -38,8 +38,11 @@ interface TestIntf
     bool waitForBatch(int count);
     void close(CloseMode mode);
     void sleep(int ms);
+    ["amd"] void startDispatch();
+    void finishDispatch();
     void shutdown();
 
+    bool supportsAMD();
     bool supportsFunctionalTests();
     bool opBool(bool b);
     byte opByte(byte b);

@@ -80,7 +80,7 @@ public:
             // Close the connection otherwise the peer has no way to know that
             // the session has gone.
             //
-            _connection->close(CloseForcefully);
+            _connection->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             _router->destroySession(_connection);
         }
     }
@@ -922,7 +922,7 @@ SessionRouterI::refreshSession(const Ice::ConnectionPtr& con)
             // Close the connection otherwise the peer has no way to know that the
             // session has gone.
             //
-            con->close(CloseForcefully);
+            con->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             throw SessionNotExistException();
         }
     }
@@ -1152,7 +1152,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
             out << "rejecting request, no session is associated with the connection.\n";
             out << "identity: " << identityToString(id);
         }
-        connection->close(CloseForcefully);
+        connection->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
     return 0;

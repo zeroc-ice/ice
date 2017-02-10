@@ -172,17 +172,17 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             throw new OperationInterruptedException();
         }
 
-        if(mode == ConnectionClose.CloseForcefully)
+        if(mode == ConnectionClose.Forcefully)
         {
             setState(StateClosed, new ConnectionManuallyClosedException(false));
         }
-        else if(mode == ConnectionClose.CloseGracefully)
+        else if(mode == ConnectionClose.Gracefully)
         {
             setState(StateClosing, new ConnectionManuallyClosedException(true));
         }
         else
         {
-            assert(mode == ConnectionClose.CloseGracefullyAndWait);
+            assert(mode == ConnectionClose.GracefullyWithWait);
 
             //
             // Wait until all outstanding requests have been completed.

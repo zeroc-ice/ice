@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,6 +104,12 @@ public class TestI : TestIntfDisp_
     }
 
     override public bool
+    supportsAMD(Ice.Current current)
+    {
+        return true;
+    }
+
+    override public bool
     supportsFunctionalTests(Ice.Current current)
     {
         return false;
@@ -139,7 +146,32 @@ public class TestI : TestIntfDisp_
         return TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
+    override public Task
+    startDispatchAsync(Ice.Current current)
+    {
+        lock(this)
+        {
+            TaskCompletionSource<object> t = new TaskCompletionSource<object>();
+            _pending.Add(t);
+            return t.Task;
+        }
+    }
+
+    override public void
+    finishDispatch(Ice.Current current)
+    {
+        lock(this)
+        {
+            foreach(TaskCompletionSource<object> t in _pending)
+            {
+                t.SetResult(null);
+            }
+        }
+        _pending.Clear();
+    }
+
     private int _batchCount;
+    private List<TaskCompletionSource<object>> _pending = new List<TaskCompletionSource<object>>();
 }
 
 public class TestControllerI : TestIntfControllerDisp_

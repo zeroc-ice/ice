@@ -185,17 +185,17 @@ namespace Ice
         {
             lock(this)
             {
-                if(mode == ConnectionClose.CloseForcefully)
+                if(mode == ConnectionClose.Forcefully)
                 {
                     setState(StateClosed, new ConnectionManuallyClosedException(false));
                 }
-                else if(mode == ConnectionClose.CloseGracefully)
+                else if(mode == ConnectionClose.Gracefully)
                 {
                     setState(StateClosing, new ConnectionManuallyClosedException(true));
                 }
                 else
                 {
-                    Debug.Assert(mode == ConnectionClose.CloseGracefullyAndWait);
+                    Debug.Assert(mode == ConnectionClose.GracefullyWithWait);
 
                     //
                     // Wait until all outstanding requests have been completed.

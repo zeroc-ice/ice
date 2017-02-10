@@ -845,7 +845,7 @@ public class AMI
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
-                b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     null,
@@ -903,7 +903,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -950,7 +950,7 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -1004,7 +1004,7 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,
@@ -1031,8 +1031,8 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
-                    b2.ice_getConnection().close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
                         Ice.CompressBatch.BasedOnProxy,

@@ -230,7 +230,7 @@
                             ).then(
                                 function(con)
                                 {
-                                    return con.close(Ice.ConnectionClose.CloseGracefullyAndWait);
+                                    return con.close(Ice.ConnectionClose.GracefullyWithWait);
                                 }
                             );
                         }

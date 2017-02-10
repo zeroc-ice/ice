@@ -92,7 +92,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        test1.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+        test1.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     #
@@ -113,7 +113,7 @@ def allTests(communicator)
     test(i == nRetry)
 
     for a in adapters
-        a.getTestIntf().ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+        a.getTestIntf().ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     #
@@ -139,7 +139,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        test1.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+        test1.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     #
@@ -171,7 +171,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+        t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     t = Test::TestIntfPrx::uncheckedCast(t.ice_endpointSelection(Ice::EndpointSelectionType::Random))
@@ -185,7 +185,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+        t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     deactivate(com, adapters)
@@ -250,14 +250,14 @@ def allTests(communicator)
         i = i + 1
     end
     test(i == nRetry)
-    t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+    t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     adapters.push(com.createObjectAdapter("Adapter35", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter35"
         i = i + 1
     end
     test(i == nRetry)
-    t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+    t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     adapters.push(com.createObjectAdapter("Adapter34", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter34"
@@ -442,7 +442,7 @@ def allTests(communicator)
         t = createTestIntfPrx(adapters)
         for i in 0...5
             test(t.getAdapterName() == "Adapter82")
-            t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         testSecure = Test::TestIntfPrx::uncheckedCast(t.ice_secure(true))
@@ -457,14 +457,14 @@ def allTests(communicator)
 
         for i in 0...5
             test(t.getAdapterName() == "Adapter81")
-            t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString()) # Reactive tcp OA.
 
         for i in 0...5
             test(t.getAdapterName() == "Adapter83")
-            t.ice_getConnection().close(Ice::ConnectionClose::CloseGracefullyAndWait)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         com.deactivateObjectAdapter(adapters[0])
