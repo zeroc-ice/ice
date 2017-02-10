@@ -1105,34 +1105,26 @@ public class SessionKeeper
                         @Override
                         public void foundLocator(final com.zeroc.Ice.LocatorPrx locator, com.zeroc.Ice.Current curr)
                         {
-                            SwingUtilities.invokeLater(() ->
+                            try
+                            {
+                                locator.ice_timeout(100).ice_ping(); // Test if the locator is reachable
+                                SwingUtilities.invokeLater(() ->
                                 {
-                                    try
+                                    if(_directDiscoveryEndpointModel.indexOf(locator) == -1)
                                     {
-                                        com.zeroc.Ice.Endpoint[] endps = locator.ice_getEndpoints();
-                                        for(com.zeroc.Ice.Endpoint e : endps)
-                                        {
-                                            com.zeroc.Ice.LocatorPrx prx = com.zeroc.Ice.LocatorPrx.uncheckedCast(
-                                                communicator.stringToProxy(
-                                                    communicator.identityToString(locator.ice_getIdentity()) +
-                                                        ":" + e.toString()));
-
-                                            if(_directDiscoveryEndpointModel.indexOf(prx) == -1)
-                                            {
-                                                _directDiscoveryEndpointModel.addElement(prx);
-                                            }
-                                        }
-
+                                        _directDiscoveryEndpointModel.addElement(locator);
                                         if(_directDiscoveryEndpointModel.size() > 0 &&
-                                            _directDiscoveryEndpointList.getSelectedIndex() == -1)
+                                           _directDiscoveryEndpointList.getSelectedIndex() == -1)
                                         {
                                             _directDiscoveryEndpointList.setSelectedIndex(0);
                                         }
                                     }
-                                    catch(com.zeroc.Ice.LocalException ex)
-                                    {
-                                    }
                                 });
+                                
+                            }
+                            catch(com.zeroc.Ice.LocalException ex)
+                            {
+                            }
                         }
                     };
             }
