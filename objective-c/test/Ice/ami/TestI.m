@@ -99,7 +99,7 @@
     [_cond lock];
     @try
     {
-        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
+        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay / 1000.0]];
     }
     @finally
     {

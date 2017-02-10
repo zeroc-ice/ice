@@ -60,12 +60,7 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultServerProperties(&argc, argv);
 
-            //
-            // Its possible to have batch oneway requests dispatched after
-            // the adapter is deactivated due to thread scheduling so we
-            // supress this warning.
-            //
-            [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
+            [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 #if TARGET_OS_IPHONE
         initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                   @"TestAMI", @"::Test",
