@@ -13,7 +13,6 @@ import test.Slice.escape._abstract._break;
 import test.Slice.escape._abstract._catch;
 import test.Slice.escape._abstract._default;
 import test.Slice.escape._abstract._else;
-import test.Slice.escape._abstract._elseDisp;
 import test.Slice.escape._abstract._finalize;
 import test.Slice.escape._abstract._finalizeDisp;
 import test.Slice.escape._abstract._hashCode;
@@ -22,7 +21,6 @@ import test.Slice.escape._abstract._new;
 import test.Slice.escape._abstract._switch;
 import test.Slice.escape._abstract.catchPrx;
 import test.Slice.escape._abstract.defaultPrx;
-import test.Slice.escape._abstract.elsePrx;
 import test.Slice.escape._abstract.finalizePrx;
 
 public class Client
@@ -61,15 +59,6 @@ public class Client
         }
     }
 
-    static public class elseServantI implements _elseDisp
-    {
-        @Override
-        public int foo(defaultPrx _equals, com.zeroc.Ice.Current current)
-        {
-            return 0;
-        }
-    }
-
     static public class newI implements _new
     {
         public newI()
@@ -78,7 +67,7 @@ public class Client
 
         @Override
         public _assert _notify(_break _notifyAll, _else _null, _finalize _package,
-                               elsePrx _private, finalizePrx _protected,
+                               com.zeroc.Ice.ObjectPrx _private, finalizePrx _protected,
                                catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super)
             throws _hashCode, _import
         {
@@ -106,12 +95,6 @@ public class Client
         public void _do(com.zeroc.Ice.Current current)
         {
         }
-
-        @Override
-        public int foo(defaultPrx _equals, com.zeroc.Ice.Current current)
-        {
-            return 0;
-        }
     }
 
     //
@@ -130,8 +113,11 @@ public class Client
         defaultPrx d = null;
         d._do();
         _default d1 = new defaultI();
-        elsePrx e;
         _else e1 = new elseI();
+        e1._if = 0;
+        e1._equals = null;
+        e1._final = 0;
+        
         finalizePrx f = null;
         f._checkedCast(0);
         f._do();

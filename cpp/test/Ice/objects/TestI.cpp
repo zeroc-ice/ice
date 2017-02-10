@@ -55,7 +55,7 @@ EI::EI() :
 }
 
 bool
-EI::checkValues(const Ice::Current&)
+EI::checkValues()
 {
     return i == 1 && s == "hello";
 }
@@ -70,7 +70,7 @@ FI::FI(const EPtr& e) :
 }
 
 bool
-FI::checkValues(const Ice::Current&)
+FI::checkValues()
 {
     return e1 && e1 == e2;
 }

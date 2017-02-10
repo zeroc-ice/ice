@@ -202,7 +202,7 @@ class Recursive {
 };
 
 ["amd"]
-class Initial
+interface Initial
 {
     void shutdown();
 

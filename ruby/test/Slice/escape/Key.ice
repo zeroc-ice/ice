@@ -32,7 +32,9 @@ module BEGIN
     class display
     {
         int when;
-        void do(break* dup, out int else);
+        int do;
+        break* dup;
+        int else;
     };
 
     class elsif extends display implements break

@@ -11,7 +11,8 @@
 
 #include <Ice/SliceChecksumDict.ice>
 
-[["java:package:test.Ice.checksum.server"]]
+[["java:package:test.Ice.checksum.server"]] // For classes with operations
+
 module Test
 {
 

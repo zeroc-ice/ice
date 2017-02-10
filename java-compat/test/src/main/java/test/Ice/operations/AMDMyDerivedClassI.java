@@ -14,7 +14,7 @@ import test.Ice.operations.AMD.Test.*;
 
 import java.util.*;
 
-public final class AMDMyDerivedClassI extends MyDerivedClass
+public final class AMDMyDerivedClassI extends _MyDerivedClassDisp
 {
     private static void
     test(boolean b)

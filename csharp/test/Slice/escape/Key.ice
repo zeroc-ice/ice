@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 module abstract
 {
 
@@ -33,7 +35,8 @@ interface decimal
 class delegate
 {
     int if;
-    void foo(case* else, out int event);
+    case* else;
+	int event;
 };
 
 class explicit extends delegate implements decimal, case
@@ -113,7 +116,7 @@ exception BaseMethods
 
 local interface implicit
 {
-    as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate* null,
+    as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate null,
           explicit* operator, int override, int params, int private)
         throws fixed, foreach;
 };

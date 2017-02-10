@@ -8,9 +8,9 @@
 // **********************************************************************
 
 package test.Ice.proxy;
-import test.Ice.proxy.Test.MyDerivedClass;
+import test.Ice.proxy.Test._MyDerivedClassDisp;
 
-public final class MyDerivedClassI extends MyDerivedClass
+public final class MyDerivedClassI extends _MyDerivedClassDisp
 {
     public
     MyDerivedClassI()

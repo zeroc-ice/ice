@@ -51,7 +51,7 @@ dictionary<int, string> D;
 
 ["java:type:java.util.LinkedList<java.util.List<String>>"] sequence<StringSeq> StringSeqSeq;
 
-class TestIntf
+interface TestIntf
 {
     CSeq opCSeq(CSeq inSeq, out CSeq outSeq);
     CArray opCArray(CArray inSeq, out CArray outSeq);
@@ -100,8 +100,6 @@ class TestIntf
     optional(1) DoubleBuffer opOptDoubleBufferSeq(optional(2) DoubleBuffer inSeq, out optional(3) DoubleBuffer outSeq);
 
     void shutdown();
-
-    ["java:type:java.util.ArrayList<C>"] CSeq seq;
 };
 
 };

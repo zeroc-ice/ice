@@ -10,6 +10,7 @@
 #pragma once
 
 [["java:package:test.Ice.checksum.server"]]
+[["suppress-warning:deprecated"]] // For classes with operations
 module Test
 {
 
@@ -376,7 +377,7 @@ exception OptionalEx4
 //
 // TEST: Same
 //
-class BaseClass1
+interface BaseInterface1
 {
     void baseOp1();
     void baseOp2(int i, out string s) throws Exception1;
@@ -385,7 +386,7 @@ class BaseClass1
 //
 // TEST: Change return type
 //
-class BaseClass2
+interface BaseInterface2
 {
     int baseOp();
     void baseOp2(int i, out string s) throws Exception1;
@@ -394,7 +395,7 @@ class BaseClass2
 //
 // TEST: Add parameter
 //
-class BaseClass3
+interface BaseInterface3
 {
     void baseOp(Object o);
     void baseOp2(int i, out string s) throws Exception1;
@@ -403,7 +404,7 @@ class BaseClass3
 //
 // TEST: Add exception
 //
-class BaseClass4
+interface BaseInterface4
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1, Exception2;
@@ -412,7 +413,7 @@ class BaseClass4
 //
 // TEST: Change out parameter to in parameter
 //
-class BaseClass5
+interface BaseInterface5
 {
     void baseOp();
     void baseOp2(int i, string s) throws Exception1;
@@ -421,7 +422,7 @@ class BaseClass5
 //
 // TEST: Remove parameter
 //
-class BaseClass6
+interface BaseInterface6
 {
     void baseOp();
     void baseOp2(out string s) throws Exception1;
@@ -430,7 +431,7 @@ class BaseClass6
 //
 // TEST: Remove exception
 //
-class BaseClass7
+interface BaseInterface7
 {
     void baseOp();
     void baseOp2(int i, out string s);
@@ -439,7 +440,7 @@ class BaseClass7
 //
 // TEST: Remove operation
 //
-class BaseClass8
+interface BaseInterface8
 {
     void baseOp2(int i, out string s) throws Exception1;
 };
@@ -447,25 +448,7 @@ class BaseClass8
 //
 // TEST: Add base class
 //
-class BaseClass9 extends EmptyClass1
-{
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
-
-//
-// TEST: Add interface
-//
-class BaseClass10 implements Interface1
-{
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
-
-//
-// TEST: Add base class and interface
-//
-class BaseClass11 extends EmptyClass1 implements Interface1
+interface BaseInterface9 extends Interface1
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
@@ -476,8 +459,7 @@ class BaseClass11 extends EmptyClass1 implements Interface1
 //
 class Compact1(1)
 {
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
+    int id;
 };
 
 //
@@ -492,8 +474,7 @@ class Derived1 extends Compact1
 //
 class Compact2(3)
 {
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
+    int id;
 };
 
 //
@@ -507,7 +488,7 @@ class Optional0
 };
 
 //
-// TEST: Class with optional members, different order, same tags.
+// TEST: Interface with optional members, different order, same tags.
 //
 class Optional1
 {
@@ -517,7 +498,7 @@ class Optional1
 };
 
 //
-// TEST: Class with different optional members.
+// TEST: Interface with different optional members.
 //
 class Optional2
 {
@@ -527,7 +508,7 @@ class Optional2
 };
 
 //
-// TEST: Class with different optional members.
+// TEST: Interface with different optional members.
 //
 class Optional3
 {
@@ -538,7 +519,7 @@ class Optional3
 };
 
 //
-// TEST: Class with optional members using different tags.
+// TEST: Interface with optional members using different tags.
 //
 class Optional4
 {
@@ -548,53 +529,53 @@ class Optional4
 };
 
 //
-// TEST: Class with optional parameters.
+// TEST: Interface with optional parameters.
 //
-class OptionalParameters0
+interface OptionalParameters0
 {
     void op1(string firstName, optional(1) string secondName,
              optional(2) string emailAddress);
 };
 
 //
-// TEST: Class with optional parameters, different order.
+// TEST: Interface with optional parameters, different order.
 //
-class OptionalParameters1
+interface OptionalParameters1
 {
     void op1(string firstName, optional(2) string emailAddress,
              optional(1) string secondName);
 };
 
 //
-// TEST: Class with optional parameters, different tags.
+// TEST: Interface with optional parameters, different tags.
 //
-class OptionalParameters2
+interface OptionalParameters2
 {
     void op1(string firstName, optional(2) string emailAddress,
              optional(1) string secondName);
 };
 
 //
-// TEST: Class with different optional parameters.
+// TEST: Interface with different optional parameters.
 //
-class OptionalParameters3
+interface OptionalParameters3
 {
     void op1(string firstName, string emailAddress,
              optional(1) string secondName);
 };
 
 //
-// TEST: Class with optional return type.
+// TEST: Interface with optional return type.
 //
-class OptionalReturn0
+interface OptionalReturn0
 {
     optional(1) int op();
 };
 
 //
-// TEST: Class that changes optional return type.
+// TEST: Interface that changes optional return type.
 //
-class OptionalReturn2
+interface OptionalReturn2
 {
     int op();
 };

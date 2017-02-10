@@ -54,15 +54,6 @@ function allTests($communicator)
     $modeASCII = $NS ? constant("Ice\\ToStringMode::ASCII") : constant("Ice_ToStringMode::ASCII");
     $modeCompat = $NS ? constant("Ice\\ToStringMode::Compat") : constant("Ice_ToStringMode::Compat");
 
-    if($NS)
-    {
-        echo "namespace ON\n";
-    }
-    else
-    {
-        echo "namespace OFF\n";
-    }
-
     echo "testing stringToProxy... ";
     flush();
     $ref = "test:default -p 12010";

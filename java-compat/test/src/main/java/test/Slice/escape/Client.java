@@ -68,12 +68,6 @@ public class Client
         elseI()
         {
         }
-
-        @Override
-        public void
-        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current current)
-        {
-        }
     }
 
     static public class newI implements _new
@@ -114,12 +108,6 @@ public class Client
         _do(Ice.Current current)
         {
         }
-
-        @Override
-        public void
-        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current current)
-        {
-        }
     }
 
     //
@@ -141,6 +129,9 @@ public class Client
         _default d1 = new defaultI();
         elsePrx e;
         _else e1 = new elseI();
+        e1._if = 0;
+        e1._equals = null;
+        e1._final = 0;
         finalizePrx f = null;
         f._checkedCast(0, new Ice.IntHolder());
         f._do();

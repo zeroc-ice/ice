@@ -15,14 +15,14 @@
 module Test
 {
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 
     Ice::Context getContext();
 };
 
-class MyDerivedClass extends MyClass
+interface MyDerivedClass extends MyClass
 {
     Object* echo(Object* obj);
 };

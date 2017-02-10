@@ -137,11 +137,11 @@ class Twoways
 
         p.ice_ping();
 
-        test(p.ice_isA(MyClass.ice_staticId()));
+        test(p.ice_isA(_MyClassDisp.ice_staticId()));
 
-        test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
+        test(p.ice_id().equals(_MyDerivedClassDisp.ice_staticId()));
 
-        test(MyDerivedClassPrxHelper.ice_staticId().equals(MyDerivedClass.ice_staticId()));
+        test(MyDerivedClassPrxHelper.ice_staticId().equals(_MyDerivedClassDisp.ice_staticId()));
         test(ObjectPrxHelper.ice_staticId().equals(Object.ice_staticId));
         test(LocatorPrxHelper.ice_staticId().equals(Locator.ice_staticId));
 

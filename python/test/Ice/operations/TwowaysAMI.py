@@ -757,7 +757,7 @@ def twowaysAMI(communicator, p):
     cb.check()
 
     cb = Callback()
-    p.begin_ice_isA(Test.MyClass.ice_staticId(), cb.isA, cb.exCB)
+    p.begin_ice_isA(Test._MyClassDisp.ice_staticId(), cb.isA, cb.exCB)
     cb.check()
 
     cb = Callback()

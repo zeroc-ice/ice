@@ -36,7 +36,8 @@ interface default
 class else
 {
     int if;
-    void foo(default* equals, out int final);
+    default* equals;
+    int final;
 };
 
 class finalize extends else implements default, catch

@@ -130,7 +130,7 @@ public class TwowaysAMI
 
         public void ice_id(string id)
         {
-            test(id.Equals(Test.MyDerivedClass.ice_staticId()));
+            test(id.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
             called();
         }
 
@@ -1031,23 +1031,23 @@ public class TwowaysAMI
         }
 
         {
-            test(p.ice_isAAsync(Test.MyClass.ice_staticId()).Result);
+            test(p.ice_isAAsync(Test.MyClassDisp_.ice_staticId()).Result);
         }
 
         {
-            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClass.ice_staticId());
+            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClassDisp_.ice_staticId());
             test(p.end_ice_isA(r));
         }
 
         {
             Callback cb = new Callback();
-            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
+            p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
             cb.check();
         }
 
         {
             Callback cb = new Callback();
-            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(
+            p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(
                 (bool v) =>
                 {
                     cb.ice_isA(v);
@@ -1089,12 +1089,12 @@ public class TwowaysAMI
         }
 
         {
-            test(p.ice_idAsync().Result.Equals(Test.MyDerivedClass.ice_staticId()));
+            test(p.ice_idAsync().Result.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
         }
 
         {
             Ice.AsyncResult r = p.begin_ice_id();
-            test(p.end_ice_id(r).Equals(Test.MyDerivedClass.ice_staticId()));
+            test(p.end_ice_id(r).Equals(Test.MyDerivedClassDisp_.ice_staticId()));
         }
 
         {

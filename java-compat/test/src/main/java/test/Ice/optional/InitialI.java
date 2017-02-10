@@ -11,7 +11,7 @@ package test.Ice.optional;
 
 import test.Ice.optional.Test.*;
 
-public final class InitialI extends Initial
+public final class InitialI extends _InitialDisp
 {
     @Override
     public void

@@ -14,14 +14,14 @@
 module Test
 {
 
-["amd"] class MyClass
+["amd"] interface MyClass
 {
     void shutdown();
 
     Ice::Context getContext();
 };
 
-["amd"] class MyDerivedClass extends MyClass
+["amd"] interface MyDerivedClass extends MyClass
 {
     Object* echo(Object* obj);
 };

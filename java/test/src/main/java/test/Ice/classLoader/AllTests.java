@@ -11,7 +11,6 @@ package test.Ice.classLoader;
 
 import java.io.PrintWriter;
 
-import test.Ice.classLoader.Test.AbstractClass;
 import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.InitialPrx;
@@ -19,21 +18,6 @@ import test.Util.Application;
 
 public class AllTests
 {
-    private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
-    {
-        @Override
-        public com.zeroc.Ice.Value create(String type)
-        {
-            if(type.equals("::Test::AbstractClass"))
-            {
-                return new AbstractClassI();
-            }
-
-            assert (false); // Should never be reached
-            return null;
-        }
-    }
-
     private static class MyClassLoader extends ClassLoader
     {
         MyClassLoader(ClassLoader parent)
@@ -156,36 +140,6 @@ public class AllTests
                 test(classLoader.check("Test.ConcreteClass"));
                 test(classLoader.check("test.Ice.classLoader.Test.ConcreteClass"));
                 classLoader.reset();
-                out.println("ok");
-            }
-
-            //
-            // Verify that the class loader is invoked when a factory is not installed, and is
-            // not invoked when a factory is installed.
-            //
-            {
-                out.print("testing abstract class... ");
-                out.flush();
-
-                try
-                {
-                    initial.getAbstractClass();
-                }
-                catch(com.zeroc.Ice.NoValueFactoryException ex)
-                {
-                    // Expected.
-                }
-                test(classLoader.check("Test.AbstractClass"));
-                test(classLoader.check("test.Ice.classLoader.Test.AbstractClass"));
-                classLoader.reset();
-
-                ic.getValueFactoryManager().add(new MyValueFactory(), "::Test::AbstractClass");
-                AbstractClass ac = initial.getAbstractClass();
-                test(ac != null);
-                test(!classLoader.check("Test.AbstractClass"));
-                test(!classLoader.check("test.Ice.classLoader.Test.AbstractClass"));
-                classLoader.reset();
-
                 out.println("ok");
             }
 

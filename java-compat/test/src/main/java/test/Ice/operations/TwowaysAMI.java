@@ -62,10 +62,10 @@ import test.Ice.operations.Test.Callback_MyClass_opStringStringSD;
 import test.Ice.operations.Test.Callback_MyClass_opStruct;
 import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.Callback_MyDerivedClass_opDerived;
-import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test._MyClassDisp;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
-import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test._MyDerivedClassDisp;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
@@ -206,7 +206,7 @@ class TwowaysAMI
         @Override
         public void response(String id)
         {
-            test(id.equals(MyDerivedClass.ice_staticId()));
+            test(id.equals(_MyDerivedClassDisp.ice_staticId()));
             callback.called();
         }
 
@@ -1921,7 +1921,7 @@ class TwowaysAMI
 
         {
             isAI cb = new isAI();
-            p.begin_ice_isA(MyClass.ice_staticId(), cb);
+            p.begin_ice_isA(_MyClassDisp.ice_staticId(), cb);
             cb.check();
         }
 

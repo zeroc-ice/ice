@@ -38,9 +38,8 @@ function twoways($communicator, $p)
     $enum2 = $NS ? constant("Test\\MyEnum::enum2") : constant("Test_MyEnum::enum2");
     $enum3 = $NS ? constant("Test\\MyEnum::enum3") : constant("Test_MyEnum::enum3");
 
+    $myClassPrxHelper = $NS ? "Test\\MyClassPrxHelper" : "Test_MyClassPrxHelper";
     $myDerivedClassPrxHelper = $NS ? "Test\\MyDerivedClassPrxHelper" : "Test_MyDerivedClassPrxHelper";
-    $myDerivedClass = $NS ? "Test\\MyDerivedClass" : "Test_MyDerivedClass";
-    $myClass = $NS ? "Test\\MyClass" : "Test_MyClass";
     $objectPrxHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
 
 
@@ -165,16 +164,15 @@ function twoways($communicator, $p)
     }
 
     {
-        test($myDerivedClassPrxHelper::ice_staticId() == $myDerivedClass::ice_staticId());
         test($objectPrxHelper::ice_staticId() == "::Ice::Object");
     }
 
     {
-        test($p->ice_isA($myClass::ice_staticId()));
+        test($p->ice_isA($myClassPrxHelper::ice_staticId()));
     }
 
     {
-        test($p->ice_id() == $myDerivedClass::ice_staticId());
+        test($p->ice_id() == $myDerivedClassPrxHelper::ice_staticId());
     }
 
     {

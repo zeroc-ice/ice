@@ -16,7 +16,7 @@ exception MyException
 {
 };
 
-class MyClass
+interface MyClass
 {
     void opOneway();
 

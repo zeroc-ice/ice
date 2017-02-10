@@ -50,10 +50,7 @@
 {
     return [super init:1 s:@"hello"];
 }
--(BOOL) checkValues:(ICECurrent*)current
-{
-    return i == 1 && [s isEqualToString:@"hello"];
-}
+
 @end
 
 @implementation TestObjectsFI

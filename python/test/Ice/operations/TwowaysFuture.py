@@ -902,7 +902,7 @@ def twowaysFuture(communicator, p):
     f = p.ice_pingAsync()
     test(f.result() is None)
 
-    f = p.ice_isAAsync(Test.MyClass.ice_staticId())
+    f = p.ice_isAAsync(Test._MyClassDisp.ice_staticId())
     test(f.result())
 
     f = p.ice_idAsync()

@@ -14,14 +14,14 @@ module Test
 
 dictionary<string, string> Context;
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 
     Context getContext();
 };
 
-class MyDerivedClass extends MyClass
+interface MyDerivedClass extends MyClass
 {
     Object* echo(Object* obj);
 };

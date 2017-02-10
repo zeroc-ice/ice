@@ -10,6 +10,7 @@
 #pragma once
 
 [["java:package:test.Ice.classLoader"]]
+[["suppress-warning:deprecated"]] // For classes with operations
 module Test
 {
 

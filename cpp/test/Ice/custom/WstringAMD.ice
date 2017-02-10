@@ -26,7 +26,7 @@ exception WstringException
     string reason;
 };
 
-["amd"] class WstringClass
+["amd"] interface WstringClass
 {
     string opString(string s1, out string s2);
 
@@ -34,8 +34,6 @@ exception WstringException
 
     void throwExcept(string reason)
         throws WstringException;
-
-    string s;
 };
 
 };
@@ -57,7 +55,7 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
     string reason;
 };
 
-["amd", "cpp:type:wstring"] class WstringClass
+["amd", "cpp:type:wstring"] interface WstringClass
 {
     string opString(string s1, out string s2);
 
@@ -65,8 +63,6 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
 
     void throwExcept(string reason)
         throws WstringException;
-
-    string s;
 };
 
 };

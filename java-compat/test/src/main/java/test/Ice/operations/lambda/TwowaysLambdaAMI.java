@@ -10,9 +10,9 @@
 package test.Ice.operations.lambda;
 
 import test.Ice.operations.Test.AnotherStruct;
-import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test._MyClassDisp;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test._MyDerivedClassDisp;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
@@ -100,7 +100,7 @@ public class TwowaysLambdaAMI
     {
         public void response(String id)
         {
-            test(id.equals(MyDerivedClass.ice_staticId()));
+            test(id.equals(_MyDerivedClassDisp.ice_staticId()));
             callback.called();
         }
 
@@ -947,7 +947,7 @@ public class TwowaysLambdaAMI
 
         {
             isAI cb = new isAI();
-            p.begin_ice_isA(MyClass.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
+            p.begin_ice_isA(_MyClassDisp.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
             cb.check();
         }
 

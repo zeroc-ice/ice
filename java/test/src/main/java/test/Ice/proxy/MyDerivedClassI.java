@@ -9,9 +9,9 @@
 
 package test.Ice.proxy;
 
-import test.Ice.proxy.Test._MyDerivedClassDisp;
+import test.Ice.proxy.Test.MyDerivedClass;
 
-public final class MyDerivedClassI implements _MyDerivedClassDisp
+public final class MyDerivedClassI implements MyDerivedClass
 {
     public MyDerivedClassI()
     {
@@ -39,7 +39,7 @@ public final class MyDerivedClassI implements _MyDerivedClassDisp
     public boolean ice_isA(String s, com.zeroc.Ice.Current current)
     {
         _ctx = current.ctx;
-        return _MyDerivedClassDisp.super.ice_isA(s, current);
+        return MyDerivedClass.super.ice_isA(s, current);
     }
 
     private java.util.Map<String, String> _ctx;

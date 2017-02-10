@@ -18,7 +18,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.optional.Test.*;
 
-public final class InitialI implements _InitialDisp
+public final class InitialI implements Initial
 {
     @Override
     public void shutdown(Current current)

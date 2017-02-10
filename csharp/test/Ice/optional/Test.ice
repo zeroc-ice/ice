@@ -202,7 +202,7 @@ class Recursive
     optional(0) RecursiveSeq value;
 };
 
-class Initial
+interface Initial
 {
     void shutdown();
 

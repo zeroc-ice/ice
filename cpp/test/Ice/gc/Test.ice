@@ -171,7 +171,6 @@ module DDD
 
     class C
     {
-        void op();
     };
 
     class C2;

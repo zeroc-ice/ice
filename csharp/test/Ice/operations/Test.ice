@@ -21,7 +21,7 @@ enum MyEnum
     enum3
 };
 
-class MyClass;
+interface MyClass;
 
 struct AnotherStruct
 {
@@ -93,7 +93,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
 exception SomeException {};
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 
@@ -277,7 +277,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 };
 
-["cs:tie"] class MyDerivedClass extends MyClass
+["cs:tie"] interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

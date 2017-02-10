@@ -137,13 +137,12 @@ class Twoways
         p.ice_ping();
 
 
-        test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
+        test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClassDisp_.ice_staticId()));
         test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
 
 
-        test(p.ice_isA(Test.MyClass.ice_staticId()));
-
-        test(p.ice_id().Equals(Test.MyDerivedClass.ice_staticId()));
+        test(p.ice_isA(Test.MyClassDisp_.ice_staticId()));
+        test(p.ice_id().Equals(Test.MyDerivedClassDisp_.ice_staticId()));
 
         {
             string[] ids = p.ice_ids();

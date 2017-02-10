@@ -218,10 +218,13 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     tprintf("testing protected members... ");
     TestObjectsE* e = [initial getE];
-    test([(id<TestObjectsE>)e checkValues:nil]);
+
+    test(e.i == 1);
+    test([e.s isEqualToString:@"hello"]);
+
     TestObjectsF* f = [initial getF];
-    test([(id<TestObjectsF>)f checkValues:nil]);
-    test([(id<TestObjectsE>)f.e2 checkValues:nil]);
+    test(f.e1 && f.e1 == f.e2);
+    test(f.e1.i == 1 && [e.s isEqualToString:@"hello"]);
     tprintf("ok\n");
 
     tprintf("getting I, J and H... ");

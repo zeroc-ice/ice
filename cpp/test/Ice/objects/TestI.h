@@ -43,8 +43,9 @@ public:
 
     EI();
 
-    virtual bool checkValues(const Ice::Current&);
+    bool checkValues();
 };
+ICE_DEFINE_PTR(EIPtr, EI);
 
 class FI : public Test::F
 {
@@ -53,8 +54,9 @@ public:
     FI();
     FI(const Test::EPtr&);
 
-    virtual bool checkValues(const Ice::Current&);
+    bool checkValues();
 };
+ICE_DEFINE_PTR(FIPtr, FI);
 
 #ifdef ICE_CPP11_MAPPING
 class II : public ::Ice::InterfaceByValue<Test::I>

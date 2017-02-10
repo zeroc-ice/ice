@@ -35,16 +35,16 @@ interface char
     void explicit();
 };
 
-class switch
+interface switch
 {
-    int if;
     void foo(char* export, out int volatile);
     void foo2(char* export, ["objc:param:y"] int YES, out ["objc:param:nil2"] int nil);
     void foo3(char* export, out int nil);
 };
 
-class do extends switch implements char, break
+class do implements char, break, switch
 {
+    int if;
 };
 
 sequence<auto> extern;

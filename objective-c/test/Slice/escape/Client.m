@@ -66,7 +66,6 @@ testSymbols()
     test(cl2 == 0);
 
     andswitch* cl3 = 0;
-    test(cl3.if_ == 0);
     test(cl3 == 0);
 
     anddo* cl4 = 0;

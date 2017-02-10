@@ -131,7 +131,7 @@ sequence<En> AEnS;
 ["clr:serializable:Serialize.Large"] sequence<byte> SerialLarge;
 ["clr:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 

@@ -40,7 +40,8 @@ interface char
 class switch
 {
     int if;
-    void foo(char* export, out int volatile);
+    char* export;
+    int volatile;
 };
 
 class do extends switch implements char, break
@@ -63,9 +64,9 @@ exception sizeof extends return
 
 local interface friend
 {
-        auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
-                  char* new, switch* not, do* operator, int or, int protected, int public, int register)
-            throws return, sizeof;
+    auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
+              char* new, switch* not, do* operator, int or, int protected, int public, int register)
+        throws return, sizeof;
 };
 
 const int template = 0;

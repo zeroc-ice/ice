@@ -382,22 +382,27 @@ private:
                         if(rest == "getset")
                         {
                             result.push_back(s);
+                            continue;
                         }
                         else if(rest == "buffer")
                         {
                             result.push_back(s);
+                            continue;
                         }
                         else if(rest == "tie")
                         {
                             result.push_back(s);
+                            continue;
                         }
                         else if(rest == "UserException")
                         {
                             result.push_back(s);
+                            continue;
                         }
                         else if(rest == "optional")
                         {
                             result.push_back(s);
+                            continue;
                         }
                     }
                 }

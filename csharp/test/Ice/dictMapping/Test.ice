@@ -35,7 +35,7 @@ dictionary<string, GIS> NDGIS;
 dictionary<string, ASS> NDASS;
 dictionary<string, GSS> NDGSS;
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 

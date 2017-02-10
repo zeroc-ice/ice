@@ -14,7 +14,7 @@ import test.Ice.operations.Test.*;
 
 import java.util.*;
 
-public final class MyDerivedClassI extends MyDerivedClass
+public final class MyDerivedClassI extends _MyDerivedClassDisp
 {
     private static void
     test(boolean b)

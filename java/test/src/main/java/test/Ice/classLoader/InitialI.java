@@ -9,7 +9,6 @@
 
 package test.Ice.classLoader;
 
-import test.Ice.classLoader.Test.AbstractClass;
 import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.Initial;
@@ -25,12 +24,6 @@ public final class InitialI implements Initial
     public ConcreteClass getConcreteClass(com.zeroc.Ice.Current current)
     {
         return new ConcreteClass();
-    }
-
-    @Override
-    public AbstractClass getAbstractClass(com.zeroc.Ice.Current current)
-    {
-        return new AbstractClassI();
     }
 
     @Override

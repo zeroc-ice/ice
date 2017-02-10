@@ -46,7 +46,6 @@ def allTests(communicator):
         m = patt.search(i)
         if m:
             n = int(i[m.start():])
-
         test(i in Ice.sliceChecksums)
 
         if n <= 1:

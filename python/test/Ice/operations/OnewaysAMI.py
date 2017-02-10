@@ -45,7 +45,7 @@ def onewaysAMI(communicator, proxy):
     cb.check()
 
     try:
-        p.begin_ice_isA(Test.MyClass.ice_staticId())
+        p.begin_ice_isA(Test._MyClassDisp.ice_staticId())
         test(False)
     except RuntimeError:
         pass

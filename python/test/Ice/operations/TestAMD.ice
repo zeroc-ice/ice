@@ -19,7 +19,7 @@ enum MyEnum
     enum3
 };
 
-class MyClass;
+interface MyClass;
 
 struct AnotherStruct
 {
@@ -89,7 +89,7 @@ dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
 dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
-["amd"] class MyClass
+["amd"] interface MyClass
 {
     void shutdown();
 
@@ -272,7 +272,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 };
 
-["amd"] class MyDerivedClass extends MyClass
+["amd"] interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

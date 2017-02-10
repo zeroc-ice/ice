@@ -15,7 +15,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.operations.Test.*;
 
-public final class MyDerivedClassI implements _MyDerivedClassDisp
+public final class MyDerivedClassI implements MyDerivedClass
 {
     private static void test(boolean b)
     {
@@ -33,28 +33,28 @@ public final class MyDerivedClassI implements _MyDerivedClassDisp
     public boolean ice_isA(String id, Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_isA(id, current);
+        return MyDerivedClass.super.ice_isA(id, current);
     }
 
     @Override
     public void ice_ping(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        _MyDerivedClassDisp.super.ice_ping(current);
+        MyDerivedClass.super.ice_ping(current);
     }
 
     @Override
     public String[] ice_ids(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_ids(current);
+        return MyDerivedClass.super.ice_ids(current);
     }
 
     @Override
     public String ice_id(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_id(current);
+        return MyDerivedClass.super.ice_id(current);
     }
 
     @Override

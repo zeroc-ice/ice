@@ -11,7 +11,7 @@ package test.Ice.optional;
 
 import test.Ice.optional.AMD.Test.*;
 
-public final class AMDInitialI extends Initial
+public final class AMDInitialI extends _InitialDisp
 {
     @Override
     public void

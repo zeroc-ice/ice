@@ -189,7 +189,7 @@ class G
     G1 gg1;
 };
 
-class Initial
+interface Initial
 {
     void shutdown();
 

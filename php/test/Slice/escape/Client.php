@@ -84,8 +84,6 @@ function allTests($communicator)
                eval("return and_functionPrxHelper::uncheckedCast(\$p);");
     $d = $NS ? eval("return _and\\diePrxHelper::uncheckedCast(\$p);") :
                eval("return and_diePrxHelper::uncheckedCast(\$p);");
-    $e = $NS ? eval("return _and\\echoPrxHelper::uncheckedCast(\$p);") :
-               eval("return and_echoPrxHelper::uncheckedCast(\$p);");
     $e1 = new echoI();
     $f = $NS ? eval("return _and\\enddeclarePrxHelper::uncheckedCast(\$p);") :
                eval("return and_enddeclarePrxHelper::uncheckedCast(\$p);");

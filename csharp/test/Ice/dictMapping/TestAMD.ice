@@ -29,7 +29,7 @@ dictionary<string, GIS> NDGIS;
 dictionary<string, ASS> NDASS;
 dictionary<string, GSS> NDGSS;
 
-["amd"] class MyClass
+["amd"] interface MyClass
 {
     void shutdown();
 

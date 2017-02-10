@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Test.h>
+#include <TestI.h>
 
 #ifdef _MSC_VER
 // For 'Ice::Communicator::addObjectFactory()' deprecation
@@ -252,12 +252,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing protected members... " << flush;
 
-    EPtr e = initial->getE();
-    FPtr f = initial->getF();
+    EIPtr e = ICE_DYNAMIC_CAST(EI, initial->getE());
+    FIPtr f = ICE_DYNAMIC_CAST(FI, initial->getF());
 #ifndef ICE_CPP11_MAPPING
     test(e->checkValues());
     test(f->checkValues());
-    test(f->e2->checkValues());
+    test(ICE_DYNAMIC_CAST(EI, f->e2)->checkValues());
 #endif
     cout << "ok" << endl;
 

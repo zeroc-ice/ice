@@ -14,7 +14,7 @@
 module Test
 {
 
-class A
+interface A
 {
     void shutdown();
 };

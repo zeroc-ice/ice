@@ -20,7 +20,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.optional.AMD.Test.*;
 
-public final class AMDInitialI implements _InitialDisp
+public final class AMDInitialI implements Initial
 {
     @Override
     public CompletionStage<Void> shutdownAsync(Current current)

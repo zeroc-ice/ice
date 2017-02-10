@@ -53,13 +53,13 @@ public class AllTests : TestCommon.AllTests
             if(start != -1)
             {
                 int end = start;
-                while(end < key.Length && Char.IsDigit(key[end]))
+                while(end < key.Length && char.IsDigit(key[end]))
                 {
                     end++;
                 }
-                int n = Int32.Parse(key.Substring(start, end - start));
+                int n = int.Parse(key.Substring(start, end - start));
 
-                string value = (string)Ice.SliceChecksums.checksums[key];
+                string value = Ice.SliceChecksums.checksums[key];
                 test(value != null);
 
                 if(n <= 1)

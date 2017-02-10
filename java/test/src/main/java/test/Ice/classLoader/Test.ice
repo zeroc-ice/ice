@@ -18,17 +18,11 @@ class ConcreteClass
     int i;
 };
 
-class AbstractClass
-{
-    void op();
-};
-
 exception E {};
 
 interface Initial
 {
     ConcreteClass getConcreteClass();
-    AbstractClass getAbstractClass();
     void throwException() throws E;
     void shutdown();
 };

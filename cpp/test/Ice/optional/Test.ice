@@ -196,11 +196,12 @@ class G
 class Recursive;
 sequence<Recursive> RecursiveSeq;
 
-class Recursive {
+class Recursive
+{
     optional(0) RecursiveSeq value;
 };
 
-class Initial
+interface Initial
 {
     void shutdown();
 

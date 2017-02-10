@@ -10,6 +10,8 @@
 #pragma once
 
 [["java:package:test.Ice.inheritance"]]
+[["suppress-warning:deprecated"]] // For classes with operations
+
 module Test
 {
 

@@ -24,9 +24,8 @@ import test.Ice.custom.Test.C;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
 import test.Ice.custom.Test.TestIntf;
-import test.Ice.custom.Test._TestIntfDisp;
 
-public final class TestI implements _TestIntfDisp
+public final class TestI implements TestIntf
 {
     public TestI(com.zeroc.Ice.Communicator communicator)
     {

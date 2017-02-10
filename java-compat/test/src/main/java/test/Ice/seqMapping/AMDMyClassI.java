@@ -12,7 +12,7 @@ package test.Ice.seqMapping;
 import test.Ice.seqMapping.AMD.Test.*;
 import test.Ice.seqMapping.Serialize.*;
 
-public final class AMDMyClassI extends MyClass
+public final class AMDMyClassI extends _MyClassDisp
 {
     @Override
     public void

@@ -22,7 +22,7 @@ enum MyEnum
     enum3
 };
 
-class MyClass;
+interface MyClass;
 
 struct AnotherStruct
 {
@@ -115,7 +115,7 @@ class A // Used Objective-C test only.
 
 sequence<A> AS; // Used by Objective-C test only.
 
-class MyClass
+interface MyClass
 {
      void shutdown();
 
@@ -319,7 +319,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 };
 
-class MyDerivedClass extends MyClass
+interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 c);
