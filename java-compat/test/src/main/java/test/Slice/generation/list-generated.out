@@ -11,7 +11,6 @@
     <file name="classes/test/Slice/generation/Test/Interface1Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface1_method.java"/>
-    <output></output>
   </source>
   <source name="File2.ice">
     <file name="classes/test/Slice/generation/Test/_Interface2Operations.java"/>
@@ -24,6 +23,5 @@
     <file name="classes/test/Slice/generation/Test/Interface2Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface2_method.java"/>
-    <output></output>
   </source>
 </generated>
