@@ -309,6 +309,7 @@ compile(const vector<string>& argv)
 
             if(cppHandle == 0)
             {
+                FileTracker::instance()->error();
                 status = EXIT_FAILURE;
                 break;
             }
@@ -336,6 +337,7 @@ compile(const vector<string>& argv)
                 if(!icecpp->close())
                 {
                     p->destroy();
+                    FileTracker::instance()->error();
                     return EXIT_FAILURE;
                 }
 
@@ -379,10 +381,6 @@ compile(const vector<string>& argv)
                             ChecksumMap m = createChecksums(p);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
-                        if(listGenerated)
-                        {
-                            FileTracker::instance()->setOutput(os.str(), false);
-                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -393,6 +391,7 @@ compile(const vector<string>& argv)
                         p->destroy();
                         consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         status = EXIT_FAILURE;
+                        FileTracker::instance()->error();
                         break;
                     }
                 }
@@ -441,7 +440,7 @@ compile(const vector<string>& argv)
         }
     }
 
-    if(listGenerated && status == EXIT_SUCCESS)
+    if(listGenerated)
     {
         FileTracker::instance()->dumpxml();
     }
