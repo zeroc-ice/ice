@@ -648,6 +648,7 @@ class Node extends Communicator
                     {
                         p.remove();
                     }
+                    else
                     {
                         p.set(updatedInfo);
                     }
