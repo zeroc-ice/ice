@@ -1059,7 +1059,7 @@ public class Root extends Communicator
 
     private void loadLogPrefs()
     {
-        Preferences logPrefs = _coordinator.getPrefs().node("Log");
+        Preferences logPrefs = Coordinator.getPreferences().node("Log");
         _logMaxLines = logPrefs.getInt("maxLines", 500);
         _logMaxSize = logPrefs.getInt("maxSize", 20000);
         _logInitialLines = logPrefs.getInt("initialLines", 10);
@@ -1074,7 +1074,7 @@ public class Root extends Communicator
 
     private void storeLogPrefs()
     {
-        Preferences logPrefs = _coordinator.getPrefs().node("Log");
+        Preferences logPrefs = Coordinator.getPreferences().node("Log");
         logPrefs.putInt("maxLines", _logMaxLines);
         logPrefs.putInt("maxSize", _logMaxSize);
         logPrefs.putInt("initialLines", _logInitialLines);

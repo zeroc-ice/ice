@@ -194,11 +194,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     MetricsViewEditor(Root root)
     {
-        Coordinator coord = root.getCoordinator();
-        _prefs = coord.getPrefs().node("MetricsView");
+        _prefs = Coordinator.getPreferences().node("MetricsView");
 
         if(_properties == null)
         {
+            Coordinator coord = root.getCoordinator();
             JTree tree = root.getTree();
             tree.addTreeSelectionListener(new SelectionListener());
 

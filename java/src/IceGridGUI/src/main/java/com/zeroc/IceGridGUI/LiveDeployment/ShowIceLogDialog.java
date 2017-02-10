@@ -459,7 +459,7 @@ class ShowIceLogDialog extends JDialog
         _defaultFileName = defaultFileName;
         _maxMessages = maxMessages;
         _initialMessages = initialMessages;
-        _preferences = Preferences.userNodeForPackage(getClass());
+        _preferences = Coordinator.getPreferences().node("LiveDeployment");
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()

@@ -576,7 +576,7 @@ public class SessionKeeper
         {
             if(_prefs == null)
             {
-                Preferences prefs = _coordinator.getPrefs().node("Configurations");
+                Preferences prefs = Coordinator.getPreferences().node("Configurations");
                 if(_uuid == null)
                 {
                     _uuid = java.util.UUID.randomUUID().toString();
@@ -587,7 +587,7 @@ public class SessionKeeper
             //
             // Set the first stored connection as default.
             //
-            if(_coordinator.getPrefs().node("Configurations").childrenNames().length == 1)
+            if(Coordinator.getPreferences().node("Configurations").childrenNames().length == 1)
             {
                 setIsDefault(true);
             }
@@ -3518,7 +3518,7 @@ public class SessionKeeper
                                     try
                                     {
                                         String uuid = inf.getUUID();
-                                        Preferences prefs = _coordinator.getPrefs().node("Configurations");
+                                        Preferences prefs = Coordinator.getPreferences().node("Configurations");
                                         prefs = prefs == null ? null : prefs.node(uuid);
                                         if(prefs != null)
                                         {
@@ -3711,7 +3711,7 @@ public class SessionKeeper
         {
             int selected = _connectionList.getSelectedIndex();
             int defaultIndex = -1;
-            Preferences prefs = _coordinator.getPrefs().node("Configurations");
+            Preferences prefs = Coordinator.getPreferences().node("Configurations");
             _connectionListModel.clear();
             try
             {
@@ -3990,7 +3990,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        String defaultPath = _coordinator.getPrefs().node("Configurations").get("importDirectory", "");
+                        String defaultPath = Coordinator.getPreferences().node("Configurations").get("importDirectory", "");
                         JFileChooser chooser = new JFileChooser(defaultPath.equals("") ? null : new File(defaultPath));
                         chooser.setFileFilter(new FileFilter()
                             {
@@ -4192,7 +4192,7 @@ public class SessionKeeper
                         }
                         if(keyFile != null)
                         {
-                            _coordinator.getPrefs().node("Configurations").put("importDirectory", keyFile.getParent());
+                            Coordinator.getPreferences().node("Configurations").put("importDirectory", keyFile.getParent());
                         }
                     }
                 };

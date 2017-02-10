@@ -208,7 +208,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         _coordinator = coordinator;
         setTitle(title);
 
-        _preferences = Preferences.userNodeForPackage(getClass());
+        _preferences = Coordinator.getPreferences().node("LiveDeployment");
 
         //
         // Don't destroy JavaFX when the frame is disposed.

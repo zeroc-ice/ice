@@ -3400,9 +3400,9 @@ public class Coordinator
         return _sessionKeeper;
     }
 
-    public Preferences getPrefs()
+    public static Preferences getPreferences()
     {
-        return _prefs;
+        return Preferences.userRoot().node("IceGridGUI");
     }
 
     public LiveActions getLiveActionsForPopup()
