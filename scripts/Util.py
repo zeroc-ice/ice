@@ -605,15 +605,15 @@ class Mapping:
                 # establishing connections to inactive ports. It takes around 1s for such connection
                 # establishment to fail on Windows.
                 #
-                if isinstance(platform, Windows):
-                    if current.testsuite.getId().startswith("IceGrid") or \
-                        current.testsuite.getId() in ["Ice/binding",
-                                                      "Ice/location",
-                                                      "Ice/background",
-                                                      "Ice/faultTolerance",
-                                                      "Ice/services",
-                                                      "IceDiscovery/simple"]:
-                        props["Ice.Override.ConnectTimeout"] = "400"
+                # if isinstance(platform, Windows):
+                #     if current.testsuite.getId().startswith("IceGrid") or \
+                #         current.testsuite.getId() in ["Ice/binding",
+                #                                       "Ice/location",
+                #                                       "Ice/background",
+                #                                       "Ice/faultTolerance",
+                #                                       "Ice/services",
+                #                                       "IceDiscovery/simple"]:
+                #         props["Ice.Override.ConnectTimeout"] = "400"
 
                 # Additional properties specified on the command line with --cprops or --sprops
                 additionalProps = []
