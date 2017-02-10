@@ -24,6 +24,9 @@ public:
     TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
     virtual ~TraceLevels();
 
+    const int admin;
+    const char* adminCat;
+
     const int application;
     const char* applicationCat;
 

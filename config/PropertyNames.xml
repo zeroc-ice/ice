@@ -491,6 +491,7 @@ generated from the section label.
         <property name="Node.RedirectErrToOut" />
         <property name="Node.Trace.Activator" />
         <property name="Node.Trace.Adapter" />
+        <property name="Node.Trace.Admin" />
         <property name="Node.Trace.Patch" />
         <property name="Node.Trace.Replica" />
         <property name="Node.Trace.Server" />
@@ -524,7 +525,8 @@ generated from the section label.
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
-        <property name="Registry.SSLPermissionsVerifier" class="proxy" />
+        <property name="Registry.SSLPermissionsVerifier" class="proxy"/>
+        <property name="Registry.Trace.Admin" />
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
         <property name="Registry.Trace.Locator" />

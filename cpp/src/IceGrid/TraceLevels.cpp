@@ -15,6 +15,8 @@ using namespace std;
 using namespace IceGrid;
 
 TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string& prefix) :
+    admin(0),
+    adminCat("Admin"),
     application(0),
     applicationCat("Application"),
     node(0),
@@ -40,6 +42,7 @@ TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string&
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     string keyBase = prefix + ".Trace.";
+    const_cast<int&>(admin) = properties->getPropertyAsInt(keyBase + adminCat);
     const_cast<int&>(application) = properties->getPropertyAsInt(keyBase + applicationCat);
     const_cast<int&>(node) = properties->getPropertyAsInt(keyBase + nodeCat);
     const_cast<int&>(replica) = properties->getPropertyAsInt(keyBase + replicaCat);

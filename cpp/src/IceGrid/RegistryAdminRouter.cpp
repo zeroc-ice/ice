@@ -53,6 +53,7 @@ private:
 }
 
 IceGrid::RegistryServerAdminRouter::RegistryServerAdminRouter(const DatabasePtr& database) :
+    AdminRouter(database->getTraceLevels()),
     _database(database)
 {
 }
@@ -99,6 +100,7 @@ IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invoke
 
 
 IceGrid::RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const DatabasePtr& database) :
+    AdminRouter(database->getTraceLevels()),
     _collocNodeName(collocNodeName),
     _database(database)
 {
@@ -131,6 +133,12 @@ IceGrid::RegistryNodeAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePt
 
         if(target == 0)
         {
+            if(_traceLevels->admin > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
+                out << "could not find Admin proxy for node `" << current.id.name << "'";
+            }
+
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
     }
@@ -144,6 +152,7 @@ IceGrid::RegistryNodeAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePt
 
 IceGrid::RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
                                                                 const DatabasePtr& database) :
+    AdminRouter(database->getTraceLevels()),
     _name(name),
     _database(database)
 {
@@ -175,6 +184,12 @@ IceGrid::RegistryReplicaAdminRouter::ice_invoke_async(const AMD_Object_ice_invok
 
     if(target == 0)
     {
+        if(_traceLevels->admin > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
+            out << "could not find Admin proxy for replica `" << current.id.name << "'";
+        }
+
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 

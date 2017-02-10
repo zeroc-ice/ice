@@ -18,6 +18,7 @@ using namespace std;
 
 
 IceGrid::NodeServerAdminRouter::NodeServerAdminRouter(const NodeIPtr& node) :
+    AdminRouter(node->getTraceLevels()),
     _node(node)
 {
 }
@@ -34,6 +35,12 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
     ServerIPtr server = ServerIPtr::dynamicCast(_node->getAdapter()->find(serverId));
     if(server == 0)
     {
+        if(_traceLevels->admin > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
+            out << "could not find Admin proxy for server `" << current.id.name << "'";
+        }
+
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
@@ -44,6 +51,12 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
 
     if(target == 0)
     {
+        if(_traceLevels->admin > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
+            out << "no Process proxy registered with server `" << current.id.name << "'";
+        }
+
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
