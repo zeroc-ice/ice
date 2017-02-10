@@ -108,7 +108,7 @@ public class Main extends JFrame
                 }
             });
 
-        _coordinator = new Coordinator(this, args, Preferences.userNodeForPackage(getClass()));
+        _coordinator = new Coordinator(this, args, Preferences.userRoot().node("IceGridGUI"));
 
         _coordinator.showMainFrame();
     }
