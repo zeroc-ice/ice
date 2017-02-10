@@ -270,7 +270,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-        test(query->findAllObjectsByType("Test").size() == count - 1);
+        test(static_cast<int>(query->findAllObjectsByType("Test").size()) == count - 1);
 
         try
         {
@@ -301,7 +301,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-manual") == IceGrid::Inactive);
-        test(query->findAllObjectsByType("Test").size() == count - 2);
+        test(static_cast<int>(query->findAllObjectsByType("Test").size()) == count - 2);
 
         test(admin->getServerState("server-always") == IceGrid::Active);
         admin->enableServer("server-always", false);
@@ -324,7 +324,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-always") == IceGrid::Inactive);
-        test(query->findAllObjectsByType("Test").size() == count - 3);
+        test(static_cast<int>(query->findAllObjectsByType("Test").size()) == count - 3);
 
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", true);
@@ -346,7 +346,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::Inactive);
 
-        test(query->findAllObjectsByType("Test").size() == count - 2);
+        test(static_cast<int>(query->findAllObjectsByType("Test").size()) == count - 2);
     }
     catch(const Ice::LocalException& ex)
     {
