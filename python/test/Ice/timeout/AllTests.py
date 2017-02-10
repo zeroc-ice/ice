@@ -179,10 +179,10 @@ def allTests(communicator):
     #
     initData = Ice.InitializationData()
     initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.Timeout", "100")
+    initData.properties.setProperty("Ice.Override.Timeout", "250")
     comm = Ice.initialize(initData)
     to = Test.TimeoutPrx.checkedCast(comm.stringToProxy(sref))
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(700)
     try:
         to.sendData(seq)
         test(False)
