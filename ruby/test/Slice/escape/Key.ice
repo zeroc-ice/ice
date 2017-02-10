@@ -37,7 +37,7 @@ module BEGIN
         int else;
     };
 
-    class elsif extends display implements break
+    interface elsif extends break
     {
     };
 

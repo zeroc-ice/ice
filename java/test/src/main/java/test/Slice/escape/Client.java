@@ -14,7 +14,6 @@ import test.Slice.escape._abstract._catch;
 import test.Slice.escape._abstract._default;
 import test.Slice.escape._abstract._else;
 import test.Slice.escape._abstract._finalize;
-import test.Slice.escape._abstract._finalizeDisp;
 import test.Slice.escape._abstract._hashCode;
 import test.Slice.escape._abstract._import;
 import test.Slice.escape._abstract._new;
@@ -75,14 +74,7 @@ public class Client
         }
     }
 
-    static public class finalizeI extends _finalize
-    {
-        public finalizeI()
-        {
-        }
-    }
-
-    static public class finalizeServantI implements _finalizeDisp
+    static public class finalizeServantI implements _finalize
     {
         @Override
         public java.util.concurrent.CompletionStage<Integer> checkedCastAsync(int _clone, com.zeroc.Ice.Current current)
@@ -121,7 +113,7 @@ public class Client
         finalizePrx f = null;
         f._checkedCast(0);
         f._do();
-        _finalize f1 = new finalizeI();
+
         _hashCode i = new _hashCode();
         i._if = 0;
         _import j = new _import();

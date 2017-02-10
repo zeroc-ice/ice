@@ -16,7 +16,7 @@ namespace Test1
 {
 
 #ifdef ICE_CPP11_MAPPING
-class WstringClassI : public virtual WstringClassDisp
+class WstringClassI : public virtual WstringClass
 {
 public:
 
@@ -55,7 +55,7 @@ public:
 namespace Test2
 {
 #ifdef ICE_CPP11_MAPPING
-class WstringClassI : public virtual WstringClassDisp
+class WstringClassI : public virtual WstringClass
 {
 public:
 

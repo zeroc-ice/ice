@@ -52,7 +52,7 @@ module and
         int empty;
     };
 
-    class enddeclare extends echo implements die, function
+    interface enddeclare extends die, function
     {
     };
     sequence<array> endfor;

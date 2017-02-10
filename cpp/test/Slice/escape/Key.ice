@@ -44,7 +44,7 @@ class switch
     int volatile;
 };
 
-class do extends switch implements char, break
+interface do extends char, break
 {
 };
 

@@ -40,7 +40,7 @@ class else
     int final;
 };
 
-class finalize extends else implements default, catch
+interface finalize extends default, catch
 {
 };
 sequence<assert> for;

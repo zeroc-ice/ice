@@ -13,12 +13,7 @@
 #include <Test.h>
 #include <TestCommon.h>
 
-class MyDerivedClassI :
-#ifdef ICE_CPP11_MAPPING
-    public Test::MyDerivedClassDisp
-#else
-    public Test::MyDerivedClass
-#endif
+class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 

@@ -3954,6 +3954,17 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     _local(local),
     _compactId(id)
 {
+    if(!local && !intf)
+    {
+        for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+        {  
+            if((*p)->isInterface())
+            {
+                _unit->warning(Deprecated, "classes implementing interfaces are deprecated");
+                break;
+            }
+        }
+    }
     //
     // First element of bases may be a class, all others must be
     // interfaces.

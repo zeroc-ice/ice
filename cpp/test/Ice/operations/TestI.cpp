@@ -28,7 +28,7 @@ MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
 #ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_isA(move(id), current);
+    return Test::MyDerivedClass::ice_isA(move(id), current);
 #else
     return Test::MyDerivedClass::ice_isA(id, current);
 #endif
@@ -38,22 +38,14 @@ void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    Test::MyDerivedClassDisp::ice_ping(current);
-#else
     Test::MyDerivedClass::ice_ping(current);
-#endif
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_ids(current);
-#else
     return Test::MyDerivedClass::ice_ids(current);
-#endif
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -64,11 +56,7 @@ const std::string&
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_id(current);
-#else
     return Test::MyDerivedClass::ice_id(current);
-#endif
 }
 
 void

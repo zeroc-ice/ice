@@ -36,7 +36,7 @@ module and
         int global;
     };
 
-    class if extends for implements exec, del
+    interface if extends exec, del
     {
     };
 

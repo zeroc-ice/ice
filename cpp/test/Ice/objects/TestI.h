@@ -80,12 +80,7 @@ class HI : public Test::H
 {
 };
 
-class InitialI :
-#ifdef ICE_CPP11_MAPPING
-    public Test::InitialDisp
-#else
-    public Test::Initial
-#endif
+class InitialI : public Test::Initial
 {
 public:
 

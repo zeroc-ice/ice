@@ -64,10 +64,10 @@ class doI : public _cpp_and::_cpp_do
 {
 public:
 #ifdef ICE_CPP11_MAPPING
-    virtual void caseAsync(::Ice::Int,
-                           function<void(int)>,
-                           function<void(const exception_ptr&)>,
-                           const ::Ice::Current&)
+    virtual void caseAsync(int,
+                           ::std::function<void(int)>,
+                           ::std::function<void(::std::exception_ptr)>,
+                           const ::Ice::Current&) 
     {
     }
 #else
@@ -95,10 +95,18 @@ public:
               const _cpp_and::deletePtr&,
 #endif
               const _cpp_and::switchPtr&,
+#ifdef ICE_CPP11_MAPPING
+              const ::std::shared_ptr<::Ice::Value>&,
+#else
               const _cpp_and::doPtr&,
+#endif
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
+#ifdef ICE_CPP11_MAPPING
+              const ::std::shared_ptr<::Ice::ObjectPrx>&,
+#else
               const _cpp_and::switchPrxPtr&,
+#endif
               const _cpp_and::doPrxPtr&,
               ::Ice::Int, ::Ice::Int,
               ::Ice::Int, ::Ice::Int)

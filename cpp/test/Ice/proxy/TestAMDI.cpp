@@ -50,7 +50,7 @@ bool
 MyDerivedClassI::ice_isA(string s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
-    return Test::MyDerivedClassDisp::ice_isA(move(s), current);
+    return Test::MyDerivedClass::ice_isA(move(s), current);
 }
 #else
 void

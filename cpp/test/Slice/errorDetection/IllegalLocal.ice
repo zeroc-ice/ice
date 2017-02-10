@@ -20,7 +20,7 @@ interface i3 extends i2 {};             // error
 
 local interface i4 extends i2 {};       // OK
 
-class c1 implements i1 {};              // OK
+class c1 implements i1 {};              // Warning
 
 class c2 implements i2 {};              // error
 
