@@ -445,19 +445,24 @@ class ObjectAdapterI
         throw new Ice.FeatureNotSupportedException("setLocator not supported");
     }
 
-    refreshPublishedEndpoints()
-    {
-        throw new Ice.FeatureNotSupportedException("refreshPublishedEndpoints not supported");
-    }
-
     getEndpoints()
     {
         return [];
     }
 
+    refreshPublishedEndpoints()
+    {
+        throw new Ice.FeatureNotSupportedException("refreshPublishedEndpoints not supported");
+    }
+
     getPublishedEndpoints()
     {
         return [];
+    }
+
+    setPublishedEndpoints(newEndpoints)
+    {
+        throw new Ice.FeatureNotSupportedException("setPublishedEndpoints not supported");
     }
 
     getServantManager()

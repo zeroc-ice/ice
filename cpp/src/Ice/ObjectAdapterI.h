@@ -85,10 +85,11 @@ public:
 
     virtual void setLocator(const LocatorPrxPtr&);
     virtual Ice::LocatorPrxPtr getLocator() const;
-    virtual void refreshPublishedEndpoints();
-
     virtual EndpointSeq getEndpoints() const;
+
+    virtual void refreshPublishedEndpoints();
     virtual EndpointSeq getPublishedEndpoints() const;
+    virtual void setPublishedEndpoints(const EndpointSeq&);
 
     bool isLocal(const ObjectPrxPtr&) const;
 

@@ -789,24 +789,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     return nil; // Keep the compiler happy.
 }
 
--(void) refreshPublishedEndpoints
-{
-    NSException* nsex = nil;
-    try
-    {
-        OBJECTADAPTER->refreshPublishedEndpoints();
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    if(nsex != nil)
-    {
-        @throw nsex;
-    }
-}
-
--(ICEEndpointSeq*) getEndpoints
+-(ICEMutableEndpointSeq*) getEndpoints
 {
     NSException* nsex = nil;
     try
@@ -824,7 +807,24 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     return nil;
 }
 
--(ICEEndpointSeq*) getPublishedEndpoints
+-(void) refreshPublishedEndpoints
+{
+    NSException* nsex = nil;
+    try
+    {
+        OBJECTADAPTER->refreshPublishedEndpoints();
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+
+-(ICEMutableEndpointSeq*) getPublishedEndpoints
 {
     NSException* nsex = nil;
     try
@@ -841,5 +841,25 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     }
     return nil;
 }
+
+-(void) setPublishedEndpoints:(ICEEndpointSeq*)newEndpoints
+{
+    NSException* nsex = nil;
+    try
+    {
+        Ice::EndpointSeq cxxNewEndpoints;
+        fromNSArray(newEndpoints, cxxNewEndpoints);
+        OBJECTADAPTER->setPublishedEndpoints(cxxNewEndpoints);
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+
 
 @end

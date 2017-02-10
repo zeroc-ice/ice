@@ -1115,14 +1115,17 @@ class ObjectAdapterI(ObjectAdapter):
     def getLocator(self):
         return self._impl.getLocator()
 
-    def refreshPublishedEndpoints(self):
-        self._impl.refreshPublishedEndpoints()
-
     def getEndpoints(self):
         return self._impl.getEndpoints()
 
+    def refreshPublishedEndpoints(self):
+        self._impl.refreshPublishedEndpoints()
+
     def getPublishedEndpoints(self):
         return self._impl.getPublishedEndpoints()
+
+    def setPublishedEndpoints(self, newEndpoints):
+        self._impl.setPublishedEndpoints(newEndpoints)
 
 #
 # Logger wrapper.

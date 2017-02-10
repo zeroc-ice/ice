@@ -63,6 +63,12 @@ inline void checkServant(const ObjectPtr& servant)
         throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
     }
 }
+
+inline EndpointIPtr toEndpointI(const EndpointPtr& endp)
+{
+    return ICE_DYNAMIC_CAST(EndpointI, endp);
+}
+
 }
 
 string
@@ -641,6 +647,24 @@ Ice::ObjectAdapterI::getLocator() const
     }
 }
 
+EndpointSeq
+Ice::ObjectAdapterI::getEndpoints() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    EndpointSeq endpoints;
+    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+            back_inserter(endpoints),
+#ifdef ICE_CPP11_MAPPING
+            [](const IncomingConnectionFactoryPtr& factory)
+            {
+                return factory->endpoint();
+            });
+#else
+            Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+#endif
+    return endpoints;
+}
 
 void
 Ice::ObjectAdapterI::refreshPublishedEndpoints()
@@ -650,7 +674,6 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
         checkForDeactivation();
 
         oldPublishedEndpoints = _publishedEndpoints;
@@ -678,25 +701,6 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getEndpoints() const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    EndpointSeq endpoints;
-    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-            back_inserter(endpoints),
-#ifdef ICE_CPP11_MAPPING
-            [](const IncomingConnectionFactoryPtr& factory)
-            {
-                return factory->endpoint();
-            });
-#else
-            Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-#endif
-    return endpoints;
-}
-
-EndpointSeq
 Ice::ObjectAdapterI::getPublishedEndpoints() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -704,6 +708,42 @@ Ice::ObjectAdapterI::getPublishedEndpoints() const
     EndpointSeq endpoints;
     copy(_publishedEndpoints.begin(), _publishedEndpoints.end(), back_inserter(endpoints));
     return endpoints;
+}
+
+void
+Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
+{
+    vector<EndpointIPtr> newPublishedEndpoints;
+    transform(newEndpoints.begin(), newEndpoints.end(), back_inserter(newPublishedEndpoints), toEndpointI);
+
+    LocatorInfoPtr locatorInfo;
+    vector<EndpointIPtr> oldPublishedEndpoints;
+   {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        checkForDeactivation();
+
+        oldPublishedEndpoints = _publishedEndpoints;
+        _publishedEndpoints = newPublishedEndpoints;
+
+        locatorInfo = _locatorInfo;
+    }
+
+    try
+    {
+        Ice::Identity dummy;
+        dummy.name = "dummy";
+        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+    }
+    catch(const Ice::LocalException&)
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+        //
+        // Restore the old published endpoints.
+        //
+        _publishedEndpoints = oldPublishedEndpoints;
+        throw;
+    }
 }
 
 bool

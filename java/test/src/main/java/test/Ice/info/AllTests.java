@@ -136,6 +136,12 @@ public class AllTests
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
+            endpoints = new Endpoint[]{endpoints[0]};
+            test(endpoints.length == 1);
+            adapter.setPublishedEndpoints(endpoints);
+            publishedEndpoints = adapter.getPublishedEndpoints();
+            test(java.util.Arrays.equals(endpoints, publishedEndpoints));
+
             adapter.destroy();
 
             int port = app.getTestPort(1);

@@ -139,6 +139,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(udpEndpoint->datagram());
             test(udpEndpoint->port > 0);
 
+            endpoints.pop_back();
+            test(endpoints.size() == 1);
+            adapter->setPublishedEndpoints(endpoints);
+            publishedEndpoints = adapter->getPublishedEndpoints();
+            test(endpoints == publishedEndpoints);
+
             adapter->destroy();
 
             int port = getTestPort(communicator->getProperties(), 1);

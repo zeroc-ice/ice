@@ -23,6 +23,8 @@ bool initEndpoint(PyObject*);
 PyObject* createEndpoint(const Ice::EndpointPtr&);
 Ice::EndpointPtr getEndpoint(PyObject*);
 
+bool toEndpointSeq(PyObject*, Ice::EndpointSeq&);
+
 }
 
 #endif

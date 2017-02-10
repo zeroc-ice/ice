@@ -97,7 +97,7 @@ infoAllTests(id<ICECommunicator> communicator)
         [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -t 15000:udp"];
         id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
 
-        ICEEndpointSeq* endpoints = [adapter getEndpoints];
+        ICEMutableEndpointSeq* endpoints = [adapter getEndpoints];
         test([endpoints count] == 2);
         ICEEndpointSeq* publishedEndpoints = [adapter getPublishedEndpoints];
         test([endpoints isEqualToArray:publishedEndpoints]);
@@ -117,6 +117,12 @@ infoAllTests(id<ICECommunicator> communicator)
         test([udpEndpoint.host isEqualToString:defaultHost]);
         test([udpEndpoint datagram]);
         test(udpEndpoint.port > 0);
+
+        [endpoints removeLastObject];
+        test([endpoints count] == 1);
+        [adapter setPublishedEndpoints:endpoints];
+        publishedEndpoints = [adapter getPublishedEndpoints];
+        test([endpoints isEqualToArray:publishedEndpoints]);
 
         [adapter destroy];
 

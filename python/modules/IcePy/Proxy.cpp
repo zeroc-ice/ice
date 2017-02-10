@@ -795,22 +795,9 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     assert(self->proxy);
 
     Ice::EndpointSeq seq;
-    Py_ssize_t sz = PySequence_Fast_GET_SIZE(endpoints);
-    for(Py_ssize_t i = 0; i < sz; ++i)
+    if(!toEndpointSeq(endpoints, seq))
     {
-        PyObject* p = PySequence_Fast_GET_ITEM(endpoints, i);
-        PyTypeObject* type = &EndpointType; // Necessary to prevent GCC's strict-alias warnings.
-        if(!PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)))
-        {
-            PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
-            return 0;
-        }
-        Ice::EndpointPtr endp = getEndpoint(p);
-        if(!endp)
-        {
-            return 0;
-        }
-        seq.push_back(endp);
+        return 0;
     }
 
     Ice::ObjectPrx newProxy;

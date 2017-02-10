@@ -563,7 +563,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                 self->deactivateThread = new AdapterInvokeThreadPtr(t);
                 t->start();
             }
-            
+
             while(!self->deactivated)
             {
                 bool done;
@@ -571,7 +571,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                     done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
                 }
-                
+
                 if(!done)
                 {
                     PyRETURN_FALSE;
@@ -1541,8 +1541,42 @@ adapterGetLocator(ObjectAdapterObject* self)
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
     assert(locatorProxyType);
     return createProxy(locator, (*self->adapter)->getCommunicator(), locatorProxyType);
-}   
+}
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterGetEndpoints(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+
+    Ice::EndpointSeq endpoints;
+    try
+    {
+        endpoints = (*self->adapter)->getEndpoints();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    int count = static_cast<int>(endpoints.size());
+    PyObjectHandle result = PyTuple_New(count);
+    int i = 0;
+    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
+    {
+        PyObjectHandle endp = createEndpoint(*p);
+        if(!endp.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
+    }
+
+    return result.release();
+}
 
 #ifdef WIN32
 extern "C"
@@ -1570,20 +1604,20 @@ adapterRefreshPublishedEndpoints(ObjectAdapterObject* self)
 extern "C"
 #endif
 static PyObject*
-adapterGetEndpoints(ObjectAdapterObject* self)
+adapterGetPublishedEndpoints(ObjectAdapterObject* self)
 {
     assert(self->adapter);
 
     Ice::EndpointSeq endpoints;
     try
     {
-        endpoints = (*self->adapter)->getEndpoints();
+        endpoints = (*self->adapter)->getPublishedEndpoints();
     }
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
-    } 
+    }
 
     int count = static_cast<int>(endpoints.size());
     PyObjectHandle result = PyTuple_New(count);
@@ -1603,38 +1637,45 @@ adapterGetEndpoints(ObjectAdapterObject* self)
 
 #ifdef WIN32
 extern "C"
-#endif 
+#endif
 static PyObject*
-adapterGetPublishedEndpoints(ObjectAdapterObject* self)
+adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
 {
     assert(self->adapter);
-        
-    Ice::EndpointSeq endpoints;
+
+    PyObject* endpoints;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &endpoints))
+    {
+        return 0;
+    }
+
+    if(!PyTuple_Check(endpoints) && !PyList_Check(endpoints))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("argument must be a tuple or list"));
+        return 0;
+    }
+
+    Ice::EndpointSeq seq;
+    if(!toEndpointSeq(endpoints, seq))
+    {
+        return 0;
+    }
+
     try
-    { 
-        endpoints = (*self->adapter)->getPublishedEndpoints();
-    } 
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        (*self->adapter)->setPublishedEndpoints(seq);
+    }
     catch(const Ice::Exception& ex)
-    { 
+    {
         setPythonException(ex);
         return 0;
     }
 
-    int count = static_cast<int>(endpoints.size());
-    PyObjectHandle result = PyTuple_New(count);
-    int i = 0;
-    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
-    {
-        PyObjectHandle endp = createEndpoint(*p);
-        if(!endp.get())
-        {
-            return 0;
-        }
-        PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
-    }
-
-    return result.release();
+    Py_INCREF(Py_None);
+    return Py_None;
 }
+
 
 static PyMethodDef AdapterMethods[] =
 {
@@ -1699,13 +1740,15 @@ static PyMethodDef AdapterMethods[] =
     { STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
     { STRCAST("getLocator"), reinterpret_cast<PyCFunction>(adapterGetLocator), METH_NOARGS,
-      PyDoc_STR(STRCAST("getLocator() -> Ice.LocatorPrx")) },
-    { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
-        PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
+        PyDoc_STR(STRCAST("getLocator() -> Ice.LocatorPrx")) },
     { STRCAST("getEndpoints"), reinterpret_cast<PyCFunction>(adapterGetEndpoints), METH_NOARGS,
         PyDoc_STR(STRCAST("getEndpoints() -> None")) },
+    { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
+        PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
     { STRCAST("getPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints), METH_NOARGS,
         PyDoc_STR(STRCAST("getPublishedEndpoints() -> None")) },
+    { STRCAST("setPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterSetPublishedEndpoints), METH_VARARGS,
+        PyDoc_STR(STRCAST("setPublishedEndpoints(endpoints) -> None")) },
     { 0, 0 } /* sentinel */
 };
 

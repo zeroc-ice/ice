@@ -611,6 +611,18 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     @Override
+    public synchronized Endpoint[]
+    getEndpoints()
+    {
+        List<Endpoint> endpoints = new ArrayList<Endpoint>();
+        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+        {
+            endpoints.add(factory.endpoint());
+        }
+        return endpoints.toArray(new Endpoint[0]);
+    }
+
+    @Override
     public void
     refreshPublishedEndpoints()
     {
@@ -648,22 +660,51 @@ public final class ObjectAdapterI implements ObjectAdapter
 
     @Override
     public synchronized Endpoint[]
-    getEndpoints()
-    {
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
-        {
-            endpoints.add(factory.endpoint());
-        }
-        return endpoints.toArray(new Endpoint[0]);
-    }
-
-    @Override
-    public synchronized Endpoint[]
     getPublishedEndpoints()
     {
         return _publishedEndpoints.toArray(new Endpoint[0]);
     }
+
+    @Override
+    public void
+    setPublishedEndpoints(Endpoint[] newEndpoints)
+    {
+        List<IceInternal.EndpointI> newPublishedEndpoints = new ArrayList<>(newEndpoints.length);
+        for(Endpoint e: newEndpoints)
+        {
+            newPublishedEndpoints.add((IceInternal.EndpointI)e);
+        }
+
+        IceInternal.LocatorInfo locatorInfo = null;
+        List<IceInternal.EndpointI> oldPublishedEndpoints;
+
+        synchronized(this)
+        {
+            checkForDeactivation();
+            oldPublishedEndpoints = _publishedEndpoints;
+            _publishedEndpoints = newPublishedEndpoints;
+            locatorInfo = _locatorInfo;
+        }
+
+        try
+        {
+            Ice.Identity dummy = new Identity();
+            dummy.name = "dummy";
+            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+        }
+        catch(Ice.LocalException ex)
+        {
+            synchronized(this)
+            {
+                //
+                // Restore the old published endpoints.
+                //
+                _publishedEndpoints = oldPublishedEndpoints;
+                throw ex;
+            }
+        }
+    }
+
 
     public boolean
     isLocal(ObjectPrx proxy)
