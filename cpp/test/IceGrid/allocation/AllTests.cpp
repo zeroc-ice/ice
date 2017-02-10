@@ -480,7 +480,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->setAllocationTimeout(0);
         session2->setAllocationTimeout(0);
 
-
         try
         {
             obj = session1->allocateObjectByType("::Unknown");
@@ -594,6 +593,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(asyncCB3->hasResponse(obj));
 
         session1->releaseObject(obj->ice_getIdentity());
+
+        admin->enableServer("ObjectAllocation", false);
+        try
+        {
+            session1->allocateObjectByType("::Test");
+            test(false);
+        }
+        catch(const AllocationException&)
+        {
+        }
+        admin->enableServer("ObjectAllocation", true);
 
         cout << "ok" << endl;
 
@@ -816,6 +826,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         obj1 = session2->allocateObjectByType("::TestMultipleServer");
         session2->releaseObject(obj1->ice_getIdentity());
         session2->releaseObject(obj2->ice_getIdentity());
+
+        admin->enableServer("ServerAllocation", false);
+        try
+        {
+            session1->allocateObjectByType("::TestServer1");
+            test(false);
+        }
+        catch(const AllocationException&)
+        {
+        }
+        admin->enableServer("ServerAllocation", true);
 
         cout << "ok" << endl;
 

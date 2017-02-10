@@ -12,6 +12,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
 #include <IceGrid/AllocatableObjectCache.h>
+#include <IceGrid/ServerCache.h>
 #include <IceGrid/SessionI.h>
 
 using namespace std;
@@ -126,7 +127,7 @@ AllocatableObjectCache::AllocatableObjectCache(const Ice::CommunicatorPtr& commu
 }
 
 void
-AllocatableObjectCache::add(const ObjectInfo& info, const AllocatablePtr& parent)
+AllocatableObjectCache::add(const ObjectInfo& info, const ServerEntryPtr& parent)
 {
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
@@ -217,13 +218,18 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
     RandomNumberGenerator rng;
     random_shuffle(objects.begin(), objects.end(), rng); // TODO: OPTIMIZE
+    int allocatable = 0;
     try
     {
         for(vector<AllocatableObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
         {
-            if((*q)->tryAllocate(request))
+            if((*q)->isEnabled())
             {
-                return;
+                ++allocatable;
+                if((*q)->tryAllocate(request))
+                {
+                    return;
+                }
             }
         }
     }
@@ -231,7 +237,10 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     {
         return; // The request has been answered already, no need to throw here.
     }
-
+    if(allocatable == 0)
+    {
+        throw AllocationException("no allocatable objects with type `" + type + "' enabled");
+    }
     p->second.addAllocationRequest(request);
 }
 
@@ -252,12 +261,14 @@ AllocatableObjectCache::canTryAllocate(const AllocatableObjectEntryPtr& entry)
 
 AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
                                                const ObjectInfo& info,
-                                               const AllocatablePtr& parent) :
+                                               const ServerEntryPtr& parent) :
     Allocatable(true, parent),
     _cache(cache),
     _info(info),
+    _server(parent),
     _destroyed(false)
 {
+    assert(_server);
 }
 
 Ice::ObjectPrx
@@ -276,6 +287,12 @@ bool
 AllocatableObjectEntry::canRemove()
 {
     return true;
+}
+
+bool
+AllocatableObjectEntry::isEnabled() const
+{
+    return _server->isEnabled();
 }
 
 void

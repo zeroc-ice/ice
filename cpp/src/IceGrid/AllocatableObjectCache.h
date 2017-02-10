@@ -19,18 +19,22 @@
 namespace IceGrid
 {
 
+class ServerEntry;
+typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
+
 class AllocatableObjectCache;
 
 class AllocatableObjectEntry : public Allocatable
 {
 public:
 
-    AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const AllocatablePtr&);
+    AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const ServerEntryPtr&);
     Ice::ObjectPrx getProxy() const;
     std::string getType() const;
 
     bool canRemove();
 
+    virtual bool isEnabled() const;
     virtual void allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
     virtual bool canTryAllocate();
@@ -42,6 +46,7 @@ private:
 
     AllocatableObjectCache& _cache;
     const ObjectInfo _info;
+    ServerEntryPtr _server;
     bool _destroyed;
 };
 typedef IceUtil::Handle<AllocatableObjectEntry> AllocatableObjectEntryPtr;
@@ -77,7 +82,7 @@ public:
 
     AllocatableObjectCache(const Ice::CommunicatorPtr&);
 
-    void add(const ObjectInfo&, const AllocatablePtr&);
+    void add(const ObjectInfo&, const ServerEntryPtr&);
     AllocatableObjectEntryPtr get(const Ice::Identity&) const;
     void remove(const Ice::Identity&);
 

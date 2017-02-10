@@ -34,6 +34,9 @@ typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 class CheckServerResult;
 typedef IceUtil::Handle<CheckServerResult> CheckServerResultPtr;
 
+class NodeObserverTopic;
+typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
+
 class CheckUpdateResult : public IceUtil::Shared
 {
 public:
@@ -97,6 +100,7 @@ public:
     void destroyCallback();
     void exception(const Ice::Exception&);
 
+    virtual bool isEnabled() const;
     virtual void allocated(const SessionIPtr&);
     virtual void allocatedNoSync(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
@@ -139,7 +143,8 @@ public:
     using CacheByString<ServerEntry>::remove;
 #endif
 
-    ServerCache(const Ice::CommunicatorPtr&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
+    ServerCache(const Ice::CommunicatorPtr&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&,
+                AllocatableObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&) const;
@@ -154,6 +159,9 @@ public:
     NodeCache& getNodeCache() const { return _nodeCache; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
     const std::string& getInstanceName() const { return _instanceName; }
+
+    const NodeObserverTopicPtr& getNodeObserverTopic() const { return _nodeObserverTopic; }
+    void setNodeObserverTopic(const NodeObserverTopicPtr&);
 
 private:
 
@@ -170,6 +178,7 @@ private:
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;
     AllocatableObjectCache& _allocatableObjectCache;
+    NodeObserverTopicPtr _nodeObserverTopic;
 };
 
 };

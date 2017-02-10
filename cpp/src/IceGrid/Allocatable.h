@@ -85,6 +85,7 @@ public:
     bool isAllocatable() const { return _allocatable; }
     SessionIPtr getSession() const;
 
+    virtual bool isEnabled() const = 0;
     virtual void allocated(const SessionIPtr&) = 0;
     virtual void released(const SessionIPtr&) = 0;
     virtual bool canTryAllocate() { return false; }

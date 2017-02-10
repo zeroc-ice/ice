@@ -17,6 +17,12 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- The `findObjectByType`, `findAllObjectsByType`, `findObjectByTypeOnLeastLoadedNode`
+  operations from the `IceGrid::Query` interface and the `allocateObjectByType`
+  operation from the `IceGrid::Session` interfaces now only returns proxies for
+  Ice objects from enabled servers. If a server is disabled, its well-known or
+  allocatable Ice objects won't be returned anymore to clients.
+
 - A Slice enumeration (enum) creates now a new namespace scope for its
   enumerators. In previous releases, the enumerators were in the same
   namespace scope as the enumeration. For example:

@@ -971,6 +971,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
         if(sent.find(p->second) == sent.end())
         {
             queueUpdate(p->second, new UpdateServer(this, p->second, info));
+            sent.insert(p->second);
         }
     }
 }
@@ -1001,6 +1002,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
         if(sent.find(p->second) == sent.end())
         {
             queueUpdate(p->second, new UpdateAdapter(this, p->second, info));
+            sent.insert(p->second);
         }
     }
 }

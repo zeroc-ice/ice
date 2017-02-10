@@ -27,8 +27,8 @@
 
       <server id="ObjectAllocation" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="allocatable" type="::Test"/>
-  	  <allocatable identity="allocatablebis" type="::TestBis"/>
+      	  <allocatable identity="allocatable" type="::Test"/>
+      	  <allocatable identity="allocatablebis" type="::TestBis"/>
 
           <object identity="nonallocatable" type="::Test"/>
           <object identity="nonallocatable2" type="::NotAllocatable"/>

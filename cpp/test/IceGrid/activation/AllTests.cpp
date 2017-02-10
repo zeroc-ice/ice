@@ -92,6 +92,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
+
+    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
+
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
@@ -253,6 +257,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing server disable... " << flush;
     try
     {
+        int count = query->findAllObjectsByType("Test").size();
+
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", false);
         try
@@ -263,6 +269,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::NoEndpointException&)
         {
         }
+
+        test(query->findAllObjectsByType("Test").size() == count - 1);
+
         try
         {
             admin->startServer("server");
@@ -292,6 +301,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(query->findAllObjectsByType("Test").size() == count - 2);
 
         test(admin->getServerState("server-always") == IceGrid::Active);
         admin->enableServer("server-always", false);
@@ -314,7 +324,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-always") == IceGrid::Inactive);
-
+        test(query->findAllObjectsByType("Test").size() == count - 3);
 
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", true);
@@ -335,6 +345,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(admin->getServerPid("server") == pid);
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::Inactive);
+
+        test(query->findAllObjectsByType("Test").size() == count - 2);
     }
     catch(const Ice::LocalException& ex)
     {

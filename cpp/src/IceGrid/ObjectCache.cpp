@@ -74,7 +74,7 @@ ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator) : _communicat
 }
 
 void
-ObjectCache::add(const ObjectInfo& info, const string& application)
+ObjectCache::add(const ObjectInfo& info, const string& application, const string& server)
 {
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
@@ -86,7 +86,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
         return;
     }
 
-    ObjectEntryPtr entry = new ObjectEntry(info, application);
+    ObjectEntryPtr entry = new ObjectEntry(info, application, server);
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
@@ -142,22 +142,16 @@ ObjectCache::remove(const Ice::Identity& id)
     }
 }
 
-Ice::ObjectProxySeq
+vector<ObjectEntryPtr>
 ObjectCache::getObjectsByType(const string& type)
 {
     Lock sync(*this);
-    Ice::ObjectProxySeq proxies;
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
     {
-        return proxies;
+        return vector<ObjectEntryPtr>();
     }
-    const vector<ObjectEntryPtr>& objects = p->second.getObjects();
-    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
-    {
-        proxies.push_back((*q)->getProxy());
-    }
-    return proxies;
+    return p->second.getObjects();
 }
 
 ObjectInfoSeq
@@ -194,9 +188,10 @@ ObjectCache::getAllByType(const string& type)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application) :
+ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, const string& server) :
     _info(info),
-    _application(application)
+    _application(application),
+    _server(server)
 {
 }
 
@@ -216,6 +211,12 @@ string
 ObjectEntry::getApplication() const
 {
     return _application;
+}
+
+string
+ObjectEntry::getServer() const
+{
+    return _server;
 }
 
 const ObjectInfo&

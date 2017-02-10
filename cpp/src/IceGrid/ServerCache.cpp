@@ -18,6 +18,7 @@
 #include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/DescriptorHelper.h>
+#include <IceGrid/Topics.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -263,6 +264,12 @@ ServerCache::clear(const string& id)
 }
 
 void
+ServerCache::setNodeObserverTopic(const NodeObserverTopicPtr& nodeObserverTopic)
+{
+    _nodeObserverTopic = nodeObserverTopic;
+}
+
+void
 ServerCache::addCommunicator(const CommunicatorDescriptorPtr& oldDesc,
                              const CommunicatorDescriptorPtr& newDesc,
                              const ServerEntryPtr& server,
@@ -291,7 +298,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& oldDesc,
 
         for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
-            _objectCache.add(toObjectInfo(_communicator, *r, q->id), application);
+            _objectCache.add(toObjectInfo(_communicator, *r, q->id), application, server->getId());
         }
         for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
@@ -1089,6 +1096,12 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     }
 
     return new CheckUpdateResult(_id, oldInfo.node, noRestart, desc, server->begin_checkUpdate(desc, noRestart));
+}
+
+bool
+ServerEntry::isEnabled() const
+{
+    return _cache.getNodeObserverTopic()->isServerEnabled(_id);
 }
 
 void
