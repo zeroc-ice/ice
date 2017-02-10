@@ -1107,30 +1107,15 @@ public class SessionKeeper
                         {
                             SwingUtilities.invokeLater(() ->
                                 {
-                                    try
+                                    if(_directDiscoveryEndpointModel.indexOf(locator) == -1)
                                     {
-                                        com.zeroc.Ice.Endpoint[] endps = locator.ice_getEndpoints();
-                                        for(com.zeroc.Ice.Endpoint e : endps)
-                                        {
-                                            com.zeroc.Ice.LocatorPrx prx = com.zeroc.Ice.LocatorPrx.uncheckedCast(
-                                                communicator.stringToProxy(
-                                                    communicator.identityToString(locator.ice_getIdentity()) +
-                                                        ":" + e.toString()));
-
-                                            if(_directDiscoveryEndpointModel.indexOf(prx) == -1)
-                                            {
-                                                _directDiscoveryEndpointModel.addElement(prx);
-                                            }
-                                        }
-
-                                        if(_directDiscoveryEndpointModel.size() > 0 &&
-                                            _directDiscoveryEndpointList.getSelectedIndex() == -1)
-                                        {
-                                            _directDiscoveryEndpointList.setSelectedIndex(0);
-                                        }
+                                        _directDiscoveryEndpointModel.addElement(locator);
                                     }
-                                    catch(com.zeroc.Ice.LocalException ex)
+
+                                    if(_directDiscoveryEndpointModel.size() > 0 &&
+                                        _directDiscoveryEndpointList.getSelectedIndex() == -1)
                                     {
+                                        _directDiscoveryEndpointList.setSelectedIndex(0);
                                     }
                                 });
                         }
@@ -1313,8 +1298,26 @@ public class SessionKeeper
             // Direct Discovery Endpoint List
             {
                 _directDiscoveryEndpointModel = new DefaultListModel<>();
-                _directDiscoveryEndpointList = new JList<>(_directDiscoveryEndpointModel);
+                _directDiscoveryEndpointList = new JList(_directDiscoveryEndpointModel)
+                    {
+                        @Override
+                        public String getToolTipText(MouseEvent evt)
+                        {
+                            int index = locationToIndex(evt.getPoint());
+                            if(index < 0)
+                            {
+                                return null;
+                            }
+                            Object obj = getModel().getElementAt(index);
+                            if(obj != null && obj instanceof com.zeroc.Ice.LocatorPrx)
+                            {
+                                return obj.toString();
+                            }
+                            return null;
+                        }
+                    };
                 _directDiscoveryEndpointList.setVisibleRowCount(7);
+                _directDiscoveryEndpointList.setFixedCellWidth(500);
                 _directDiscoveryEndpointList.addMouseListener(
                     new MouseAdapter()
                         {
@@ -1332,6 +1335,7 @@ public class SessionKeeper
                                 }
                             }
                         });
+                
 
                 _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
                 {
@@ -2121,7 +2125,20 @@ public class SessionKeeper
                                 {
                                     com.zeroc.Ice.LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
                                     _directInstanceName.setText(locator.ice_getIdentity().category);
-                                    _directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
+                                    
+                                    String endpoints = null;
+                                    for(com.zeroc.Ice.Endpoint endpoint : locator.ice_getEndpoints())
+                                    {
+                                        if(endpoints == null)
+                                        {
+                                            endpoints = endpoint.toString();
+                                        }
+                                        else
+                                        {
+                                            endpoints += ":" + endpoint.toString();
+                                        }
+                                    }
+                                    _directCustomEndpointValue.setText(endpoints);
                                     _directCustomEndpoints.setSelected(true);
 
                                     _cardLayout.show(_cardPanel, WizardStep.DirectCustomEnpointStep.toString());
