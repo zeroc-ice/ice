@@ -136,18 +136,18 @@ void
 Slice::FileTracker::dumpxml()
 {
     consoleOut << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-    consoleOut << "<generated>" << endl;
+    consoleOut << "<generated>";
     for(map<string, list<string> >::const_iterator p = _generated.begin(); p != _generated.end(); ++p)
     {
         if(!p->second.empty())
         {
-            consoleOut << "  <source name=\"" << p->first << "\">";
+            consoleOut << endl << "  <source name=\"" << p->first << "\">";
             for(list<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
             {
-                consoleOut << "    <file name=\"" << *q << "\"/>" << endl;
+                consoleOut << endl << "    <file name=\"" << *q << "\"/>";
             }
-            consoleOut << "  </source>" << endl;
+            consoleOut << endl << "  </source>";
         }
     }
-    consoleOut << "</generated>" << endl;
+    consoleOut << endl << "</generated>" << endl;
 }
