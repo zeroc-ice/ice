@@ -10,6 +10,12 @@
 
 error_reporting(E_ALL | E_STRICT);
 
+//
+// We need to ensure that the memory limit is high enough
+// to run this tests.
+//
+ini_set('memory_limit', '1024M');
+
 if(!extension_loaded("ice"))
 {
     echo "\nerror: Ice extension is not loaded.\n\n";
