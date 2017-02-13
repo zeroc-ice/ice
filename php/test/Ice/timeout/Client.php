@@ -330,9 +330,9 @@ function allTests($communicator)
 }
 
 
-$initData = eval($NS ? "return new Ice\\InitializationData(\$argv);" : "return new Ice_InitializationData(\$argv);");
+$initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
 
-$initData->properties = eval($NS ? "return Ice\\createProperties();" : "return Ice_createProperties();");
+$initData->properties = eval($NS ? "return Ice\\createProperties(\$argv);" : "return Ice_createProperties(\$argv);");
 //
 // We need to send messages large enough to cause the transport
 // buffers to fill up.
