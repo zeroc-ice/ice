@@ -1192,6 +1192,31 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
+{
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        long l;
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("l"), &l) != SUCCESS)
+        {
+            RETURN_NULL();
+        }
+        // TODO: range check?
+        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout(l) TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1652,6 +1677,7 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_isBatchDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_compress, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_connectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
