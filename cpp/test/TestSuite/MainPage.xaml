@@ -145,7 +145,7 @@
             </HubSection>
         </Hub>
         <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
-            <TextBlock Text="Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved." 
+            <TextBlock Text="Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved." 
                        Style="{StaticResource FooterStyle}"
                        Margin="5"
                        TextWrapping="Wrap"/>
