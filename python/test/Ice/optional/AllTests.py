@@ -72,6 +72,7 @@ def allTests(communicator):
 
     test(mo1.bos is Ice.Unset)
 
+    ss = Test.SmallStruct()
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
     mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember, \
@@ -116,6 +117,14 @@ def allTests(communicator):
     test(mo1.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [False, True, False])
+    
+    #
+    # Test generated struct and classes compare with Ice.Unset
+    #
+    test(ss != Ice.Unset)
+    test(fs != Ice.Unset)
+    test(vs != Ice.Unset)
+    test(mo1 != Ice.Unset)
 
     print("ok")
 

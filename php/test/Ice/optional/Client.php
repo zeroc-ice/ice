@@ -94,6 +94,8 @@ function allTests($communicator)
 
     test($mo1->bos == Ice_Unset);
 
+    $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
+    $ss = new $sscls();
     $fscls = $NS ? "Test\\FixedStruct" : "Test_FixedStruct";
     $fs = new $fscls(78);
     $vscls = $NS ? "Test\\VarStruct" : "Test_VarStruct";
@@ -139,6 +141,15 @@ function allTests($communicator)
     test($mo1->ioopd[5] == $prx);
 
     test($mo1->bos == array(false, true, false));
+    
+    
+    //
+    // Test generated struct and classes compare with Ice_Unset
+    //
+    test($ss != Ice_Unset);
+    test($fs != Ice_Unset);
+    test($vs != Ice_Unset);
+    test($mo1 != Ice_Unset);
 
     echo "ok\n";
 
@@ -529,7 +540,6 @@ function allTests($communicator)
     $p3 = $initial->opMyEnum($enum, $p2);
     test($p2 == $enum && $p3 == $enum);
 
-    $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
     $p3 = $initial->opSmallStruct(Ice_Unset, $p2);
     test($p2 == Ice_Unset && $p3 == Ice_Unset);
     $p1 = new $sscls(56);
