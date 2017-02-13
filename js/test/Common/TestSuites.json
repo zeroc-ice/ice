@@ -166,5 +166,13 @@
                 "args": ["--shutdown"]
             }
         ]
+    },
+    "Slice/escape":
+    {
+        "files": ["Clash.js", "Key.js", "Client.js"]
+    },
+    "Slice/macros":
+    {
+        "files": ["Test.js", "Client.js"]
     }
 }

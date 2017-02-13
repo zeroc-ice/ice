@@ -108,7 +108,9 @@ var tests = [
     "test/Ice/slicing/objects",
     "test/Ice/timeout",
     "test/Ice/number",
-    "test/Glacier2/router"
+    "test/Glacier2/router",
+    "test/Slice/escape",
+    "test/Slice/macros"
 ];
 
 var common = {

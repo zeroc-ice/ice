@@ -103,4 +103,14 @@ Ice.currentEncoding = function()
     return Protocol.currentEncoding.clone();
 };
 
+Ice.stringVersion = function()
+{
+    return "3.7a4";
+};
+
+Ice.intVersion = function()
+{
+    return 30754;
+};
+
 module.exports.Ice = Ice;
