@@ -36,10 +36,10 @@ class delegate
 {
     int if;
     case* else;
-	int event;
+    int event;
 };
 
-class explicit extends delegate implements decimal, case
+interface explicit extends decimal, case
 {
 };
 

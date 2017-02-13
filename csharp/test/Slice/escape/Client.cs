@@ -104,8 +104,6 @@ public class Client
         test(e != null);
         @abstract.@delegate e1 = null;
         test(e1 == null);
-        @abstract.@explicit f = new @abstract.@explicit();
-        test(f != null);
         @abstract.@explicitPrx f1 = null;
         if(f1 != null)
         {
