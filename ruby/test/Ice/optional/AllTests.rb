@@ -72,6 +72,7 @@ def allTests(communicator)
 
     test(mo1.bos == Ice::Unset)
 
+    ss = Test::SmallStruct.new()
     fs = Test::FixedStruct.new(78)
     vs = Test::VarStruct.new("hello")
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
@@ -116,6 +117,14 @@ def allTests(communicator)
     test(mo1.ioopd[5] == Test::OneOptionalPrx::uncheckedCast(communicator.stringToProxy("test")))
 
     test(mo1.bos == [false, true, false])
+    
+    #
+    # Test generated struct and classes compare with Ice::Unset
+    #
+    test(ss != Ice::Unset)
+    test(fs != Ice::Unset)
+    test(vs != Ice::Unset)
+    test(mo1 != Ice::Unset)
 
     puts "ok"
 
