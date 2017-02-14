@@ -59,6 +59,9 @@ import java.security.MessageDigest;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+
 import com.zeroc.IceLocatorDiscovery.LookupPrx;
 import com.zeroc.IceLocatorDiscovery.LookupReplyPrx;
 import com.zeroc.IceLocatorDiscovery.LookupReply;
@@ -1136,7 +1139,8 @@ public class SessionKeeper
             }
 
             final com.zeroc.Ice.Properties properties = communicator.getProperties();
-            final String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
+            final String intf = _discoveryInterfaces.getSelectedItem().toString();
+
             String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
             String address;
             if(properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0 &&
@@ -1294,6 +1298,64 @@ public class SessionKeeper
                 builder.append(new JLabel("Connect to an IceGrid registry through a Glacier2 router."));
                 _cardPanel.add(builder.getPanel(), WizardStep.ConnectionTypeStep.toString());
             }
+            
+            JPanel discoveryInterface;
+            {
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                _discoveryInterfaces = new JComboBox();
+
+                builder.append("Discovery Interface:", _discoveryInterfaces);
+
+                List<String> addresses = new ArrayList<String>();
+                try
+                {
+                    Enumeration<NetworkInterface> p = NetworkInterface.getNetworkInterfaces();
+                    
+                    while(p != null && p.hasMoreElements())
+                    {
+                        NetworkInterface intf = p.nextElement();
+                        if(intf.isUp())
+                        {
+                            Enumeration<InetAddress> q = intf.getInetAddresses();
+                            while(q != null && q.hasMoreElements())
+                            {
+                                InetAddress address = q.nextElement();
+                                if(!address.isAnyLocalAddress())
+                                {
+                                    addresses.add(address.getHostAddress());
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(java.net.SocketException ex)
+                {
+                    JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
+                                                  ex.toString(),
+                                                  "Error retrieving network interfaces",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
+                
+                final com.zeroc.Ice.Properties properties = _coordinator.getCommunicator().getProperties();
+                String selected = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Interface", "127.0.0.1");
+                if(!addresses.contains(selected))
+                {
+                    addresses.add(selected);
+                }
+
+                _discoveryInterfaces.setModel(new DefaultComboBoxModel(addresses.toArray()));
+                _discoveryInterfaces.setSelectedItem(selected);
+                _discoveryInterfaces.addActionListener(new ActionListener ()
+                    {
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            refreshDiscoveryEndpoints();
+                        }
+                    });
+                discoveryInterface = builder.getPanel();
+            }
 
             // Direct Discovery Endpoint List
             {
@@ -1402,6 +1464,7 @@ public class SessionKeeper
                     builder.border(Borders.DIALOG);
                     builder.rowGroupingEnabled(false);
                     builder.append(_directDiscoveryDiscoveredEndpoint);
+                    builder.append(discoveryInterface);
                     builder.append(createStrippedScrollPane(_directDiscoveryEndpointList));
                     builder.append(discoveryStatus);
                     builder.append(_directDiscoveryManualEndpoint);
@@ -3184,6 +3247,7 @@ public class SessionKeeper
         private JCheckBox _directConnectToMaster;
 
         // Direct Discovery Endpoints
+        private JComboBox _discoveryInterfaces;
         private JList<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointList;
         private DefaultListModel<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointModel;
         private JRadioButton _directDiscoveryDiscoveredEndpoint;
