@@ -67,6 +67,8 @@ private:
     const bool _incoming;
     const IceInternal::TransceiverPtr _delegate;
     bool _connected;
+    std::string _cipher;
+    std::vector<std::string> _certs;
     bool _verified;
     std::vector<CertificatePtr> _nativeCerts;
 

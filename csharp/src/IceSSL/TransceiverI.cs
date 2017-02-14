@@ -61,6 +61,26 @@ namespace IceSSL
 
             Debug.Assert(_sslStream.IsAuthenticated);
             _authenticated = true;
+
+            _cipher = _sslStream.CipherAlgorithm.ToString();
+            List<string> certs = new List<string>();
+            if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
+            {
+                _nativeCerts = new X509Certificate2[_chain.ChainElements.Count];
+                for(int i = 0; i < _chain.ChainElements.Count; ++i)
+                {
+                    X509Certificate2 cert = _chain.ChainElements[i].Certificate;
+                    _nativeCerts[i] = cert;
+
+                    StringBuilder s = new StringBuilder();
+                    s.Append("-----BEGIN CERTIFICATE-----\n");
+                    s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
+                    s.Append("\n-----END CERTIFICATE-----");
+                    certs.Add(s.ToString());
+                }
+            }
+            _certs = certs.ToArray();
+
             _instance.verifyPeer(_host, (NativeConnectionInfo)getInfo(), ToString());
 
             if(_instance.securityTraceLevel() >= 1)
@@ -315,33 +335,10 @@ namespace IceSSL
             info.underlying = _delegate.getInfo();
             info.incoming = _incoming;
             info.adapterName = _adapterName;
-            if(_sslStream != null)
-            {
-                info.cipher = _sslStream.CipherAlgorithm.ToString();
-                if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
-                {
-                    info.nativeCerts = new X509Certificate2[_chain.ChainElements.Count];
-                    for(int i = 0; i < _chain.ChainElements.Count; ++i)
-                    {
-                        info.nativeCerts[i] = _chain.ChainElements[i].Certificate;
-                    }
-                }
-
-                List<string> certs = new List<string>();
-                if(info.nativeCerts != null)
-                {
-                    foreach(X509Certificate2 cert in info.nativeCerts)
-                    {
-                        StringBuilder s = new StringBuilder();
-                        s.Append("-----BEGIN CERTIFICATE-----\n");
-                        s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
-                        s.Append("\n-----END CERTIFICATE-----");
-                        certs.Add(s.ToString());
-                    }
-                }
-                info.certs = certs.ToArray();
-                info.verified = _verified;
-            }
+            info.cipher = _cipher;
+            info.certs = _certs;
+            info.verified = _verified;
+            info.nativeCerts = _nativeCerts;
             return info;
         }
 
@@ -763,8 +760,11 @@ namespace IceSSL
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
         private X509Chain _chain;
-        private bool _verified;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
+        private string _cipher;
+        private string[] _certs;
+        private bool _verified;
+        private X509Certificate2[] _nativeCerts;
     }
 }

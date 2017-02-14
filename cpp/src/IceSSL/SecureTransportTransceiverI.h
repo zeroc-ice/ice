@@ -71,9 +71,7 @@ private:
     IceInternal::UniqueRef<SSLContextRef> _ssl;
     IceInternal::UniqueRef<SecTrustRef> _trust;
     bool _connected;
-    bool _verified;
 
-    size_t _buffered;
     enum SSLWantFlags
     {
         SSLWantRead = 0x1,
@@ -83,6 +81,11 @@ private:
     mutable Ice::Byte _flags;
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
+    std::string _cipher;
+    std::vector<std::string> _certs;
+    bool _verified;
+    std::vector<CertificatePtr> _nativeCerts;
+    size_t _buffered;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

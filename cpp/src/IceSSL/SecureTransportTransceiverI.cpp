@@ -284,11 +284,27 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
            << _delegate->toString() << "\n" << errorToString(err);
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
+
+    for(int i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+    {
+        SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
+        CFRetain(cert);
+
+        CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cert);
+        _nativeCerts.push_back(certificate);
+        _certs.push_back(certificate->encode());
+    }
+
+    assert(_ssl);
+    SSLCipherSuite cipher;
+    SSLGetNegotiatedCipher(_ssl.get(), &cipher);
+    _cipher = _engine->getCipherName(cipher);
+
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
-        assert(_ssl);
+        
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
@@ -516,27 +532,10 @@ IceSSL::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
-    if(_ssl)
-    {
-        for(int i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
-        {
-            SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
-            CFRetain(cert);
-
-            CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cert);
-            info->nativeCerts.push_back(certificate);
-            info->certs.push_back(certificate->encode());
-        }
-
-        SSLCipherSuite cipher;
-        SSLGetNegotiatedCipher(_ssl.get(), &cipher);
-        info->cipher = _engine->getCipherName(cipher);
-        info->verified = _verified;
-    }
-    else
-    {
-        info->verified = false;
-    }
+    info->cipher = _cipher;
+    info->certs = _certs;
+    info->verified = _verified;
+    info->nativeCerts = _nativeCerts;
     return info;
 }
 

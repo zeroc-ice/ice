@@ -686,6 +686,28 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 _verified = true;
             }
 
+            CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
+            for(DWORD i = 0; i < simpleChain->cElement; ++i)
+            {
+                PCCERT_CONTEXT c = simpleChain->rgpElement[i]->pCertContext;
+                PCERT_SIGNED_CONTENT_INFO cc;
+
+                DWORD length = 0;
+                if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, X509_CERT, c->pbCertEncoded,
+                                        c->cbCertEncoded, CRYPT_DECODE_ALLOC_FLAG, 0, &cc, &length))
+                {
+                    CertFreeCertificateChain(certChain);
+                    CertFreeCertificateContext(cert);
+                    throw SecurityException(__FILE__, __LINE__,
+                                            "IceSSL: error decoding peer certificate chain:\n" +
+                                            IceUtilInternal::lastErrorToString());
+                }
+
+                CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cc);
+                _nativeCerts.push_back(certificate);
+                _certs.push_back(certificate->encode());
+            }
+
             CertFreeCertificateChain(certChain);
             CertFreeCertificateContext(cert);
             if(!trustError.empty())
@@ -715,6 +737,17 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 throw SecurityException(__FILE__, __LINE__, msg);
             }
         }
+    }
+
+    SecPkgContext_ConnectionInfo connInfo;
+    if(QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
+    {
+        _cipher = _engine->getCipherName(connInfo.aiCipher);
+    }
+    else
+    {
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:" +
+                                IceUtilInternal::lastErrorToString());
     }
 
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
@@ -964,65 +997,10 @@ IceSSL::TransceiverI::getInfo() const
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
+    info->cipher = _cipher;
+    info->certs = _certs;
     info->verified = _verified;
-    if(_sslInitialized)
-    {
-        CtxtHandle* ssl = const_cast<CtxtHandle*>(&_ssl);
-        PCCERT_CONTEXT cert = 0;
-        PCCERT_CHAIN_CONTEXT certChain = 0;
-        SECURITY_STATUS err = QueryContextAttributes(ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
-        if(err == SEC_E_OK)
-        {
-            assert(cert);
-            CERT_CHAIN_PARA chainP;
-            memset(&chainP, 0, sizeof(chainP));
-            chainP.cbSize = sizeof(chainP);
-
-            if(CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
-                                       CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
-            {
-                CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
-                for(DWORD i = 0; i < simpleChain->cElement; ++i)
-                {
-                    PCCERT_CONTEXT c = simpleChain->rgpElement[i]->pCertContext;
-                    PCERT_SIGNED_CONTENT_INFO cc;
-
-                    DWORD length = 0;
-                    if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, X509_CERT, c->pbCertEncoded,
-                                            c->cbCertEncoded, CRYPT_DECODE_ALLOC_FLAG, 0, &cc, &length))
-                    {
-                        CertFreeCertificateChain(certChain);
-                        CertFreeCertificateContext(cert);
-                        throw SecurityException(__FILE__, __LINE__,
-                                                "IceSSL: error decoding peer certificate chain:\n" +
-                                                IceUtilInternal::lastErrorToString());
-                    }
-
-                    CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cc);
-                    info->nativeCerts.push_back(certificate);
-                    info->certs.push_back(certificate->encode());
-                }
-                CertFreeCertificateChain(certChain);
-            }
-            CertFreeCertificateContext(cert);
-        }
-        else if(err != SEC_E_NO_CREDENTIALS)
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading peer certificate:" +
-                                    IceUtilInternal::lastErrorToString());
-        }
-
-        SecPkgContext_ConnectionInfo connInfo;
-        if(QueryContextAttributes(ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
-        {
-            info->cipher = _engine->getCipherName(connInfo.aiCipher);
-        }
-        else
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:" +
-                                    IceUtilInternal::lastErrorToString());
-        }
-    }
+    info->nativeCerts = _nativeCerts;
     return info;
 }
 
