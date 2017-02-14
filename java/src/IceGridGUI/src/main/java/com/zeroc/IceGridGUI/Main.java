@@ -47,28 +47,24 @@ public class Main extends JFrame
             System.err.println(e.toString());
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        //
-                        // Create and set up the window.
-                        //
-                        new Main(args);
-                    }
-                    catch(com.zeroc.Ice.LocalException e)
-                    {
-                        JOptionPane.showMessageDialog(null,
-                                                      e.toString(),
-                                                      "Initialization failed",
-                                                      JOptionPane.ERROR_MESSAGE);
-                        System.exit(1);
-                    }
-                }
-            });
+        SwingUtilities.invokeLater(() ->
+                                   {
+                                       try
+                                       {
+                                           //
+                                           // Create and set up the window.
+                                           //
+                                           new Main(args);
+                                       }
+                                       catch(com.zeroc.Ice.LocalException e)
+                                       {
+                                           JOptionPane.showMessageDialog(null,
+                                                                         e.toString(),
+                                                                         "Initialization failed",
+                                                                         JOptionPane.ERROR_MESSAGE);
+                                           System.exit(1);
+                                       }
+                                   });
     }
 
     Main(String[] args)
@@ -88,10 +84,10 @@ public class Main extends JFrame
                 {
                     if(_coordinator != null)
                     {
-                        if(_coordinator.needsSaving()) 
+                        if(_coordinator.needsSaving())
                         {
                             if(JOptionPane.showOptionDialog(
-                                   Main.this, 
+                                   Main.this,
                                    "The application has unsaved changes, if you exit all unsaved changes " +
                                    "will be lost.\nExit and discard changes?",
                                    "Save application", JOptionPane.YES_NO_OPTION,

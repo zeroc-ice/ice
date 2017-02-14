@@ -9,7 +9,9 @@
 
 package test.Ice.dispatcher;
 
-public class Dispatcher implements Runnable, com.zeroc.Ice.Dispatcher, java.util.concurrent.Executor
+public class Dispatcher implements Runnable,
+                        java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection>,
+                        java.util.concurrent.Executor
 {
     private static void test(boolean b)
     {
@@ -71,7 +73,7 @@ public class Dispatcher implements Runnable, com.zeroc.Ice.Dispatcher, java.util
     }
 
     @Override
-    synchronized public void dispatch(Runnable call, com.zeroc.Ice.Connection con)
+    synchronized public void accept(Runnable call, com.zeroc.Ice.Connection con)
     {
         boolean added = _calls.offer(call);
         assert(added);
@@ -84,7 +86,7 @@ public class Dispatcher implements Runnable, com.zeroc.Ice.Dispatcher, java.util
     @Override
     public void execute(Runnable call)
     {
-        dispatch(call, null);
+        accept(call, null);
     }
 
     public void terminate()

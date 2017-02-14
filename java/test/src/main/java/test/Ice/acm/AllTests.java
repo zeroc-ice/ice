@@ -164,15 +164,7 @@ public class AllTests
             //initData.properties.setProperty("Ice.Trace.Network", "2");
             _communicator = _app.initialize(initData);
 
-            _thread = new Thread(
-                new Runnable()
-                {
-                    public void
-                    run()
-                    {
-                        TestCase.this.run();
-                    }
-                });
+            _thread = new Thread(() -> { TestCase.this.run(); });
         }
 
         public void start()

@@ -385,38 +385,34 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     //
                     // Remove series from the chart, in JavaFx thread.
                     //
-                    enqueueJFX(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                for(MetricsRow row : rows)
-                                {
-                                    for(int i = 0; i < row.series.size(); ++i)
-                                    {
-                                        XYChart.Series<Number, Number> series = row.series.get(i);
-                                        String seriesClass = getSeriesClass(series);
-                                        if(seriesClass != null)
-                                        {
-                                            _styles.remove(seriesClass);
-                                        }
-                                        //
-                                        // Don't remove the XYChart.Series object here, to avoid the series
-                                        // style classes to be reasign by JavaFX.
-                                        //
-                                        // _chart.getData().remove(row.series);
-                                        try
-                                        {
-                                            series.getData().clear();
-                                        }
-                                        catch(NullPointerException ex)
-                                        {
-                                            // JavaFX bug
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                    enqueueJFX(() ->
+                               {
+                                   for(MetricsRow row : rows)
+                                   {
+                                       for(int i = 0; i < row.series.size(); ++i)
+                                       {
+                                           XYChart.Series<Number, Number> series = row.series.get(i);
+                                           String seriesClass = getSeriesClass(series);
+                                           if(seriesClass != null)
+                                           {
+                                               _styles.remove(seriesClass);
+                                           }
+                                           //
+                                           // Don't remove the XYChart.Series object here, to avoid the series
+                                           // style classes to be reasign by JavaFX.
+                                           //
+                                           // _chart.getData().remove(row.series);
+                                           try
+                                           {
+                                               series.getData().clear();
+                                           }
+                                           catch(NullPointerException ex)
+                                           {
+                                               // JavaFX bug
+                                           }
+                                       }
+                                   }
+                               });
                 }
             };
         delete.setEnabled(false);

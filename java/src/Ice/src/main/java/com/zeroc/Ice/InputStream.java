@@ -350,7 +350,7 @@ public class InputStream
      *
      * @param r The compact ID resolver.
      **/
-    public void setCompactIdResolver(CompactIdResolver r)
+    public void setCompactIdResolver(java.util.function.IntFunction<String> r)
     {
         _compactIdResolver = r;
     }
@@ -362,7 +362,7 @@ public class InputStream
      *
      * @param r The class resolver.
      **/
-    public void setClassResolver(ClassResolver r)
+    public void setClassResolver(java.util.function.Function<String, Class<?>> r)
     {
         _classResolver = r;
     }
@@ -472,11 +472,11 @@ public class InputStream
         other._logger = _logger;
         _logger = tmpLogger;
 
-        CompactIdResolver tmpCompactIdResolver = other._compactIdResolver;
+        java.util.function.IntFunction<String> tmpCompactIdResolver = other._compactIdResolver;
         other._compactIdResolver = _compactIdResolver;
         _compactIdResolver = tmpCompactIdResolver;
 
-        ClassResolver tmpClassResolver = other._classResolver;
+        java.util.function.Function<String, Class<?>> tmpClassResolver = other._classResolver;
         other._classResolver = _classResolver;
         _classResolver = tmpClassResolver;
     }
@@ -2213,7 +2213,7 @@ public class InputStream
         {
             if(_classResolver != null)
             {
-                Class<?> c = _classResolver.resolveClass(id);
+                Class<?> c = _classResolver.apply(id);
                 if(c != null)
                 {
                     userEx = (UserException)c.newInstance();
@@ -2238,7 +2238,7 @@ public class InputStream
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr)
+        EncapsDecoder(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr)
         {
             _stream = stream;
             _sliceValues = sliceValues;
@@ -2314,7 +2314,7 @@ public class InputStream
                 {
                     if(_classResolver != null)
                     {
-                        cls = _classResolver.resolveClass(typeId);
+                        cls = _classResolver.apply(typeId);
                         _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
                     }
                 }
@@ -2505,7 +2505,7 @@ public class InputStream
         protected final InputStream _stream;
         protected final boolean _sliceValues;
         protected ValueFactoryManager _valueFactoryManager;
-        protected ClassResolver _classResolver;
+        protected java.util.function.Function<String, Class<?>> _classResolver;
 
         //
         // Encapsulation attributes for value unmarshaling.
@@ -2520,7 +2520,7 @@ public class InputStream
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr)
+        EncapsDecoder10(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr)
         {
             super(stream, sliceValues, f, cr);
             _sliceType = SliceType.NoSlice;
@@ -2811,8 +2811,8 @@ public class InputStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(InputStream stream, boolean sliceValues, ValueFactoryManager f, ClassResolver cr,
-                        CompactIdResolver r)
+        EncapsDecoder11(InputStream stream, boolean sliceValues, ValueFactoryManager f, java.util.function.Function<String, Class<?>> cr,
+                        java.util.function.IntFunction<String> r)
         {
             super(stream, sliceValues, f, cr);
             _compactIdResolver = r;
@@ -3263,7 +3263,7 @@ public class InputStream
                         {
                             try
                             {
-                                _current.typeId = _compactIdResolver.resolve(_current.compactId);
+                                _current.typeId = _compactIdResolver.apply(_current.compactId);
                             }
                             catch(LocalException ex)
                             {
@@ -3271,7 +3271,7 @@ public class InputStream
                             }
                             catch(Throwable ex)
                             {
-                                throw new MarshalException("exception in CompactIdResolver for ID " +
+                                throw new MarshalException("exception in compact ID resolver for ID " +
                                                            _current.compactId, ex);
                             }
                         }
@@ -3445,7 +3445,7 @@ public class InputStream
             InstanceData next;
         }
 
-        private CompactIdResolver _compactIdResolver;
+        private java.util.function.IntFunction<String> _compactIdResolver;
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
         private java.util.TreeMap<Integer, Class<?> > _compactIdCache; // Cache of compact type IDs.
@@ -3542,6 +3542,6 @@ public class InputStream
 
     private ValueFactoryManager _valueFactoryManager;
     private Logger _logger;
-    private CompactIdResolver _compactIdResolver;
-    private ClassResolver _classResolver;
+    private java.util.function.IntFunction<String> _compactIdResolver;
+    private java.util.function.Function<String, Class<?>> _classResolver;
 }

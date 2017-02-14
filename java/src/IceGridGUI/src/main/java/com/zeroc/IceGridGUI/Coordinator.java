@@ -946,7 +946,8 @@ public class Coordinator
 
                         try
                         {
-                            _sessionKeeper.getAdmin().removeApplicationAsync(name).whenComplete((result, ex) ->
+                            _sessionKeeper.getAdmin().removeApplicationAsync(name).whenComplete(
+                                (result, ex) ->
                                 {
                                     if(_traceSaveToRegistry)
                                     {
@@ -957,28 +958,28 @@ public class Coordinator
                                     if(ex == null)
                                     {
                                         SwingUtilities.invokeLater(() ->
-                                            {
-                                                release();
-                                                getStatusBar().setText(prefix + "done.");
-                                            });
+                                                                   {
+                                                                       release();
+                                                                       getStatusBar().setText(prefix + "done.");
+                                                                   });
                                     }
                                     else
                                     {
                                         if(ex instanceof com.zeroc.Ice.UserException)
                                         {
                                             SwingUtilities.invokeLater(() ->
-                                                {
-                                                    handleFailure(prefix, "Delete failed",
-                                                                  "IceGrid exception: " + ex.toString());
-                                                });
+                                                                       {
+                                                                           handleFailure(prefix, "Delete failed",
+                                                                                         "IceGrid exception: " + ex.toString());
+                                                                       });
                                         }
                                         else
                                         {
                                             SwingUtilities.invokeLater(() ->
-                                                {
-                                                    handleFailure(prefix, "Delete failed",
-                                                                  "Communication exception: " + ex.toString());
-                                                });
+                                                                       {
+                                                                           handleFailure(prefix, "Delete failed",
+                                                                                         "Communication exception: " + ex.toString());
+                                                                       });
                                         }
                                     }
                                 });
@@ -1450,15 +1451,11 @@ public class Coordinator
                     {
                         try
                         {
-                            SwingUtilities.invokeAndWait(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
-                                                                      JOptionPane.ERROR_MESSAGE);
-                                    }
-                                });
+                            SwingUtilities.invokeAndWait(() ->
+                                                         {
+                                                             JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
+                                                                                           JOptionPane.ERROR_MESSAGE);
+                                                         });
                             break;
                         }
                         catch(java.lang.InterruptedException e)
@@ -1560,15 +1557,11 @@ public class Coordinator
                     {
                         try
                         {
-                            SwingUtilities.invokeAndWait(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
-                                                                      JOptionPane.ERROR_MESSAGE);
-                                    }
-                                });
+                            SwingUtilities.invokeAndWait(() ->
+                                                         {
+                                                             JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
+                                                                                           JOptionPane.ERROR_MESSAGE);
+                                                         });
                             break;
                         }
                         catch(java.lang.InterruptedException e)
@@ -1621,16 +1614,12 @@ public class Coordinator
                         {
                             try
                             {
-                                SwingUtilities.invokeAndWait(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            JOptionPane.showMessageDialog(parent, ex.toString(),
-                                                                          "Error saving certificate",
-                                                                          JOptionPane.ERROR_MESSAGE);
-                                        }
-                                    });
+                                SwingUtilities.invokeAndWait(() ->
+                                                             {
+                                                                 JOptionPane.showMessageDialog(parent, ex.toString(),
+                                                                                               "Error saving certificate",
+                                                                                               JOptionPane.ERROR_MESSAGE);
+                                                             });
                                 break;
                             }
                             catch(java.lang.InterruptedException e)
@@ -1661,17 +1650,13 @@ public class Coordinator
             {
                 try
                 {
-                    SwingUtilities.invokeAndWait(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                JOptionPane.showMessageDialog(parent, ex.toString(),
-                                                              "Error creating certificate verifier",
-                                                              JOptionPane.ERROR_MESSAGE);
-                                parent.setCursor(oldCursor);
-                            }
-                        });
+                    SwingUtilities.invokeAndWait(() ->
+                                                 {
+                                                     JOptionPane.showMessageDialog(parent, ex.toString(),
+                                                                                   "Error creating certificate verifier",
+                                                                                   JOptionPane.ERROR_MESSAGE);
+                                                     parent.setCursor(oldCursor);
+                                                 });
                     break;
                 }
                 catch(java.lang.InterruptedException e)
@@ -1687,8 +1672,8 @@ public class Coordinator
 
         final String finderStr = "Ice/" + (info.getDirect() ? "LocatorFinder" : "RouterFinder") + ":" +
             (info.getDefaultEndpoint() ?
-                ((info.getSSL() ? "ssl" : "tcp") + " -h " + info.getHost() + " -p " + info.getPort()) :
-                info.getEndpoint());
+             ((info.getSSL() ? "ssl" : "tcp") + " -h " + info.getHost() + " -p " + info.getPort()) :
+             info.getEndpoint());
 
         class ConnectionCallback
         {
@@ -1754,138 +1739,134 @@ public class Coordinator
         if(!info.getDirect())
         {
             final ConnectionCallback cb = new ConnectionCallback();
-            new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            com.zeroc.Ice.RouterFinderPrx finder = com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                                _communicator.stringToProxy(finderStr));
-                            info.setInstanceName(finder.getRouter().ice_getIdentity().category);
-                            info.save();
-                            com.zeroc.Glacier2.RouterPrx router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(
-                                finder.ice_identity(new com.zeroc.Ice.Identity("router", info.getInstanceName())));
+            new Thread(() ->
+                       {
+                           try
+                           {
+                               com.zeroc.Ice.RouterFinderPrx finder = com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
+                                   _communicator.stringToProxy(finderStr));
+                               info.setInstanceName(finder.getRouter().ice_getIdentity().category);
+                               info.save();
+                               com.zeroc.Glacier2.RouterPrx router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(
+                                   finder.ice_identity(new com.zeroc.Ice.Identity("router", info.getInstanceName())));
 
-                            //
-                            // The session must be routed through this router
-                            //
-                            _communicator.setDefaultRouter(router);
+                               //
+                               // The session must be routed through this router
+                               //
+                               _communicator.setDefaultRouter(router);
 
-                            com.zeroc.Glacier2.SessionPrx s;
-                            if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
-                            {
-                                router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(router.ice_secure(true));
+                               com.zeroc.Glacier2.SessionPrx s;
+                               if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                               {
+                                   router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(router.ice_secure(true));
 
-                                s = router.createSessionFromSecureConnection();
+                                   s = router.createSessionFromSecureConnection();
 
-                                if(s == null)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            JOptionPane.showMessageDialog(
-                                                parent,
-                                                "createSessionFromSecureConnection returned a null session: \n"
-                                                + "verify that Glacier2.SSLSessionManager is set to "
-                                                + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 "
-                                                + "router configuration",
-                                                "Login failed",
-                                                JOptionPane.ERROR_MESSAGE);
-                                            cb.loginFailed();
-                                        });
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(router.ice_preferSecure(true));
+                                   if(s == null)
+                                   {
+                                       SwingUtilities.invokeLater(() ->
+                                                                  {
+                                                                      JOptionPane.showMessageDialog(
+                                                                          parent,
+                                                                          "createSessionFromSecureConnection returned a null session: \n"
+                                                                          + "verify that Glacier2.SSLSessionManager is set to "
+                                                                          + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 "
+                                                                          + "router configuration",
+                                                                          "Login failed",
+                                                                          JOptionPane.ERROR_MESSAGE);
+                                                                      cb.loginFailed();
+                                                                  });
+                                       return;
+                                   }
+                               }
+                               else
+                               {
+                                   router = com.zeroc.Glacier2.RouterPrx.uncheckedCast(router.ice_preferSecure(true));
 
-                                s = router.createSession(info.getUsername(), info.getPassword() != null ?
-                                                                                new String(info.getPassword()) : "");
+                                   s = router.createSession(info.getUsername(), info.getPassword() != null ?
+                                                            new String(info.getPassword()) : "");
 
-                                if(s == null)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            JOptionPane.showMessageDialog(
-                                                parent,
-                                                "createSession returned a null session: \n"
-                                                + "verify that Glacier2.SessionManager is set to "
-                                                + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 "
-                                                + "router configuration",
-                                                "Login failed",
-                                                JOptionPane.ERROR_MESSAGE);
-                                            cb.loginFailed();
-                                        });
-                                    return;
-                                }
-                            }
-                            cb.setSession(AdminSessionPrx.uncheckedCast(s));
-                            cb.setSessionTimeout(router.getSessionTimeout());
-                            try
-                            {
-                                cb.setACMTimeout(router.getACMTimeout());
-                            }
-                            catch(com.zeroc.Ice.OperationNotExistException ex)
-                            {
-                            }
-                            SwingUtilities.invokeLater(() -> cb.loginSuccess());
-                        }
-                        catch(final com.zeroc.Glacier2.PermissionDeniedException e)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    String msg = e.reason;
-                                    if(msg.length() == 0)
-                                    {
-                                        msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
-                                                             "Invalid credentials" : "Invalid username/password";
-                                    }
-                                    if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
-                                    {
-                                        JOptionPane.showMessageDialog(parent, "Permission denied: " + msg,
-                                                                      "Login failed", JOptionPane.ERROR_MESSAGE);
-                                        cb.loginFailed();
-                                    }
-                                    else
-                                    {
-                                        cb.permissionDenied(msg);
-                                    }
-                                });
-                            return;
-                        }
-                        catch(final com.zeroc.Glacier2.CannotCreateSessionException e)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    JOptionPane.showMessageDialog(parent, "Could not create session: " + e.reason,
-                                                                  "Login failed", JOptionPane.ERROR_MESSAGE);
-                                    cb.loginFailed();
-                                });
-                            return;
-                        }
-                        catch(final java.util.prefs.BackingStoreException ex)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    JOptionPane.showMessageDialog(getMainFrame(), ex.toString(),
-                                                                  "Error saving connection", JOptionPane.ERROR_MESSAGE);
-                                });
-                            return;
-                        }
-                        catch(final com.zeroc.Ice.LocalException e)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    JOptionPane.showMessageDialog(parent, "Could not create session: " + e.toString(),
-                                                                  "Login failed", JOptionPane.ERROR_MESSAGE);
-                                    cb.loginFailed();
-                                });
-                            return;
-                        }
-                    }
-                }).start();
+                                   if(s == null)
+                                   {
+                                       SwingUtilities.invokeLater(() ->
+                                                                  {
+                                                                      JOptionPane.showMessageDialog(
+                                                                          parent,
+                                                                          "createSession returned a null session: \n"
+                                                                          + "verify that Glacier2.SessionManager is set to "
+                                                                          + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 "
+                                                                          + "router configuration",
+                                                                          "Login failed",
+                                                                          JOptionPane.ERROR_MESSAGE);
+                                                                      cb.loginFailed();
+                                                                  });
+                                       return;
+                                   }
+                               }
+                               cb.setSession(AdminSessionPrx.uncheckedCast(s));
+                               cb.setSessionTimeout(router.getSessionTimeout());
+                               try
+                               {
+                                   cb.setACMTimeout(router.getACMTimeout());
+                               }
+                               catch(com.zeroc.Ice.OperationNotExistException ex)
+                               {
+                               }
+                               SwingUtilities.invokeLater(() -> cb.loginSuccess());
+                           }
+                           catch(final com.zeroc.Glacier2.PermissionDeniedException e)
+                           {
+                               SwingUtilities.invokeLater(() ->
+                                                          {
+                                                              String msg = e.reason;
+                                                              if(msg.length() == 0)
+                                                              {
+                                                                  msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
+                                                                      "Invalid credentials" : "Invalid username/password";
+                                                              }
+                                                              if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                                                              {
+                                                                  JOptionPane.showMessageDialog(parent, "Permission denied: " + msg,
+                                                                                                "Login failed", JOptionPane.ERROR_MESSAGE);
+                                                                  cb.loginFailed();
+                                                              }
+                                                              else
+                                                              {
+                                                                  cb.permissionDenied(msg);
+                                                              }
+                                                          });
+                               return;
+                           }
+                           catch(final com.zeroc.Glacier2.CannotCreateSessionException e)
+                           {
+                               SwingUtilities.invokeLater(() ->
+                                                          {
+                                                              JOptionPane.showMessageDialog(parent, "Could not create session: " + e.reason,
+                                                                                            "Login failed", JOptionPane.ERROR_MESSAGE);
+                                                              cb.loginFailed();
+                                                          });
+                               return;
+                           }
+                           catch(final java.util.prefs.BackingStoreException ex)
+                           {
+                               SwingUtilities.invokeLater(() ->
+                                                          {
+                                                              JOptionPane.showMessageDialog(getMainFrame(), ex.toString(),
+                                                                                            "Error saving connection", JOptionPane.ERROR_MESSAGE);
+                                                          });
+                               return;
+                           }
+                           catch(final com.zeroc.Ice.LocalException e)
+                           {
+                               SwingUtilities.invokeLater(() ->
+                                                          {
+                                                              JOptionPane.showMessageDialog(parent, "Could not create session: " + e.toString(),
+                                                                                            "Login failed", JOptionPane.ERROR_MESSAGE);
+                                                              cb.loginFailed();
+                                                          });
+                               return;
+                           }
+                       }).start();
         }
         else
         {
@@ -1939,229 +1920,221 @@ public class Coordinator
                 return;
             }
 
-            new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        synchronized(Coordinator.this)
-                        {
-                            try
-                            {
-                                LocatorFinderPrx finder = LocatorFinderPrx.uncheckedCast(
-                                    _communicator.stringToProxy(finderStr));
+            new Thread(() ->
+                       {
+                           synchronized(Coordinator.this)
+                           {
+                               try
+                               {
+                                   LocatorFinderPrx finder = LocatorFinderPrx.uncheckedCast(
+                                       _communicator.stringToProxy(finderStr));
 
-                                info.setInstanceName(finder.getLocator().ice_getIdentity().category);
-                                info.save();
+                                   info.setInstanceName(finder.getLocator().ice_getIdentity().category);
+                                   info.save();
 
-                                //
-                                // The client uses the locator only without routing
-                                //
-                                cb.setLocator(com.zeroc.IceGrid.LocatorPrx.checkedCast(
-                                    finder.ice_identity(
-                                        new com.zeroc.Ice.Identity("Locator", info.getInstanceName()))));
+                                   //
+                                   // The client uses the locator only without routing
+                                   //
+                                   cb.setLocator(com.zeroc.IceGrid.LocatorPrx.checkedCast(
+                                                     finder.ice_identity(
+                                                         new com.zeroc.Ice.Identity("Locator", info.getInstanceName()))));
 
-                                if(cb.getLocator() == null)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            JOptionPane.showMessageDialog(
-                                                parent,
-                                                "This version of IceGrid GUI requires an IceGrid Registry "
-                                                + "version 3.3 or higher",
-                                                "Version Mismatch",
-                                                JOptionPane.ERROR_MESSAGE);
-                                            cb.loginFailed();
-                                        });
-                                    return;
-                                }
-                                cb.setCurrentRegistry(cb.getLocator().getLocalRegistry());
-                                _communicator.setDefaultLocator(cb.getLocator());
-                            }
-                            catch(final java.util.prefs.BackingStoreException ex)
-                            {
-                                SwingUtilities.invokeLater(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            JOptionPane.showMessageDialog(
-                                                getMainFrame(),
-                                                ex.toString(),
-                                                "Error saving connection",
-                                                JOptionPane.ERROR_MESSAGE);
-                                        }
-                                    });
-                                return;
-                            }
-                            catch(final com.zeroc.Ice.LocalException e)
-                            {
-                                SwingUtilities.invokeLater(() ->
-                                    {
-                                        JOptionPane.showMessageDialog(
-                                            parent,
-                                            "Could not create session: " + e.toString(),
-                                            "Login failed",
-                                            JOptionPane.ERROR_MESSAGE);
-                                        cb.loginFailed();
-                                    });
-                                return;
-                            }
-
-                            cb.setRegistry(cb.getCurrentRegistry());
-                            if(info.getConnectToMaster() &&
-                               !cb.getCurrentRegistry().ice_getIdentity().name.equals("Registry"))
-                            {
-                                com.zeroc.Ice.Identity masterRegistryId = new com.zeroc.Ice.Identity();
-                                masterRegistryId.category = info.getInstanceName();
-                                masterRegistryId.name = "Registry";
-
-                                cb.setRegistry(RegistryPrx.uncheckedCast(_communicator.stringToProxy(
-                                                    "\"" + _communicator.identityToString(masterRegistryId) +
-                                                    "\"")));
-                            }
-
-                            //
-                            // If the registry to use is the locator local registry, we install a default router
-                            // to ensure we'll use a single connection regardless of the endpoints returned in the
-                            // proxies of the various session/admin methods (useful if used over a ssh tunnel).
-                            //
-                            if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
-                            {
-                                try
-                                {
-                                    com.zeroc.Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
-                                    com.zeroc.Ice.ObjectPrx router =
-                                        colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
-                                    _communicator.setDefaultRouter(com.zeroc.Ice.RouterPrx.uncheckedCast(router));
-                                    cb.setRegistry(cb.getRegistry().ice_router(_communicator.getDefaultRouter()));
-                                }
-                                catch(final com.zeroc.Ice.LocalException e)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            JOptionPane.showMessageDialog(parent, "Could not create session: " +
-                                                                          e.toString(), "Login failed",
+                                   if(cb.getLocator() == null)
+                                   {
+                                       SwingUtilities.invokeLater(() ->
+                                                                  {
+                                                                      JOptionPane.showMessageDialog(
+                                                                          parent,
+                                                                          "This version of IceGrid GUI requires an IceGrid Registry "
+                                                                          + "version 3.3 or higher",
+                                                                          "Version Mismatch",
                                                                           JOptionPane.ERROR_MESSAGE);
-                                            cb.loginFailed();
-                                        });
-                                    return;
-                                }
-                            }
-                            do
-                            {
-                                try
-                                {
-                                    if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
-                                    {
-                                        cb.setRegistry(cb.getRegistry().ice_secure(true));
-                                        cb.setSession(cb.getRegistry().createAdminSessionFromSecureConnection());
-                                        assert cb.getSession() != null;
-                                    }
-                                    else
-                                    {
-                                        cb.setRegistry(cb.getRegistry().ice_preferSecure(true));
+                                                                      cb.loginFailed();
+                                                                  });
+                                       return;
+                                   }
+                                   cb.setCurrentRegistry(cb.getLocator().getLocalRegistry());
+                                   _communicator.setDefaultLocator(cb.getLocator());
+                               }
+                               catch(final java.util.prefs.BackingStoreException ex)
+                               {
+                                   SwingUtilities.invokeLater(() ->
+                                                              {
+                                                                  JOptionPane.showMessageDialog(
+                                                                      getMainFrame(),
+                                                                      ex.toString(),
+                                                                      "Error saving connection",
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                                              });
+                                   return;
+                               }
+                               catch(final com.zeroc.Ice.LocalException e)
+                               {
+                                   SwingUtilities.invokeLater(() ->
+                                                              {
+                                                                  JOptionPane.showMessageDialog(
+                                                                      parent,
+                                                                      "Could not create session: " + e.toString(),
+                                                                      "Login failed",
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                                                  cb.loginFailed();
+                                                              });
+                                   return;
+                               }
 
-                                        cb.setSession(cb.getRegistry().createAdminSession(info.getUsername(),
-                                                    info.getPassword() != null ? new String(info.getPassword()) : ""));
-                                        assert cb.getSession() != null;
-                                    }
-                                    cb.setSessionTimeout(cb.getRegistry().getSessionTimeout());
-                                    try
-                                    {
-                                        cb.setACMTimeout(cb.getRegistry().getACMTimeout());
-                                    }
-                                    catch(com.zeroc.Ice.OperationNotExistException ex)
-                                    {
-                                    }
-                                }
-                                catch(final com.zeroc.IceGrid.PermissionDeniedException e)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            String msg = e.reason;
-                                            if(msg.length() == 0)
-                                            {
-                                                msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
-                                                    "Invalid credentials" : "Invalid username/password";
-                                            }
+                               cb.setRegistry(cb.getCurrentRegistry());
+                               if(info.getConnectToMaster() &&
+                                  !cb.getCurrentRegistry().ice_getIdentity().name.equals("Registry"))
+                               {
+                                   com.zeroc.Ice.Identity masterRegistryId = new com.zeroc.Ice.Identity();
+                                   masterRegistryId.category = info.getInstanceName();
+                                   masterRegistryId.name = "Registry";
 
-                                            if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
-                                            {
-                                                JOptionPane.showMessageDialog(parent, "Permission denied: " + e.reason,
-                                                                              "Login failed",
-                                                                              JOptionPane.ERROR_MESSAGE);
-                                                cb.loginFailed();
-                                            }
-                                            else
-                                            {
-                                                cb.permissionDenied(msg);
-                                            }
-                                        });
-                                    return;
-                                }
-                                catch(final com.zeroc.Ice.LocalException e)
-                                {
-                                    if(cb.getRegistry().ice_getIdentity().equals(
-                                        cb.getCurrentRegistry().ice_getIdentity()))
-                                    {
-                                        SwingUtilities.invokeLater(() ->
-                                            {
-                                                JOptionPane.showMessageDialog(parent, "Could not create session: " +
-                                                                              e.toString(), "Login failed",
-                                                                              JOptionPane.ERROR_MESSAGE);
-                                                cb.loginFailed();
-                                            });
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        while(true)
-                                        {
-                                            try
-                                            {
-                                                SwingUtilities.invokeAndWait(() ->
-                                                    {
-                                                        if(JOptionPane.showConfirmDialog(
-                                                            parent,
-                                                            "Unable to connect to the Master Registry:\n " +
-                                                            e.toString() +
-                                                            "\n\nDo you want to connect to a Slave Registry?",
-                                                            "Cannot connect to Master Registry",
-                                                            JOptionPane.YES_NO_OPTION,
-                                                            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                                                        {
-                                                            cb.setRegistry(cb.getCurrentRegistry());
-                                                        }
-                                                        else
-                                                        {
-                                                            cb.loginFailed();
-                                                        }
-                                                    });
-                                                break;
-                                            }
-                                            catch(java.lang.InterruptedException ex)
-                                            {
-                                                // Ignore and retry
-                                            }
-                                            catch(java.lang.reflect.InvocationTargetException ex)
-                                            {
-                                                cb.loginFailed();
-                                                break;
-                                            }
-                                        }
-                                        if(cb.failed())
-                                        {
-                                            return;
-                                        }
-                                    }
-                                }
-                            } while(cb.getSession() == null);
+                                   cb.setRegistry(RegistryPrx.uncheckedCast(_communicator.stringToProxy(
+                                                                                "\"" + _communicator.identityToString(masterRegistryId) +
+                                                                                "\"")));
+                               }
 
-                            SwingUtilities.invokeLater(() -> cb.loginSuccess());
-                        }
-                    }
-                }).start();
+                               //
+                               // If the registry to use is the locator local registry, we install a default router
+                               // to ensure we'll use a single connection regardless of the endpoints returned in the
+                               // proxies of the various session/admin methods (useful if used over a ssh tunnel).
+                               //
+                               if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
+                               {
+                                   try
+                                   {
+                                       com.zeroc.Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("");
+                                       com.zeroc.Ice.ObjectPrx router =
+                                           colloc.addWithUUID(new ReuseConnectionRouter(cb.getLocator()));
+                                       _communicator.setDefaultRouter(com.zeroc.Ice.RouterPrx.uncheckedCast(router));
+                                       cb.setRegistry(cb.getRegistry().ice_router(_communicator.getDefaultRouter()));
+                                   }
+                                   catch(final com.zeroc.Ice.LocalException e)
+                                   {
+                                       SwingUtilities.invokeLater(() ->
+                                                                  {
+                                                                      JOptionPane.showMessageDialog(parent, "Could not create session: " +
+                                                                                                    e.toString(), "Login failed",
+                                                                                                    JOptionPane.ERROR_MESSAGE);
+                                                                      cb.loginFailed();
+                                                                  });
+                                       return;
+                                   }
+                               }
+                               do
+                               {
+                                   try
+                                   {
+                                       if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                                       {
+                                           cb.setRegistry(cb.getRegistry().ice_secure(true));
+                                           cb.setSession(cb.getRegistry().createAdminSessionFromSecureConnection());
+                                           assert cb.getSession() != null;
+                                       }
+                                       else
+                                       {
+                                           cb.setRegistry(cb.getRegistry().ice_preferSecure(true));
+
+                                           cb.setSession(cb.getRegistry().createAdminSession(info.getUsername(),
+                                                                                             info.getPassword() != null ? new String(info.getPassword()) : ""));
+                                           assert cb.getSession() != null;
+                                       }
+                                       cb.setSessionTimeout(cb.getRegistry().getSessionTimeout());
+                                       try
+                                       {
+                                           cb.setACMTimeout(cb.getRegistry().getACMTimeout());
+                                       }
+                                       catch(com.zeroc.Ice.OperationNotExistException ex)
+                                       {
+                                       }
+                                   }
+                                   catch(final com.zeroc.IceGrid.PermissionDeniedException e)
+                                   {
+                                       SwingUtilities.invokeLater(() ->
+                                                                  {
+                                                                      String msg = e.reason;
+                                                                      if(msg.length() == 0)
+                                                                      {
+                                                                          msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ?
+                                                                              "Invalid credentials" : "Invalid username/password";
+                                                                      }
+
+                                                                      if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                                                                      {
+                                                                          JOptionPane.showMessageDialog(parent, "Permission denied: " + e.reason,
+                                                                                                        "Login failed",
+                                                                                                        JOptionPane.ERROR_MESSAGE);
+                                                                          cb.loginFailed();
+                                                                      }
+                                                                      else
+                                                                      {
+                                                                          cb.permissionDenied(msg);
+                                                                      }
+                                                                  });
+                                       return;
+                                   }
+                                   catch(final com.zeroc.Ice.LocalException e)
+                                   {
+                                       if(cb.getRegistry().ice_getIdentity().equals(
+                                              cb.getCurrentRegistry().ice_getIdentity()))
+                                       {
+                                           SwingUtilities.invokeLater(() ->
+                                                                      {
+                                                                          JOptionPane.showMessageDialog(parent, "Could not create session: " +
+                                                                                                        e.toString(), "Login failed",
+                                                                                                        JOptionPane.ERROR_MESSAGE);
+                                                                          cb.loginFailed();
+                                                                      });
+                                           return;
+                                       }
+                                       else
+                                       {
+                                           while(true)
+                                           {
+                                               try
+                                               {
+                                                   SwingUtilities.invokeAndWait(() ->
+                                                                                {
+                                                                                    if(JOptionPane.showConfirmDialog(
+                                                                                           parent,
+                                                                                           "Unable to connect to the Master Registry:\n " +
+                                                                                           e.toString() +
+                                                                                           "\n\nDo you want to connect to a Slave Registry?",
+                                                                                           "Cannot connect to Master Registry",
+                                                                                           JOptionPane.YES_NO_OPTION,
+                                                                                           JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+                                                                                    {
+                                                                                        cb.setRegistry(cb.getCurrentRegistry());
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        cb.loginFailed();
+                                                                                    }
+                                                                                });
+                                                   break;
+                                               }
+                                               catch(java.lang.InterruptedException ex)
+                                               {
+                                                   // Ignore and retry
+                                               }
+                                               catch(java.lang.reflect.InvocationTargetException ex)
+                                               {
+                                                   cb.loginFailed();
+                                                   break;
+                                               }
+                                           }
+                                           if(cb.failed())
+                                           {
+                                               return;
+                                           }
+                                       }
+                                   }
+                               } while(cb.getSession() == null);
+
+                               SwingUtilities.invokeLater(() -> cb.loginSuccess());
+                           }
+                       }).start();
         }
     }
 
@@ -2287,7 +2260,7 @@ public class Coordinator
                 _icegridadminProcess = Runtime.getRuntime().exec("icegridadmin --server");
             }
             catch(java.io.IOException e)
-             {
+            {
                 JOptionPane.showMessageDialog(
                     _mainFrame,
                     "Failed to start icegridadmin subprocess: " + e.toString(),
@@ -2624,8 +2597,8 @@ public class Coordinator
                     if(_graphViews.size() > 0)
                     {
                         if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(
-                            getMainFrame(), "Close all open Metrics Graph Views and logout?", "Confirm logout",
-                            JOptionPane.YES_NO_OPTION))
+                               getMainFrame(), "Close all open Metrics Graph Views and logout?", "Confirm logout",
+                               JOptionPane.YES_NO_OPTION))
                         {
                             return;
                         }
@@ -3031,10 +3004,10 @@ public class Coordinator
                         if(appName == null)
                         {
                             appName = (String)JOptionPane.showInputDialog(
-                                        _mainFrame, "Which application do you to display",
-                                        "Show details",
-                                        JOptionPane.QUESTION_MESSAGE, null,
-                                        applicationNames, applicationNames[0]);
+                                _mainFrame, "Which application do you to display",
+                                "Show details",
+                                JOptionPane.QUESTION_MESSAGE, null,
+                                applicationNames, applicationNames[0]);
                         }
 
                         if(appName != null)
@@ -3135,16 +3108,16 @@ public class Coordinator
 
         java.util.concurrent.ScheduledThreadPoolExecutor executor =
             new java.util.concurrent.ScheduledThreadPoolExecutor(1,
-                new java.util.concurrent.ThreadFactory()
-                {
-                    @Override
-                    public Thread newThread(Runnable r)
-                    {
-                        Thread t = new Thread(r);
-                        t.setName("Pinger");
-                        return t;
-                    }
-                });
+                                                                 new java.util.concurrent.ThreadFactory()
+                                                                 {
+                                                                     @Override
+                                                                     public Thread newThread(Runnable r)
+                                                                     {
+                                                                         Thread t = new Thread(r);
+                                                                         t.setName("Pinger");
+                                                                         return t;
+                                                                     }
+                                                                 });
         executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         _executor = executor;
     }
@@ -3212,13 +3185,13 @@ public class Coordinator
     private void newApplication()
     {
         ApplicationDescriptor desc =  new ApplicationDescriptor("NewApplication",
-                                                                 new java.util.TreeMap<String, String>(),
-                                                                 new java.util.LinkedList<ReplicaGroupDescriptor>(),
-                                                                 new java.util.HashMap<String, TemplateDescriptor>(),
-                                                                 new java.util.HashMap<String, TemplateDescriptor>(),
-                                                                 new java.util.HashMap<String, NodeDescriptor>(),
-                                                                 new DistributionDescriptor(
-                                                                     "", new java.util.LinkedList<String>()),
+                                                                new java.util.TreeMap<String, String>(),
+                                                                new java.util.LinkedList<ReplicaGroupDescriptor>(),
+                                                                new java.util.HashMap<String, TemplateDescriptor>(),
+                                                                new java.util.HashMap<String, TemplateDescriptor>(),
+                                                                new java.util.HashMap<String, NodeDescriptor>(),
+                                                                new DistributionDescriptor(
+                                                                    "", new java.util.LinkedList<String>()),
                                                                 "",
                                                                 new java.util.HashMap<String, PropertySetDescriptor>());
         com.zeroc.IceGridGUI.Application.Root root = new com.zeroc.IceGridGUI.Application.Root(this, desc);
@@ -3291,7 +3264,7 @@ public class Coordinator
             catch(Exception e)
             {
                 JOptionPane.showMessageDialog(null,
-                        "Error attempting to launch web browser" + ":\n" + e.getLocalizedMessage());
+                                              "Error attempting to launch web browser" + ":\n" + e.getLocalizedMessage());
             }
         }
         else
@@ -3633,8 +3606,8 @@ public class Coordinator
     {
         public UntrustedCertificateDialog(java.awt.Window owner, com.zeroc.IceSSL.NativeConnectionInfo info,
                                           boolean validDate, boolean validAlternateName, boolean trustedCA)
-                                            throws java.security.GeneralSecurityException, java.io.IOException,
-                                                   javax.naming.InvalidNameException
+            throws java.security.GeneralSecurityException, java.io.IOException,
+            javax.naming.InvalidNameException
         {
             super(owner, "Connection Security Warning - IceGrid GUI");
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -3663,23 +3636,23 @@ public class Coordinator
                 if(validAlternateName)
                 {
                     builder.append(new JLabel("The subject alternate name matches the connection remote address.",
-                                   _infoIcon, SwingConstants.LEADING));
+                                              _infoIcon, SwingConstants.LEADING));
                 }
                 else
                 {
                     builder.append(new JLabel("The subject alternate name doesn't match the connection remote address.",
-                                   _warnIcon, SwingConstants.LEADING));
+                                              _warnIcon, SwingConstants.LEADING));
                 }
 
                 if(trustedCA)
                 {
                     builder.append(new JLabel("The server certificate is signed by a trusted CA.", _infoIcon,
-                                   SwingConstants.LEADING));
+                                              SwingConstants.LEADING));
                 }
                 else
                 {
                     builder.append(new JLabel("The server certificate is not signed by a trusted CA.", _warnIcon,
-                                   SwingConstants.LEADING));
+                                              SwingConstants.LEADING));
                 }
                 contentPane.add(builder.getPanel());
             }
@@ -3739,11 +3712,11 @@ public class Coordinator
         private TrustDecision _decision = TrustDecision.No;
         private static Icon _infoIcon = new ImageIcon(
             Utils.iconToImage(UIManager.getIcon("OptionPane.informationIcon")).
-                                  getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
+            getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
 
         private static Icon _warnIcon = new ImageIcon(
             Utils.iconToImage(UIManager.getIcon("OptionPane.warningIcon")).
-                                  getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
+            getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
     }
 
     private String _dataDir;

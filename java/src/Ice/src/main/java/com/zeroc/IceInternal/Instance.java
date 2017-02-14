@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
-public final class Instance implements com.zeroc.Ice.ClassResolver
+public final class Instance implements java.util.function.Function<String, Class<?>>
 {
     static private class ThreadObserverHelper
     {
@@ -697,12 +697,13 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     }
 
     public void
-    setThreadHook(com.zeroc.Ice.ThreadNotification threadHook)
+    setThreadHooks(Runnable threadStart, Runnable threadStop)
     {
         //
         // No locking, as it can only be called during plug-in loading
         //
-        _initData.threadHook = threadHook;
+        _initData.threadStart = threadStart;
+        _initData.threadStop = threadStop;
     }
 
     public Class<?>
@@ -731,10 +732,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     };
 
     //
-    // From com.zeroc.Ice.ClassResolver.
+    // For the "class resolver".
     //
-    public Class<?> resolveClass(String typeId)
-        throws LinkageError
+    @Override
+    public Class<?> apply(String typeId)
     {
         Class<?> c = null;
 

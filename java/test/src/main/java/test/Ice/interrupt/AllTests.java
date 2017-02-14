@@ -152,22 +152,18 @@ public class AllTests
             cb.check();
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -183,22 +179,18 @@ public class AllTests
                 test(false);
             }
 
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -214,22 +206,18 @@ public class AllTests
                 // Expected
             }
 
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -276,22 +264,18 @@ public class AllTests
                 // Test interrupt of waitForSent. Here hold the adapter and send a large payload. The
                 // thread is interrupted in 500ms which should result in a operation interrupted exception.
                 //
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            Thread.sleep(500);
-                        }
-                        catch(InterruptedException e)
-                        {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    }
-                });
-
+                executor.submit(() ->
+                                {
+                                    try
+                                    {
+                                        Thread.sleep(500);
+                                    }
+                                    catch(InterruptedException e)
+                                    {
+                                        test(false);
+                                    }
+                                    mainThread.interrupt();
+                                });
                 testController.holdAdapter();
                 CompletableFuture<Void> r = null;
                 InvocationFuture<Void> f = null;
@@ -558,21 +542,18 @@ public class AllTests
             final Callback cb = new Callback();
             final TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
             final CountDownLatch waitSignal = new CountDownLatch(1);
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        waitSignal.await();
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    thread[0].interrupt();
-                }
-            });
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    waitSignal.await();
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                thread[0].interrupt();
+                            });
             //
             // The whenComplete() action may be executed in the current thread (if the future is
             // already completed). We have to submit the runnable to the executor *before*
@@ -697,9 +678,7 @@ public class AllTests
                 // Expected.
             }
 
-            Runnable interruptMainThread = new Runnable() {
-                @Override
-                public void run()
+            Runnable interruptMainThread = () ->
                 {
                     try
                     {
@@ -710,8 +689,7 @@ public class AllTests
                         test(false);
                     }
                     mainThread.interrupt();
-                }
-            };
+                };
 
             executor.execute(interruptMainThread);
             try

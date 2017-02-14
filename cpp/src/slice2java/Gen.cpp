@@ -2425,6 +2425,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     if(p->isInterface())
     {
+        if(p->isDelegate())
+        {
+            out << nl << "@FunctionalInterface";
+        }
         out << nl << "public interface " << fixKwd(name);
         ClassList::const_iterator q = bases.begin();
         StringList::const_iterator r = implements.begin();

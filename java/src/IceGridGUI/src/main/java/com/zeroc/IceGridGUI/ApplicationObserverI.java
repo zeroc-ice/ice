@@ -95,14 +95,7 @@ class ApplicationObserverI implements ApplicationObserver
                                        + "; serial is " + serial);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.applicationAdded(serial, info);
-                }
-            });
+        SwingUtilities.invokeLater(() -> { _coordinator.applicationAdded(serial, info); });
     }
 
     @Override
@@ -115,14 +108,7 @@ class ApplicationObserverI implements ApplicationObserver
                                        + "; serial is " + serial);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.applicationRemoved(serial, name);
-                }
-            });
+        SwingUtilities.invokeLater(() -> { _coordinator.applicationRemoved(serial, name); });
     }
 
     @Override
@@ -135,14 +121,7 @@ class ApplicationObserverI implements ApplicationObserver
                                        + "; serial is " + serial);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.applicationUpdated(serial, info);
-                }
-            });
+        SwingUtilities.invokeLater(() ->  { _coordinator.applicationUpdated(serial, info); });
     }
 
     private final Coordinator _coordinator;

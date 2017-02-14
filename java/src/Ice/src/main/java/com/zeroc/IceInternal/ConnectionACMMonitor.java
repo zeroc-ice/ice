@@ -45,14 +45,10 @@ class ConnectionACMMonitor implements ACMMonitor
         _connection = connection;
         if(_config.timeout > 0)
         {
-            _future = _timer.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run()
-                {
-                    monitorConnection();
-                }
-            },
-            _config.timeout / 2, _config.timeout / 2, java.util.concurrent.TimeUnit.MILLISECONDS);
+            _future = _timer.scheduleAtFixedRate(() -> { monitorConnection(); },
+                                                 _config.timeout / 2,
+                                                 _config.timeout / 2,
+                                                 java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }
 

@@ -61,75 +61,71 @@ class EndpointHostResolver
             observer.attach();
         }
 
-        _executor.execute(new Runnable()
+        _executor.execute(() ->
             {
-                @Override
-                public void run()
+                synchronized(EndpointHostResolver.this)
                 {
-                    synchronized(EndpointHostResolver.this)
+                    if(_destroyed)
                     {
-                        if(_destroyed)
+                        com.zeroc.Ice.CommunicatorDestroyedException ex =
+                            new com.zeroc.Ice.CommunicatorDestroyedException();
+                        if(observer != null)
                         {
-                            com.zeroc.Ice.CommunicatorDestroyedException ex =
-                                new com.zeroc.Ice.CommunicatorDestroyedException();
-                            if(observer != null)
-                            {
-                                observer.failed(ex.ice_id());
-                                observer.detach();
-                            }
-                            callback.exception(ex);
-                            return;
-                        }
-                    }
-
-                    if(threadObserver != null)
-                    {
-                        threadObserver.stateChanged(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                    com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-                    }
-
-                    com.zeroc.Ice.Instrumentation.Observer obsv = observer;
-                    try
-                    {
-                        int protocol = _protocol;
-                        NetworkProxy networkProxy = _instance.networkProxy();
-                        if(networkProxy != null)
-                        {
-                            networkProxy = networkProxy.resolveHost(_protocol);
-                            if(networkProxy != null)
-                            {
-                                protocol = networkProxy.getProtocolSupport();
-                            }
-                        }
-
-                        java.util.List<java.net.InetSocketAddress> addresses =
-                            Network.getAddresses(host, port, _protocol, selType, _preferIPv6, true);
-
-                        if(obsv != null)
-                        {
-                            obsv.detach();
-                            obsv = null;
-                        }
-
-                        callback.connectors(endpoint.connectors(addresses, networkProxy));
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
-                        if(obsv != null)
-                        {
-                            obsv.failed(ex.ice_id());
-                            obsv.detach();
+                            observer.failed(ex.ice_id());
+                            observer.detach();
                         }
                         callback.exception(ex);
+                        return;
                     }
-                    finally
+                }
+
+                if(threadObserver != null)
+                {
+                    threadObserver.stateChanged(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                }
+
+                com.zeroc.Ice.Instrumentation.Observer obsv = observer;
+                try
+                {
+                    int protocol = _protocol;
+                    NetworkProxy np = _instance.networkProxy();
+                    if(np != null)
                     {
-                        if(threadObserver != null)
+                        np = np.resolveHost(_protocol);
+                        if(np != null)
                         {
-                            threadObserver.stateChanged(
-                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                            protocol = np.getProtocolSupport();
                         }
+                    }
+
+                    java.util.List<java.net.InetSocketAddress> addresses =
+                        Network.getAddresses(host, port, _protocol, selType, _preferIPv6, true);
+
+                    if(obsv != null)
+                    {
+                        obsv.detach();
+                        obsv = null;
+                    }
+
+                    callback.connectors(endpoint.connectors(addresses, np));
+                }
+                catch(com.zeroc.Ice.LocalException ex)
+                {
+                    if(obsv != null)
+                    {
+                        obsv.failed(ex.ice_id());
+                        obsv.detach();
+                    }
+                    callback.exception(ex);
+                }
+                finally
+                {
+                    if(threadObserver != null)
+                    {
+                        threadObserver.stateChanged(
+                            com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                            com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                     }
                 }
             });

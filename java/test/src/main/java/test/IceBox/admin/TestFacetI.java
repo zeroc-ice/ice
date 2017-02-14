@@ -11,7 +11,7 @@ package test.IceBox.admin;
 
 import test.IceBox.admin.Test.*;
 
-public class TestFacetI implements TestFacet, com.zeroc.Ice.PropertiesAdminUpdateCallback
+public class TestFacetI implements TestFacet, java.util.function.Consumer<java.util.Map<String, String>>
 {
     public TestFacetI()
     {
@@ -24,7 +24,7 @@ public class TestFacetI implements TestFacet, com.zeroc.Ice.PropertiesAdminUpdat
     }
 
     @Override
-    public synchronized void updated(java.util.Map<String, String> changes)
+    public synchronized void accept(java.util.Map<String, String> changes)
     {
         _changes = changes;
     }

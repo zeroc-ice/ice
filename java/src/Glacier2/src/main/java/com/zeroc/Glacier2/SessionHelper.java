@@ -56,14 +56,7 @@ public class SessionHelper
                 // We destroy the communicator to trigger the immediate
                 // failure of the connection establishment.
                 //
-                new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        destroyCommunicator();
-                    }
-                }).start();
+                new Thread(()-> { destroyCommunicator(); }).start();
                 return;
             }
             _session = null;
@@ -86,14 +79,7 @@ public class SessionHelper
         //
         // Run destroyInternal in a thread because it makes remote invocations.
         //
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                destroyInternal();
-            }
-        }).start();
+        new Thread(()-> { destroyInternal(); }).start();
     }
 
     /**
@@ -290,14 +276,7 @@ public class SessionHelper
                 //
                 // Run destroyInternal in a thread because it makes remote invocations.
                 //
-                new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        destroyInternal();
-                    }
-                }).start();
+                new Thread(()-> { destroyInternal(); }).start();
                 return;
             }
 
@@ -349,19 +328,14 @@ public class SessionHelper
             }
         }
 
-        dispatchCallback(new Runnable()
-            {
-                @Override
-                public void run()
+        dispatchCallback(() -> {
+                try
                 {
-                    try
-                    {
-                        _callback.connected(SessionHelper.this);
-                    }
-                    catch(SessionNotExistException ex)
-                    {
-                        SessionHelper.this.destroy();
-                    }
+                    _callback.connected(SessionHelper.this);
+                }
+                catch(SessionNotExistException ex)
+                {
+                    SessionHelper.this.destroy();
                 }
             }, conn);
     }
@@ -415,14 +389,7 @@ public class SessionHelper
         //
         // Notify the callback that the session is gone.
         //
-        dispatchCallback(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                _callback.disconnected(SessionHelper.this);
-            }
-        }, null);
+        dispatchCallback(() -> { _callback.disconnected(SessionHelper.this); }, null);
     }
 
     private void destroyCommunicator()
@@ -450,99 +417,62 @@ public class SessionHelper
         catch(final com.zeroc.Ice.LocalException ex)
         {
             _destroy = true;
-            new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        dispatchCallback(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                _callback.connectFailed(SessionHelper.this, ex);
-                            }
-                        }, null);
-                    }
-                }).start();
+            new Thread(() -> { dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); },
+                                                null); }).start();
             return;
         }
 
         final com.zeroc.Ice.RouterFinderPrx finder =
             com.zeroc.Ice.RouterFinderPrx.uncheckedCast(_communicator.stringToProxy(_finderStr));
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if(_communicator.getDefaultRouter() == null)
-                {
-                    try
-                    {
-                        _communicator.setDefaultRouter(finder.getRouter());
-                    }
-                    catch(final com.zeroc.Ice.CommunicatorDestroyedException ex)
-                    {
-                        dispatchCallback(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                _callback.connectFailed(SessionHelper.this, ex);
-                            }
-                        }, null);
-                        return;
-                    }
-                    catch(Exception ex)
-                    {
-                        //
-                        // In case of error getting router identity from RouterFinder use
-                        // default identity.
-                        //
-                        com.zeroc.Ice.Identity ident = new com.zeroc.Ice.Identity("router", "Glacier2");
-                        _communicator.setDefaultRouter(
-                            com.zeroc.Ice.RouterPrx.uncheckedCast(finder.ice_identity(ident)));
-                    }
-                }
+        new Thread(() ->
+                   {
+                       if(_communicator.getDefaultRouter() == null)
+                       {
+                           try
+                           {
+                               _communicator.setDefaultRouter(finder.getRouter());
+                           }
+                           catch(final com.zeroc.Ice.CommunicatorDestroyedException ex)
+                           {
+                               dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); }, null);
+                               return;
+                           }
+                           catch(Exception ex)
+                           {
+                               //
+                               // In case of error getting router identity from RouterFinder use
+                               // default identity.
+                               //
+                               com.zeroc.Ice.Identity ident = new com.zeroc.Ice.Identity("router", "Glacier2");
+                               _communicator.setDefaultRouter(
+                                   com.zeroc.Ice.RouterPrx.uncheckedCast(finder.ice_identity(ident)));
+                           }
+                       }
 
-                try
-                {
-                    dispatchCallbackAndWait(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            _callback.createdCommunicator(SessionHelper.this);
-                        }
-                    });
+                       try
+                       {
+                           dispatchCallbackAndWait(() -> { _callback.createdCommunicator(SessionHelper.this); });
 
-                    com.zeroc.Glacier2.RouterPrx routerPrx = com.zeroc.Glacier2.RouterPrx.uncheckedCast(
-                        _communicator.getDefaultRouter());
-                    com.zeroc.Glacier2.SessionPrx session = factory.connect(routerPrx);
-                    connected(routerPrx, session);
-                }
-                catch(final Exception ex)
-                {
-                    _communicator.destroy();
+                           com.zeroc.Glacier2.RouterPrx routerPrx = com.zeroc.Glacier2.RouterPrx.uncheckedCast(
+                               _communicator.getDefaultRouter());
+                           com.zeroc.Glacier2.SessionPrx session = factory.connect(routerPrx);
+                           connected(routerPrx, session);
+                       }
+                       catch(final Exception ex)
+                       {
+                           _communicator.destroy();
 
-                    dispatchCallback(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            _callback.connectFailed(SessionHelper.this, ex);
-                        }
-                    }, null);
-                }
-            }
-        }).start();
+                           dispatchCallback(() -> { _callback.connectFailed(SessionHelper.this, ex); }, null);
+                       }
+                   }
+            ).start();
     }
 
     private void dispatchCallback(Runnable runnable, com.zeroc.Ice.Connection conn)
     {
         if(_initData.dispatcher != null)
         {
-            _initData.dispatcher.dispatch(runnable, conn);
+            _initData.dispatcher.accept(runnable, conn);
         }
         else
         {
@@ -555,16 +485,7 @@ public class SessionHelper
         if(_initData.dispatcher != null)
         {
             final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);
-            _initData.dispatcher.dispatch(
-                new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        runnable.run();
-                        sem.release();
-                    }
-                }, null);
+            _initData.dispatcher.accept(()-> { runnable.run(); sem.release(); }, null);
             sem.acquireUninterruptibly();
         }
         else

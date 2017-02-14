@@ -21,7 +21,7 @@ public class TestServiceI implements com.zeroc.IceBox.Service
         serviceManagerCommunicator.addAdminFacet(facet, "TestFacet");
 
         //
-        // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
+        // The TestFacetI servant also implements java.util.function.Consumer<java.util.Map<String, String>>.
         // Set the callback on the admin facet.
         //
         com.zeroc.Ice.Object propFacet =

@@ -36,14 +36,9 @@ public class Client extends test.Util.Application
         _initData = initData;
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
                                          getTestEndpoint(_initData.properties, 10));
-        _initData.dispatcher = new com.zeroc.Ice.Dispatcher()
-            {
-                @Override
-                public void dispatch(Runnable runnable, com.zeroc.Ice.Connection connection)
-                {
-                    SwingUtilities.invokeLater(runnable);
-                }
-            };
+        _initData.dispatcher =
+            (Runnable runnable, com.zeroc.Ice.Connection c) -> {  SwingUtilities.invokeLater(runnable); };
+
         return initData;
     }
 

@@ -77,14 +77,10 @@ class FactoryACMMonitor implements ACMMonitor
             {
                 _connections.add(connection);
                 assert _future == null;
-                _future = _instance.timer().scheduleAtFixedRate(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        monitorConnections();
-                    }
-                },
-                _config.timeout / 2, _config.timeout / 2, java.util.concurrent.TimeUnit.MILLISECONDS);
+                _future = _instance.timer().scheduleAtFixedRate(() -> { monitorConnections(); },
+                                                                _config.timeout / 2,
+                                                                _config.timeout / 2,
+                                                                java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             else
             {
@@ -230,4 +226,3 @@ class FactoryACMMonitor implements ACMMonitor
     private java.util.List<com.zeroc.Ice.ConnectionI> _reapedConnections = new java.util.ArrayList<>();
     private java.util.concurrent.Future<?> _future;
 }
-

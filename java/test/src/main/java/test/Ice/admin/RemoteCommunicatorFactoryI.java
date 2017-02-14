@@ -70,7 +70,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory
         communicator.addAdminFacet(new TestFacetI(), "TestFacet");
 
         //
-        // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
+        // The RemoteCommunicator servant also implements java.util.function.Consumer<java.util.Map<String, String>>.
         // Set the callback on the admin facet.
         //
         RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);

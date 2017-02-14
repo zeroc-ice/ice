@@ -335,7 +335,7 @@ public final class ThreadPool
         {
             try
             {
-                _dispatcher.dispatch(workItem, workItem.getConnection());
+                _dispatcher.accept(workItem, workItem.getConnection());
             }
             catch(java.lang.Exception ex)
             {
@@ -686,7 +686,7 @@ public final class ThreadPool
     }
 
     private final Instance _instance;
-    private final com.zeroc.Ice.Dispatcher _dispatcher;
+    private final java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection> _dispatcher;
     private final ThreadPoolWorkQueue _workQueue;
     private boolean _destroyed;
     private final String _prefix;
@@ -750,15 +750,15 @@ public final class ThreadPool
         public void
         run()
         {
-            if(_instance.initializationData().threadHook != null)
+            if(_instance.initializationData().threadStart != null)
             {
                 try
                 {
-                    _instance.initializationData().threadHook.start();
+                    _instance.initializationData().threadStart.run();
                 }
                 catch(java.lang.Exception ex)
                 {
-                    String s = "thread hook start() method raised an unexpected exception in `";
+                    String s = "threadStart method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }
@@ -779,15 +779,15 @@ public final class ThreadPool
                 _observer.detach();
             }
 
-            if(_instance.initializationData().threadHook != null)
+            if(_instance.initializationData().threadStop != null)
             {
                 try
                 {
-                    _instance.initializationData().threadHook.stop();
+                    _instance.initializationData().threadStop.run();
                 }
                 catch(java.lang.Exception ex)
                 {
-                    String s = "thread hook stop() method raised an unexpected exception in `";
+                    String s = "threadStop method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }

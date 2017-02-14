@@ -797,22 +797,8 @@ public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Comm
         }
         else
         {
-            _connections.setUpdater(new Runnable() {
-                    @Override
-                    public void
-                    run()
-                    {
-                        updater.updateConnectionObservers();
-                    }
-                });
-            _threads.setUpdater(new Runnable() {
-                    @Override
-                    public void
-                    run()
-                    {
-                        updater.updateThreadObservers();
-                    }
-                });
+            _connections.setUpdater(() -> { updater.updateConnectionObservers(); });
+            _threads.setUpdater(() -> { updater.updateThreadObservers(); });
         }
 
         if(_delegate != null)

@@ -19,15 +19,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         _metrics = metrics;
         _name = name;
         _class = cl;
-        _metrics.registerMap(name, _class, new Runnable()
-            {
-                @Override
-                public void
-                run()
-                {
-                    update();
-                }
-            });
+        _metrics.registerMap(name, _class, () -> { update(); });
     }
 
     public void

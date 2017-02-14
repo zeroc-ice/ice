@@ -12,6 +12,7 @@ package com.zeroc.Ice;
 /**
  * Base interface for listening to batch request queues.
  **/
+@FunctionalInterface
 public interface BatchRequestInterceptor
 {
     /**

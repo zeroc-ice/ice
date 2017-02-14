@@ -11,6 +11,6 @@ package com.zeroc.Ice;
 
 public interface NativePropertiesAdmin
 {
-    void addUpdateCallback(PropertiesAdminUpdateCallback callback);
-    void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
+    void addUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> callback);
+    void removeUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> callback);
 }
