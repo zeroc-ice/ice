@@ -1741,7 +1741,7 @@ class RemoteProcessController(ProcessController):
             try:
                 result = self.proxy.waitSuccess(timeout)
             except:
-                raise Except.TIMEOUT("waitSuccess timeout")
+                raise Expect.TIMEOUT("waitSuccess timeout")
             if exitstatus != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
 

@@ -198,6 +198,17 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required");
             }
 
+            if(_chain)
+            {
+                auto certs = _chain->GetCertificates(true);
+                for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
+                {
+                    auto cert = ICE_MAKE_SHARED(Certificate, iter->Current);
+                    _nativeCerts.push_back(cert);
+                    _certs.push_back(cert->encode());
+                }
+            }
+
             _engine->verifyPeer(_host, dynamic_pointer_cast<IceSSL::NativeConnectionInfo>(getInfo()), toString());
         }
         catch(Platform::Exception^ ex)
@@ -322,20 +333,12 @@ Ice::ConnectionInfoPtr
 IceSSL::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
-    StreamSocket^ stream = safe_cast<StreamSocket^>(_delegate->getNativeInfo()->fd());
-    if(_chain)
-    {
-        auto certs = _chain->GetCertificates(true);
-        for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
-        {
-            info->nativeCerts.push_back(ICE_MAKE_SHARED(Certificate, iter->Current));
-            info->certs.push_back(info->nativeCerts.back()->encode());
-        }
-    }
     info->verified = _verified;
     info->adapterName = _adapterName;
     info->incoming = _incoming;
     info->underlying = _delegate->getInfo();
+    info->certs = _certs;
+    info->nativeCerts = _nativeCerts;
     return info;
 }
 
