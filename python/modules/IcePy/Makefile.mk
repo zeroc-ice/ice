@@ -29,6 +29,7 @@ IcePy_extra_sources     := $(filter-out %Util.cpp %Ruby.cpp,\
 #
 $(foreach p,$(supported-platforms),$(eval $$p_targetdir[IcePy] := /$$p))
 $(firstword $(supported-platforms))_targetdir[IcePy] :=
+$(firstword $(supported-platforms))_installdir[IcePy] :=
 
 projects += $(project)
 srcs:: $(project)
