@@ -37,10 +37,13 @@ public class Main extends JFrame
             {
                 UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
             }
-            else  // JGoodies L&F
-            {
-                UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
-            }
+            //
+            // Setting PlasticLookAndFeel trigger a crash when creating a JFileChooser.
+            //
+            //else  // JGoodies L&F
+            //{
+            //    UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
+            //}
         }
         catch(Exception e)
         {
