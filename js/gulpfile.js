@@ -157,9 +157,8 @@ gulp.task("common:slice:clean", [],
 gulp.task("common:js", ["bower"],
     function(){
         return gulp.src(common.scripts)
-            .pipe(newer("assets/common.min.js"))
-            .pipe(concat("common.min.js"))
-            //.pipe(uglify()) // TODO: uglify doesn't support es6
+            .pipe(newer("assets/common.js"))
+            .pipe(concat("common.js"))
             .pipe(gulp.dest("assets"))
             .pipe(gzip())
             .pipe(gulp.dest("assets"));
@@ -283,7 +282,6 @@ var libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
 
 function generateTask(name){ return name.toLowerCase() + ":generate"; }
 function libTask(name){ return name.toLowerCase() + ":lib"; }
-function minLibTask(name){ return libTask(name) + "-min"; }
 function babelTask(name){ return name.toLowerCase() + ":babel"; }
 function babelLibTask(name){ return libTask(name) + "-babel";}
 function babelMinLibTask(name){ return libTask(name) + "-babel-min"; }
@@ -382,19 +380,6 @@ libs.forEach(
                     .pipe(gulp.dest("lib"));
             });
 
-        gulp.task(minLibTask(lib), [libTask(lib)],
-            function(){
-                return gulp.src(libFile(lib))
-                    .pipe(newer(libFileMin(lib)))
-                    .pipe(sourcemaps.init({loadMaps:true}))
-                    //.pipe(uglify({compress:false})) // TODO: uglify doesn't support ES6
-                    .pipe(extreplace(".min.js"))
-                    .pipe(sourcemaps.write("../lib", {includeContent: false, addComment: false}))
-                    .pipe(gulp.dest("lib"))
-                    .pipe(gzip())
-                    .pipe(gulp.dest("lib"));
-            });
-
         gulp.task(babelTask(lib), [generateTask(lib)],
             function(){
                 return gulp.src(path.join("src", lib, "*.js"))
@@ -441,7 +426,7 @@ gulp.task("dist:libs", ["bower"],
             .pipe(gulp.dest("lib"));
     });
 
-gulp.task("dist", useBinDist ? ["dist:libs"] : libs.map(minLibTask).concat(libs.map(babelMinLibTask)).concat(libs.map(babelTask)));
+gulp.task("dist", useBinDist ? ["dist:libs"] : libs.map(libTask).concat(libs.map(babelMinLibTask)).concat(libs.map(babelTask)));
 gulp.task("dist:clean", libs.map(libCleanTask));
 
 function runTestsWithBrowser(url)
