@@ -1258,6 +1258,166 @@ Certificate::operator!=(const Certificate& other) const
     return !operator==(other);
 }
 
+vector<Ice::Byte>
+Certificate::getAuthorityKeyIdentifier() const
+{
+    vector<Ice::Byte> keyid;
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    // Not supported
+#elif defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDAuthorityKeyIdentifier));
+    if(property)
+    {
+        CFTypeRef type = 0;
+        CFTypeRef value;
+        if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
+        {
+            if(CFEqual(type, kSecPropertyTypeSection))
+            {
+                if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyValue, &value))
+                {
+                    if(CFArrayGetCount(static_cast<CFArrayRef>(value)) >= 0)
+                    {
+                        value = CFArrayGetValueAtIndex(static_cast<CFArrayRef>(value), 1);
+                        type = CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyType);
+                    }
+                }
+            }
+
+            if(CFEqual(type, kSecPropertyTypeData))
+            {
+                CFDataRef data = static_cast<CFDataRef>(
+                    CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
+                keyid.resize(CFDataGetLength(data));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+            }
+        }
+    }
+#elif defined(ICE_USE_SCHANNEL)
+    PCERT_EXTENSION extension = CertFindExtension(szOID_AUTHORITY_KEY_IDENTIFIER2, _certInfo->cExtension,
+                                                  _certInfo->rgExtension);
+    if(extension)
+    {
+        CERT_AUTHORITY_KEY_ID2_INFO* decoded;
+        DWORD length = 0;
+        if(!CryptDecodeObjectEx(X509_ASN_ENCODING, X509_AUTHORITY_KEY_ID2, extension->Value.pbData,
+                                extension->Value.cbData, CRYPT_DECODE_ALLOC_FLAG, 0, &decoded, &length))
+        {
+            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        }
+
+        if(decoded->KeyId.pbData && decoded->KeyId.cbData)
+        {
+            keyid.resize(decoded->KeyId.cbData);
+            memcpy(&keyid[0], decoded->KeyId.pbData, decoded->KeyId.cbData);
+            LocalFree(decoded);
+        }
+    }
+#elif defined(ICE_USE_OPENSSL)
+    int index = X509_get_ext_by_NID(_cert, NID_authority_key_identifier, -1);
+    if(index >= 0)
+    {
+        X509_EXTENSION* ext = X509_get_ext(_cert, index);
+        if(ext)
+        {
+            AUTHORITY_KEYID* decoded = (AUTHORITY_KEYID*)X509V3_EXT_d2i(ext);
+            if(!decoded)
+            {
+                throw CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
+            }
+            keyid.resize(decoded->keyid->length);
+            memcpy(&keyid[0], decoded->keyid->data, decoded->keyid->length);
+            AUTHORITY_KEYID_free(decoded);
+        }
+    }
+#elif defined(ICE_OS_UWP)
+    // Not supported
+#else
+#   error "Unknown platform"
+#endif
+    return keyid;
+}
+
+vector<Ice::Byte>
+Certificate::getSubjectKeyIdentifier() const
+{
+    vector<Ice::Byte> keyid;
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+    // Not supported
+#elif defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+    UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDSubjectKeyIdentifier));
+    if(property)
+    {
+        CFTypeRef type = 0;
+        CFTypeRef value;
+        if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
+        {
+            if(CFEqual(type, kSecPropertyTypeSection))
+            {
+                if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyValue, &value))
+                {
+                    if(CFArrayGetCount(static_cast<CFArrayRef>(value)) >= 0)
+                    {
+                        value = CFArrayGetValueAtIndex(static_cast<CFArrayRef>(value), 1);
+                        type = CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyType);
+                    }
+                }
+            }
+
+            if(CFEqual(type, kSecPropertyTypeData))
+            {
+                CFDataRef data = static_cast<CFDataRef>(
+                    CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
+                keyid.resize(CFDataGetLength(data));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+            }
+        }
+    }
+#elif defined(ICE_USE_SCHANNEL)
+    PCERT_EXTENSION extension = CertFindExtension(szOID_SUBJECT_KEY_IDENTIFIER, _certInfo->cExtension,
+                                                  _certInfo->rgExtension);
+    if(extension)
+    {
+        CRYPT_DATA_BLOB* decoded;
+        DWORD length = 0;
+        if(!CryptDecodeObjectEx(X509_ASN_ENCODING, szOID_SUBJECT_KEY_IDENTIFIER, extension->Value.pbData,
+                                extension->Value.cbData, CRYPT_DECODE_ALLOC_FLAG, 0, &decoded, &length))
+        {
+            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        }
+
+        if(decoded->pbData && decoded->cbData)
+        {
+            keyid.resize(decoded->cbData);
+            memcpy(&keyid[0], decoded->pbData, decoded->cbData);
+            LocalFree(decoded);
+        }
+    }
+#elif defined(ICE_USE_OPENSSL)
+    int index = X509_get_ext_by_NID(_cert, NID_subject_key_identifier, -1);
+    if(index >= 0)
+    {
+        X509_EXTENSION* ext = X509_get_ext(_cert, index);
+        if(ext)
+        {
+            ASN1_OCTET_STRING* decoded = static_cast<ASN1_OCTET_STRING*>(X509V3_EXT_d2i(ext));
+            if(!decoded)
+            {
+                throw CertificateEncodingException(__FILE__, __LINE__, "the extension could not be decoded");
+            }
+            keyid.resize(decoded->length);
+            memcpy(&keyid[0], decoded->data, decoded->length);
+            ASN1_OCTET_STRING_free(decoded);
+        }
+    }
+#elif defined(ICE_OS_UWP)
+    // Not supported
+#else
+#   error "Unknown platform"
+#endif
+    return keyid;
+}
+
 PublicKeyPtr
 Certificate::getPublicKey() const
 {

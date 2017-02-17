@@ -336,6 +336,16 @@ public:
     //
     bool operator==(const Certificate&) const;
     bool operator!=(const Certificate&) const;
+    
+    //
+    // Authority key identifier
+    //
+    std::vector<Ice::Byte> getAuthorityKeyIdentifier() const;
+
+    //
+    // Subject key identifier
+    //
+    std::vector<Ice::Byte> getSubjectKeyIdentifier() const;
 
     //
     // Get the certificate's public key.

@@ -12,6 +12,7 @@
 #include <TestCommon.h>
 #include <Test.h>
 #include <fstream>
+#include <algorithm>
 
 #if defined(__APPLE__)
 #  include <sys/sysctl.h>
@@ -39,6 +40,24 @@ using namespace Windows::Security::Cryptography::Certificates;
 
 using namespace std;
 using namespace Ice;
+
+string
+toHexString(vector<Ice::Byte> data)
+{
+    ostringstream os;
+    for(vector<Ice::Byte>::const_iterator i = data.begin(); i != data.end();)
+    {
+        unsigned char c = *i;
+        os.fill('0');
+        os.width(2);
+        os << hex << uppercase << static_cast<int>(c);
+        if(++i != data.end())
+        {
+            os << ':';
+        }
+    }
+    return os.str();
+}
 
 void
 readFile(const string& file, vector<char>& buffer)
@@ -1223,6 +1242,43 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
     }
     cout << "ok" << endl;
+    
+#if !defined(ICE_USE_SECURE_TRANSPORT_IOS) && !defined(ICE_OS_UWP)
+    cout << "testing certificate info..." << flush;
+    {
+        const char* certificates[] =
+        {
+            "/cacert1.pem",
+            "/c_rsa_ca1_pub.pem",
+            "/s_rsa_ca1_pub.pem",
+            0
+        };
+        
+        const char* authorities[] =
+        {
+            "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
+            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
+            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
+            0
+        };
+        
+        const char* subjects[] =
+        {
+            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
+            "FC:5D:4F:AB:F0:6C:03:11:B8:F3:68:CF:89:54:92:3F:F9:79:2A:06",
+            "47:84:AE:F9:F2:85:3D:99:30:6A:03:38:41:1A:B9:EB:C3:9C:B5:4D",
+            0
+        };
+        
+        for(int i = 0; certificates[i] != 0; ++i)
+        {
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + certificates[i]);
+            test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
+            test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
+        }
+    }
+    cout << "ok" << endl;
+#endif
 
     cout << "testing certificate chains... " << flush;
     {
