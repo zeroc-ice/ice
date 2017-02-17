@@ -179,8 +179,8 @@ These are the changes since Ice 3.6.3.
 - Added getEngineName and getEngineVersion methods to IceSSL::Plugin to retrieve
   the SSL engine name and version used by the Ice runtime.
 
-- Added getAuthorityKeyIdentifier and getSubjectKeyIdentifier methods to IceSSL::Certificate
-  the methods are not supported with iOS and UWP implementations.
+- Added getAuthorityKeyIdentifier and getSubjectKeyIdentifier methods to IceSSL::Certificate.
+  These methods are not supported on iOS or UWP.
 
 ## C# Changes
 
