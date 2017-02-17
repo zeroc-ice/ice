@@ -30,6 +30,7 @@ IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp,\
 #
 $(foreach p,$(supported-platforms),$(eval $$p_targetdir[IceRuby] := /$$p))
 $(firstword $(supported-platforms))_targetdir[IceRuby] :=
+$(firstword $(supported-platforms))_installdir[IceRuby] :=
 
 projects += $(project)
 srcs:: $(project)
