@@ -39,7 +39,7 @@ yyerror(const char* s)
 
 %}
 
-%pure_parser
+%pure-parser
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this

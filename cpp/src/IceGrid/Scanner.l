@@ -26,6 +26,13 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(_MSC_VER) && defined(ICE_32)
+//
+// '<' : signed/unsigned mismatch
+//
+#   pragma warning( 4 : 4018 )
+#endif
+
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wsign-compare"
 #endif

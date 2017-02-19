@@ -1,7 +1,7 @@
 #include <IceUtil/ScannerConfig.h>
-#line 1 "lex.yy.c"
+#line 2 "src/Slice/Scanner.cpp"
 
-#line 3 "lex.yy.c"
+#line 4 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -28,89 +28,11 @@
 
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
-#define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 3
+#define YY_FLEX_MINOR_VERSION 5
+#define YY_FLEX_SUBMINOR_VERSION 37
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
-
-    #define yy_create_buffer slice__create_buffer
-
-    #define yy_delete_buffer slice__delete_buffer
-
-    #define yy_scan_buffer slice__scan_buffer
-
-    #define yy_scan_string slice__scan_string
-
-    #define yy_scan_bytes slice__scan_bytes
-
-    #define yy_init_buffer slice__init_buffer
-
-    #define yy_flush_buffer slice__flush_buffer
-
-    #define yy_load_buffer_state slice__load_buffer_state
-
-    #define yy_switch_to_buffer slice__switch_to_buffer
-
-    #define yypush_buffer_state slice_push_buffer_state
-
-    #define yypop_buffer_state slice_pop_buffer_state
-
-    #define yyensure_buffer_stack slice_ensure_buffer_stack
-
-    #define yylex slice_lex
-
-    #define yyrestart slice_restart
-
-    #define yylex_init slice_lex_init
-
-    #define yylex_init_extra slice_lex_init_extra
-
-    #define yylex_destroy slice_lex_destroy
-
-    #define yyget_debug slice_get_debug
-
-    #define yyset_debug slice_set_debug
-
-    #define yyget_extra slice_get_extra
-
-    #define yyset_extra slice_set_extra
-
-    #define yyget_in slice_get_in
-
-    #define yyset_in slice_set_in
-
-    #define yyget_out slice_get_out
-
-    #define yyset_out slice_set_out
-
-    #define yyget_leng slice_get_leng
-
-    #define yyget_text slice_get_text
-
-    #define yyget_lineno slice_get_lineno
-
-    #define yyset_lineno slice_set_lineno
-
-    #define yywrap slice_wrap
-
-    #define yyalloc slice_alloc
-
-    #define yyrealloc slice_realloc
-
-    #define yyfree slice_free
-
-    #define yytext slice_text
-
-    #define yyleng slice_leng
-
-    #define yyin slice_in
-
-    #define yyout slice_out
-
-    #define yy_flex_debug slice__flex_debug
-
-    #define yylineno slice_lineno
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
@@ -186,51 +108,61 @@ typedef unsigned int flex_uint32_t;
 
 #endif /* ! FLEXINT_H */
 
-/* TODO: this is always defined, so inline it */
-#define yyconst const
+#ifdef __cplusplus
 
-#if defined(__GNUC__) && __GNUC__ >= 3
-#define yynoreturn __attribute__((__noreturn__))
+/* The "const" storage-class-modifier is valid. */
+#define YY_USE_CONST
+
+#else	/* ! __cplusplus */
+
+/* C99 requires __STDC__ to be defined as 1. */
+#if defined (__STDC__)
+
+#define YY_USE_CONST
+
+#endif	/* defined (__STDC__) */
+#endif	/* ! __cplusplus */
+
+#ifdef YY_USE_CONST
+#define yyconst const
 #else
-#define yynoreturn
+#define yyconst
 #endif
 
 /* Returned upon end-of-file. */
 #define YY_NULL 0
 
-/* Promotes a possibly negative, possibly signed char to an
- *   integer in range [0..255] for use as an array index.
+/* Promotes a possibly negative, possibly signed char to an unsigned
+ * integer for use as an array index.  If the signed char is negative,
+ * we want to instead treat it as an 8-bit unsigned char, hence the
+ * double cast.
  */
-#define YY_SC_TO_UI(c) ((YY_CHAR) (c))
+#define YY_SC_TO_UI(c) ((unsigned int) (unsigned char) c)
 
 /* Enter a start condition.  This macro really ought to take a parameter,
  * but we do it the disgusting crufty way forced on us by the ()-less
  * definition of BEGIN.
  */
 #define BEGIN (yy_start) = 1 + 2 *
+
 /* Translate the current start state into a value that can be later handed
  * to BEGIN to return to the state.  The YYSTATE alias is for lex
  * compatibility.
  */
 #define YY_START (((yy_start) - 1) / 2)
 #define YYSTATE YY_START
+
 /* Action number for EOF rule of a given start state. */
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
+
 /* Special action meaning "start processing a new file". */
 #define YY_NEW_FILE slice_restart(slice_in  )
+
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k.
- * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
- * Ditto for the __ia64__ case accordingly.
- */
-#define YY_BUF_SIZE 32768
-#else
 #define YY_BUF_SIZE 16384
-#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -247,16 +179,15 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern int slice_leng;
+extern yy_size_t slice_leng;
 
 extern FILE *slice_in, *slice_out;
 
 #define EOB_ACT_CONTINUE_SCAN 0
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
-    
+
     #define YY_LESS_LINENO(n)
-    #define YY_LINENO_REWIND_TO(ptr)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -271,6 +202,7 @@ extern FILE *slice_in, *slice_out;
 		YY_DO_BEFORE_ACTION; /* set up slice_text again */ \
 		} \
 	while ( 0 )
+
 #define unput(c) yyunput( c, (yytext_ptr)  )
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
@@ -285,12 +217,12 @@ struct yy_buffer_state
 	/* Size of input buffer in bytes, not including room for EOB
 	 * characters.
 	 */
-	int yy_buf_size;
+	yy_size_t yy_buf_size;
 
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -313,7 +245,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-
+    
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -341,7 +273,7 @@ struct yy_buffer_state
 /* Stack of input buffers. */
 static size_t yy_buffer_stack_top = 0; /**< index of top of stack. */
 static size_t yy_buffer_stack_max = 0; /**< capacity of stack. */
-static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
+static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* We provide macros for accessing buffer states in case in the
  * future we want to put the buffer states in a more general
@@ -352,6 +284,7 @@ static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
 #define YY_CURRENT_BUFFER ( (yy_buffer_stack) \
                           ? (yy_buffer_stack)[(yy_buffer_stack_top)] \
                           : NULL)
+
 /* Same as previous macro, but useful when we know that the buffer stack is not
  * NULL or when we need an lvalue. For internal use only.
  */
@@ -359,11 +292,11 @@ static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when slice_text is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int slice_leng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t slice_leng;
 
 /* Points to current character in buffer. */
-static char *yy_c_buf_p = NULL;
+static char *yy_c_buf_p = (char *) 0;
 static int yy_init = 0;		/* whether we need to initialize */
 static int yy_start = 0;	/* start state number */
 
@@ -372,28 +305,30 @@ static int yy_start = 0;	/* start state number */
  */
 static int yy_did_buffer_switch_on_eof;
 
-void slice_restart ( FILE *input_file  );
-void slice__switch_to_buffer ( YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE slice__create_buffer ( FILE *file, int size  );
-void slice__delete_buffer ( YY_BUFFER_STATE b  );
-void slice__flush_buffer ( YY_BUFFER_STATE b  );
-void slice_push_buffer_state ( YY_BUFFER_STATE new_buffer  );
-void slice_pop_buffer_state ( void );
+void slice_restart (FILE *input_file  );
+void slice__switch_to_buffer (YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE slice__create_buffer (FILE *file,int size  );
+void slice__delete_buffer (YY_BUFFER_STATE b  );
+void slice__flush_buffer (YY_BUFFER_STATE b  );
+void slice_push_buffer_state (YY_BUFFER_STATE new_buffer  );
+void slice_pop_buffer_state (void );
 
-static void slice_ensure_buffer_stack ( void );
-static void slice__load_buffer_state ( void );
-static void slice__init_buffer ( YY_BUFFER_STATE b, FILE *file  );
+static void slice_ensure_buffer_stack (void );
+static void slice__load_buffer_state (void );
+static void slice__init_buffer (YY_BUFFER_STATE b,FILE *file  );
+
 #define YY_FLUSH_BUFFER slice__flush_buffer(YY_CURRENT_BUFFER )
 
-YY_BUFFER_STATE slice__scan_buffer ( char *base, yy_size_t size  );
-YY_BUFFER_STATE slice__scan_string ( const char *yy_str  );
-YY_BUFFER_STATE slice__scan_bytes ( const char *bytes, int len  );
+YY_BUFFER_STATE slice__scan_buffer (char *base,yy_size_t size  );
+YY_BUFFER_STATE slice__scan_string (yyconst char *yy_str  );
+YY_BUFFER_STATE slice__scan_bytes (yyconst char *bytes,yy_size_t len  );
 
-void *slice_alloc ( yy_size_t  );
-void *slice_realloc ( void *, yy_size_t  );
-void slice_free ( void *  );
+void *slice_alloc (yy_size_t  );
+void *slice_realloc (void *,yy_size_t  );
+void slice_free (void *  );
 
 #define yy_new_buffer slice__create_buffer
+
 #define yy_set_interactive(is_interactive) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){ \
@@ -403,6 +338,7 @@ void slice_free ( void *  );
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
+
 #define yy_set_bol(at_bol) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){\
@@ -412,41 +348,42 @@ void slice_free ( void *  );
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
+
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
 
-#define slice_wrap() (/*CONSTCOND*/1)
+#define slice_wrap() 1
 #define YY_SKIP_YYWRAP
-typedef flex_uint8_t YY_CHAR;
 
-FILE *slice_in = NULL, *slice_out = NULL;
+typedef unsigned char YY_CHAR;
+
+FILE *slice_in = (FILE *) 0, *slice_out = (FILE *) 0;
 
 typedef int yy_state_type;
 
 extern int slice_lineno;
+
 int slice_lineno = 1;
 
 extern char *slice_text;
-#ifdef yytext_ptr
-#undef yytext_ptr
-#endif
 #define yytext_ptr slice_text
 
-static yy_state_type yy_get_previous_state ( void );
-static yy_state_type yy_try_NUL_trans ( yy_state_type current_state  );
-static int yy_get_next_buffer ( void );
-static void yynoreturn yy_fatal_error ( const char* msg  );
+static yy_state_type yy_get_previous_state (void );
+static yy_state_type yy_try_NUL_trans (yy_state_type current_state  );
+static int yy_get_next_buffer (void );
+static void yy_fatal_error (yyconst char msg[]  );
 
 /* Done after the current pattern has been matched and before the
  * corresponding action - sets up slice_text.
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	slice_leng = (int) (yy_cp - yy_bp); \
+	slice_leng = (size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
+
 #define YY_NUM_RULES 20
 #define YY_END_OF_BUFFER 21
 /* This struct is not used in this scanner,
@@ -456,7 +393,7 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[73] =
+static yyconst flex_int16_t yy_accept[73] =
     {   0,
         0,    0,    0,    0,    0,    0,   21,   19,   17,   17,
        14,   19,   19,   19,   15,   15,   19,   13,    8,   19,
@@ -468,7 +405,7 @@ static const flex_int16_t yy_accept[73] =
         4,    0
     } ;
 
-static const YY_CHAR yy_ec[256] =
+static yyconst flex_int32_t yy_ec[256] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         4,    4,    4,    1,    1,    1,    1,    1,    1,    1,
@@ -500,7 +437,7 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[32] =
+static yyconst flex_int32_t yy_meta[32] =
     {   0,
         1,    2,    3,    4,    1,    1,    4,    1,    5,    5,
         1,    1,    6,    6,    6,    1,    7,    7,    7,    8,
@@ -508,7 +445,7 @@ static const YY_CHAR yy_meta[32] =
         1
     } ;
 
-static const flex_int16_t yy_base[85] =
+static yyconst flex_int16_t yy_base[85] =
     {   0,
         0,  185,    0,   26,    0,  184,  189,  192,  192,  192,
       192,   22,   25,   33,   47,   35,  153,   40,  147,    0,
@@ -521,7 +458,7 @@ static const flex_int16_t yy_base[85] =
       156,  164,  170,  179
     } ;
 
-static const flex_int16_t yy_def[85] =
+static yyconst flex_int16_t yy_def[85] =
     {   0,
        72,    1,    1,    1,    1,    1,   72,   72,   72,   72,
        72,   72,   72,   72,   72,   15,   72,   73,   72,   74,
@@ -534,7 +471,7 @@ static const flex_int16_t yy_def[85] =
        72,   72,   72,   72
     } ;
 
-static const flex_int16_t yy_nxt[224] =
+static yyconst flex_int16_t yy_nxt[224] =
     {   0,
         8,    9,   10,    9,   11,    8,    8,    8,   12,   12,
        13,   14,   15,   16,   16,   17,   18,   18,   18,   18,
@@ -563,7 +500,7 @@ static const flex_int16_t yy_nxt[224] =
        72,   72,   72
     } ;
 
-static const flex_int16_t yy_chk[224] =
+static yyconst flex_int16_t yy_chk[224] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -688,9 +625,9 @@ int checkKeyword(string&);
 
 #define YY_USER_INIT initScanner();
 
-#line 690 "lex.yy.c"
 
-#line 692 "lex.yy.c"
+
+#line 630 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -708,36 +645,36 @@ int checkKeyword(string&);
 #define YY_EXTRA_TYPE void *
 #endif
 
-static int yy_init_globals ( void );
+static int yy_init_globals (void );
 
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int slice_lex_destroy ( void );
+int slice_lex_destroy (void );
 
-int slice_get_debug ( void );
+int slice_get_debug (void );
 
-void slice_set_debug ( int debug_flag  );
+void slice_set_debug (int debug_flag  );
 
-YY_EXTRA_TYPE slice_get_extra ( void );
+YY_EXTRA_TYPE slice_get_extra (void );
 
-void slice_set_extra ( YY_EXTRA_TYPE user_defined  );
+void slice_set_extra (YY_EXTRA_TYPE user_defined  );
 
-FILE *slice_get_in ( void );
+FILE *slice_get_in (void );
 
-void slice_set_in  ( FILE * _in_str  );
+void slice_set_in  (FILE * in_str  );
 
-FILE *slice_get_out ( void );
+FILE *slice_get_out (void );
 
-void slice_set_out  ( FILE * _out_str  );
+void slice_set_out  (FILE * out_str  );
 
-			int slice_get_leng ( void );
+yy_size_t slice_get_leng (void );
 
-char *slice_get_text ( void );
+char *slice_get_text (void );
 
-int slice_get_lineno ( void );
+int slice_get_lineno (void );
 
-void slice_set_lineno ( int _line_number  );
+void slice_set_lineno (int line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -745,43 +682,35 @@ void slice_set_lineno ( int _line_number  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int slice_wrap ( void );
+extern "C" int slice_wrap (void );
 #else
-extern int slice_wrap ( void );
+extern int slice_wrap (void );
 #endif
 #endif
 
-#ifndef YY_NO_UNPUT
+    static void yyunput (int c,char *buf_ptr  );
     
-    static void yyunput ( int c, char *buf_ptr  );
-    
-#endif
-
 #ifndef yytext_ptr
-static void yy_flex_strncpy ( char *, const char *, int );
+static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen ( const char * );
+static int yy_flex_strlen (yyconst char * );
 #endif
 
 #ifndef YY_NO_INPUT
+
 #ifdef __cplusplus
-static int yyinput ( void );
+static int yyinput (void );
 #else
-static int input ( void );
+static int input (void );
 #endif
 
 #endif
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k */
-#define YY_READ_BUF_SIZE 16384
-#else
 #define YY_READ_BUF_SIZE 8192
-#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -789,7 +718,7 @@ static int input ( void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO do { if (fwrite( slice_text, (size_t) slice_leng, 1, slice_out )) {} } while (0)
+#define ECHO do { if (fwrite( slice_text, slice_leng, 1, slice_out )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -800,7 +729,7 @@ static int input ( void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( slice_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -813,7 +742,7 @@ static int input ( void );
 	else \
 		{ \
 		errno=0; \
-		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, slice_in)) == 0 && ferror(slice_in)) \
+		while ( (result = fread(buf, 1, max_size, slice_in))==0 && ferror(slice_in)) \
 			{ \
 			if( errno != EINTR) \
 				{ \
@@ -868,7 +797,7 @@ extern int slice_lex (void);
 
 /* Code executed at the end of each rule. */
 #ifndef YY_BREAK
-#define YY_BREAK /*LINTED*/break;
+#define YY_BREAK break;
 #endif
 
 #define YY_RULE_SETUP \
@@ -881,10 +810,15 @@ extern int slice_lex (void);
  */
 YY_DECL
 {
-	yy_state_type yy_current_state;
-	char *yy_cp, *yy_bp;
-	int yy_act;
+	register yy_state_type yy_current_state;
+	register char *yy_cp, *yy_bp;
+	register int yy_act;
     
+#line 97 "src/Slice/Scanner.l"
+
+
+#line 820 "src/Slice/Scanner.cpp"
+
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -911,13 +845,7 @@ YY_DECL
 		slice__load_buffer_state( );
 		}
 
-	{
-#line 98 "src/Slice/Scanner.l"
-
-
-#line 917 "lex.yy.c"
-
-	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
+	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
 
@@ -934,7 +862,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -944,9 +872,9 @@ yy_match:
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
 				if ( yy_current_state >= 73 )
-					yy_c = yy_meta[yy_c];
+					yy_c = yy_meta[(unsigned int) yy_c];
 				}
-			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
+			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
 		while ( yy_current_state != 72 );
@@ -974,9 +902,9 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 100 "src/Slice/Scanner.l"
+#line 99 "src/Slice/Scanner.l"
 {
-    if(unit->scanPosition(yytext))
+    if(unit->scanPosition(slice_text))
     {
         BEGIN(BOMSCAN);
     }
@@ -985,13 +913,12 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 *yy_cp = (yy_hold_char); /* undo effects of setting up slice_text */
-YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 107 "src/Slice/Scanner.l"
+#line 106 "src/Slice/Scanner.l"
 {
-    if(unit->scanPosition(yytext))
+    if(unit->scanPosition(slice_text))
     {
         BEGIN(BOMSCAN);
     }
@@ -1002,9 +929,9 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 114 "src/Slice/Scanner.l"
+#line 113 "src/Slice/Scanner.l"
 {
-    if(unit->scanPosition(yytext))
+    if(unit->scanPosition(slice_text))
     {
         BEGIN(BOMSCAN);
     }
@@ -1013,13 +940,12 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 *yy_cp = (yy_hold_char); /* undo effects of setting up slice_text */
-YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 121 "src/Slice/Scanner.l"
+#line 120 "src/Slice/Scanner.l"
 {
-    if(unit->scanPosition(yytext))
+    if(unit->scanPosition(slice_text))
     {
         BEGIN(BOMSCAN);
     }
@@ -1027,7 +953,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 128 "src/Slice/Scanner.l"
+#line 127 "src/Slice/Scanner.l"
 {
     // C++-style comment
     BEGIN(MAINSCAN);
@@ -1045,11 +971,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 143 "src/Slice/Scanner.l"
+#line 142 "src/Slice/Scanner.l"
 {
     // C-style comment
     BEGIN(MAINSCAN);
-    string comment = yytext + 2;
+    string comment = slice_text + 2;
     while(true)
     {
         int c = yyinput();
@@ -1089,7 +1015,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 184 "src/Slice/Scanner.l"
+#line 183 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_SCOPE_DELIMITER;
@@ -1097,7 +1023,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 189 "src/Slice/Scanner.l"
+#line 188 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -1105,7 +1031,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 194 "src/Slice/Scanner.l"
+#line 193 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
@@ -1113,7 +1039,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 199 "src/Slice/Scanner.l"
+#line 198 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
@@ -1121,7 +1047,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 204 "src/Slice/Scanner.l"
+#line 203 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
@@ -1130,14 +1056,14 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 209 "src/Slice/Scanner.l"
+#line 208 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
-    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    ident->v = *slice_text == '\\' ? slice_text + 1 : slice_text;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylvalp = ident;
-    if(*yytext == '\\')
+    if(*slice_text == '\\')
     {
         return ICE_IDENT_OP;
     }
@@ -1158,18 +1084,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 234 "src/Slice/Scanner.l"
+#line 233 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
-    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    ident->v = *slice_text == '\\' ? slice_text + 1 : slice_text;
     *yylvalp = ident;
-    return *yytext == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
+    return *slice_text == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 242 "src/Slice/Scanner.l"
+#line 241 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1375,17 +1301,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 445 "src/Slice/Scanner.l"
+#line 444 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
-    itp->literal = string(yytext);
+    itp->literal = string(slice_text);
     *yylvalp = itp;
-    if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
+    if(!IceUtilInternal::stringToInt64(string(slice_text), itp->v))
     {
         assert(itp->v != 0);
         string msg = "integer constant `";
-        msg += yytext;
+        msg += slice_text;
         msg += "' out of range";
         unit->error(msg);
     }
@@ -1394,13 +1320,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 461 "src/Slice/Scanner.l"
+#line 460 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
     *yylvalp = ftp;
-    string literal(yytext);
+    string literal(slice_text);
     ftp->literal = literal;
     char lastChar = literal[literal.size() - 1];
     if(lastChar == 'f' || lastChar == 'F')
@@ -1411,14 +1337,14 @@ YY_RULE_SETUP
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
         string msg = "floating-point constant `";
-        msg += yytext;
+        msg += slice_text;
         msg += "' too large (overflow)";
         unit->error(msg);
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
         string msg = "floating-point constant `";
-        msg += yytext;
+        msg += slice_text;
         msg += "' too small (underflow)";
     unit->error(msg);
     }
@@ -1428,7 +1354,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 491 "src/Slice/Scanner.l"
+#line 490 "src/Slice/Scanner.l"
 {
     // Ignore white-space
 
@@ -1436,7 +1362,7 @@ YY_RULE_SETUP
     {
         BEGIN(MAINSCAN);
     }
-    if(yytext[0] == '\n')
+    if(slice_text[0] == '\n')
     {
         unit->nextLine();
     }
@@ -1444,7 +1370,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 504 "src/Slice/Scanner.l"
+#line 503 "src/Slice/Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
 
@@ -1453,29 +1379,29 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 510 "src/Slice/Scanner.l"
+#line 509 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
-    if(yytext[0] < 32 || yytext[0] > 126)
+    if(slice_text[0] < 32 || slice_text[0] > 126)
     {
         stringstream s;
         s << "illegal input character: '\\";
         s.width(3);
         s.fill('0');
-        s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+        s << oct << static_cast<int>(static_cast<unsigned char>(slice_text[0]));
         s << "'";
         unit->error(s.str());
         return BAD_CHAR;
     }
-    return yytext[0];
+    return slice_text[0];
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 526 "src/Slice/Scanner.l"
+#line 525 "src/Slice/Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1477 "lex.yy.c"
+#line 1404 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -1609,7 +1535,6 @@ case YY_STATE_EOF(MAINSCAN):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
-	} /* end of user's declarations */
 } /* end of slice_lex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1621,9 +1546,9 @@ case YY_STATE_EOF(MAINSCAN):
  */
 static int yy_get_next_buffer (void)
 {
-    	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
-	char *source = (yytext_ptr);
-	int number_to_move, i;
+    	register char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+	register char *source = (yytext_ptr);
+	register int number_to_move, i;
 	int ret_val;
 
 	if ( (yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1] )
@@ -1652,7 +1577,7 @@ static int yy_get_next_buffer (void)
 	/* Try to read more data. */
 
 	/* First move last chars to start of buffer. */
-	number_to_move = (int) ((yy_c_buf_p) - (yytext_ptr) - 1);
+	number_to_move = (int) ((yy_c_buf_p) - (yytext_ptr)) - 1;
 
 	for ( i = 0; i < number_to_move; ++i )
 		*(dest++) = *(source++);
@@ -1665,7 +1590,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1679,7 +1604,7 @@ static int yy_get_next_buffer (void)
 
 			if ( b->yy_is_our_buffer )
 				{
-				int new_size = b->yy_buf_size * 2;
+				yy_size_t new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -1688,11 +1613,11 @@ static int yy_get_next_buffer (void)
 
 				b->yy_ch_buf = (char *)
 					/* Include room in for 2 EOB chars. */
-					slice_realloc((void *) b->yy_ch_buf,(yy_size_t) (b->yy_buf_size + 2)  );
+					slice_realloc((void *) b->yy_ch_buf,b->yy_buf_size + 2  );
 				}
 			else
 				/* Can't grow it, we don't own it. */
-				b->yy_ch_buf = NULL;
+				b->yy_ch_buf = 0;
 
 			if ( ! b->yy_ch_buf )
 				YY_FATAL_ERROR(
@@ -1734,10 +1659,10 @@ static int yy_get_next_buffer (void)
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
 
-	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
+	if ((yy_size_t) ((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) slice_realloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,(yy_size_t) new_size  );
+		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) slice_realloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size  );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
 	}
@@ -1755,15 +1680,15 @@ static int yy_get_next_buffer (void)
 
     static yy_state_type yy_get_previous_state (void)
 {
-	yy_state_type yy_current_state;
-	char *yy_cp;
+	register yy_state_type yy_current_state;
+	register char *yy_cp;
     
 	yy_current_state = (yy_start);
 	yy_current_state += YY_AT_BOL();
 
 	for ( yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp )
 		{
-		YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
+		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
 		if ( yy_accept[yy_current_state] )
 			{
 			(yy_last_accepting_state) = yy_current_state;
@@ -1773,9 +1698,9 @@ static int yy_get_next_buffer (void)
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
 			if ( yy_current_state >= 73 )
-				yy_c = yy_meta[yy_c];
+				yy_c = yy_meta[(unsigned int) yy_c];
 			}
-		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
+		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 		}
 
 	return yy_current_state;
@@ -1788,10 +1713,10 @@ static int yy_get_next_buffer (void)
  */
     static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state )
 {
-	int yy_is_jam;
-    	char *yy_cp = (yy_c_buf_p);
+	register int yy_is_jam;
+    	register char *yy_cp = (yy_c_buf_p);
 
-	YY_CHAR yy_c = 1;
+	register YY_CHAR yy_c = 1;
 	if ( yy_accept[yy_current_state] )
 		{
 		(yy_last_accepting_state) = yy_current_state;
@@ -1801,19 +1726,17 @@ static int yy_get_next_buffer (void)
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
 		if ( yy_current_state >= 73 )
-			yy_c = yy_meta[yy_c];
+			yy_c = yy_meta[(unsigned int) yy_c];
 		}
-	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
+	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 	yy_is_jam = (yy_current_state == 72);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
 
-#ifndef YY_NO_UNPUT
-
-    static void yyunput (int c, char * yy_bp )
+    static void yyunput (int c, register char * yy_bp )
 {
-	char *yy_cp;
+	register char *yy_cp;
     
     yy_cp = (yy_c_buf_p);
 
@@ -1823,10 +1746,10 @@ static int yy_get_next_buffer (void)
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		int number_to_move = (yy_n_chars) + 2;
-		char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
+		register yy_size_t number_to_move = (yy_n_chars) + 2;
+		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		char *source =
+		register char *source =
 				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
 
 		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
@@ -1835,7 +1758,7 @@ static int yy_get_next_buffer (void)
 		yy_cp += (int) (dest - source);
 		yy_bp += (int) (dest - source);
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = (int) YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
+			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
 
 		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 			YY_FATAL_ERROR( "flex scanner push-back overflow" );
@@ -1847,8 +1770,6 @@ static int yy_get_next_buffer (void)
 	(yy_hold_char) = *yy_cp;
 	(yy_c_buf_p) = yy_cp;
 }
-
-#endif
 
 #ifndef YY_NO_INPUT
 #ifdef __cplusplus
@@ -1874,7 +1795,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (int) ((yy_c_buf_p) - (yytext_ptr));
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -1898,7 +1819,7 @@ static int yy_get_next_buffer (void)
 				case EOB_ACT_END_OF_FILE:
 					{
 					if ( slice_wrap( ) )
-						return 0;
+						return EOF;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
 						YY_NEW_FILE;
@@ -2006,7 +1927,7 @@ static void slice__load_buffer_state  (void)
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) slice_alloc((yy_size_t) (b->yy_buf_size + 2)  );
+	b->yy_ch_buf = (char *) slice_alloc(b->yy_buf_size + 2  );
 	if ( ! b->yy_ch_buf )
 		YY_FATAL_ERROR( "out of dynamic memory in slice__create_buffer()" );
 
@@ -2156,15 +2077,15 @@ static void slice_ensure_buffer_stack (void)
 		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
 		 * immediate realloc on the next call.
          */
-      num_to_alloc = 1; /* After all that talk, this was set to 1 anyways... */
+		num_to_alloc = 1;
 		(yy_buffer_stack) = (struct yy_buffer_state**)slice_alloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								);
 		if ( ! (yy_buffer_stack) )
 			YY_FATAL_ERROR( "out of dynamic memory in slice_ensure_buffer_stack()" );
-
+								  
 		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-
+				
 		(yy_buffer_stack_max) = num_to_alloc;
 		(yy_buffer_stack_top) = 0;
 		return;
@@ -2173,7 +2094,7 @@ static void slice_ensure_buffer_stack (void)
 	if ((yy_buffer_stack_top) >= ((yy_buffer_stack_max)) - 1){
 
 		/* Increase the buffer to prepare for a possible push. */
-		yy_size_t grow_size = 8 /* arbitrary grow size */;
+		int grow_size = 8 /* arbitrary grow size */;
 
 		num_to_alloc = (yy_buffer_stack_max) + grow_size;
 		(yy_buffer_stack) = (struct yy_buffer_state**)slice_realloc
@@ -2193,7 +2114,7 @@ static void slice_ensure_buffer_stack (void)
  * @param base the character buffer
  * @param size the size in bytes of the character buffer
  * 
- * @return the newly allocated buffer state object.
+ * @return the newly allocated buffer state object. 
  */
 YY_BUFFER_STATE slice__scan_buffer  (char * base, yy_size_t  size )
 {
@@ -2203,16 +2124,16 @@ YY_BUFFER_STATE slice__scan_buffer  (char * base, yy_size_t  size )
 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
 	     base[size-1] != YY_END_OF_BUFFER_CHAR )
 		/* They forgot to leave room for the EOB's. */
-		return NULL;
+		return 0;
 
 	b = (YY_BUFFER_STATE) slice_alloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in slice__scan_buffer()" );
 
-	b->yy_buf_size = (int) (size - 2);	/* "- 2" to take care of EOB's */
+	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
 	b->yy_is_our_buffer = 0;
-	b->yy_input_file = NULL;
+	b->yy_input_file = 0;
 	b->yy_n_chars = b->yy_buf_size;
 	b->yy_is_interactive = 0;
 	b->yy_at_bol = 1;
@@ -2232,10 +2153,10 @@ YY_BUFFER_STATE slice__scan_buffer  (char * base, yy_size_t  size )
  * @note If you want to scan bytes that may contain NUL values, then use
  *       slice__scan_bytes() instead.
  */
-YY_BUFFER_STATE slice__scan_string (const char * yystr )
+YY_BUFFER_STATE slice__scan_string (yyconst char * yystr )
 {
     
-	return slice__scan_bytes(yystr,(int) strlen(yystr) );
+	return slice__scan_bytes(yystr,strlen(yystr) );
 }
 
 /** Setup the input buffer state to scan the given bytes. The next call to slice_lex() will
@@ -2245,7 +2166,7 @@ YY_BUFFER_STATE slice__scan_string (const char * yystr )
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE slice__scan_bytes  (const char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE slice__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
@@ -2253,7 +2174,7 @@ YY_BUFFER_STATE slice__scan_bytes  (const char * yybytes, int  _yybytes_len )
 	int i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
-	n = (yy_size_t) (_yybytes_len + 2);
+	n = _yybytes_len + 2;
 	buf = (char *) slice_alloc(n  );
 	if ( ! buf )
 		YY_FATAL_ERROR( "out of dynamic memory in slice__scan_bytes()" );
@@ -2279,9 +2200,9 @@ YY_BUFFER_STATE slice__scan_bytes  (const char * yybytes, int  _yybytes_len )
 #define YY_EXIT_FAILURE 2
 #endif
 
-static void yynoreturn yy_fatal_error (const char* msg )
+static void yy_fatal_error (yyconst char* msg )
 {
-			(void) fprintf( stderr, "%s\n", msg );
+    	(void) fprintf( stderr, "%s\n", msg );
 	exit( YY_EXIT_FAILURE );
 }
 
@@ -2309,7 +2230,7 @@ static void yynoreturn yy_fatal_error (const char* msg )
  */
 int slice_get_lineno  (void)
 {
-    
+        
     return slice_lineno;
 }
 
@@ -2332,7 +2253,7 @@ FILE *slice_get_out  (void)
 /** Get the length of the current token.
  * 
  */
-int slice_get_leng  (void)
+yy_size_t slice_get_leng  (void)
 {
         return slice_leng;
 }
@@ -2347,29 +2268,29 @@ char *slice_get_text  (void)
 }
 
 /** Set the current line number.
- * @param _line_number line number
+ * @param line_number
  * 
  */
-void slice_set_lineno (int  _line_number )
+void slice_set_lineno (int  line_number )
 {
     
-    slice_lineno = _line_number;
+    slice_lineno = line_number;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
- * @param _in_str A readable stream.
+ * @param in_str A readable stream.
  * 
  * @see slice__switch_to_buffer
  */
-void slice_set_in (FILE *  _in_str )
+void slice_set_in (FILE *  in_str )
 {
-        slice_in = _in_str ;
+        slice_in = in_str ;
 }
 
-void slice_set_out (FILE *  _out_str )
+void slice_set_out (FILE *  out_str )
 {
-        slice_out = _out_str ;
+        slice_out = out_str ;
 }
 
 int slice_get_debug  (void)
@@ -2377,9 +2298,9 @@ int slice_get_debug  (void)
         return slice__flex_debug;
 }
 
-void slice_set_debug (int  _bdebug )
+void slice_set_debug (int  bdebug )
 {
-        slice__flex_debug = _bdebug ;
+        slice__flex_debug = bdebug ;
 }
 
 static int yy_init_globals (void)
@@ -2388,10 +2309,10 @@ static int yy_init_globals (void)
      * This function is called from slice_lex_destroy(), so don't allocate here.
      */
 
-    (yy_buffer_stack) = NULL;
+    (yy_buffer_stack) = 0;
     (yy_buffer_stack_top) = 0;
     (yy_buffer_stack_max) = 0;
-    (yy_c_buf_p) = NULL;
+    (yy_c_buf_p) = (char *) 0;
     (yy_init) = 0;
     (yy_start) = 0;
 
@@ -2400,8 +2321,8 @@ static int yy_init_globals (void)
     slice_in = stdin;
     slice_out = stdout;
 #else
-    slice_in = NULL;
-    slice_out = NULL;
+    slice_in = (FILE *) 0;
+    slice_out = (FILE *) 0;
 #endif
 
     /* For future reference: Set errno on error, since we are called by
@@ -2437,19 +2358,18 @@ int slice_lex_destroy  (void)
  */
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char* s1, const char * s2, int n )
+static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )
 {
-		
-	int i;
+	register int i;
 	for ( i = 0; i < n; ++i )
 		s1[i] = s2[i];
 }
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (const char * s )
+static int yy_flex_strlen (yyconst char * s )
 {
-	int n;
+	register int n;
 	for ( n = 0; s[n]; ++n )
 		;
 
@@ -2459,12 +2379,11 @@ static int yy_flex_strlen (const char * s )
 
 void *slice_alloc (yy_size_t  size )
 {
-			return malloc(size);
+	return (void *) malloc( size );
 }
 
 void *slice_realloc  (void * ptr, yy_size_t  size )
 {
-		
 	/* The cast to (char *) in the following accommodates both
 	 * implementations that use char* generic pointers, and those
 	 * that use void* generic pointers.  It works with the latter
@@ -2472,17 +2391,18 @@ void *slice_realloc  (void * ptr, yy_size_t  size )
 	 * any pointer type to void*, and deal with argument conversions
 	 * as though doing an assignment.
 	 */
-	return realloc(ptr, size);
+	return (void *) realloc( (char *) ptr, size );
 }
 
 void slice_free (void * ptr )
 {
-			free( (char *) ptr );	/* see slice_realloc() for (char *) cast */
+	free( (char *) ptr );	/* see slice_realloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
-#line 526 "src/Slice/Scanner.l"
+#line 525 "src/Slice/Scanner.l"
+
 
 
 namespace Slice {

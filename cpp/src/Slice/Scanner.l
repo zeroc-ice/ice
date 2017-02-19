@@ -84,7 +84,6 @@ int checkKeyword(string&);
 %option noyywrap
 %option never-interactive
 %option prefix="slice_"
-%option outfile="lex.yy.c"
 
 identifier      \\?[[:alpha:]_][[:alnum:]_]*
 integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))

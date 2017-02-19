@@ -189,8 +189,11 @@ endef
 define make-flex
 $1/%.cpp: $1/%.l
 	@$(RM) $$@
-	echo '#include <IceUtil/ScannerConfig.h>' >> $$@
-	flex -t $2 $$< >> $$@
+	flex $2 -o $$@ $$<
+	@$(MV) $$@ $$@.tail
+	@echo '#include <IceUtil/ScannerConfig.h>' >> $$@
+	@cat $$@.tail >> $$@
+	@$(RM) $$@.tail
 endef
 
 

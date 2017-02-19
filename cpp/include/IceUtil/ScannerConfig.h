@@ -34,11 +34,4 @@
 #endif
 
 
-//
-// Avoid old style cast warnings in generated scanners
-//
-#ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wold-style-cast"
-#endif
-
 #endif
