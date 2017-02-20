@@ -8,11 +8,16 @@
 #
 # **********************************************************************
 
+#
 # Client properties (plugin is loaded with Ice::registerPluginFactory)
+#
+# NOTE: we use the loopback interface for multicast with IPv6 to prevent failures
+# on some machines which don't really have an IPv6 interface configured.
+#
 props = lambda process, current: {
     "IceDiscovery.Timeout": 50,
     "IceDiscovery.RetryCount": 5,
-    "IceDiscovery.Interface": "127.0.0.1" if not current.config.ipv6 else "\"::1\"" if isinstance(platform, Darwin) else "",
+    "IceDiscovery.Interface": '"::1"' if current.config.ipv6 else "",
     "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
 }
 
