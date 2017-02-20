@@ -270,7 +270,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-        test(query->findAllObjectsByType("Test").size() == count - 1);
+        while(query->findAllObjectsByType("Test").size() != count - 1)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
 
         try
         {
@@ -301,7 +306,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-manual") == IceGrid::Inactive);
-        test(query->findAllObjectsByType("Test").size() == count - 2);
+        while(query->findAllObjectsByType("Test").size() != count - 2)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
 
         test(admin->getServerState("server-always") == IceGrid::Active);
         admin->enableServer("server-always", false);
@@ -324,7 +334,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-always") == IceGrid::Inactive);
-        test(query->findAllObjectsByType("Test").size() == count - 3);
+        while(query->findAllObjectsByType("Test").size() != count - 3)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
 
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", true);
@@ -346,7 +361,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::Inactive);
 
-        test(query->findAllObjectsByType("Test").size() == count - 2);
+        while(query->findAllObjectsByType("Test").size() != count - 2)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
     }
     catch(const Ice::LocalException& ex)
     {
