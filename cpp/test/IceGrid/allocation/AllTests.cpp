@@ -597,7 +597,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->enableServer("ObjectAllocation", false);
         try
         {
-            session1->allocateObjectByType("::Test");
+            while(true)
+            {
+                // The notification of the server being disabled is asynchronous and might
+                // not be visible to the allocation system immediately.
+                session1->allocateObjectByType("::Test");
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            }
             test(false);
         }
         catch(const AllocationException&)
@@ -830,7 +836,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->enableServer("ServerAllocation", false);
         try
         {
-            session1->allocateObjectByType("::TestServer1");
+            while(true)
+            {
+                // The notification of the server being disabled is asynchronous and might
+                // not be visible to the allocation system immediately.
+                session1->allocateObjectByType("::TestServer1");
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            }
             test(false);
         }
         catch(const AllocationException&)
