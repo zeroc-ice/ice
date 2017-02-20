@@ -16,7 +16,7 @@ $1::
 	+@for subdir in $2; \
 	do \
 	    echo "making all in $$$$subdir"; \
-	    ( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \
+	    ( cd $$$$subdir && $(MAKE) -e $1 ) || exit 1; \
 	done
 endef
 
