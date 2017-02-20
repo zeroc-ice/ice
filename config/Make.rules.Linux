@@ -19,13 +19,13 @@ ifneq ($(filter centos rhel fedora,$(linux_id)),)
 supported-platforms     = x64 x86
 multilib-platform	= yes
 
-x64_cppflags            = -m64
-x64_ldflags             = $(x64_cppflags)
+x64_cppflags            := $(if $(filter yes,$(OPTIMIZE)),$(if $(CXXFLAGS),,$(shell rpm --eval %optflags)),-m64)
+x64_ldflags             := $(x64_cppflags) $(if $(filter yes,$(OPTIMIZE)),$(if $(LDFLAGS),,$(shell rpm --eval %?__global_ldflags)))
 x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
 
-x86_cppflags            = -m32
-x86_ldflags             = $(x86_cppflags)
+x86_cppflags            := $(if $(filter yes,$(OPTIMIZE)),$(if $(CXXFLAGS),,$(shell setarch i386 rpm --eval %optflags)),-m32)
+x86_ldflags             := $(x86_cppflags) $(if $(filter yes,$(OPTIMIZE)),$(if $(LDFLAGS),,$(shell setarch i386 rpm --eval %?__global_ldflags)))
 x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 x86_targetname		= $(if $(is-bin-program),32)
 
@@ -42,6 +42,9 @@ supported-platforms     = $(build-platform) $(foreign-platforms)
 
 dpkg-arch 		= $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
 
+opt-cppflags            := $(if $(filter yes,$(OPTIMIZE)),$(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS)))
+opt-ldflags             := $(opt-cppflags) $(if $(filter yes,$(OPTIMIZE)),$(if $(LDFLAGS),,$(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get LDFLAGS)))
+
 # $(call make-platform-config,$1=platform)
 define make-platform-config
 $1_gnu_type	= $(call dpkg-arch,$1,DEB_HOST_GNU_TYPE)
@@ -53,6 +56,9 @@ $1_libtool	= $$($1_gnu_type)-$(AR)
 $1_targetdir 	= /$$($1_multiarch)
 $1_objdir	= /$$($1_multiarch)
 $1_installdir 	= $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
+
+$1_cppflags     = $(opt-cppflags)
+$1_ldflags      = $(opt-ldflags)
 
 $1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)
 endef
@@ -69,6 +75,19 @@ else
 # Single architecture Linux
 #
 supported-platforms     = $(if $(filter x86_64,$(shell uname -m)),x64,x86)
+
+ifneq ($(filter amzn sles,$(linux_id)),)
+x64_cppflags            := $(if $(filter yes,$(OPTIMIZE)),$(if $(CXXFLAGS),,$(shell rpm --eval %optflags)),)
+x64_ldflags             := $(x64_cppflags) $(if $(filter yes,$(OPTIMIZE)),$(if $(LDFLAGS),,$(shell rpm --eval %?__global_ldflags)))
+x86_cppflags            := $(if $(filter yes,$(OPTIMIZE)),$(if $(CXXFLAGS),,$(shell setarch i386 rpm --eval %optflags)))
+x86_ldflags             := $(x86_cppflags) $(if $(filter yes,$(OPTIMIZE)),$(if $(LDFLAGS),,$(shell setarch i386 rpm --eval %?__global_ldflags)))
+else
+x64_cppflags            := $(if $(filter yes,$(OPTIMIZE)),-O2)
+x64_ldflags             := $(x64_cppflags)
+x86_cppflags            := $(if $(filter yes,$(OPTIMIZE)),-O2)
+x86_ldflags             := $(x86_cppflags)
+endif
+
 
 x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
@@ -97,7 +116,7 @@ ifeq ($(MAXWARN),yes)
 endif
 
 ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS    += -O2 -DNDEBUG
+    CXXFLAGS    += -DNDEBUG
 else
     CXXFLAGS    += -g
 endif
