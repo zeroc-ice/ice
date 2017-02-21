@@ -21,7 +21,6 @@ env:
     - CXX=g++-5
     - GCC_COMPILER=yes
     - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
-    - OPTIMIZE=yes
     - LMDB_REVISION=0.9.16
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
