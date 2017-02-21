@@ -882,7 +882,7 @@ subconfigs = $(subst -,$(space),$1)
 
 # $(call var-names,$1=varname,$2=project,$3=component,$4=platform,$5=config)
 var-names = $(if $3,$3[$4-$5]_$1 $3[$4]_$1 $(foreach c,$(call subconfigs,$5),$3[$c]_$1) $3_$1) \
-	    $2[$4-$5]_$1 $2[$4]_$1 $(foreach c,$(call subconfigs,$5),$2[$c]_$1) $2_$1
+	    $2[$4-$5]_$1 $2[$4]_$1 $(foreach c,$(call subconfigs,$5),$2[$c]_$1) $2_$1 $1
 
 #
 # $(call var-value,$1=varname,$2=project,$3=component,$4=platform,$5=config,$6=fn)

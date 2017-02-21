@@ -7,29 +7,30 @@
 #
 # **********************************************************************
 
-supported-platforms     = ppc ppc64
+supported-platforms = ppc ppc64
 
-ppc_cppflags            = -q32 -D_LARGE_FILES
-ppc_ldflags             = $(ppc_cppflags)
-ppc_targetdir           = $(if $(filter %/build,$5),/ppc)
+ppc_cppflags        = -q32 -D_LARGE_FILES
+ppc_ldflags         = $(ppc_cppflags)
+ppc_targetdir       = $(if $(filter %/build,$5),/ppc)
 
-ppc64_cppflags          = -q64
-ppc64_ldflags           = $(ppc64_cppflags)
-ppc64_targetdir         = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
-ppc64_targetname        = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
+ppc64_cppflags      = -q64
+ppc64_ldflags       = $(ppc64_cppflags)
+ppc64_targetdir     = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
+ppc64_targetname    = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
 
-shared_cppflags		= -brtl
+shared_cppflags     = -brtl
 static_targetdir	= $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
 
-CXX             = xlC_r
-CXXFLAGS        += -qrtti=all -qstaticinline -qhalt=i
+platform_cxx        = xlC_r
+platform_ld         = xlC_r
 
-xlc_compiler   := yes
+xlc_compiler        = yes
 
+cppflags            = -qrtti=all -qstaticinline -qhalt=i $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS    += -O2 -DNDEBUG
+    cppflags        += -O2 -DNDEBUG
 else
-    CXXFLAGS    += -g
+    cppflags        += -g
 endif
 
 ifeq ($(embedded_runpath),yes)
@@ -37,7 +38,7 @@ ifeq ($(embedded_runpath),yes)
     # Our default for embedded runpath prefix on AIX is $(prefix)
     #
     ifeq ($(embedded_runpath_prefix),)
-	embedded_runpath_prefix = $(prefix)
+        embedded_runpath_prefix = $(prefix)
     endif
 endif
 

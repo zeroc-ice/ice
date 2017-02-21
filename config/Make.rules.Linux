@@ -26,12 +26,12 @@ opt-cppflags = $(if $(CXXFLAGS),,$(filter-out -m32 -m64,$(shell setarch $1 rpm -
 opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
 endif
 
-x64_cppflags            := $(call opt-cppflags,x86_64) $(if $(filter -m64,$(CXXFLAGS)),,-m64)
+x64_cppflags            := $(call opt-cppflags,x86_64) -m64
 x64_ldflags             := $(x64_cppflags) $(call opt-ldflags,x86_64)
 x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
 
-x86_cppflags            := $(call opt-cppflags,i386) $(if $(filter -m32,$(CXXFLAGS)),,-m32)
+x86_cppflags            := $(call opt-cppflags,i386) -m32
 x86_ldflags             := $(x86_cppflags) $(call opt-ldflags,i386)
 x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 x86_targetname		= $(if $(is-bin-program),32)
@@ -119,17 +119,10 @@ shared_ldflags	    = $(if $(filter-out program,$($1_target)),\
         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
 	$$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-CXXFLAGS        += -Wall -Wdeprecated -Werror -pthread
-LDFLAGS         += -pthread
-
+cppflags        = -Wall -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+ldflags         = -pthread
 ifeq ($(MAXWARN),yes)
-    CXXFLAGS    += -Wextra -Wshadow -Wredundant-decls
-endif
-
-ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS    += -DNDEBUG
-else
-    CXXFLAGS    += -g
+    cppflags    += -Wextra -Wshadow -Wredundant-decls
 endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
