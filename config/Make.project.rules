@@ -880,10 +880,8 @@ mappingdir  	= $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top
 # $(call subconfigs,$1=config)
 subconfigs = $(subst -,$(space),$1)
 
-# $(call var-names,$1=varname,$2=project,$3=component,$4=platform,$5=config)
-var-names = $1 \
-	    $2[$4-$5]_$1 $2[$4]_$1 $(foreach c,$(call subconfigs,$5),$2[$c]_$1) $2_$1 \
-	    $(if $3,$3[$4-$5]_$1 $3[$4]_$1 $(foreach c,$(call subconfigs,$5),$3[$c]_$1) $3_$1)
+# $(call var-names,$1=varname,$2=comp,$3=platform,$4=config)
+var-names = $(if $2,$2[$3-$4]_$1 $2[$3]_$1 $(foreach c,$(call subconfigs,$4),$2[$c]_$1) $2_$1)
 
 #
 # $(call var-value,$1=varname,$2=project,$3=component,$4=platform,$5=config,$6=fn)
@@ -895,14 +893,16 @@ var-names = $1 \
 #
 var-valu1 = $(if $(and $1,$(filter undefined,$(origin $(firstword $1)))),$(call var-valu1,$(wordlist 2,$(words $1),$1)),$($(firstword $1)))
 var-valu2 = $6
-var-value = $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(call var-valu1,$(var-names)))
+var-value-names = $(call var-names,$1,$3,$4,$5) $(call var-names,$1,$2,$4,$5) $1
+var-value = $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(call var-valu1,$(var-value-names)))
 
 #
 # $(call var-compound,$1=varname,$2=project,$3=component,$4=platform,$5=config,$6=fn)
 # Returns the combination of all the values for the given variable name defined at the
-# project/component /platform/configuration level.
+# project/component/platform/configuration level.
 #
-var-compound 	= $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(strip $(foreach v,$(var-names),$($v))))
+var-comp-names  = $1 $(call var-names,$1,$2,$4,$5) $(call var-names,$1,$3,$4,$5)
+var-compound 	= $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(strip $(foreach v,$(var-comp-names),$($v))))
 
 #
 # Return the given value after applying platform/configuration customization.
