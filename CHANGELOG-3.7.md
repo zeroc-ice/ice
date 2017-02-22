@@ -152,8 +152,8 @@ These are the changes since Ice 3.6.3.
 
 - IcePatch2 and IceGrid's distribution mechanism have been deprecated.
 
-- Update IceSSL hostname verification to use the SSL platform engine native
-  checks.
+- Updated IceSSL hostname verification (enabled with IceSSL.CheckCertName) to
+  use the native checks of the platform SSL implementation.
 
 ## C++ Changes
 

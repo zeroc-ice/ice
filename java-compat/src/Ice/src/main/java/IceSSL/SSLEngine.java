@@ -840,8 +840,10 @@ class SSLEngine
             // Disable SSLv3
             //
             List<String> protocols = new ArrayList<String>(java.util.Arrays.asList(engine.getEnabledProtocols()));
-            protocols.remove("SSLv3");
-            engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+            if(protocols.remove("SSLv3"))
+            {
+                engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+            }
         }
 
 

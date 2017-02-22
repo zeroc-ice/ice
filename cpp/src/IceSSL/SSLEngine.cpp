@@ -142,6 +142,7 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
     if(_checkCertName && !info->nativeCerts.empty() && !address.empty())
     {
         const CertificatePtr cert = info->nativeCerts[0];
+
         //
         // Extract the IP addresses and the DNS names from the subject
         // alternative names.
@@ -162,13 +163,12 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
         }
 
         bool certNameOK = false;
-        string dn;
-        bool isIpAddress = IceInternal::isIpAddress(address);
         string addrLower = IceUtilInternal::toLower(address);
+
         //
-        // If address is and IP address compare it to the subject alt name IP adddress
+        // If address is an IP address, compare it to the subject alternative names IP adddress
         //
-        if(isIpAddress)
+        if(IceInternal::isIpAddress(address))
         {
             certNameOK = find(ipAddresses.begin(), ipAddresses.end(), addrLower) != ipAddresses.end();
         }
@@ -181,7 +181,7 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
             if(dnsNames.empty())
             {
                 DistinguishedName d = cert->getSubjectDN();
-                dn = IceUtilInternal::toLower(string(d));
+                string dn = IceUtilInternal::toLower(string(d));
                 string cn = "cn=" + addrLower;
                 string::size_type pos = dn.find(cn);
                 if(pos != string::npos)
@@ -194,35 +194,24 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
             }
             else
             {
-                certNameOK = find(dnsNames.begin(), dnsNames.end(), addrLower) != dnsNames.end();                
+                certNameOK = find(dnsNames.begin(), dnsNames.end(), addrLower) != dnsNames.end();
             }
         }
 
         if(!certNameOK)
         {
             ostringstream ostr;
-            ostr << "IceSSL: certificate validation failure: ";
-            if(isIpAddress)
-            {
-                ostr << "IP address mismatch";
-            }
-            else
-            {
-                ostr << "Hostname mismatch";
-            }
-
+            ostr << "IceSSL: certificate validation failure: "
+                 << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
             string msg = ostr.str();
             if(_securityTraceLevel >= 1)
             {
                 Trace out(_logger, _securityTraceCategory);
                 out << msg;
             }
-            if(_checkCertName)
-            {
-                SecurityException ex(__FILE__, __LINE__);
-                ex.reason = msg;
-                throw ex;
-            }
+            SecurityException ex(__FILE__, __LINE__);
+            ex.reason = msg;
+            throw ex;
         }
     }
 #endif

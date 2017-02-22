@@ -563,7 +563,7 @@ namespace IceSSL
                             message = message + "\nuntrusted root certificate (ignored)";
                             _verified = false;
                         }
-                        errors = (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                     else
                     {

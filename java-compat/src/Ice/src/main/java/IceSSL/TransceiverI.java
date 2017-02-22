@@ -63,33 +63,32 @@ final class TransceiverI implements IceInternal.Transceiver
             return status;
         }
 
-        if(_engine != null)
+        assert(_engine != null);
+
+        SSLSession session = _engine.getSession();
+        _cipher = session.getCipherSuite();
+        try
         {
-            SSLSession session = _engine.getSession();
-            _cipher = session.getCipherSuite();
-            try
+            java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
+            java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
+            _verified = vcerts != null;
+            _nativeCerts = _verified ? vcerts : pcerts;
+            java.util.ArrayList<String> certs = new java.util.ArrayList<>();
+            for(java.security.cert.Certificate c : _nativeCerts)
             {
-                java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
-                java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
-                _verified = vcerts != null;
-                _nativeCerts = _verified ? vcerts : pcerts;
-                java.util.ArrayList<String> certs = new java.util.ArrayList<>();
-                for(java.security.cert.Certificate c : _nativeCerts)
-                {
-                    StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
-                    s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
-                    s.append("\n-----END CERTIFICATE-----");
-                    certs.add(s.toString());
-                }
-                _certs = certs.toArray(new String[certs.size()]);
+                StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
+                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
+                s.append("\n-----END CERTIFICATE-----");
+                certs.add(s.toString());
             }
-            catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-            {
-                // No peer certificates.
-            }
-            catch(java.security.cert.CertificateEncodingException ex)
-            {
-            }
+            _certs = certs.toArray(new String[certs.size()]);
+        }
+        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+        {
+            // No peer certificates.
+        }
+        catch(java.security.cert.CertificateEncodingException ex)
+        {
         }
 
         //

@@ -30,7 +30,7 @@ using namespace Windows::Security::Cryptography::Certificates;
 
 namespace
 {
-    
+
 std::string
 validationResultToString(ChainValidationResult result)
 {
@@ -143,7 +143,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 params->CurrentTimeValidationEnabled = true;
                 params->NetworkRetrievalEnabled = false;
                 params->RevocationCheckEnabled = false;
-                
+
                 //
                 // BUGFIX: It is currently not possible to set ExclusiveTrustRoots programatically
                 // it is causing a read access exception see:https://goo.gl/B6OaNx
@@ -163,10 +163,6 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 }
 
                 ChainValidationResult result = _chain->Validate();
-                //
-                // Ignore InvalidName errors here SSLEngine::verifyPeer already checks that
-                // using IceSSL.CheckCertName settings.
-                //
                 if(result != ChainValidationResult::Success)
                 {
                     if(_engine->getVerifyPeer() == 0)
