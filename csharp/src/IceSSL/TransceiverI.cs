@@ -610,8 +610,11 @@ namespace IceSSL
                     message = "SSL certificate validation failed - Hostname mismatch";
                     return false;
                 }
+                else
+                {
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                }
             }
-
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
                 _chain.ChainStatus != null && _chain.ChainStatus.Length > 0)

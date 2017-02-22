@@ -1386,6 +1386,55 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
             fact->destroyServer(server);
             comm->destroy();
+
+            //
+            // Target host does not match the certificate DNS altName, connection should succeed
+            // because IceSSL.VerifyPeer is set to 0.
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
+
+            //
+            // Target host does not match the certificate DNS altName, connection should succeed
+            // because IceSSL.CheckCertName is set to 0.
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "0");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
         }
     }
     cout << "ok" << endl;

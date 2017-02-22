@@ -797,16 +797,6 @@ class SSLEngine
         }
         engine.setUseClientMode(!incoming);
 
-        //
-        // Enable the HTTPS hostname verification algorithm
-        //
-        if(_checkCertName)
-        {
-            SSLParameters params = new SSLParameters();
-            params.setEndpointIdentificationAlgorithm("HTTPS");
-            engine.setSSLParameters(params);
-        }
-
         String[] cipherSuites = filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());
         try
         {
@@ -867,6 +857,18 @@ class SSLEngine
             else
             {
                 engine.setNeedClientAuth(true);
+            }
+        }
+        else
+        {
+            //
+            // Enable the HTTPS hostname verification algorithm
+            //
+            if(_checkCertName && _verifyPeer > 0)
+            {
+                SSLParameters params = new SSLParameters();
+                params.setEndpointIdentificationAlgorithm("HTTPS");
+                engine.setSSLParameters(params);
             }
         }
 

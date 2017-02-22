@@ -759,6 +759,32 @@ public class AllTests
                         fact.destroyServer(server);
                         comm.destroy();
                     }
+
+                    //
+                    // Target host does not match the certificate DNS altName, connection should succeed
+                    // because IceSSL.CheckCertName is set to 0.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "0");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
                 }
             }
             Console.Out.WriteLine("ok");

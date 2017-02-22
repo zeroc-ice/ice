@@ -210,9 +210,13 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
                 Trace out(_logger, _securityTraceCategory);
                 out << msg;
             }
-            SecurityException ex(__FILE__, __LINE__);
-            ex.reason = msg;
-            throw ex;
+
+            if(_verifyPeer > 0)
+            {
+                SecurityException ex(__FILE__, __LINE__);
+                ex.reason = msg;
+                throw ex;
+            }
         }
     }
 #endif
