@@ -164,11 +164,12 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoP
 
         bool certNameOK = false;
         string addrLower = IceUtilInternal::toLower(address);
+        bool isIpAddress = IceInternal::isIpAddress(address);
 
         //
         // If address is an IP address, compare it to the subject alternative names IP adddress
         //
-        if(IceInternal::isIpAddress(address))
+        if(isIpAddress)
         {
             certNameOK = find(ipAddresses.begin(), ipAddresses.end(), addrLower) != ipAddresses.end();
         }
