@@ -858,7 +858,7 @@ class SSLEngine
             //
             // Enable the HTTPS hostname verification algorithm
             //
-            if(_checkCertName && _verifyPeer > 0)
+            if(_checkCertName && _verifyPeer > 0 && host != null)
             {
                 SSLParameters params = new SSLParameters();
                 params.setEndpointIdentificationAlgorithm("HTTPS");

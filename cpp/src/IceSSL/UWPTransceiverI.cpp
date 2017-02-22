@@ -255,7 +255,10 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
         //
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Expired);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::IncompleteChain);
-        if(!_engine->getCheckCertName())
+        //
+        // Check if we need to enable host name verification
+        //
+        if(!_engine->getCheckCertName() || _host.empty())
         {
             stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::InvalidName);
         }
@@ -293,7 +296,22 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
         {
             if(CERT_E_CN_NO_MATCH == asyncInfo->error)
             {
-                throw SecurityException(__FILE__, __LINE__, "Hostname mismatch");
+                ostringstream ostr;
+                ostr << "IceSSL: certificate validation failure: "
+                     << (IceInternal::isIpAddress(_host) ? "IP address mismatch" : "Hostname mismatch");
+                string msg = ostr.str();
+                if(_engine->securityTraceLevel() >= 1)
+                {
+                    Trace out(_logger, _securityTraceCategory);
+                    out << msg;
+                }
+
+                if(_engine->getVerifyPeer() > 0)
+                {
+                    SecurityException ex(__FILE__, __LINE__);
+                    ex.reason = msg;
+                    throw ex;
+                }
             }
             IceInternal::checkErrorCode(__FILE__, __LINE__, asyncInfo->error);
         }

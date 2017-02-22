@@ -605,9 +605,13 @@ namespace IceSSL
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
             {
-                if(_instance.engine().getCheckCertName())
+                if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
                 {
-                    message = "SSL certificate validation failed - Hostname mismatch";
+                    if(_instance.securityTraceLevel() >= 1)
+                    {
+                        _instance.logger().trace(_instance.securityTraceCategory(),
+                                      "SSL certificate validation failed - Hostname mismatch");
+                    }
                     return false;
                 }
                 else
