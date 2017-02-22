@@ -3056,3 +3056,19 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     }
 }
 #endif
+
+
+bool
+IceInternal::isIpAddress(const string& name)
+{
+#ifdef ICE_OS_UWP
+     HostName^ hostname = ref new HostName(ref new String(stringToWstring(name,
+                                                          getProcessStringConverter()).c_str()));
+     return hostname->Type == HostNameType::Ipv4 || hostname->Type == HostNameType::Ipv6;
+#else
+    in_addr addr;
+    in6_addr addr6;
+    
+    return inet_pton(AF_INET, name.c_str(), &addr) > 0 || inet_pton(AF_INET6, name.c_str(), &addr6) > 0;
+#endif
+}

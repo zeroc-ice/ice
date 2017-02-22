@@ -15,9 +15,9 @@ except:
     sys.exit(1)
 
 toplevel="."
-while(toplevel != "/"):
+while(os.path.abspath(toplevel) != "/"):
     toplevel = os.path.normpath(os.path.join("..", toplevel))
-    if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "scripts", "Util.py")):
         break
 else:
     raise RuntimeError("can't find toplevel directory!")
@@ -78,8 +78,14 @@ certs = [
     (ca1, "c_rsa_ca1", None, {}),
     (ca1, "s_rsa_ca1_exp", None, {}), # Expired certificate
     (ca1, "c_rsa_ca1_exp", None, {}), # Expired certificate
-    (ca1, "s_rsa_ca1_cn1", None, {}), # No subjectAltName, CN=127.0.0.1
-    (ca1, "s_rsa_ca1_cn2", None, {}), # No subjectAltName, CN=127.0.0.11
+    (ca1, "s_rsa_ca1_cn1", None, {}),
+    (ca1, "s_rsa_ca1_cn2", None, {}),
+    (ca1, "s_rsa_ca1_cn3", None, {}),
+    (ca1, "s_rsa_ca1_cn4", None, {}),
+    (ca1, "s_rsa_ca1_cn5", None, {}),
+    (ca1, "s_rsa_ca1_cn6", None, {}),
+    (ca1, "s_rsa_ca1_cn7", None, {}),
+    (ca1, "s_rsa_ca1_cn8", None, {}),
     (ca2, "s_rsa_ca2", None, {}),
     (ca2, "c_rsa_ca2", None, {}),
     (cai1, "s_rsa_cai1", None, {}),

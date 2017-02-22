@@ -1165,14 +1165,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         comm->destroy();
 
         //
-        // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
-        // as the common name or as a subject alternative name, so we only perform this test when
-        // the default host is "127.0.0.1".
+        // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
+        // as that is the IP address used in the test certificates.
         //
         if(defaultHost == "127.0.0.1")
         {
             //
-            // Test subject alternative name.
+            // Test using localhost as target host
+            //
+            Ice::PropertiesPtr props = defaultProps->clone();
+            props->setProperty("Ice.Default.Host", "localhost");
+
+            //
+            // Target host matches the certificate DNS altName
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
@@ -1180,21 +1185,22 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
-            d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
+            d = createServerProps(props, p12, "s_rsa_ca1_cn1", "cacert1");
             server = fact->createServer(d);
             try
             {
                 server->ice_ping();
             }
-            catch(const LocalException&)
+            catch(const Ice::LocalException&)
             {
                 test(false);
             }
+
             fact->destroyServer(server);
             comm->destroy();
-
+            
             //
-            // Test common name.
+            // Target host does not match the certificate DNS altName
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
@@ -1202,23 +1208,24 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
-            d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn1", "cacert1");
+            d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
             server = fact->createServer(d);
             try
             {
                 server->ice_ping();
-            }
-            catch(const LocalException& ex)
-            {
-                cerr << ex << endl;
                 test(false);
             }
+            catch(const Ice::SecurityException&)
+            {
+                // Expected
+            }
+
             fact->destroyServer(server);
             comm->destroy();
-
+            
             //
-            // Test common name again. The certificate used in this test has "127.0.0.11" as its
-            // common name, therefore the address "127.0.0.1" must NOT match.
+            // Target host matches the certificate Common Name and the certificate does not
+            // include a DNS altName
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
@@ -1226,17 +1233,157 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
-            d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn2", "cacert1");
+            d = createServerProps(props, p12, "s_rsa_ca1_cn3", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
+            
+            //
+            // Target host does not match the certificate Common Name and the certificate does not
+            // include a DNS altName
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(props, p12, "s_rsa_ca1_cn4", "cacert1");
             server = fact->createServer(d);
             try
             {
                 server->ice_ping();
                 test(false);
             }
-            catch(const LocalException&)
+            catch(const Ice::SecurityException&)
             {
-                // Expected.
+                // Expected
             }
+
+            fact->destroyServer(server);
+            comm->destroy();
+            
+            //
+            // Target host matches the certificate Common Name and the certificate has
+            // a DNS altName that does not matches the target host
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(props, p12, "s_rsa_ca1_cn5", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch(const Ice::SecurityException&)
+            {
+                // Expected
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
+            
+            //
+            // Test using 127.0.0.1 as target host
+            //
+            
+            //
+            // Target host matches the certificate IP altName
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn6", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
+            
+            //
+            // Target host does not match the certificate IP altName
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn7", "cacert1");
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch(const Ice::SecurityException&)
+            {
+                // Expected
+            }
+
+            fact->destroyServer(server);
+            comm->destroy();
+            
+            //
+            // Target host is an IP addres that matches the CN and the certificate doesn't
+            // include an IP altName.
+            //
+            // UWP and SecureTransport implementation the target IP will match with the Certificate 
+            // CN and the test will pass. With other implementations IP address is only match with 
+            // the Certificate IP altName and the test will fail.
+            //
+            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn8", "cacert1");
+            server = fact->createServer(d);
+#if defined(ICE_OS_UWP) || defined(ICE_USE_SECURE_TRANSPORT)
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                test(false);
+            }
+#else
+            try
+            {
+                server->ice_ping();
+                test(false);
+            }
+            catch(const Ice::SecurityException&)
+            {
+                // Expected
+            }
+#endif
             fact->destroyServer(server);
             comm->destroy();
         }

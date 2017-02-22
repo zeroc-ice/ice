@@ -152,6 +152,9 @@ These are the changes since Ice 3.6.3.
 
 - IcePatch2 and IceGrid's distribution mechanism have been deprecated.
 
+- Update IceSSL hostname verification to use the SSL platform engine native
+  checks.
+
 ## C++ Changes
 
 - The Ice::Communicator and Ice::ObjectAdapter destroy methods are now

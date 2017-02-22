@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.security.cert.*;
+import javax.net.ssl.SSLParameters;
 import com.zeroc.Ice.PluginInitializationException;
 
 class SSLEngine
@@ -796,6 +797,16 @@ class SSLEngine
         }
         engine.setUseClientMode(!incoming);
 
+        //
+        // Enable the HTTPS hostname verification algorithm
+        //
+        if(_checkCertName)
+        {
+            SSLParameters params = new SSLParameters();
+            params.setEndpointIdentificationAlgorithm("HTTPS");
+            engine.setSSLParameters(params);
+        }
+
         String[] cipherSuites = filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());
         try
         {
@@ -835,8 +846,10 @@ class SSLEngine
             // Disable SSLv3
             //
             List<String> protocols = new ArrayList<>(java.util.Arrays.asList(engine.getEnabledProtocols()));
-            protocols.remove("SSLv3");
-            engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+            if(protocols.remove("SSLv3"))
+            {
+                engine.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+            }
         }
 
 
@@ -972,140 +985,6 @@ class SSLEngine
             if(_verifyPeer > 0 && !info.verified)
             {
                 throw new com.zeroc.Ice.SecurityException("IceSSL: server did not supply a certificate");
-            }
-        }
-
-        //
-        // For an outgoing connection, we compare the proxy address (if any) against
-        // fields in the server's certificate (if any).
-        //
-        if(info.nativeCerts != null && info.nativeCerts.length > 0 && address.length() > 0)
-        {
-            X509Certificate cert = (X509Certificate)info.nativeCerts[0];
-
-            //
-            // Extract the IP addresses and the DNS names from the subject
-            // alternative names.
-            //
-            java.util.ArrayList<String> ipAddresses = new java.util.ArrayList<>();
-            java.util.ArrayList<String> dnsNames = new java.util.ArrayList<>();
-            try
-            {
-                java.util.Collection<java.util.List<?> > subjectAltNames = cert.getSubjectAlternativeNames();
-                if(subjectAltNames != null)
-                {
-                    for(java.util.List<?> l : subjectAltNames)
-                    {
-                        assert(!l.isEmpty());
-                        Integer n = (Integer)l.get(0);
-                        if(n.intValue() == 7)
-                        {
-                            ipAddresses.add((String)l.get(1));
-                        }
-                        else if(n.intValue() == 2)
-                        {
-                            dnsNames.add(((String)l.get(1)).toLowerCase());
-                        }
-                    }
-                }
-            }
-            catch(CertificateParsingException ex)
-            {
-                assert(false);
-            }
-
-            //
-            // Compare the peer's address against the common name as well as
-            // the dnsName and ipAddress values in the subject alternative name.
-            //
-            boolean certNameOK = false;
-            String dn = "";
-            String addrLower = address.toLowerCase();
-            {
-                javax.security.auth.x500.X500Principal principal = cert.getSubjectX500Principal();
-                dn = principal.getName(javax.security.auth.x500.X500Principal.CANONICAL);
-                //
-                // Canonical format is already in lower case.
-                //
-                String cn = "cn=" + addrLower;
-                int pos = dn.indexOf(cn);
-                if(pos >= 0)
-                {
-                    //
-                    // Ensure we match the entire common name.
-                    //
-                    certNameOK = (pos + cn.length() == dn.length()) || (dn.charAt(pos + cn.length()) == ',');
-                }
-            }
-
-            //
-            // Compare the peer's address against the dnsName and ipAddress
-            // values in the subject alternative name.
-            //
-            if(!certNameOK)
-            {
-                certNameOK = ipAddresses.contains(addrLower);
-            }
-            if(!certNameOK)
-            {
-                certNameOK = dnsNames.contains(addrLower);
-            }
-
-            //
-            // Log a message if the name comparison fails. If CheckCertName is defined,
-            // we also raise an exception to abort the connection. Don't log a message if
-            // CheckCertName is not defined and a verifier is present.
-            //
-            if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
-            {
-                StringBuilder sb = new StringBuilder(128);
-                sb.append("IceSSL: ");
-                if(!_checkCertName)
-                {
-                    sb.append("ignoring ");
-                }
-                sb.append("certificate validation failure:\npeer certificate does not have `");
-                sb.append(address);
-                sb.append("' as its commonName or in its subjectAltName extension");
-                if(dn.length() > 0)
-                {
-                    sb.append("\nSubject DN: ");
-                    sb.append(dn);
-                }
-                if(!dnsNames.isEmpty())
-                {
-                    sb.append("\nDNS names found in certificate: ");
-                    for(int j = 0; j < dnsNames.size(); ++j)
-                    {
-                        if(j > 0)
-                        {
-                            sb.append(", ");
-                        }
-                        sb.append(dnsNames.get(j));
-                    }
-                }
-                if(!ipAddresses.isEmpty())
-                {
-                    sb.append("\nIP addresses found in certificate: ");
-                    for(int j = 0; j < ipAddresses.size(); ++j)
-                    {
-                        if(j > 0)
-                        {
-                            sb.append(", ");
-                        }
-                        sb.append(ipAddresses.get(j));
-                    }
-                }
-                if(_securityTraceLevel >= 1)
-                {
-                    _logger.trace(_securityTraceCategory, sb.toString());
-                }
-                if(_checkCertName)
-                {
-                    com.zeroc.Ice.SecurityException ex = new com.zeroc.Ice.SecurityException();
-                    ex.reason = sb.toString();
-                    throw ex;
-                }
             }
         }
 

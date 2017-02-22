@@ -117,12 +117,11 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
             throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
         }
 
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+        //
+        // Add SSL trust policy if we need to check the certificate name.
+        //
         if(engine->getCheckCertName() && !host.empty())
         {
-            //
-            // Add SSL trust policy if we need to check the certificate name.
-            //
             UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(false, toCFString(host)));
             UniqueRef<CFArrayRef> policies;
             if((err = SecTrustCopyPolicies(trust, &policies.get())))
@@ -136,7 +135,6 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
             }
         }
-#endif
 
         //
         // Evaluate the trust

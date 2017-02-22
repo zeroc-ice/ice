@@ -368,6 +368,9 @@ ICE_API void runSync(Windows::Foundation::IAsyncAction^ action);
 ICE_API void doConnectAsync(SOCKET, const Address&, const Address&, AsyncInfo&);
 ICE_API void doFinishConnectAsync(SOCKET, AsyncInfo&);
 #endif
+
+ICE_API bool isIpAddress(const std::string&);
+
 }
 
 #endif

@@ -547,7 +547,7 @@ namespace IceSSL
                 _chain.Build(new X509Certificate2(certificate));
                 if(_chain.ChainStatus != null && _chain.ChainStatus.Length > 0)
                 {
-                    errors = (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                 }
                 else if(_instance.engine().caCerts() != null)
                 {
@@ -605,10 +605,11 @@ namespace IceSSL
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
             {
-                //
-                // Ignore this error here; we'll check the peer certificate in verifyPeer().
-                //
-                errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                if(_instance.engine().getCheckCertName())
+                {
+                    message = "SSL certificate validation failed - Hostname mismatch";
+                    return false;
+                }
             }
 
 

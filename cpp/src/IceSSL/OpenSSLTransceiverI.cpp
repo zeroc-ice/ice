@@ -20,6 +20,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
+#include <Ice/Network.h>
 
 #ifdef ICE_USE_OPENSSL
 
@@ -97,9 +98,6 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
     if(!_ssl)
     {
-        //
-        // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
-        //
         SOCKET fd = _delegate->getNativeInfo()->fd();
         if(fd == INVALID_SOCKET)
         {
@@ -154,6 +152,25 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                     assert(false);
                 }
             }
+
+            //
+            // Hostname verification was included in OpenSSL 1.0.2
+            //
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10002000L
+            if(_engine->getCheckCertName() && !_host.empty() && (sslVerifyMode & SSL_VERIFY_PEER))
+            {
+                X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
+                if(IceInternal::isIpAddress(_host))
+                {
+                    X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str());
+                }
+                else
+                {
+                    X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0);
+                }
+            }
+#endif
+            
             SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
         }
     }

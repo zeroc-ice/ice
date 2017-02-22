@@ -167,7 +167,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 // Ignore InvalidName errors here SSLEngine::verifyPeer already checks that
                 // using IceSSL.CheckCertName settings.
                 //
-                if(result != ChainValidationResult::InvalidName && result != ChainValidationResult::Success)
+                if(result != ChainValidationResult::Success)
                 {
                     if(_engine->getVerifyPeer() == 0)
                     {
@@ -259,7 +259,10 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
         //
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Expired);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::IncompleteChain);
-        stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::InvalidName);
+        if(!_engine->getCheckCertName())
+        {
+            stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::InvalidName);
+        }
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::RevocationFailure);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::RevocationInformationMissing);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Untrusted);
@@ -292,6 +295,10 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
         IceInternal::AsyncInfo* asyncInfo = getNativeInfo()->getAsyncInfo(IceInternal::SocketOperationWrite);
         if(asyncInfo->count == SOCKET_ERROR)
         {
+            if(CERT_E_CN_NO_MATCH == asyncInfo->error)
+            {
+                throw SecurityException(__FILE__, __LINE__, "Hostname mismatch");
+            }
             IceInternal::checkErrorCode(__FILE__, __LINE__, asyncInfo->error);
         }
         return;
