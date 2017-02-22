@@ -9,10 +9,14 @@
     <Platform>Win32</Platform>
   </PropertyGroup>
 
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
+  <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v141'">
+    <Cpp11Compiler>yes</Cpp11Compiler>
+  </PropertyGroup>
+
   <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+
 
   <!--
       Restore Nuget packages.
@@ -94,8 +98,8 @@
         </TestSolution>
       </ItemGroup>
 
-      <!-- Ice for C++ test configurations (C++11 mapping) requires v140 -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <!-- Ice for C++ test configurations (C++11 mapping) requires a C++11 compiler -->
+      <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
         <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
         </TestSolution>
@@ -110,8 +114,8 @@
         </TestSolution>
       </ItemGroup>
 
-      <!-- Ice for UWP test configurations (C++11 mapping) requires v140 -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <!-- Ice for UWP test configurations (C++11 mapping) requires a C++11 compiler -->
+      <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
         <UWPTestSolution Include="ice.testuwp.sln">
           <Properties>Configuration=Debug;Platform=Win32</Properties>
         </UWPTestSolution>
@@ -145,13 +149,13 @@
       </ItemGroup>
 
       <!-- Ice for C++ test configurations (C++11 mapping) requires v140 -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' != 'ARM'">
+      <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes' and '$(Platform)' != 'ARM'">
         <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
         </TestSolution>
       </ItemGroup>
 
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </UWPDistSolution>
@@ -162,7 +166,7 @@
       </ItemGroup>
             
       <!-- Ice for ARM builds require the Win32 Slice compiler -->
-      <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140' and '$(Platform)' == 'ARM'">
+      <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes' and '$(Platform)' == 'ARM'">
         <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
           <Properties>Configuration=$(Configuration);Platform=Win32</Properties>
         </DistSolution>
