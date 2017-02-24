@@ -535,7 +535,7 @@ $2_sliceflags :=
 endif
 
 $2_install_platforms	:= $$(or $$($2_install_platforms),$$($1_install_platforms),$$($2_platforms))
-$2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs) $$($2_always_enable_configs))
+$2_install_configs	:= $$(or $$($2_install_configs),$$($1_install_configs),$$($2_configs))
 
 #
 # The source directory can be set at the component or project level.
@@ -807,10 +807,16 @@ $1_targetdir	:= $(call bindir,$1)
 #
 # Only build the translator with the static configuration
 #
-$1_configs	:= static
-$1_platforms    := $(build-platform)
-$(notdir $1)_always_enable_configs := static
-$(notdir $1)_always_enable_platforms := $(build-platform)
+$1_configs		:= static
+
+# Make sure the static/$(build-platform) are always enabled, the native translators
+# are required to build the sources for foreign architectures
+$(notdir $1)_always_enable_configs 	:= static
+$(notdir $1)_always_enable_platforms 	:= $(build-platform)
+
+# However, don't always install the translator for the $(build-platforms) if it's
+# not explicitly listed in $(PLATFORMS)
+$1_install_platforms	:= $(call component-platforms,$1,$(notdir $1))
 
 #
 # Defines the target extension and path of the slice translator
@@ -818,7 +824,7 @@ $(notdir $1)_always_enable_platforms := $(build-platform)
 # on the translator for slice files.
 #
 $(notdir $1)_targetext	:= $$(or $$($(notdir $1)_targetext),$(patsubst slice2%,%,$(or $2,$(notdir $1))))
-$(notdir $1)_path 	= $$($(notdir $1)[$$(firstword $$(supported-platforms))-static]_targetdir)/$(notdir $1)
+$(notdir $1)_path 	= $$($(notdir $1)[$(build-platform)-static]_targetdir)/$(notdir $1)
 
 projects 	+= $(project)
 endef

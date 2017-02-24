@@ -36,6 +36,9 @@ x86_ldflags             := $(x86_cppflags) $(call opt-ldflags,i386)
 x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 x86_targetname		= $(if $(is-bin-program),32)
 
+# No Slice translators for x86
+x86_excludes		= slice2%
+
 else ifneq ($(filter debian ubuntu,$(linux_id)),)
 
 #
@@ -69,8 +72,6 @@ $1_installdir 	= $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_mult
 
 $1_cppflags	= $(opt-cppflags)
 $1_ldflags	= $(opt-ldflags)
-
-$1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)
 endef
 
 $(foreach p,$(supported-platforms),$(eval $(call make-platform-config,$p)))
