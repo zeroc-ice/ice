@@ -96,18 +96,18 @@ include	$(top_srcdir)/config/Make.tests.rules
 
 ifneq ($(ICE_BIN_DIST),)
 prefix 			:= $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
-bindir			?= $(install_bindir)
-libdir			?= $(install_libdir)
-slicedir 		?= $(install_slicedir)
-includedir		?= $(install_includedir)
+bindir			= $(install_bindir)
+libdir			= $(install_libdir)
+slicedir 		= $(install_slicedir)
+includedir		= $(install_includedir)
 else
-bindir			?= $(call mappingdir,$(or $1,$(currentdir)),bin)
-libdir			?= $(call mappingdir,$(or $1,$(currentdir)),lib)
-slicedir		?= $(top_srcdir)/slice
-includedir		?= $(call mappingdir,$(or $1,$(currentdir)),include)
+bindir			= $(call mappingdir,$(or $1,$(currentdir)),bin)
+libdir			= $(call mappingdir,$(or $1,$(currentdir)),lib)
+slicedir		= $(top_srcdir)/slice
+includedir		= $(call mappingdir,$(or $1,$(currentdir)),include)
 endif
 
-srcdir 			?= $(call mappingdir,$(or $1,$(currentdir)),src)
+srcdir 			= $(call mappingdir,$(or $1,$(currentdir)),src)
 
 usr_dir_install		:= $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
 install_bindir	  	?= $(prefix)/bin

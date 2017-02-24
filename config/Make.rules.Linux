@@ -11,7 +11,31 @@ linux_id		= $(shell . /etc/os-release && echo $${ID})
 
 is-bin-program		= $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
-ifneq ($(filter centos rhel fedora,$(linux_id)),)
+ifneq ($(OECORE_SDK_VERSION),)
+
+build-platform                  = $(if $(filter x86_64,$(shell uname -m)),x64,x86)
+target-platform                 = $(shell echo $(CXX) | sed -r 's/^([a-z0-9]+)-.*/\1/')
+supported-platforms             = $(target-platform) $(build-platform)
+linux_id                        = yocto
+
+$(build-platform)_cxx           := g++
+$(build-platform)_ld            := g++
+$(build-platform)_ar            := ar
+$(build-platform)_cppflags      := $(if $(filter x64,$(build-platform)),-m64,-m32)
+$(build-platform)_ldflags       := $($(build-platform)_cppflags)
+$(build-platform)_targetdir     = $(if $(or $(filter %/build,$5),$(filter-out $($1_target),program)),/$(build-platform))
+$(build-platform)_installdir    = /$(build-platform)
+
+$(target-platform)_cc           = $(CC)
+$(target-platform)_cxx          = $(CXX)
+$(target-platform)_libtool      = $(AR)
+
+$(target-platform)_targetdir    = /$(target-platform)
+$(target-platform)_objdir       = /$(target-platform)
+
+cppflags                        := $(if $(filter yes,$(OPTIMIZE)),-O2)
+
+else ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)

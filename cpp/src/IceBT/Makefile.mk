@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-ifneq ($(filter debian ubuntu,$(linux_id)),)
+ifneq ($(filter debian ubuntu yocto,$(linux_id)),)
 
 $(project)_libraries	:= IceBT
 

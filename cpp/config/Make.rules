@@ -35,8 +35,8 @@ coreandstub_components	= IceUtil \
 			  IceBox \
 			  IcePatch2
 
-# Add the Bluetooth transport for Debian/Ubuntu
-ifneq ($(filter debian ubuntu,$(linux_id)),)
+# Add the Bluetooth transport for Debian/Ubuntu/Yocto
+ifneq ($(filter debian ubuntu yocto,$(linux_id)),)
 coreandstub_components	+= IceXML IceBT
 endif
 
@@ -128,8 +128,8 @@ define create-cpp-test-project
 $1_srcext		:= cpp
 $1_dependencies 	:= $$(or $$($1_dependencies),TestCommon Ice)
 
-# Also link with IceSSL and IceBT (Debian/Ubuntu) when compiling the project with the static configuration
-$1[static]_dependencies	:= IceSSL $(if $(filter debian ubuntu,$(linux_id)),IceBT)
+# Also link with IceSSL and IceBT (Debian/Ubuntu/Yocto) when compiling the project with the static configuration
+$1[static]_dependencies	:= IceSSL $(if $(filter debian ubuntu yocto,$(linux_id)),IceBT)
 
 # Dependencies and target dirs for Xcode SDK test projects
 $1[xcodesdk]_dependencies 			:= IceSSL
