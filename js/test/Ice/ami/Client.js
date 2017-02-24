@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     function allTests(communicator, out)
     {
@@ -59,7 +58,7 @@
         var b1 = null;
         var b2 = null;
 
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 out.write("testing batch requests with proxy... ");
                 return p.opBatchCount().then(count =>
@@ -340,7 +339,7 @@
     exports._test = function(out, id)
     {
         var communicator = Ice.initialize(id);
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {

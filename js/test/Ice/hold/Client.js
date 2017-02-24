@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     function loop(fn, repetitions, condition)
     {
@@ -38,7 +37,7 @@
         var value = 0;
         var all = [];
 
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -56,7 +55,7 @@
         };
 
         var seq;
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 var ref = "hold:default -p 12010";
@@ -138,7 +137,7 @@
             {
                 test(!condition.value || value >= 100000);
                 out.writeLine("ok");
-                return Promise.all(all);
+                return Ice.Promise.all(all);
             }
         ).then(
             function()
@@ -173,7 +172,7 @@
             function()
             {
                 test(condition.value);
-                return Promise.all(all);
+                return Ice.Promise.all(all);
             }
         ).then(
             function()
@@ -193,7 +192,7 @@
             function()
             {
                 out.writeLine("ok");
-                return Promise.all(all);
+                return Ice.Promise.all(all);
             }
         ).then(
             function()
@@ -241,7 +240,7 @@
             function()
             {
                 out.writeLine("ok");
-                return Promise.all(all);
+                return Ice.Promise.all(all);
             }
         ).then(
             function()
@@ -271,7 +270,7 @@
                 ).then(
                     function()
                     {
-                        Promise.all(all);
+                        Ice.Promise.all(all);
                     }
                 ).then(
                     function()
@@ -339,7 +338,7 @@
         id.properties.setProperty("Ice.RetryIntervals", "-1");
 
         var c = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 return allTests(out, c);

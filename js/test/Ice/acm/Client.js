@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -161,10 +160,10 @@
                     {
                         test(false);
                     }
-                    return Promise.resolve();
+                    return Ice.Promise.resolve();
                 })
             }
-            return Promise.resolve();
+            return Ice.Promise.resolve();
         }
 
         runTestCase(adapter, proxy)
@@ -374,7 +373,7 @@
 
         runTestCase(adapter, proxy)
         {
-            var p = Promise.resolve();
+            var p = Ice.Promise.resolve();
 
             // Use this function so we don't have a function defined
             // inside of a loop
@@ -407,7 +406,7 @@
         {
             function sendHeartbeats(con)
             {
-                var p = Promise.resolve();
+                var p = Ice.Promise.resolve();
                 for(var i = 0; i < 5; ++i)
                 {
                     p = p.then(con.heartbeat());
@@ -510,7 +509,7 @@
     {
         id.properties.setProperty("Ice.Warn.Connections", "0");
         var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
+        return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports._test = run;
     exports._runServer = true;

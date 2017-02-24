@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Promise = Ice.Promise;
-
     class BI extends Test.B
     {
         ice_preMarshal()
@@ -163,7 +161,7 @@
             }
         };
 
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
@@ -465,7 +463,7 @@
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
+        return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports._test = run;
     exports._runServer = true;

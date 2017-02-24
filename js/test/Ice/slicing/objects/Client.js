@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
     var allTests = function(out, communicator)
@@ -34,7 +33,7 @@
             return null;
         }
 
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -53,7 +52,7 @@
 
         var failCB = function(){ test(false); };
         var ref, base, prx;
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "Test:default -p 12010 -t 10000";
@@ -108,7 +107,7 @@
         ).then(sb =>
             {
                 test(sb.sb == "SBSUnknownDerived.sb");
-                var p = new Promise();
+                var p = new Ice.Promise();
                 if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
                 {
                     return prx.SBSUnknownDerivedAsSBaseCompact().then(
@@ -807,7 +806,7 @@
 
     var run = function(out, id)
     {
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 var c = Ice.initialize(id);

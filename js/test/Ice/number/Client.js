@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -22,7 +21,7 @@
 
     var run = function(out)
     {
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.write("Testing Ice.Long... ");
                 //

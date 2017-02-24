@@ -11,14 +11,13 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var allTests = function(out, communicator)
     {
         var failCB = function() { test(false); };
         var ref, obj, mult, timeout, to, connection, comm, now;
 
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -36,7 +35,7 @@
         };
 
         var seq;
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 ref = "timeout:default -p 12010";
                 obj = communicator.stringToProxy(ref);
@@ -318,7 +317,7 @@
         id.properties.setProperty("Ice.MessageSizeMax", "10000");
 
         var c = Ice.initialize(id);
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {

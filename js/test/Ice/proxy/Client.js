@@ -12,7 +12,6 @@
     var Ice = require("ice").Ice;
     var IceSSL = require("ice").IceSSL;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     function allTests(communicator, out)
     {
@@ -37,7 +36,7 @@
 
         var defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "test:default -p 12010";
@@ -1139,7 +1138,7 @@
     var run = function(out, id)
     {
         var communicator = Ice.initialize(id);
-        return Promise.try(() => allTests(communicator, out)).finally(() => communicator.destroy());
+        return Ice.Promise.try(() => allTests(communicator, out)).finally(() => communicator.destroy());
     };
     exports._test = run;
     exports._runServer = true;

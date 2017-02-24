@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var _await = require("Key")._await;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -23,7 +22,7 @@
 
     var run = function(out, id)
     {
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 let communicator = Ice.initialize(id);
                 out.write("testing enums... ");

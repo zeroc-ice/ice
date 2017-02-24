@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -22,7 +21,7 @@
 
     var run = function(out)
     {
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.write("testing configuration file escapes... ");
                 var props =
@@ -73,7 +72,7 @@
                         //
                         // We are runing in a web browser load the properties file from the web server.
                         //
-                        var p = new Promise();
+                        var p = new Ice.Promise();
                         /*jshint jquery: true */
                         $.ajax(
                             {

@@ -11,13 +11,12 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var allTests = function(out, communicator, communicator2)
     {
         var ref, base1, base2, retry1, retry2;
 
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -34,7 +33,7 @@
             }
         };
 
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "retry:default -p 12010";
@@ -142,7 +141,7 @@
         id2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
         var c2 = Ice.initialize(id2);
 
-        return Promise.try(() => allTests(out, c, c2)).finally(
+        return Ice.Promise.try(() => allTests(out, c, c2)).finally(
             () =>
             {
                 c2.destroy();

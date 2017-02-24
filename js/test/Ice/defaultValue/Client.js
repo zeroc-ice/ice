@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var run = function(out, id)
     {
@@ -32,7 +31,7 @@
             }
         };
 
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 out.write("testing default values... ");

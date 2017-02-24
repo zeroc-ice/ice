@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Promise = Ice.Promise;
-
     var allTests = function(out, communicator)
     {
         var p = new Ice.Promise();
@@ -37,7 +35,7 @@
             base4, base5, base6, bases, obj, obj2, obj3,
             obj4, obj5, obj6, hello, anotherRouter, router;
 
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 manager = Test.ServerManagerPrx.uncheckedCast(
@@ -315,7 +313,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // No locator cache.
@@ -336,7 +334,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // No locator cache.
@@ -357,8 +355,8 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
-                Promise.try(
+                var p = new Ice.Promise();
+                Ice.Promise.try(
                     function()
                     {
                         // 1s timeout.
@@ -384,7 +382,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // 1s timeout.
@@ -405,7 +403,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // No locator cache.
@@ -426,7 +424,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
                 // 1s timeout.
                 communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping().then(
                     function()
@@ -452,7 +450,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // No locator cache.
@@ -474,7 +472,7 @@
         ).then(
             function(count)
             {
-                return Promise.try(
+                return Ice.Promise.try(
                     function()
                     {
                         // 1s timeout.
@@ -495,7 +493,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
                 // 1s timeout.
                 communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping().then(
                     function()
@@ -514,7 +512,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
                 // 1s timeout.
                 communicator.stringToProxy("test@TestAdapter").ice_ping().then(
                     function()
@@ -533,7 +531,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
                 // 1s timeout.
                 communicator.stringToProxy("test").ice_ping().then(
                     function()
@@ -561,7 +559,7 @@
             function(o)
             {
                 obj = o;
-                return Promise.all([obj.getHello(), obj.getReplicatedHello()]);
+                return Ice.Promise.all([obj.getHello(), obj.getReplicatedHello()]);
             }
         ).then(
             function(r)
@@ -605,7 +603,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
                 hello.ice_ping().then(
                     function()
                     {
@@ -629,9 +627,9 @@
                     all.push(hello.sayHello());
                 }
 
-                var p = new Promise();
+                var p = new Ice.Promise();
 
-                Promise.all(all).then(
+                Ice.Promise.all(all).then(
                     function()
                     {
                         return locator.getRequestCount();
@@ -655,7 +653,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
 
                 var all = 0;
                 var exCB = function(ex)
@@ -771,7 +769,7 @@
             },
             function(ex)
             {
-                out.writeLine(ex.toString());
+                console.log(ex);
                 test(false);
             }
         ).then(
@@ -901,7 +899,7 @@
                 initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
                 var ic = Ice.initialize(initData);
 
-                var p = new Promise();
+                var p = new Ice.Promise();
 
                 locator.findAdapterById("TestAdapter").then(
                     function(adapter)
@@ -921,7 +919,7 @@
                 ).then(
                     function(count)
                     {
-                        var p1 = new Promise();
+                        var p1 = new Ice.Promise();
                         // No locator cache.
                         ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping().then(
                             function()
@@ -948,7 +946,7 @@
                 ).then(
                     function(count)
                     {
-                        var p1 = new Promise();
+                        var p1 = new Ice.Promise();
                         registry.setAdapterDirectProxy("TestAdapter5", null).then(
                             function()
                             {
@@ -986,7 +984,7 @@
                 ).then(
                     function(count)
                     {
-                        var p1 = new Promise();
+                        var p1 = new Ice.Promise();
                         // The following request should trigger the background updates but still use the cached endpoints
                         // and therefore succeed.
 
@@ -1002,7 +1000,7 @@
                     }
                 ).then(
                     function(){
-                        var p1 = new Promise();
+                        var p1 = new Ice.Promise();
 
                         var f1 = function()
                         {
@@ -1032,7 +1030,7 @@
                 ).then(
                     function()
                     {
-                        var p1 = new Promise();
+                        var p1 = new Ice.Promise();
 
                         var f1 = function()
                         {
@@ -1152,7 +1150,7 @@
         ).then(
             function(count)
             {
-                var p = new Promise();
+                var p = new Ice.Promise();
 
                 var prx = communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(
                                                                                         Ice.Encoding_1_1);
@@ -1253,7 +1251,7 @@
     {
         id.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
         var c = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 return allTests(out, c);

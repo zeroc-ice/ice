@@ -14,7 +14,6 @@
     var Client = require("Client");
     var TestI = require("TestI");
 
-    var Promise = Ice.Promise;
     var DI = TestI.DI;
     var FI = TestI.FI;
     var HI = TestI.HI;
@@ -22,7 +21,7 @@
 
     var allTests = function(out, communicator)
     {
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -38,7 +37,8 @@
                 }
             }
         };
-        Promise.try(
+
+        Ice.Promise.try(
             function()
             {
                 out.write("testing facet registration exceptions... ");
@@ -134,7 +134,7 @@
     var run = function(out, id)
     {
         var communicator = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");

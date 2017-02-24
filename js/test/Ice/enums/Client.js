@@ -12,8 +12,6 @@
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
 
-    const Promise = Ice.Promise;
-
     function allTests(out, communicator)
     {
         const p = new Ice.Promise();
@@ -34,7 +32,7 @@
         };
 
         let base, proxy;
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 const ref = "test:default -p 12010";
@@ -206,7 +204,7 @@
     function run(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
+        return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports._test = run;
     exports._runServer = true;

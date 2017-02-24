@@ -12,7 +12,6 @@
     var Ice = require("ice").Ice;
     var Glacier2 = require("ice").Glacier2;
     var Test = require("Callback").Test;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -31,7 +30,7 @@
         {
             super();
             this._callback = false;
-            this._p = new Promise();
+            this._p = new Ice.Promise();
         }
 
 
@@ -52,12 +51,12 @@
 
         callbackOK()
         {
-            var p = new Promise();
+            var p = new Ice.Promise();
             this._p.then(() =>
                 {
                     p.resolve();
                     this._callback = false;
-                    this._p = new Promise();
+                    this._p = new Ice.Promise();
                 });
             return p;
         }
@@ -72,7 +71,7 @@
             twowayR, onewayR,
             fakeTwowayR;
 
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 out.write("testing stringToProxy for router... ");
@@ -387,7 +386,7 @@
 
     var run = function(out, id)
     {
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 id.properties.setProperty("Ice.Warn.Dispatch", "1");

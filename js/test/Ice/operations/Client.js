@@ -16,13 +16,11 @@
     var Oneways = require("Oneways").Oneways;
     var BatchOneways = require("BatchOneways").BatchOneways;
 
-    var Promise = Ice.Promise;
-
     var allTests = function(out, communicator, Test, bidir)
     {
         var ref, base, cl, derived;
 
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.write("testing twoway operations... ");
                 ref = "test:default -p 12010";
@@ -63,7 +61,7 @@
     {
         id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
         var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c, Test, false)
+        return Ice.Promise.try(() => allTests(out, c, Test, false)
             ).then(cl => cl.shutdown()
             ).finally(() => c.destroy().then(() => c.destroy()).then(() => c.destroy())); // Test multiple destroy calls
     };

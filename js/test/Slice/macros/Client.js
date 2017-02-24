@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var test = function(b)
     {
@@ -23,7 +22,7 @@
 
     var run = function(out)
     {
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.write("testing Slice predefined macros... ");
 

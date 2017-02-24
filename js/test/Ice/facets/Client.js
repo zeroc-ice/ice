@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Promise = Ice.Promise;
 
     var allTests = function(out, communicator)
     {
@@ -36,7 +35,7 @@
 
         var ref, db, prx, prx2, prx3, d, df, df2, df3, ff, gf, hf;
 
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 out.write("testing stringToProxy... ");
@@ -131,7 +130,7 @@
                 test(d !== null);
                 test(d.equals(db));
 
-                return Promise.all([d.callA(), d.callB(), d.callC(), d.callD()]);
+                return Ice.Promise.all([d.callA(), d.callB(), d.callC(), d.callD()]);
             }
         ).then(
             function(r)
@@ -151,7 +150,7 @@
                 df = obj;
                 test(df !== null);
 
-                return Promise.all([df.callA(), df.callB(), df.callC(), df.callD()]);
+                return Ice.Promise.all([df.callA(), df.callB(), df.callC(), df.callD()]);
             }
         ).then(
             function(r)
@@ -171,7 +170,7 @@
                 ff = obj;
                 test(ff !== null);
 
-                return Promise.all([ff.callE(), ff.callF()]);
+                return Ice.Promise.all([ff.callE(), ff.callF()]);
             }
         ).then(
             function(r)
@@ -204,7 +203,7 @@
                 hf = obj;
                 test(hf !== null);
 
-                return Promise.all([hf.callG(), hf.callH()]);
+                return Ice.Promise.all([hf.callG(), hf.callH()]);
             }
         ).then(
             function(r)
@@ -223,7 +222,7 @@
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 return allTests(out, c);

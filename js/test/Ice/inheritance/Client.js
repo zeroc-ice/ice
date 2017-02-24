@@ -12,8 +12,6 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var Promise = Ice.Promise;
-
     var allTests = function(out, communicator)
     {
         var ref, base, initial, ca, cb, cc, cd, ia, ib1, ib2, ic;
@@ -34,7 +32,7 @@
             }
         };
 
-        Promise.try(
+        Ice.Promise.try(
             function()
             {
                 out.write("testing stringToProxy... ");
@@ -54,7 +52,7 @@
                 out.writeLine("ok");
 
                 out.write("getting proxies for class hierarchy... ");
-                return Promise.all([initial.caop(), initial.cbop(),initial.ccop(), initial.cdop()]);
+                return Ice.Promise.all([initial.caop(), initial.cbop(),initial.ccop(), initial.cdop()]);
             }
         ).then(
             function(r)
@@ -77,7 +75,7 @@
                 out.writeLine("ok");
                 out.write("getting proxies for interface hierarchy... ");
 
-                return Promise.all([initial.iaop(), initial.ib1op(), initial.ib2op(), initial.icop()]);
+                return Ice.Promise.all([initial.iaop(), initial.ib1op(), initial.ib2op(), initial.icop()]);
             }
         ).then(
             function(r)
@@ -96,7 +94,7 @@
                 test(ib2 !== ic);
                 out.writeLine("ok");
                 out.write("invoking proxy operations on class hierarchy... ");
-                return Promise.all([
+                return Ice.Promise.all([
                     ca.caop(ca),  // r1
                     ca.caop(cb),  // r2
                     ca.caop(cc),  // r3
@@ -145,7 +143,7 @@
                 out.writeLine("ok");
                 out.write("ditto, but for interface hierarchy... ");
 
-                return Promise.all([
+                return Ice.Promise.all([
                     ia.iaop(ia),    // r1
                     ia.iaop(ib1),   // r2
                     ia.iaop(ib2),   // r3
@@ -226,7 +224,7 @@
                 out.writeLine("ok");
                 out.write("ditto, but for class implementing interfaces... ");
 
-                return Promise.all([
+                return Ice.Promise.all([
                     cd.caop(cd),    // r1
                     cd.cbop(cd),    // r2
                     cd.ccop(cd),    // r3
@@ -265,7 +263,7 @@
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 return allTests(out, c);

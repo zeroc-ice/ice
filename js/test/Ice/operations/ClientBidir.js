@@ -15,8 +15,6 @@
     var AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
     var Client = require("Client.js");
 
-    var Promise = Ice.Promise;
-
     var allTests = function(out, communicator, amd)
     {
         return communicator.createObjectAdapter("").then(adapter =>
@@ -42,7 +40,7 @@
     {
         id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
         var communicator = Ice.initialize(id);
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
                 return allTests(out, communicator, false);

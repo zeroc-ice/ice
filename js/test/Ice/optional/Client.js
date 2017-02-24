@@ -13,7 +13,6 @@
     var Test = require("Test").Test;
     var ClientPrivate = require("ClientPrivate").Test;
 
-    var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
     var allTests = function(out, communicator, Test)
@@ -39,7 +38,7 @@
             }
         };
 
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 out.write("testing stringToProxy... ");
                 ref = "initial:default -p 12010";
@@ -1066,7 +1065,7 @@
     var run = function(out, id)
     {
         var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c, Test)).finally(() => c.destroy());
+        return Ice.Promise.try(() => allTests(out, c, Test)).finally(() => c.destroy());
     };
     exports._clientAllTests = allTests;
     exports._test = run;

@@ -15,13 +15,12 @@
     var AMDInitialI = require("AMDInitialI").AMDInitialI;
     var Client = require("Client");
 
-    var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
     var allTests = function(out, communicator, amd)
     {
         var base;
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 base = communicator.stringToProxy("initial:default -p 12010");
                 return communicator.createObjectAdapter("");
@@ -47,7 +46,7 @@
     var run = function(out, id)
     {
         var communicator = null;
-        return Promise.try(() =>
+        return Ice.Promise.try(() =>
             {
                 communicator = Ice.initialize(id);
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");

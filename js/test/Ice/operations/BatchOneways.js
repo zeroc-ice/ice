@@ -14,9 +14,8 @@
 
     var run = function(communicator, prx, Test, bidir)
     {
-        var Promise = Ice.Promise;
         var bs1, bs2, batch, batch2, batch3;
-        var p = new Promise();
+        var p = new Ice.Promise();
         var test = function(b)
         {
             if(!b)
@@ -33,7 +32,7 @@
             }
         };
 
-        Promise.try(() =>
+        Ice.Promise.try(() =>
             {
                 var i;
                 bs1 = Ice.Buffer.createNative(new Array(10 * 1024));
@@ -60,13 +59,13 @@
                     all[i] = batch.opByteSOneway(bs1);
                 }
 
-                return Promise.all(all).then(() =>
+                return Ice.Promise.all(all).then(() =>
                     {
                         var wait = function(count)
                         {
                             if(count < 27) // 3 * 9 requests auto-flushed.
                             {
-                                return Promise.delay(10)
+                                return Ice.Promise.delay(10)
                                               .then(() => prx.opByteSOnewayCallCount())
                                               .then(n => wait(n + count));
                             }
@@ -77,13 +76,13 @@
         ).then(() =>
             {
                 batch2 = prx.ice_batchOneway();
-                return Promise.all([batch.ice_ping(), batch2.ice_ping()]);
+                return Ice.Promise.all([batch.ice_ping(), batch2.ice_ping()]);
             }
         ).then(count => batch.ice_flushBatchRequests()
         ).then(() => prx.opByteSOnewayCallCount()
         ).then(() => batch.ice_getConnection()
         ).then(con => bidir ? undefined : con.close(Ice.ConnectionClose.GracefullyWithWait)
-        ).then(() => Promise.all([batch.ice_ping(), batch2.ice_ping()])
+        ).then(() => Ice.Promise.all([batch.ice_ping(), batch2.ice_ping()])
         ).then(() =>
             {
                 var identity = Ice.stringToIdentity("invalid");
@@ -92,7 +91,7 @@
             }
         ).then(() => batch3.ice_flushBatchRequests()
         // Make sure that a bogus batch request doesn't cause troubles to other ones.
-        ).then(() => Promise.all([batch3.ice_ping(), batch.ice_ping()])
+        ).then(() => Ice.Promise.all([batch3.ice_ping(), batch.ice_ping()])
         ).then(() => batch.ice_flushBatchRequests()
         ).then(() => prx.opByteSOnewayCallCount()
         ).then(p.resolve, p.reject);

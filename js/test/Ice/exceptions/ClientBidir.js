@@ -15,11 +15,9 @@
     var ThrowerI = require("ThrowerI").ThrowerI;
     var AMDThrowerI = require("AMDThrowerI").AMDThrowerI;
 
-    var Promise = Ice.Promise;
-
     var allTests = function(out, communicator, amd)
     {
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 return communicator.createObjectAdapter("").then(
@@ -50,7 +48,7 @@
         id.properties.setProperty("Ice.Warn.Dispatch", "0");
         id.properties.setProperty("Ice.Warn.Connections", "0");
         var communicator = Ice.initialize(id);
-        return Promise.try(
+        return Ice.Promise.try(
             function()
             {
                 out.writeLine("testing bidir callbacks with synchronous dispatch...");
