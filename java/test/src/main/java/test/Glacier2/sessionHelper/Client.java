@@ -9,7 +9,6 @@
 
 package test.Glacier2.sessionHelper;
 
-import javax.swing.SwingUtilities;
 import java.io.PrintWriter;
 import test.Glacier2.sessionHelper.Test.CallbackPrx;
 
@@ -28,6 +27,60 @@ public class Client extends test.Util.Application
             throw new RuntimeException();
         }
     }
+    
+    public class WorkQueue extends Thread
+    {
+        @Override
+        public synchronized void
+        run()
+        {
+            while(!_done)
+            {
+                if(_runnables.size() == 0)
+                {
+                    try
+                    {
+                        wait();
+                        if(_done)
+                        {
+                            break;
+                        }
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
+                }
+
+                if(_runnables.size() != 0)
+                {
+                    _runnables.pop().run();
+                }
+            }
+        }
+
+        public synchronized void
+        add(Runnable runnable)
+        {
+            if(!_done)
+            {
+                if(_runnables.size() == 0)
+                {
+                    notify();
+                }
+                _runnables.add(runnable);
+            }
+        }
+
+        public synchronized void
+        _destroy()                  // Thread.destroy is deprecated.
+        {
+            _done = true;
+            notify();
+        }
+
+        private java.util.LinkedList<Runnable> _runnables = new java.util.LinkedList<Runnable>();
+        private boolean _done = false;
+    }
 
     @Override
     protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
@@ -37,7 +90,7 @@ public class Client extends test.Util.Application
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
                                          getTestEndpoint(_initData.properties, 10));
         _initData.dispatcher =
-            (Runnable runnable, com.zeroc.Ice.Connection c) -> {  SwingUtilities.invokeLater(runnable); };
+            (Runnable runnable, com.zeroc.Ice.Connection c) -> {  _workQueue.add(runnable); };
 
         return initData;
     }
@@ -47,6 +100,8 @@ public class Client extends test.Util.Application
     {
         String protocol = getTestProtocol();
         String host = getTestHost();
+        _workQueue = new WorkQueue();
+        _workQueue.start();
 
         _factory = new com.zeroc.Glacier2.SessionFactoryHelper(_initData, new com.zeroc.Glacier2.SessionCallback()
             {
@@ -491,6 +546,7 @@ public class Client extends test.Util.Application
             _session.destroy();
             out.println("ok");
         }
+        _workQueue._destroy();
 
         return 0;
     }
@@ -512,6 +568,7 @@ public class Client extends test.Util.Application
     private com.zeroc.Glacier2.SessionHelper _session;
     private com.zeroc.Glacier2.SessionFactoryHelper _factory;
     private com.zeroc.Ice.InitializationData _initData;
+    private WorkQueue _workQueue;
     static public Client me;
     final public PrintWriter out;
 }
