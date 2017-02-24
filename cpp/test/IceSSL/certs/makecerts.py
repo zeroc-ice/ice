@@ -174,3 +174,18 @@ if clean or not os.path.exists("dh_params512.der"):
     ca1.run("openssl", "dhparam", 512, outform="DER", out="dh_params512.der")
 if clean or not os.path.exists("dh_params1024.der"):
     ca1.run("openssl", "dhparam", 1024, outform="DER", out="dh_params1024.der")
+
+
+#
+# Create certificate with custom extensions
+#
+if not os.path.exists("cacert_custom.pem"):
+    commands = ["openssl req -new -key cakey1.pem -out cacert_custom.csr -config cacert_custom.req",
+                "openssl x509 -req -in cacert_custom.csr -signkey cakey1.pem -out cacert_custom.pem -extfile cacert_custom.ext"]
+    for command in commands:
+        if os.system(command) != 0:
+            print "error running command `{0}'".format(command)
+            sys.exit(1)
+
+    if os.path.exists("cacert_custom.csr"):
+        os.remove("cacert_custom.csr")

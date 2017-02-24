@@ -1,0 +1,17 @@
+[ req ]
+days                    = 365
+
+distinguished_name      = dn
+
+prompt                  = no
+
+[ dn ]
+countryName             = US
+stateOrProvinceName     = Florida
+localityName            = Jupiter
+organizationName        = ZeroC
+organizationalUnitName  = Ice
+commonName              = CA
+emailAddress            = info@zeroc.com
+
+

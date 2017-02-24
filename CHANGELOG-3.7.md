@@ -185,6 +185,9 @@ These are the changes since Ice 3.6.3.
 - Added getAuthorityKeyIdentifier and getSubjectKeyIdentifier methods to IceSSL::Certificate.
   These methods are not supported on iOS or UWP.
 
+- Upgrade IceSSL Certificate API to allow retrive X509v3 extensions. This feature
+  is currently only supported with OpenSSL and SChannel SSL engines.
+
 ## C# Changes
 
 - Added new interface/class metadata cs:tie. Use this metadata to generate a tie

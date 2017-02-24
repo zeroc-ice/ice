@@ -1440,7 +1440,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     cout << "ok" << endl;
     
 #if !defined(ICE_USE_SECURE_TRANSPORT_IOS) && !defined(ICE_OS_UWP)
-    cout << "testing certificate info..." << flush;
+    cout << "testing certificate info... " << flush;
     {
         const char* certificates[] =
         {
@@ -1773,6 +1773,86 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         import.cleanup();
     }
     cout << "ok" << endl;
+    
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+    cout << "testing certificate extensions... " << flush;
+    {
+        const string basicConstraints = 
+            "30:03:01:01:FF";
+
+        const string subjectKeyIdentifier =
+            "04:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:1B:8A:9A";
+
+        const string authorityKeyIdentifier =
+            "30:81:A2:80:14:13:FA:72:67:FE:34:05:9A:C9:3E:61:D2:91:D6:BA:03:65:"
+            "1B:8A:9A:A1:7F:A4:7D:30:7B:31:0B:30:09:06:03:55:04:06:13:02:55:53:"
+            "31:10:30:0E:06:03:55:04:08:0C:07:46:6C:6F:72:69:64:61:31:10:30:0E:"
+            "06:03:55:04:07:0C:07:4A:75:70:69:74:65:72:31:0E:30:0C:06:03:55:04:"
+            "0A:0C:05:5A:65:72:6F:43:31:0C:30:0A:06:03:55:04:0B:0C:03:49:63:65:"
+            "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
+            "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
+            "82:09:00:CE:F0:96:A8:8D:19:5B:FF";
+        
+        const string subjectAltName =
+            "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
+        
+        const string issuerAltName =
+            "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
+        
+        const string customExt412 =
+            "0C:0B:43:75:73:74:6F:6D:20:64:61:74:61";
+        
+        const string customExt413 =
+            "30:17:01:01:FF:0C:0E:4D:79:20:55:54:46:38:20:53:74:72:69:6E:67:02:02:03:FF";
+            
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert_custom.pem");
+        vector<IceSSL::X509ExtensionPtr> extensions = cert->getX509Extensions();
+        test(extensions.size() == 7);
+        
+        IceSSL::X509ExtensionPtr ext = cert->getX509Extension("2.5.29.19"); // Subject key identifier
+        test(ext);
+        test(toHexString(ext->getData()) == basicConstraints);
+        test(ext->getOID() == "2.5.29.19");
+        test(ext->isCritical() == false);
+        
+        ext = cert->getX509Extension("2.5.29.14"); // Subject key identifier
+        test(ext);
+        test(toHexString(ext->getData()) == subjectKeyIdentifier);
+        test(ext->getOID() == "2.5.29.14");
+        test(ext->isCritical() == false);
+
+        ext = cert->getX509Extension("2.5.29.35"); // Authority key identifier
+        test(ext);
+        test(toHexString(ext->getData()) == authorityKeyIdentifier);
+        test(ext->getOID() == "2.5.29.35");
+        test(ext->isCritical() == false);
+        
+        ext = cert->getX509Extension("2.5.29.17"); // Subject alternative name
+        test(ext);
+        test(toHexString(ext->getData()) == subjectAltName);
+        test(ext->getOID() == "2.5.29.17");
+        test(ext->isCritical() == false);
+        
+        ext = cert->getX509Extension("2.5.29.18"); // Issuer alternative name
+        test(ext);
+        test(toHexString(ext->getData()) == issuerAltName);
+        test(ext->getOID() == "2.5.29.18");
+        test(ext->isCritical() == false);
+        
+        ext = cert->getX509Extension("1.2.3.412"); // Custom extension
+        test(ext);
+        test(toHexString(ext->getData()) == customExt412);
+        test(ext->getOID() == "1.2.3.412");
+        test(ext->isCritical() == false);
+        
+        ext = cert->getX509Extension("1.2.3.413"); // Custom extension
+        test(ext);
+        test(toHexString(ext->getData()) == customExt413);
+        test(ext->getOID() == "1.2.3.413");
+        test(ext->isCritical() == false);
+    }
+    cout << "ok" << endl;
+#endif
 
     cout << "testing custom certificate verifier... " << flush;
     {

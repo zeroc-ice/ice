@@ -1039,6 +1039,53 @@ PublicKey::key() const
 #endif
 }
 
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+
+X509Extension::X509Extension(X509ExtensionRef extension, const string& oid, const CertificatePtr& cert) :
+    _extension(extension),
+    _oid(oid),
+    _cert(cert)
+{
+}
+
+X509Extension::~X509Extension()
+{
+}
+
+bool
+X509Extension::isCritical() const
+{
+#if defined(ICE_USE_OPENSSL)
+    return X509_EXTENSION_get_critical(_extension) == 1;
+#elif defined(ICE_USE_SCHANNEL)
+    return _extension.fCritical;
+#endif
+}
+
+string
+X509Extension::getOID() const
+{
+    return _oid;
+}
+
+vector<Ice::Byte>
+X509Extension::getData() const
+{
+    vector<Ice::Byte> data;
+#if defined(ICE_USE_OPENSSL)
+    ASN1_OCTET_STRING* buffer = X509_EXTENSION_get_data(_extension);
+    assert(buffer);
+    data.resize(buffer->length);
+    memcpy(&data[0], buffer->data, buffer->length);
+#elif defined(ICE_USE_SCHANNEL)
+    data.resize(_extension.Value.cbData);
+    memcpy(&data[0], _extension.Value.pbData, _extension.Value.cbData);
+#endif
+    return data;
+}
+
+#endif
+
 //
 // The caller is responsible for incrementing the reference count.
 //
@@ -1071,6 +1118,65 @@ Certificate::Certificate(X509CertificateRef cert) : _cert(cert)
     }
 #endif
 }
+
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+
+void
+Certificate::loadX509Extensions() const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    if(_extensions.empty())
+    {
+#if defined(ICE_USE_SCHANNEL)
+        for(size_t i = 0; i < _certInfo->cExtension; ++i)
+        {
+            CERT_EXTENSION ext = _certInfo->rgExtension[i];
+            _extensions.push_back(new X509Extension(ext, ext.pszObjId, ICE_SHARED_FROM_CONST_THIS(Certificate))); 
+        }
+#elif defined(ICE_USE_OPENSSL)
+        int sz = X509_get_ext_count(_cert);
+        for(int i = 0; i < sz; i++)
+        {
+            X509_EXTENSION* ext = X509_get_ext(_cert, i);
+            ASN1_OBJECT* obj = X509_EXTENSION_get_object(ext);
+            string oid;
+            //
+            // According to OBJ_obj2txt doc a buffer of length 80 should be more than enough to
+            // handle any OID encountered in practice.
+            //
+            int len = 80;
+            oid.resize(len);
+            len = OBJ_obj2txt(&oid[0], len, obj, 1);
+            oid.resize(len);
+            _extensions.push_back(new X509Extension(ext, oid, ICE_SHARED_FROM_CONST_THIS(Certificate)));
+        }
+#endif
+    }
+}
+
+vector<X509ExtensionPtr>
+Certificate::getX509Extensions() const
+{
+    loadX509Extensions(); // Lazzy initialize the extensions
+    return _extensions;
+}
+
+X509ExtensionPtr
+Certificate::getX509Extension(const string& oid) const
+{
+    loadX509Extensions(); // Lazzy initialize the extensions
+    X509ExtensionPtr ext;
+    for(vector<X509ExtensionPtr>::const_iterator i = _extensions.begin(); i != _extensions.end(); ++i)
+    {
+        if((*i)->getOID() == oid)
+        {
+            ext = *i;
+            break;
+        }
+    }
+    return ext;
+}
+#endif
 
 Certificate::~Certificate()
 {

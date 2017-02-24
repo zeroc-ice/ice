@@ -60,6 +60,7 @@
 typedef struct ssl_ctx_st SSL_CTX;
 typedef struct X509_name_st X509NAME;
 
+typedef struct X509_extension_st* X509ExtensionRef;
 typedef struct x509_st* X509CertificateRef;
 typedef struct evp_pkey_st* KeyRef;
 
@@ -70,6 +71,7 @@ typedef SecKeyRef KeyRef;
 
 #elif defined(ICE_USE_SCHANNEL)
 
+typedef CERT_EXTENSION X509ExtensionRef;
 typedef CERT_SIGNED_CONTENT_INFO* X509CertificateRef;
 typedef CERT_PUBLIC_KEY_INFO* KeyRef;
 
@@ -294,11 +296,51 @@ operator!=(const DistinguishedName& lhs, const DistinguishedName& rhs)
     return !(lhs == rhs);
 }
 
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+//
+// This class is a wrapper around a native certificate extension.
+//
+// X509 extension wrapper is only implemented with OpenSSL and SChannel
+// other engines lacks the required APIs to implement this feature.
+//
+class ICESSL_API X509Extension
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
+{
+public:
+
+    ~X509Extension();
+
+    bool isCritical() const;
+    std::string getOID() const;
+    std::vector<Ice::Byte> getData() const;
+
+private:
+ 
+    //
+    // Construct a X509 extension using a native extension.
+    //
+    friend class Certificate;
+    X509Extension(X509ExtensionRef, const std::string&, const CertificatePtr&);
+
+    X509ExtensionRef _extension;
+    std::string _oid;
+    //
+    // We want to keep the certificate that contains the extension alive
+    // for the lifetime of the extension.
+    //
+    CertificatePtr _cert;
+};
+ICE_DEFINE_PTR(X509ExtensionPtr, X509Extension);
+#endif
+
 //
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
 class ICESSL_API Certificate :
+        public IceUtil::Mutex,
 #ifdef ICE_CPP11_MAPPING
         public std::enable_shared_from_this<Certificate>
 #else
@@ -499,7 +541,26 @@ public:
     //
     X509CertificateRef getCert() const;
 
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+    //
+    // Return a list with the X509v3 extensions contained in the 
+    // certificate.
+    //
+    std::vector<X509ExtensionPtr> getX509Extensions() const;
+    
+    //
+    // Return the extension with the given OID or null if the certificate
+    // does not contain a extension with the given OID.
+    //
+    X509ExtensionPtr getX509Extension(const std::string&) const;
+#endif
+
 private:
+    
+    //
+    // Lazzy initialization of the extensions
+    //
+    void loadX509Extensions() const;
 
 #if defined(__APPLE__)
     IceInternal::UniqueRef<X509CertificateRef> _cert;
@@ -517,6 +578,10 @@ private:
     mutable IceInternal::UniqueRef<CFDataRef> _issuer;
     mutable std::string _serial;
     mutable int _version;
+#endif
+
+#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
+    mutable std::vector<X509ExtensionPtr> _extensions;
 #endif
 };
 
