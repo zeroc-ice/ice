@@ -1131,7 +1131,7 @@ Certificate::loadX509Extensions() const
         for(size_t i = 0; i < _certInfo->cExtension; ++i)
         {
             CERT_EXTENSION ext = _certInfo->rgExtension[i];
-            _extensions.push_back(new X509Extension(ext, ext.pszObjId, ICE_SHARED_FROM_CONST_THIS(Certificate))); 
+            _extensions.push_back(ICE_MAKE_SHARED(X509Extension, ext, ext.pszObjId, ICE_SHARED_FROM_CONST_THIS(Certificate))); 
         }
 #elif defined(ICE_USE_OPENSSL)
         int sz = X509_get_ext_count(_cert);
@@ -1148,7 +1148,7 @@ Certificate::loadX509Extensions() const
             oid.resize(len);
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
-            _extensions.push_back(new X509Extension(ext, oid, ICE_SHARED_FROM_CONST_THIS(Certificate)));
+            _extensions.push_back(ICE_MAKE_SHARED(X509Extension, ext, oid, ICE_SHARED_FROM_CONST_THIS(Certificate)));
         }
 #endif
     }

@@ -310,6 +310,10 @@ class ICESSL_API X509Extension
 {
 public:
 
+    //
+    // Construct a X509 extension using a native extension.
+    //
+    X509Extension(X509ExtensionRef, const std::string&, const CertificatePtr&);
     ~X509Extension();
 
     bool isCritical() const;
@@ -317,12 +321,6 @@ public:
     std::vector<Ice::Byte> getData() const;
 
 private:
- 
-    //
-    // Construct a X509 extension using a native extension.
-    //
-    friend class Certificate;
-    X509Extension(X509ExtensionRef, const std::string&, const CertificatePtr&);
 
     X509ExtensionRef _extension;
     std::string _oid;
