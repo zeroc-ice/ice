@@ -27,12 +27,12 @@ opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags
 endif
 
 x64_cppflags            := $(call opt-cppflags,x86_64) -m64
-x64_ldflags             := $(x64_cppflags) $(call opt-ldflags,x86_64)
+x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
 
 x86_cppflags            := $(call opt-cppflags,i386) -m32
-x86_ldflags             := $(x86_cppflags) $(call opt-ldflags,i386)
+x86_ldflags             := $(call opt-ldflags,i386) -m32
 x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 x86_targetname		= $(if $(is-bin-program),32)
 
@@ -93,17 +93,17 @@ ifeq ($(OPTIMIZE),yes)
         opt-cppflags = $(if $(CXXFLAGS),,$(shell setarch $1 rpm --eval %optflags))
         opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
     else
-    	opt-cppflags = -O2
+    	opt-cppflags = $(if $(CXXFLAGS),,-O2)
     endif
 endif
 
 x64_cppflags            := $(call opt-cppflags,x86_64)
-x64_ldflags             := $(x64_cppflags) $(call opt-ldflags,x86_64)
+x64_ldflags             := $(call opt-ldflags,x86_64)
 x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
 
 x86_cppflags            := $(call opt-cppflags,i386)
-x86_ldflags             := $(x86_cppflags) $(call opt-ldflags,i386)
+x86_ldflags             := $(call opt-ldflags,i386)
 x86_targetdir  		= $(if $(filter %/build,$5),/x86)
 
 endif
