@@ -74,6 +74,30 @@ public class Buffer
         }
     }
 
+    public void swap(Buffer buf)
+    {
+        final java.nio.ByteBuffer bb = buf.b;
+        final int size = buf._size;
+        final int capacity = buf._capacity;
+        final boolean direct = buf._direct;
+        final int shrinkCounter = buf._shrinkCounter;
+        final java.nio.ByteOrder order = buf._order;
+
+        buf.b = b;
+        buf._size = _size;
+        buf._capacity = _capacity;
+        buf._direct = _direct;
+        buf._shrinkCounter = _shrinkCounter;
+        buf._order = _order;
+
+        b = bb;
+        _size = size;
+        _capacity = capacity;
+        _direct = direct;
+        _shrinkCounter = shrinkCounter;
+        _order = order;
+    }
+
     public int size()
     {
         return _size;

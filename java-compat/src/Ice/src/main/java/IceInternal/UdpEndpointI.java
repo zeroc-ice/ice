@@ -140,7 +140,16 @@ final class UdpEndpointI extends IPEndpointI
     @Override
     public Transceiver transceiver()
     {
-        return new UdpTransceiver(this, _instance, _host, _port, _mcastInterface, _connect);
+        java.net.InetSocketAddress addr =
+            Network.getAddressForServer(_host, _port, _instance.protocolSupport(), _instance.preferIPv6());
+        if(Util.isAndroid() && addr.getAddress().isMulticastAddress())
+        {
+            return new UdpMulticastServerTransceiver(this, _instance, addr, _mcastInterface);
+        }
+        else
+        {
+            return new UdpTransceiver(this, _instance, addr, _mcastInterface, _connect);
+        }
     }
 
     //
@@ -155,7 +164,13 @@ final class UdpEndpointI extends IPEndpointI
 
     public UdpEndpointI endpoint(UdpTransceiver transceiver)
     {
-        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface,_mcastTtl,
+        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
+                                _connect, _connectionId, _compress);
+    }
+
+    public UdpEndpointI endpoint(UdpMulticastServerTransceiver transceiver)
+    {
+        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
                                 _connect, _connectionId, _compress);
     }
 

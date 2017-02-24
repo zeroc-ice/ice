@@ -293,6 +293,28 @@ public final class Network
     }
 
     public static void
+    setMcastGroup(java.net.MulticastSocket fd, java.net.InetSocketAddress group, String intf)
+    {
+        try
+        {
+            java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
+            for(String address : getInterfacesForMulticast(intf, group))
+            {
+                java.net.NetworkInterface intf2 = getInterface(address);
+                if(!interfaces.contains(intf2))
+                {
+                    interfaces.add(intf2);
+                    fd.joinGroup(group, intf2);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            throw new Ice.SocketException(ex);
+        }
+    }
+
+    public static void
     setMcastGroup(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress group, String intf)
     {
         try
