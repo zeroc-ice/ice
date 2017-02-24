@@ -69,7 +69,11 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            test($ex instanceof $ConnectTimeoutException);
+            if(!($ex instanceof $ConnectTimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
     }
     {
@@ -108,7 +112,11 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             // Expected.
-            test($ex instanceof $TimeoutException);
+            if(!($ex instanceof $TimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
     }
     {
@@ -143,7 +151,11 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            test($ex instanceof $InvocationTimeoutException);
+            if(!($ex instanceof $InvocationTimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
 
         $timeout->ice_ping();
@@ -181,7 +193,11 @@ function allTests($communicator)
             catch(Exception $ex)
             {
                 // Connection got closed as well.
-                test($ex instanceof $TimeoutException);
+                if(!($ex instanceof $TimeoutException))
+                {
+                    echo($ex);
+                    test(false);
+                }
             }
         }
         $timeout->ice_ping();
@@ -239,7 +255,11 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             // Expected.
-            test($ex instanceof $TimeoutException);
+            if(!($ex instanceof $TimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
         //
         // Calling ice_timeout() should have no effect.
@@ -254,8 +274,12 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            // Expected.
-            test($ex instanceof $TimeoutException);
+            // Expected TimeoutException.
+            if(!($ex instanceof $TimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
         $comm->destroy();
     }
@@ -277,7 +301,11 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             // Expected.
-            test($ex instanceof $ConnectTimeoutException);
+            if(!($ex instanceof $ConnectTimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
         //
         // Calling ice_timeout() should have no effect on the connect timeout.
@@ -293,7 +321,12 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             // Expected.
-            test($ex instanceof $ConnectTimeoutException);
+            if(!($ex instanceof $ConnectTimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
+            
         }
         //
         // Verify that timeout set via ice_timeout() is still used for requests.
@@ -310,7 +343,11 @@ function allTests($communicator)
         catch(Exception $ex)
         {
             // Expected.
-            test($ex instanceof $TimeoutException);
+            if(!($ex instanceof $TimeoutException))
+            {
+                echo($ex);
+                test(false);
+            }
         }
         $comm->destroy();
     }
