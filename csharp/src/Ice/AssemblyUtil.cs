@@ -86,6 +86,14 @@ namespace IceInternal
             }
         }
 
+        public static void preloadAssemblies()
+        {
+            lock(_mutex)
+            {
+                loadAssemblies(); // Lazy initialization
+            }
+        }
+
         //
         // Make sure that all assemblies that are referenced by this process
         // are actually loaded. This is necessary so we can use reflection

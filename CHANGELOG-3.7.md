@@ -195,6 +195,12 @@ These are the changes since Ice 3.6.3.
 
 - `cs:` and `clr:` are now interchangeable in metadata directives.
 
+- Add support to preload referenced assemblies. The property Ice.PreloadAssemblies
+  controls this behavior. If set to a value greater than 0 the Ice runtime will try
+  to load all the assemblies referenced by the process during communicator initialization,
+  otherwise the referenced assemblies will be initialized when the Ice run-time needs
+  to lookup a C# class. The default value is 0.
+
 ## Java Changes
 
 - The Ice communicator now implements `java.lang.AutoCloseable`. This enables

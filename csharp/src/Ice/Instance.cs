@@ -929,6 +929,11 @@ namespace IceInternal
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
                 _retryQueue = new RetryQueue(this);
+
+                if(_initData.properties.getPropertyAsIntWithDefault("Ice.PreloadAssemblies", 0) > 0)
+                {
+                    AssemblyUtil.preloadAssemblies();
+                } 
             }
             catch(Ice.LocalException)
             {

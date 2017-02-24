@@ -369,6 +369,7 @@ generated from the section label.
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
         <property name="PreferIPv6Address" />
+        <property name="PreloadAssemblies" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" />
