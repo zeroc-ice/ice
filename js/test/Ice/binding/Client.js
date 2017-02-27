@@ -1121,26 +1121,31 @@
         return p;
     };
 
-    if(typeof(navigator) !== 'undefined' && isWorker() && isSafari())
+    exports._test = function(out, id)
     {
-        //
-        // BUGFIX:
-        //
-        // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
-        // web socket send() method never returns for the sending of close connection message.
-        //
-        // With Chrome on Windows the Webworker is unexpectelly terminated.
-        //
-        exports._test = function(out, id)
-        {
-            out.writeLine("Test not supported with Safari web workers.");   
-        };
-    }
-    else
-    {
-        exports._test = run;
-        exports._runServer = true;
-    }
+        return Ice.Promise.try(() =>
+            {
+                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+                {
+                    var communicator = Ice.initialize(id);
+                    //
+                    // BUGFIX:
+                    //
+                    // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
+                    // web socket send() method never returns for the sending of close connection message.
+                    //
+                    out.writeLine("Test not supported with Safari web workers.");
+                    return Test.RemoteCommunicatorPrx.uncheckedCast(
+                                    communicator.stringToProxy("communicator:default -p 12010")).shutdown().finally(
+                        () => communicator.destroy());
+                }
+                else
+                {
+                    return allTests(out, id);
+                }
+            });
+    };
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,

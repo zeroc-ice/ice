@@ -66,23 +66,23 @@ class ProcessI extends Test.Common._ProcessDisp
 
 class ProcessControllerI extends Test.Common._ProcessControllerDisp
 {
-    constructor(output, logger, worker, scripts)
+    constructor(output, logger, useWorker, scripts)
     {
         super();
         this._output = output;
         this._logger = logger;
-        this._worker = worker;
+        this._useWorker = useWorker;
         this._scripts = scripts;
     }
 
     start(testSuite, exe, args, current)
     {
         let promise;
-        if(this._worker)
+        if(this._useWorker)
         {
             let out = this._output;
             let scripts = this._scripts;
-            promise = new Promise(function(resolve, reject) {
+            promise = new Promise((resolve, reject) => {
                 let worker;
                 if(document.location.pathname.indexOf("/es5/") !== -1)
                 {
@@ -92,6 +92,7 @@ class ProcessControllerI extends Test.Common._ProcessControllerDisp
                 {
                     worker = new Worker("/test/Common/ControllerWorker.js");
                 }
+                this._worker = worker;
                 worker.onmessage = function(e) {
                     if(e.data.type == "write")
                     {

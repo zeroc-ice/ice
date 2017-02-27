@@ -184,7 +184,7 @@ gulp.task("common:js-babel", [],
 
 gulp.task("common:clean", [],
     function(){
-        del(["assets/common.css", "assets/common.min.js"]);
+        del(["assets/common.css", "assets/common.js"]);
     });
 
 gulp.task("import:slice2js", [],

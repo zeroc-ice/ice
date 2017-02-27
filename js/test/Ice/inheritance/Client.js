@@ -57,14 +57,7 @@
         ).then(
             function(r)
             {
-                var r1 = r[0], 
-                    r2 = r[1],
-                    r3 = r[2], 
-                    r4 = r[3];
-                ca = r1;
-                cb = r2;
-                cc = r3;
-                cd = r4;
+                [ca, cb, cc, cd] = r;
 
                 test(ca !== cb);
                 test(ca !== cc);
@@ -80,12 +73,8 @@
         ).then(
             function(r)
             {
-                var [r1, r2, r3, r4] = r;
-                ia = r1;
-                ib1 = r2;
+                [ia, ib1, ib2, ic] = r;
                 test(ib1.ice_instanceof(Test.MB.IB1Prx));
-                ib2 = r3;
-                ic = r4;
 
                 test(ia !== ib1);
                 test(ia !== ib2);

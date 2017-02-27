@@ -20,6 +20,9 @@
 $(document).foundation();
 $(document).ready(
     function() {
+
+        var worker;
+
         $("#console").height(120);
 
         var out =
@@ -136,7 +139,7 @@ $(document).ready(
                 setRunning(true);
                 if($("#worker").is(":checked"))
                 {
-                    var worker = new Worker("/test/Common/Worker.js");
+                    worker = new Worker("/test/Common/Worker.js");
                     worker.onmessage = function(e)
                     {
                         if(e.data.type == "Write")

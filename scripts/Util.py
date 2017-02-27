@@ -2898,10 +2898,6 @@ class JavaScriptMapping(Mapping):
         if current.config.browser in ["Edge", "Ie"]:
             options["es5"] = [True]
 
-        # TODO: Fix Safari issue where tests hang when ran with --worker
-        if current.config.browser == "Safari":
-            options["worker"] = [False]
-
         return options
 
 from Glacier2Util import *
