@@ -198,11 +198,10 @@ public class AllTests : TestCommon.AllTests
             //
             // Backward compatible connection timeouts
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(100));
-            Ice.Connection con = null;
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+            Ice.Connection con = to.ice_getConnection();
             try
             {
-                con = to.ice_getConnection();
                 to.sleep(750);
                 test(false);
             }

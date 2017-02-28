@@ -277,11 +277,10 @@ public class AllTests
             //
             // Backward compatible connection timeouts
             //
-            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(100));
-            Ice.Connection con = null;
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+            Ice.Connection con = to.ice_getConnection();
             try
             {
-                con = to.ice_getConnection();
                 to.sleep(750);
                 test(false);
             }

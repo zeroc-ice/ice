@@ -243,10 +243,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Backward compatible connection timeouts
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(-2)->ice_timeout(250));
-        Ice::ConnectionPtr con;
+        Ice::ConnectionPtr con = to->ice_getConnection();
         try
         {
-            con = to->ice_getConnection();
             to->sleep(750);
             test(false);
         }

@@ -209,11 +209,10 @@ public class AllTests
             //
             // Backward compatible connection timeouts
             //
-            TimeoutPrx to = timeout.ice_invocationTimeout(-2).ice_timeout(100);
-            com.zeroc.Ice.Connection con = null;
+            TimeoutPrx to = timeout.ice_invocationTimeout(-2).ice_timeout(250);
+            com.zeroc.Ice.Connection con = to.ice_getConnection();
             try
             {
-                con = to.ice_getConnection();
                 to.sleep(750);
                 test(false);
             }
