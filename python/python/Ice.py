@@ -590,21 +590,19 @@ def getSliceDir():
     if os.path.exists(dir):
         return os.path.normpath(dir)
 
-    iceVer = stringVersion()
-
     if sys.platform[:5] == "linux":
         #
-        # Check the default RPM location.
+        # Check the default Linux location.
         #
-        dir = os.path.join("/", "usr", "share", "Ice-" + iceVer, "slice")
+        dir = os.path.join("/", "usr", "share", "ice", "slice")
         if os.path.exists(dir):
             return dir
 
     elif sys.platform == "darwin":
         #
-        # Check the default OS X location.
+        # Check the default macOS homebrew location.
         #
-        dir = os.path.join("/", "Library", "Developer", "Ice-" + iceVer, "slice")
+        dir = os.path.join("/", "usr", "local", "share", "ice",  "slice")
         if os.path.exists(dir):
             return dir
 

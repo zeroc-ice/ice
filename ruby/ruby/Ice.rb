@@ -43,11 +43,10 @@ module Ice
         end
 
         if RUBY_PLATFORM =~ /linux/i
-            iceVer = Ice::stringVersion
             #
-            # Check the default RPM location.
+            # Check the default Linux location.
             #
-            dir = File::join("/", "usr", "share", "Ice-" + iceVer, "slice")
+            dir = File::join("/", "usr", "share", "ice", "slice")
             if File::exists?(dir)
                 return dir
             end
