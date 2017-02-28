@@ -361,7 +361,7 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.close()
 
     def fix(self, propertyName):
-        return str.replace(propertyName, "[any]", "*")
+        return propertyName.replace("[any]", "*")
 
     def deprecatedImpl(self, propertyName):
         self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, 0),\n" % (self.currentSection, \
@@ -435,8 +435,7 @@ class JavaPropertyHandler(PropertyHandler):
         #
         # The Java property strings are actually regexp's that will be passed to Java's regexp facitlity.
         #
-        propertyName = str.replace(propertyName, ".", "\\\\.")
-        return str.replace(propertyName, "[any]", "[^\\\\s]+")
+        return propertyName.replace(".", "\\\\.").replace("[any]", "[^\\\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", " \
@@ -518,8 +517,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        propertyName = str.replace(propertyName, ".", "\\.")
-        return str.replace(propertyName, "[any]", "[^\\s]+")
+        return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
@@ -585,8 +583,7 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        propertyName = str.replace(propertyName, ".", "\\.")
-        return str.replace(propertyName, "[any]", ".")
+        return propertyName.replace(".", "\\.").replace("[any]", ".")
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
