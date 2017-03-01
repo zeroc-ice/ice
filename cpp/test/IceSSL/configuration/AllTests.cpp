@@ -1404,8 +1404,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 
@@ -1428,8 +1429,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 

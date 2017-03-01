@@ -258,7 +258,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
         //
         // Check if we need to enable host name verification
         //
-        if(!_engine->getCheckCertName() || _host.empty())
+        if(!_engine->getCheckCertName() || _host.empty() || _engine->getVerifyPeer() == 0)
         {
             stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::InvalidName);
         }
@@ -305,14 +305,12 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
                     _instance->logger()->trace(_instance->traceCategory(), msg);
                 }
 
-                if(_engine->getVerifyPeer() > 0)
-                {
-                    SecurityException ex(__FILE__, __LINE__);
-                    ex.reason = msg;
-                    throw ex;
-                }
+                throw SecurityException(__FILE__, __LINE__, msg);
             }
-            IceInternal::checkErrorCode(__FILE__, __LINE__, asyncInfo->error);
+            else
+            {
+                IceInternal::checkErrorCode(__FILE__, __LINE__, asyncInfo->error);
+            }
         }
         return;
     }
