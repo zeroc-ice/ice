@@ -69,7 +69,8 @@ $(project)_generated_includedir := $(project)/generated/IceGrid
 $(project)_dependencies 	:= IceGrid Glacier2 Ice
 $(project)_targetdir		:= $(bindir)
 
-icegridnode_sources	 	:= $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp)
+icegridnode_sources	 	:= $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
+                                   $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridnode_dependencies 	:= IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB
 icegridnode_cppflags		:= $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
