@@ -22,7 +22,6 @@ local_registry_srcs 	= Internal.ice \
 			  PlatformInfo.cpp \
 			  SessionManager.cpp \
 			  TraceLevels.cpp \
-			  IceLocatorDiscovery.cpp \
 			  AdminCallbackRouter.cpp \
 			  AdapterCache.cpp \
 			  AdminI.cpp \
@@ -74,7 +73,8 @@ icegridnode_sources	 	:= $(addprefix $(currentdir)/,$(local_node_srcs) $(local_r
 icegridnode_dependencies 	:= IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB
 icegridnode_cppflags		:= $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
-icegridregistry_sources	 	:= $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp)
+icegridregistry_sources	 	:= $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
+				   $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridregistry_dependencies 	:= IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB $(local_dependencies)
 icegridregistry_cppflags	:= $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
