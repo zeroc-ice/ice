@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil, copy
+import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil, copy, inspect
 
 isPython2 = sys.version_info[0] == 2
 if isPython2:
@@ -41,6 +41,12 @@ def val(v, escapeQuotes=False, quoteValue=True):
             return "\"{0}\"".format(v)
     else:
         return str(v)
+
+def getServantClass(module, name):
+    cls = inspect.getmembers(sys.modules[module], lambda a: inspect.isclass(a) and a.__name__  == name)
+    if not cls:
+        cls = inspect.getmembers(sys.modules[module], lambda a: inspect.isclass(a) and a.__name__  == "_{0}Disp".format(name))
+    return cls[0][1]
 
 def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
@@ -1768,7 +1774,7 @@ class RemoteProcessController(ProcessController):
             comm = current.driver.getCommunicator()
             import Test
 
-            class ProcessControllerRegistryI(Test.Common._ProcessControllerRegistryDisp):
+            class ProcessControllerRegistryI(getServantClass("Test.Common", "ProcessControllerRegistry")):
 
                 def __init__(self, remoteProcessController):
                     self.remoteProcessController = remoteProcessController
