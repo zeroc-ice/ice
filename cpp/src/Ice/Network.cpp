@@ -1664,9 +1664,8 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& intf, const Address& mcastAddr)
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
 {
-    ProtocolSupport protocolSupport = getProtocolSupport(mcastAddr);
     vector<string> interfaces = getHostsForEndpointExpand(intf, protocolSupport, true);
     if(interfaces.empty())
     {
@@ -1700,9 +1699,8 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& intf, const Address& mcastAddr)
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
 {
-    ProtocolSupport protocolSupport = getProtocolSupport(mcastAddr);
     vector<string> interfaces;
     bool ipv4Wildcard = false;
     if(isWildcard(intf, protocolSupport, ipv4Wildcard))
@@ -2069,7 +2067,7 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-    vector<string> interfaces = getInterfacesForMulticast(intf, group);
+    vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
     set<int> indexes;
     for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
     {
@@ -3068,7 +3066,7 @@ IceInternal::isIpAddress(const string& name)
 #else
     in_addr addr;
     in6_addr addr6;
-    
+
     return inet_pton(AF_INET, name.c_str(), &addr) > 0 || inet_pton(AF_INET6, name.c_str(), &addr6) > 0;
 #endif
 }

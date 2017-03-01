@@ -255,8 +255,7 @@ public:
 private:
 
     LocatorRegistryIPtr _registry;
-    const LookupPrxPtr _lookup;
-    LookupReplyPrxPtr _lookupReply;
+    std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookup;
     const IceUtil::Time _timeout;
     const int _retryCount;
     const int _latencyMultiplier;

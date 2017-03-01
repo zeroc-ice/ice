@@ -7,14 +7,11 @@
 //
 // **********************************************************************
 
-package IceLocatorDiscovery;
+package com.zeroc.IceLocatorDiscovery;
 
-public class PluginFactory implements Ice.PluginFactory
+import java.util.List;
+
+public interface Plugin extends com.zeroc.Ice.Plugin
 {
-    @Override
-    public Ice.Plugin
-    create(Ice.Communicator communicator, String name, String[] args)
-    {
-        return new PluginI(name, communicator);
-    }
+    List<com.zeroc.Ice.LocatorPrx> getLocators(String instanceName, int waitTime);
 }

@@ -9,6 +9,8 @@
 
 package com.zeroc.IceDiscovery;
 
+import com.zeroc.IceInternal.Network;
+
 public class PluginI implements com.zeroc.Ice.Plugin
 {
     public PluginI(com.zeroc.Ice.Communicator communicator)
@@ -45,16 +47,28 @@ public class PluginI implements com.zeroc.Ice.Plugin
             }
             properties.setProperty("IceDiscovery.Multicast.Endpoints", s.toString());
         }
+
+        String lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
+        if(lookupEndpoints.isEmpty())
+        {
+            int protocol = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
+            java.util.List<String> interfaces = Network.getInterfacesForMulticast(intf, protocol);
+            for(String p : interfaces)
+            {
+                if(p != interfaces.get(0))
+                {
+                    lookupEndpoints += ":";
+                }
+                lookupEndpoints += "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
+            }
+        }
+
         if(properties.getProperty("IceDiscovery.Reply.Endpoints").isEmpty())
         {
-            StringBuilder s = new StringBuilder();
-            s.append("udp");
-            if(!intf.isEmpty())
-            {
-                s.append(" -h \"").append(intf).append("\"");
-            }
-            properties.setProperty("IceDiscovery.Reply.Endpoints", s.toString());
+            properties.setProperty("IceDiscovery.Reply.Endpoints",
+                                   "udp -h " + (intf.isEmpty() ? "*" : "\"" + intf + "\""));
         }
+
         if(properties.getProperty("IceDiscovery.Locator.Endpoints").isEmpty())
         {
             properties.setProperty("IceDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
@@ -71,34 +85,8 @@ public class PluginI implements com.zeroc.Ice.Plugin
         com.zeroc.Ice.LocatorRegistryPrx locatorRegistryPrx = com.zeroc.Ice.LocatorRegistryPrx.uncheckedCast(
             _locatorAdapter.addWithUUID(locatorRegistry));
 
-        String lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
-        if(lookupEndpoints.isEmpty())
-        {
-            StringBuilder s = new StringBuilder();
-            s.append("udp -h \"").append(address).append("\" -p ").append(port);
-            if(!intf.isEmpty())
-            {
-                s.append(" --interface \"").append(intf).append("\"");
-            }
-            lookupEndpoints = s.toString();
-        }
-
         com.zeroc.Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
-        try
-        {
-            lookupPrx.ice_getConnection();
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            StringBuilder b = new StringBuilder();
-            b.append("IceDiscovery is unable to establish a multicast connection:\n");
-            b.append("proxy = ");
-            b.append(lookupPrx.toString());
-            b.append('\n');
-            b.append(ex.toString());
-            throw new com.zeroc.Ice.PluginInitializationException(b.toString());
-        }
 
         //
         // Add lookup and lookup reply Ice objects

@@ -12,6 +12,8 @@ namespace IceDiscovery
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Text;
+    using System.Diagnostics;
 
     class Request<T>
     {
@@ -154,17 +156,77 @@ namespace IceDiscovery
         public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
         {
             _registry = registry;
-            _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
             _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
             _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
             _domainId = properties.getProperty("IceDiscovery.DomainId");
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+
+            try
+            {
+                lookup.ice_getConnection();
+            }
+            catch(Ice.LocalException ex)
+            {
+                StringBuilder b = new StringBuilder();
+                b.Append("IceDiscovery is unable to establish a multicast connection:\n");
+                b.Append("proxy = ");
+                b.Append(lookup.ToString());
+                b.Append('\n');
+                b.Append(ex.ToString());
+                throw new Ice.PluginInitializationException(b.ToString());
+            }
+
+            //
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+            // datagram on each endpoint.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var endpt in lookup.ice_getEndpoints())
+            {
+                try
+                {
+                    single[0] = endpt;
+                    LookupPrx l = (LookupPrx)lookup.ice_endpoints(single);
+                    l.ice_getConnection();
+                    _lookup[(LookupPrx)lookup.ice_endpoints(single)] = null;
+                }
+                catch(Ice.LocalException)
+                {
+                    // Ignore
+                }
+            }
+            Debug.Assert(_lookup.Count > 0);
         }
 
         public void setLookupReply(LookupReplyPrx lookupReply)
         {
-            _lookupReply = lookupReply;
+            //
+            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var key in new List<LookupPrx>(_lookup.Keys))
+            {
+                var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
+                if(info.mcastInterface.Length > 0)
+                {
+                    foreach(var q in lookupReply.ice_getEndpoints())
+                    {
+                        var r = q.getInfo();
+                        if(r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                        {
+                            single[0] = q;
+                            _lookup[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        }
+                    }
+                }
+
+                if(_lookup[key] == null)
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookup[key] = lookupReply;
+                }
+            }
         }
 
         public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
@@ -234,7 +296,10 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findObjectByIdAsync(_domainId, id, _lookupReply);
+                        foreach(var l in _lookup)
+                        {
+                            l.Key.findObjectByIdAsync(_domainId, id, l.Value);
+                        }
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -263,7 +328,10 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findAdapterByIdAsync(_domainId, adapterId, _lookupReply);
+                        foreach(var l in _lookup)
+                        {
+                            l.Key.findAdapterByIdAsync(_domainId, adapterId, l.Value);
+                        }
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -323,7 +391,10 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findObjectByIdAsync(_domainId, request.getId(), _lookupReply);
+                        foreach(var l in _lookup)
+                        {
+                            l.Key.findObjectByIdAsync(_domainId, request.getId(), l.Value);
+                        }
                         _timer.schedule(request, _timeout);
                         return;
                     }
@@ -352,7 +423,10 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findAdapterByIdAsync(_domainId, request.getId(), _lookupReply);
+                        foreach(var l in _lookup)
+                        {
+                            l.Key.findAdapterByIdAsync(_domainId, request.getId(), l.Value);
+                        }
                         _timer.schedule(request, _timeout);
                         return;
                     }
@@ -378,8 +452,7 @@ namespace IceDiscovery
         }
 
         private LocatorRegistryI _registry;
-        private readonly LookupPrx _lookup;
-        private LookupReplyPrx _lookupReply;
+        private Dictionary<LookupPrx, LookupReplyPrx> _lookup = new Dictionary<LookupPrx, LookupReplyPrx>();
         private readonly int _timeout;
         private readonly int _retryCount;
         private readonly int _latencyMultiplier;

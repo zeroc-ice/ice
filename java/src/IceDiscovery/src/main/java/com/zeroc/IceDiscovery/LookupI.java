@@ -172,17 +172,78 @@ class LookupI implements Lookup
     public LookupI(LocatorRegistryI registry, LookupPrx lookup, com.zeroc.Ice.Properties properties)
     {
         _registry = registry;
-        _lookup = lookup;
         _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
         _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
         _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
         _domainId = properties.getProperty("IceDiscovery.DomainId");
         _timer = com.zeroc.IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+
+        try
+        {
+            lookup.ice_getConnection();
+        }
+        catch(com.zeroc.Ice.LocalException ex)
+        {
+            StringBuilder b = new StringBuilder();
+            b.append("IceDiscovery is unable to establish a multicast connection:\n");
+            b.append("proxy = ");
+            b.append(lookup.toString());
+            b.append('\n');
+            b.append(ex.toString());
+            throw new com.zeroc.Ice.PluginInitializationException(b.toString());
+        }
+
+        //
+        // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+        // datagram on each endpoint.
+        //
+        com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
+        for(com.zeroc.Ice.Endpoint endpt : lookup.ice_getEndpoints())
+        {
+            try
+            {
+                single[0] = endpt;
+                LookupPrx l = (LookupPrx)lookup.ice_endpoints(single);
+                l.ice_getConnection();
+                _lookup.put(l, null);
+            }
+            catch(com.zeroc.Ice.LocalException ex)
+            {
+            }
+        }
+        assert(!_lookup.isEmpty());
     }
 
     void setLookupReply(LookupReplyPrx lookupReply)
     {
-        _lookupReply = lookupReply;
+        //
+        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        //
+        com.zeroc.Ice.Endpoint[] single = new com.zeroc.Ice.Endpoint[1];
+        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+        {
+            com.zeroc.Ice.UDPEndpointInfo info =
+                (com.zeroc.Ice.UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
+            if(!info.mcastInterface.isEmpty())
+            {
+                for(com.zeroc.Ice.Endpoint q : lookupReply.ice_getEndpoints())
+                {
+                    com.zeroc.Ice.EndpointInfo r = q.getInfo();
+                    if(r instanceof com.zeroc.Ice.IPEndpointInfo &&
+                       ((com.zeroc.Ice.IPEndpointInfo)r).host.equals(info.mcastInterface))
+                    {
+                        single[0] = q;
+                        entry.setValue((LookupReplyPrx)lookupReply.ice_endpoints(single));
+                    }
+                }
+            }
+
+            if(entry.getValue() == null)
+            {
+                // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                entry.setValue(lookupReply);
+            }
+        }
     }
 
     @Override
@@ -250,7 +311,10 @@ class LookupI implements Lookup
         {
             try
             {
-                _lookup.findObjectByIdAsync(_domainId, id, _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().findObjectByIdAsync(_domainId, id, entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
             }
             catch(com.zeroc.Ice.LocalException ex)
@@ -274,7 +338,10 @@ class LookupI implements Lookup
         {
             try
             {
-                _lookup.findAdapterByIdAsync(_domainId, adapterId, _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().findAdapterByIdAsync(_domainId, adapterId, entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
             }
             catch(com.zeroc.Ice.LocalException ex)
@@ -325,7 +392,10 @@ class LookupI implements Lookup
         {
             try
             {
-                _lookup.findObjectByIdAsync(_domainId, request.getId(), _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().findObjectByIdAsync(_domainId, request.getId(), entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -350,7 +420,10 @@ class LookupI implements Lookup
         {
             try
             {
-                _lookup.findAdapterByIdAsync(_domainId, request.getId(), _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().findAdapterByIdAsync(_domainId, request.getId(), entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -364,8 +437,7 @@ class LookupI implements Lookup
     }
 
     private LocatorRegistryI _registry;
-    private final LookupPrx _lookup;
-    private LookupReplyPrx _lookupReply;
+    private java.util.Map<LookupPrx, LookupReplyPrx> _lookup = new java.util.HashMap<>();
     private final int _timeout;
     private final int _retryCount;
     private final int _latencyMultiplier;

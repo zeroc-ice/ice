@@ -17,7 +17,6 @@
 props = lambda process, current: {
     "IceDiscovery.Timeout": 50,
     "IceDiscovery.RetryCount": 5,
-    "IceDiscovery.Interface": '::1' if current.config.ipv6 and not isinstance(platform, Linux) else "",
     "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
 }
 

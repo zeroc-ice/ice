@@ -290,7 +290,7 @@ final class UdpTransceiver implements Transceiver
         }
         else
         {
-            intfs = Network.getInterfacesForMulticast(_mcastInterface, _mcastAddr);
+            intfs = Network.getInterfacesForMulticast(_mcastInterface, Network.getProtocolSupport(_mcastAddr));
         }
         if(!intfs.isEmpty())
         {

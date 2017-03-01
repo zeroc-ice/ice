@@ -471,6 +471,7 @@ generated from the section label.
         <property name="Discovery.Interface" />
         <property name="Discovery.Lookup" />
         <property name="Discovery.Reply" class="objectadapter" />
+        <property name="Discovery.Locator" class="objectadapter" />
         <property name="Trace.Observers" />
         <property name="Trace.SaveToRegistry" />
     </section>

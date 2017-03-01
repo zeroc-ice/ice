@@ -298,7 +298,7 @@ public final class Network
         try
         {
             java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
-            for(String address : getInterfacesForMulticast(intf, group))
+            for(String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
             {
                 java.net.NetworkInterface intf2 = getInterface(address);
                 if(!interfaces.contains(intf2))
@@ -320,7 +320,7 @@ public final class Network
         try
         {
             java.util.Set<java.net.NetworkInterface> interfaces = new java.util.HashSet<>();
-            for(String address : getInterfacesForMulticast(intf, group))
+            for(String address : getInterfacesForMulticast(intf, getProtocolSupport(group)))
             {
                 java.net.NetworkInterface intf2 = getInterface(address);
                 if(!interfaces.contains(intf2))
@@ -1076,10 +1076,9 @@ public final class Network
         return hosts;
     }
 
-    public static java.util.ArrayList<String>
-    getInterfacesForMulticast(String intf, java.net.InetSocketAddress mcastAddr)
+    public static java.util.List<String>
+    getInterfacesForMulticast(String intf, int protocolSupport)
     {
-        int protocolSupport = getProtocolSupport(mcastAddr);
         java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
         if(isWildcard(intf))
         {

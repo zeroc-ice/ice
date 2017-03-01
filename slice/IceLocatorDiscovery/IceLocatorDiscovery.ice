@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #pragma once
-[["ice-prefix", "cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:dll-export:ICE_LOCATOR_DISCOVERY_API", "cpp:header-ext:h", "objc:header-dir:objc"]]
 
 #include <Ice/Locator.ice>
 

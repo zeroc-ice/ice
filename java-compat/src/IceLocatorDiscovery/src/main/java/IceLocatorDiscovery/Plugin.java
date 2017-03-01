@@ -9,12 +9,9 @@
 
 package IceLocatorDiscovery;
 
-public class PluginFactory implements Ice.PluginFactory
+import java.util.List;
+
+interface Plugin extends Ice.Plugin
 {
-    @Override
-    public Ice.Plugin
-    create(Ice.Communicator communicator, String name, String[] args)
-    {
-        return new PluginI(name, communicator);
-    }
+    List<Ice.LocatorPrx> getLocators(String instanceName, int waitTime);
 }

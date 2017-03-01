@@ -158,10 +158,6 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             'IceGrid.Registry.DefaultTemplates' :
                 '"' + os.path.abspath(os.path.join(toplevel, "cpp", "config", "templates.xml")) + '"'
         }
-
-        if current.config.ipv6 and not isinstance(platform, Linux):
-            props['IceGrid.Registry.Discovery.Interface'] = '::1'
-
         return props
 
     def getEndpoints(self, current):

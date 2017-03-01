@@ -655,7 +655,7 @@ class Expect (object):
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (expected, result))
 
         self.wait(timeout)
-        if self.mapping == "java":
+        if self.mapping in ["java", "java-compat"]:
             if self.killed is not None:
                 if win32:
                     test(self.exitstatus, -self.killed)
@@ -674,6 +674,6 @@ class Expect (object):
 
     def hasInterruptSupport(self):
         """Return True if the application gracefully terminated, False otherwise."""
-        if win32 and self.mapping == "java":
+        if win32 and self.mapping in ["java", "java-compat"]:
             return False
         return True

@@ -78,9 +78,8 @@ icegridregistry_sources	 	:= $(addprefix $(currentdir)/,$(local_registry_srcs) I
 icegridregistry_dependencies 	:= IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB $(local_dependencies)
 icegridregistry_cppflags	:= $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
-icegridadmin_dependencies 	:= IcePatch2 IceBox IceXML
-icegridadmin_sources	 	:= $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice \
-				   $(addprefix $(currentdir)/,$(local_admin_srcs))
+icegridadmin_dependencies 	:= IcePatch2 IceBox IceXML IceLocatorDiscovery
+icegridadmin_sources	 	:= $(addprefix $(currentdir)/,$(local_admin_srcs))
 
 
 projects += $(project)

@@ -62,9 +62,8 @@ import javax.naming.ldap.Rdn;
 import java.net.NetworkInterface;
 import java.net.InetAddress;
 
-import com.zeroc.IceLocatorDiscovery.LookupPrx;
-import com.zeroc.IceLocatorDiscovery.LookupReplyPrx;
-import com.zeroc.IceLocatorDiscovery.LookupReply;
+import com.zeroc.IceLocatorDiscovery.Plugin;
+import com.zeroc.IceLocatorDiscovery.PluginFactory;
 
 import com.zeroc.IceGrid.*;
 
@@ -1075,175 +1074,67 @@ public class SessionKeeper
             _nextButton.requestFocusInWindow();
         }
 
-        public void destroyDiscoveryAdapter()
-        {
-            synchronized(SessionKeeper.this)
-            {
-                if(_discoveryAdapter != null)
-                {
-                    SwingUtilities.invokeLater(() ->
-                        {
-                            if(_directDiscoveryEndpointModel.size() > 0)
-                            {
-                                _discoveryStatus.setText("");
-                            }
-                            else
-                            {
-                                _discoveryStatus.setText("No registries found");
-                            }
-                        });
-                    _discoveryAdapter.destroy();
-                    _discoveryAdapter = null;
-                }
-            }
-        }
-
-        public void refreshDiscoveryEndpoints()
+        public void refreshDiscoveryLocators()
         {
             final com.zeroc.Ice.Communicator communicator = _coordinator.getCommunicator();
-            if(_discoveryLookupReply == null)
-            {
-                _discoveryLookupReply = new LookupReply()
-                    {
-                        @Override
-                        public void foundLocator(final com.zeroc.Ice.LocatorPrx locator, com.zeroc.Ice.Current curr)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    if(_directDiscoveryEndpointModel.indexOf(locator) == -1)
-                                    {
-                                        _directDiscoveryEndpointModel.addElement(locator);
-                                    }
-
-                                    if(_directDiscoveryEndpointModel.size() > 0 &&
-                                        _directDiscoveryEndpointList.getSelectedIndex() == -1)
-                                    {
-                                        _directDiscoveryEndpointList.setSelectedIndex(0);
-                                    }
-                                });
-                        }
-                    };
-            }
-
             _discoveryStatus.setText("Searching for registries...");
-
-            //
-            // If there isn't any search in progress clear the endpoint list.
-            //
-            synchronized(SessionKeeper.this)
-            {
-                if(_discoveryAdapter == null)
-                {
-                    _directDiscoveryEndpointModel.clear();
-                }
-            }
-
-            final com.zeroc.Ice.Properties properties = communicator.getProperties();
-            final String intf = _discoveryInterfaces.getSelectedItem().toString();
-
-            String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
-            String address;
-            if(properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0 &&
-               properties.getPropertyAsInt("Ice.PreferIPv6Address") <= 0)
-            {
-                address = "239.255.0.1";
-            }
-            else
-            {
-                address = "ff15::1";
-            }
-            if(lookupEndpoints.isEmpty())
-            {
-                StringBuilder s = new StringBuilder();
-                s.append("udp -h \"");
-                s.append(properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", address));
-                s.append("\" -p ");
-                s.append(4061);
-                if(!intf.isEmpty())
-                {
-                    s.append(" --interface \"").append(intf).append("\"");
-                }
-                lookupEndpoints = s.toString();
-            }
-
             try
             {
-                final LookupPrx lookupPrx = LookupPrx.uncheckedCast(
-                    communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" +
-                                               lookupEndpoints).ice_collocationOptimized(false).ice_router(null));
-
                 new Thread(() ->
                     {
                         synchronized(SessionKeeper.this)
                         {
-                            //
-                            // If search is in progress when refresh is hit, cancel the
-                            // finish task we will schedule a new one with this new
-                            // search.
-                            //
-                            if(_discoveryFinishTask != null)
-                            {
-                                _discoveryFinishTask.cancel();
-                            }
-
-                            if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
-                            {
-                                StringBuilder s = new StringBuilder();
-                                s.append("udp");
-                                if(!intf.isEmpty())
-                                {
-                                    s.append(" -h \"").append(intf).append("\"");
-                                }
-                                properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
-                            }
-
                             try
                             {
-                                if(_discoveryAdapter == null)
+                                if(_discoveryPlugin == null)
                                 {
-                                    _discoveryAdapter = communicator.createObjectAdapter(
-                                        "IceGridAdmin.Discovery.Reply");
-                                    _discoveryAdapter.activate();
-                                    _discoveryReplyPrx = LookupReplyPrx.uncheckedCast(
-                                        _discoveryAdapter.addWithUUID(_discoveryLookupReply).ice_datagram());
+                                    PluginFactory f = new PluginFactory();
+                                    _discoveryPlugin = (Plugin)f.create(communicator, "IceGridAdmin.Discovery", null);
+                                    _discoveryPlugin.initialize();
                                 }
 
-                                lookupPrx.findLocator("", _discoveryReplyPrx);
+                                final List<com.zeroc.Ice.LocatorPrx> locators = _discoveryPlugin.getLocators("", 1000);
+                                SwingUtilities.invokeLater(() ->
+                                {
+                                    _directDiscoveryLocatorModel.clear();
+                                    for(com.zeroc.Ice.LocatorPrx locator : locators)
+                                    {
+                                        _directDiscoveryLocatorModel.addElement(locator);
+                                    }
+                                    if(_directDiscoveryLocatorModel.size() > 0 &&
+                                       _directDiscoveryLocatorList.getSelectedIndex() == -1)
+                                    {
+                                        _directDiscoveryLocatorList.setSelectedIndex(0);
+                                    }
+
+                                    if(_directDiscoveryLocatorModel.size() > 0)
+                                    {
+                                        _discoveryStatus.setText("");
+                                    }
+                                    else
+                                    {
+                                        _discoveryStatus.setText("No registries found");
+                                    }
+                                });
                             }
                             catch(final com.zeroc.Ice.LocalException ex)
                             {
-                                ex.printStackTrace();
-                                destroyDiscoveryAdapter();
                                 SwingUtilities.invokeLater(() ->
                                     {
+                                        _discoveryStatus.setText("No registries found");
                                         JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
                                                                       ex.toString(),
-                                                                      "Error while looking up locator endpoints",
+                                                                      "Error while looking up registries",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     });
                             }
-
-                            //
-                            // We schedule a timer task to destroy the discovery adapter after 2
-                            // seconds, the user doesn't need to wait, discovered proxies are
-                            // added as they are found.
-                            //
-                            _discoveryFinishTask = new java.util.TimerTask()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    destroyDiscoveryAdapter();
-                                }
-                            };
-                            new java.util.Timer().schedule(_discoveryFinishTask, 2000);
                         }
                     }).start();
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
                 JOptionPane.showMessageDialog(ConnectionWizardDialog.this, ex.toString(),
-                                              "Error while looking up locator endpoints", JOptionPane.ERROR_MESSAGE);
+                                              "Error while looking up registries", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -1298,69 +1189,11 @@ public class SessionKeeper
                 builder.append(new JLabel("Connect to an IceGrid registry through a Glacier2 router."));
                 _cardPanel.add(builder.getPanel(), WizardStep.ConnectionTypeStep.toString());
             }
-            
-            JPanel discoveryInterface;
+
+            // Direct Discovery Locator List
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
-                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                _discoveryInterfaces = new JComboBox();
-
-                builder.append("Discovery Interface:", _discoveryInterfaces);
-
-                List<String> addresses = new ArrayList<String>();
-                try
-                {
-                    Enumeration<NetworkInterface> p = NetworkInterface.getNetworkInterfaces();
-                    
-                    while(p != null && p.hasMoreElements())
-                    {
-                        NetworkInterface intf = p.nextElement();
-                        if(intf.isUp())
-                        {
-                            Enumeration<InetAddress> q = intf.getInetAddresses();
-                            while(q != null && q.hasMoreElements())
-                            {
-                                InetAddress address = q.nextElement();
-                                if(!address.isAnyLocalAddress())
-                                {
-                                    addresses.add(address.getHostAddress());
-                                }
-                            }
-                        }
-                    }
-                }
-                catch(java.net.SocketException ex)
-                {
-                    JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
-                                                  ex.toString(),
-                                                  "Error retrieving network interfaces",
-                                                  JOptionPane.ERROR_MESSAGE);
-                }
-                
-                final com.zeroc.Ice.Properties properties = _coordinator.getCommunicator().getProperties();
-                String selected = properties.getPropertyWithDefault("IceGridAdmin.Discovery.Interface", "127.0.0.1");
-                if(!addresses.contains(selected))
-                {
-                    addresses.add(selected);
-                }
-
-                _discoveryInterfaces.setModel(new DefaultComboBoxModel(addresses.toArray()));
-                _discoveryInterfaces.setSelectedItem(selected);
-                _discoveryInterfaces.addActionListener(new ActionListener ()
-                    {
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            refreshDiscoveryEndpoints();
-                        }
-                    });
-                discoveryInterface = builder.getPanel();
-            }
-
-            // Direct Discovery Endpoint List
-            {
-                _directDiscoveryEndpointModel = new DefaultListModel<>();
-                _directDiscoveryEndpointList = new JList(_directDiscoveryEndpointModel)
+                _directDiscoveryLocatorModel = new DefaultListModel<>();
+                _directDiscoveryLocatorList = new JList(_directDiscoveryLocatorModel)
                     {
                         @Override
                         public String getToolTipText(MouseEvent evt)
@@ -1378,9 +1211,9 @@ public class SessionKeeper
                             return null;
                         }
                     };
-                _directDiscoveryEndpointList.setVisibleRowCount(7);
-                _directDiscoveryEndpointList.setFixedCellWidth(500);
-                _directDiscoveryEndpointList.addMouseListener(
+                _directDiscoveryLocatorList.setVisibleRowCount(7);
+                _directDiscoveryLocatorList.setFixedCellWidth(500);
+                _directDiscoveryLocatorList.addMouseListener(
                     new MouseAdapter()
                         {
                             @Override
@@ -1388,8 +1221,8 @@ public class SessionKeeper
                             {
                                 if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
                                 {
-                                    Object obj = _directDiscoveryEndpointModel.getElementAt(
-                                                            _directDiscoveryEndpointList.locationToIndex(e.getPoint()));
+                                    Object obj = _directDiscoveryLocatorModel.getElementAt(
+                                                            _directDiscoveryLocatorList.locationToIndex(e.getPoint()));
                                     if(obj != null && obj instanceof com.zeroc.Ice.LocatorPrx)
                                     {
                                         _nextButton.doClick(0);
@@ -1397,9 +1230,9 @@ public class SessionKeeper
                                 }
                             }
                         });
-                
 
-                _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
+
+                _directDiscoveryLocatorList.addListSelectionListener(new ListSelectionListener()
                 {
                     @Override
                     public void valueChanged(ListSelectionEvent event)
@@ -1409,20 +1242,20 @@ public class SessionKeeper
                 });
 
                 ButtonGroup group = new ButtonGroup();
-                _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
+                _directDiscoveryDiscoveredLocators = new JRadioButton(new AbstractAction("Discovered Registries")
                 {
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        _directDiscoveryEndpointList.setEnabled(true);
+                        _directDiscoveryLocatorList.setEnabled(true);
                         _discoveryStatus.setEnabled(true);
                         _discoveryRefresh.setEnabled(true);
                         validatePanel();
-                        refreshDiscoveryEndpoints();
+                        refreshDiscoveryLocators();
                     }
                 });
-                _directDiscoveryDiscoveredEndpoint.setSelected(true);
-                group.add(_directDiscoveryDiscoveredEndpoint);
+                _directDiscoveryDiscoveredLocators.setSelected(true);
+                group.add(_directDiscoveryDiscoveredLocators);
 
                 JPanel discoveryStatus;
                 {
@@ -1435,7 +1268,7 @@ public class SessionKeeper
                         @Override
                         public void actionPerformed(ActionEvent e)
                         {
-                            refreshDiscoveryEndpoints();
+                            refreshDiscoveryLocators();
                         }
                     });
 
@@ -1449,8 +1282,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDiscoveryAdapter();
-                        _directDiscoveryEndpointList.setEnabled(false);
+                        _directDiscoveryLocatorList.setEnabled(false);
                         _discoveryStatus.setEnabled(false);
                         _discoveryRefresh.setEnabled(false);
                         validatePanel();
@@ -1463,9 +1295,8 @@ public class SessionKeeper
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.border(Borders.DIALOG);
                     builder.rowGroupingEnabled(false);
-                    builder.append(_directDiscoveryDiscoveredEndpoint);
-                    builder.append(discoveryInterface);
-                    builder.append(createStrippedScrollPane(_directDiscoveryEndpointList));
+                    builder.append(_directDiscoveryDiscoveredLocators);
+                    builder.append(createStrippedScrollPane(_directDiscoveryLocatorList));
                     builder.append(discoveryStatus);
                     builder.append(_directDiscoveryManualEndpoint);
                     _cardPanel.add(builder.getPanel(), WizardStep.DirectDiscoveryChooseStep.toString());
@@ -2170,9 +2001,9 @@ public class SessionKeeper
                             {
                                 _cardLayout.show(_cardPanel, WizardStep.DirectDiscoveryChooseStep.toString());
                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
-                                if(_directDiscoveryDiscoveredEndpoint.isSelected())
+                                if(_directDiscoveryDiscoveredLocators.isSelected())
                                 {
-                                    refreshDiscoveryEndpoints();
+                                    refreshDiscoveryLocators();
                                 }
                                 break;
                             }
@@ -2186,9 +2017,9 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    com.zeroc.Ice.LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
+                                    com.zeroc.Ice.LocatorPrx locator = _directDiscoveryLocatorList.getSelectedValue();
                                     _directInstanceName.setText(locator.ice_getIdentity().category);
-                                    
+
                                     String endpoints = null;
                                     for(com.zeroc.Ice.Endpoint endpoint : locator.ice_getEndpoints())
                                     {
@@ -2496,7 +2327,8 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDiscoveryAdapter();
+                        _discoveryPlugin.destroy();
+                        _discoveryPlugin = null;
 
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
@@ -2670,7 +2502,8 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDiscoveryAdapter();
+                        _discoveryPlugin.destroy();
+                        _discoveryPlugin = null;
                         dispose();
                     }
                 };
@@ -2707,7 +2540,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                        _directDiscoveryEndpointList.requestFocusInWindow();
+                        _directDiscoveryLocatorList.requestFocusInWindow();
                     }
                     break;
                 }
@@ -2851,7 +2684,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                        validated = _directDiscoveryEndpointList.getSelectedValue() != null;
+                        validated = _directDiscoveryLocatorList.getSelectedValue() != null;
                     }
                     break;
                 }
@@ -3247,17 +3080,13 @@ public class SessionKeeper
         private JCheckBox _directConnectToMaster;
 
         // Direct Discovery Endpoints
-        private JComboBox _discoveryInterfaces;
-        private JList<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointList;
-        private DefaultListModel<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointModel;
-        private JRadioButton _directDiscoveryDiscoveredEndpoint;
+        private JList<com.zeroc.Ice.LocatorPrx> _directDiscoveryLocatorList;
+        private DefaultListModel<com.zeroc.Ice.LocatorPrx> _directDiscoveryLocatorModel;
+        private JRadioButton _directDiscoveryDiscoveredLocators;
         private JLabel _discoveryStatus;
         private JButton _discoveryRefresh;
 
-        private java.util.TimerTask _discoveryFinishTask;
-        private com.zeroc.Ice.ObjectAdapter _discoveryAdapter;
-        private LookupReplyPrx _discoveryReplyPrx;
-        private LookupReply _discoveryLookupReply;
+        private Plugin _discoveryPlugin;
         private JRadioButton _directDiscoveryManualEndpoint;
 
         // Direct Endpoints panel components

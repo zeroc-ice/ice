@@ -184,18 +184,77 @@ class LookupI extends _LookupDisp
     public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
     {
         _registry = registry;
-        _lookup = lookup;
         _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
         _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
         _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
         _domainId = properties.getProperty("IceDiscovery.DomainId");
         _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+
+        try
+        {
+            lookup.ice_getConnection();
+        }
+        catch(Ice.LocalException ex)
+        {
+            StringBuilder b = new StringBuilder();
+            b.append("IceDiscovery is unable to establish a multicast connection:\n");
+            b.append("proxy = ");
+            b.append(lookup.toString());
+            b.append('\n');
+            b.append(ex.toString());
+            throw new Ice.PluginInitializationException(b.toString());
+        }
+
+        //
+        // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+        // datagram on each endpoint.
+        //
+        Ice.Endpoint[] single = new Ice.Endpoint[1];
+        for(Ice.Endpoint endpt : lookup.ice_getEndpoints())
+        {
+            try
+            {
+                single[0] = endpt;
+                LookupPrx l = (LookupPrx)lookup.ice_endpoints(single);
+                l.ice_getConnection();
+                _lookup.put(l, null);
+            }
+            catch(Ice.LocalException ex)
+            {
+            }
+        }
+        assert(!_lookup.isEmpty());
     }
 
     void
     setLookupReply(LookupReplyPrx lookupReply)
     {
-        _lookupReply = lookupReply;
+        //
+        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        //
+        Ice.Endpoint[] single = new Ice.Endpoint[1];
+        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+        {
+            Ice.UDPEndpointInfo info = (Ice.UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
+            if(!info.mcastInterface.isEmpty())
+            {
+                for(Ice.Endpoint q : lookupReply.ice_getEndpoints())
+                {
+                    Ice.EndpointInfo r = q.getInfo();
+                    if(r instanceof Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.equals(info.mcastInterface))
+                    {
+                        single[0] = q;
+                        entry.setValue((LookupReplyPrx)lookupReply.ice_endpoints(single));
+                    }
+                }
+            }
+
+            if(entry.getValue() == null)
+            {
+                // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                entry.setValue(lookupReply);
+            }
+        }
     }
 
     @Override
@@ -265,7 +324,10 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().begin_findObjectById(_domainId, id, entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -290,7 +352,10 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().begin_findAdapterById(_domainId, adapterId, entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -344,7 +409,10 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().begin_findObjectById(_domainId, request.getId(), entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -370,7 +438,10 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
+                for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                {
+                    entry.getKey().begin_findAdapterById(_domainId, request.getId(), entry.getValue());
+                }
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -384,8 +455,7 @@ class LookupI extends _LookupDisp
     }
 
     private LocatorRegistryI _registry;
-    private final LookupPrx _lookup;
-    private LookupReplyPrx _lookupReply;
+    private java.util.Map<LookupPrx, LookupReplyPrx> _lookup = new java.util.HashMap<>();
     private final int _timeout;
     private final int _retryCount;
     private final int _latencyMultiplier;

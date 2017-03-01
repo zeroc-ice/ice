@@ -169,7 +169,8 @@ final class UdpMulticastServerTransceiver implements Transceiver
     public String toDetailedString()
     {
         StringBuilder s = new StringBuilder(toString());
-        java.util.List<String> intfs = Network.getInterfacesForMulticast(_mcastInterface, _addr);
+        java.util.List<String> intfs = Network.getInterfacesForMulticast(_mcastInterface,
+                                                                         Network.getProtocolSupport(_addr));
         if(!intfs.isEmpty())
         {
             s.append("\nlocal interfaces = ");

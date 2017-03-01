@@ -774,7 +774,7 @@ IceInternal::UdpTransceiver::toDetailedString() const
     vector<string> intfs;
     if(isAddressValid(_mcastAddr))
     {
-        intfs = getInterfacesForMulticast(_mcastInterface, _mcastAddr);
+        intfs = getInterfacesForMulticast(_mcastInterface, getProtocolSupport(_mcastAddr));
     }
     else
     {

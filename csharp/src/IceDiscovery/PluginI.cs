@@ -57,16 +57,28 @@ namespace IceDiscovery
                 }
                 properties.setProperty("IceDiscovery.Multicast.Endpoints", s.ToString());
             }
+
+            string lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
+            if(lookupEndpoints.Length == 0)
+            {
+                int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+                var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+                foreach(string p in interfaces)
+                {
+                    if(p != interfaces[0])
+                    {
+                        lookupEndpoints += ":";
+                    }
+                    lookupEndpoints += "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
+                }
+            }
+
             if(properties.getProperty("IceDiscovery.Reply.Endpoints").Length == 0)
             {
-                StringBuilder s = new StringBuilder();
-                s.Append("udp");
-                if(intf.Length != 0)
-                {
-                    s.Append(" -h \"").Append(intf).Append("\"");
-                }
-                properties.setProperty("IceDiscovery.Reply.Endpoints", s.ToString());
+                properties.setProperty("IceDiscovery.Reply.Endpoints",
+                                       "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
             }
+
             if(properties.getProperty("IceDiscovery.Locator.Endpoints").Length == 0)
             {
                 properties.setProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
@@ -83,32 +95,8 @@ namespace IceDiscovery
             Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
                 _locatorAdapter.addWithUUID(locatorRegistry));
 
-            string lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
-            if(lookupEndpoints.Length == 0)
-            {
-                lookupEndpoints = "udp -h \"" + address + "\" -p " + port;
-                if(intf.Length > 0)
-                {
-                    lookupEndpoints += " --interface \"" + intf + "\"";
-                }
-            }
-
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
             lookupPrx = lookupPrx.ice_collocationOptimized(false);
-            try
-            {
-                lookupPrx.ice_getConnection();
-            }
-            catch(Ice.LocalException ex)
-            {
-                StringBuilder b = new StringBuilder();
-                b.Append("IceDiscovery is unable to establish a multicast connection:\n");
-                b.Append("proxy = ");
-                b.Append(lookupPrx.ToString());
-                b.Append('\n');
-                b.Append(ex.ToString());
-                throw new Ice.PluginInitializationException(b.ToString());
-            }
 
             //
             // Add lookup and lookup reply Ice objects

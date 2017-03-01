@@ -21,7 +21,7 @@
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
 #include <IceGrid/Registry.h>
-#include <IceGrid/IceLocatorDiscovery.h>
+#include <IceLocatorDiscovery/Plugin.h>
 #include <Glacier2/Router.h>
 #include <fstream>
 
@@ -67,74 +67,6 @@ public:
 };
 
 Init init;
-
-class LookupReplyI : public LookupReply, private IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    virtual void
-    foundLocator(const Ice::LocatorPrx& locator, const Ice::Current&)
-    {
-        Lock sync(*this);
-        for(vector<Ice::LocatorPrx>::iterator p = _locators.begin(); p != _locators.end(); ++p)
-        {
-            if((*p)->ice_getIdentity() == locator->ice_getIdentity())
-            {
-                Ice::EndpointSeq newEndpoints = (*p)->ice_getEndpoints();
-                Ice::EndpointSeq endpts = locator->ice_getEndpoints();
-                for(Ice::EndpointSeq::const_iterator r = endpts.begin(); r != endpts.end(); ++r)
-                {
-                    //
-                    // Only add unknown endpoints
-                    //
-                    bool found = false;
-                    for(Ice::EndpointSeq::const_iterator q = newEndpoints.begin(); q != newEndpoints.end(); ++q)
-                    {
-                        if(*r == *q)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(!found)
-                    {
-                        newEndpoints.push_back(*r);
-                    }
-                }
-                *p = (*p)->ice_endpoints(newEndpoints);
-                return;
-            }
-        }
-        _locators.push_back(locator);
-        notify();
-    }
-
-    vector<Ice::LocatorPrx>
-    getLocators()
-    {
-        Lock sync(*this);
-        return _locators;
-    }
-
-    bool
-    waitForLocator()
-    {
-        Lock sync(*this);
-        while(_locators.empty())
-        {
-            if(!timedWait(IceUtil::Time::milliSeconds(300)))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-private:
-
-    vector<Ice::LocatorPrx> _locators;
-};
-typedef IceUtil::Handle<LookupReplyI> LookupReplyIPtr;
 
 }
 
@@ -297,6 +229,8 @@ Client::usage()
         ;
 }
 
+extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
+createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
 
 int
 Client::main(StringSeq& args)
@@ -539,74 +473,17 @@ Client::run(StringSeq& originalArgs)
             }
             else
             {
-                bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-                string address;
-                bool preferIPv6 = properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
-                if(ipv4 && !preferIPv6)
-                {
-                    address = properties->getPropertyWithDefault("IceGridAdmin.Discovery.Address", "239.255.0.1");
-                }
-                else
-                {
-                    address = properties->getPropertyWithDefault("IceGridAdmin.Discovery.Address", "ff15::1");
-                }
+                //
+                // NOTE: we don't configure the plugin with the Ice communicator on initialization
+                // because it would install a default locator. Instead, we create the plugin here
+                // to lookup for locator proxies. We destroy the plugin, once we have selected a
+                // locator.
+                //
+                Ice::PluginPtr p = createIceLocatorDiscovery(communicator(), "IceGridAdmin.Discovery", Ice::StringSeq());
+                IceLocatorDiscovery::PluginPtr plugin = IceLocatorDiscovery::PluginPtr::dynamicCast(p);
+                plugin->initialize();
 
-                string interface = properties->getProperty("IceGridAdmin.Discovery.Interface");
-
-                string lookupEndpoints = properties->getProperty("IceGridAdmin.Discovery.Lookup");
-                if(lookupEndpoints.empty())
-                {
-                    ostringstream os;
-                    os << "udp -h \"" << address << "\" -p " << (port == 0 ? 4061 : port);
-                    if(!interface.empty())
-                    {
-                        os << " --interface \"" << interface << "\"";
-                    }
-                    lookupEndpoints = os.str();
-                }
-
-                ObjectPrx prx = communicator()->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-                LookupPrx lookupPrx = LookupPrx::uncheckedCast(prx->ice_collocationOptimized(false));
-
-                if(properties->getProperty("IceGridAdmin.Discovery.Reply.Endpoints").empty())
-                {
-                    ostringstream os;
-                    os << "udp";
-                    if(!interface.empty())
-                    {
-                        os << " -h \"" << interface << "\"";
-                    }
-                    properties->setProperty("IceGridAdmin.Discovery.Reply.Endpoints", os.str());
-                }
-
-                Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceGridAdmin.Discovery.Reply");
-                adapter->activate();
-                LookupReplyIPtr reply = new LookupReplyI();
-                LookupReplyPrx replyPrx = LookupReplyPrx::uncheckedCast(adapter->addWithUUID(reply)->ice_datagram());
-                int retryCount = 3; // Send several findLocator queries.
-                try
-                {
-                    while(--retryCount >= 0)
-                    {
-                        lookupPrx->findLocator(instanceName, replyPrx);
-                        if(instanceName.empty())
-                        {
-                            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
-                        }
-                        else if(reply->waitForLocator())
-                        {
-                            break;
-                        }
-                    }
-                }
-                catch(const Ice::LocalException& ex)
-                {
-                    consoleErr << _appName << ": registry discovery failed:\n" << ex << endl;
-                    return EXIT_FAILURE;
-                }
-                adapter->destroy();
-
-                vector<Ice::LocatorPrx> locators = reply->getLocators();
+                vector<Ice::LocatorPrx> locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
                 if(locators.size() > 1)
                 {
                     consoleOut << "found " << locators.size() << " Ice locators:" << endl;
@@ -644,6 +521,15 @@ Client::run(StringSeq& originalArgs)
                     consoleOut << "using discovered locator:\nproxy = `" << locators[0] << "'" << endl;
                     communicator()->setDefaultLocator(locators[0]);
                 }
+                else
+                {
+                    communicator()->setDefaultLocator(0);
+                }
+
+                //
+                // Destroy the plugin, we no longer need it.
+                //
+                plugin->destroy();
             }
         }
 
