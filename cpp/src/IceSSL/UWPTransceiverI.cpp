@@ -302,8 +302,7 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
                 string msg = ostr.str();
                 if(_engine->securityTraceLevel() >= 1)
                 {
-                    Trace out(_logger, _securityTraceCategory);
-                    out << msg;
+                    _instance->logger()->trace(_instance->traceCategory(), msg);
                 }
 
                 if(_engine->getVerifyPeer() > 0)
