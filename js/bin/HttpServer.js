@@ -239,7 +239,9 @@ function Init()
             // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
             // versions.
             //
-            if(process.env.OPTIMIZE == "yes")
+            // NOTE: only used minified versions with ES5 for now, they aren't supported with ES6 yet.
+            //
+            if(process.env.OPTIMIZE == "yes" && filePath.indexOf("es5/") !== -1)
             {
                 if(iceLib && filePath.substr(-7) !== ".min.js")
                 {
