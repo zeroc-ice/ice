@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props') and '$(UseBinDist)' == 'yes'" />
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <PropertyGroup Label="Globals">
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -112,6 +112,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props') and '$(UseBinDist)' == 'yes'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0-alpha4\build\zeroc.ice.net.props'))" />
   </Target>
 </Project>

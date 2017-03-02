@@ -7,7 +7,7 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
-    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
+    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
       <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
     </Target>
 
@@ -21,13 +21,13 @@
         </TestSoution>
     </ItemGroup>
 
-    <Target Name="BuildDist" Condition="'$(UseBinDist)' != 'yes'">
+    <Target Name="BuildDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
     </Target>
 
-    <Target Name="CleanDist" Condition="'$(UseBinDist)' != 'yes'">
+    <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"

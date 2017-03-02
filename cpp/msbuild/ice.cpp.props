@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-      If we are building Ice source distribution or if UseBinDist was not set to
+      If we are building Ice source distribution or if ICE_BIN_DIST was not set to
       yes, set IceHome to point to this source distribution.
   -->
-  <PropertyGroup Condition="'$(UseBinDist)' != 'yes' or '$(Ice_BuildingSrc)' == yes">
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(Ice_BuildingSrc)' == yes">
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 

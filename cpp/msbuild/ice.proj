@@ -25,11 +25,11 @@
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
   </Target>
 
-  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
+  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
   </Target>
 
-  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(UseBinDist)' == 'yes'">
+  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.testuwp.sln"/>
   </Target>
 
@@ -176,7 +176,7 @@
 
   <!-- Build distribution targets -->
   <Target Name="BuildDist" DependsOnTargets="NugetRestore"
-          Condition="'$(UseBinDist)' != 'yes'">
+          Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"/>
@@ -184,7 +184,7 @@
 
   <!-- Clean distribution targets -->
   <Target Name="CleanDist"
-          Condition="'$(UseBinDist)' != 'yes'">
+          Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"
@@ -232,7 +232,7 @@
 
   <!-- Build UWP distribution targetes -->
   <Target Name="UWPBuildDist" DependsOnTargets="NugetRestore"
-          Condition="'$(UseBinDist)' != 'yes'">
+          Condition="'$(ICE_BIN_DIST)' != 'all'">
     <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
@@ -246,7 +246,7 @@
 
   <!-- Clean UWP distribution targets -->
   <Target Name="UWPCleanDist"
-          Condition="'$(UseBinDist)' != 'yes'">
+          Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(UWPDistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"
