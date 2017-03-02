@@ -85,7 +85,7 @@ certificate password respectivelly before build.
 
 It is also possible to build the test suite using the binary Nuget packages, use:
 
-    MSbuild msbuild\ice.proj /p:UseBinDist=yes
+    MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
 ## Building Ice for UWP
 
@@ -136,7 +136,7 @@ with the following command:
 
 It is also possible to build the test suite using the binary Nuget packages, use:
 
-    MSbuild msbuild\ice.proj /t:UWPBuild /p:UseNugetBinDist=yes
+    MSbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 
 ## Nuget packages
 
