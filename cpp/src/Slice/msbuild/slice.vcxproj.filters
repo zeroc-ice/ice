@@ -18,94 +18,551 @@
     <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\CPlusPlusUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\FileTracker.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Grammar.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\JavaUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\MD5.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\MD5I.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Parser.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\PHPUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Preprocessor.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Python.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\PythonUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Ruby.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\RubyUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Scanner.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SliceUtil.cpp">
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Checksum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Grammar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GrammarUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MD5.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MD5I.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\CPlusPlusUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\FileTracker.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\JavaUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Parser.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Preprocessor.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\RubyUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Util.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PHPUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PythonUtil.h">
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
   </ItemGroup>
 </Project>
