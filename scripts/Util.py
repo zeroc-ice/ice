@@ -336,7 +336,7 @@ class Windows(Platform):
         #
         # Otherwise, use the appropriate nuget package
         #
-        return os.path.join(toplevel, mapping.name, "msbuild", "packages", "zeroc.ice.{0}.{1}".format(comp, version))
+        return os.path.join(mapping.path, "msbuild", "packages", "{0}".format(mapping.getNugetPackage(comp, version)))
 
     def canRun(self, mapping, current):
         #
@@ -2456,6 +2456,9 @@ class CppMapping(Mapping):
 
             return True
 
+    def getNugetPackage(self, compiler, version):
+        return "zeroc.ice.{0}.{1}".format(compiler, version)
+
     def getDefaultExe(self, processType, config):
         return platform.getDefaultExe(processType, config)
 
@@ -2499,7 +2502,8 @@ class CppMapping(Mapping):
         libPaths = []
         if isinstance(platform, Windows):
             testcommon = os.path.join(self.path, "test", "Common")
-            libPaths.append(os.path.join(testcommon, self.getBuildDir("testcommon", current)))
+            if os.path.exists(testcommon):
+                libPaths.append(os.path.join(testcommon, self.getBuildDir("testcommon", current)))
 
         #
         # On most platforms, we also need to add the library directory to the library path environment variable.
@@ -2649,6 +2653,9 @@ class CSharpMapping(Mapping):
 
     def getDefaultExe(self, processType, config):
         return "iceboxnet" if processType == "icebox" else processType
+
+    def getNugetPackage(self, compiler, version):
+        return "zeroc.ice.net.{0}".format(version)
 
 class CppBasedMapping(Mapping):
 
