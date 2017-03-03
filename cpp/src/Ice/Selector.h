@@ -141,6 +141,7 @@ private:
     void wakeup();
     void checkReady(EventHandler*);
     void updateSelector();
+    void updateSelectorForEventHandler(EventHandler*, SocketOperation, SocketOperation);
 
     const InstancePtr _instance;
 
