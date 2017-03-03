@@ -10,10 +10,12 @@ slice2rb [options] [files]
 
 .SH DESCRIPTION
 
-slice2rb compiles Slice files to Ruby.
+slice2rb compiles Slice files to Ruby. The macro __SLICE2RB__ is defined
+during this compilation.
 
 Full documentation for slice2rb is available online at: 
-"https://doc.zeroc.com/display/Ice37/Code+Generation+in+Ruby".
+.br
+https://doc.zeroc.com/display/Ice37/Code+Generation+in+Ruby
 
 .SH OPTIONS
 
@@ -62,15 +64,24 @@ Place the generated files into directory DIR.
 Print debug information showing the operation of the Slice parser.
 
 .TP
-.BR \-\-ice\fR
+.BR \-\-depend\fR
 .br
-Permit use of the normally reserved prefix Ice for identifiers. Use this
-option only when compiling the source code for the Ice run time.
+Print dependency information to standard output by default, or to the
+file specified by the --depend-file option. No code is generated when
+this option is specified.
 
 .TP
-.BR \-\-underscore\fR
+.BR \-\-depend\-xml\fR
 .br
-Permit use of underscores in Slice identifiers.
+Print dependency information in XML format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
+
+.TP
+.BR \-\-depend\-file " " FILE\fR
+.br
+Directs dependency information to the specified file. The output
+format depends on whether --depend or --depend-xml is also specified.
 
 .TP
 .BR \-\-all\fR
@@ -86,9 +97,8 @@ Generate checksums for Slice definitions.
 
 .BR slice2cpp (1),
 .BR slice2cs (1),
-.BR slice2freeze (1),
-.BR slice2freezej (1),
 .BR slice2html (1),
-.BR slice2java (1), 
+.BR slice2java (1),
+.BR slice2js (1),
 .BR slice2php (1),
 .BR slice2py (1)

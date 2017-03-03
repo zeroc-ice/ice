@@ -10,11 +10,12 @@ slice2objc [options] [files]
 
 .SH DESCRIPTION
 
-slice2objc compiles Slice files to Objective-C.
+slice2objc compiles Slice files to Objective-C. The macro __SLICE2OBJC__
+is defined during this compilation.
 
 Full documentation for slice2objc is available online at:
 .br
-"https://doc.zeroc.com/display/Ice37/slice2objc+Command-Line+Options".
+https://doc.zeroc.com/display/Ice37/slice2objc+Command-Line+Options
 
 .SH OPTIONS
 
@@ -34,7 +35,7 @@ Defines the preprocessor symbol NAME.
 
 .TP
 .BR \-DNAME=DEF\fR
-.br 
+.br
 Defines the preprocessor symbol NAME with the value DEF.
 
 .TP
@@ -63,35 +64,30 @@ Place the generated files into directory DIR.
 Print debug information showing the operation of the Slice parser.
 
 .TP
-.BR \-\-ice\fR
+.BR \-\-depend\fR
 .br
-Permit use of the normally reserved prefix Ice for identifiers. Use this
-option only when compiling the source code for the Ice run time.
+Print dependency information to standard output by default, or to the
+file specified by the --depend-file option. No code is generated when
+this option is specified.
 
 .TP
-.BR \-\-underscore\fR
+.BR \-\-depend\-xml\fR
 .br
-Permit use of underscores in Slice identifiers.
+Print dependency information in XML format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
 
 .TP
-.BR \-\-header-ext " " EXT\fR
+.BR \-\-depend\-file " " FILE\fR
 .br
-Changes the file extension for the generated header files from the default h
-to EXT.
+Directs dependency information to the specified file. The output
+format depends on whether --depend or --depend-xml is also specified.
 
 .TP
-.BR \-\-source-ext " " EXT\fR
+.BR \-\-validate\fR
 .br
-Changes the file extension for the generated source files from the default
-m to EXT.
-
-.TP
-.BR \-\-add-header " " HDR[,GUARD]
-.br
-This option adds an include directive for the specified header at the
-beginning of the generated source file (preceding any other include
-directives). If GUARD is specified, the include directive is protected by the
-specified guard.
+Checks the provided command-line options for correctness, and does not
+generate any code.
 
 .TP
 .BR \-\-include-dir " " DIR\fR
@@ -99,29 +95,13 @@ specified guard.
 Modifies #include directives in source files to prepend the path name of each
 header file with the directory DIR.
 
-.TP
-.BR \-\-impl\fR
-.br
-Generate sample implementation files. This option will not overwrite an 
-existing file.
-
-.TP
-.BR \-\-depend\fR
-Prints makefile dependency information to standard output.
-
-.TP
-.BR \-\-checksum\fR
-.br
-Generate checksums for Slice definitions.
-
 .SH SEE ALSO
 
 .BR slice2cpp (1),
 .BR slice2cs (1),
-.BR slice2freeze (1),
-.BR slice2freezej (1),
 .BR slice2html (1),
-.BR slice2java (1), 
+.BR slice2java (1),
+.BR slice2js (1),
 .BR slice2php (1),
 .BR slice2py (1),
 .BR slice2rb (1)
