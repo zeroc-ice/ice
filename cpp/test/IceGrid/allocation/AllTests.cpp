@@ -602,6 +602,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 // The notification of the server being disabled is asynchronous and might
                 // not be visible to the allocation system immediately.
                 session1->allocateObjectByType("::Test");
+                session1->releaseObject(obj->ice_getIdentity());
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             }
             test(false);
@@ -841,6 +842,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 // The notification of the server being disabled is asynchronous and might
                 // not be visible to the allocation system immediately.
                 session1->allocateObjectByType("::TestServer1");
+                session1->releaseObject(allocatable3);
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             }
             test(false);
