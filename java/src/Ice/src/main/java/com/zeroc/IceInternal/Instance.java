@@ -718,19 +718,6 @@ public final class Instance implements java.util.function.Function<String, Class
         return _initData.classLoader;
     }
 
-    static private String[] _iceTypeIdPrefixes =
-    {
-        "::Glacier2::",
-        "::Ice::",
-        "::IceBox::",
-        "::IceDiscovery::",
-        "::IceGrid::",
-        "::IceLocatorDiscovery::",
-        "::IceMX::",
-        "::IcePatch2::",
-        "::IceStorm::"
-    };
-
     //
     // For the "class resolver".
     //
@@ -800,21 +787,6 @@ public final class Instance implements java.util.function.Function<String, Class
             if(pkg.length() > 0)
             {
                 c = getConcreteClass(pkg + "." + className);
-            }
-        }
-
-        //
-        // See if the type ID is one of the Ice modules.
-        //
-        if(c == null)
-        {
-            String pkg = null;
-            for(int i = 0; i < _iceTypeIdPrefixes.length && c == null; ++i)
-            {
-                if(typeId.startsWith(_iceTypeIdPrefixes[i]))
-                {
-                    c = getConcreteClass("com.zeroc." + className);
-                }
             }
         }
 

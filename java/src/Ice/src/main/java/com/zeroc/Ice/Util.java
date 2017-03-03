@@ -603,6 +603,15 @@ public final class Util
         }
 
         StringBuilder buf = new StringBuilder(id.length());
+        String pkg = null;
+        for(int i = 0; i < _iceTypeIdPrefixes.length; ++i)
+        {
+            if(id.startsWith(_iceTypeIdPrefixes[i]))
+            {
+                buf.append("com.zeroc");
+                break;
+            }
+        }
 
         int start = 2;
         boolean done = false;
@@ -723,4 +732,17 @@ public final class Util
 
     private static java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger = null;
+
+    static private String[] _iceTypeIdPrefixes =
+    {
+        "::Glacier2::",
+        "::Ice::",
+        "::IceBox::",
+        "::IceDiscovery::",
+        "::IceGrid::",
+        "::IceLocatorDiscovery::",
+        "::IceMX::",
+        "::IcePatch2::",
+        "::IceStorm::"
+    };
 }
