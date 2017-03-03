@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- For Desktop builds search for available Windows SDK and set TargetPlatformVersion according. -->
+  <Choose>
+    <When Condition="Exists('$(WindowsSdkDir_81)\DesignTime\CommonConfiguration\Neutral\Windows.props')">
+      <PropertyGroup Condition="'$(AppContainerApplication)' != 'true'">
+        <TargetPlatformVersion>8.1</TargetPlatformVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(WindowsSdkDir_10)\DesignTime\CommonConfiguration\Neutral\UAP\10.0.10240.0\UAP.props')">
+      <PropertyGroup Condition="'$(AppContainerApplication)' != 'true'">
+        <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(WindowsSdkDir_10)\DesignTime\CommonConfiguration\Neutral\UAP\10.0.10586.0\UAP.props')">
+      <PropertyGroup Condition="'$(AppContainerApplication)' != 'true'">
+        <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(WindowsSdkDir_10)\DesignTime\CommonConfiguration\Neutral\UAP\10.0.14393.0\UAP.props')">
+      <PropertyGroup Condition="'$(AppContainerApplication)' != 'true'">
+        <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="'$(AppContainerApplication)' != 'true'">
+        <TargetPlatformVersion>8.1</TargetPlatformVersion>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
   <!--
       If we are building Ice source distribution or if ICE_BIN_DIST was not set to
       yes, set IceHome to point to this source distribution.
