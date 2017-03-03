@@ -20,7 +20,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
 
     def setup(self, current):
         if self.passwords:
-            path = os.path.join(current.testcase.getPath(), "passwords")
+            path = os.path.join(current.testsuite.getPath(), "passwords")
             with open(path, "w") as file:
                 command = "\"%s\" %s" % (sys.executable,
                                      os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
@@ -54,7 +54,7 @@ class Glacier2Router(ProcessFromBinDir, Server):
             "Ice.Admin.InstanceName" : "Glacier2",
         })
         if self.passwords:
-            props["Glacier2.CryptPasswords"] = os.path.join("{testdir}", "passwords")
+            props["Glacier2.CryptPasswords"] = os.path.join(current.testsuite.getPath(), "passwords")
         if isinstance(current.testcase.getTestSuite(), Glacier2TestSuite):
             # Add the properties provided by the Glacier2TestSuite routerProps parameter.
             props.update(current.testcase.getTestSuite().getRouterProps(self, current))
