@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONFIG_H
-#define ICE_SSL_CONFIG_H
+#ifndef ICESSL_CONFIG_H
+#define ICESSL_CONFIG_H
 
 #include <Ice/Config.h>
 

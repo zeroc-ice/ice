@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ICE_SSL_H
-#define ICE_SSL_ICE_SSL_H
+#ifndef ICESSL_ICESSL_H
+#define ICESSL_ICESSL_H
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <Ice/Config.h>

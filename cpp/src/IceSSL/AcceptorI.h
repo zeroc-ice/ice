@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ACCEPTOR_I_H
-#define ICE_SSL_ACCEPTOR_I_H
+#ifndef ICESSL_ACCEPTOR_I_H
+#define ICESSL_ACCEPTOR_I_H
 
 #include <Ice/TransceiverF.h>
 #include <Ice/Acceptor.h>

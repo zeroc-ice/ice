@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_INSTANCE_F_H
-#define ICE_SSL_INSTANCE_F_H
+#ifndef ICESSL_INSTANCE_F_H
+#define ICESSL_INSTANCE_F_H
 
 #include <IceUtil/Shared.h>
 

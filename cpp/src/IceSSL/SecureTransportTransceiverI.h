@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
-#define ICE_SSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
+#ifndef ICESSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
+#define ICESSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>

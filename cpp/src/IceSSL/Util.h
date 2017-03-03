@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_UTIL_H
-#define ICE_SSL_UTIL_H
+#ifndef ICESSL_UTIL_H
+#define ICESSL_UTIL_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>

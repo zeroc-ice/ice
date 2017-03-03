@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_PLUGIN_H
-#define ICE_SSL_PLUGIN_H
+#ifndef ICESSL_PLUGIN_H
+#define ICESSL_PLUGIN_H
 
 #include <Ice/Plugin.h>
 #include <Ice/UniqueRef.h>

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_TRUST_MANAGER_F_H
-#define ICE_SSL_TRUST_MANAGER_F_H
+#ifndef ICESSL_TRUST_MANAGER_F_H
+#define ICESSL_TRUST_MANAGER_F_H
 
 #include <IceUtil/Shared.h>
 

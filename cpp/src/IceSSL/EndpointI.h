@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ENDPOINT_I_H
-#define ICE_SSL_ENDPOINT_I_H
+#ifndef ICESSL_ENDPOINT_I_H
+#define ICESSL_ENDPOINT_I_H
 
 #include <Ice/EndpointI.h>
 #include <Ice/IPEndpointI.h>

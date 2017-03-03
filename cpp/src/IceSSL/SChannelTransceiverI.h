@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_SCHANNELTRANSCEIVER_I_H
-#define ICE_SSL_SCHANNELTRANSCEIVER_I_H
+#ifndef ICESSL_SCHANNELTRANSCEIVER_I_H
+#define ICESSL_SCHANNELTRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>

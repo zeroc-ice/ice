@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_RFC_2253_H
-#define ICE_SSL_RFC_2253_H
+#ifndef ICESSL_RFC_2253_H
+#define ICESSL_RFC_2253_H
 
 #include <IceUtil/Config.h>
 #include <list>

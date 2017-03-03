@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_UWP_TRANSCEIVER_I_H
-#define ICE_SSL_UWP_TRANSCEIVER_I_H
+#ifndef ICESSL_UWP_TRANSCEIVER_I_H
+#define ICESSL_UWP_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 
