@@ -57,6 +57,7 @@ allTests(const CommunicatorPtr& communicator, int num)
         try
         {
             communicator->stringToProxy("object @ oa1")->ice_ping();
+            test(false);
         }
         catch(const Ice::NoEndpointException&)
         {
@@ -67,6 +68,7 @@ allTests(const CommunicatorPtr& communicator, int num)
         try
         {
             communicator->stringToProxy("object @ oa1")->ice_ping();
+            test(false);
         }
         catch(const Ice::ObjectNotExistException&)
         {
@@ -77,6 +79,7 @@ allTests(const CommunicatorPtr& communicator, int num)
         try
         {
             communicator->stringToProxy("object @ oa1")->ice_ping();
+            test(false);
         }
         catch(const Ice::NoEndpointException&)
         {

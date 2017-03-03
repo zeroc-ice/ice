@@ -66,6 +66,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException ex)
             {
@@ -76,6 +77,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.ObjectNotExistException ex)
             {
@@ -86,13 +88,14 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException ex)
             {
             }
         }
         System.out.println("ok");
-    
+
         System.out.print("testing object adapter migration...");
         System.out.flush();
         {

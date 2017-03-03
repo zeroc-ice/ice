@@ -66,6 +66,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.NoEndpointException ex)
             {
@@ -76,6 +77,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
@@ -86,6 +88,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.NoEndpointException ex)
             {

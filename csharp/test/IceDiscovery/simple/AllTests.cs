@@ -52,6 +52,7 @@ public class AllTests : TestCommon.AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException)
             {
@@ -62,6 +63,7 @@ public class AllTests : TestCommon.AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.ObjectNotExistException)
             {
@@ -72,6 +74,7 @@ public class AllTests : TestCommon.AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException)
             {
