@@ -78,7 +78,9 @@ namespace IceInternal
                 }
             }
 
-            return setClientEndpoints(_router.getClientProxy());
+            Ice.Optional<bool> hasRoutingTable;
+            var proxy = _router.getClientProxy(out hasRoutingTable);
+            return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
         public void getClientEndpoints(GetClientEndpointsCallback callback)
@@ -100,7 +102,9 @@ namespace IceInternal
                 {
                     try
                     {
-                        callback.setEndpoints(setClientEndpoints(t.Result));
+                        var r = t.Result;
+                        callback.setEndpoints(setClientEndpoints(r.returnValue,
+                                                    r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
                     }
                     catch(System.AggregateException ae)
                     {
@@ -146,6 +150,10 @@ namespace IceInternal
             Debug.Assert(proxy != null);
             lock(this)
             {
+                if(!_hasRoutingTable)
+                {
+                    return true; // The router implementation doesn't maintain a routing table.
+                }
                 if(_identities.Contains(proxy.ice_getIdentity()))
                 {
                     //
@@ -196,12 +204,13 @@ namespace IceInternal
             }
         }
 
-        private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy)
+        private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock(this)
             {
                 if(_clientEndpoints == null)
                 {
+                    _hasRoutingTable = hasRoutingTable;
                     if(clientProxy == null)
                     {
                         //
@@ -292,6 +301,7 @@ namespace IceInternal
         private Ice.ObjectAdapter _adapter;
         private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
         private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+        private bool _hasRoutingTable;
     }
 
     public sealed class RouterManager

@@ -52,9 +52,10 @@ public class Server extends test.Util.Application
     {
         @Override
         public Ice.ObjectPrx
-        getClientProxy(Ice.Current current)
+        getClientProxy(Ice.BooleanHolder hasRoutingTable, Ice.Current current)
         {
             _controller.checkCallPause(current);
+            hasRoutingTable.value = true;
             return null;
         }
 

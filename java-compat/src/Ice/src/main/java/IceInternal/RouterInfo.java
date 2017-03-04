@@ -83,7 +83,9 @@ public final class RouterInfo
             }
         }
 
-        return setClientEndpoints(_router.getClientProxy());
+        Ice.BooleanOptional hasRoutingTable = new Ice.BooleanOptional();
+        Ice.ObjectPrx proxy = _router.getClientProxy(hasRoutingTable);
+        return setClientEndpoints(proxy, hasRoutingTable.isSet() ? hasRoutingTable.get() : true);
     }
 
     public void
@@ -105,9 +107,10 @@ public final class RouterInfo
             {
                 @Override
                 public void
-                response(Ice.ObjectPrx clientProxy)
+                response(Ice.ObjectPrx clientProxy, Ice.BooleanOptional hasRoutingTable)
                 {
-                    callback.setEndpoints(setClientEndpoints(clientProxy));
+                    callback.setEndpoints(setClientEndpoints(clientProxy,
+                                                             hasRoutingTable.isSet() ? hasRoutingTable.get() : true));
                 }
 
                 @Override
@@ -139,6 +142,10 @@ public final class RouterInfo
         assert(proxy != null);
         synchronized(this)
         {
+            if(!_hasRoutingTable)
+            {
+                return true; // The router implementation doesn't maintain a routing table.
+            }
             if(_identities.contains(proxy.ice_getIdentity()))
             {
                 //
@@ -188,10 +195,11 @@ public final class RouterInfo
     }
 
     private synchronized EndpointI[]
-    setClientEndpoints(Ice.ObjectPrx clientProxy)
+    setClientEndpoints(Ice.ObjectPrx clientProxy, boolean hasRoutingTable)
     {
         if(_clientEndpoints == null)
         {
+            _hasRoutingTable = hasRoutingTable;
             if(clientProxy == null)
             {
                 //
@@ -277,4 +285,5 @@ public final class RouterInfo
     private Ice.ObjectAdapter _adapter;
     private java.util.Set<Ice.Identity> _identities = new java.util.HashSet<Ice.Identity>();
     private java.util.List<Ice.Identity> _evictedIdentities = new java.util.ArrayList<Ice.Identity>();
+    private boolean _hasRoutingTable;
 }

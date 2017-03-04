@@ -83,7 +83,8 @@ public final class RouterInfo
             }
         }
 
-        return setClientEndpoints(_router.getClientProxy());
+        com.zeroc.Ice.Router.GetClientProxyResult r = _router.getClientProxy();
+        return setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true));
     }
 
     public void
@@ -101,7 +102,7 @@ public final class RouterInfo
             return;
         }
 
-        _router.getClientProxyAsync().whenComplete((com.zeroc.Ice.ObjectPrx clientProxy, Throwable ex) ->
+        _router.getClientProxyAsync().whenComplete((com.zeroc.Ice.Router.GetClientProxyResult r, Throwable ex) ->
             {
                 if(ex != null)
                 {
@@ -116,7 +117,7 @@ public final class RouterInfo
                 }
                 else
                 {
-                    callback.setEndpoints(setClientEndpoints(clientProxy));
+                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true)));
                 }
             });
     }
@@ -141,6 +142,10 @@ public final class RouterInfo
         assert(proxy != null);
         synchronized(this)
         {
+            if(!_hasRoutingTable)
+            {
+                return true; // The router implementation doesn't maintain a routing table.
+            }
             if(_identities.contains(proxy.ice_getIdentity()))
             {
                 //
@@ -192,10 +197,11 @@ public final class RouterInfo
     }
 
     private synchronized EndpointI[]
-    setClientEndpoints(com.zeroc.Ice.ObjectPrx clientProxy)
+    setClientEndpoints(com.zeroc.Ice.ObjectPrx clientProxy, boolean hasRoutingTable)
     {
         if(_clientEndpoints == null)
         {
+            _hasRoutingTable = hasRoutingTable;
             if(clientProxy == null)
             {
                 //
@@ -279,7 +285,7 @@ public final class RouterInfo
     private EndpointI[] _clientEndpoints;
     private EndpointI[] _serverEndpoints;
     private com.zeroc.Ice.ObjectAdapter _adapter;
-    private java.util.Set<com.zeroc.Ice.Identity> _identities = new java.util.HashSet<com.zeroc.Ice.Identity>();
-    private java.util.List<com.zeroc.Ice.Identity> _evictedIdentities =
-        new java.util.ArrayList<com.zeroc.Ice.Identity>();
+    private java.util.Set<com.zeroc.Ice.Identity> _identities = new java.util.HashSet<>();
+    private java.util.List<com.zeroc.Ice.Identity> _evictedIdentities = new java.util.ArrayList<>();
+    private boolean _hasRoutingTable;
 }

@@ -129,8 +129,9 @@ public:
     }
 
     virtual ObjectPrx
-    getClientProxy(const Current&) const
+    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current&) const
     {
+        hasRoutingTable = false;
         return _clientProxy;
     }
 

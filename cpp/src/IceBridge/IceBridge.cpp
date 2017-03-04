@@ -423,8 +423,9 @@ class RouterI : public Router
 {
 public:
 
-    virtual ObjectPrx getClientProxy(const Current&) const
+    virtual ObjectPrx getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current&) const
     {
+        hasRoutingTable = false; // We don't maintain a routing table, no need to call addProxies on this impl.
         return 0;
     }
 

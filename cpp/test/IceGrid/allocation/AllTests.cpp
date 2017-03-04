@@ -615,8 +615,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
 
         cout << "testing object allocation timeout... " << flush;
-
         session1->allocateObjectById(allocatable);
+
         IceUtil::Time time = IceUtil::Time::now();
         session2->setAllocationTimeout(500);
         try

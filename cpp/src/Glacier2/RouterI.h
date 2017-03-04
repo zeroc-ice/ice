@@ -38,7 +38,7 @@ public:
 
     void destroy(const Callback_Session_destroyPtr&);
 
-    virtual Ice::ObjectPrx getClientProxy(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current& = Ice::noExplicitCurrent) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current& = Ice::noExplicitCurrent) const;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;

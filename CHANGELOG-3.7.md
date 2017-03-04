@@ -17,6 +17,12 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- Implementations of the `Ice::Router` interface can now indicate whether or not
+  they support a routing table through the optional out parameter `hasRoutingTable`
+  of the `getClientProxy` operation. The Ice runtime won't call the `addProxies`
+  operation if the router implementation indicates that it doesn't manage a routing
+  table.
+
 - The `findObjectByType`, `findAllObjectsByType`, `findObjectByTypeOnLeastLoadedNode`
   operations from the `IceGrid::Query` interface and the `allocateObjectByType`
   operation from the `IceGrid::Session` interfaces now only returns proxies for

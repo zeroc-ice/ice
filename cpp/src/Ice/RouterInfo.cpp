@@ -109,7 +109,7 @@ IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
     return info;
 }
 
-IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) : _router(router)
+IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) : _router(router), _hasRoutingTable(false)
 {
     assert(_router);
 }
@@ -148,14 +148,17 @@ IceInternal::RouterInfo::getClientEndpoints()
         }
     }
 
-    return setClientEndpoints(_router->getClientProxy());
+    IceUtil::Optional<bool> hasRoutingTable;
+    Ice::ObjectPrxPtr proxy = _router->getClientProxy(hasRoutingTable);
+    return setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true);
 }
 
 void
 IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrxPtr& proxy,
+                                                const IceUtil::Optional<bool>& hasRoutingTable,
                                                 const GetClientEndpointsCallbackPtr& callback)
 {
-    callback->setEndpoints(setClientEndpoints(proxy));
+    callback->setEndpoints(setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
 }
 
 void
@@ -183,9 +186,9 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
 #ifdef ICE_CPP11_MAPPING
     RouterInfoPtr self = this;
     _router->getClientProxyAsync(
-        [self, callback](const Ice::ObjectPrxPtr& proxy)
+        [self, callback](const Ice::ObjectPrxPtr& proxy, Ice::optional<bool> hasRoutingTable)
         {
-            self->getClientProxyResponse(proxy, callback);
+            self->getClientProxyResponse(proxy, hasRoutingTable, callback);
         },
         [self, callback](exception_ptr e)
         {
@@ -239,7 +242,11 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
     assert(proxy);
     {
         IceUtil::Mutex::Lock sync(*this);
-        if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
+        if(!_hasRoutingTable)
+        {
+            return true; // The router implementation doesn't maintain a routing table.
+        }
+        else if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
@@ -303,11 +310,12 @@ IceInternal::RouterInfo::clearCache(const ReferencePtr& ref)
 }
 
 vector<EndpointIPtr>
-IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy)
+IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool hasRoutingTable)
 {
     IceUtil::Mutex::Lock sync(*this);
     if(_clientEndpoints.empty())
     {
+        _hasRoutingTable = hasRoutingTable;
         if(!proxy)
         {
             //

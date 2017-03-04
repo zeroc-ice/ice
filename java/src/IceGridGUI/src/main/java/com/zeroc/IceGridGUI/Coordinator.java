@@ -619,10 +619,10 @@ public class Coordinator
         }
 
         @Override
-        public com.zeroc.Ice.ObjectPrx
+        public com.zeroc.Ice.Router.GetClientProxyResult
         getClientProxy(com.zeroc.Ice.Current current)
         {
-            return _clientProxy;
+            return new com.zeroc.Ice.Router.GetClientProxyResult(_clientProxy, java.util.Optional.of(false));
         }
 
         @Override

@@ -83,8 +83,9 @@ class RouterI : public Ice::Router
 public:
 
     virtual Ice::ObjectPrxPtr
-    getClientProxy(const Ice::Current& current) const
+    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current& current) const
     {
+        hasRoutingTable = true;
         _controller->checkCallPause(current);
         return ICE_NULLPTR;
     }

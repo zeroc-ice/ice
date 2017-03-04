@@ -775,9 +775,9 @@ SessionRouterI::destroy()
 }
 
 ObjectPrx
-SessionRouterI::getClientProxy(const Current& current) const
+SessionRouterI::getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current& current) const
 {
-    return getRouter(current.con, current.id)->getClientProxy(current); // Forward to the per-client router.
+    return getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
 }
 
 ObjectPrx

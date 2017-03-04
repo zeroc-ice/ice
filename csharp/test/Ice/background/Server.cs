@@ -52,8 +52,9 @@ public class Server : TestCommon.Application
 
     internal class RouterI : Ice.RouterDisp_
     {
-        public override Ice.ObjectPrx getClientProxy(Ice.Current current)
+        public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable, Ice.Current current)
         {
+            hasRoutingTable = new Ice.Optional<bool>(true);
             _controller.checkCallPause(current);
             return null;
         }
