@@ -148,7 +148,7 @@ class RouterI(Ice._RouterDisp):
         self._locator.useSync(sync)
 
     def getClientProxy(self, current):
-        return self._blobjectProxy
+        return (self._blobjectProxy, True)
 
     def getServerProxy(self, current):
         assert false
