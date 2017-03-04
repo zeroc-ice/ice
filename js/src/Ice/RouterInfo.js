@@ -35,6 +35,7 @@ class RouterInfo
         this._adapter = null;
         this._identities = new HashMap(HashMap.compareEquals); // Set<Identity> = Map<Identity, 1>
         this._evictedIdentities = [];
+        this._hasRoutingTable = false;
     }
 
     destroy()
@@ -76,19 +77,20 @@ class RouterInfo
     getClientEndpoints()
     {
         const promise = new Ice.Promise();
-
         if(this._clientEndpoints !== null)
         {
             promise.resolve(this._clientEndpoints);
         }
         else
         {
-            this._router.getClientProxy().then(proxy => this.setClientEndpoints(proxy, promise)).catch(promise.reject);
+            this._router.getClientProxy().then((result) =>
+                           this.setClientEndpoints(result[0],
+                                                   result[1] !== undefined ? result[1] : true,
+                                                   promise)).catch(promise.reject);
         }
-
         return promise;
     }
-    
+
 
     getServerEndpoints()
     {
@@ -105,8 +107,11 @@ class RouterInfo
     addProxy(proxy)
     {
         Debug.assert(proxy !== null);
-
-        if(this._identities.has(proxy.ice_getIdentity()))
+        if(!this._hasRoutingTable)
+        {
+            return Ice.Promise.resolve(); // The router implementation doesn't maintain a routing table.
+        }
+        else if(this._identities.has(proxy.ice_getIdentity()))
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
@@ -138,10 +143,11 @@ class RouterInfo
         this._identities.delete(ref.getIdentity());
     }
 
-    setClientEndpoints(clientProxy, promise)
+    setClientEndpoints(clientProxy, hasRoutingTable, promise)
     {
         if(this._clientEndpoints === null)
         {
+            this._hasRoutingTable = hasRoutingTable;
             if(clientProxy === null)
             {
                 //
