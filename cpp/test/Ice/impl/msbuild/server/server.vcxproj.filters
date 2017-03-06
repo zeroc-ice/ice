@@ -29,7 +29,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\TestI.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

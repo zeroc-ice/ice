@@ -18,7 +18,7 @@ using namespace Test;
 namespace
 {
 
-class SessionHelperServer : public Ice::Application
+class Server : public Ice::Application
 {
 public:
 
@@ -37,12 +37,6 @@ public:
     }
 
     virtual void
-    initiateCallbackEx(const CallbackReceiverPrx& proxy, const Ice::Current& current)
-    {
-        proxy->callbackEx(current.ctx);
-    }
-
-    virtual void
     shutdown(const Ice::Current& current)
     {
         current.adapter->getCommunicator()->shutdown();
@@ -52,7 +46,7 @@ public:
 }
 
 int
-SessionHelperServer::run(int, char**)
+Server::run(int, char**)
 {
     communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(communicator(), 1));
     communicator()->createObjectAdapter("DeactivatedAdapter");
@@ -73,10 +67,8 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
 
-    SessionHelperServer app;
+    Server app;
     Ice::InitializationData initData = getTestInitData(argc, argv);
-    int status = app.main(argc, argv, initData);
-    cerr << "exit status: " << status << endl;
-    return status;
+    return app.main(argc, argv, initData);
 }
 
