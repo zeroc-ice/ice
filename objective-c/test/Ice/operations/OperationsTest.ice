@@ -406,7 +406,7 @@ module Test2
  * a different module (ICE-7639).
  *
  **/
-class MyDerivedClass extends Test::MyClass
+interface MyDerivedClass extends Test::MyClass
 {
 };
 
