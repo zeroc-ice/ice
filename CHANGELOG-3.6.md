@@ -11,6 +11,9 @@ particular aspect of Ice.
 - [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [C# Changes](#c-changes-2)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -62,6 +65,12 @@ These are the changes since Ice 3.6.4.
 
 - Fixed bug which would cause an IceUtil::NullHandleException to be raised when
   using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
+
+## Java Changes
+
+- Fixed generated code bug which would cause a build failure if an interface
+  inherited from an interface from another module and if this interface had
+  operations returning multiple values.
 
 ## JavaScript Changes
 
