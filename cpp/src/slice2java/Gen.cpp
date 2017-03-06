@@ -395,7 +395,7 @@ Slice::JavaVisitor::getAsyncCallbackInterface(const OperationPtr& op, const stri
     else
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        return "_Callback_" + cl->name() + "_" + op->name();
+        return getPackage(cl) + "._Callback_" + cl->name() + "_" + op->name();
     }
 }
 
@@ -468,7 +468,7 @@ Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool funct
         {
             os << "IceInternal.TwowayCallback implements ";
         }
-        os << "_Callback_" << cl->name() << "_" << op->name();
+        os << getPackage(cl) << "._Callback_" << cl->name() << "_" << op->name();
         return os.str();
     }
 }
