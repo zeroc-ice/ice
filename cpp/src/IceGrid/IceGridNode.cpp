@@ -794,7 +794,7 @@ NodeService::usage(const string& appName)
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.\n"
         "--readonly           Start the collocated master registry in read-only mode.\n"
-        "--initdb-from-replica=<replica>\n"
+        "--initdb-from-replica <replica>\n"
         "                     Initialize the collocated registry database from the\n"
         "                     given replica.\n"
         "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
