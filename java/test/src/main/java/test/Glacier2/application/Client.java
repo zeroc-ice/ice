@@ -120,8 +120,6 @@ public class Client extends test.Util.Application
             catch(com.zeroc.Glacier2.SessionNotExistException ex)
             {
             }
-
-
             return 0;
         }
 
