@@ -127,21 +127,15 @@ main(int argc, char* argv[])
     
     initData.properties->setProperty("Ice.Default.Router", "");
     Ice::CommunicatorPtr communicator = Ice::initialize(initData);
-    Ice::ObjectPrx processBase;
-    {
-        cout << "testing stringToProxy for process object... " << flush;
-        processBase = communicator->stringToProxy("Glacier2/admin -f Process:" +
-                                                    getTestEndpoint(communicator, 11));
-        cout << "ok" << endl;
-    }
 
-    Ice::ProcessPrx process;
-    {
-        cout << "testing checked cast for admin object... " << flush;
-        process = Ice::ProcessPrx::checkedCast(processBase);
-        test(process != 0);
-        cout << "ok" << endl;
-    }
+    cout << "testing stringToProxy for process object... " << flush;
+    Ice::ObjectPrxPtr processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(communicator, 11));
+    cout << "ok" << endl;
+
+    cout << "testing checked cast for admin object... " << flush;
+    Ice::ProcessPrxPtr process = ICE_CHECKED_CAST(Ice::ProcessPrx, processBase);
+    test(process != 0);
+    cout << "ok" << endl;
 
     cout << "testing Glacier2 shutdown... " << flush;
     process->shutdown();
