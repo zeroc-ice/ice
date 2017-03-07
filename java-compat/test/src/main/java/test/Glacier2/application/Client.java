@@ -30,16 +30,16 @@ public class Client extends test.Util.Application
             throw new RuntimeException();
         }
     }
-    
+
     class CallbackReceiverI extends test.Glacier2.application.Test._CallbackReceiverDisp
     {
-        public synchronized void 
+        public synchronized void
         callback(Ice.Current current)
         {
             _received = true;
             notify();
         }
-        
+
         public synchronized void
         waitForCallback()
         {
@@ -56,10 +56,10 @@ public class Client extends test.Util.Application
             }
             _received = false;
         }
-        
+
         boolean _received = false;
     }
-    
+
     class Application extends Glacier2.Application
     {
         public Application()
@@ -101,7 +101,8 @@ public class Client extends test.Util.Application
                     out.print("testing Glacier2::Application restart... ");
                     out.flush();
                 }
-                Ice.ObjectPrx base = communicator().stringToProxy("callback:" + getTestEndpoint(communicator().getProperties(), 0));
+                Ice.ObjectPrx base = communicator().stringToProxy("callback:" +
+                                                                  getTestEndpoint(communicator().getProperties(), 0));
                 CallbackPrx callback = CallbackPrxHelper.uncheckedCast(base);
                 if(++_restart < 5)
                 {
@@ -111,12 +112,12 @@ public class Client extends test.Util.Application
                     restart();
                 }
                 out.println("ok");
-                
+
                 out.print("testing server shutdown... ");
                 out.flush();
                 callback.shutdown();
                 out.println("ok");
-            
+
             }
             catch(Glacier2.SessionNotExistException ex)
             {
@@ -125,7 +126,7 @@ public class Client extends test.Util.Application
 
             return 0;
         }
-        
+
         @Override
         public void sessionDestroyed()
         {
@@ -136,24 +137,28 @@ public class Client extends test.Util.Application
         public boolean _destroyed = false;
         private CallbackReceiverI _receiver;
     }
-    
+
+    @Override
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        _initData = super.getInitData(argsH);
+        _initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return _initData;
+    }
+
     public int run(String[] args)
     {
         Application app = new Application();
-        
-        Ice.InitializationData initData = getInitData(new Ice.StringSeqHolder(args));
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(initData.properties, 10));
-        
-        int status = app.main("Client", args, initData);
-        
-        initData.properties.setProperty("Ice.Default.Router", "");
-        Ice.Communicator communicator = Ice.Util.initialize(initData);
-    
+
+        _initData.properties.setProperty("Ice.Default.Router",
+                                         "Glacier2/router:" + getTestEndpoint(_initData.properties, 10));
+
+        int status = app.main("Client", args, _initData);
+
         out.print("testing stringToProxy for process object... ");
         out.flush();
-        Ice.ObjectPrx processBase = communicator.stringToProxy("Glacier2/admin -f Process:" +
-                                                               getTestEndpoint(communicator.getProperties(), 11));
+        Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
+                                                               getTestEndpoint(communicator().getProperties(), 11));
         out.println("ok");
 
         out.print("testing checked cast for admin object... ");
@@ -174,12 +179,10 @@ public class Client extends test.Util.Application
         {
             out.println("ok");
         }
-        
+
         test(app._restart == 5);
         test(app._destroyed);
-        
-        communicator.destroy();
-        
+
         return status;
     }
 
@@ -193,4 +196,5 @@ public class Client extends test.Util.Application
     }
 
     final public PrintWriter out;
+    private Ice.InitializationData _initData;
 }

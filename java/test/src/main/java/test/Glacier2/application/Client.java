@@ -27,17 +27,17 @@ public class Client extends test.Util.Application
             throw new RuntimeException();
         }
     }
-    
+
     class CallbackReceiverI implements test.Glacier2.application.Test.CallbackReceiver
     {
         @Override
-        public synchronized void 
+        public synchronized void
         callback(com.zeroc.Ice.Current current)
         {
             _received = true;
             notify();
         }
-        
+
         public synchronized void
         waitForCallback()
         {
@@ -54,10 +54,10 @@ public class Client extends test.Util.Application
             }
             _received = false;
         }
-        
+
         boolean _received = false;
     }
-    
+
     class Application extends com.zeroc.Glacier2.Application
     {
         public Application()
@@ -99,7 +99,8 @@ public class Client extends test.Util.Application
                     out.print("testing Glacier2::Application restart... ");
                     out.flush();
                 }
-                com.zeroc.Ice.ObjectPrx base = communicator().stringToProxy("callback:" + getTestEndpoint(communicator().getProperties(), 0));
+                com.zeroc.Ice.ObjectPrx base = communicator().stringToProxy("callback:" +
+                                                                    getTestEndpoint(communicator().getProperties(), 0));
                 CallbackPrx callback = CallbackPrx.uncheckedCast(base);
                 if(++_restart < 5)
                 {
@@ -109,12 +110,12 @@ public class Client extends test.Util.Application
                     restart();
                 }
                 out.println("ok");
-                
+
                 out.print("testing server shutdown... ");
                 out.flush();
                 callback.shutdown();
                 out.println("ok");
-            
+
             }
             catch(com.zeroc.Glacier2.SessionNotExistException ex)
             {
@@ -123,7 +124,7 @@ public class Client extends test.Util.Application
 
             return 0;
         }
-        
+
         @Override
         public void sessionDestroyed()
         {
@@ -134,25 +135,26 @@ public class Client extends test.Util.Application
         public boolean _destroyed = false;
         private CallbackReceiverI _receiver;
     }
-    
+
+    @Override
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
+    {
+        _initData = super.getInitData(args, rArgs);
+        _initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return _initData;
+    }
+
     public int run(String[] args)
     {
         Application app = new Application();
-        
-        java.util.List<String> remainingArgs = new java.util.ArrayList<>();
-        com.zeroc.Ice.InitializationData initData = getInitData(args, remainingArgs);
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(initData.properties, 10));
-        
-        int status = app.main("Client", args, initData);
-        
-        initData.properties.setProperty("Ice.Default.Router", "");
-        com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
-    
+        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
+                                            getTestEndpoint(_initData.properties, 10));
+        int status = app.main("Client", args, _initData);
+
         out.print("testing stringToProxy for process object... ");
         out.flush();
-        com.zeroc.Ice.ObjectPrx processBase = communicator.stringToProxy("Glacier2/admin -f Process:" +
-                                                                    getTestEndpoint(communicator.getProperties(), 11));
+        com.zeroc.Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
+                                                                getTestEndpoint(communicator().getProperties(), 11));
         out.println("ok");
 
         out.print("testing checked cast for admin object... ");
@@ -173,12 +175,10 @@ public class Client extends test.Util.Application
         {
             out.println("ok");
         }
-        
+
         test(app._restart == 5);
         test(app._destroyed);
-        
-        communicator.destroy();
-        
+
         return status;
     }
 
@@ -192,4 +192,5 @@ public class Client extends test.Util.Application
     }
 
     final public PrintWriter out;
+    private com.zeroc.Ice.InitializationData _initData;
 }
