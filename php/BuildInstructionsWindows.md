@@ -54,7 +54,7 @@ and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
 
 It is also possible to build the test suite using the binary Ice distribution, use:
 
-    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\3.7a4"
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\3.7b0"
 
 ## Installing the PHP Extension
 
@@ -90,9 +90,9 @@ and its third-party dependencies. On Windows, these DLLs are required:
 
     bzip2.dll
     ice37a3.dll
-    icediscovery37a4.dll
-    icelocatordiscovery37a4.dll
-    icessl37a4.dll
+    icediscovery37b0.dll
+    icelocatordiscovery37b0.dll
+    icessl37b0.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For
 ISS configured to run PHP as FastCGI the simple is to copy the libraries next to
