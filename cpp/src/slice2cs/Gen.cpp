@@ -1991,7 +1991,7 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
                     j = i++;
                     while(j != remarksLines.end())
                     {
-                        string::size_type endpos = j->find('>');
+                        string::size_type endpos = j->find("</param>");
                         if(endpos == string::npos)
                         {
                             i = j;
