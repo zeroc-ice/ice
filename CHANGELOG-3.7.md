@@ -252,7 +252,10 @@ These are the changes since Ice 3.6.3.
       MFruitOrange
   } MFruit;
   ```
+
 ## Python Changes
+
+- Added support for the Dispatcher facility.
 
 - The Ice communicator now implements context manager protocol. This enables
   the code to initialize the communicator within a `with` block. The

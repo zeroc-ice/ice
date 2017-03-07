@@ -13,6 +13,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
 #include <BatchRequestInterceptor.h>
+#include <Dispatcher.h>
 #include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
@@ -59,6 +60,7 @@ struct CommunicatorObject
     IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
     WaitForShutdownThreadPtr* shutdownThread;
     bool shutdown;
+    DispatcherPtr* dispatcher;
 };
 
 }
@@ -80,6 +82,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
     self->shutdownThread = 0;
     self->shutdown = false;
+    self->dispatcher = 0;
     return self;
 }
 
@@ -142,6 +145,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     bool hasArgs = argList != 0;
 
     Ice::InitializationData data;
+    DispatcherPtr dispatcherWrapper;
 
     if(initData)
     {
@@ -149,6 +153,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
         PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
         PyObjectHandle batchRequestInterceptor = PyObject_GetAttrString(initData, STRCAST("batchRequestInterceptor"));
+        PyObjectHandle dispatcher = PyObject_GetAttrString(initData, STRCAST("dispatcher"));
 
         PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
 
@@ -170,6 +175,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         if(threadHook.get() && threadHook.get() != Py_None)
         {
             data.threadHook = new ThreadHook(threadHook.get());
+        }
+
+        if(dispatcher.get() && dispatcher.get() != Py_None)
+        {
+            dispatcherWrapper = new Dispatcher(dispatcher.get());
+            data.dispatcher = dispatcherWrapper;
         }
 
         if(batchRequestInterceptor.get() && batchRequestInterceptor.get() != Py_None)
@@ -269,6 +280,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
 
+    if(dispatcherWrapper)
+    {
+        self->dispatcher = new DispatcherPtr(dispatcherWrapper);
+        dispatcherWrapper->setCommunicator(communicator);
+    }
+
     return 0;
 }
 
@@ -322,6 +339,11 @@ communicatorDestroy(CommunicatorObject* self)
     }
 
     vfm->destroy();
+
+    if(self->dispatcher)
+    {
+        (*self->dispatcher)->setCommunicator(0); // Break cyclic reference.
+    }
 
     //
     // Break cyclic reference between this object and its Python wrapper.

@@ -15,6 +15,7 @@
 #include <Connection.h>
 #include <ConnectionInfo.h>
 #include <Current.h>
+#include <Dispatcher.h>
 #include <Endpoint.h>
 #include <EndpointInfo.h>
 #include <ImplicitContext.h>
@@ -181,6 +182,10 @@ initIcePy(void)
         INIT_RETURN;
     }
     if(!initPropertiesAdmin(module))
+    {
+        INIT_RETURN;
+    }
+    if(!initDispatcher(module))
     {
         INIT_RETURN;
     }
