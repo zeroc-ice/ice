@@ -1169,7 +1169,7 @@ Slice::CsVisitor::getDispatchParams(const OperationPtr& op, string& retS, vector
         paramDecls = op->inParameters();
         retS = taskResultType(op, true);
     }
-    else if((op)->hasMarshaledResult())
+    else if(op->hasMarshaledResult())
     {
         name = fixId(op->name(), DotNet::ICloneable, true);
         params = getInParams(op);
@@ -2119,6 +2119,7 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
+    _impl << sp << nl << "using _System = global::System;";
     ImplVisitor implVisitor(_impl);
     p->visit(&implVisitor, false);
 }
@@ -2126,6 +2127,7 @@ Slice::Gen::generateImpl(const UnitPtr& p)
 void
 Slice::Gen::generateImplTie(const UnitPtr& p)
 {
+    _impl << sp << nl << "using _System = global::System;";
     ImplTieVisitor implTieVisitor(_impl);
     p->visit(&implTieVisitor, false);
 }
@@ -5413,8 +5415,22 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     string opName = op->name();
     TypePtr ret = op->returnType();
-    string retS = typeToString(ret);
     ParamDeclList params = op->parameters();
+    ParamDeclList outParams;
+    ParamDeclList inParams;
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        if((*i)->isOutParam())
+        {
+            outParams.push_back(*i);
+        }
+        else
+        {
+            inParams.push_back(*i);
+        }
+    }
+
+    string retS = op->hasMarshaledResult() ? resultStructName(cl->name(), op->name(), true) : typeToString(ret);
 
     if(comment)
     {
@@ -5429,13 +5445,20 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     {
         ParamDeclList::const_iterator i;
         vector<string> pDecl = getInParams(op);
+        string resultType = CsGenerator::resultType(op, true);
 
         _out << "public ";
         if(!forTie)
         {
             _out << "override ";
         }
-        _out << "void " << opName << "_async" << spar << pDecl << "Ice.Current current = null" << epar;
+
+        _out << "_System.Threading.Tasks.Task";
+        if(!resultType.empty())
+        {
+            _out << "<" << resultType << ">";
+        }
+        _out << " " << opName << "Async" << spar << pDecl << "Ice.Current current = null" << epar;
 
         if(comment)
         {
@@ -5457,24 +5480,51 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
                 _out << nl << typeToString(type) << ' ' << name << " = " << writeValue(type) << ';';
             }
         }
-        _out << nl << "cb.ice_response" << spar;
-        if(ret)
+        _out << nl << "return _System.Threading.Tasks.Task.FromResult";
+        if(resultType.empty())
         {
-            _out << "ret";
+            _out << "<_System.Object>(null);";
         }
-        for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        else
         {
-            if((*i)->isOutParam())
+
+            bool returnStruct = (op->returnType() && !outParams.empty()) || outParams.size() > 1 || op->hasMarshaledResult();
+
+            if(returnStruct)
             {
-                _out << fixId((*i)->name());
+                _out << "(new " << resultType;
             }
+            _out << spar;
+            if(ret)
+            {
+                _out << "ret";
+            }
+
+            for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+            {
+                if((*i)->isOutParam())
+                {
+                    _out << fixId((*i)->name());
+                }
+            }
+
+            if(op->hasMarshaledResult())
+            {
+                _out << "current";
+            }
+
+            _out << epar;
+            if(returnStruct)
+            {
+                _out << ")";
+            }
+            _out << ";";
         }
-        _out << epar << ';';
         _out << eb;
     }
     else
     {
-        vector<string> pDecls = getParams(op);
+        vector<string> pDecls = op->hasMarshaledResult() ? getInParams(op) : getParams(op);
 
         _out << "public ";
         if(!forTie && !cl->isLocal())
@@ -5493,18 +5543,36 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
             return;
         }
         _out << sb;
-        for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        if(op->hasMarshaledResult())
         {
-            if((*i)->isOutParam())
+            _out << nl << "return new " << resultStructName(cl->name(), op->name(), true) << "(";
+            if(ret)
+            {
+                _out << writeValue(ret);
+            }
+            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+            {
+                if(ret || i != outParams.begin())
+                {
+                    _out << ", ";
+                }
+                _out << writeValue((*i)->type());
+            }
+            _out << ", current);";
+        }
+        else
+        {
+            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
             {
                 string name = fixId((*i)->name());
                 TypePtr type = (*i)->type();
                 _out << nl << name << " = " << writeValue(type) << ';';
             }
-        }
-        if(ret)
-        {
-            _out << nl << "return " << writeValue(ret) << ';';
+
+            if(ret)
+            {
+                _out << nl << "return " << writeValue(ret) << ';';
+            }
         }
         _out << eb;
     }

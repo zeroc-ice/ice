@@ -6943,12 +6943,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(cl->scope() + cl->name() + suffix + "::" + p->name());
 
     bool amd = (cl->hasMetaData("amd") || p->hasMetaData("amd"));
-
-    if(p->hasMarshaledResult())
-    {
-
-    }
-
     if(ret)
     {
         string typeS = inputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring | TypeContextCpp11);
@@ -7794,6 +7788,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = p->name();
+    string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     string cls = scope.substr(2) + name + "I";
     ClassList bases = p->bases();
@@ -7826,8 +7821,9 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = op->name();
 
         TypePtr ret = op->returnType();
-        string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(),
-                                         _useWstring | TypeContextCpp11);
+        string retS = op->hasMarshaledResult() ?
+            scoped + "::" + resultStructName(opName, "", true) :
+            returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), _useWstring | TypeContextCpp11);
 
         ParamDeclList params = op->parameters();
         ParamDeclList outParams;
@@ -7847,7 +7843,6 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd")))
         {
             string responseParams;
-            string responseParamsDecl;
 
             H << sp << nl << "virtual void " << opName << "Async(";
             H.useCurrentPosAsIndent();
@@ -7858,30 +7853,31 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                   << "," << nl;
             }
 
-            if(ret)
+            if(op->hasMarshaledResult())
             {
-                string typeS = inputTypeToString(ret, op->returnIsOptional(), op->getMetaData(),
-                                                 _useWstring | TypeContextCpp11);
-                responseParams = typeS;
-                responseParamsDecl = typeS + " ret";
-                if(!outParams.empty())
-                {
-                    responseParams += ", ";
-                    responseParamsDecl += ", ";
-                }
+                responseParams = "const " + scoped + "::" + resultStructName(opName, "", true) + "&";
             }
-
-            for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+            else
             {
-                if(q != outParams.begin())
+                if(ret)
                 {
-                    responseParams += ", ";
-                    responseParamsDecl += ", ";
+                    responseParams = inputTypeToString(ret, op->returnIsOptional(), op->getMetaData(),
+                                                       _useWstring | TypeContextCpp11);
+                    if(!outParams.empty())
+                    {
+                        responseParams += ", ";
+                    }
                 }
-                string typeS = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                                 _useWstring | TypeContextCpp11);
-                responseParams += typeS;
-                responseParamsDecl += typeS + " " + fixKwd(string(paramPrefix) + (*q)->name());
+
+                for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    if(q != outParams.begin())
+                    {
+                        responseParams += ", ";
+                    }
+                    responseParams += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                                        _useWstring | TypeContextCpp11);
+                }
             }
 
             string isConst = ((op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const")) ? " const" : "";
@@ -7906,30 +7902,29 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C.restoreIndent();
             C << sb;
 
-            string result = "r";
-            for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+             C << nl << opName << "_response";
+            if(op->hasMarshaledResult())
             {
-                if((*q)->name() == result)
-                {
-                    result = "_" + result;
-                    break;
-                }
+                C << "(" << scoped + "::" + resultStructName(opName, "", true);
             }
-
-            C << nl << opName << "_response(";
+            C << spar;
             if(ret)
             {
                 C << defaultValue(ret, op->getMetaData());
             }
             for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
             {
-                if(ret || q != outParams.begin())
-                {
-                    C << ", ";
-                }
                 C << defaultValue((*q)->type(), op->getMetaData());
             }
-            C << ");";
+
+            if(op->hasMarshaledResult())
+            {
+                C << "current" << epar << ");";
+            }
+            else
+            {
+                C << epar << ';';
+            }
 
             C << eb;
         }
@@ -7937,7 +7932,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp << nl << "virtual " << retS << ' ' << fixKwd(opName) << '(';
             H.useCurrentPosAsIndent();
-            ParamDeclList paramList = op->parameters();
+            ParamDeclList paramList = op->hasMarshaledResult() ? inParams : op->parameters();
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(q != paramList.begin())
@@ -8009,16 +8004,43 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << isConst;
             C << sb;
 
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            if(op->hasMarshaledResult())
             {
-                C << nl << fixKwd((*q)->name()) << " = " << defaultValue((*q)->type(), op->getMetaData()) << ";";
-            }
+                if(ret || !outParams.empty())
+                {
+                    C << nl << "return " << scoped << "::" << resultStructName(opName, "", true) << "(";
+                    if(ret)
+                    {
+                        C << defaultValue(ret, op->getMetaData());
+                        if(!outParams.empty())
+                        {
+                            C << ", ";
+                        }
+                    }
 
-            if(ret)
+                    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end();)
+                    {
+                        C << defaultValue((*q)->type(), op->getMetaData());
+                        if(++q != outParams.end())
+                        {
+                            C << ", ";
+                        }
+                    }
+                    C << ", current);";
+                }
+            }
+            else
             {
-                writeReturn(C, ret, op->getMetaData());
-            }
+                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    C << nl << fixKwd((*q)->name()) << " = " << defaultValue((*q)->type(), op->getMetaData()) << ";";
+                }
 
+                if(ret)
+                {
+                    writeReturn(C, ret, op->getMetaData());
+                }
+            }
             C << eb;
         }
     }
