@@ -5430,7 +5430,9 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         }
     }
 
-    string retS = op->hasMarshaledResult() ? resultStructName(cl->name(), op->name(), true) : typeToString(ret);
+    string retS = op->hasMarshaledResult() ? 
+                  fixId(cl->scope())  + "." + resultStructName(cl->name(), op->name(), true) : 
+                  typeToString(ret);
 
     if(comment)
     {
@@ -5545,7 +5547,8 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         _out << sb;
         if(op->hasMarshaledResult())
         {
-            _out << nl << "return new " << resultStructName(cl->name(), op->name(), true) << "(";
+            _out << nl << "return new " << fixId(cl->scope() + resultStructName(cl->name(), op->name(), true))
+                 << "(";
             if(ret)
             {
                 _out << writeValue(ret);

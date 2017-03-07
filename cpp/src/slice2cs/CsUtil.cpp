@@ -411,7 +411,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, bool dispatch)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
     if(dispatch && op->hasMarshaledResult())
     {
-        return resultStructName(cl->name(), op->name(), true);
+        return fixId(cl->scope() + resultStructName(cl->name(), op->name(), true));
     }
 
     string t;
