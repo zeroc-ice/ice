@@ -8,17 +8,17 @@
 // **********************************************************************
 
 //
-// Ice::optional is a placeholder std::optional:
+// Ice::optional is a placeholder for std::optional:
 // http://en.cppreference.com/w/cpp/utility/optional/optional
 //
 // This implementation is a slighly modified version of Optional.hpp,
 // published at https://github.com/akrzemi1/Optional
-// commit 3922965396fc455c6b1770374b9b4111799588a9
+// commit 25713110f55813b2c5619ec1230edf8d3b00bdde
 
-// Copyright (C) 2011 - 2012 Andrzej Krzemienski.
+// Copyright (C) 2011-2016 Andrzej Krzemienski
 //
-// Use, modification, and distribution is subject to the Boost Software
-// License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// Distributed under the Boost Software License, Version 1.0
+// (see accompanying file LICENSE_1_0.txt or a copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 // The idea and interface is based on Boost.Optional library
@@ -365,8 +365,8 @@ struct constexpr_optional_base
 
 template <class T>
 using OptionalBase = typename std::conditional<
-    is_trivially_destructible<T>::value,
-    constexpr_optional_base<typename std::remove_const<T>::type>,
+    is_trivially_destructible<T>::value,                          // if possible
+    constexpr_optional_base<typename std::remove_const<T>::type>, // use base with trivial destructor
     optional_base<typename std::remove_const<T>::type>
 >::type;
 
@@ -521,6 +521,7 @@ public:
   // 20.5.4.5, Observers
 
   explicit constexpr operator bool() const noexcept { return initialized(); }
+  constexpr bool has_value() const noexcept { return initialized(); }
 
   constexpr T const* operator ->() const {
     return TR2_OPTIONAL_ASSERTED_EXPRESSION(initialized(), dataptr());
@@ -622,6 +623,8 @@ public:
 
 # endif
 
+  // 20.6.3.6, modifiers
+  void reset() noexcept { clear(); }
 };
 
 
@@ -717,11 +720,18 @@ public:
     return ref != nullptr;
   }
 
+  constexpr bool has_value() const noexcept {
+    return ref != nullptr;
+  }
+
   template <class V>
   constexpr typename decay<T>::type value_or(V&& v) const
   {
     return *this ? **this : detail_::convert<typename decay<T>::type>(constexpr_forward<V>(v));
   }
+
+  // x.x.x.x, modifiers
+  void reset() noexcept { ref = nullptr; }
 };
 
 
