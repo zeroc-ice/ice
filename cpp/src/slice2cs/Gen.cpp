@@ -5430,10 +5430,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         }
     }
 
-    string retS = op->hasMarshaledResult() ? 
-                  fixId(cl->scope())  + "." + resultStructName(cl->name(), op->name(), true) : 
-                  typeToString(ret);
-
     if(comment)
     {
         _out << nl << "// ";
@@ -5526,6 +5522,10 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     }
     else
     {
+        string retS = op->hasMarshaledResult() ? 
+              fixId(cl->scope() + resultStructName(cl->name(), op->name(), true)) : 
+              typeToString(ret);
+
         vector<string> pDecls = op->hasMarshaledResult() ? getInParams(op) : getParams(op);
 
         _out << "public ";
