@@ -154,7 +154,7 @@ IcePy::Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::Conne
 
     obj->call = new Ice::DispatcherCallPtr(call);
     PyObjectHandle c = createConnection(con, _communicator);
-    PyObjectHandle tmp = PyObject_CallMethod(_dispatcher.get(), STRCAST("dispatch"), STRCAST("OO"), obj, c);
+    PyObjectHandle tmp = PyObject_CallMethod(_dispatcher.get(), STRCAST("dispatch"), STRCAST("OO"), obj, c.get());
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if(!tmp.get())
     {
