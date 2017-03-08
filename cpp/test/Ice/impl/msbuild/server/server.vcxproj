@@ -42,6 +42,8 @@
     <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
     <IceBuilderCppProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.props</IceBuilderCppProps>
     <IceBuilderCppTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.targets</IceBuilderCppTargets>
+    <IceBuilderImpl Condition="'$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">--impl-c++98</IceBuilderImpl>
+    <IceBuilderImpl Condition="'$(Configuration)' == 'Cpp11-Debug' or '$(Configuration)' == 'Cpp11-Release'">--impl-c++11</IceBuilderImpl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -119,48 +121,56 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -168,6 +178,85 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Server.cpp" />
+    <ClCompile Include="Win32\Debug\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Debug\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Release\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Debug\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Release\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Release\TestI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Win32\Cpp11-Debug\TestI.h" />
+    <ClInclude Include="Win32\Release\TestI.h" />
+    <ClInclude Include="Win32\Cpp11-Release\TestI.h" />
+    <ClInclude Include="x64\Debug\TestI.h" />
+    <ClInclude Include="x64\Cpp11-Debug\TestI.h" />
+    <ClInclude Include="x64\Release\TestI.h" />
+    <ClInclude Include="x64\Cpp11-Release\TestI.h" />
     <ClCompile Include="Win32\Cpp11-Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -195,7 +284,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\TestI.cpp" />
     <ClCompile Include="Win32\Release\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
@@ -270,7 +358,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\TestI.h" />
     <ClInclude Include="Win32\Release\Test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
@@ -319,6 +406,50 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="dummy.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">if exist $(Platform)\$(Configuration)\TestI.cpp del /q $(Platform)\$(Configuration)\TestI.cpp
+if exist $(Platform)\$(Configuration)\TestI.h del /q $(Platform)\$(Configuration)\TestI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\Test.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\Test.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">$(Platform)\$(Configuration)\TestI.cpp;$(Platform)\$(Configuration)\TestI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">..\..\Test.ice</AdditionalInputs>
+    </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="IceBuilder" />

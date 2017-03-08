@@ -1,103 +1,101 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="x64\Cpp11-Debug\Test.cpp">
-      <Filter>Source Files\x64\Cpp11-Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Debug\Test.cpp">
+    <ClCompile Include="Win32\Cpp11-Debug\TestAMDI.cpp">
       <Filter>Source Files\Win32\Cpp11-Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Test.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Test.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Test.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Test.cpp">
+    <ClCompile Include="Win32\Release\TestAMDI.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Cpp11-Release\Test.cpp">
-      <Filter>Source Files\x64\Cpp11-Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Release\Test.cpp">
+    <ClCompile Include="Win32\Cpp11-Release\TestAMDI.cpp">
       <Filter>Source Files\Win32\Cpp11-Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\TestI.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Debug\TestI.cpp">
-      <Filter>Source Files\Win32\Cpp11-Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\TestI.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Release\TestI.cpp">
-      <Filter>Source Files\Win32\Cpp11-Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\TestI.cpp">
+    <ClCompile Include="x64\Debug\TestAMDI.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\TestI.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Cpp11-Debug\TestI.cpp">
+    <ClCompile Include="x64\Cpp11-Debug\TestAMDI.cpp">
       <Filter>Source Files\x64\Cpp11-Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Cpp11-Release\TestI.cpp">
+    <ClCompile Include="Win32\Debug\TestAMDI.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\TestAMDI.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Release\TestAMDI.cpp">
       <Filter>Source Files\x64\Cpp11-Release</Filter>
     </ClCompile>
+    <ClCompile Include="x64\Cpp11-Debug\TestAMD.cpp">
+      <Filter>Source Files\x64\Cpp11-Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Debug\TestAMD.cpp">
+      <Filter>Source Files\Win32\Cpp11-Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\TestAMD.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\TestAMD.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\TestAMD.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\TestAMD.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Release\TestAMD.cpp">
+      <Filter>Source Files\x64\Cpp11-Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Release\TestAMD.cpp">
+      <Filter>Source Files\Win32\Cpp11-Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ServerAMD.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="x64\Cpp11-Debug\Test.h">
-      <Filter>Header Files\x64\Cpp11-Debug</Filter>
+    <ClInclude Include="Win32\Cpp11-Release\TestAMDI.h">
+      <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\Test.h">
-      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\Test.h">
+    <ClInclude Include="x64\Debug\TestAMDI.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\Test.h">
+    <ClInclude Include="x64\Cpp11-Debug\TestAMDI.h">
+      <Filter>Header Files\x64\Cpp11-Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\TestAMDI.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Cpp11-Release\TestAMDI.h">
+      <Filter>Header Files\x64\Cpp11-Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Cpp11-Debug\TestAMD.h">
+      <Filter>Header Files\x64\Cpp11-Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Cpp11-Debug\TestAMD.h">
+      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\TestAMD.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Debug\TestAMD.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Release\Test.h">
+    <ClInclude Include="x64\Release\TestAMD.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Release\Test.h">
+    <ClInclude Include="Win32\Release\TestAMD.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\Test.h">
+    <ClInclude Include="x64\Cpp11-Release\TestAMD.h">
       <Filter>Header Files\x64\Cpp11-Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\Test.h">
+    <ClInclude Include="Win32\Cpp11-Release\TestAMD.h">
       <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\TestI.h">
+    <ClInclude Include="Win32\Release\TestAMDI.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Cpp11-Debug\TestAMDI.h">
       <Filter>Header Files\Win32\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\TestI.h">
-      <Filter>Header Files\Win32\Cpp11-Release</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\TestI.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\TestI.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\TestI.h">
-      <Filter>Header Files\x64\Cpp11-Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Debug\TestI.h">
-      <Filter>Header Files\x64\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Release\TestI.h">
-      <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -173,7 +171,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Test.ice">
+    <IceBuilder Include="..\..\TestAMD.ice">
       <Filter>Slice Files</Filter>
     </IceBuilder>
   </ItemGroup>

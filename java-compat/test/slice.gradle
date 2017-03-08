@@ -78,6 +78,11 @@ task testSliceTask {
                 files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
                                                      'Ice/checksum/TypesServer.ice'])
             }
+            set5 {
+                args = "--impl"
+                files = fileTree(dir: testDir, includes:['Ice/impl/Test.ice',
+                                                         'Ice/impl/TestAMD.ice'])
+            }
         }
     }
 }
