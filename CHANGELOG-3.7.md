@@ -255,21 +255,34 @@ These are the changes since Ice 3.6.3.
 
 ## Python Changes
 
-- Added support for the Dispatcher facility.
+- Added support for the Dispatcher facility. The `dispatcher` member of
+  `InitializationData` can be set to a callable that Ice invokes when it
+  needs to dispatch a servant invocation or an AMI callback. This facility
+  is useful for example in UI applications where it's convenient to
+  schedule Ice activity for execution on the main UI thread.
 
-- The Ice communicator now implements context manager protocol. This enables
-  the code to initialize the communicator within a `with` block. The
-  communicator will implicitly be destroyed when the `with` block exits.
+- The `threadHook` member of `InitializationData` is now deprecated. We have
+  added `threadStart` and `threadStop` members for consistency with the C++11
+  and Java mappings. A program should set these members to a callable, such as
+  a lambda function.
 
-- Added a new AMI mapping that returns Ice.Future. The Future class provides an API
-  that is compatible with concurrent.futures.Future, with some additional Ice-specific
+- The `batchRequestInterceptor` member of `InitializationData` can now be set
+  to a callable. For backward compatibility, a program can also continue to supply
+  an instance of the deprecated class `Ice.BatchRequestInterceptor`.
+
+- The Ice communicator now implements the context manager protocol. This enables
+  the code to initialize the communicator within a `with` block. The communicator
+  will implicitly be destroyed when the `with` block exits.
+
+- Added a new AMI mapping that returns `Ice.Future`. The Future class provides an API
+  that is compatible with `concurrent.futures.Future`, with some additional Ice-specific
   methods. Programs can use the new mapping by adding the suffix `Async` to operation
   names, such as `sayHelloAsync`. The existing `begin_/end_` mapping is still supported.
 
 - Changed the AMD mapping. AMD servant methods must no longer append the `_async` suffix to
   their names. Additionally, an AMD callback is no longer passed to a servant method.
   Now a servant method always uses the mapped name, and it can either return the results
-  (for a synchronous implementation) or return an Ice.Future (for an asynchronous
+  (for a synchronous implementation) or return an `Ice.Future` (for an asynchronous
   implementation).
 
   With Python 3, a servant method can also be implemented as a coroutine. Ice will start

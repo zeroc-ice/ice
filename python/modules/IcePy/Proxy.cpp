@@ -1006,8 +1006,8 @@ proxyIceGetEndpointSelection(ProxyObject* self)
     PyObject* cls = lookupType("Ice.EndpointSelectionType");
     assert(cls);
 
-    PyObjectHandle rnd = PyObject_GetAttrString(cls, STRCAST("Random"));
-    PyObjectHandle ord = PyObject_GetAttrString(cls, STRCAST("Ordered"));
+    PyObjectHandle rnd = getAttr(cls, "Random", false);
+    PyObjectHandle ord = getAttr(cls, "Ordered", false);
     assert(rnd.get());
     assert(ord.get());
 
@@ -1051,8 +1051,8 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     }
 
     Ice::EndpointSelectionType val;
-    PyObjectHandle rnd = PyObject_GetAttrString(cls, STRCAST("Random"));
-    PyObjectHandle ord = PyObject_GetAttrString(cls, STRCAST("Ordered"));
+    PyObjectHandle rnd = getAttr(cls, "Random", false);
+    PyObjectHandle ord = getAttr(cls, "Ordered", false);
     assert(rnd.get());
     assert(ord.get());
     if(rnd.get() == type)
@@ -2191,7 +2191,7 @@ AMI_Object_ice_flushBatchRequestsI::exception(const Ice::Exception& ex)
     }
     else
     {
-        PyObjectHandle method = PyObject_GetAttrString(_callback, STRCAST(methodName.c_str()));
+        PyObjectHandle method = getAttr(_callback, methodName, false);
         assert(method.get());
         PyObjectHandle exh = convertException(ex);
         assert(exh.get());
@@ -2213,7 +2213,7 @@ AMI_Object_ice_flushBatchRequestsI::sent(bool)
     const string methodName = "ice_sent";
     if(PyObject_HasAttrString(_callback, STRCAST(methodName.c_str())))
     {
-        PyObjectHandle method = PyObject_GetAttrString(_callback, STRCAST(methodName.c_str()));
+        PyObjectHandle method = getAttr(_callback, methodName, false);
         assert(method.get());
         PyObjectHandle args = PyTuple_New(0);
         PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);

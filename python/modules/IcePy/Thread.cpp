@@ -35,10 +35,12 @@ IcePy::AdoptThread::~AdoptThread()
     PyGILState_Release(_state);
 }
 
-IcePy::ThreadHook::ThreadHook(PyObject* threadNotification) :
-    _threadNotification(threadNotification)
+IcePy::ThreadHook::ThreadHook(PyObject* threadNotification, PyObject* threadStart, PyObject* threadStop) :
+    _threadNotification(threadNotification), _threadStart(threadStart), _threadStop(threadStop)
 {
     Py_INCREF(threadNotification);
+    Py_INCREF(threadStart);
+    Py_INCREF(threadStop);
 }
 
 void
@@ -46,10 +48,22 @@ IcePy::ThreadHook::start()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), 0);
-    if(!tmp.get())
+    if(_threadNotification.get())
     {
-        throwPythonException();
+        PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
+    }
+    if(_threadStart.get())
+    {
+        PyObjectHandle args = PyTuple_New(0);
+        PyObjectHandle tmp = PyObject_Call(_threadStart.get(), args.get(), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
     }
 }
 
@@ -58,15 +72,21 @@ IcePy::ThreadHook::stop()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), 0);
-    if(!tmp.get())
+    if(_threadNotification.get())
     {
-        throwPythonException();
+        PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
     }
-}
-
-PyObject*
-IcePy::ThreadHook::getObject()
-{
-    return _threadNotification.get();
+    if(_threadStop.get())
+    {
+        PyObjectHandle args = PyTuple_New(0);
+        PyObjectHandle tmp = PyObject_Call(_threadStop.get(), args.get(), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
+    }
 }

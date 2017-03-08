@@ -45,10 +45,9 @@ extern "C"
 static PyObject*
 dispatcherCallInvoke(DispatcherCallObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->call)->run();
     }
     catch(const Ice::Exception& ex)
@@ -131,6 +130,11 @@ IcePy::initDispatcher(PyObject* module)
 IcePy::Dispatcher::Dispatcher(PyObject* dispatcher) :
     _dispatcher(dispatcher)
 {
+    if(!PyCallable_Check(dispatcher))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__, "dispatcher must be a callable");
+    }
+
     Py_INCREF(dispatcher);
 }
 
@@ -154,7 +158,7 @@ IcePy::Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::Conne
 
     obj->call = new Ice::DispatcherCallPtr(call);
     PyObjectHandle c = createConnection(con, _communicator);
-    PyObjectHandle tmp = PyObject_CallMethod(_dispatcher.get(), STRCAST("dispatch"), STRCAST("OO"), obj, c.get());
+    PyObjectHandle tmp = PyObject_CallFunction(_dispatcher.get(), STRCAST("OO"), obj, c.get());
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if(!tmp.get())
     {

@@ -237,6 +237,12 @@ IcePy::initBatchRequest(PyObject* module)
 
 IcePy::BatchRequestInterceptor::BatchRequestInterceptor(PyObject* interceptor) : _interceptor(interceptor)
 {
+    if(!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__,
+            "batch request interceptor must either be a callable or an object with an 'enqueue' method");
+    }
+
     Py_INCREF(interceptor);
 }
 

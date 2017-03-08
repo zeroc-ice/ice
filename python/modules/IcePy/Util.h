@@ -110,6 +110,13 @@ inline bool checkString(PyObject* p)
 bool getStringArg(PyObject*, const std::string&, std::string&);
 
 //
+// Get an object attribute having the given name. If allowNone is true, a value of Py_None is allowed, otherwise
+// a value of Py_None is treated as if the attribute is undefined (i.e., the function returns nil). The caller
+// must release the reference to the returned object.
+//
+PyObject* getAttr(PyObject*, const std::string&, bool allowNone);
+
+//
 // Get the name of the current Python function.
 //
 std::string getFunction();

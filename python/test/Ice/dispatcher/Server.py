@@ -52,7 +52,8 @@ try:
     #
     initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
-    initData.dispatcher = Dispatcher.Dispatcher()
+    d = Dispatcher.Dispatcher()
+    initData.dispatcher = d.dispatch
 
     with Ice.initialize(sys.argv, initData) as communicator:
         status = run(sys.argv, communicator)

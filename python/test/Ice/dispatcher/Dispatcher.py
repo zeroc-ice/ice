@@ -14,7 +14,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class Dispatcher(Ice.Dispatcher):
+class Dispatcher:
     def __init__(self):
         self._calls = []
         self._terminated = False

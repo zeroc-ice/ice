@@ -304,7 +304,7 @@ connectionClose(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(mode, STRCAST("_value"));
+    PyObjectHandle v = getAttr(mode, "_value", true);
     assert(v.get());
     Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(PyLong_AsLong(v.get()));
 
@@ -427,7 +427,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", true);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -460,7 +460,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args, PyObje
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", true);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -531,7 +531,7 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", true);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -833,7 +833,7 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
             PyErr_Format(PyExc_TypeError, "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
             return 0;
         }
-        PyObjectHandle v = PyObject_GetAttrString(c, STRCAST("_value"));
+        PyObjectHandle v = getAttr(c, "_value", true);
         assert(v.get());
         close = static_cast<Ice::ACMClose>(PyLong_AsLong(v.get()));
     }
@@ -846,7 +846,7 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
                          "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
             return 0;
         }
-        PyObjectHandle v = PyObject_GetAttrString(h, STRCAST("_value"));
+        PyObjectHandle v = getAttr(h, "_value", true);
         assert(v.get());
         heartbeat = static_cast<Ice::ACMHeartbeat>(PyLong_AsLong(v.get()));
     }

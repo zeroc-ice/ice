@@ -83,7 +83,8 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         assert(propType);
         if(PyObject_IsInstance(defaultsObj, propType))
         {
-            PyObjectHandle impl = PyObject_GetAttrString(defaultsObj, STRCAST("_impl"));
+            PyObjectHandle impl = getAttr(defaultsObj, "_impl", false);
+            assert(impl.get());
             defaults = getProperties(impl.get());
         }
         else if(defaultsObj != Py_None)

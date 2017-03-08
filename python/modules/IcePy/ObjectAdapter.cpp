@@ -1878,7 +1878,7 @@ IcePy::unwrapObjectAdapter(PyObject* obj)
 #endif
     assert(wrapperType);
     assert(PyObject_IsInstance(obj, wrapperType));
-    PyObjectHandle impl = PyObject_GetAttrString(obj, STRCAST("_impl"));
+    PyObjectHandle impl = getAttr(obj, "_impl", false);
     assert(impl.get());
     return getObjectAdapter(impl.get());
 }

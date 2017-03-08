@@ -147,55 +147,55 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::InitializationData data;
     DispatcherPtr dispatcherWrapper;
 
-    if(initData)
-    {
-        PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
-        PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
-        PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
-        PyObjectHandle batchRequestInterceptor = PyObject_GetAttrString(initData, STRCAST("batchRequestInterceptor"));
-        PyObjectHandle dispatcher = PyObject_GetAttrString(initData, STRCAST("dispatcher"));
-
-        PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
-
-        if(properties.get() && properties.get() != Py_None)
-        {
-            //
-            // Get the properties implementation.
-            //
-            PyObjectHandle impl = PyObject_GetAttrString(properties.get(), STRCAST("_impl"));
-            assert(impl.get());
-            data.properties = getProperties(impl.get());
-        }
-
-        if(logger.get() && logger.get() != Py_None)
-        {
-            data.logger = new LoggerWrapper(logger.get());
-        }
-
-        if(threadHook.get() && threadHook.get() != Py_None)
-        {
-            data.threadHook = new ThreadHook(threadHook.get());
-        }
-
-        if(dispatcher.get() && dispatcher.get() != Py_None)
-        {
-            dispatcherWrapper = new Dispatcher(dispatcher.get());
-            data.dispatcher = dispatcherWrapper;
-        }
-
-        if(batchRequestInterceptor.get() && batchRequestInterceptor.get() != Py_None)
-        {
-            data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
-        }
-    }
-
-    //
-    // We always supply our own implementation of ValueFactoryManager.
-    //
-    data.valueFactoryManager = new ValueFactoryManager;
-
     try
     {
+        if(initData)
+        {
+            PyObjectHandle properties = getAttr(initData, "properties", false);
+            PyObjectHandle logger = getAttr(initData, "logger", false);
+            PyObjectHandle threadHook = getAttr(initData, "threadHook", false);
+            PyObjectHandle threadStart = getAttr(initData, "threadStart", false);
+            PyObjectHandle threadStop = getAttr(initData, "threadStop", false);
+            PyObjectHandle batchRequestInterceptor = getAttr(initData, "batchRequestInterceptor", false);
+            PyObjectHandle dispatcher = getAttr(initData, "dispatcher", false);
+
+            if(properties.get())
+            {
+                //
+                // Get the properties implementation.
+                //
+                PyObjectHandle impl = getAttr(properties.get(), "_impl", false);
+                assert(impl.get());
+                data.properties = getProperties(impl.get());
+            }
+
+            if(logger.get())
+            {
+                data.logger = new LoggerWrapper(logger.get());
+            }
+
+            if(threadHook.get() || threadStart.get() || threadStop.get())
+            {
+                data.threadHook = new ThreadHook(threadHook.get(), threadStart.get(), threadStop.get());
+            }
+
+            if(dispatcher.get())
+            {
+                dispatcherWrapper = new Dispatcher(dispatcher.get());
+                data.dispatcher = dispatcherWrapper;
+            }
+
+            if(batchRequestInterceptor.get())
+            {
+                data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
+            }
+        }
+
+        //
+        // We always supply our own implementation of ValueFactoryManager.
+        //
+        data.valueFactoryManager = new ValueFactoryManager;
+
         if(argList)
         {
             data.properties = Ice::createProperties(seq, data.properties);
@@ -732,7 +732,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -765,7 +765,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -834,7 +834,7 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
         return 0;
     }
 
-    PyObjectHandle v = PyObject_GetAttrString(compressBatch, STRCAST("_value"));
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
     assert(v.get());
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -1870,7 +1870,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
     Ice::ToStringMode toStringMode = Ice::Unicode;
     if(mode != Py_None && PyObject_HasAttrString(mode, STRCAST("value")))
     {
-        PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+        PyObjectHandle modeValue = getAttr(mode, "value", true);
         toStringMode = static_cast<Ice::ToStringMode>(PyLong_AsLong(modeValue.get()));
     }
 

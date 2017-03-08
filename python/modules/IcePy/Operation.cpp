@@ -700,7 +700,7 @@ doneCallbackInvoke(DoneCallbackObject* self, PyObject* args)
     {
         assert(self->upcall);
 
-        PyObjectHandle resultMethod = PyObject_GetAttrString(future, STRCAST("result"));
+        PyObjectHandle resultMethod = getAttr(future, "result", false);
         assert(resultMethod.get());
         PyObjectHandle empty = PyTuple_New(0);
         PyObjectHandle result = PyObject_Call(resultMethod.get(), empty.get(), 0);
@@ -1161,14 +1161,14 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     //
     // mode
     //
-    PyObjectHandle modeValue = PyObject_GetAttrString(m, STRCAST("value"));
+    PyObjectHandle modeValue = getAttr(m, "value", true);
     mode = (Ice::OperationMode)static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
     //
     // sendMode
     //
-    PyObjectHandle sendModeValue = PyObject_GetAttrString(sm, STRCAST("value"));
+    PyObjectHandle sendModeValue = getAttr(sm, "value", true);
     sendMode = (Ice::OperationMode)static_cast<int>(PyLong_AsLong(sendModeValue.get()));
     assert(!PyErr_Occurred());
 
@@ -1187,7 +1187,7 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     }
     else
     {
-        PyObjectHandle formatValue = PyObject_GetAttrString(fmt, STRCAST("value"));
+        PyObjectHandle formatValue = getAttr(fmt, "value", true);
         format = (Ice::FormatType)static_cast<int>(PyLong_AsLong(formatValue.get()));
         assert(!PyErr_Occurred());
     }
@@ -2863,7 +2863,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     }
 #endif
 
-    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+    PyObjectHandle modeValue = getAttr(mode, "value", true);
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
@@ -3028,7 +3028,7 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
 
     _op = operation;
 
-    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+    PyObjectHandle modeValue = getAttr(mode, "value", true);
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
@@ -3372,7 +3372,7 @@ IcePy::NewAsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwd
 
     _op = operation;
 
-    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+    PyObjectHandle modeValue = getAttr(mode, "value", true);
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyLong_AsLong(modeValue.get()));
     assert(!PyErr_Occurred());
 
@@ -3507,7 +3507,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     //
     // Find the servant method for the operation. Use dispatchName here, not current.operation.
     //
-    PyObjectHandle servantMethod = PyObject_GetAttrString(servant, const_cast<char*>(dispatchName.c_str()));
+    PyObjectHandle servantMethod = getAttr(servant, dispatchName, false);
     if(!servantMethod.get())
     {
         ostringstream ostr;
@@ -3523,7 +3523,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     //
     // Get the _iceDispatch method. The _iceDispatch method will invoke the servant method and pass it the arguments.
     //
-    PyObjectHandle dispatchMethod = PyObject_GetAttrString(servant, STRCAST("_iceDispatch"));
+    PyObjectHandle dispatchMethod = getAttr(servant, "_iceDispatch", false);
     if(!dispatchMethod.get())
     {
         ostringstream ostr;
@@ -3834,7 +3834,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
                 //
                 // Get the exception's type.
                 //
-                PyObjectHandle iceType = PyObject_GetAttrString(ex.ex.get(), STRCAST("_ice_type"));
+                PyObjectHandle iceType = getAttr(ex.ex.get(), "_ice_type", false);
                 assert(iceType.get());
                 ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
                 assert(info);
@@ -4048,7 +4048,7 @@ IcePy::invokeBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
     string name = "_op_" + builtin;
     PyObject* objectType = lookupType("Ice.Object");
     assert(objectType);
-    PyObjectHandle obj = PyObject_GetAttrString(objectType, STRCAST(name.c_str()));
+    PyObjectHandle obj = getAttr(objectType, name, false);
     assert(obj.get());
 
     OperationPtr op = getOperation(obj.get());
@@ -4065,7 +4065,7 @@ IcePy::invokeBuiltinAsync(PyObject* proxy, const string& builtin, PyObject* args
     string name = "_op_" + builtin;
     PyObject* objectType = lookupType("Ice.Object");
     assert(objectType);
-    PyObjectHandle obj = PyObject_GetAttrString(objectType, STRCAST(name.c_str()));
+    PyObjectHandle obj = getAttr(objectType, name, false);
     assert(obj.get());
 
     OperationPtr op = getOperation(obj.get());
@@ -4082,7 +4082,7 @@ IcePy::beginBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
     string name = "_op_" + builtin;
     PyObject* objectType = lookupType("Ice.Object");
     assert(objectType);
-    PyObjectHandle obj = PyObject_GetAttrString(objectType, STRCAST(name.c_str()));
+    PyObjectHandle obj = getAttr(objectType, name, false);
     assert(obj.get());
 
     OperationPtr op = getOperation(obj.get());
@@ -4105,7 +4105,7 @@ IcePy::endBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
     string name = "_op_" + builtin;
     PyObject* objectType = lookupType("Ice.Object");
     assert(objectType);
-    PyObjectHandle obj = PyObject_GetAttrString(objectType, STRCAST(name.c_str()));
+    PyObjectHandle obj = getAttr(objectType, name, false);
     assert(obj.get());
 
     OperationPtr op = getOperation(obj.get());
@@ -4508,8 +4508,7 @@ IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr
                 // Look for the Operation object in the servant's type.
                 //
                 string attrName = "_op_" + current.operation;
-                PyObjectHandle h = PyObject_GetAttrString((PyObject*)_servant->ob_type,
-                                                          const_cast<char*>(attrName.c_str()));
+                PyObjectHandle h = getAttr((PyObject*)_servant->ob_type, attrName, false);
                 if(!h.get())
                 {
                     PyErr_Clear();

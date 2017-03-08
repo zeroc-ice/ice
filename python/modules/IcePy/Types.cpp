@@ -507,7 +507,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
     if(PyObject_HasAttrString(obj, STRCAST("_ice_slicedData")))
     {
-        PyObjectHandle sd = PyObject_GetAttrString(obj, STRCAST("_ice_slicedData"));
+        PyObjectHandle sd = getAttr(obj, "_ice_slicedData", false);
         assert(sd.get());
 
         if(sd.get() != Py_None)
@@ -515,7 +515,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
             //
             // The "slices" member is a tuple of Ice.SliceInfo objects.
             //
-            PyObjectHandle sl = PyObject_GetAttrString(sd.get(), STRCAST("slices"));
+            PyObjectHandle sl = getAttr(sd.get(), "slices", false);
             assert(sl.get());
             assert(PyTuple_Check(sl.get()));
 
@@ -529,15 +529,15 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
                 Ice::SliceInfoPtr info = new Ice::SliceInfo;
 
-                PyObjectHandle typeId = PyObject_GetAttrString(s.get(), STRCAST("typeId"));
+                PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
                 assert(typeId.get());
                 info->typeId = getString(typeId.get());
 
-                PyObjectHandle compactId = PyObject_GetAttrString(s.get(), STRCAST("compactId"));
+                PyObjectHandle compactId = getAttr(s.get(), "compactId", false);
                 assert(compactId.get());
                 info->compactId = static_cast<int>(PyLong_AsLong(compactId.get()));
 
-                PyObjectHandle bytes = PyObject_GetAttrString(s.get(), STRCAST("bytes"));
+                PyObjectHandle bytes = getAttr(s.get(), "bytes", false);
                 assert(bytes.get());
                 char* str;
                 Py_ssize_t strsz;
@@ -551,7 +551,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
                 info->bytes.swap(vtmp);
 
-                PyObjectHandle instances = PyObject_GetAttrString(s.get(), STRCAST("instances"));
+                PyObjectHandle instances = getAttr(s.get(), "instances", false);
                 assert(instances.get());
                 assert(PyTuple_Check(instances.get()));
                 Py_ssize_t osz = PyTuple_GET_SIZE(instances.get());
@@ -575,11 +575,11 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                     info->instances.push_back(writer);
                 }
 
-                PyObjectHandle hasOptionalMembers = PyObject_GetAttrString(s.get(), STRCAST("hasOptionalMembers"));
+                PyObjectHandle hasOptionalMembers = getAttr(s.get(), "hasOptionalMembers", false);
                 assert(hasOptionalMembers.get());
                 info->hasOptionalMembers = PyObject_IsTrue(hasOptionalMembers.get()) ? true : false;
 
-                PyObjectHandle isLastSlice = PyObject_GetAttrString(s.get(), STRCAST("isLastSlice"));
+                PyObjectHandle isLastSlice = getAttr(s.get(), "isLastSlice", false);
                 assert(isLastSlice.get());
                 info->isLastSlice = PyObject_IsTrue(isLastSlice.get()) ? true : false;
 
@@ -1380,7 +1380,7 @@ IcePy::StructInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* object
     {
         DataMemberPtr member = *q;
         char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(p, memberName);
+        PyObjectHandle attr = getAttr(p, member->name, true);
         if(!attr.get())
         {
             PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
@@ -1453,8 +1453,7 @@ IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            char* memberName = const_cast<char*>(member->name.c_str());
-            PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+            PyObjectHandle attr = getAttr(value, member->name, true);
             out << nl << member->name << " = ";
             if(!attr.get())
             {
@@ -2922,7 +2921,7 @@ IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
         }
         else
         {
-            PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
+            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
             ClassInfoPtr info;
             if(!iceType.get())
             {
@@ -3127,7 +3126,7 @@ IcePy::ValueInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
         }
         else
         {
-            PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
+            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
             ValueInfoPtr info;
             if(!iceType.get())
             {
@@ -3182,8 +3181,7 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
     for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3198,8 +3196,7 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
     for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3358,7 +3355,7 @@ IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap, const 
     Py_INCREF(_object);
     if(!_formal || !_formal->interface)
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(object, STRCAST("_ice_type"));
+        PyObjectHandle iceType = getAttr(object, "_ice_type", false);
         if(!iceType.get())
         {
             assert(PyErr_Occurred());
@@ -3452,7 +3449,7 @@ IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = PyObject_GetAttrString(_object, memberName);
+        PyObjectHandle val = getAttr(_object, member->name, true);
         if(!val.get())
         {
             if(member->optional)
@@ -3730,7 +3727,7 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const Dat
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = PyObject_GetAttrString(p, memberName);
+        PyObjectHandle val = getAttr(p, member->name, true);
         if(!val.get())
         {
             if(member->optional)
@@ -3836,8 +3833,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
     for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get() || attr.get() == Unset)
         {
@@ -3852,8 +3848,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
     for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3878,7 +3873,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
 {
     if(!info)
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("_ice_type"));
+        PyObjectHandle iceType = getAttr(ex.get(), "_ice_type", false);
         assert(iceType.get());
         _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
         assert(_info);
@@ -4725,7 +4720,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
+    PyObjectHandle iceType = getAttr(value, "_ice_type", false);
     assert(iceType.get());
     ExceptionInfoPtr info = getException(iceType.get());
     assert(info);

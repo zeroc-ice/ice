@@ -193,7 +193,7 @@ currentGetter(CurrentObject* self, void* closure)
                 enumerator = "Idempotent";
                 break;
             }
-            self->mode = PyObject_GetAttrString(type, STRCAST(enumerator));
+            self->mode = getAttr(type, enumerator, false);
             assert(self->mode);
         }
         Py_INCREF(self->mode);

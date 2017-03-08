@@ -58,16 +58,16 @@ class ThreadHook : public Ice::ThreadNotification
 {
 public:
 
-    ThreadHook(PyObject*);
+    ThreadHook(PyObject*, PyObject*, PyObject*);
 
     virtual void start();
     virtual void stop();
 
-    PyObject* getObject();
-
 private:
 
     PyObjectHandle _threadNotification;
+    PyObjectHandle _threadStart;
+    PyObjectHandle _threadStop;
 };
 typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 

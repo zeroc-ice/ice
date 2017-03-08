@@ -55,8 +55,8 @@ template<typename T> bool
 getVersion(PyObject* p, T& v, const char* type)
 {
     assert(checkIsInstance(p, type));
-    PyObjectHandle major = PyObject_GetAttrString(p, STRCAST("major"));
-    PyObjectHandle minor = PyObject_GetAttrString(p, STRCAST("minor"));
+    PyObjectHandle major = getAttr(p, "major", false);
+    PyObjectHandle minor = getAttr(p, "minor", false);
     if(major.get())
     {
         major = PyNumber_Long(major.get());
@@ -208,6 +208,26 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
     return true;
 }
 
+PyObject*
+IcePy::getAttr(PyObject* obj, const string& attrib, bool allowNone)
+{
+    PyObject* v = PyObject_GetAttrString(obj, attrib.c_str());
+    if(v == Py_None)
+    {
+        if(!allowNone)
+        {
+            Py_DECREF(v);
+            v = 0;
+        }
+    }
+    else if(!v)
+    {
+        PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
+    }
+
+    return v;
+}
+
 string
 IcePy::getFunction()
 {
@@ -215,9 +235,9 @@ IcePy::getFunction()
     // Get name of current function.
     //
     PyFrameObject *f = PyThreadState_GET()->frame;
-    PyObjectHandle code = PyObject_GetAttrString(reinterpret_cast<PyObject*>(f), STRCAST("f_code"));
+    PyObjectHandle code = getAttr(reinterpret_cast<PyObject*>(f), "f_code", false);
     assert(code.get());
-    PyObjectHandle func = PyObject_GetAttrString(code.get(), STRCAST("co_name"));
+    PyObjectHandle func = getAttr(code.get(), "co_name", false);
     assert(func.get());
     return getString(func.get());
 }
@@ -394,17 +414,17 @@ IcePy::PyException::raiseLocalException()
     catch(Ice::RequestFailedException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex.get(), STRCAST("id"));
+        member = getAttr(ex.get(), "id", true);
         if(member.get() && IcePy::checkIdentity(member.get()))
         {
             IcePy::getIdentity(member.get(), e.id);
         }
-        member = PyObject_GetAttrString(ex.get(), STRCAST("facet"));
+        member = getAttr(ex.get(), "facet", true);
         if(member.get() && checkString(member.get()))
         {
             e.facet = getString(member.get());
         }
-        member = PyObject_GetAttrString(ex.get(), STRCAST("operation"));
+        member = getAttr(ex.get(), "operation", true);
         if(member.get() && checkString(member.get()))
         {
             e.operation = getString(member.get());
@@ -430,7 +450,7 @@ IcePy::PyException::raiseLocalException()
     catch(Ice::UnknownException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex.get(), STRCAST("unknown"));
+        member = getAttr(ex.get(), "unknown", true);
         if(member.get() && checkString(member.get()))
         {
             e.unknown = getString(member.get());
@@ -489,9 +509,9 @@ string
 IcePy::PyException::getTypeName()
 {
     PyObject* cls = reinterpret_cast<PyObject*>(ex.get()->ob_type);
-    PyObjectHandle name = PyObject_GetAttrString(cls, "__name__");
+    PyObjectHandle name = getAttr(cls, "__name__", false);
     assert(name.get());
-    PyObjectHandle mod = PyObject_GetAttrString(cls, "__module__");
+    PyObjectHandle mod = getAttr(cls, "__module__", false);
     assert(mod.get());
     string result = getString(mod.get());
     result += ".";
@@ -970,7 +990,7 @@ IcePy::handleSystemExit(PyObject* ex)
     PyObjectHandle code;
     if(PyExceptionInstance_Check(ex))
     {
-        code = PyObject_GetAttrString(ex, STRCAST("code"));
+        code = getAttr(ex, "code", true);
     }
     else
     {
@@ -1042,8 +1062,8 @@ bool
 IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 {
     assert(checkIdentity(p));
-    PyObjectHandle name = PyObject_GetAttrString(p, STRCAST("name"));
-    PyObjectHandle category = PyObject_GetAttrString(p, STRCAST("category"));
+    PyObjectHandle name = getAttr(p, "name", true);
+    PyObjectHandle category = getAttr(p, "category", true);
     if(name.get())
     {
         if(!checkString(name.get()))
