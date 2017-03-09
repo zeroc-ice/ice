@@ -17,10 +17,10 @@ using namespace std;
 using namespace IceGrid;
 
 ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
-                               ServerI* server, 
+                               ServerI* server,
                                const string& serverName,
                                const AdapterPrx& proxy,
-                               const string& id, 
+                               const string& id,
                                bool enabled) :
     _node(node),
     _this(proxy),
@@ -52,7 +52,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         else if(_activateCB.empty())
         {
             //
-            // Nothing else waits for this adapter so we must make sure that this 
+            // Nothing else waits for this adapter so we must make sure that this
             // adapter if still activatable.
             //
             if(!_enabled || !_server->isAdapterActivatable(_id))
@@ -73,7 +73,8 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         {
             return;
         }
-        _activateAfterDeactivating = _server->getState() >= Deactivating && _server->getState() < Destroying;
+        _activateAfterDeactivating = _server->getState(Ice::emptyCurrent) >= Deactivating &&
+            _server->getState(Ice::emptyCurrent) < Destroying;
     }
 
     //
@@ -93,7 +94,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     catch(const Ice::ObjectNotExistException&)
     {
         //
-        // The server associated to this adapter doesn't exist anymore. Somehow the database is 
+        // The server associated to this adapter doesn't exist anymore. Somehow the database is
         // inconsistent if this happens. The best thing to do is to destroy the adapter.
         //
         destroy();
@@ -140,7 +141,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     {
         if(prx && _proxy)
         {
-            if(_server->getState() == Active)
+            if(_server->getState(Ice::emptyCurrent) == Active)
             {
                 throw AdapterActiveException();
             }
@@ -156,7 +157,8 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     // now. The server is going to be activated again and the adapter
     // activated.
     //
-    if(_server->getState() < Deactivating || _server->getState() >= Destroying || !_activateAfterDeactivating)
+    if(_server->getState(Ice::emptyCurrent) < Deactivating ||
+       _server->getState(Ice::emptyCurrent) >= Destroying || !_activateAfterDeactivating)
     {
         for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
         {
@@ -211,7 +213,7 @@ void
 ServerAdapterI::updateEnabled()
 {
     Lock sync(*this);
-    _enabled = _server->isEnabled();
+    _enabled = _server->isEnabled(Ice::emptyCurrent);
 }
 
 void
@@ -222,7 +224,7 @@ ServerAdapterI::clear()
     _activateAfterDeactivating = false;
 }
 
-void 
+void
 ServerAdapterI::activationFailed(const std::string& reason)
 {
 
@@ -243,7 +245,7 @@ ServerAdapterI::activationFailed(const std::string& reason)
     _activateCB.clear();
 }
 
-void 
+void
 ServerAdapterI::activationCompleted()
 {
     Lock sync(*this);
@@ -258,7 +260,7 @@ ServerAdapterI::activationCompleted()
             out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server activation completed";
         }
     }
-    
+
     for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
     {
         (*p)->ice_response(_proxy);

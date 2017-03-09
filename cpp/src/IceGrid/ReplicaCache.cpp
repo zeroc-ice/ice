@@ -63,7 +63,7 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
             {
                 try
                 {
-                    session->destroy();
+                    session->destroy(Ice::emptyCurrent);
                 }
                 catch(const Ice::LocalException&)
                 {

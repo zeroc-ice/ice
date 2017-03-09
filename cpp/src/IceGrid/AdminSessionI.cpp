@@ -499,7 +499,7 @@ AdminSessionFactory::AdminSessionFactory(const SessionServantManagerPtr& servant
                                          const RegistryIPtr& registry) :
     _servantManager(servantManager),
     _database(database),
-    _timeout(registry->getSessionTimeout()),
+    _timeout(registry->getSessionTimeout(Ice::emptyCurrent)),
     _reaper(reaper),
     _registry(registry),
     _filters(false)

@@ -63,7 +63,7 @@ public:
     response_SBaseAsObject(const ::Ice::ObjectPtr& o)
     {
         test(o);
-        test(o->ice_id() == "::Test::SBase");
+        test(o->ice_id(Ice::emptyCurrent) == "::Test::SBase");
         SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
         test(sb);
         test(sb->sb == "SBase.sb");

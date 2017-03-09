@@ -38,7 +38,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
     test(proxy);
 
     proxy->op(false);
-    servant->op(false, Ice::noExplicitCurrent);
+    servant->op(false, Ice::emptyCurrent);
 
     cout << "ok" << endl;
 
@@ -59,7 +59,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
 
     try
     {
-        servant->op(true);
+        servant->op(true, Ice::emptyCurrent);
     }
     catch(const Test::UserError&)
     {

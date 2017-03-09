@@ -55,7 +55,7 @@ public:
                                       const Ice::Current&) const;
 
     virtual void findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&, 
-                                       const Ice::Current& = Ice::noExplicitCurrent) const;
+                                       const Ice::Current&) const;
 
     virtual Ice::LocatorRegistryPrx getRegistry(const Ice::Current&) const;
     virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;

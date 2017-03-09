@@ -38,7 +38,7 @@ class GCVisitor;
 namespace Ice
 {
 
-ICE_API extern const Current noExplicitCurrent;
+ICE_API extern const Current emptyCurrent;
 
 #ifndef ICE_CPP11_MAPPING
 class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
@@ -69,16 +69,16 @@ public:
 
     virtual ~Object() = default;
 
-    virtual bool ice_isA(std::string, const Current& = Ice::noExplicitCurrent) const;
+    virtual bool ice_isA(std::string, const Current&) const;
     bool _iceD_ice_isA(IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
+    virtual void ice_ping(const Current&) const;
     bool _iceD_ice_ping(IceInternal::Incoming&, const Current&);
 
-    virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
+    virtual std::vector< std::string> ice_ids(const Current&) const;
     bool _iceD_ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual std::string ice_id(const Current& = Ice::noExplicitCurrent) const;
+    virtual std::string ice_id(const Current&) const;
     bool _iceD_ice_id(IceInternal::Incoming&, const Current&);
 
     static const std::string& ice_staticId();
@@ -110,16 +110,16 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual bool ice_isA(const std::string&, const Current& = Ice::noExplicitCurrent) const;
+    virtual bool ice_isA(const std::string&, const Current& = Ice::emptyCurrent) const;
     bool _iceD_ice_isA(IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&  = Ice::noExplicitCurrent) const;
+    virtual void ice_ping(const Current&  = Ice::emptyCurrent) const;
     bool _iceD_ice_ping(IceInternal::Incoming&, const Current&);
 
-    virtual std::vector< std::string> ice_ids(const Current& = Ice::noExplicitCurrent) const;
+    virtual std::vector< std::string> ice_ids(const Current& = Ice::emptyCurrent) const;
     bool _iceD_ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual const std::string& ice_id(const Current& = Ice::noExplicitCurrent) const;
+    virtual const std::string& ice_id(const Current& = Ice::emptyCurrent) const;
     bool _iceD_ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;

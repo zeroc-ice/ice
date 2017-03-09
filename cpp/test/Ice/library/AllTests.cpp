@@ -22,8 +22,7 @@ class TestI : public Test::MyInterface
 {
 public:
 
-    void op(bool, const Ice::Current& = Ice::noExplicitCurrent);
-
+    void op(bool, const Ice::Current&);
 };
 
 void

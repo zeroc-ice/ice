@@ -41,7 +41,7 @@ public:
     virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
                                        const Ice::Current&);
     virtual void receivedUpdate(TopicName, int, const std::string&, const Ice::Current&);
-    virtual void destroy(const Ice::Current& = Ice::noExplicitCurrent);
+    virtual void destroy(const Ice::Current&);
     
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();

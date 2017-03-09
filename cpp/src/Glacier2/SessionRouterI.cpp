@@ -1256,7 +1256,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const Route
 
     if(_instance->serverObjectAdapter())
     {
-        string category = router->getServerProxy()->ice_getIdentity().category;
+        string category = router->getServerProxy(Ice::emptyCurrent)->ice_getIdentity().category;
         assert(!category.empty());
         pair<map<string, RouterIPtr>::iterator, bool> rc =
             _routersByCategory.insert(pair<const string, RouterIPtr>(category, router));

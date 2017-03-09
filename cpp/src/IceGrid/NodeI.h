@@ -99,9 +99,9 @@ public:
     virtual void replicaAdded(const InternalRegistryPrx&, const Ice::Current&);
     virtual void replicaRemoved(const InternalRegistryPrx&, const Ice::Current&);
 
-    virtual std::string getName(const Ice::Current& = Ice::noExplicitCurrent) const;
-    virtual std::string getHostname(const Ice::Current& = Ice::noExplicitCurrent) const;
-    virtual LoadInfo getLoad(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual std::string getName(const Ice::Current&) const;
+    virtual std::string getHostname(const Ice::Current&) const;
+    virtual LoadInfo getLoad(const Ice::Current&) const;
     virtual int getProcessorSocketCount(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&) const;
 

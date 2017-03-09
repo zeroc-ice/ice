@@ -220,7 +220,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     // Set the callback on the admin facet.
     //
     RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
-    servant->addUpdateCallback(Ice::noExplicitCurrent);
+    servant->addUpdateCallback(Ice::emptyCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
     return ICE_UNCHECKED_CAST(Test::RemoteCommunicatorPrx, proxy);

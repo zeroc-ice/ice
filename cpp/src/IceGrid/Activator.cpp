@@ -1095,7 +1095,7 @@ Activator::destroy()
         //
         try
         {
-            p->second.server->stop_async(0);
+            p->second.server->stop_async(0, Ice::emptyCurrent);
         }
         catch(const ServerStopException&)
         {

@@ -231,7 +231,7 @@ public:
     {
         try
         {
-            _observer->begin_updateServer(_node->getName(),
+            _observer->begin_updateServer(_node->getName(Ice::emptyCurrent),
                                           _info,
                                           newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
@@ -261,7 +261,7 @@ public:
     {
         try
         {
-            _observer->begin_updateAdapter(_node->getName(),
+            _observer->begin_updateAdapter(_node->getName(Ice::emptyCurrent),
                                            _info,
                                            newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }

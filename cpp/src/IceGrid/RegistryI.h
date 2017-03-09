@@ -63,8 +63,8 @@ public:
     virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
     virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
 
-    virtual int getSessionTimeout(const Ice::Current& = Ice::noExplicitCurrent) const;
-    virtual int getACMTimeout(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual int getSessionTimeout(const Ice::Current&) const;
+    virtual int getACMTimeout(const Ice::Current&) const;
     
     std::string getName() const;
     RegistryInfo getInfo() const;

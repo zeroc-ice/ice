@@ -2463,11 +2463,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
         H << sp;
-        H << nl << "virtual bool ice_isA"
-          << "(const ::std::string&, const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-        H << nl << "virtual ::std::vector< ::std::string> ice_ids"
-          << "(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
-        H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const;";
+        H << nl << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::emptyCurrent) const;";
+        H << nl << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::emptyCurrent) const;";
+        H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::emptyCurrent) const;";
         H << sp << nl << "static const ::std::string& ice_staticId();";
 
         string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
@@ -2995,7 +2993,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             args += ", ";
         }
 
-        params += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
+        params += "const ::Ice::Current& = ::Ice::emptyCurrent)";
         paramsDecl += "const ::Ice::Current& current)";
         args += "current)";
     }
@@ -3006,7 +3004,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         args += ')';
     }
 
-    paramsAMD += "const ::Ice::Current& = ::Ice::noExplicitCurrent)";
+    paramsAMD += "const ::Ice::Current& = ::Ice::emptyCurrent)";
     argsAMD += "current)";
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
@@ -6803,10 +6801,10 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     assert(scopedIter != ids.end());
 
     H << sp;
-    H << nl << "virtual bool ice_isA(::std::string, const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
+    H << nl << "virtual bool ice_isA(::std::string, const ::Ice::Current&) const override;";
     H << nl
-      << "virtual ::std::vector<::std::string> ice_ids(const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
-    H << nl << "virtual ::std::string ice_id(const ::Ice::Current& = ::Ice::noExplicitCurrent) const override;";
+      << "virtual ::std::vector<::std::string> ice_ids(const ::Ice::Current&) const override;";
+    H << nl << "virtual ::std::string ice_id(const ::Ice::Current&) const override;";
     H << sp << nl << "static const ::std::string& ice_staticId();";
 
     string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
@@ -7010,7 +7008,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         params.push_back("::std::function<void(::std::exception_ptr)>");
         args.push_back("inA->exception()");
     }
-    params.push_back("const ::Ice::Current& = ::Ice::noExplicitCurrent");
+    params.push_back("const ::Ice::Current&");
     args.push_back("current");
 
     if(cl->isInterface())

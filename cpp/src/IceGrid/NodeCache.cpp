@@ -402,7 +402,7 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
                 {
                     try
                     {
-                        session->destroy();
+                        session->destroy(Ice::emptyCurrent);
                     }
                     catch(const Ice::ObjectNotExistException&)
                     {
@@ -569,7 +569,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             Lock sync(*this);
             checkSession();
             node = _session->getNode();
-            sessionTimeout = _session->getTimeout();
+            sessionTimeout = _session->getTimeout(Ice::emptyCurrent);
 
             //
             // Check if we should use a specific timeout (the load

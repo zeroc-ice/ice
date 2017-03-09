@@ -20,7 +20,7 @@ using namespace IceInternal;
 
 namespace Ice
 {
-const Current noExplicitCurrent = Current();
+const Current emptyCurrent = Current();
 }
 
 #ifndef ICE_CPP11_MAPPING

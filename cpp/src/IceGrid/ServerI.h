@@ -73,16 +73,16 @@ public:
 
     void waitForApplicationUpdateCompleted(const Ice::AsyncResultPtr&);
 
-    virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current& = Ice::noExplicitCurrent);
-    virtual void stop_async(const AMD_Server_stopPtr&, const ::Ice::Current& = Ice::noExplicitCurrent);
+    virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
+    virtual void stop_async(const AMD_Server_stopPtr&, const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
 
-    virtual ServerState getState(const ::Ice::Current& = Ice::noExplicitCurrent) const;
-    virtual Ice::Int getPid(const ::Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual ServerState getState(const ::Ice::Current&) const;
+    virtual Ice::Int getPid(const ::Ice::Current&) const;
 
     virtual void setEnabled(bool, const ::Ice::Current&);
-    virtual bool isEnabled(const ::Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual bool isEnabled(const ::Ice::Current&) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;

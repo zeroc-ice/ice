@@ -1975,7 +1975,7 @@ ServerI::terminated(const string& msg, int status)
     {
         try
         {
-            p->second->setDirectProxy(0);
+            p->second->setDirectProxy(0, Ice::emptyCurrent);
         }
         catch(const Ice::ObjectNotExistException&)
         {
