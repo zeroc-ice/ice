@@ -38,9 +38,30 @@ IcePy::AdoptThread::~AdoptThread()
 IcePy::ThreadHook::ThreadHook(PyObject* threadNotification, PyObject* threadStart, PyObject* threadStop) :
     _threadNotification(threadNotification), _threadStart(threadStart), _threadStop(threadStop)
 {
-    Py_INCREF(threadNotification);
-    Py_INCREF(threadStart);
-    Py_INCREF(threadStop);
+    if(threadNotification)
+    {
+        if(!PyObject_HasAttrString(threadNotification, STRCAST("start")) ||
+           !PyObject_HasAttrString(threadNotification, STRCAST("stop")))
+        {
+            throw Ice::InitializationException(__FILE__, __LINE__,
+                "threadNotification object must have 'start' and 'stop' methods");
+        }
+
+    }
+
+    if(threadStart && !PyCallable_Check(threadStart))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__, "threadStart must be a callable");
+    }
+
+    if(threadStop && !PyCallable_Check(threadStop))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__, "threadStop must be a callable");
+    }
+
+    Py_XINCREF(threadNotification);
+    Py_XINCREF(threadStart);
+    Py_XINCREF(threadStop);
 }
 
 void
