@@ -53,6 +53,10 @@ public:
             test(false);
         }
         Lock sync(*this);
+        if(_name == "per-request load balancing")
+        {
+            _connections.insert(current.con);
+        }
         ++_last;
         if(++_count == 1000)
         {
@@ -64,7 +68,7 @@ public:
     waitForEvents()
     {
         Lock sync(*this);
-        cout << "testing " << _name << " reliability... " << flush;
+        cout << "testing " << _name << " ... " << flush;
         bool datagram = _name == "datagram" || _name == "batch datagram";
         IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(20);
         while(_count < 1000)
@@ -89,6 +93,10 @@ public:
                 }
             }
         }
+        if(_name == "per-request load balancing")
+        {
+            test(_connections.size() == 2);
+        }
         cout << "ok" << endl;
     }
 
@@ -98,6 +106,7 @@ private:
     const string _name;
     int _count;
     int _last;
+    set<Ice::ConnectionPtr> _connections;
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
@@ -121,7 +130,8 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
+    // Use 2 default endpoints to test per-request load balancing
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:default:udp");
 
     //
     // Test topic name that is too long
@@ -199,6 +209,16 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(qos, object);
+    }
+
+    {
+        subscribers.push_back(new SingleI(communicator, "per-request load balancing"));
+        IceStorm::QoS qos;
+        qos["locatorCacheTimeout"] = "10";
+        qos["connectionCached"] = "0";
         Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(qos, object);

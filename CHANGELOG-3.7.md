@@ -17,6 +17,10 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- Added support for IceStorm subscriber `locatorCacheTimeout` and
+  `connectionCached` QoS settings. These settings match the proxy settings and
+  allow configuring per-request load balancing on the subscriber proxy.
+
 - Implementations of the `Ice::Router` interface can now indicate whether or not
   they support a routing table through the optional out parameter `hasRoutingTable`
   of the `getClientProxy` operation. The Ice runtime won't call the `addProxies`

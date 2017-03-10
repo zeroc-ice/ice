@@ -13,6 +13,7 @@
 #include <IceStorm/NodeI.h>
 #include <IceStorm/Util.h>
 #include <Ice/LoggerUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <iterator>
 
 using namespace std;
@@ -574,6 +575,31 @@ Subscriber::create(
                 //
                 newObj = rec.obj;
             }
+
+            p = rec.theQoS.find("locatorCacheTimeout");
+            if(p != rec.theQoS.end())
+            {
+                istringstream is(IceUtilInternal::trim(p->second));
+                int locatorCacheTimeout;
+                if(!(is >> locatorCacheTimeout) || !is.eof())
+                {
+                    throw BadQoS("invalid locator cache timeout (numeric value required): " + p->second);
+                }
+                newObj = newObj->ice_locatorCacheTimeout(locatorCacheTimeout);
+            }
+
+            p = rec.theQoS.find("connectionCached");
+            if(p != rec.theQoS.end())
+            {
+                istringstream is(IceUtilInternal::trim(p->second));
+                int connectionCached;
+                if(!(is >> connectionCached) || !is.eof())
+                {
+                    throw BadQoS("invalid connection cached setting (numeric value required): " + p->second);
+                }
+                newObj = newObj->ice_connectionCached(connectionCached > 0);
+            }
+
             if(reliability == "ordered")
             {
                 if(!newObj->ice_isTwoway())
