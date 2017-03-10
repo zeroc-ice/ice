@@ -13,86 +13,63 @@ using System.Reflection;
 
 namespace IceInternal
 {
-    public sealed class ParamPatcher<T> where T : Ice.Value
+    public sealed class Patcher
     {
-        public ParamPatcher(string type)
+        static public System.Action<T> arrayReadValue<T>(T[] arr, int index) where T : Ice.Value
         {
-            _type = type;
+            return (T v) => { arr[index] = v; };
         }
 
-        public void patch(Ice.Value v)
+        static public System.Action<T> listReadValue<T>(List<T> seq, int index) where T : Ice.Value
         {
-            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
-            {
-                Ex.throwUOE(_type, v.ice_id());
-            }
-            value = (T)v;
-        }
-
-        public T value;
-        private string _type;
-    }
-
-    public sealed class CustomSeqPatcher<T> where T : Ice.Value
-    {
-        public CustomSeqPatcher(string type, IEnumerable<T> seq, int index)
-        {
-            _type = type;
-           _seq = seq;
-           _seqType = seq.GetType();
-           _index = index;
-
-           setInvokeInfo(_seqType);
-        }
-
-        public void patch(Ice.Value v)
-        {
-            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
-            {
-                Ex.throwUOE(_type, v.ice_id());
-            }
-
-            InvokeInfo info = getInvokeInfo(_seqType);
-            int count = info.getCount(_seq);
-            if(_index >= count) // Need to grow the sequence.
-            {
-                for(int i = count; i < _index; i++)
+            return (T v) => {
+                int count = seq.Count;
+                if(index >= count) // Need to grow the sequence.
                 {
-                    info.invokeAdd(_seq, default(T));
+                    for(int i = count; i < index; i++)
+                    {
+                        seq.Add(default(T));
+                    }
+                    seq.Add(v);
                 }
-                info.invokeAdd(_seq, (T)v);
-            }
-            else
-            {
-                info.invokeSet(_seq, _index, (T)v);
-            }
+                else
+                {
+                    seq[index] = v;
+                }
+            };
         }
 
-        private static InvokeInfo getInvokeInfo(Type t)
+        static public System.Action<T> customSeqReadValue<T>(IEnumerable<T> seq, int index) where T : Ice.Value
+        {
+            return (T v) => {
+                var info = getInvokeInfo<T>(seq.GetType());
+                int count = info.getCount(seq);
+                if(index >= count) // Need to grow the sequence.
+                {
+                    for(int i = count; i < index; i++)
+                    {
+                        info.invokeAdd(seq, default(T));
+                    }
+                    info.invokeAdd(seq, v);
+                }
+                else
+                {
+                    info.invokeSet(seq, index, v);
+                }
+            };
+        }
+
+        private static InvokeInfo getInvokeInfo<T>(Type t)
         {
             lock(_methodTable)
             {
-                try
+                InvokeInfo i;
+                if(_methodTable.TryGetValue(t, out i))
                 {
-                    return _methodTable[t];
-                }
-                catch(KeyNotFoundException)
-                {
-                    throw new Ice.MarshalException("No invoke record for type " + t.ToString());
-                }
-            }
-        }
-
-        private static void setInvokeInfo(Type t)
-        {
-            lock(_methodTable)
-            {
-                if(_methodTable.ContainsKey(t))
-                {
-                    return;
+                    return i;
                 }
 
-                MethodInfo am = t.GetMethod("Add", _params);
+                MethodInfo am = t.GetMethod("Add", new Type[] { typeof(T) });
                 if(am == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
@@ -120,7 +97,9 @@ namespace IceInternal
                     throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
                 }
 
-                _methodTable.Add(t, new InvokeInfo(am, sm, cm));
+                i = new InvokeInfo(am, sm, cm);
+                _methodTable.Add(t, i);
+                return i;
             }
         }
 
@@ -145,7 +124,7 @@ namespace IceInternal
                 }
             }
 
-            internal void invokeAdd(System.Collections.IEnumerable seq, T v)
+            internal void invokeAdd(System.Collections.IEnumerable seq, object v)
             {
                 try
                 {
@@ -158,7 +137,7 @@ namespace IceInternal
                 }
             }
 
-            internal void invokeSet(System.Collections.IEnumerable seq, int index, T v)
+            internal void invokeSet(System.Collections.IEnumerable seq, int index, object v)
             {
                 try
                 {
@@ -176,72 +155,6 @@ namespace IceInternal
             private MethodInfo _countMethod;
         }
 
-        private static Type[] _params = new Type[] { typeof(T) };
         private static Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
-
-        private string _type;
-        private IEnumerable<T> _seq;
-        private Type _seqType;
-        private int _index; // The index at which to patch the sequence.
-    }
-
-    public sealed class ArrayPatcher<T> where T : Ice.Value
-    {
-        public ArrayPatcher(string type, T[] seq, int index)
-        {
-            _type = type;
-            _seq = seq;
-            _index = index;
-        }
-
-        public void patch(Ice.Value v)
-        {
-            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
-            {
-                Ex.throwUOE(_type, v.ice_id());
-            }
-
-            _seq[_index] = (T)v;
-        }
-
-        private string _type;
-        private T[] _seq;
-        private int _index; // The index at which to patch the array.
-    }
-
-    public sealed class ListPatcher<T> where T : Ice.Value
-    {
-        public ListPatcher(string type, List<T> seq, int index)
-        {
-            _type = type;
-            _seq = seq;
-            _index = index;
-        }
-
-        public void patch(Ice.Value v)
-        {
-            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
-            {
-                Ex.throwUOE(_type, v.ice_id());
-            }
-
-            int count = _seq.Count;
-            if(_index >= count) // Need to grow the sequence.
-            {
-                for(int i = count; i < _index; i++)
-                {
-                    _seq.Add(default(T));
-                }
-                _seq.Add((T)v);
-            }
-            else
-            {
-                _seq[_index] = (T)v;
-            }
-        }
-
-        private string _type;
-        private List<T> _seq;
-        private int _index; // The index at which to patch the sequence.
     }
 }

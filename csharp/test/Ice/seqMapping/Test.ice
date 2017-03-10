@@ -17,57 +17,67 @@ sequence<byte> AByteS;
 ["clr:generic:LinkedList"] sequence<byte> KByteS;
 ["clr:generic:Queue"] sequence<byte> QByteS;
 ["clr:generic:Stack"] sequence<byte> SByteS;
+["clr:generic:Custom"] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;
 ["clr:generic:List"] sequence<bool> LBoolS;
 ["clr:generic:LinkedList"] sequence<bool> KBoolS;
 ["clr:generic:Queue"] sequence<bool> QBoolS;
 ["clr:generic:Stack"] sequence<bool> SBoolS;
+["clr:generic:Custom"] sequence<bool> CBoolS;
 
 sequence<short> AShortS;
 ["clr:generic:List"] sequence<short> LShortS;
 ["clr:generic:LinkedList"] sequence<short> KShortS;
 ["clr:generic:Queue"] sequence<short> QShortS;
 ["clr:generic:Stack"] sequence<short> SShortS;
+["clr:generic:Custom"] sequence<short> CShortS;
 
 sequence<int> AIntS;
 ["clr:generic:List"] sequence<int> LIntS;
 ["clr:generic:LinkedList"] sequence<int> KIntS;
 ["clr:generic:Queue"] sequence<int> QIntS;
 ["clr:generic:Stack"] sequence<int> SIntS;
+["clr:generic:Custom"] sequence<int> CIntS;
 
 sequence<long> ALongS;
 ["clr:generic:List"] sequence<long> LLongS;
 ["clr:generic:LinkedList"] sequence<long> KLongS;
 ["clr:generic:Queue"] sequence<long> QLongS;
 ["clr:generic:Stack"] sequence<long> SLongS;
+["clr:generic:Custom"] sequence<long> CLongS;
 
 sequence<float> AFloatS;
 ["clr:generic:List"] sequence<float> LFloatS;
 ["clr:generic:LinkedList"] sequence<float> KFloatS;
 ["clr:generic:Queue"] sequence<float> QFloatS;
 ["clr:generic:Stack"] sequence<float> SFloatS;
+["clr:generic:Custom"] sequence<float> CFloatS;
 
 sequence<double> ADoubleS;
 ["clr:generic:List"] sequence<double> LDoubleS;
 ["clr:generic:LinkedList"] sequence<double> KDoubleS;
 ["clr:generic:Queue"] sequence<double> QDoubleS;
 ["clr:generic:Stack"] sequence<double> SDoubleS;
+["clr:generic:Custom"] sequence<double> CDoubleS;
 
 sequence<string> AStringS;
 ["clr:generic:List"] sequence<string> LStringS;
 ["clr:generic:LinkedList"] sequence<string> KStringS;
 ["clr:generic:Queue"] sequence<string> QStringS;
 ["clr:generic:Stack"] sequence<string> SStringS;
+["clr:generic:Custom"] sequence<string> CStringS;
 
 sequence<Object> AObjectS;
 ["clr:generic:List"] sequence<Object> LObjectS;
+["clr:generic:Custom"] sequence<Object> CObjectS;
 
 sequence<Object*> AObjectPrxS;
 ["clr:generic:List"] sequence<Object*> LObjectPrxS;
 ["clr:generic:LinkedList"] sequence<Object*> KObjectPrxS;
 ["clr:generic:Queue"] sequence<Object*> QObjectPrxS;
 ["clr:generic:Stack"] sequence<Object*> SObjectPrxS;
+["clr:generic:Custom"] sequence<Object*> CObjectPrxS;
 
 struct S
 {
@@ -79,6 +89,7 @@ sequence<S> AStructS;
 ["clr:generic:LinkedList"] sequence<S> KStructS;
 ["clr:generic:Queue"] sequence<S> QStructS;
 ["clr:generic:Stack"] sequence<S> SStructS;
+["clr:generic:Custom"] sequence<S> CStructS;
 
 struct SD
 {
@@ -90,6 +101,7 @@ sequence<SD> AStructSD;
 ["clr:generic:LinkedList"] sequence<SD> KStructSD;
 ["clr:generic:Queue"] sequence<SD> QStructSD;
 ["clr:generic:Stack"] sequence<SD> SStructSD;
+["clr:generic:Custom"] sequence<SD> CStructSD;
 
 class CV
 {
@@ -104,6 +116,7 @@ sequence<CV*> ACVPrxS;
 ["clr:generic:LinkedList"] sequence<CV*> KCVPrxS;
 ["clr:generic:Queue"] sequence<CV*> QCVPrxS;
 ["clr:generic:Stack"] sequence<CV*> SCVPrxS;
+["clr:generic:Custom"] sequence<CV*> CCVPrxS;
 
 class CR
 {
@@ -112,6 +125,7 @@ class CR
 
 sequence<CR> ACRS;
 ["clr:generic:List"] sequence<CR> LCRS;
+["clr:generic:Custom"] sequence<CR> CCRS;
 
 enum En { A, B, C };
 
@@ -120,6 +134,7 @@ sequence<En> AEnS;
 ["clr:generic:LinkedList"] sequence<En> KEnS;
 ["clr:generic:Queue"] sequence<En> QEnS;
 ["clr:generic:Stack"] sequence<En> SEnS;
+["clr:generic:Custom"] sequence<En> CEnS;
 
 ["clr:generic:Custom"] sequence<int> CustomIntS;
 ["clr:generic:Custom"] sequence<CV> CustomCVS;

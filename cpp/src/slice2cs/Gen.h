@@ -27,9 +27,8 @@ protected:
 
     void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false,
                                      bool = false, const std::string& = "");
-    void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&, bool = false);
-    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&, bool = false);
+    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool = false);
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);

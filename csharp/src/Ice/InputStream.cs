@@ -18,13 +18,6 @@ namespace Ice
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
-    /// After a call to readPendingValues(), delegates are called to supply the
-    /// unmarshaled class instances.
-    /// </summary>
-    /// <param name="obj">The unmarshaled instance.</param>
-    public delegate void ReadValueCallback(Value obj);
-
-    /// <summary>
     /// A ClassResolver translates a Slice type Id into a type using
     /// an implementation-defined algorithm.
     /// </summary>
@@ -755,7 +748,7 @@ namespace Ice
         /// <summary>
         /// Indicates that unmarshaling is complete, except for any class instances. The application must call this
         /// method only if the stream actually contains class instances. Calling readPendingValues triggers the
-        /// calls to the ReadValueCallback delegates to inform the application that unmarshaling of an instance
+        /// calls to the System.Action delegates to inform the application that unmarshaling of an instance
         /// is complete.
         /// </summary>
         public void readPendingValues()
@@ -2450,7 +2443,27 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue(ReadValueCallback cb)
+        public void readValue<T>(System.Action<T> cb) where T : Value
+        {
+            readValue(v => {
+                if(v == null || v is T)
+                {
+                    cb((T)v);
+                }
+                else
+                {
+                    IceInternal.Ex.throwUOE((string)typeof(T).GetMethod("ice_staticId").Invoke(null, null), v.ice_id());
+                }
+            });
+        }
+
+        /// <summary>
+        /// Extracts the index of a Slice value from the stream.
+        /// </summary>
+        /// <param name="cb">The callback to notify the application when the extracted instance is available.
+        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+        /// corresponding instance has been fully unmarshaled.</param>
+        public void readValue(System.Action<Value> cb)
         {
             initEncaps();
             _encapsStack.decoder.readValue(cb);
@@ -2463,7 +2476,28 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue(int tag, ReadValueCallback cb)
+        public void readValue<T>(int tag, System.Action<T> cb) where T : Value
+        {
+            readValue(tag, v => {
+                if(v == null || v is T)
+                {
+                    cb((T)v);
+                }
+                else
+                {
+                    IceInternal.Ex.throwUOE((string)typeof(T).GetMethod("ice_staticId").Invoke(null, null), v.ice_id());
+                }
+            });
+        }
+
+        /// <summary>
+        /// Extracts the index of an optional Slice value from the stream.
+        /// </summary>
+        /// <param name="tag">The numeric tag associated with the value.</param>
+        /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
+        /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
+        /// corresponding instance has been fully unmarshaled.</param>
+        public void readValue(int tag, System.Action<Value> cb)
         {
             if(readOptional(tag, OptionalFormat.Class))
             {
@@ -2718,7 +2752,7 @@ namespace Ice
                 _unmarshaledMap = new Dictionary<int, Value>();
             }
 
-            internal abstract void readValue(ReadValueCallback cb);
+            internal abstract void readValue(System.Action<Value> cb);
             internal abstract void throwException(UserExceptionFactory factory);
 
             internal abstract void startInstance(SliceType type);
@@ -2845,7 +2879,7 @@ namespace Ice
                 return v;
             }
 
-            protected void addPatchEntry(int index, ReadValueCallback cb)
+            protected void addPatchEntry(int index, System.Action<Value> cb)
             {
                 Debug.Assert(index > 0);
 
@@ -2862,7 +2896,7 @@ namespace Ice
 
                 if(_patchMap == null)
                 {
-                    _patchMap = new Dictionary<int, LinkedList<ReadValueCallback>>();
+                    _patchMap = new Dictionary<int, LinkedList<System.Action<Value>>>();
                 }
 
                 //
@@ -2870,14 +2904,14 @@ namespace Ice
                 // the callback will be called when the instance is
                 // unmarshaled.
                 //
-                LinkedList<ReadValueCallback> l;
+                LinkedList<System.Action<Value>> l;
                 if(!_patchMap.TryGetValue(index, out l))
                 {
                     //
                     // We have no outstanding instances to be patched for this
                     // index, so make a new entry in the patch map.
                     //
-                    l = new LinkedList<ReadValueCallback>();
+                    l = new LinkedList<System.Action<Value>>();
                     _patchMap.Add(index, l);
                 }
 
@@ -2905,7 +2939,7 @@ namespace Ice
                     //
                     // Patch all instances now that the instance is unmarshaled.
                     //
-                    LinkedList<ReadValueCallback> l;
+                    LinkedList<System.Action<Value>> l;
                     if(_patchMap.TryGetValue(index, out l))
                     {
                         Debug.Assert(l.Count > 0);
@@ -2913,7 +2947,7 @@ namespace Ice
                         //
                         // Patch all pointers that refer to the instance.
                         //
-                        foreach(ReadValueCallback cb in l)
+                        foreach(System.Action<Value> cb in l)
                         {
                             cb(v);
                         }
@@ -2980,7 +3014,7 @@ namespace Ice
             //
             // Encapsulation attributes for object unmarshaling.
             //
-            protected Dictionary<int, LinkedList<ReadValueCallback> > _patchMap;
+            protected Dictionary<int, LinkedList<System.Action<Value>> > _patchMap;
             private Dictionary<int, Value> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
@@ -2997,7 +3031,7 @@ namespace Ice
                 _sliceType = SliceType.NoSlice;
             }
 
-            internal override void readValue(ReadValueCallback cb)
+            internal override void readValue(System.Action<Value> cb)
             {
                 Debug.Assert(cb != null);
 
@@ -3295,7 +3329,7 @@ namespace Ice
                 _valueIdIndex = 1;
             }
 
-            internal override void readValue(ReadValueCallback cb)
+            internal override void readValue(System.Action<Value> cb)
             {
                 int index = _stream.readSize();
                 if(index < 0)
@@ -3661,7 +3695,7 @@ namespace Ice
                 return false;
             }
 
-            private int readInstance(int index, ReadValueCallback cb)
+            private int readInstance(int index, System.Action<Value> cb)
             {
                 Debug.Assert(index > 0);
 
@@ -3860,9 +3894,8 @@ namespace Ice
                     info.instances = new Value[table != null ? table.Length : 0];
                     for(int j = 0; j < info.instances.Length; ++j)
                     {
-                        IceInternal.ArrayPatcher<Value> patcher =
-                            new IceInternal.ArrayPatcher<Value>(Value.ice_staticId(), info.instances, j);
-                        addPatchEntry(table[j], patcher.patch);
+                        var cj = j;
+                        addPatchEntry(table[j], (Ice.Value v) => info.instances[cj] = v);
                     }
                 }
 
@@ -3886,7 +3919,7 @@ namespace Ice
             private sealed class IndirectPatchEntry
             {
                 public int index;
-                public ReadValueCallback patcher;
+                public System.Action<Value> patcher;
             }
 
             private sealed class InstanceData
