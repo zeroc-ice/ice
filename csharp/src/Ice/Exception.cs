@@ -10,16 +10,39 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace IceInternal
 {
     public class Ex
     {
-        public static void throwUOE(string expectedType, string actualType)
+        public static void throwUOE(Type expectedType, Ice.Value v)
         {
-            throw new Ice.UnexpectedObjectException(
-                        "expected element of type `" + expectedType + "' but received '" + actualType,
-                        actualType, expectedType);
+            //
+            // If the object is an unknown sliced object, we didn't find an
+            // value factory, in this case raise a NoValueFactoryException
+            // instead.
+            //
+            if(v is Ice.UnknownSlicedValue)
+            {
+                Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
+                throw new Ice.NoValueFactoryException("", usv.getUnknownTypeId());
+            }
+
+            string type = v.ice_id();
+            string expected;
+            try
+            {
+                expected = (string)expectedType.GetMethod("ice_staticId").Invoke(null, null);
+            }
+            catch(Exception)
+            {
+                expected = "";
+                Debug.Assert(false);
+            }
+
+            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received '" + type,
+                                                    type, expected);
         }
 
         public static void throwMemoryLimitException(int requested, int maximum)
@@ -76,7 +99,7 @@ namespace Ice
         {
             return ice_id().Substring(2);
         }
-        
+
         /// <summary>
         /// Returns the type id of this exception.
         /// </summary>

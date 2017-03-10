@@ -2452,7 +2452,7 @@ namespace Ice
                 }
                 else
                 {
-                    IceInternal.Ex.throwUOE((string)typeof(T).GetMethod("ice_staticId").Invoke(null, null), v.ice_id());
+                    IceInternal.Ex.throwUOE(typeof(T), v);
                 }
             });
         }
@@ -2485,7 +2485,7 @@ namespace Ice
                 }
                 else
                 {
-                    IceInternal.Ex.throwUOE((string)typeof(T).GetMethod("ice_staticId").Invoke(null, null), v.ice_id());
+                    IceInternal.Ex.throwUOE(typeof(T), v);
                 }
             });
         }
