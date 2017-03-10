@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 using Test;
 
-public class TestFacetI : TestFacetDisp_, Ice.PropertiesAdminUpdateCallback
+public class TestFacetI : TestFacetDisp_
 {
     public TestFacetI()
     {

@@ -129,7 +129,7 @@ public class AllTests : TestCommon.AllTests
         return props;
     }
 
-    class UpdateCallbackI : Ice.PropertiesAdminUpdateCallback
+    class UpdateCallbackI
     {
         public UpdateCallbackI(Ice.PropertiesAdminPrx serverProps)
         {
@@ -415,7 +415,7 @@ public class AllTests : TestCommon.AllTests
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((Ice.NativePropertiesAdmin)communicator.findAdminFacet("Properties")).addUpdateCallback(update);
+        ((Ice.NativePropertiesAdmin)communicator.findAdminFacet("Properties")).addUpdateCallback(update.updated);
 
         WriteLine("ok");
 

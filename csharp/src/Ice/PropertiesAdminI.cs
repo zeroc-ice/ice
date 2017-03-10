@@ -20,8 +20,15 @@ public interface PropertiesAdminUpdateCallback
 
 public interface NativePropertiesAdmin
 {
+    [Obsolete("This method is deprecated. Use addUpdatecallback(System.Action<Dictionary<string, string>> changes) instead.")]
     void addUpdateCallback(PropertiesAdminUpdateCallback callback);
+
+    [Obsolete("This method is deprecated. Use removeUpdatecallback(System.Action<Dictionary<string, string>> changes) instead.")]
     void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
+
+    void addUpdateCallback(System.Action<Dictionary<string, string>> callback);
+
+    void removeUpdateCallback(System.Action<Dictionary<string, string>> callback);
 }
 
 }
@@ -177,7 +184,7 @@ namespace IceInternal
                     _properties.setProperty(e.Key, "");
                 }
 
-                if(_updateCallbacks.Count > 0)
+                if(_deprecatedUpdateCallbacks.Count > 0 || _updateCallbacks.Count > 0)
                 {
                     Dictionary<string, string> changes = new Dictionary<string, string>(added);
                     foreach(KeyValuePair<string, string> e in changed)
@@ -190,11 +197,26 @@ namespace IceInternal
                     }
 
                     // Copy callbacks to allow callbacks to update callbacks
-                    foreach(var callback in new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks))
+                    foreach(var callback in new List<Ice.PropertiesAdminUpdateCallback>(_deprecatedUpdateCallbacks))
                     {
                         try
                         {
                             callback.updated(changes);
+                        }
+                        catch(Exception ex)
+                        {
+                            if(_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                            {
+                                _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
+                            }
+                        }
+                    }
+                    // Copy callbacks to allow callbacks to update callbacks
+                    foreach(var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
+                    {
+                        try
+                        {
+                            callback(changes);
                         }
                         catch(Exception ex)
                         {
@@ -212,11 +234,27 @@ namespace IceInternal
         {
             lock(this)
             {
-                _updateCallbacks.Add(cb);
+                _deprecatedUpdateCallbacks.Add(cb);
             }
         }
 
         public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
+        {
+            lock(this)
+            {
+                _deprecatedUpdateCallbacks.Remove(cb);
+            }
+        }
+
+        public void addUpdateCallback(System.Action<Dictionary<string, string>> cb)
+        {
+            lock(this)
+            {
+                _updateCallbacks.Add(cb);
+            }
+        }
+
+        public void removeUpdateCallback(System.Action<Dictionary<string, string>> cb)
         {
             lock(this)
             {
@@ -226,7 +264,10 @@ namespace IceInternal
 
         private readonly Ice.Properties _properties;
         private readonly Ice.Logger _logger;
-        private List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks = new List<Ice.PropertiesAdminUpdateCallback>();
+        private List<Ice.PropertiesAdminUpdateCallback> _deprecatedUpdateCallbacks =
+            new List<Ice.PropertiesAdminUpdateCallback>();
+        private List<System.Action<Dictionary<string, string>>> _updateCallbacks =
+            new List<System.Action<Dictionary<string, string>>>();
 
         private static readonly string _traceCategory = "Admin.Properties";
     }

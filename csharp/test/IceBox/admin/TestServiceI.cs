@@ -28,7 +28,7 @@ public class TestServiceI : IceBox.Service
         if(propFacet != null)
         {
             Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
-            admin.addUpdateCallback(facet);
+            admin.addUpdateCallback(facet.updated);
         }
     }
 

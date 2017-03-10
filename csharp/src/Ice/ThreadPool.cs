@@ -741,7 +741,7 @@ namespace IceInternal
         }
 
         private Instance _instance;
-        private Ice.Dispatcher _dispatcher;
+        private System.Action<System.Action, Ice.Connection> _dispatcher;
         private bool _destroyed;
         private readonly string _prefix;
         private readonly string _threadPrefix;
@@ -816,11 +816,11 @@ namespace IceInternal
                 //
                 SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
 
-                if(_threadPool._instance.initializationData().threadHook != null)
+                if(_threadPool._instance.initializationData().threadStart != null)
                 {
                     try
                     {
-                        _threadPool._instance.initializationData().threadHook.start();
+                        _threadPool._instance.initializationData().threadStart();
                     }
                     catch(System.Exception ex)
                     {
@@ -845,11 +845,11 @@ namespace IceInternal
                     _observer.detach();
                 }
 
-                if(_threadPool._instance.initializationData().threadHook != null)
+                if(_threadPool._instance.initializationData().threadStop != null)
                 {
                     try
                     {
-                        _threadPool._instance.initializationData().threadHook.stop();
+                        _threadPool._instance.initializationData().threadStop();
                     }
                     catch(System.Exception ex)
                     {

@@ -196,6 +196,21 @@ These are the changes since Ice 3.6.3.
 
 ## C# Changes
 
+- The `Ice.PropertiesUpdateCallback` interface is deprecated, use the
+  `System.Action<Dictionary<string, string>>` delegate instead to receive
+  property updates.
+
+- The `threadHook` member of `InitializationData` is now deprecated. We have
+  added `threadStart` and `threadStop` members for consistency with the C++11
+  and Java mappings. A program should set these members to a System.Action
+  delegate.
+
+- The `Ice.ClassResolver` delegate has been replaced with the
+  `System.Func<string, Type>` delegate. The `Ice.CompactIdResolver` delegate
+  has been replaced with the `System.Func<int, string>` delegate. The
+  `Ice.Dispatcher` delegate has been replaced with the
+  `System.Action<System.Action, Ice.Connection>` delegate.
+
 - Added new interface/class metadata cs:tie. Use this metadata to generate a tie
   class for a given interface or class.
 

@@ -19,7 +19,7 @@ public class TestFacetI : TestFacetDisp_
     }
 }
 
-public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminUpdateCallback
+public class RemoteCommunicatorI : RemoteCommunicatorDisp_
 {
     public RemoteCommunicatorI(Ice.Communicator communicator)
     {
@@ -130,7 +130,7 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
         {
             Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
             Debug.Assert(admin != null);
-            admin.addUpdateCallback(servant);
+            admin.addUpdateCallback(servant.updated);
         }
 
         Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);

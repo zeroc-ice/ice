@@ -655,12 +655,13 @@ namespace IceInternal
         }
 
         public void
-        setThreadHook(Ice.ThreadNotification threadHook)
+        setThreadHook(System.Action threadStart, System.Action threadStop)
         {
             //
             // No locking, as it can only be called during plug-in loading
             //
-            _initData.threadHook = threadHook;
+            _initData.threadStart = threadStart;
+            _initData.threadStop = threadStop;
         }
 
         public Type resolveClass(string id)
@@ -933,7 +934,18 @@ namespace IceInternal
                 if(_initData.properties.getPropertyAsIntWithDefault("Ice.PreloadAssemblies", 0) > 0)
                 {
                     AssemblyUtil.preloadAssemblies();
-                } 
+                }
+
+#pragma warning disable 618
+                if(_initData.threadStart == null && _initData.threadHook != null)
+                {
+                    _initData.threadStart = _initData.threadHook.start;
+                }
+                if(_initData.threadStop == null && _initData.threadHook != null)
+                {
+                    _initData.threadStop = _initData.threadHook.stop;
+                }
+#pragma warning restore 618
             }
             catch(Ice.LocalException)
             {

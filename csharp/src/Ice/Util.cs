@@ -37,21 +37,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// A delegate for the dispatcher. The dispatcher is called by the Ice
-    /// runtime to dispatch servant calls and AMI callbacks.
-    /// </summary>
-    public delegate void Dispatcher(System.Action call, Connection con);
-
-    /// <summary>
-    /// Applications that make use of compact type IDs to conserve space
-    /// when marshaling class instances, and also use the streaming API to
-    /// extract such classes, can intercept the translation between compact
-    /// type IDs and their corresponding string type IDs by installing an
-    /// instance of CompactIdResolver in InitializationData.
-    /// </summary>
-    public delegate string CompactIdResolver(int id);
-
-    /// <summary>
     /// A class that encpasulates data to initialize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
@@ -85,17 +70,32 @@ namespace Ice
         /// <summary>
         /// The thread hook for the communicator.
         /// </summary>
+        [Obsolete("This data member is deprecated. Use threadStart or threadStop instead.")]
         public ThreadNotification threadHook;
+
+        /// <summary>
+        /// The thread start hook for the communicator. The Ice run time
+        /// calls this hook for each new thread it creates. The call is
+        /// made by the newly-started thread.
+        /// </summary>
+        public System.Action threadStart;
+
+        /// <summary>
+        /// The thread stop hook for the communicator. The Ice run time
+        /// calls stop before it destroys a thread. The call is made by
+        /// thread that is about to be destroyed.
+        /// </summary>
+        public System.Action threadStop;
 
         /// <summary>
         /// The dispatcher for the communicator.
         /// </summary>
-        public Dispatcher dispatcher;
+        public System.Action<System.Action, Connection> dispatcher;
 
         /// <summary>
         /// The compact type ID resolver.
         /// </summary>
-        public CompactIdResolver compactIdResolver;
+        public System.Func<int, string> compactIdResolver;
 
         /// <summary>
         /// The batch request interceptor.

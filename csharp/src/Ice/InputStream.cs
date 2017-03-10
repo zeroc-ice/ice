@@ -18,13 +18,6 @@ namespace Ice
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
-    /// A ClassResolver translates a Slice type Id into a type using
-    /// an implementation-defined algorithm.
-    /// </summary>
-    /// <param name="id">A Slice type Id corresponding to a Slice value or user exception.</param>
-    public delegate System.Type ClassResolver(string id);
-
-    /// <summary>
     /// Throws a UserException corresponding to the given Slice type Id, such as "::Module::MyException".
     /// If the implementation does not throw an exception, the Ice run time will fall back
     /// to using its default behavior for instantiating the user exception.
@@ -327,7 +320,7 @@ namespace Ice
         /// resolver will be used by default.
         /// </summary>
         /// <param name="r">The compact ID resolver.</param>
-        public void setCompactIdResolver(CompactIdResolver r)
+        public void setCompactIdResolver(System.Func<int, string> r)
         {
             _compactIdResolver = r;
         }
@@ -338,7 +331,7 @@ namespace Ice
         /// resolver will be used by default.
         /// </summary>
         /// <param name="r">The class resolver.</param>
-        public void setClassResolver(ClassResolver r)
+        public void setClassResolver(System.Func<string, Type> r)
         {
             _classResolver = r;
         }
@@ -444,11 +437,11 @@ namespace Ice
             other._logger = _logger;
             _logger = tmpLogger;
 
-            CompactIdResolver tmpCompactIdResolver = other._compactIdResolver;
+            System.Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
             other._compactIdResolver = _compactIdResolver;
             _compactIdResolver = tmpCompactIdResolver;
 
-            ClassResolver tmpClassResolver = other._classResolver;
+            System.Func<string, Type> tmpClassResolver = other._classResolver;
             other._classResolver = _classResolver;
             _classResolver = tmpClassResolver;
         }
@@ -2741,7 +2734,7 @@ namespace Ice
         abstract private class EncapsDecoder
         {
             internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
-                                   ClassResolver cr)
+                                   System.Func<string, Type> cr)
             {
                 _stream = stream;
                 _encaps = encaps;
@@ -3009,7 +3002,7 @@ namespace Ice
             protected readonly Encaps _encaps;
             protected readonly bool _sliceValues;
             protected ValueFactoryManager _valueFactoryManager;
-            protected ClassResolver _classResolver;
+            protected System.Func<string, Type> _classResolver;
 
             //
             // Encapsulation attributes for object unmarshaling.
@@ -3025,7 +3018,7 @@ namespace Ice
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
             internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
-                                     ClassResolver cr)
+                                     System.Func<string, Type> cr)
                 : base(stream, encaps, sliceValues, f, cr)
             {
                 _sliceType = SliceType.NoSlice;
@@ -3321,7 +3314,7 @@ namespace Ice
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
             internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
-                                     ClassResolver cr, CompactIdResolver r)
+                                     System.Func<string, Type> cr, System.Func<int, string> r)
                 : base(stream, encaps, sliceValues, f, cr)
             {
                 _compactIdResolver = r;
@@ -3951,7 +3944,7 @@ namespace Ice
                 internal InstanceData next;
             }
 
-            private CompactIdResolver _compactIdResolver;
+            private System.Func<int, string> _compactIdResolver;
             private InstanceData _current;
             private int _valueIdIndex; // The ID of the next instance to unmarshal.
             private Dictionary<int, Type> _compactIdCache;
@@ -4034,8 +4027,8 @@ namespace Ice
 
         private ValueFactoryManager _valueFactoryManager;
         private Logger _logger;
-        private CompactIdResolver _compactIdResolver;
-        private ClassResolver _classResolver;
+        private System.Func<int, string> _compactIdResolver;
+        private System.Func<string, Type> _classResolver;
     }
 
     /// <summary>
