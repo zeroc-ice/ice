@@ -27,7 +27,7 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
 
         // Collocated-only OA
         Ice::ObjectAdapterPtr oa = ich->createObjectAdapter("");

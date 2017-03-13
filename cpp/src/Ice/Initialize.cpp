@@ -365,6 +365,28 @@ Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicato
 
 #else
 
+Ice::CommunicatorHolder::CommunicatorHolder(int& argc, char* argv[], const InitializationData& initData, Int version) :
+    _communicator(initialize(argc, argv, initData, version))
+{
+}
+
+#ifdef _WIN32
+Ice::CommunicatorHolder::CommunicatorHolder(int& argc, wchar_t* argv[], const InitializationData& initData, Int version) :
+    _communicator(initialize(argc, argv, initData, version))
+{
+}
+#endif
+
+Ice::CommunicatorHolder::CommunicatorHolder(StringSeq& args, const InitializationData& initData, Int version) :
+    _communicator(initialize(args, initData, version))
+{
+}
+
+Ice::CommunicatorHolder::CommunicatorHolder(const InitializationData& initData, Int version) :
+    _communicator(initialize(initData, version))
+{
+}
+
 Ice::CommunicatorHolder::CommunicatorHolder(const CommunicatorPtr& communicator) :
     _communicator(communicator)
 {

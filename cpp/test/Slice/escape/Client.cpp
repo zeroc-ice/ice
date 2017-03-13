@@ -198,7 +198,7 @@ main(int argc, char* argv[])
 {
     try
     {
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        Ice::CommunicatorHolder ich(argc, argv);
         return run(ich.communicator());
     }
     catch(const Ice::Exception& ex)

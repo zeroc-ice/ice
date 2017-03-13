@@ -1026,7 +1026,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = *q;
-                Ice::CommunicatorHolder clientCommunicator = Ice::initialize(clientInitData);
+                Ice::CommunicatorHolder clientCommunicator(clientInitData);
                 Ice::ObjectPrxPtr prx = clientCommunicator->stringToProxy(strPrx);
                 try
                 {

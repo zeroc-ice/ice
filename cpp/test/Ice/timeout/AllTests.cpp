@@ -326,8 +326,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.Timeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
-        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
+        Ice::CommunicatorHolder ich(initData);
+        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
         timeout->holdAdapter(700);
         try
         {
@@ -354,7 +354,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
-        comm->destroy();
     }
     {
         //
@@ -363,9 +362,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
+        Ice::CommunicatorHolder ich(initData);
         timeout->holdAdapter(750);
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
         try
         {
             to->op();
@@ -406,7 +405,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
-        comm->destroy();
     }
     {
         //
@@ -415,11 +413,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.CloseTimeout", "100");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
-        Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
+        Ice::CommunicatorHolder ich(initData);
+        Ice::ConnectionPtr connection = ich->stringToProxy(sref)->ice_getConnection();
         timeout->holdAdapter(800);
         IceUtil::Time now = IceUtil::Time::now();
-        comm->destroy();
+        ich.release()->destroy();
         test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(700));
     }
     cout << "ok" << endl;

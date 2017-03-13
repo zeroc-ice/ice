@@ -63,7 +63,7 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         assert(initData.properties != ich->getProperties());
         return run(argc, argv, ich.communicator(), initData);
     }

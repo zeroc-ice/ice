@@ -42,7 +42,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
         CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
         initData.observer = observer;
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator(), observer);
     }
     catch(const Ice::Exception& ex)

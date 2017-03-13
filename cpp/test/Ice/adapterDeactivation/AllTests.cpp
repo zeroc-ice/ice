@@ -75,7 +75,7 @@ allTests(const CommunicatorPtr& communicator)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            Ice::CommunicatorHolder comm = Ice::initialize(initData);
+            Ice::CommunicatorHolder comm(initData);
 #ifdef ICE_CPP11_MAPPING
             comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->ice_pingAsync();
 #else

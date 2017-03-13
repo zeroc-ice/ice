@@ -44,7 +44,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.BatchAutoFlushSize", "100");
 
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)

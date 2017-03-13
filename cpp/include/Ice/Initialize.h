@@ -141,6 +141,19 @@ class ICE_API CommunicatorHolder
 public:
 
 #ifdef ICE_CPP11_MAPPING
+
+    //
+    // Call initialize to create communicator with the provided args
+    //
+    template<class... T>
+    CommunicatorHolder(T&&... args) :
+        _communicator(std::move(initialize(std::forward<T>(args)...)))
+    {
+    }
+
+    //
+    // Adopt communicator
+    //
     CommunicatorHolder(std::shared_ptr<Communicator>);
 
     CommunicatorHolder(const CommunicatorHolder&) = delete;
@@ -149,8 +162,30 @@ public:
     CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
 
 #else
+
+    //
+    // Call initialize to create communicator with the provided args
+    //
+
+    CommunicatorHolder(int&, char*[], const InitializationData& = InitializationData(),
+                       Int = ICE_INT_VERSION);
+
+#ifdef _WIN32
+    CommunicatorHolder(int&, wchar_t*[], const InitializationData& = InitializationData(),
+                       Int = ICE_INT_VERSION);
+#endif
+
+    CommunicatorHolder(Ice::StringSeq&, const InitializationData& = InitializationData(),
+                       Int = ICE_INT_VERSION);
+
+    CommunicatorHolder(const InitializationData& = InitializationData(), Int = ICE_INT_VERSION);
+
+    //
+    // Adopt communicator
+    //
     CommunicatorHolder(const CommunicatorPtr&);
 
+    //
     // Required for successful copy-initialization, but not
     // defined as it should always be elided by compiler
     CommunicatorHolder(const CommunicatorHolder&);
