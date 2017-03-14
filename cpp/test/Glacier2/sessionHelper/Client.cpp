@@ -558,10 +558,6 @@ private:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionHelperClient c;
     Ice::InitializationData initData = getTestInitData(argc, argv);
     return c.main(argc, argv, initData);

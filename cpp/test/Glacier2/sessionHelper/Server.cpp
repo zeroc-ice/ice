@@ -69,10 +69,6 @@ SessionHelperServer::run(int, char**)
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionHelperServer app;
     Ice::InitializationData initData = getTestInitData(argc, argv);
     int status = app.main(argc, argv, initData);

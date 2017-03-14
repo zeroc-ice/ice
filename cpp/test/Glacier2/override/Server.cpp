@@ -25,10 +25,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     Ice::InitializationData initData = getTestInitData(argc, argv);
 
     initData.properties->setProperty("Ice.Warn.Connections", "0");

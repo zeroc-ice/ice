@@ -18,6 +18,13 @@
 
 using namespace std;
 
+extern "C"
+{
+
+Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+
+};
+
 class LocatorI : public Ice::Locator
 {
 public:
@@ -148,6 +155,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceSSL(false);
+    Ice::registerPluginFactory("Test", createTestTransport, false);
+#endif
+
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);

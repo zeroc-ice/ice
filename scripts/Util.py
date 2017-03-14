@@ -81,6 +81,9 @@ class Platform:
                     setattr(self, varname, valuefn(value) if valuefn else value)
 
     def getFilters(self, config):
+        if config.buildConfig in ["static", "cpp11-static"]:
+            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple"],
+                    ["Ice/library", "Ice/plugin"])
         return ([], [])
 
     def getDefaultBuildPlatform(self):

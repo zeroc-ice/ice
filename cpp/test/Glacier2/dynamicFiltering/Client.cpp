@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <Test.h>
 #include <TestCommon.h>
@@ -26,10 +26,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionControlClient app;
 
     Ice::InitializationData initData = getTestInitData(argc, argv);

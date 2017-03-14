@@ -118,10 +118,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     BackendServer app;
     return app.main(argc, argv);
 }

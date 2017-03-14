@@ -37,7 +37,7 @@ public:
 // We use messages with different sizes to compensate the different line end used in Windows
 // and Unix. The Win32 message is 126 bytes plus 2 bytes for the Windows line end \r\n and
 // that makes a total of 128 bytes. For all other platforms the message is 127 bytes plus 1
-// byte for the line end \n and that makes a total of 128 bytes.  
+// byte for the line end \n and that makes a total of 128 bytes.
 //
 #ifdef _WIN32
 const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -51,7 +51,7 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
 #endif
 
     //
@@ -76,7 +76,7 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-    
+
     //
     // Run Client application configured to generate 1024 bytes, the application is configured
     // to not archive log files, there must not be any archived log files, and log file must
@@ -116,7 +116,7 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-    
+
     //
     // Same as above but maximum size is lower than the message size, in this case we should
     // get the same result as messages are not trucated.
@@ -135,7 +135,7 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-    
+
     //
     // Run Client application configured to generate 1024 bytes, the application is configured
     // to archive log files greater than 512 bytes, but the log directory is set to read only

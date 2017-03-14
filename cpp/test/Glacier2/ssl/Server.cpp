@@ -162,10 +162,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionServer app;
     Ice::InitializationData initData = getTestInitData(argc, argv);
     return app.main(argc, argv, initData);

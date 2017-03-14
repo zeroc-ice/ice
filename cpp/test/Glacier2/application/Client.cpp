@@ -24,11 +24,11 @@ using namespace Test;
 
 namespace
 {
-    
+
 class CallbackReceiverI : public Test::CallbackReceiver
 {
 public:
-    
+
     CallbackReceiverI() : _received(false)
     {
     }
@@ -39,7 +39,7 @@ public:
         _received = true;
         _monitor.notify();
     }
-    
+
     void waitForCallback()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -49,7 +49,7 @@ public:
         }
         _received = false;
     }
-    
+
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     bool _received;
 };
@@ -58,24 +58,24 @@ ICE_DEFINE_PTR(CallbackReceiverIPtr, CallbackReceiverI);
 class Application : public Glacier2::Application
 {
 public:
-    
+
     Application() : _restart(0), _destroyed(false), _receiver(ICE_MAKE_SHARED(CallbackReceiverI))
     {
     }
-    
+
     virtual Glacier2::SessionPrxPtr
     createSession()
     {
         return ICE_UNCHECKED_CAST(Glacier2::SessionPrx, router()->createSession("userid", "abc123"));
     }
-    
+
     virtual int
     runWithSession(int, char*[])
     {
         test(router());
         test(!categoryForClient().empty());
         test(objectAdapter());
-        
+
         if(_restart == 0)
         {
             cout << "testing Glacier2::Application restart... " << flush;
@@ -90,14 +90,14 @@ public:
             restart();
         }
         cout << "ok" << endl;
-        
+
         cout << "testing server shutdown... " << flush;
         callback->shutdown();
         cout << "ok" << endl;
 
         return 0;
     }
-    
+
     virtual void sessionDestroyed()
     {
         _destroyed = true;
@@ -115,16 +115,12 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     Application app;
     Ice::InitializationData initData = getTestInitData(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(initData.properties, 10));
     int status = app.main(argc, argv, initData);
-    
+
     initData.properties->setProperty("Ice.Default.Router", "");
     Ice::CommunicatorPtr communicator = Ice::initialize(initData);
 
@@ -148,10 +144,10 @@ main(int argc, char* argv[])
     {
         cout << "ok" << endl;
     }
-    
+
     test(app._restart == 5);
     test(app._destroyed);
-    
+
     communicator->destroy();
     return status;
 }

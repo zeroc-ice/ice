@@ -352,7 +352,7 @@ $5_soversion	:= $$(call var-value,soversion,$1,$2,$3,$4)
 #
 # Transform the dependencies to [platform-configuration] specific dependencies.
 #
-$5_dependencies := $$(call var-compound,dependencies,$1,$2,$3,$4,make-deps)
+$5_dependencies := $$(call var-rcompound,dependencies,$1,$2,$3,$4,make-deps)
 $5_libs		:= $$(call var-compound,libs,$1,$2,$3,$4,make-unique)
 $5_system_libs	:= $$(call var-compound,system_libs,$1,$2,$3,$4)
 
@@ -886,8 +886,8 @@ mappingdir  	= $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top
 # $(call subconfigs,$1=config)
 subconfigs = $(subst -,$(space),$1)
 
-# $(call var-names,$1=varname,$2=comp,$3=platform,$4=config)
-var-names = $(if $2,$2[$3-$4]_$1 $2[$3]_$1 $(foreach c,$(call subconfigs,$4),$2[$c]_$1) $2_$1)
+# $(call var-names,$1=varname,$2=project-or-comp,$3=platform,$4=config)
+var-names  = $(if $2,$2[$3-$4]_$1 $2[$3]_$1 $(foreach c,$(call subconfigs,$4),$2[$c]_$1) $2_$1)
 
 #
 # $(call var-value,$1=varname,$2=project,$3=component,$4=platform,$5=config,$6=fn)
@@ -908,7 +908,9 @@ var-value = $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(call var-valu1,$(v
 # project/component/platform/configuration level.
 #
 var-comp-names  = $1 $(call var-names,$1,$2,$4,$5) $(call var-names,$1,$3,$4,$5)
+var-rcomp-names = $(call var-names,$1,$3,$4,$5) $(call var-names,$1,$2,$4,$5) $1
 var-compound 	= $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(strip $(foreach v,$(var-comp-names),$($v))))
+var-rcompound 	= $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(strip $(foreach v,$(var-rcomp-names),$($v))))
 
 #
 # Return the given value after applying platform/configuration customization.

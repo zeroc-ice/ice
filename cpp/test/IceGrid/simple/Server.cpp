@@ -48,6 +48,9 @@ Server::run(int argc, char* argv[])
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceSSL(false);
+#endif
     Server app;
     int rc = app.main(argc, argv);
     return rc;

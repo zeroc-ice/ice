@@ -100,8 +100,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // handles failure to find a locator. Also test
             // Ice::registerIceLocatorDiscovery()
             //
+#ifndef ICE_STATIC_LIBS
             Ice::registerIceLocatorDiscovery();
             initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "");
+#else
+            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery", "1");
+#endif
             initData.properties->setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties->setProperty("IceLocatorDiscovery.Timeout", "100");
