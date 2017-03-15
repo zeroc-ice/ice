@@ -32,24 +32,24 @@ class Callback:
 
     def response(self, f):
         test(f.exception() is None)
-        self.checkThread()
+        test(Dispatcher.Dispatcher.isDispatcherThread())
         self.called()
 
     def exception(self, f):
         test(isinstance(f.exception(), Ice.NoEndpointException))
-        self.checkThread()
+        test(Dispatcher.Dispatcher.isDispatcherThread())
         self.called()
 
     def exceptionEx(self, f):
         test(isinstance(f.exception(), Ice.InvocationTimeoutException))
-        self.checkThread()
+        test(Dispatcher.Dispatcher.isDispatcherThread())
         self.called()
 
     def payload(self, f):
         if f.exception():
             test(isinstance(f.exception(), Ice.CommunicatorDestroyedException))
         else:
-            self.checkThread()
+            test(Dispatcher.Dispatcher.isDispatcherThread())
 
     def checkThread(self):
         #
@@ -70,6 +70,8 @@ def allTests(communicator, collocated):
 
     testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
 
+    dispatcher = Dispatcher.Dispatcher.instance()
+
     sys.stdout.write("testing dispatcher... ")
     sys.stdout.flush()
 
@@ -77,21 +79,21 @@ def allTests(communicator, collocated):
 
     cb = Callback()
 
-    p.opAsync().add_done_callback(cb.response)
+    p.opAsync().add_done_callback(cb.response, dispatcher.dispatchSync)
     cb.check()
 
     #
     # Expect NoEndpointException.
     #
     i = p.ice_adapterId("dummy")
-    i.opAsync().add_done_callback(cb.exception)
+    i.opAsync().add_done_callback(cb.exception, dispatcher.dispatchSync)
     cb.check()
 
     #
     # Expect InvocationTimeoutException.
     #
     to = p.ice_invocationTimeout(250);
-    to.sleepAsync(500).add_done_callback(cb.exceptionEx)
+    to.sleepAsync(500).add_done_callback(cb.exceptionEx, dispatcher.dispatchSync)
     cb.check()
 
     testController.holdAdapter()
@@ -106,7 +108,7 @@ def allTests(communicator, collocated):
     f = None
     while True:
         f = p.opWithPayloadAsync(seq)
-        f.add_done_callback(cb.payload)
+        f.add_done_callback(cb.payload, dispatcher.dispatchSync)
         if not f.is_sent_synchronously():
             break
     testController.resumeAdapter()

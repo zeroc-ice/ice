@@ -29,6 +29,9 @@ class Dispatcher:
             if len(self._calls) == 1:
                 self._cond.notify()
 
+    def dispatchSync(self, call):
+        self.dispatch(call, None)
+
     def run(self):
         while True:
             call = None
@@ -60,3 +63,7 @@ class Dispatcher:
     @staticmethod
     def isDispatcherThread():
         return threading.current_thread() == Dispatcher._instance._thread
+
+    @staticmethod
+    def instance():
+        return Dispatcher._instance
