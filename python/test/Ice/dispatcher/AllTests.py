@@ -17,6 +17,7 @@ class Callback:
     def __init__(self):
         self._called = False
         self._cond = threading.Condition()
+        self._mainThread = threading.current_thread()
 
     def check(self):
         with self._cond:
@@ -31,24 +32,30 @@ class Callback:
 
     def response(self, f):
         test(f.exception() is None)
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        self.checkThread()
         self.called()
 
     def exception(self, f):
         test(isinstance(f.exception(), Ice.NoEndpointException))
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        self.checkThread()
         self.called()
 
     def exceptionEx(self, f):
         test(isinstance(f.exception(), Ice.InvocationTimeoutException))
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        self.checkThread()
         self.called()
 
     def payload(self, f):
         if f.exception():
             test(isinstance(f.exception(), Ice.CommunicatorDestroyedException))
         else:
-            test(Dispatcher.Dispatcher.isDispatcherThread())
+            self.checkThread()
+
+    def checkThread(self):
+        #
+        # A done callback can be invoked recursively from the calling thread if the request was already complete.
+        #
+        test(Dispatcher.Dispatcher.isDispatcherThread() or threading.current_thread() == self._mainThread)
 
 def allTests(communicator, collocated):
     sref = "test:default -p 12010"
