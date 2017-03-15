@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+[["suppress-warning:deprecated"]] // For class that implements interface
+
 module and
 {
 
