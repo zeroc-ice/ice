@@ -11,6 +11,8 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+[["cpp:dll-export:TEST_API"]]
+
 module Test
 {
 
@@ -26,7 +28,7 @@ interface BackgroundController
 {
     void pauseCall(string call);
     void resumeCall(string call);
-    
+
     void holdAdapter();
     void resumeAdapter();
 
