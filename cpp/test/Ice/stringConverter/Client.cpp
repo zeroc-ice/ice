@@ -24,7 +24,7 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL(false);
-    Ice::registerIceStringConverter();
+    Ice::registerIceStringConverter(false);
 #endif
 
     Ice::InitializationData initData = getTestInitData(argc, argv);
