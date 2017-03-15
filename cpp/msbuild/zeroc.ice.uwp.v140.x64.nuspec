@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>zeroc.ice.uwp.x64</id>
-    <title>ZeroC Ice for UWP</title>
+    <id>zeroc.ice.uwp.v140.x64</id>
+    <title>ZeroC Ice for UWP and Visual Studio 2015</title>
     <version>3.7.0-beta0</version>
     <authors>ZeroC, Inc</authors>
     <licenseUrl>https://zeroc.com/licensing</licenseUrl>

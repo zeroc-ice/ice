@@ -5,9 +5,9 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <!-- Slice compiler from Win32 Release builds -->
-        <Tools Include="$(Ice_SrcRootDir)bin\Win32\Release\slice2cpp.exe;
-                        $(Ice_SrcRootDir)bin\Win32\Release\slice2html.exe" />
+        <!-- Slice compiler from x64 Release builds -->
+        <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2cpp.exe;
+                        $(Ice_SrcRootDir)bin\x64\Release\slice2html.exe" />
 
         <!-- public header files and sources -->
         <Headers Include="$(Ice_SrcRootDir)include\**\*.h"
