@@ -11,6 +11,10 @@
 #include <TestI.h>
 #include <TestCommon.h>
 
+#if defined(ICE_USE_OPENSSL)
+#  include <IceSSL/OpenSSL.h>
+#endif
+
 DEFINE_TEST("server")
 
 using namespace std;

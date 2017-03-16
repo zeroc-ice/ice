@@ -8,12 +8,9 @@
 // **********************************************************************
 
 #include <IceSSL/Config.h>
-
-#ifdef ICE_OS_UWP
-
 #include <IceSSL/UWPTransceiverI.h>
 #include <IceSSL/Instance.h>
-#include <IceSSL/SSLEngine.h>
+#include <IceSSL/UWPEngine.h>
 #include <Ice/Logger.h>
 #include <ppltasks.h>
 
@@ -104,13 +101,13 @@ validationResultToString(ChainValidationResult result)
 }
 
 IceInternal::NativeInfoPtr
-IceSSL::TransceiverI::getNativeInfo()
+UWP::TransceiverI::getNativeInfo()
 {
     return _delegate->getNativeInfo();
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
+UWP::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
     if(!_connected)
     {
@@ -199,7 +196,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 auto certs = _chain->GetCertificates(true);
                 for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
                 {
-                    auto cert = ICE_MAKE_SHARED(Certificate, iter->Current);
+                    auto cert = UWP::Certificate::create(iter->Current);
                     _nativeCerts.push_back(cert);
                     _certs.push_back(cert->encode());
                 }
@@ -218,31 +215,31 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException& ex)
+UWP::TransceiverI::closing(bool initiator, const Ice::LocalException& ex)
 {
     return _delegate->closing(initiator, ex);
 }
 
 void
-IceSSL::TransceiverI::close()
+UWP::TransceiverI::close()
 {
     _delegate->close();
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
+UWP::TransceiverI::write(IceInternal::Buffer& buf)
 {
     return _delegate->write(buf);
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
+UWP::TransceiverI::read(IceInternal::Buffer& buf)
 {
     return _delegate->read(buf);
 }
 
 bool
-IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
+UWP::TransceiverI::startWrite(IceInternal::Buffer& buf)
 {
     if(_connected && !_upgraded)
     {
@@ -251,7 +248,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
 
         //
         // We ignore SSL Certificate errors at this point, the certificate chain will be validated
-        // when the chain is constructed in IceSSL::Transceiver::initialize
+        // when the chain is constructed in Transceiver::initialize
         //
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::Expired);
         stream->Control->IgnorableServerCertificateErrors->Append(ChainValidationResult::IncompleteChain);
@@ -287,7 +284,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
 }
 
 void
-IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
+UWP::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 {
     if(_connected && !_upgraded)
     {
@@ -318,37 +315,37 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
 }
 
 void
-IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
+UWP::TransceiverI::startRead(IceInternal::Buffer& buf)
 {
     _delegate->startRead(buf);
 }
 
 void
-IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
+UWP::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
     _delegate->finishRead(buf);
 }
 
 string
-IceSSL::TransceiverI::protocol() const
+UWP::TransceiverI::protocol() const
 {
     return _instance->protocol();
 }
 
 string
-IceSSL::TransceiverI::toString() const
+UWP::TransceiverI::toString() const
 {
     return _delegate->toString();
 }
 
 string
-IceSSL::TransceiverI::toDetailedString() const
+UWP::TransceiverI::toDetailedString() const
 {
     return toString();
 }
 
 Ice::ConnectionInfoPtr
-IceSSL::TransceiverI::getInfo() const
+UWP::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
     info->verified = _verified;
@@ -361,22 +358,22 @@ IceSSL::TransceiverI::getInfo() const
 }
 
 void
-IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
+UWP::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
 }
 
 void
-IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
+UWP::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
     _delegate->setBufferSize(rcvSize, sndSize);
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
+UWP::TransceiverI::TransceiverI(const InstancePtr& instance,
                                    const IceInternal::TransceiverPtr& delegate,
                                    const string& hostOrAdapterName,
                                    bool incoming) :
     _instance(instance),
-    _engine(UWPEnginePtr::dynamicCast(instance->engine())),
+    _engine(UWP::SSLEnginePtr::dynamicCast(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),
@@ -387,8 +384,6 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
 {
 }
 
-IceSSL::TransceiverI::~TransceiverI()
+UWP::TransceiverI::~TransceiverI()
 {
 }
-
-#endif

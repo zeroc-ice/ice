@@ -110,13 +110,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AcceptorI.cpp" />
-    <ClCompile Include="..\..\Certificate.cpp" />
+    <ClCompile Include="..\..\CertificateI.cpp" />
     <ClCompile Include="..\..\ConnectorI.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />
     <ClCompile Include="..\..\PluginI.cpp" />
     <ClCompile Include="..\..\RFC2253.cpp" />
+    <ClCompile Include="..\..\SChannelCertificateI.cpp" />
     <ClCompile Include="..\..\SChannelEngine.cpp" />
+    <ClCompile Include="..\..\SChannelPluginI.cpp" />
     <ClCompile Include="..\..\SChannelTransceiverI.cpp" />
     <ClCompile Include="..\..\SSLEngine.cpp" />
     <ClCompile Include="..\..\TrustManager.cpp" />
@@ -213,6 +215,8 @@
     <ClInclude Include="..\..\InstanceF.h" />
     <ClInclude Include="..\..\PluginI.h" />
     <ClInclude Include="..\..\RFC2253.h" />
+    <ClInclude Include="..\..\SChannelEngine.h" />
+    <ClInclude Include="..\..\SChannelEngineF.h" />
     <ClInclude Include="..\..\SChannelTransceiverI.h" />
     <ClInclude Include="..\..\SSLEngine.h" />
     <ClInclude Include="..\..\SSLEngineF.h" />

@@ -128,6 +128,12 @@
     <ClCompile Include="x64\Release\EndpointInfo.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SChannelCertificate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SChannelPluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Util.h">
@@ -201,6 +207,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceSSL\EndpointInfo.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SChannelEngine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SChannelEngineF.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

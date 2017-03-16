@@ -21,40 +21,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-//
-// Plug-in factory function.
-//
-extern "C" ICESSL_API Ice::Plugin*
-createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
-{
-    return new PluginI(communicator);
-}
-
-namespace Ice
-{
-
-ICESSL_API void
-registerIceSSL(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
-}
-
-}
-
 #ifndef ICE_CPP11_MAPPING
-IceSSL::CertificateVerifier::~CertificateVerifier()
+CertificateVerifier::~CertificateVerifier()
 {
     // Out of line to avoid weak vtable
 }
 
-IceSSL::PasswordPrompt::~PasswordPrompt()
+PasswordPrompt::~PasswordPrompt()
 {
     // Out of line to avoid weak vtable
 }
 #endif
 
 
-IceSSL::NativeConnectionInfo::~NativeConnectionInfo()
+NativeConnectionInfo::~NativeConnectionInfo()
 {
     // Out of line to avoid weak vtable
 }
@@ -65,29 +45,11 @@ IceSSL::Plugin::~Plugin()
 }
 
 //
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICESSL_API void
-ICEregisterIceSSL(bool loadOnInitialize)
-{
-    Ice::registerIceSSL(loadOnInitialize);
-}
-
-//
 // Plugin implementation.
 //
-IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
+PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
+    _engine(engine)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT)
-    _engine = new SecureTransportEngine(com);
-#elif defined(ICE_USE_SCHANNEL)
-    _engine = new SChannelEngine(com);
-#elif defined(ICE_OS_UWP)
-    _engine = new UWPEngine(com);
-#else
-    _engine = new OpenSSLEngine(com);
-#endif
-
     //
     // Register the endpoint factory. We have to do this now, rather
     // than in initialize, because the communicator may need to
@@ -121,47 +83,21 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& com)
 }
 
 void
-IceSSL::PluginI::initialize()
+PluginI::initialize()
 {
     _engine->initialize();
 }
 
 void
-IceSSL::PluginI::destroy()
+PluginI::destroy()
 {
     _engine->destroy();
     _engine = 0;
 }
 
-string
-IceSSL::PluginI::getEngineName() const
-{
-#if defined(ICE_USE_SECURE_TRANSPORT)
-    return "SecureTransportEngine";
-#elif defined(ICE_USE_SCHANNEL)
-    return "SChannelEngine";
-#elif defined(ICE_OS_UWP)
-    return "UWPEngine";
-#else
-    ostringstream os;
-    os << "OpenSSLEngine@" << SSLeay_version(SSLEAY_VERSION);
-    return os.str();
-#endif
-}
-
-Ice::Long
-IceSSL::PluginI::getEngineVersion() const
-{
-#if defined(ICE_USE_OPENSSL)
-    return SSLeay();
-#else
-    return 0;
-#endif
-}
-
 #ifdef ICE_CPP11_MAPPING
 void
-IceSSL::PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> verifier)
+PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> verifier)
 {
     if(verifier)
     {
@@ -174,7 +110,7 @@ IceSSL::PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr
 }
 #else
 void
-IceSSL::PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
+PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
     _engine->setCertificateVerifier(verifier);
 }
@@ -182,7 +118,7 @@ IceSSL::PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 
 #ifdef ICE_CPP11_MAPPING
 void
-IceSSL::PluginI::setPasswordPrompt(std::function<std::string()> prompt)
+PluginI::setPasswordPrompt(std::function<std::string()> prompt)
 {
      if(prompt)
      {
@@ -195,22 +131,37 @@ IceSSL::PluginI::setPasswordPrompt(std::function<std::string()> prompt)
 }
 #else
 void
-IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
+PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
     _engine->setPasswordPrompt(prompt);
 }
 #endif
 
-#ifdef ICE_USE_OPENSSL
-void
-IceSSL::PluginI::setContext(SSL_CTX* context)
+extern "C"
 {
-    _engine->context(context);
+
+ICESSL_API Ice::Plugin*
+createIceSSL(const CommunicatorPtr&, const string&, const StringSeq&);
+
 }
 
-SSL_CTX*
-IceSSL::PluginI::getContext()
+namespace Ice
 {
-    return _engine->context();
+
+ICESSL_API void
+registerIceSSL(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
 }
-#endif
+
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICESSL_API void
+ICEregisterIceSSL(bool loadOnInitialize)
+{
+    Ice::registerIceSSL(loadOnInitialize);
+}
+

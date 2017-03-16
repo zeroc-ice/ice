@@ -13,15 +13,13 @@
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngineF.h>
+#include <IceSSL/SChannelEngineF.h>
 
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
 #include <Ice/StreamSocket.h>
 #include <Ice/WSTransceiver.h>
-
-#ifdef ICE_USE_SCHANNEL
 
 #ifdef SECURITY_WIN32
 #  undef SECURITY_WIN32
@@ -40,8 +38,8 @@
 namespace IceSSL
 {
 
-class ConnectorI;
-class AcceptorI;
+namespace SChannel
+{
 
 class TransceiverI : public IceInternal::Transceiver
 {
@@ -80,8 +78,7 @@ private:
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+    friend class IceSSL::SChannel::SSLEngine;
 
     enum State
     {
@@ -93,7 +90,7 @@ private:
     };
 
     const InstancePtr _instance;
-    const SChannelEnginePtr _engine;
+    const IceSSL::SChannel::SSLEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
@@ -124,12 +121,12 @@ private:
     std::string _cipher;
     std::vector<std::string> _certs;
     bool _verified;
-    std::vector<CertificatePtr> _nativeCerts;
+    std::vector<IceSSL::CertificatePtr> _nativeCerts;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
-}
+} // SChannel namespace end
 
-#endif
+} // IceSSL namespace end
 
 #endif

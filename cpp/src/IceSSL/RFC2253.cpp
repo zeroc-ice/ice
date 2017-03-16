@@ -37,8 +37,8 @@ static string parsePair(const string&, size_t&);
 static string parseHexPair(const string&, size_t&, bool);
 static void eatWhite(const string&, size_t&);
 
-IceSSL::RFC2253::RDNEntrySeq
-IceSSL::RFC2253::parse(const string& data)
+RFC2253::RDNEntrySeq
+RFC2253::parse(const string& data)
 {
     RDNEntrySeq results;
     RDNEntry current;
@@ -82,8 +82,8 @@ IceSSL::RFC2253::parse(const string& data)
     return results;
 }
 
-IceSSL::RFC2253::RDNSeq
-IceSSL::RFC2253::parseStrict(const string& data)
+RFC2253::RDNSeq
+RFC2253::parseStrict(const string& data)
 {
     RDNSeq results;
     size_t pos = 0;
@@ -104,7 +104,7 @@ IceSSL::RFC2253::parseStrict(const string& data)
 }
 
 string
-IceSSL::RFC2253::unescape(const string& data)
+RFC2253::unescape(const string& data)
 {
     if(data.size() == 0)
     {

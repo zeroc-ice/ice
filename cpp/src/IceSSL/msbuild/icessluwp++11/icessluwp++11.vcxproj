@@ -138,7 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AcceptorI.cpp" />
-    <ClCompile Include="..\..\Certificate.cpp" />
+    <ClCompile Include="..\..\CertificateI.cpp" />
     <ClCompile Include="..\..\ConnectorI.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />
@@ -147,7 +147,9 @@
     <ClCompile Include="..\..\SSLEngine.cpp" />
     <ClCompile Include="..\..\TrustManager.cpp" />
     <ClCompile Include="..\..\Util.cpp" />
+    <ClCompile Include="..\..\UWPCertificateI.cpp" />
     <ClCompile Include="..\..\UWPEngine.cpp" />
+    <ClCompile Include="..\..\UWPPluginI.cpp" />
     <ClCompile Include="..\..\UWPTransceiverI.cpp" />
     <ClCompile Include="ARM\Debug\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -319,6 +321,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\UWPEngine.h" />
+    <ClInclude Include="..\..\UWPEngineF.h" />
+    <ClInclude Include="..\..\UWPTransceiverI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />

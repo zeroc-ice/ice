@@ -10,12 +10,7 @@
 #include <IceSSL/AcceptorI.h>
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Instance.h>
-
-
-#include <IceSSL/OpenSSLTransceiverI.h>
-#include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/SChannelTransceiverI.h>
-#include <IceSSL/UWPTransceiverI.h>
+#include <IceSSL/SSLEngine.h>
 
 #include <IceSSL/Util.h>
 
@@ -83,7 +78,7 @@ IceSSL::AcceptorI::accept()
         throw ex;
     }
 
-    return new TransceiverI(_instance, _delegate->accept(), _adapterName, true);
+    return _instance->engine()->createTransceiver(_instance, _delegate->accept(), _adapterName, true);
 }
 
 string

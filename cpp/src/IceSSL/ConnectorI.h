@@ -44,6 +44,6 @@ private:
     const std::string _host;
 };
 
-}
+} // IceSSL namespace end
 
 #endif

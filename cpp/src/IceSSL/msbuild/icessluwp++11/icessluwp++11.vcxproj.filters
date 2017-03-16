@@ -147,6 +147,12 @@
     <ClCompile Include="..\..\RFC2253.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\UWPCertificate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\UWPPluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\generated\uwp\Win32\Debug\IceSSL\ConnectionInfo.h">
@@ -184,6 +190,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\uwp\x64\Release\IceSSL\EndpointInfo.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UWPEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UWPEngineF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UWPTransceiverI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

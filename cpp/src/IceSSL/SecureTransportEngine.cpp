@@ -9,6 +9,9 @@
 
 #include <IceSSL/Config.h>
 
+#include <IceSSL/SecureTransportEngineF.h>
+#include <IceSSL/SecureTransportEngine.h>
+
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -20,11 +23,10 @@
 #include <Ice/LoggerUtil.h>
 
 #include <IceSSL/SecureTransportTransceiverI.h>
+#include <IceSSL/SecureTransportUtil.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/Util.h>
-
-#ifdef ICE_USE_SECURE_TRANSPORT
 
 #include <regex.h>
 
@@ -33,6 +35,7 @@ using namespace IceUtil;
 using namespace Ice;
 using namespace IceInternal;
 using namespace IceSSL;
+using namespace IceSSL::SecureTransport;
 
 namespace
 {
@@ -780,11 +783,14 @@ parseProtocol(const string& p)
 
 }
 
-IceUtil::Shared* IceSSL::upCast(IceSSL::SecureTransportEngine* p) { return p; }
+IceUtil::Shared*
+IceSSL::SecureTransport::upCast(IceSSL::SecureTransport::SSLEngine* p)
+{
+    return p;
+}
 
-IceSSL::SecureTransportEngine::SecureTransportEngine(const Ice::CommunicatorPtr& communicator) :
-    SSLEngine(communicator),
-    _initialized(false),
+IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
+    IceSSL::SSLEngine(communicator),
     _certificateAuthorities(0),
     _chain(0),
     _protocolVersionMax(kSSLProtocolUnknown),
@@ -792,18 +798,11 @@ IceSSL::SecureTransportEngine::SecureTransportEngine(const Ice::CommunicatorPtr&
 {
 }
 
-bool
-IceSSL::SecureTransportEngine::initialized() const
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    return _initialized;
-}
-
 //
 // Setup the engine.
 //
 void
-IceSSL::SecureTransportEngine::initialize()
+IceSSL::SecureTransport::SSLEngine::initialize()
 {
     IceUtil::Mutex::Lock lock(_mutex);
     if(_initialized)
@@ -811,7 +810,7 @@ IceSSL::SecureTransportEngine::initialize()
         return;
     }
 
-    SSLEngine::initialize();
+    IceSSL::SSLEngine::initialize();
 
     const PropertiesPtr properties = communicator()->getProperties();
 
@@ -1007,12 +1006,22 @@ IceSSL::SecureTransportEngine::initialize()
 // Destroy the engine.
 //
 void
-IceSSL::SecureTransportEngine::destroy()
+IceSSL::SecureTransport::SSLEngine::destroy()
 {
 }
 
+IceInternal::TransceiverPtr
+IceSSL::SecureTransport::SSLEngine::createTransceiver(const InstancePtr& instance,
+                                                      const IceInternal::TransceiverPtr& delegate,
+                                                      const string& hostOrAdapterName,
+                                                      bool incoming)
+{
+    return new IceSSL::SecureTransport::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+}
+
+
 SSLContextRef
-IceSSL::SecureTransportEngine::newContext(bool incoming)
+IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
 {
     SSLContextRef ssl = SSLCreateContext(kCFAllocatorDefault, incoming ? kSSLServerSide : kSSLClientSide,
                                          kSSLStreamType);
@@ -1054,7 +1063,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
             if((err = SSLSetDiffieHellmanParams(ssl, &_dhParams[0], _dhParams.size())))
             {
                 throw SecurityException(__FILE__, __LINE__,
-                                        "IceSSL: unable to create the trust object:\n" + errorToString(err));
+                                        "IceSSL: unable to create the trust object:\n" + sslErrorToString(err));
             }
         }
 #endif
@@ -1063,14 +1072,14 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
     if(_chain && (err = SSLSetCertificate(ssl, _chain.get())))
     {
         throw SecurityException(__FILE__, __LINE__,
-                                "IceSSL: error while setting the SSL context certificate:\n" + errorToString(err));
+                                "IceSSL: error while setting the SSL context certificate:\n" + sslErrorToString(err));
     }
 
     if(!_ciphers.empty())
     {
         if((err = SSLSetEnabledCiphers(ssl, &_ciphers[0], _ciphers.size())))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting ciphers:\n" + sslErrorToString(err));
         }
     }
 
@@ -1078,7 +1087,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
                                                   kSSLSessionOptionBreakOnServerAuth,
                                   true)))
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting SSL option:\n" + errorToString(err));
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting SSL option:\n" + sslErrorToString(err));
     }
 
     if(_protocolVersionMax != kSSLProtocolUnknown)
@@ -1086,7 +1095,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         if((err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax)))
         {
             throw SecurityException(__FILE__, __LINE__,
-                                    "IceSSL: error while setting SSL protocol version max:\n" + errorToString(err));
+                                    "IceSSL: error while setting SSL protocol version max:\n" + sslErrorToString(err));
         }
     }
 
@@ -1095,7 +1104,7 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
         if((err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin)))
         {
             throw SecurityException(__FILE__, __LINE__,
-                                    "IceSSL: error while setting SSL protocol version min:\n" + errorToString(err));
+                                    "IceSSL: error while setting SSL protocol version min:\n" + sslErrorToString(err));
         }
     }
 
@@ -1103,19 +1112,19 @@ IceSSL::SecureTransportEngine::newContext(bool incoming)
 }
 
 CFArrayRef
-IceSSL::SecureTransportEngine::getCertificateAuthorities() const
+IceSSL::SecureTransport::SSLEngine::getCertificateAuthorities() const
 {
     return _certificateAuthorities.get();
 }
 
 string
-IceSSL::SecureTransportEngine::getCipherName(SSLCipherSuite cipher) const
+IceSSL::SecureTransport::SSLEngine::getCipherName(SSLCipherSuite cipher) const
 {
     return CiphersHelper::cipherName(cipher);
 }
 
 void
-IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
+IceSSL::SecureTransport::SSLEngine::parseCiphers(const string& ciphers)
 {
     vector<string> tokens;
     vector<CipherExpression> cipherExpressions;
@@ -1204,7 +1213,7 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
     if(err)
     {
         throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: unable to get supported ciphers list:\n" + errorToString(err));
+                                            "IceSSL: unable to get supported ciphers list:\n" + sslErrorToString(err));
     }
 
     vector<SSLCipherSuite> enabled;
@@ -1280,6 +1289,3 @@ IceSSL::SecureTransportEngine::parseCiphers(const string& ciphers)
                                             "\nThe result cipher list does not contain any entries");
     }
 }
-
-
-#endif

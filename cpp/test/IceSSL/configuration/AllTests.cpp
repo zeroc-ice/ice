@@ -8,16 +8,17 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceSSL/Plugin.h>
+#include <IceSSL/IceSSL.h>
 #include <TestCommon.h>
 #include <Test.h>
 #include <fstream>
 #include <algorithm>
 
+#include <Ice/UniqueRef.h>
 #if defined(__APPLE__)
 #  include <sys/sysctl.h>
 #  if TARGET_OS_IPHONE != 0
-#    include <IceSSL/Util.h> // For loadCertificateChain
+#    include <IceSSL/SecureTransportUtil.h> // For loadCertificateChain
 #  endif
 #elif defined(ICE_OS_UWP)
 #  include <ppltasks.h>
@@ -36,6 +37,25 @@ using namespace Windows::Security::Cryptography::Certificates;
 #   define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
 #else
 #   define ICE_TARGET_EQUAL_TO(A,B) A == B
+#endif
+
+#if defined(__APPLE__)
+#  define ICE_USE_SECURE_TRANSPORT 1
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+#  define ICE_USE_SECURE_TRANSPORT_IOS 1
+#else
+#  define ICE_USE_SECURE_TRANSPORT_MACOS 1
+#endif
+#elif defined(_WIN32)
+#  if !defined(ICE_OS_UWP) && !defined(ICE_USE_OPENSSL)
+#    define ICE_USE_SCHANNEL 1
+#  endif
+#else
+#  define ICE_USE_OPENSSL 1
+#endif
+
+#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+#  include <IceSSL/OpenSSL.h>
 #endif
 
 using namespace std;
@@ -89,7 +109,7 @@ readFile(const string& file, vector<char>& buffer)
 bool
 importCaCertificate(const string& friendlyName, const string& file)
 {
-    auto cert = IceSSL::Certificate::load(file)->getCert();
+    auto cert = IceSSL::UWP::Certificate::load(file)->getCert();
     cert->FriendlyName = ref new String(stringToWstring(friendlyName).c_str());
     CertificateStores::TrustedRootCertificationAuthorities->Add(cert);
     return true;
@@ -304,7 +324,7 @@ public:
             string resolved;
             if(IceSSL::checkPath(certificates[i], defaultDir, false, resolved))
             {
-                IceInternal::UniqueRef<CFArrayRef> certs(IceSSL::loadCertificateChain(resolved, "", "", "", "password", 0, 0));
+                IceInternal::UniqueRef<CFArrayRef> certs(IceSSL::SecureTransport::loadCertificateChain(resolved, "", "", "", "password", 0, 0));
                 SecIdentityRef identity = static_cast<SecIdentityRef>(const_cast<void*>(CFArrayGetValueAtIndex(certs.get(), 0)));
                 CFRetain(identity);
                 _identities.push_back(identity);
@@ -525,7 +545,9 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     //
     // Don't set the plugin property, the client registered the plugin with registerIceSSL.
     //
-    //result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+    result->setProperty("Ice.Plugin.IceSSL", "IceSSLOpenSSL:createIceSSLOpenSSL");
+#endif
     result->setProperty("IceSSL.DefaultDir", defaultProps->getProperty("IceSSL.DefaultDir"));
     result->setProperty("Ice.Default.Host", defaultProps->getProperty("Ice.Default.Host"));
     if(!defaultProps->getProperty("Ice.IPv6").empty())
@@ -536,8 +558,8 @@ createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result->setProperty("IceSSL.Password", "password");
     }
-//    result->setProperty("IceSSL.Trace.Security", "1");
-//    result->setProperty("Ice.Trace.Network", "1");
+    //result->setProperty("IceSSL.Trace.Security", "1");
+    //result->setProperty("Ice.Trace.Network", "3");
 #ifdef ICE_USE_SECURE_TRANSPORT
     ostringstream keychainName;
     keychainName << "../certs/keychain/client" << keychainN++ << ".keychain";
@@ -552,7 +574,11 @@ static Test::Properties
 createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     Test::Properties result;
+#if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+    result["Ice.Plugin.IceSSL"] = "IceSSLOpenSSL:createIceSSLOpenSSL";
+#else
     result["Ice.Plugin.IceSSL"] = "IceSSL:createIceSSL";
+#endif
     result["IceSSL.DefaultDir"] = defaultProps->getProperty("IceSSL.DefaultDir");
     result["Ice.Default.Host"] = defaultProps->getProperty("Ice.Default.Host");
     if(!defaultProps->getProperty("Ice.IPv6").empty())
@@ -563,8 +589,8 @@ createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
     {
         result["IceSSL.Password"] = "password";
     }
-//    result["Ice.Trace.Network"] = "1";
-//    result["IceSSL.Trace.Security"] = "1";
+    //result["Ice.Trace.Network"] = "3";
+    //result["IceSSL.Trace.Security"] = "1";
 #ifdef ICE_USE_SECURE_TRANSPORT
     ostringstream keychainName;
     keychainName << "../certs/keychain/server" << keychainN << ".keychain";
@@ -781,8 +807,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -908,13 +935,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
-#ifdef  ICE_OS_UWP
+#if defined(ICE_OS_UWP)
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
             Ice::Context ctx;
             ctx["uwp"] = "1";
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN(), ctx);
 #else
+#  if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+            IceSSL::CertificatePtr clientCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+#  else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+#  endif
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 #endif
 
@@ -925,12 +956,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             //
             // Validate some aspects of the Certificate class.
             //
-#ifdef  ICE_OS_UWP
+#if defined(ICE_OS_UWP)
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load("ms-appx:///s_rsa_ca1_pub.pem");
 #else
+#  if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+            IceSSL::CertificatePtr serverCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+            test(ICE_TARGET_EQUAL_TO(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
+#  else
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-#endif
             test(ICE_TARGET_EQUAL_TO(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+#  endif
+#endif
             test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
@@ -942,12 +978,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #   endif
 #endif
 
-#ifdef  ICE_OS_UWP
+#if defined(ICE_OS_UWP)
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load("ms-appx:///cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load("ms-appx:///cacert2.pem");
 #else
+#  if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+            IceSSL::CertificatePtr caCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/cacert1.pem");
+            IceSSL::CertificatePtr caCert2 = IceSSL::OpenSSL::Certificate::load(defaultDir + "/cacert2.pem");
+#  else
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
+#  endif
 #endif
             test(ICE_TARGET_EQUAL_TO(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -1019,13 +1060,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
-#ifdef  ICE_OS_UWP
+#if defined(ICE_OS_UWP)
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load("ms-appx:///c_rsa_ca1_pub.pem");
             Ice::Context ctx;
             ctx["uwp"] = "1";
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN(), ctx);
 #else
+#  if defined(_WIN32) && defined(ICE_USE_OPENSSL)
+            IceSSL::CertificatePtr clientCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+#  else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+#  endif
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 #endif
         }
@@ -4079,10 +4124,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #endif
     }
 
-#if !defined(_AIX) && !defined(ICE_OS_UWP)
+#if !defined(_AIX) && !defined(ICE_OS_UWP) && !(defined(_WIN32) && defined(ICE_USE_OPENSSL))
+    //
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com
     // UWP application manifest is not configure to use system CAs and IceSSL.UsePlatformCAs
-    // is not supported with UWP
+    // is not supported with UWP.
+    // On Windows with OpenSSL there isn't any system CAs
+    //
     cout << "testing system CAs... " << flush;
     {
         {

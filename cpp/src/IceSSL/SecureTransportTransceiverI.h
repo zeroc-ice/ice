@@ -12,14 +12,12 @@
 
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
-#include <IceSSL/SSLEngineF.h>
+#include <IceSSL/SecureTransportEngineF.h>
 #include <IceSSL/Plugin.h>
 
 #include <Ice/Transceiver.h>
 #include <Ice/UniqueRef.h>
 #include <Ice/Network.h>
-
-#ifdef ICE_USE_SECURE_TRANSPORT
 
 #include <Security/Security.h>
 #include <Security/SecureTransport.h>
@@ -28,8 +26,8 @@
 namespace IceSSL
 {
 
-class ConnectorI;
-class AcceptorI;
+namespace SecureTransport
+{
 
 class TransceiverI : public IceInternal::Transceiver
 {
@@ -58,11 +56,10 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+    friend class IceSSL::SecureTransport::SSLEngine;
 
     const InstancePtr _instance;
-    const SecureTransportEnginePtr _engine;
+    const SSLEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
@@ -89,8 +86,8 @@ private:
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
-}
+} // SecureTransport namespace end
 
-#endif
+} // IceSSL namespace end
 
 #endif

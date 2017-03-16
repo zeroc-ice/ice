@@ -11,11 +11,8 @@
 #define ICESSL_UWP_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
-
-#ifdef ICE_OS_UWP
-
 #include <IceSSL/InstanceF.h>
-#include <IceSSL/SSLEngineF.h>
+#include <IceSSL/UWPEngineF.h>
 #include <IceSSL/Plugin.h>
 
 #include <Ice/Transceiver.h>
@@ -24,8 +21,8 @@
 namespace IceSSL
 {
 
-class ConnectorI;
-class AcceptorI;
+namespace UWP
+{
 
 class TransceiverI : public IceInternal::Transceiver
 {
@@ -55,11 +52,10 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+    friend class SSLEngine;
 
     const InstancePtr _instance;
-    const UWPEnginePtr _engine;
+    const SSLEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
@@ -69,13 +65,13 @@ private:
     bool _upgraded;
     std::vector<std::string> _certs;
     bool _verified;
-    std::vector<CertificatePtr> _nativeCerts;
+    std::vector<IceSSL::CertificatePtr> _nativeCerts;
     Windows::Security::Cryptography::Certificates::CertificateChain^ _chain;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
-}
+} // UWP namespace end
 
-#endif
+} // IceSSL namespace end
 
 #endif

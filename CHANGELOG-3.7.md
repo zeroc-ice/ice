@@ -198,6 +198,15 @@ These are the changes since Ice 3.6.3.
 - Upgrade IceSSL Certificate API to allow retrive X509v3 extensions. This feature
   is currently only supported with OpenSSL and SChannel SSL engines.
 
+- Refactored IceSSL Plug-in API to allow loading multiple implementations of the plug-in
+  in the same proccess. Each communicator can load a single implementation, but separate
+  communicators in the same process can load different implementations.
+
+- Added support to build IceSSL plug-in using OpenSSL implementation in Windows.
+  The plug-in is built in a separate library icesslopenssl, an application can
+  load the plugin using the `IceSSLOpenSSL:createIceSSLOpenSSL' entry point. This
+  is currently only supported with Visual Studio 2015.
+
 ## C# Changes
 
 - The `batchRequestInterceptor` data member of `Ice.InitializationData` is now

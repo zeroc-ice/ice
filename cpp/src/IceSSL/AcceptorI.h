@@ -54,4 +54,4 @@ private:
 
 }
 
-#endif
+#endif // IceSSL namespace end

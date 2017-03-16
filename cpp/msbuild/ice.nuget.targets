@@ -7,10 +7,12 @@
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
         <Libraries Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
-                   Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll"/>
+                   Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
+                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll"/>
 
         <ImportLibraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*;
+                         Exclude="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
+                                  $(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
                                   $(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
     </ItemGroup>
 

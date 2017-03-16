@@ -17,19 +17,16 @@
 namespace IceSSL
 {
 
-class PluginI : public IceSSL::Plugin
+class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {
 public:
 
-    PluginI(const Ice::CommunicatorPtr&);
-
+    PluginI(const Ice::CommunicatorPtr&, const IceSSL::SSLEnginePtr&);
     //
     // From Ice::Plugin.
     //
     virtual void initialize();
     virtual void destroy();
-    virtual std::string getEngineName() const;
-    virtual Ice::Long getEngineVersion() const;
 
     //
     // From IceSSL::Plugin.
@@ -42,22 +39,11 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 #endif
 
-#ifdef ICE_USE_OPENSSL
-    virtual void setContext(SSL_CTX*);
-    virtual SSL_CTX* getContext();
-#endif
+    virtual CertificatePtr load(const std::string&) const = 0;
+    virtual CertificatePtr decode(const std::string&) const = 0;
+protected:
 
-private:
-
-#if defined(ICE_USE_SECURE_TRANSPORT)
-    SecureTransportEnginePtr _engine;
-#elif defined(ICE_USE_SCHANNEL)
-    SChannelEnginePtr _engine;
-#elif defined(ICE_OS_UWP)
-    UWPEnginePtr _engine;
-#else
-    OpenSSLEnginePtr _engine;
-#endif
+    SSLEnginePtr _engine;
 };
 
 }

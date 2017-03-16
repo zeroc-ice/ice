@@ -7,21 +7,19 @@
 //
 // **********************************************************************
 
-#ifndef ICESSL_TRANSCEIVER_I_H
-#define ICESSL_TRANSCEIVER_I_H
+#ifndef ICESSL_OPENSSL_TRANSCEIVER_I_H
+#define ICESSL_OPENSSL_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngineF.h>
+#include <IceSSL/OpenSSLEngineF.h>
 
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/StreamSocket.h>
 #include <Ice/WSTransceiver.h>
-
-#ifdef ICE_USE_OPENSSL
 
 typedef struct ssl_st SSL;
 typedef struct bio_st BIO;
@@ -29,8 +27,8 @@ typedef struct bio_st BIO;
 namespace IceSSL
 {
 
-class ConnectorI;
-class AcceptorI;
+namespace OpenSSL
+{
 
 class TransceiverI : public IceInternal::Transceiver
 {
@@ -43,6 +41,12 @@ public:
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
     virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
+#ifdef ICE_USE_IOCP
+    virtual bool startWrite(IceInternal::Buffer&);
+    virtual void finishWrite(IceInternal::Buffer&);
+    virtual void startRead(IceInternal::Buffer&);
+    virtual void finishRead(IceInternal::Buffer&);
+#endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
     virtual std::string toDetailedString() const;
@@ -57,11 +61,15 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+#ifdef ICE_USE_IOCP
+    bool receive();
+    bool send();
+#endif
+
+    friend class IceSSL::OpenSSL::SSLEngine;
 
     const InstancePtr _instance;
-    const OpenSSLEnginePtr _engine;
+    const IceSSL::OpenSSL::SSLEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
@@ -70,14 +78,22 @@ private:
     std::string _cipher;
     std::vector<std::string> _certs;
     bool _verified;
-    std::vector<CertificatePtr> _nativeCerts;
+    std::vector<IceSSL::CertificatePtr> _nativeCerts;
 
     SSL* _ssl;
+#ifdef ICE_USE_IOCP
+    BIO* _iocpBio;
+    IceInternal::Buffer _writeBuffer;
+    IceInternal::Buffer _readBuffer;
+    int _sentBytes;
+    size_t _maxSendPacketSize;
+    size_t _maxRecvPacketSize; 
+#endif
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
-}
+} // OpenSSL namespace end
 
-#endif
+} // IceSSL namespace end
 
 #endif

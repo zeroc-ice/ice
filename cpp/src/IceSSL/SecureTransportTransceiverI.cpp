@@ -9,17 +9,17 @@
 
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/Instance.h>
-#include <IceSSL/SSLEngine.h>
+#include <IceSSL/SecureTransportEngine.h>
+#include <IceSSL/SecureTransportUtil.h>
 
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
-
-#ifdef ICE_USE_SECURE_TRANSPORT
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 using namespace IceSSL;
+using namespace IceSSL::SecureTransport;
 
 namespace
 {
@@ -97,7 +97,9 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
 }
 
 bool
-checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const IceSSL::InstancePtr& instance,
+checkTrustResult(SecTrustRef trust, 
+                 const IceSSL::SecureTransport::SSLEnginePtr& engine,
+                 const IceSSL::InstancePtr& instance,
                  const string& host)
 {
     OSStatus err = noErr;
@@ -106,7 +108,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
     {
         if((err = SecTrustSetAnchorCertificates(trust, engine->getCertificateAuthorities())))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
         }
 
         //
@@ -114,7 +116,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         //
         if((err = SecTrustSetNetworkFetchAllowed(trust, false)))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
         }
 
         //
@@ -126,13 +128,13 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
             UniqueRef<CFArrayRef> policies;
             if((err = SecTrustCopyPolicies(trust, &policies.get())))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
             }
             UniqueRef<CFMutableArrayRef> newPolicies(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, policies.get()));
             CFArrayAppendValue(newPolicies.get(), policy.release());
             if((err = SecTrustSetPolicies(trust, newPolicies.release())))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
             }
         }
 
@@ -141,7 +143,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         //
         if((err = SecTrustEvaluate(trust, &trustResult)))
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
         }
     }
 
@@ -190,13 +192,13 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
 }
 
 IceInternal::NativeInfoPtr
-IceSSL::TransceiverI::getNativeInfo()
+IceSSL::SecureTransport::TransceiverI::getNativeInfo()
 {
     return _delegate->getNativeInfo();
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
+IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
     if(!_connected)
     {
@@ -225,13 +227,13 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         if((err = SSLSetIOFuncs(_ssl.get(), socketRead, socketWrite)))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
-                                    errorToString(err));
+                                    sslErrorToString(err));
         }
 
         if((err = SSLSetConnection(_ssl.get(), reinterpret_cast<SSLConnectionRef>(this))))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
-                                    errorToString(err));
+                                    sslErrorToString(err));
         }
     }
 
@@ -279,7 +281,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
         ostringstream os;
         os << "IceSSL: ssl error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
-           << _delegate->toString() << "\n" << errorToString(err);
+           << _delegate->toString() << "\n" << sslErrorToString(err);
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
 
@@ -288,7 +290,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
         CFRetain(cert);
 
-        CertificatePtr certificate = ICE_MAKE_SHARED(Certificate, cert);
+        CertificatePtr certificate = IceSSL::SecureTransport::Certificate::create(cert);
         _nativeCerts.push_back(certificate);
         _certs.push_back(certificate->encode());
     }
@@ -330,7 +332,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+IceSSL::SecureTransport::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -338,7 +340,7 @@ IceSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
 }
 
 void
-IceSSL::TransceiverI::close()
+IceSSL::SecureTransport::TransceiverI::close()
 {
     _trust.reset(0);
     if(_ssl)
@@ -351,7 +353,7 @@ IceSSL::TransceiverI::close()
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
+IceSSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
 {
     if(!_connected)
     {
@@ -396,7 +398,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             //
             if(err <= -9800 && err >= -9849)
             {
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during write:\n" + errorToString(err));
+                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during write:\n" + sslErrorToString(err));
             }
 
             errno = err;
@@ -430,7 +432,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 }
 
 IceInternal::SocketOperation
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
+IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 {
     if(!_connected)
     {
@@ -469,7 +471,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
             //
             if(err <= -9800 && err >= -9849)
             {
-                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + errorToString(err));
+                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + sslErrorToString(err));
             }
 
             errno = err;
@@ -506,25 +508,25 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 }
 
 string
-IceSSL::TransceiverI::protocol() const
+IceSSL::SecureTransport::TransceiverI::protocol() const
 {
     return _instance->protocol();
 }
 
 string
-IceSSL::TransceiverI::toString() const
+IceSSL::SecureTransport::TransceiverI::toString() const
 {
     return _delegate->toString();
 }
 
 string
-IceSSL::TransceiverI::toDetailedString() const
+IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 {
     return toString();
 }
 
 Ice::ConnectionInfoPtr
-IceSSL::TransceiverI::getInfo() const
+IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
     NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
     info->underlying = _delegate->getInfo();
@@ -538,22 +540,22 @@ IceSSL::TransceiverI::getInfo() const
 }
 
 void
-IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer&)
+IceSSL::SecureTransport::TransceiverI::checkSendSize(const IceInternal::Buffer&)
 {
 }
 
 void
-IceSSL::TransceiverI::setBufferSize(int rcvSize, int sndSize)
+IceSSL::SecureTransport::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 {
     _delegate->setBufferSize(rcvSize, sndSize);
 }
 
-IceSSL::TransceiverI::TransceiverI(const IceSSL::InstancePtr& instance,
-                                   const IceInternal::TransceiverPtr& delegate,
-                                   const string& hostOrAdapterName,
-                                   bool incoming) :
+IceSSL::SecureTransport::TransceiverI::TransceiverI(const IceSSL::InstancePtr& instance,
+                                                    const IceInternal::TransceiverPtr& delegate,
+                                                    const string& hostOrAdapterName,
+                                                    bool incoming) :
     _instance(instance),
-    _engine(SecureTransportEnginePtr::dynamicCast(instance->engine())),
+    _engine(IceSSL::SecureTransport::SSLEnginePtr::dynamicCast(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),
@@ -564,12 +566,12 @@ IceSSL::TransceiverI::TransceiverI(const IceSSL::InstancePtr& instance,
 {
 }
 
-IceSSL::TransceiverI::~TransceiverI()
+IceSSL::SecureTransport::TransceiverI::~TransceiverI()
 {
 }
 
 OSStatus
-IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
+IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length) const
 {
     _flags &= ~SSLWantWrite;
 
@@ -602,7 +604,7 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
 }
 
 OSStatus
-IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
+IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
 {
     _flags &= ~SSLWantRead;
 
@@ -633,5 +635,3 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
     }
     return noErr;
 }
-
-#endif

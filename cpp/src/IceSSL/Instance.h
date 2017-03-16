@@ -17,7 +17,7 @@
 namespace IceSSL
 {
 
-class Instance : public IceInternal::ProtocolInstance
+class ICESSL_API Instance : public IceInternal::ProtocolInstance
 {
 public:
 

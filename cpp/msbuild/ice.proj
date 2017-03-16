@@ -28,6 +28,7 @@
 
   <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.openssl.test.sln"/>
   </Target>
 
   <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -68,7 +69,6 @@
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
         </UWPDistSolution>
-
         <UWPDistSolution Include="ice.uwp.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
         </UWPDistSolution>
@@ -109,6 +109,38 @@
         </TestSolution>
       </ItemGroup>
 
+       <!-- OpenSSL C++ test configurations (C++98 mapping) -->
+      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Debug;Platform=Win32</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Debug;Platform=x64</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Release;Platform=Win32</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Release;Platform=x64</Properties>
+        </TestSolution>
+      </ItemGroup>
+
+      <!-- OpenSSL C++ test configurations (C++11 mapping) -->
+      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Cpp11-Debug;Platform=x64</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Cpp11-Release;Platform=Win32</Properties>
+        </TestSolution>
+        <TestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
+        </TestSolution>
+      </ItemGroup>
+
       <!-- Ice for UWP test configurations -->
       <ItemGroup>
         <UWPTestSolution Include="ice.testuwp.sln">
@@ -142,6 +174,17 @@
         <TestSolution Include="ice.test.sln">
           <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
         </TestSolution>
+      </ItemGroup>
+
+      <!-- OpenSSL test builds -->
+      <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </OpenSSLTestSolution>
+
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
+          <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
+        </OpenSSLTestSolution>
       </ItemGroup>
 
       <ItemGroup Condition="'$(UWPCompiler)' == 'yes'">
@@ -179,11 +222,22 @@
     <MSBuild Projects="@(TestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
+
+    <!-- Build OpenSSL tests only with v140 source distribution builds -->
+    <MSBuild Projects="@(OpenSSLTestSolution)"
+             BuildInParallel="true"
+             Properties="%(Properties)"
+             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'" />
   </Target>
 
   <!-- Clean test solution -->
   <Target Name="Clean" DependsOnTargets="CleanDist">
     <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
+    <MSBuild Projects="@(OpenSSLTestSolution)"
+             BuildInParallel="true"
+             Targets="Clean"
+             Properties="%(Properties)"
+             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'" />
   </Target>
 
   <!-- Create nuget packages -->

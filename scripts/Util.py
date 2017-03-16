@@ -423,7 +423,7 @@ class Mapping:
         @classmethod
         def getSupportedArgs(self):
             return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx",
-                         "cprops=", "sprops=", "uwp"])
+                         "cprops=", "sprops=", "uwp", "openssl"])
 
         @classmethod
         def usage(self):
@@ -443,6 +443,7 @@ class Mapping:
             print("--config=<config>     Build configuration for native executables.")
             print("--platform=<platform> Build platform for native executables.")
             print("--uwp                 Run UWP (Universal Windows Platform).")
+            print("--openssl             Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             # Build configuration
@@ -467,7 +468,11 @@ class Mapping:
             self.cprops = []
             self.sprops = []
             self.uwp = False
-            parseOptions(self, options, { "config" : "buildConfig", "platform" : "buildPlatform", "uwp" : "uwp" })
+            self.openssl = False
+            parseOptions(self, options, { "config" : "buildConfig",
+                                          "platform" : "buildPlatform",
+                                          "uwp" : "uwp",
+                                          "openssl" : "openssl" })
 
         def __str__(self):
             s = []
@@ -2493,7 +2498,7 @@ class CppMapping(Mapping):
 
     def getPluginEntryPoint(self, plugin, process, current):
         return {
-            "IceSSL" : "IceSSL:createIceSSL",
+            "IceSSL" : "IceSSLOpenSSL:createIceSSLOpenSSL" if current.config.openssl else "IceSSL:createIceSSL",
             "IceBT" : "IceBT:createIceBT",
             "IceDiscovery" : "IceDiscovery:createIceDiscovery"
         }[plugin]

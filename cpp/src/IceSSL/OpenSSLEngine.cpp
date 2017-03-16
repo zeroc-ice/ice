@@ -9,7 +9,9 @@
 
 #include <IceSSL/Config.h>
 
-#include <IceSSL/SSLEngine.h>
+#include <IceSSL/OpenSSLEngineF.h>
+#include <IceSSL/OpenSSLEngine.h>
+#include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/TrustManager.h>
 
@@ -24,8 +26,6 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/FileUtil.h>
 
-#ifdef ICE_USE_OPENSSL
-
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -37,6 +37,7 @@ using namespace IceSSL;
 
 namespace
 {
+
 IceUtil::Mutex* staticMutex = 0;
 int instanceCount = 0;
 bool initOpenSSL = false;
@@ -93,23 +94,25 @@ IceSSL_opensslThreadIdCallback()
 #    error "Unknown platform"
 #  endif
 }
+
 #endif
 
 int
 IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 {
-    OpenSSLEngine* p = reinterpret_cast<OpenSSLEngine*>(userData);
+    OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
+    assert(p);
     string passwd = p->password(flag == 1);
     int sz = static_cast<int>(passwd.size());
     if(sz > size)
     {
         sz = size - 1;
     }
-#  if defined(_WIN32)
+#if defined(_WIN32)
     strncpy_s(buf, size, passwd.c_str(), sz);
-#  else
+#else
     strncpy(buf, passwd.c_str(), sz);
-#  endif
+#endif
     buf[sz] = '\0';
 
     for(string::iterator i = passwd.begin(); i != passwd.end(); ++i)
@@ -120,7 +123,7 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     return sz;
 }
 
-#  ifndef OPENSSL_NO_DH
+#ifndef OPENSSL_NO_DH
 DH*
 IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
@@ -129,10 +132,10 @@ IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 #  else
     SSL_CTX* ctx = ssl->ctx;
 #  endif
-    OpenSSLEngine* p = reinterpret_cast<OpenSSLEngine*>(SSL_CTX_get_ex_data(ctx, 0));
+    OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(SSL_CTX_get_ex_data(ctx, 0));
     return p->dhParams(keyLength);
 }
-#  endif
+#endif
 
 }
 
@@ -188,11 +191,14 @@ passwordError()
 
 }
 
-IceUtil::Shared* IceSSL::upCast(IceSSL::OpenSSLEngine* p) { return p; }
+IceUtil::Shared*
+OpenSSL::upCast(OpenSSL::SSLEngine* p)
+{
+    return p;
+}
 
-OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
-    SSLEngine(communicator),
-    _initialized(false),
+OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
+    IceSSL::SSLEngine(communicator),
     _ctx(0)
 {
     __setNoDelete(true);
@@ -292,7 +298,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
                     }
                 }
             }
-#  if !defined (_WIN32) && !defined (OPENSSL_NO_EGD)
+#if !defined (_WIN32) && !defined (OPENSSL_NO_EGD)
             //
             // The Entropy Gathering Daemon (EGD) is not available on Windows.
             // The file should be a Unix domain socket for the daemon.
@@ -306,7 +312,7 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
                                                         "IceSSL: EGD failure using file " + entropyDaemon);
                 }
             }
-#  endif
+#endif
             if(!RAND_status())
             {
                 getLogger()->warning("IceSSL: insufficient data to initialize PRNG");
@@ -318,18 +324,18 @@ OpenSSLEngine::OpenSSLEngine(const CommunicatorPtr& communicator) :
             {
                 getLogger()->warning("IceSSL: ignoring IceSSL.Random because OpenSSL initialization is disabled");
             }
-#  ifndef _WIN32
+#ifndef _WIN32
             else if(!properties->getProperty("IceSSL.EntropyDaemon").empty())
             {
                 getLogger()->warning("IceSSL: ignoring IceSSL.EntropyDaemon because OpenSSL initialization is disabled");
             }
-#  endif
+#endif
         }
     }
     __setNoDelete(false);
 }
 
-OpenSSLEngine::~OpenSSLEngine()
+OpenSSL::SSLEngine::~SSLEngine()
 {
 //
 // OpenSSL 1.1.0 remove the need for library initialization and cleanup.
@@ -360,15 +366,8 @@ OpenSSLEngine::~OpenSSLEngine()
 #endif
 }
 
-bool
-OpenSSLEngine::initialized() const
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    return _initialized;
-}
-
 void
-OpenSSLEngine::initialize()
+OpenSSL::SSLEngine::initialize()
 {
     IceUtil::Mutex::Lock lock(_mutex);
     if(_initialized)
@@ -378,7 +377,7 @@ OpenSSLEngine::initialize()
 
     try
     {
-        SSLEngine::initialize();
+        IceSSL::SSLEngine::initialize();
 
         const string propPrefix = "IceSSL.";
         PropertiesPtr properties = communicator()->getProperties();
@@ -549,18 +548,12 @@ OpenSSLEngine::initialize()
                     // First we try to load the certificate using PKCS12 format if that fails
                     // we fallback to PEM format.
                     //
-                    FILE* f = fopen(file.c_str(), "rb");
-                    if(!f)
-                    {
-                        throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to load certificate chain from file " + file + "\n" +
-                                                IceUtilInternal::lastErrorToString());
-                    }
-
+                    vector<char> buffer;
+                    readFile(file, buffer);
                     int success = 0;
 
-                    PKCS12* p12 = d2i_PKCS12_fp(f, 0);
-                    fclose(f);
+                    const unsigned char* b = const_cast<const unsigned char*>(reinterpret_cast<unsigned char*>(&buffer[0]));
+                    PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
                     if(p12)
                     {
                         EVP_PKEY* key = 0;
@@ -766,11 +759,11 @@ OpenSSLEngine::initialize()
             // Diffie Hellman configuration.
             //
             {
-#  ifndef OPENSSL_NO_DH
+#ifndef OPENSSL_NO_DH
                 _dhParams = new DHParams;
                 SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
                 SSL_CTX_set_tmp_dh_callback(_ctx, IceSSL_opensslDHCallback);
-#  endif
+#endif
                 //
                 // Properties have the following form:
                 //
@@ -780,9 +773,9 @@ OpenSSLEngine::initialize()
                 PropertyDict d = properties->getPropertiesForPrefix(dhPrefix);
                 if(!d.empty())
                 {
-#  ifdef OPENSSL_NO_DH
+#ifdef OPENSSL_NO_DH
                     getLogger()->warning("IceSSL: OpenSSL is not configured for Diffie Hellman");
-#  else
+#else
                     for(PropertyDict::iterator p = d.begin(); p != d.end(); ++p)
                     {
                         string s = p->first.substr(dhPrefix.size());
@@ -804,7 +797,7 @@ OpenSSLEngine::initialize()
                             }
                         }
                     }
-#  endif
+#endif
                 }
             }
 
@@ -886,7 +879,7 @@ OpenSSLEngine::initialize()
 }
 
 void
-OpenSSLEngine::context(SSL_CTX* context)
+OpenSSL::SSLEngine::context(SSL_CTX* context)
 {
     if(initialized())
     {
@@ -898,19 +891,19 @@ OpenSSLEngine::context(SSL_CTX* context)
 }
 
 SSL_CTX*
-OpenSSLEngine::context() const
+OpenSSL::SSLEngine::context() const
 {
     return _ctx;
 }
 
 string
-OpenSSLEngine::sslErrors() const
+OpenSSL::SSLEngine::sslErrors() const
 {
     return getSslErrors(securityTraceLevel() >= 1);
 }
 
 void
-OpenSSLEngine::destroy()
+OpenSSL::SSLEngine::destroy()
 {
     if(_ctx)
     {
@@ -918,16 +911,38 @@ OpenSSLEngine::destroy()
     }
 }
 
-#  ifndef OPENSSL_NO_DH
+void
+OpenSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoPtr& info, const string& desc)
+{
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
+    //
+    // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
+    //  we use IceSSL build in hostname verification.
+    //
+    verifyPeerCertName(address, info);
+#endif
+    IceSSL::SSLEngine::verifyPeer(address, info, desc);
+}
+
+IceInternal::TransceiverPtr
+OpenSSL::SSLEngine::createTransceiver(const InstancePtr& instance,
+                                      const IceInternal::TransceiverPtr& delegate,
+                                      const string& hostOrAdapterName,
+                                      bool incoming)
+{
+    return new OpenSSL::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+}
+
+#ifndef OPENSSL_NO_DH
 DH*
-OpenSSLEngine::dhParams(int keyLength)
+OpenSSL::SSLEngine::dhParams(int keyLength)
 {
     return _dhParams->get(keyLength);
 }
-#  endif
+#endif
 
 int
-OpenSSLEngine::parseProtocols(const StringSeq& protocols) const
+OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
 {
     int v = 0;
 
@@ -960,7 +975,7 @@ OpenSSLEngine::parseProtocols(const StringSeq& protocols) const
 }
 
 SSL_METHOD*
-OpenSSLEngine::getMethod(int /*protocols*/)
+OpenSSL::SSLEngine::getMethod(int /*protocols*/)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
     SSL_METHOD* meth = const_cast<SSL_METHOD*>(TLS_method());
@@ -984,7 +999,7 @@ OpenSSLEngine::getMethod(int /*protocols*/)
 }
 
 void
-OpenSSLEngine::setOptions(int protocols)
+OpenSSL::SSLEngine::setOptions(int protocols)
 {
     long opts = SSL_OP_NO_SSLv2; // SSLv2 is not supported.
     if(!(protocols & SSLv3))
@@ -995,7 +1010,7 @@ OpenSSLEngine::setOptions(int protocols)
     {
         opts |= SSL_OP_NO_TLSv1;
     }
-#  ifdef SSL_OP_NO_TLSv1_1
+#ifdef SSL_OP_NO_TLSv1_1
     if(!(protocols & TLSv1_1))
     {
         opts |= SSL_OP_NO_TLSv1_1;
@@ -1007,14 +1022,13 @@ OpenSSLEngine::setOptions(int protocols)
             opts |= 0x10000000L; // New value of SSL_OP_NO_TLSv1_1.
         }
     }
-#  endif
-#  ifdef SSL_OP_NO_TLSv1_2
+#endif
+
+#ifdef SSL_OP_NO_TLSv1_2
     if(!(protocols & TLSv1_2))
     {
         opts |= SSL_OP_NO_TLSv1_2;
     }
-#  endif
+#endif
     SSL_CTX_set_options(_ctx, opts);
 }
-
-#endif // ICESSL_USE_OPENSSL

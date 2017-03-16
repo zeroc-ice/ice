@@ -11,7 +11,6 @@
 #define ICESSL_PLUGIN_H
 
 #include <Ice/Plugin.h>
-#include <Ice/UniqueRef.h>
 #include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfo.h>
 
@@ -24,22 +23,6 @@
 #include <vector>
 #include <list>
 
-// For struct sockaddr_storage
-#ifdef _WIN32
-#ifndef ICE_OS_UWP
-#   include <winsock2.h>
-#endif
-#else
-#   include <sys/socket.h>
-#endif
-
-#if defined(ICE_USE_SECURE_TRANSPORT)
-#   include <CoreFoundation/CFError.h>
-#   include <Security/Security.h>
-#elif defined(ICE_USE_SCHANNEL)
-#   include <wincrypt.h>
-#endif
-
 #ifndef ICESSL_API
 #   if defined(ICE_STATIC_LIBS)
 #       define ICESSL_API /**/
@@ -48,38 +31,6 @@
 #   else
 #       define ICESSL_API ICE_DECLSPEC_IMPORT
 #   endif
-#endif
-
-#ifdef ICE_USE_OPENSSL
-
-//
-// Pointer to an opaque SSL session context object. ssl_ctx_st is the
-// OpenSSL type that holds configuration settings for all SSL
-// connections.
-//
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct X509_name_st X509NAME;
-
-typedef struct X509_extension_st* X509ExtensionRef;
-typedef struct x509_st* X509CertificateRef;
-typedef struct evp_pkey_st* KeyRef;
-
-#elif defined(ICE_USE_SECURE_TRANSPORT)
-
-typedef SecCertificateRef X509CertificateRef;
-typedef SecKeyRef KeyRef;
-
-#elif defined(ICE_USE_SCHANNEL)
-
-typedef CERT_EXTENSION X509ExtensionRef;
-typedef CERT_SIGNED_CONTENT_INFO* X509CertificateRef;
-typedef CERT_PUBLIC_KEY_INFO* KeyRef;
-
-#elif defined(ICE_OS_UWP)
-
-typedef Windows::Security::Cryptography::Certificates::Certificate^ X509CertificateRef;
-typedef Windows::Security::Cryptography::Core::CryptographicKey^ KeyRef;
-
 #endif
 
 namespace IceSSL
@@ -116,9 +67,6 @@ class ICESSL_API CertificateEncodingException : public IceUtil::ExceptionHelper<
 public:
 
     CertificateEncodingException(const char*, int, const std::string&);
-#ifdef ICE_USE_SECURE_TRANSPORT
-    CertificateEncodingException(const char*, int, CFErrorRef);
-#endif
 #ifndef ICE_CPP11_COMPILER
     virtual ~CertificateEncodingException() throw();
 #endif
@@ -158,50 +106,6 @@ private:
 };
 
 //
-// Forward declaration.
-//
-class Certificate;
-ICE_DEFINE_PTR(CertificatePtr, Certificate);
-
-//
-// A representation of a PublicKey.
-//
-class ICESSL_API PublicKey
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
-{
-public:
-
-    PublicKey(const CertificatePtr&, KeyRef);
-
-#ifdef ICE_USE_OPENSSL
-    ~PublicKey();
-#endif
-    //
-    // Retrieve the native public key value wrapped by this object.
-    //
-    // The returned reference is only valid for the lifetime of this
-    // object. With SecureTransport you can increment the reference
-    // count of the returned object with CFRetain.
-    //
-    KeyRef key() const;
-
-private:
-
-    friend class Certificate;
-
-    CertificatePtr _cert;
-#ifdef __APPLE__
-    IceInternal::UniqueRef<KeyRef> _key;
-#else
-    KeyRef _key;
-#endif
-
-};
-ICE_DEFINE_PTR(PublicKeyPtr, PublicKey);
-
-//
 // This class represents a DistinguishedName, similar to the Java
 // type X500Principal and the .NET type X500DistinguishedName.
 //
@@ -216,17 +120,6 @@ ICE_DEFINE_PTR(PublicKeyPtr, PublicKey);
 class ICESSL_API DistinguishedName
 {
 public:
-
-#ifdef ICE_USE_OPENSSL
-    //
-    // Create a DistinguishedName using an OpenSSL value.
-    //
-    explicit DistinguishedName(X509NAME*);
-#endif
-
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-    explicit DistinguishedName(CFDataRef);
-#endif
 
     //
     // Create a DistinguishedName from a string encoded using
@@ -264,9 +157,11 @@ public:
     //
     operator std::string() const;
 
-private:
+protected:
 
-    void unescape();
+	void unescape();
+
+private:
 
     std::list<std::pair<std::string, std::string> > _rdns;
     std::list<std::pair<std::string, std::string> > _unescaped;
@@ -296,12 +191,8 @@ operator!=(const DistinguishedName& lhs, const DistinguishedName& rhs)
     return !(lhs == rhs);
 }
 
-#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
 //
-// This class is a wrapper around a native certificate extension.
-//
-// X509 extension wrapper is only implemented with OpenSSL and SChannel
-// other engines lacks the required APIs to implement this feature.
+// This class represents an X509 Certificate extension.
 //
 class ICESSL_API X509Extension
 #ifndef ICE_CPP11_MAPPING
@@ -310,35 +201,21 @@ class ICESSL_API X509Extension
 {
 public:
 
-    //
-    // Construct a X509 extension using a native extension.
-    //
-    X509Extension(X509ExtensionRef, const std::string&, const CertificatePtr&);
-    ~X509Extension();
-
-    bool isCritical() const;
-    std::string getOID() const;
-    std::vector<Ice::Byte> getData() const;
-
-private:
-
-    X509ExtensionRef _extension;
-    std::string _oid;
-    //
-    // We want to keep the certificate that contains the extension alive
-    // for the lifetime of the extension.
-    //
-    CertificatePtr _cert;
+    virtual bool isCritical() const = 0;
+    virtual std::string getOID() const = 0;
+    virtual std::vector<Ice::Byte> getData() const = 0;
 };
 ICE_DEFINE_PTR(X509ExtensionPtr, X509Extension);
-#endif
 
 //
 // This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
+
+class Certificate;
+ICE_DEFINE_PTR(CertificatePtr, Certificate);
+
 class ICESSL_API Certificate :
-        public IceUtil::Mutex,
 #ifdef ICE_CPP11_MAPPING
         public std::enable_shared_from_this<Certificate>
 #else
@@ -348,133 +225,77 @@ class ICESSL_API Certificate :
 public:
 
     //
-    // Construct a certificate using a native certificate.
-    //
-    // The Certificate class assumes ownership of the given native
-    //
-    // certificate.
-    explicit Certificate(X509CertificateRef);
-    ~Certificate();
-
-    //
-    // Load the certificate from a file. The certificate must use the
-    // PEM encoding format. Raises CertificateReadException if the
-    // file cannot be read.
-    //
-    static CertificatePtr load(const std::string&);
-
-    //
-    // Decode a certificate from a string that uses the PEM encoding
-    // format.  Raises CertificateEncodingException if an error
-    // occurs.
-    //
-    static CertificatePtr decode(const std::string&);
-
-    //
     // Compare the certificates for equality using the
     // native certificate comparison method.
     //
-    bool operator==(const Certificate&) const;
-    bool operator!=(const Certificate&) const;
+    virtual bool operator==(const Certificate&) const = 0;
+    virtual bool operator!=(const Certificate&) const = 0;
     
     //
     // Authority key identifier
     //
-    std::vector<Ice::Byte> getAuthorityKeyIdentifier() const;
+    virtual std::vector<Ice::Byte> getAuthorityKeyIdentifier() const = 0;
 
     //
     // Subject key identifier
     //
-    std::vector<Ice::Byte> getSubjectKeyIdentifier() const;
-
-    //
-    // Get the certificate's public key.
-    //
-    PublicKeyPtr getPublicKey() const;
+    virtual std::vector<Ice::Byte> getSubjectKeyIdentifier() const = 0;
 
     //
     // Verify that this certificate was signed by the given certificate
     // public key. Returns true if signed, false otherwise.
     //
-    bool verify(const CertificatePtr&) const;
-
-#ifdef ICE_USE_OPENSSL
-    //
-    // Verify that this certificate was signed by the given public
-    // key. Returns true if signed, false otherwise.
-    //
-    // This method was deprecated for consistency with some SSL
-    // engines that require a certificate and not just a public key to
-    // verify the certificate signature.
-    //
-    ICE_DEPRECATED_API("verify(const PublicKeyPtr&) is deprecated, use verify(const CertificatePtr&) instead")
-    bool verify(const PublicKeyPtr&) const;
-#endif
+    virtual bool verify(const CertificatePtr&) const = 0;
 
     //
     // Return a string encoding of the certificate in PEM format.
     // Raises CertificateEncodingException if an error occurs.
     //
-    std::string encode() const;
-
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+    virtual std::string encode() const = 0;
 
     //
     // Checks that the certificate is currently valid, that is, the current
     // date falls between the validity period given in the certificate.
     //
-    bool checkValidity() const;
+    virtual bool checkValidity() const = 0;
 
     //
     // Checks that the certificate is valid at the given time.
     //
-#   ifdef ICE_CPP11_MAPPING
-    bool checkValidity(const std::chrono::system_clock::time_point&) const;
-#   else
-    bool checkValidity(const IceUtil::Time&) const;
-#   endif
+#ifdef ICE_CPP11_MAPPING
+    virtual bool checkValidity(const std::chrono::system_clock::time_point&) const = 0;
+#else
+    virtual bool checkValidity(const IceUtil::Time&) const = 0;
+#endif
 
     //
     // Get the not-after validity time.
     //
-#   ifdef ICE_CPP11_MAPPING
-    std::chrono::system_clock::time_point getNotAfter() const;
-#   else
-    IceUtil::Time getNotAfter() const;
-#   endif
+#ifdef ICE_CPP11_MAPPING
+    virtual std::chrono::system_clock::time_point getNotAfter() const = 0;
+#else
+    virtual IceUtil::Time getNotAfter() const = 0;
+#endif
 
     //
     // Get the not-before validity time.
     //
-#   ifdef ICE_CPP11_MAPPING
-    std::chrono::system_clock::time_point getNotBefore() const;
-#   else
-    IceUtil::Time getNotBefore() const;
-#   endif
-
+#ifdef ICE_CPP11_MAPPING
+    virtual std::chrono::system_clock::time_point getNotBefore() const = 0;
+#else
+    virtual IceUtil::Time getNotBefore() const = 0;
 #endif
 
     //
     // Get the serial number. This is an arbitrarily large number.
     //
-    std::string getSerialNumber() const;
-
-    //
-    // Get the signature algorithm name used to sign the certificate.
-    //
-    //std::string getSigAlgName() const;
-
-    //
-    // Get the signature algorithm OID string from the certificate.
-    //
-    //std::string getSigAlgOID() const;
+    virtual std::string getSerialNumber() const = 0;
 
     //
     // Get the issuer's distinguished name (DN).
     //
-    DistinguishedName getIssuerDN() const;
+    virtual DistinguishedName getIssuerDN() const = 0;
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     //
     // Get the values in the issuer's alternative names extension.
     //
@@ -501,86 +322,54 @@ public:
     // The remainder of the data will result in an empty string. Use the raw
     // X509* certificate to obtain these values.
     //
-    std::vector<std::pair<int, std::string> > getIssuerAlternativeNames();
-#endif
+    virtual std::vector<std::pair<int, std::string> > getIssuerAlternativeNames() const = 0;
 
     //
     // Get the subject's distinguished name (DN).
     //
-    DistinguishedName getSubjectDN() const;
+    virtual DistinguishedName getSubjectDN() const = 0;
 
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     //
     // See the comment for getIssuerAlternativeNames.
     //
-    std::vector<std::pair<int, std::string> > getSubjectAlternativeNames();
-#endif
+    virtual std::vector<std::pair<int, std::string> > getSubjectAlternativeNames() const = 0;
 
     //
     // Retrieve the certificate version number.
     //
-    int getVersion() const;
+    virtual int getVersion() const = 0;
 
     //
     // Stringify the certificate. This is a human readable version of
     // the certificate, not a DER or PEM encoding.
     //
-    std::string toString() const;
+    virtual std::string toString() const = 0;
 
-    //
-    // Retrieve the native X509 certificate value wrapped by this
-    // object.
-    //
-    // The returned reference is only valid for the lifetime of this
-    // object. With SecureTransport you can increment the reference
-    // count of the returned object with CFRetain. With OpenSSL, you
-    // can increment it with X509_dup. With SChannel, the returned
-    // reference is a pointer to a struct.
-    //
-    X509CertificateRef getCert() const;
-
-#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
     //
     // Return a list with the X509v3 extensions contained in the 
     // certificate.
     //
-    std::vector<X509ExtensionPtr> getX509Extensions() const;
+    virtual std::vector<X509ExtensionPtr> getX509Extensions() const = 0;
     
     //
     // Return the extension with the given OID or null if the certificate
     // does not contain a extension with the given OID.
     //
-    X509ExtensionPtr getX509Extension(const std::string&) const;
-#endif
+    virtual X509ExtensionPtr getX509Extension(const std::string&) const = 0;
 
-private:
-    
     //
-    // Lazzy initialization of the extensions
+    // Load the certificate from a file. The certificate must use the
+    // PEM encoding format. Raises CertificateReadException if the
+    // file cannot be read.
     //
-    void loadX509Extensions() const;
+    static CertificatePtr load(const std::string&);
 
-#if defined(__APPLE__)
-    IceInternal::UniqueRef<X509CertificateRef> _cert;
-#else
-    X509CertificateRef _cert;
-#endif
-
-#ifdef ICE_USE_SCHANNEL
-    CERT_INFO* _certInfo;
-#endif
-
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-    void initializeAttributes() const;
-    mutable IceInternal::UniqueRef<CFDataRef> _subject;
-    mutable IceInternal::UniqueRef<CFDataRef> _issuer;
-    mutable std::string _serial;
-    mutable int _version;
-#endif
-
-#if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
-    mutable std::vector<X509ExtensionPtr> _extensions;
-#endif
+    //
+    // Decode a certificate from a string that uses the PEM encoding
+    // format. Raises CertificateEncodingException if an error
+    // occurs.
+    //
+    static CertificatePtr decode(const std::string&);
 };
 
 //
@@ -654,7 +443,6 @@ public:
 typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
 #endif
 
-
 class ICESSL_API Plugin : public Ice::Plugin
 {
 public:
@@ -684,27 +472,19 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 #endif
 
-#ifdef ICE_USE_OPENSSL
     //
-    // Establish the OpenSSL context. This must be done before the
-    // plug-in is initialized, therefore the application must define
-    // the property Ice.InitPlugins=0, set the context, and finally
-    // invoke initializePlugins on the PluginManager.
+    // Load the certificate from a file. The certificate must use the
+    // PEM encoding format. Raises CertificateReadException if the
+    // file cannot be read.
     //
-    // When the application supplies its own OpenSSL context, the
-    // plug-in ignores configuration properties related to certificates,
-    // keys, and passwords.
-    //
-    // Note that the plugin assumes ownership of the given context.
-    //
-    virtual void setContext(SSL_CTX*) = 0;
+    virtual CertificatePtr load(const std::string&) const = 0;
 
     //
-    // Obtain the SSL context. Use caution when modifying this value.
-    // Changes made to this value have no effect on existing connections.
+    // Decode a certificate from a string that uses the PEM encoding
+    // format. Raises CertificateEncodingException if an error
+    // occurs.
     //
-    virtual SSL_CTX* getContext() = 0;
-#endif
+    virtual CertificatePtr decode(const std::string&) const = 0;
 };
 ICE_DEFINE_PTR(PluginPtr, Plugin);
 
