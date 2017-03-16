@@ -827,6 +827,12 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            //
+            // On slow environments, it can take a bit for the node to
+            // re-establish the connection so we ping it twice. The
+            // second should succeed.
+            //
+            slave1Admin->pingNode("Node1");
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -844,11 +850,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            //
-            // On slow environments, it can take a bit for the node to
-            // re-establish the connection so we ping it twice. The
-            // second should succeed.
-            //
             slave2Admin->pingNode("Node1");
             test(slave2Admin->pingNode("Node1")); // Node should be re-connected even if the master is down.
         }
