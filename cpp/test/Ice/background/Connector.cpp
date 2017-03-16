@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifndef TEST_API_EXPORTS
+#   define TEST_API_EXPORTS
+#endif
+
 #include <Connector.h>
 #include <Transceiver.h>
 #include <EndpointI.h>

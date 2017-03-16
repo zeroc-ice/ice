@@ -12,6 +12,10 @@
 #include <Test.h>
 #include <Configuration.h>
 
+#ifdef _MSC_VER
+#   pragma comment(lib, ICE_LIBNAME("testtransport"))
+#endif
+
 using namespace std;
 using namespace Test;
 

@@ -16,6 +16,10 @@
 #include <Ice/Locator.h>
 #include <Ice/Router.h>
 
+#ifdef _MSC_VER
+#   pragma comment(lib, ICE_LIBNAME("testtransport"))
+#endif
+
 using namespace std;
 
 extern "C"

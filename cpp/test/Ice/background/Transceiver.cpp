@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifndef TEST_API_EXPORTS
+#   define TEST_API_EXPORTS
+#endif
+
 #include <Transceiver.h>
 
 using namespace std;

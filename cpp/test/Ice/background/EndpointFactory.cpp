@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifndef TEST_API_EXPORTS
+#   define TEST_API_EXPORTS
+#endif
+
 #include <Ice/EndpointFactoryManager.h>
 
 #include <EndpointFactory.h>
