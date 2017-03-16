@@ -200,6 +200,11 @@ These are the changes since Ice 3.6.3.
 
 ## C# Changes
 
+- The `batchRequestInterceptor` data member of `Ice.InitializationData` is now
+  defined as a `System.Action<Ice.BatchRequest, int, int>` delegate. You will 
+  need to update your code accordingly if you were using the now removed 
+  `Ice.BatchRequestInterceptor` interface.
+
 - The `Ice.PropertiesUpdateCallback` interface is deprecated, use the
   `System.Action<Dictionary<string, string>>` delegate instead to receive
   property updates.

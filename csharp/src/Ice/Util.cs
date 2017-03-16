@@ -100,7 +100,7 @@ namespace Ice
         /// <summary>
         /// The batch request interceptor.
         /// </summary>
-        public BatchRequestInterceptor batchRequestInterceptor;
+        public System.Action<BatchRequest, int, int> batchRequestInterceptor;
 
         /// <summary>
         /// The value factory manager.

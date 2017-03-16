@@ -19,7 +19,7 @@ class BatchOneways
         }
     }
 
-    class BatchRequestInterceptorI : Ice.BatchRequestInterceptor
+    class BatchRequestInterceptorI
     {
         public void enqueue(Ice.BatchRequest request, int count, int size)
         {
@@ -130,7 +130,7 @@ class BatchOneways
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = p.ice_getCommunicator().getProperties().ice_clone_();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
-            initData.batchRequestInterceptor = interceptor;
+            initData.batchRequestInterceptor = interceptor.enqueue;
             Ice.Communicator ic = Ice.Util.initialize(initData);
 
             batch = Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());

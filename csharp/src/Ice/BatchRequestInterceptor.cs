@@ -34,24 +34,4 @@ namespace Ice
         /// <returns>The request proxy.</returns>
         ObjectPrx getProxy();
     }
-
-    /// <summary>
-    /// Base interface for listening to batch request queues.
-    /// </summary>
-    public interface BatchRequestInterceptor
-    {
-        /// <summary>
-        /// Called by the Ice runtime when a batch request is about to be
-        /// added to the batch request queue of a proxy or connection.
-        ///
-        /// The implementation of this method must call enqueue() on the
-        /// request to confirm its addition to the queue, if not called
-        /// the request isn't added to the queue. The implementation can
-        /// raise an Ice local exception to notify the caller of a failure.
-        /// </summary>
-        /// <param name="request">The batch request.</param>
-        /// <param name="queueBatchRequestCount">The number of batch request queued.</param>
-        /// <param name="queueBatchRequestSize">The size of the queued batch requests.</param>
-        void enqueue(BatchRequest request, int queueBatchRequestCount, int queueBatchRequestSize);
-    }
 }

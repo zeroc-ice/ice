@@ -114,7 +114,7 @@ namespace IceInternal
                 if(_interceptor != null)
                 {
                     _request.reset(proxy, operation, _batchStream.size() - _batchMarker);
-                    _interceptor.enqueue(_request, _batchRequestNum, _batchMarker);
+                    _interceptor(_request, _batchRequestNum, _batchMarker);
                 }
                 else
                 {
@@ -241,7 +241,7 @@ namespace IceInternal
             ++_batchRequestNum;
         }
 
-        private Ice.BatchRequestInterceptor _interceptor;
+        private System.Action<Ice.BatchRequest, int, int> _interceptor;
         private Ice.OutputStream _batchStream;
         private bool _batchStreamInUse;
         private bool _batchStreamCanFlush;
