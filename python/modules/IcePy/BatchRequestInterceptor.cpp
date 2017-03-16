@@ -261,8 +261,15 @@ IcePy::BatchRequestInterceptor::enqueue(const Ice::BatchRequest& request, int qu
     obj->size = 0;
     obj->operation = 0;
     obj->proxy = 0;
-    PyObjectHandle tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount,
-                                             queueSize);
+    PyObjectHandle tmp;
+    if(PyCallable_Check(_interceptor.get()))
+    {
+        tmp = PyObject_CallFunction(_interceptor.get(), STRCAST("Oii"), obj, queueCount, queueSize);
+    }
+    else
+    {
+        tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount, queueSize);
+    }
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if(!tmp.get())
     {

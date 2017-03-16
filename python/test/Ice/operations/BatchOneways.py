@@ -114,7 +114,7 @@ def batchOneways(p):
         initData = Ice.InitializationData()
         initData.properties = p.ice_getCommunicator().getProperties().clone()
         interceptor = BatchRequestInterceptorI()
-        initData.batchRequestInterceptor = interceptor
+        initData.batchRequestInterceptor = interceptor.enqueue
 
         ic = Ice.initialize(data=initData)
 
