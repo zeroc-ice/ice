@@ -294,6 +294,28 @@ connectionCompare(ConnectionObject* c1, PyObject* other, int op)
 #ifdef WIN32
 extern "C"
 #endif
+static long
+connectionHash(ConnectionObject* self)
+{
+#if defined(_MSC_VER) && defined(_WIN64)
+    //
+    // Hash a 64-bit pointer into a 32-bit long.
+    //
+    unsigned long long addr = reinterpret_cast<long>((*self->connection).get());
+    unsigned long low = static_cast<unsigned long>(addr);
+    unsigned long hi = static_cast<unsigned long>(addr >> 32);
+    unsigned long hash = 5381;
+    hash = ((hash << 5) + hash) ^ (2654435761u * low);
+    hash = ((hash << 5) + hash) ^ (2654435761u * hi);
+    return static_cast<long>(hash);
+#else
+    return reinterpret_cast<long>((*self->connection).get());
+#endif
+}
+
+#ifdef WIN32
+extern "C"
+#endif
 static PyObject*
 connectionClose(ConnectionObject* self, PyObject* args)
 {
@@ -1160,7 +1182,7 @@ PyTypeObject ConnectionType =
     0,                              /* tp_as_number */
     0,                              /* tp_as_sequence */
     0,                              /* tp_as_mapping */
-    0,                              /* tp_hash */
+    reinterpret_cast<hashfunc>(connectionHash), /* tp_hash */
     0,                              /* tp_call */
     0,                              /* tp_str */
     0,                              /* tp_getattro */
