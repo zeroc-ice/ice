@@ -44,6 +44,7 @@
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator
 -dontnote com.zeroc.IceGridGUI.LiveDeployment.MetricsView*
+-dontnote com.zeroc.IceInternal*
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
@@ -60,21 +61,28 @@
     java.lang.Object readResolve();
 }
 
+-keepclass class * {
+    java.lang.String ice_staticId();
+}
+
+-keepclass class com.zeroc.Ice.* {
+    java.lang.String typeId;
+}
 # Your application may contain more items that need to be preserved; 
 # typically classes that are dynamically created using Class.forName:
 
--keep,includedescriptorclasses public class Ice.** {
+-keep,includedescriptorclasses public class com.zeroc.Ice.** {
   public *;
 }
--keep public class IceGrid.** {
+-keep public class com.zeroc.IceGrid.** {
   public *;
 }
--keep public class IceSSL.** {
+-keep public class com.zeroc.IceSSL.** {
   public *;
 }
--keep interface IceGrid.**
--keep class IceMX.**
--keep interface IceMX.**
+-keep interface com.zeroc.IceGrid.**
+-keep class com.zeroc.IceMX.**
+-keep interface com.zeroc.IceMX.**
 
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticFieldCaret
