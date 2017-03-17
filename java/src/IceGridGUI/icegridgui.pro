@@ -37,13 +37,13 @@
     public **[] values();
 }
 
--dontnote IceInternal.*ObserverI*
--dontnote IceInternal.BasicStream
--dontnote IceInternal.Network
+-dontnote com.zeroc.IceInternal.*ObserverI*
+-dontnote com.zeroc.IceInternal.BasicStream
+-dontnote com.zeroc.IceInternal.Network
 
--dontnote IceBox.ServiceManagerI
--dontnote IceGridGUI.Coordinator
--dontnote IceGridGUI.LiveDeployment.MetricsView*
+-dontnote com.zeroc.IceBox.ServiceManagerI
+-dontnote com.zeroc.IceGridGUI.Coordinator
+-dontnote com.zeroc.IceGridGUI.LiveDeployment.MetricsView*
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
