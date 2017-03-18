@@ -25,6 +25,51 @@
 using namespace std;
 using namespace IcePy;
 
+namespace
+{
+
+// P = sizeof(void*), L = sizeof(long)
+template<int P, int L> struct Hasher;
+
+template<>
+struct Hasher<4, 4>
+{
+    long operator()(void* ptr) const
+    {
+        return reinterpret_cast<long>(ptr);
+    }
+};
+
+template<>
+struct Hasher<8, 8>
+{
+    long operator()(void* ptr) const
+    {
+        return reinterpret_cast<long>(ptr);
+    }
+};
+
+template<>
+struct Hasher<8, 4>
+{
+    long operator()(void* ptr) const
+    {
+        intptr_t v = reinterpret_cast<intptr_t>(ptr);
+
+        // Eliminate lower 4 bits as objecs are usually aligned on 16 bytes boundaries,
+        // then eliminate upper bits
+        return (v >> 4) & 0xFFFFFFFF;
+    }
+};
+
+long
+hashPointer(void* ptr)
+{
+    return Hasher<sizeof(void*), sizeof(long)>()(ptr);
+}
+
+}
+
 namespace IcePy
 {
 
@@ -297,20 +342,7 @@ extern "C"
 static long
 connectionHash(ConnectionObject* self)
 {
-#if defined(_MSC_VER) && defined(_WIN64)
-    //
-    // Hash a 64-bit pointer into a 32-bit long.
-    //
-    unsigned long long addr = reinterpret_cast<long>((*self->connection).get());
-    unsigned long low = static_cast<unsigned long>(addr);
-    unsigned long hi = static_cast<unsigned long>(addr >> 32);
-    unsigned long hash = 5381;
-    hash = ((hash << 5) + hash) ^ (2654435761u * low);
-    hash = ((hash << 5) + hash) ^ (2654435761u * hi);
-    return static_cast<long>(hash);
-#else
-    return reinterpret_cast<long>((*self->connection).get());
-#endif
+    return hashPointer((*self->connection).get());
 }
 
 #ifdef WIN32
