@@ -105,6 +105,7 @@ endif
 ifeq ($(filter %clean print,$(MAKECMDGOALS)),)
     # Include the dependencies
     -include $(addprefix $3/,$(call source-to-dependency,$4))
+    -include $(addprefix $3/,$(call source-to-dependency,$(call generated-to-source,$4,$7)))
 endif
 
 ifneq ($(filter %.ice $2/%.$7,$4),)
