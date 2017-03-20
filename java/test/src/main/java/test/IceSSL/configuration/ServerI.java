@@ -23,7 +23,7 @@ class ServerI implements Server
     {
         try
         {
-            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
+            com.zeroc.IceSSL.ConnectionInfo info = (com.zeroc.IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.certs == null);
         }
         catch(com.zeroc.Ice.LocalException ex)
@@ -38,10 +38,10 @@ class ServerI implements Server
     {
         try
         {
-            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
-            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
+            com.zeroc.IceSSL.ConnectionInfo info = (com.zeroc.IceSSL.ConnectionInfo)current.con.getInfo();
+            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.certs[0];
             test(info.verified);
-            test(info.nativeCerts.length == 2 &&
+            test(info.certs.length == 2 &&
                  cert.getSubjectDN().toString().equals(subjectDN) &&
                  cert.getIssuerDN().toString().equals(issuerDN));
         }
@@ -56,7 +56,7 @@ class ServerI implements Server
     {
         try
         {
-            com.zeroc.IceSSL.NativeConnectionInfo info = (com.zeroc.IceSSL.NativeConnectionInfo)current.con.getInfo();
+            com.zeroc.IceSSL.ConnectionInfo info = (com.zeroc.IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.cipher.indexOf(cipher) >= 0);
         }
         catch(com.zeroc.Ice.LocalException ex)

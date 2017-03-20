@@ -233,7 +233,12 @@ sslConnectionInfoGetCerts(ConnectionInfoObject* self)
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
     PyObject* certs = PyList_New(0);
-    stringSeqToList(info->certs, certs);
+    Ice::StringSeq encoded;
+    for(vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+    {
+        encoded.push_back((*i)->encode());
+    }
+    stringSeqToList(encoded, certs);
     return certs;
 }
 

@@ -60,7 +60,7 @@ namespace IceSSL
             _engine.traceStream(stream, connInfo);
         }
 
-        internal void verifyPeer(string address, NativeConnectionInfo info, string desc)
+        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
         {
             _engine.verifyPeer(address, info, desc);
         }

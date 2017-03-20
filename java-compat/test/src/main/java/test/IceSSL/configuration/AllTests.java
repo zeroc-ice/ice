@@ -304,13 +304,13 @@ public class AllTests
                 java.security.cert.X509Certificate serverCert = loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
                 java.security.cert.X509Certificate caCert = loadCertificate(defaultDir + "/cacert1.jks", "ca");
 
-                IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
 
-                test(info.nativeCerts.length == 2);
+                test(info.certs.length == 2);
                 test(info.verified);
 
-                test(caCert.equals(info.nativeCerts[1]));
-                test(serverCert.equals(info.nativeCerts[0]));
+                test(caCert.equals(info.certs[1]));
+                test(serverCert.equals(info.certs[0]));
             }
             catch(Exception ex)
             {
@@ -778,7 +778,7 @@ public class AllTests
         out.print("testing certificate chains... ");
         out.flush();
         {
-            IceSSL.NativeConnectionInfo info;
+            IceSSL.ConnectionInfo info;
 
             initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
@@ -797,8 +797,8 @@ public class AllTests
             ServerPrx server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(Ice.LocalException ex)
@@ -816,8 +816,8 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(Ice.LocalException ex)
@@ -836,8 +836,8 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 2);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 2);
             }
             catch(Ice.LocalException ex)
             {
@@ -862,8 +862,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 2);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 2);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
@@ -924,8 +924,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 3);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 3);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
@@ -969,8 +969,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 4);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 4);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
@@ -1062,7 +1062,7 @@ public class AllTests
             {
                 String cipherSub = "DH_anon";
                 server.checkCipher(cipherSub);
-                IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                 test(info.cipher.indexOf(cipherSub) >= 0);
             }
             catch(Ice.LocalException ex)

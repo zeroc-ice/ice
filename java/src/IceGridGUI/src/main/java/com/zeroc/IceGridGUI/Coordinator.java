@@ -1331,7 +1331,7 @@ public class Coordinator
 
             class AcceptInvalidCertDialog implements Runnable
             {
-                public TrustDecision show(com.zeroc.IceSSL.NativeConnectionInfo info, boolean validDate,
+                public TrustDecision show(com.zeroc.IceSSL.ConnectionInfo info, boolean validDate,
                                           boolean validAlternateName, boolean trustedCA)
                 {
                     _info = info;
@@ -1377,7 +1377,7 @@ public class Coordinator
                     }
                 }
 
-                private com.zeroc.IceSSL.NativeConnectionInfo _info;
+                private com.zeroc.IceSSL.ConnectionInfo _info;
                 private boolean _validDate;
                 private boolean _validAlternateName;
                 private boolean _trustedCA;
@@ -1385,14 +1385,14 @@ public class Coordinator
             }
 
             @Override
-            public boolean verify(com.zeroc.IceSSL.NativeConnectionInfo info)
+            public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
             {
-                if(!(info.nativeCerts[0] instanceof X509Certificate))
+                if(!(info.certs[0] instanceof X509Certificate))
                 {
                     return false;
                 }
 
-                X509Certificate cert = (X509Certificate) info.nativeCerts[0];
+                X509Certificate cert = (X509Certificate) info.certs[0];
                 byte[] encoded;
                 try
                 {
@@ -1585,7 +1585,7 @@ public class Coordinator
 
                 if(decision == TrustDecision.YesThisTime)
                 {
-                    _transientCert = (X509Certificate) info.nativeCerts[0];
+                    _transientCert = (X509Certificate) info.certs[0];
                     return true;
                 }
                 else if(decision == TrustDecision.YesAlways)
@@ -1602,7 +1602,7 @@ public class Coordinator
                                 break;
                             }
                         }
-                        _trustedServerKeyStore.setCertificateEntry(CN, info.nativeCerts[0]);
+                        _trustedServerKeyStore.setCertificateEntry(CN, info.certs[0]);
                         _trustedServerKeyStore.store(new FileOutputStream(getDataDirectory() + "/ServerCerts.jks"),
                                                      new char[]{});
                         sessionKeeper.certificateManager(parent).load();
@@ -3604,7 +3604,7 @@ public class Coordinator
 
     static class UntrustedCertificateDialog extends JDialog
     {
-        public UntrustedCertificateDialog(java.awt.Window owner, com.zeroc.IceSSL.NativeConnectionInfo info,
+        public UntrustedCertificateDialog(java.awt.Window owner, com.zeroc.IceSSL.ConnectionInfo info,
                                           boolean validDate, boolean validAlternateName, boolean trustedCA)
             throws java.security.GeneralSecurityException, java.io.IOException,
             javax.naming.InvalidNameException
@@ -3615,7 +3615,7 @@ public class Coordinator
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-            X509Certificate cert = (X509Certificate)info.nativeCerts[0];
+            X509Certificate cert = (X509Certificate)info.certs[0];
             {
                 DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("pref", "pref"));
                 builder.border(Borders.DIALOG);

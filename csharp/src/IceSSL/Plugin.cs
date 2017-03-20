@@ -22,7 +22,7 @@ namespace IceSSL
         // Return true to allow a connection using the provided certificate
         // information, or false to reject the connection.
         //
-        bool verify(NativeConnectionInfo info);
+        bool verify(IceSSL.ConnectionInfo info);
     }
 
     /// <summary>

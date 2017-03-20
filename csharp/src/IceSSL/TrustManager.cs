@@ -57,7 +57,7 @@ namespace IceSSL
             }
         }
 
-        internal bool verify(NativeConnectionInfo info, string desc)
+        internal bool verify(IceSSL.ConnectionInfo info, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -127,9 +127,9 @@ namespace IceSSL
             //
             // If there is no certificate then we match false.
             //
-            if(info.nativeCerts != null && info.nativeCerts.Length > 0)
+            if(info.certs != null && info.certs.Length > 0)
             {
-                X500DistinguishedName subjectDN = info.nativeCerts[0].SubjectName;
+                X500DistinguishedName subjectDN = info.certs[0].SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
                 try

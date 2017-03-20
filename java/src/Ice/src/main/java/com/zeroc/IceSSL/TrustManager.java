@@ -55,7 +55,7 @@ class TrustManager
     }
 
     boolean
-    verify(NativeConnectionInfo info, String desc)
+    verify(ConnectionInfo info, String desc)
     {
         java.util.List<java.util.List<java.util.List<RFC2253.RDNPair> > >
             reject = new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >(),
@@ -126,10 +126,10 @@ class TrustManager
         //
         // If there is no certificate then we match false.
         //
-        if(info.nativeCerts != null && info.nativeCerts.length > 0)
+        if(info.certs != null && info.certs.length > 0)
         {
             javax.security.auth.x500.X500Principal subjectDN =
-                ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectX500Principal();
+                ((java.security.cert.X509Certificate)info.certs[0]).getSubjectX500Principal();
             String subjectName = subjectDN.getName(javax.security.auth.x500.X500Principal.RFC2253);
             assert subjectName != null;
             try

@@ -48,12 +48,12 @@ class ICESSL_API CertificateVerifier
 {
 public:
 
-    CertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>);
-    bool verify(const NativeConnectionInfoPtr&);
+    CertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
+    bool verify(const ConnectionInfoPtr&);
 
 private:
 
-    std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> _verify;
+    std::function<bool(const std::shared_ptr<ConnectionInfo>&)> _verify;
 };
 using CertificateVerifierPtr = std::shared_ptr<CertificateVerifier>;
 

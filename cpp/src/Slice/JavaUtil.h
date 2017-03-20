@@ -145,7 +145,7 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true, bool = false) const;
+                             const StringList& = StringList(), bool = true, bool = false, bool = false) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the

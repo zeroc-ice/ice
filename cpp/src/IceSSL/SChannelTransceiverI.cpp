@@ -701,9 +701,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
                                             IceUtilInternal::lastErrorToString());
                 }
 
-                CertificatePtr certificate = SChannel::Certificate::create(cc);
-                _nativeCerts.push_back(certificate);
-                _certs.push_back(certificate->encode());
+                _certs.push_back(SChannel::Certificate::create(cc));
             }
 
             CertFreeCertificateChain(certChain);
@@ -748,7 +746,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
                                 IceUtilInternal::lastErrorToString());
     }
 
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
     _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
@@ -991,14 +989,13 @@ SChannel::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 SChannel::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
+    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
-    info->nativeCerts = _nativeCerts;
     return info;
 }
 

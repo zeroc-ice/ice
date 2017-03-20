@@ -341,7 +341,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)
     {
@@ -775,14 +775,13 @@ OpenSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 OpenSSL::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
+    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
-    info->nativeCerts = _nativeCerts;
     return info;
 }
 
@@ -825,13 +824,11 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
     STACK_OF(X509)* chain = X509_STORE_CTX_get1_chain(c);
     if(chain != 0)
     {
-        _nativeCerts.clear();
         _certs.clear();
         for(int i = 0; i < sk_X509_num(chain); ++i)
         {
             CertificatePtr cert = OpenSSL::Certificate::create(X509_dup(sk_X509_value(chain, i)));
-            _nativeCerts.push_back(cert);
-            _certs.push_back(cert->encode());
+            _certs.push_back(cert);
         }
         sk_X509_pop_free(chain, X509_free);
     }

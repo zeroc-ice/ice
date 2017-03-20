@@ -58,8 +58,8 @@ public:
     //
     // Verify peer certificate
     //
-    virtual void verifyPeer(const std::string&, const NativeConnectionInfoPtr&, const std::string&);
-    void verifyPeerCertName(const std::string&, const NativeConnectionInfoPtr&);
+    virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
+    void verifyPeerCertName(const std::string&, const ConnectionInfoPtr&);
 
     CertificateVerifierPtr getCertificateVerifier() const;
     PasswordPromptPtr getPasswordPrompt() const;

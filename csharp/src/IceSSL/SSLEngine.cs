@@ -477,14 +477,14 @@ namespace IceSSL
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(string address, NativeConnectionInfo info, string desc)
+        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
         {
             
 
-            if(_verifyDepthMax > 0 && info.nativeCerts != null && info.nativeCerts.Length > _verifyDepthMax)
+            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.nativeCerts.Length + ") exceeds maximum of " +
+                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
                 if(_securityTraceLevel >= 1)
                 {

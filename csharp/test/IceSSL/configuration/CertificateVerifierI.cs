@@ -16,9 +16,9 @@ public class CertificateVerifierI : IceSSL.CertificateVerifier
         reset();
     }
 
-    public bool verify(IceSSL.NativeConnectionInfo info)
+    public bool verify(IceSSL.ConnectionInfo info)
     {
-        _hadCert = info.nativeCerts != null;
+        _hadCert = info.certs != null;
         _invoked = true;
         return _returnValue;
     }

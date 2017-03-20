@@ -66,22 +66,14 @@ namespace IceSSL
             List<string> certs = new List<string>();
             if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
             {
-                _nativeCerts = new X509Certificate2[_chain.ChainElements.Count];
+                _certs = new X509Certificate2[_chain.ChainElements.Count];
                 for(int i = 0; i < _chain.ChainElements.Count; ++i)
                 {
-                    X509Certificate2 cert = _chain.ChainElements[i].Certificate;
-                    _nativeCerts[i] = cert;
-
-                    StringBuilder s = new StringBuilder();
-                    s.Append("-----BEGIN CERTIFICATE-----\n");
-                    s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
-                    s.Append("\n-----END CERTIFICATE-----");
-                    certs.Add(s.ToString());
+                    _certs[i] = _chain.ChainElements[i].Certificate;
                 }
             }
-            _certs = certs.ToArray();
 
-            _instance.verifyPeer(_host, (NativeConnectionInfo)getInfo(), ToString());
+            _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
 
             if(_instance.securityTraceLevel() >= 1)
             {
@@ -331,14 +323,13 @@ namespace IceSSL
 
         public Ice.ConnectionInfo getInfo()
         {
-            NativeConnectionInfo info = new NativeConnectionInfo();
+            ConnectionInfo info = new ConnectionInfo();
             info.underlying = _delegate.getInfo();
             info.incoming = _incoming;
             info.adapterName = _adapterName;
             info.cipher = _cipher;
             info.certs = _certs;
             info.verified = _verified;
-            info.nativeCerts = _nativeCerts;
             return info;
         }
 
@@ -771,8 +762,7 @@ namespace IceSSL
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
         private string _cipher;
-        private string[] _certs;
+        private X509Certificate2[] _certs;
         private bool _verified;
-        private X509Certificate2[] _nativeCerts;
     }
 }

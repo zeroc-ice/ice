@@ -9,6 +9,7 @@
 
 #include <IceSSL/TrustManager.h>
 #include <IceSSL/RFC2253.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #include <Ice/Properties.h>
 #include <Ice/Communicator.h>
@@ -62,7 +63,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
 }
 
 bool
-TrustManager::verify(const NativeConnectionInfoPtr& info, const std::string& desc)
+TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
 {
     list<list<DistinguishedName> > reject, accept;
 
@@ -131,9 +132,9 @@ TrustManager::verify(const NativeConnectionInfoPtr& info, const std::string& des
     //
     // If there is no certificate then we match false.
     //
-    if(info->nativeCerts.size() != 0)
+    if(info->certs.size() != 0)
     {
-        DistinguishedName subject = info->nativeCerts[0]->getSubjectDN();
+        DistinguishedName subject = info->certs[0]->getSubjectDN();
         if(_traceLevel > 0)
         {
             Ice::Trace trace(_communicator->getLogger(), "Security");

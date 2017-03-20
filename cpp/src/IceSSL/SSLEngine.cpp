@@ -9,6 +9,7 @@
 
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/TrustManager.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #include <IceUtil/StringUtil.h>
 
@@ -137,15 +138,15 @@ IceSSL::SSLEngine::initialize()
 }
 
 void
-IceSSL::SSLEngine::verifyPeerCertName(const string& address, const NativeConnectionInfoPtr& info)
+IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInfoPtr& info)
 {
     //
     // For an outgoing connection, we compare the proxy address (if any) against
     // fields in the server's certificate (if any).
     //
-    if(_checkCertName && !info->nativeCerts.empty() && !address.empty())
+    if(_checkCertName && !info->certs.empty() && !address.empty())
     {
-        const CertificatePtr cert = info->nativeCerts[0];
+        const CertificatePtr cert = info->certs[0];
 
         //
         // Extract the IP addresses and the DNS names from the subject
@@ -226,7 +227,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const NativeConnect
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& info, const string& desc)
 {
     const CertificateVerifierPtr verifier = getCertificateVerifier();
     if(_verifyDepthMax > 0 && static_cast<int>(info->certs.size()) > _verifyDepthMax)

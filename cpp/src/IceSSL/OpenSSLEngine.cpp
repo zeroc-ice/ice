@@ -912,7 +912,7 @@ OpenSSL::SSLEngine::destroy()
 }
 
 void
-OpenSSL::SSLEngine::verifyPeer(const string& address, const NativeConnectionInfoPtr& info, const string& desc)
+OpenSSL::SSLEngine::verifyPeer(const string& address, const IceSSL::ConnectionInfoPtr& info, const string& desc)
 {
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
     //

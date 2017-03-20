@@ -1357,10 +1357,13 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         sslinfo.localPort = ipInfo->localPort;
         sslinfo.localHost = ipInfo->localAddress;
         sslinfo.cipher = info->cipher;
-        sslinfo.certs = info->certs;
+        for(std::vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+        {
+            sslinfo.certs.push_back((*i)->encode());
+        }
         if(info->certs.size() > 0)
         {
-            userDN = IceSSL::Certificate::decode(info->certs[0])->getSubjectDN();
+            userDN = info->certs[0]->getSubjectDN();
         }
     }
     catch(const IceSSL::CertificateEncodingException&)

@@ -7,13 +7,18 @@
 //
 // **********************************************************************
 
-package test.Ice.classLoader;
+#pragma once
 
-public class CertificateVerifierI implements IceSSL.CertificateVerifier
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "objc:header-dir:objc", "objc:dll-export:ICESSL_API", "js:ice-build"]]
+
+#ifndef __SLICE2JAVA_COMPAT__
+[["java:package:com.zeroc"]]
+#endif
+
+["objc:prefix:ICESSL"]
+module IceSSL
 {
-    @Override
-    public boolean verify(IceSSL.ConnectionInfo info)
-    {
-        return true;
-    }
-}
+
+local class ConnectionInfo;
+
+};

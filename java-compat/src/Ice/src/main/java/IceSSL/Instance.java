@@ -47,7 +47,7 @@ class Instance extends IceInternal.ProtocolInstance
         _engine.traceConnection(desc, engine, incoming);
     }
 
-    void verifyPeer(String address, NativeConnectionInfo info, String desc)
+    void verifyPeer(String address, ConnectionInfo info, String desc)
     {
         _engine.verifyPeer(address, info, desc);
     }

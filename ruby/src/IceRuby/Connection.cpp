@@ -385,7 +385,14 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
 
         IceSSL::ConnectionInfoPtr ssl = IceSSL::ConnectionInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@cipher"), createString(ssl->cipher));
-        rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(ssl->certs));
+
+        Ice::StringSeq encoded;
+        for(vector<IceSSL::CertificatePtr>::const_iterator i = ssl->certs.begin(); i != ssl->certs.end(); ++i)
+        {
+            encoded.push_back((*i)->encode());
+        }
+
+        rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(encoded));
         rb_ivar_set(info, rb_intern("@verified"), ssl->verified ? Qtrue : Qfalse);
     }
     else if(Ice::IPConnectionInfoPtr::dynamicCast(p))

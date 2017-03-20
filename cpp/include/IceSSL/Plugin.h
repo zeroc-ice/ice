@@ -12,7 +12,7 @@
 
 #include <Ice/Plugin.h>
 #include <IceSSL/Config.h>
-#include <IceSSL/ConnectionInfo.h>
+#include <IceSSL/ConnectionInfoF.h>
 
 #ifdef ICE_CPP11_MAPPING
 #   include <chrono>
@@ -372,25 +372,6 @@ public:
     static CertificatePtr decode(const std::string&);
 };
 
-//
-// NativeConnectionInfo is an extension of IceSSL::ConnectionInfo that
-// provides access to native certificates.
-//
-class ICESSL_API NativeConnectionInfo : public ConnectionInfo
-{
-public:
-
-    virtual ~NativeConnectionInfo();
-
-    //
-    // The certificate chain. This may be empty if the peer did not
-    // supply a certificate. The peer's certificate (if any) is the
-    // first one in the chain.
-    //
-    std::vector<CertificatePtr> nativeCerts;
-};
-ICE_DEFINE_PTR(NativeConnectionInfoPtr, NativeConnectionInfo);
-
 
 #ifndef ICE_CPP11_MAPPING // C++98 mapping
 //
@@ -408,7 +389,7 @@ public:
     // Return false if the connection should be rejected, or true to
     // allow it.
     //
-    virtual bool verify(const NativeConnectionInfoPtr&) = 0;
+    virtual bool verify(const ConnectionInfoPtr&) = 0;
 };
 typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 
@@ -457,7 +438,7 @@ public:
     // before any connections are established.
     //
 #ifdef ICE_CPP11_MAPPING
-    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>) = 0;
+    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>) = 0;
 #else
     virtual void setCertificateVerifier(const CertificateVerifierPtr&) = 0;
 #endif

@@ -1115,11 +1115,12 @@ Slice::JavaCompatGenerator::getOptionalFormat(const TypePtr& type)
 
 string
 Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
-                                    TypeMode mode,
-                                    const string& package,
-                                    const StringList& metaData,
-                                    bool formal,
-                                    bool optional) const
+                                         TypeMode mode,
+                                         const string& package,
+                                         const StringList& metaData,
+                                         bool formal,
+                                         bool optional,
+                                         bool local) const
 {
     static const char* builtinTable[] =
     {
@@ -1166,6 +1167,20 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
+    
+    if(local)
+    {
+        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+        {
+            const string javaType = "java:type:";
+            const string meta = *i;
+
+            if(meta.find(javaType) == 0)
+            {
+                return meta.substr(javaType.size());
+            }
+        }
+    }
 
     if(!type)
     {
@@ -1317,10 +1332,10 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
 
 string
 Slice::JavaCompatGenerator::typeToObjectString(const TypePtr& type,
-                                          TypeMode mode,
-                                          const string& package,
-                                          const StringList& metaData,
-                                          bool formal) const
+                                               TypeMode mode,
+                                               const string& package,
+                                               const StringList& metaData,
+                                               bool formal) const
 {
     static const char* builtinTable[] =
     {
@@ -3599,6 +3614,20 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
+    
+    if(local)
+    {
+        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+        {
+            const string javaType = "java:type:";
+            const string meta = *i;
+
+            if(meta.find(javaType) == 0)
+            {
+                return meta.substr(javaType.size());
+            }
+        }
+    }
 
     if(!type)
     {

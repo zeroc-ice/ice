@@ -648,6 +648,20 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
         "::std::shared_ptr<void>",
         "::std::shared_ptr<::Ice::Value>"
     };
+    
+    if((typeCtx & TypeContextLocal) != 0)
+    {
+        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+        {
+            const string cppType = "cpp:type:";
+            const string meta = *i;
+
+            if(meta.find(cppType) == 0)
+            {
+                return meta.substr(cppType.size());
+            }
+        }
+    }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)

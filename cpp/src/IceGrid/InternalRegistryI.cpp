@@ -70,7 +70,7 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
-                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
                     if(traceLevels->node > 0)
                     {
@@ -137,7 +137,7 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
-                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
                     if(traceLevels->replica > 0)
                     {

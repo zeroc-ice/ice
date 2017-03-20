@@ -3146,7 +3146,10 @@ void
 Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring) << ' ' << name << ';';
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    int typeContext = cl->isLocal() ? TypeContextLocal | _useWstring : _useWstring;
+    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), typeContext) << ' ' << name << ';';
 }
 
 void
@@ -3342,10 +3345,12 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         bool callBaseConstuctors = !(p->isAbstract() && virtualInheritance);
         DataMemberList dataMembers = p->dataMembers();
 
+        int typeContext = p->isLocal() ? (_useWstring | TypeContextLocal) : _useWstring;
+        
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
 
-            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
+            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeContext);
             bool dataMember = std::find(dataMembers.begin(), dataMembers.end(), (*q)) != dataMembers.end();
             allParamDecls.push_back(typeName + ((dataMember || callBaseConstuctors) ?
                                                     (" iceP_" + (*q)->name()) : (" /*iceP_" + (*q)->name() + "*/")));
@@ -6310,8 +6315,15 @@ void
 Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(),
-                            _useWstring | TypeContextCpp11) << ' ' << name;
+    int typeContext = _useWstring | TypeContextCpp11;
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    if(cl->isLocal())
+    {
+        typeContext |= TypeContextLocal; 
+    }
+
+    H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), typeContext) << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
@@ -6447,7 +6459,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
+        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring | TypeContextLocal);
         allTypes.push_back(typeName);
         allParamDecls.push_back(typeName + " iceP_" + (*q)->name());
     }
@@ -6458,7 +6470,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp << nl << name << "() :";
             H.inc();
-            writeDataMemberInitializers(H, dataMembers, _useWstring | TypeContextCpp11);
+            writeDataMemberInitializers(H, dataMembers, _useWstring | TypeContextCpp11 | TypeContextLocal);
             H.dec();
             H << sb;
             H << eb;
@@ -7443,11 +7455,16 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     {
         vector<string> allParamDecls;
         DataMemberList dataMembers = p->dataMembers();
+        
+        int typeContext = _useWstring | TypeContextCpp11;
+        if(p->isLocal())
+        {
+            typeContext |= TypeContextLocal;
+        }
 
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
-            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                                _useWstring | TypeContextCpp11);
+            string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeContext);
             allParamDecls.push_back(typeName + " iceP_" + (*q)->name());
         }
 

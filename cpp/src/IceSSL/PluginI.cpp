@@ -33,12 +33,6 @@ PasswordPrompt::~PasswordPrompt()
 }
 #endif
 
-
-NativeConnectionInfo::~NativeConnectionInfo()
-{
-    // Out of line to avoid weak vtable
-}
-
 IceSSL::Plugin::~Plugin()
 {
     // Out of line to avoid weak vtable
@@ -97,7 +91,7 @@ PluginI::destroy()
 
 #ifdef ICE_CPP11_MAPPING
 void
-PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> verifier)
+PluginI::setCertificateVerifier(std::function<bool(const std::shared_ptr<IceSSL::ConnectionInfo>&)> verifier)
 {
     if(verifier)
     {

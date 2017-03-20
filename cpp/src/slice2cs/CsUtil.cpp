@@ -261,7 +261,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
+Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local, const StringList& metaData)
 {
     if(!type)
     {
@@ -304,6 +304,19 @@ Slice::CsGenerator::typeToString(const TypePtr& type, bool optional, bool local)
         "_System.Object",
         "Ice.Value"
     };
+
+    if(local)
+    {
+        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+        {
+            const string clrType = "cs:type:";
+            const string meta = *i;
+            if(meta.find(clrType) == 0)
+            {
+                return meta.substr(clrType.size());
+            }
+        }
+    }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -2537,6 +2550,20 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         newLocalMetaData.push_back(s);
                         continue;
                     }
+                }
+            }
+            else if(DataMemberPtr::dynamicCast(cont))
+            {
+                DataMemberPtr dataMember = DataMemberPtr::dynamicCast(cont);                
+                StructPtr st = StructPtr::dynamicCast(dataMember->container());
+                ExceptionPtr ex = ExceptionPtr::dynamicCast(dataMember->container());
+                ClassDefPtr cl = ClassDefPtr::dynamicCast(dataMember->container());
+                bool isLocal = (st && st->isLocal()) || (ex && ex->isLocal()) || (cl && cl->isLocal());
+                static const string csTypePrefix = csPrefix + "type:";
+                if(isLocal && s.find(csTypePrefix) == 0)
+                {
+                    newLocalMetaData.push_back(s);
+                    continue;
                 }
             }
 

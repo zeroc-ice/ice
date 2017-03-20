@@ -76,9 +76,8 @@ private:
     const IceInternal::TransceiverPtr _delegate;
     bool _connected;
     std::string _cipher;
-    std::vector<std::string> _certs;
+    std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
-    std::vector<IceSSL::CertificatePtr> _nativeCerts;
 
     SSL* _ssl;
 #ifdef ICE_USE_IOCP

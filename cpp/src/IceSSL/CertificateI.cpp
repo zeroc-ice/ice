@@ -17,6 +17,7 @@
 #include <IceSSL/CertificateI.h>
 #include <Ice/Object.h>
 #include <Ice/Base64.h>
+#include <Ice/LocalException.h>
 #include <Ice/StringConverter.h>
 #include <IceUtil/Time.h>
 

@@ -11,6 +11,8 @@
 
 [["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "objc:header-dir:objc", "objc:dll-export:ICESSL_API", "js:ice-build"]]
 
+[["cpp:include:IceSSL/Plugin.h"]]
+
 #include <Ice/Connection.ice>
 
 #ifndef __SLICE2JAVA_COMPAT__
@@ -32,6 +34,9 @@ local class ConnectionInfo extends Ice::ConnectionInfo
     string cipher;
 
     /** The certificate chain. */
+    ["cpp:type:std::vector<CertificatePtr>", 
+     "java:type:java.security.cert.Certificate[]",
+     "cs:type:System.Security.Cryptography.X509Certificates.X509Certificate2[]"]
     Ice::StringSeq certs;
 
     /** The certificate chain verification status. */

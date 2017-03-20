@@ -63,9 +63,8 @@ private:
 
     bool _connected;
     bool _upgraded;
-    std::vector<std::string> _certs;
+    std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
-    std::vector<IceSSL::CertificatePtr> _nativeCerts;
     Windows::Security::Cryptography::Certificates::CertificateChain^ _chain;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

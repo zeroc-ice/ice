@@ -2563,7 +2563,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     if(!(*d)->optional())
                     {
                         string memberName = fixKwd((*d)->name());
-                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true, false, p->isLocal());
                         paramDecl.push_back(memberType + " " + memberName);
                     }
                 }
@@ -2615,7 +2615,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
                 string memberName = fixKwd((*d)->name());
-                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true, false, p->isLocal());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;

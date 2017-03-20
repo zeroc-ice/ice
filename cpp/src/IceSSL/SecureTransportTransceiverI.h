@@ -79,9 +79,8 @@ private:
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
     std::string _cipher;
-    std::vector<std::string> _certs;
+    std::vector<CertificatePtr> _certs;
     bool _verified;
-    std::vector<CertificatePtr> _nativeCerts;
     size_t _buffered;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

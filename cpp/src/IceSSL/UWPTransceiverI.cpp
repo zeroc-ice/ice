@@ -197,12 +197,11 @@ UWP::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buff
                 for(auto iter = certs->First(); iter->HasCurrent; iter->MoveNext())
                 {
                     auto cert = UWP::Certificate::create(iter->Current);
-                    _nativeCerts.push_back(cert);
-                    _certs.push_back(cert->encode());
+                    _certs.push_back(cert);
                 }
             }
 
-            _engine->verifyPeer(_host, dynamic_pointer_cast<IceSSL::NativeConnectionInfo>(getInfo()), toString());
+            _engine->verifyPeer(_host, dynamic_pointer_cast<IceSSL::ConnectionInfo>(getInfo()), toString());
         }
         catch(Platform::Exception^ ex)
         {
@@ -347,13 +346,12 @@ UWP::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 UWP::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
+    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
     info->verified = _verified;
     info->adapterName = _adapterName;
     info->incoming = _incoming;
     info->underlying = _delegate->getInfo();
     info->certs = _certs;
-    info->nativeCerts = _nativeCerts;
     return info;
 }
 

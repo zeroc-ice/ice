@@ -51,13 +51,13 @@ IceSSL::fromCFString(CFStringRef v)
 #endif
 
 #ifdef ICE_CPP11_MAPPING
-IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)> v) :
+IceSSL::CertificateVerifier::CertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)> v) :
     _verify(std::move(v))
 {
 }
 
 bool
-IceSSL::CertificateVerifier::verify(const NativeConnectionInfoPtr& info)
+IceSSL::CertificateVerifier::verify(const ConnectionInfoPtr& info)
 {
     return _verify(info);
 }

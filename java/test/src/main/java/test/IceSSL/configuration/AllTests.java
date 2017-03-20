@@ -300,14 +300,14 @@ public class AllTests
                 java.security.cert.X509Certificate serverCert = loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
                 java.security.cert.X509Certificate caCert = loadCertificate(defaultDir + "/cacert1.jks", "ca");
 
-                com.zeroc.IceSSL.NativeConnectionInfo info =
-                    (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                com.zeroc.IceSSL.ConnectionInfo info =
+                    (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
 
-                test(info.nativeCerts.length == 2);
+                test(info.certs.length == 2);
                 test(info.verified);
 
-                test(caCert.equals(info.nativeCerts[1]));
-                test(serverCert.equals(info.nativeCerts[0]));
+                test(caCert.equals(info.certs[1]));
+                test(serverCert.equals(info.certs[0]));
             }
             catch(Exception ex)
             {
@@ -776,7 +776,7 @@ public class AllTests
         out.print("testing certificate chains... ");
         out.flush();
         {
-            com.zeroc.IceSSL.NativeConnectionInfo info;
+            com.zeroc.IceSSL.ConnectionInfo info;
 
             initData = createClientProps(defaultProperties, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
@@ -795,8 +795,8 @@ public class AllTests
             ServerPrx server = fact.createServer(d);
             try
             {
-                info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(com.zeroc.Ice.LocalException ex)
@@ -814,8 +814,8 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(com.zeroc.Ice.LocalException ex)
@@ -834,8 +834,8 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 2);
+                info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 2);
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
@@ -860,8 +860,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 2);
+                    info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 2);
                     test(info.verified);
                 }
                 catch(com.zeroc.Ice.LocalException ex)
@@ -922,8 +922,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 3);
+                    info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 3);
                     test(info.verified);
                 }
                 catch(com.zeroc.Ice.LocalException ex)
@@ -967,8 +967,8 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 4);
+                    info = (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 4);
                     test(info.verified);
                 }
                 catch(com.zeroc.Ice.LocalException ex)
@@ -1060,8 +1060,8 @@ public class AllTests
             {
                 String cipherSub = "DH_anon";
                 server.checkCipher(cipherSub);
-                com.zeroc.IceSSL.NativeConnectionInfo info =
-                    (com.zeroc.IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                com.zeroc.IceSSL.ConnectionInfo info =
+                    (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                 test(info.cipher.indexOf(cipherSub) >= 0);
             }
             catch(com.zeroc.Ice.LocalException ex)

@@ -32,7 +32,7 @@ public:
     // From IceSSL::Plugin.
     //
 #ifdef ICE_CPP11_MAPPING
-    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>);
+    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
     virtual void setPasswordPrompt(std::function<std::string()>);
 #else
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);

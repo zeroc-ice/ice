@@ -2840,7 +2840,8 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     if(!(*d)->optional())
                     {
                         string memberName = fixKwd((*d)->name());
-                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(),
+                                                         true, false, p->isLocal());
                         paramDecl.push_back(memberType + " " + memberName);
                     }
                 }
@@ -2892,7 +2893,8 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
                 string memberName = fixKwd((*d)->name());
-                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData(), true,
+                                                 false, p->isLocal());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             out << paramDecl << epar;
@@ -3789,11 +3791,30 @@ void
 Slice::GenCompat::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ContainedPtr contained = ContainedPtr::dynamicCast(container);
+    const ContainerPtr container = p->container();
+    const ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
+    const StructPtr st = StructPtr::dynamicCast(container);
+    const ExceptionPtr ex = ExceptionPtr::dynamicCast(container);
+    const ContainedPtr contained = ContainedPtr::dynamicCast(container);
     StringList metaData = p->getMetaData();
     TypePtr type = p->type();
-    string s = typeToString(type, TypeModeMember, getPackage(contained), metaData);
+
+    bool local;
+    if(cls)
+    {
+        local = cls->isLocal();
+    }
+    else if(st)
+    {
+        local = st->isLocal();
+    }
+    else
+    {
+        assert(ex);
+        local = ex->isLocal();
+    }
+
+    string s = typeToString(type, TypeModeMember, getPackage(contained), metaData, true, false, local);
     Output& out = output();
     const bool optional = p->optional();
     const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);

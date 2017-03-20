@@ -119,9 +119,8 @@ private:
     bool _credentialsInitialized;
     SecPkgContext_StreamSizes _sizes;
     std::string _cipher;
-    std::vector<std::string> _certs;
+    std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
-    std::vector<IceSSL::CertificatePtr> _nativeCerts;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

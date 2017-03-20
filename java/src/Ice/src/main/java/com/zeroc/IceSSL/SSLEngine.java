@@ -976,7 +976,7 @@ class SSLEngine
         return _communicator;
     }
 
-    void verifyPeer(String address, NativeConnectionInfo info, String desc)
+    void verifyPeer(String address, ConnectionInfo info, String desc)
     {
         //
         // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
@@ -990,10 +990,10 @@ class SSLEngine
             }
         }
 
-        if(_verifyDepthMax > 0 && info.nativeCerts != null && info.nativeCerts.length > _verifyDepthMax)
+        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
         {
             String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.nativeCerts.length + ") exceeds maximum of " +
+                "length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
                 _verifyDepthMax + "\n" + desc;
             if(_securityTraceLevel >= 1)
             {

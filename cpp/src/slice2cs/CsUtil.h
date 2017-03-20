@@ -41,7 +41,7 @@ protected:
     static std::string fixId(const ContainedPtr&, int = 0, bool = false);
     static std::string getOptionalFormat(const TypePtr&);
     static std::string getStaticId(const TypePtr&);
-    static std::string typeToString(const TypePtr&, bool = false, bool = false);
+    static std::string typeToString(const TypePtr&, bool = false, bool = false, const StringList& = StringList());
     static bool isClassType(const TypePtr&);
     static bool isValueType(const TypePtr&);
 

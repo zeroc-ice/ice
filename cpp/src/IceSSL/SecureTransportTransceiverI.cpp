@@ -11,6 +11,7 @@
 #include <IceSSL/Instance.h>
 #include <IceSSL/SecureTransportEngine.h>
 #include <IceSSL/SecureTransportUtil.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
@@ -289,10 +290,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     {
         SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
         CFRetain(cert);
-
-        CertificatePtr certificate = IceSSL::SecureTransport::Certificate::create(cert);
-        _nativeCerts.push_back(certificate);
-        _certs.push_back(certificate->encode());
+        _certs.push_back(IceSSL::SecureTransport::Certificate::create(cert));
     }
 
     assert(_ssl);
@@ -300,7 +298,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     SSLGetNegotiatedCipher(_ssl.get(), &cipher);
     _cipher = _engine->getCipherName(cipher);
 
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(NativeConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -528,14 +526,13 @@ IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
-    NativeConnectionInfoPtr info = ICE_MAKE_SHARED(NativeConnectionInfo);
+    IceSSL::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
-    info->nativeCerts = _nativeCerts;
     return info;
 }
 

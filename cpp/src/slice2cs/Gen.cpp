@@ -2296,7 +2296,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
                 string memberName = fixId((*d)->name(), DotNet::ICloneable);
-                string memberType = typeToString((*d)->type(), (*d)->optional());
+                string memberType = typeToString((*d)->type(), (*d)->optional(), p->isLocal(), (*d)->getMetaData());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             _out << paramDecl << epar;
@@ -3199,7 +3199,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    string type = typeToString(p->type(), isOptional, isLocal);
+    string type = typeToString(p->type(), isOptional, isLocal, p->getMetaData());
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName;
     if(isProperty)

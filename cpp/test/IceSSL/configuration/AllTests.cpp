@@ -442,16 +442,16 @@ public:
     }
 
     virtual bool
-    verify(const IceSSL::NativeConnectionInfoPtr& info)
+    verify(const IceSSL::ConnectionInfoPtr& info)
     {
-        if(info->nativeCerts.size() > 0)
+        if(info->certs.size() > 0)
         {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             //
             // Subject alternative name
             //
             {
-                vector<pair<int, string> > altNames = info->nativeCerts[0]->getSubjectAlternativeNames();
+                vector<pair<int, string> > altNames = info->certs[0]->getSubjectAlternativeNames();
                 vector<string> ipAddresses;
                 vector<string> dnsNames;
                 for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
@@ -479,7 +479,7 @@ public:
             // Issuer alternative name
             //
             {
-                vector<pair<int, string> > altNames = info->nativeCerts[0]->getIssuerAlternativeNames();
+                vector<pair<int, string> > altNames = info->certs[0]->getIssuerAlternativeNames();
                 vector<string> ipAddresses;
                 vector<string> emailAddresses;
                 for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
@@ -501,7 +501,7 @@ public:
 #endif
         }
 
-        _hadCert = info->nativeCerts.size() != 0;
+        _hadCert = info->certs.size() != 0;
         _invoked = true;
         return _returnValue;
     }
@@ -750,7 +750,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     const string anonCiphers = engineVersion >= 0x10100000L ? "ADH:@SECLEVEL=0" : "ADH";
 #endif
 
-    IceSSL::NativeConnectionInfoPtr info;
+    IceSSL::ConnectionInfoPtr info;
 
     cout << "testing manual initialization... " << flush;
     {
@@ -1012,25 +1012,25 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(caCert->verify(caCert));
 #endif
 
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-            test(info->nativeCerts.size() == 2);
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(info->certs.size() == 2);
             test(info->verified);
 
-            test(ICE_TARGET_EQUAL_TO(caCert, info->nativeCerts[1]));
-            test(ICE_TARGET_EQUAL_TO(serverCert, info->nativeCerts[0]));
+            test(ICE_TARGET_EQUAL_TO(caCert, info->certs[1]));
+            test(ICE_TARGET_EQUAL_TO(serverCert, info->certs[0]));
 
-            test(!(ICE_TARGET_EQUAL_TO(serverCert, info->nativeCerts[1])));
-            test(!(ICE_TARGET_EQUAL_TO(caCert, info->nativeCerts[0])));
+            test(!(ICE_TARGET_EQUAL_TO(serverCert, info->certs[1])));
+            test(!(ICE_TARGET_EQUAL_TO(caCert, info->certs[0])));
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-            test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
+            test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
 
 #   ifdef ICE_CPP11_MAPPING
-            test(!info->nativeCerts[0]->checkValidity(std::chrono::system_clock::time_point()) &&
-                 !info->nativeCerts[1]->checkValidity(std::chrono::system_clock::time_point()));
+            test(!info->certs[0]->checkValidity(std::chrono::system_clock::time_point()) &&
+                 !info->certs[1]->checkValidity(std::chrono::system_clock::time_point()));
 #   else
-            test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
-                 !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
+            test(!info->certs[0]->checkValidity(IceUtil::Time::seconds(0)) &&
+                 !info->certs[1]->checkValidity(IceUtil::Time::seconds(0)));
 #   endif
 #endif
 
@@ -1039,11 +1039,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             // with a custom CA.
             //
 #ifndef  ICE_OS_UWP
-            test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
+            test(info->certs[0]->verify(info->certs[1]));
 #endif
-            test(info->nativeCerts.size() == 2 &&
-                 info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
-                 info->nativeCerts[0]->getIssuerDN() == serverCert->getIssuerDN());
+            test(info->certs.size() == 2 &&
+                 info->certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
+                 info->certs[0]->getIssuerDN() == serverCert->getIssuerDN());
         }
         catch(const LocalException& ex)
         {
@@ -1546,8 +1546,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         Test::ServerPrxPtr server = fact->createServer(d);
         try
         {
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-            test(info->nativeCerts.size() == 1);
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(info->certs.size() == 1);
             test(!info->verified);
         }
         catch(const Ice::LocalException&)
@@ -1566,11 +1566,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         server = fact->createServer(d);
         try
         {
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
-            test(info->nativeCerts.size() == 2); // TODO: Fix OpenSSL
+            test(info->certs.size() == 2); // TODO: Fix OpenSSL
 #else
-            test(info->nativeCerts.size() == 1);
+            test(info->certs.size() == 1);
 #endif
             test(!info->verified);
         }
@@ -1594,11 +1594,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             server = fact->createServer(d);
             try
             {
-                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_UWP)
-                test(info->nativeCerts.size() == 1); // SChannel never sends the root certificate
+                test(info->certs.size() == 1); // SChannel never sends the root certificate
 #else
-                test(info->nativeCerts.size() == 2);
+                test(info->certs.size() == 2);
 #endif
                 test(!info->verified);
             }
@@ -1628,8 +1628,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-                test(info->nativeCerts.size() == 2);
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+                test(info->certs.size() == 2);
                 test(info->verified);
             }
             catch(const Ice::LocalException& ex)
@@ -1664,7 +1664,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+                ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 import.cleanup();
                 test(false);
             }
@@ -1698,8 +1698,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-                test(info->nativeCerts.size() == 3);
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+                test(info->certs.size() == 3);
                 test(info->verified);
             }
             catch(const Ice::LocalException& ex)
@@ -1717,7 +1717,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+                ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 import.cleanup();
                 test(false);
             }
@@ -1746,8 +1746,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
-                test(info->nativeCerts.size() == 4);
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+                test(info->certs.size() == 4);
                 test(info->verified);
             }
             catch(const Ice::LocalException& ex)
@@ -1924,7 +1924,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
 
 #ifdef ICE_CPP11_MAPPING
-        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::NativeConnectionInfo>& info)
+        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& info)
                                        { return verifier->verify(info); });
 #else
         plugin->setCertificateVerifier(verifier);
@@ -1948,7 +1948,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         try
         {
             server->checkCipher(cipherSub);
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException&)
@@ -1998,7 +1998,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
 
 #ifdef ICE_CPP11_MAPPING
-        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::NativeConnectionInfo>& info)
+        plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& info)
                                        { return verifier->verify(info); });
 #else
         plugin->setCertificateVerifier(verifier);
@@ -2601,7 +2601,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         try
         {
             server->checkCipher(cipherSub);
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException& ex)
@@ -2764,7 +2764,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         try
         {
             server->checkCipher("3DES");
-            info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, server->ice_getConnection()->getInfo());
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, 4, "3DES") == 0);
         }
         catch(const LocalException& ex)

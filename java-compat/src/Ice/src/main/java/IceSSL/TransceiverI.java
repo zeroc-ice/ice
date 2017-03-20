@@ -72,29 +72,17 @@ final class TransceiverI implements IceInternal.Transceiver
             java.security.cert.Certificate[] pcerts = session.getPeerCertificates();
             java.security.cert.Certificate[] vcerts = _instance.engine().getVerifiedCertificateChain(pcerts);
             _verified = vcerts != null;
-            _nativeCerts = _verified ? vcerts : pcerts;
-            java.util.ArrayList<String> certs = new java.util.ArrayList<>();
-            for(java.security.cert.Certificate c : _nativeCerts)
-            {
-                StringBuilder s = new StringBuilder("-----BEGIN CERTIFICATE-----\n");
-                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
-                s.append("\n-----END CERTIFICATE-----");
-                certs.add(s.toString());
-            }
-            _certs = certs.toArray(new String[certs.size()]);
+            _certs = _verified ? vcerts : pcerts;
         }
         catch(javax.net.ssl.SSLPeerUnverifiedException ex)
         {
             // No peer certificates.
         }
-        catch(java.security.cert.CertificateEncodingException ex)
-        {
-        }
 
         //
         // Additional verification.
         //
-        _instance.verifyPeer(_host, (NativeConnectionInfo)getInfo(), _delegate.toString());
+        _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), _delegate.toString());
 
         if(_instance.securityTraceLevel() >= 1)
         {
@@ -291,14 +279,13 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public Ice.ConnectionInfo getInfo()
     {
-        NativeConnectionInfo info = new NativeConnectionInfo();
+        ConnectionInfo info = new ConnectionInfo();
         info.underlying = _delegate.getInfo();
         info.incoming = _incoming;
         info.adapterName = _adapterName;
         info.cipher = _cipher;
         info.certs = _certs;
         info.verified = _verified;
-        info.nativeCerts = _nativeCerts;
         return info;
     }
 
@@ -591,7 +578,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
 
     private String _cipher;
-    private String[] _certs;
+    private java.security.cert.Certificate[] _certs;
     private boolean _verified;
-    private java.security.cert.Certificate[] _nativeCerts;
 }
