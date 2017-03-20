@@ -446,13 +446,13 @@ def allTests(communicator, collocated):
     cookie = 5
     cbWC = ResponseCallbackWC(cookie)
 
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), cb.isA, cb.ex)
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex)
     cb.check()
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie))
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), cb.isA, cb.ex, context=ctx)
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex, context=ctx)
     cb.check()
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie),
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie),
                     context=ctx)
     cbWC.check()
 
@@ -563,9 +563,9 @@ def allTests(communicator, collocated):
     cookie = 5
     cbWC = ExceptionCallbackWC(cookie)
 
-    i.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), cb.response, cb.ex)
+    i.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.response, cb.ex)
     cb.check()
-    i.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), lambda b: cbWC.response(b, cookie), lambda ex: cbWC.ex(ex, cookie))
+    i.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda b: cbWC.response(b, cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
 
     i.begin_ice_ping(cb.response, cb.ex)
@@ -604,8 +604,8 @@ def allTests(communicator, collocated):
     cbWC = ExceptionCallbackWC(cookie)
 
     # Ensures no exception is called when response is received.
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), cb.nullResponse, cb.noEx)
-    p.begin_ice_isA(Test._TestIntfDisp.ice_staticId(), lambda b: cbWC.nullResponse(b, cookie),
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.nullResponse, cb.noEx)
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda b: cbWC.nullResponse(b, cookie),
                     lambda ex: cbWC.noEx(ex, cookie))
     p.begin_op(cb.nullResponse, cb.noEx)
     p.begin_op(lambda: cbWC.nullResponse(cookie), lambda ex: cbWC.noEx(ex, cookie))
@@ -1308,9 +1308,9 @@ def allTestsFuture(communicator, collocated):
     ctx = {}
     cb = FutureDoneCallback()
 
-    p.ice_isAAsync(Test._TestIntfDisp.ice_staticId()).add_done_callback(cb.isA)
+    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.isA)
     cb.check()
-    p.ice_isAAsync(Test._TestIntfDisp.ice_staticId(), ctx).add_done_callback(cb.isA)
+    p.ice_isAAsync(Test.TestIntf.ice_staticId(), ctx).add_done_callback(cb.isA)
     cb.check()
 
     p.ice_pingAsync().add_done_callback(cb.ping)
@@ -1391,7 +1391,7 @@ def allTestsFuture(communicator, collocated):
     i = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = FutureExceptionCallback()
 
-    i.ice_isAAsync(Test._TestIntfDisp.ice_staticId()).add_done_callback(cb.ex)
+    i.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.ex)
     cb.check()
 
     i.ice_pingAsync().add_done_callback(cb.ex)
@@ -1418,7 +1418,7 @@ def allTestsFuture(communicator, collocated):
     cb = FutureExceptionCallback()
 
     # Ensures no exception is set when response is received.
-    p.ice_isAAsync(Test._TestIntfDisp.ice_staticId()).add_done_callback(cb.noEx)
+    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.noEx)
     p.opAsync().add_done_callback(cb.noEx)
 
     # If response is a user exception, it should be received.

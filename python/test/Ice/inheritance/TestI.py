@@ -9,39 +9,39 @@
 
 import Ice, Test
 
-class CAI(Test.MA._CADisp):
+class CAI(Test.MA.CADisp):
     def caop(self, p, current=None):
         return p
 
-class CBI(Test.MB._CBDisp, CAI):
+class CBI(Test.MB.CBDisp, CAI):
      def cbop(self, p, current=None):
         return p
 
-class CCI(Test.MA._CCDisp, CBI):
+class CCI(Test.MA.CCDisp, CBI):
     def ccop(self, p, current=None):
         return p
 
-class IAI(Test.MA._IADisp):
+class IAI(Test.MA.IA):
     def iaop(self, p, current=None):
         return p
 
-class IB1I(Test.MB._IB1Disp, IAI):
+class IB1I(Test.MB.IB1, IAI):
     def ib1op(self, p, current=None):
         return p
 
-class IB2I(Test.MB._IB2Disp, IAI):
+class IB2I(Test.MB.IB2, IAI):
     def ib2op(self, p, current=None):
         return p
 
-class ICI(Test.MA._ICDisp, IB1I, IB2I):
+class ICI(Test.MA.IC, IB1I, IB2I):
     def icop(self, p, current=None):
         return p
 
-class CDI(Test.MA._CDDisp, CCI, IB1I, IB2I):
+class CDI(Test.MA.CDDisp, CCI, IB1I, IB2I):
     def cdop(self, p, current=None):
         return p
 
-class InitialI(Test._InitialDisp):
+class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._ca = Test.MA.CAPrx.uncheckedCast(adapter.addWithUUID(CAI()))
         self._cb = Test.MB.CBPrx.uncheckedCast(adapter.addWithUUID(CBI()))

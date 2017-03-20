@@ -82,7 +82,7 @@ class ControllerDriver(Driver):
         Ice.loadSlice(os.path.join(toplevel, "scripts", "Controller.ice"))
         import Test
 
-        class TestCaseI(getServantClass("Test.Common", "TestCase")):
+        class TestCaseI(Test.Common.TestCase):
             def __init__(self, driver, current):
                 self.driver = driver
                 self.current = current

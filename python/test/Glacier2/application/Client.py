@@ -18,7 +18,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class CallbackReceiverI(Test._CallbackReceiverDisp):
+class CallbackReceiverI(Test.CallbackReceiver):
 
     def __init__(self):
         self._received = False

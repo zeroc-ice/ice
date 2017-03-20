@@ -521,8 +521,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     string type = getAbsolute(p, "_t_");
     string classType = getAbsolute(p, "_t_", "Disp");
     string abs = getAbsolute(p);
-    string className = isLocal ? fixIdent(p->name()) : isAbstract ? fixIdent("_" + p->name() + "Disp") : "None";
-    string classAbs = getAbsolute(p, "_", "Disp");
+    string className = isLocal || isInterface ? fixIdent(p->name()) : isAbstract ? fixIdent(p->name() + "Disp") : "None";
+    string classAbs = isInterface ? getAbsolute(p) : getAbsolute(p, "", "Disp");
     string valueName = (isInterface && !isLocal) ? "Ice.Value" : fixIdent(p->name());
     string prxAbs = getAbsolute(p, "", "Prx");
     string prxName = fixIdent(p->name() + "Prx");
@@ -902,7 +902,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ClassDefPtr d = *q;
                 if(d->isInterface() || d->allOperations().size() > 0)
                 {
-                    baseClasses.push_back(getSymbol(*q, "_", "Disp"));
+                    baseClasses.push_back(getSymbol(*q, "", d->isInterface() ? "" : "Disp"));
                 }
             }
 

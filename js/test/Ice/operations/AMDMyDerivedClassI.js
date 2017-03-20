@@ -20,7 +20,7 @@
         }
     };
 
-    class AMDMyDerivedClassI extends Test._MyDerivedClassDisp
+    class AMDMyDerivedClassI extends Test.MyDerivedClass
     {
         //
         // Override the Object "pseudo" operations to verify the operation mode.

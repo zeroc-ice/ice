@@ -20,7 +20,7 @@
         }
     };
 
-    class InitialI extends Test._InitialDisp
+    class InitialI extends Test.Initial
     {
         shutdown(current)
         {

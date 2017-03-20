@@ -15,7 +15,7 @@ import Ice
 Ice.loadSlice('Test.ice')
 import Test
 
-class TestI(Test._HelloDisp):
+class TestI(Test.Hello):
     def sayHello(self, delay, current=None):
         if delay != 0:
             time.sleep(delay / 1000.0)

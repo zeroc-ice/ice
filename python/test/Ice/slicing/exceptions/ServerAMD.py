@@ -14,7 +14,7 @@ import Ice
 Ice.loadSlice('-I. --all ServerPrivateAMD.ice')
 import Test
 
-class TestI(Test._TestIntfDisp):
+class TestI(Test.TestIntf):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

@@ -10,11 +10,11 @@
 package test.Ice.inheritance;
 
 import test.Ice.inheritance.Test.MA.CAPrx;
-import test.Ice.inheritance.Test.MA._CCDisp;
+import test.Ice.inheritance.Test.MA.CCDisp;
 import test.Ice.inheritance.Test.MA.CCPrx;
 import test.Ice.inheritance.Test.MB.CBPrx;
 
-public final class CCI implements _CCDisp
+public final class CCI implements CCDisp
 {
     public CCI()
     {

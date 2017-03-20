@@ -13,7 +13,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class EmptyI(Test._EmptyDisp):
+class EmptyI(Test.Empty):
     pass
 
 class ServantLocatorI(Ice.ServantLocator):

@@ -167,7 +167,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         }
         else
         {
-            abs = getAbsolute(c, package, "_", "Disp");
+            abs = getAbsolute(c, package, "", "Disp");
         }
         string name = op->name();
         name[0] = toupper(static_cast<unsigned char>(name[0]));
@@ -1211,7 +1211,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         else
         {
-            out << '_' << p->name() << "Disp";
+            out << p->name() << "Disp";
         }
         out << " obj, final com.zeroc.IceInternal.Incoming inS, com.zeroc.Ice.Current current)";
         if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
@@ -1460,7 +1460,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                             }
                             else
                             {
-                                base = getAbsolute(cl, package, "_", "Disp");
+                                base = getAbsolute(cl, package, "", "Disp");
                             }
                             out << nl << "return " << base << "._iceD_" << opName << "(this, in, current);";
                         }
@@ -5302,7 +5302,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     const string name = p->name();
-    const string absolute = getAbsolute(p, "", "_", "Disp");
+    const string absolute = getAbsolute(p, "", "", "Disp");
     const string package = getPackage(p);
 
     open(absolute, p->file());
@@ -5316,7 +5316,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << nl << "@Deprecated";
     }
-    out << nl << "public interface _" << name << "Disp";
+    out << nl << "public interface " << name << "Disp";
 
     //
     // For dispatch purposes, we can ignore a base class if it has no operations.
@@ -5343,7 +5343,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             if(!(*q)->isInterface())
             {
-                out << getAbsolute(*q, package, "_", "Disp");
+                out << getAbsolute(*q, package, "", "Disp");
             }
             else
             {
@@ -5397,7 +5397,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            out << " implements _" << name << "Disp";
+            out << " implements " << name << "Disp";
         }
     }
     out << sb;

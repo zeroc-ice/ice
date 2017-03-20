@@ -14,7 +14,7 @@ import test.Ice.objects.Test.*;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 
-public final class InitialI implements _InitialDisp
+public final class InitialI implements Initial
 {
     public InitialI(com.zeroc.Ice.ObjectAdapter adapter)
     {

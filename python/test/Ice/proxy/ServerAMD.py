@@ -19,7 +19,7 @@ if not slice_dir:
 Ice.loadSlice("'-I" + slice_dir + "' TestAMD.ice")
 import Test
 
-class MyDerivedClassI(Test._MyDerivedClassDisp):
+class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.ctx = None
 
@@ -34,7 +34,7 @@ class MyDerivedClassI(Test._MyDerivedClassDisp):
 
     def ice_isA(self, s, current):
         self.ctx = current.ctx
-        return Test._MyDerivedClassDisp.ice_isA(self, s, current)
+        return Test.MyDerivedClass.ice_isA(self, s, current)
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

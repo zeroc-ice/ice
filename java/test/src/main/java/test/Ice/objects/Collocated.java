@@ -9,7 +9,7 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test._InitialDisp;
+import test.Ice.objects.Test.Initial;
 
 public class Collocated extends test.Util.Application
 {
@@ -91,7 +91,7 @@ public class Collocated extends test.Util.Application
 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        _InitialDisp initial = new InitialI(adapter);
+        Initial initial = new InitialI(adapter);
         adapter.add(initial, com.zeroc.Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));

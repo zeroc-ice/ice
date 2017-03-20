@@ -18,7 +18,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class CustomI(Test._CustomDisp):
+class CustomI(Test.Custom):
     def opByteString1(self, b1, current=None):
         if sys.version_info[0] == 2:
             test(isinstance(b1, str))

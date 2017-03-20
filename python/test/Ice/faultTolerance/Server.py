@@ -17,7 +17,7 @@ import Test
 def usage(n):
     sys.stderr.write("Usage: " + n + " port\n")
 
-class TestI(Test._TestIntfDisp):
+class TestI(Test.TestIntf):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

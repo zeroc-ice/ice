@@ -85,7 +85,7 @@
     {
         constructor()
         {
-            super(Test._IDisp.ice_staticId());
+            super(Test.I.ice_staticId());
         }
     }
 
@@ -93,7 +93,7 @@
     {
         constructor()
         {
-            super(Test._JDisp.ice_staticId());
+            super(Test.J.ice_staticId());
         }
     }
 

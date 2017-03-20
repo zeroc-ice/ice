@@ -163,7 +163,7 @@ exception EDerived extends EBase
     A1 a4;
 };
 
-class Initial
+interface Initial
 {
     void shutdown();
     B getB1();

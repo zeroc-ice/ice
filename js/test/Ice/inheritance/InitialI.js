@@ -12,7 +12,7 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    class CAI extends Test.MA._CADisp
+    class CAI extends Test.MA.CADisp
     {
         caop(p, current)
         {
@@ -20,7 +20,7 @@
         }
     }
 
-    class CBI extends Test.MB._CBDisp
+    class CBI extends Test.MB.CBDisp
     {
         caop(p, current)
         {
@@ -33,7 +33,7 @@
         }
     }
 
-    class CCI extends Test.MA._CCDisp
+    class CCI extends Test.MA.CCDisp
     {
         caop(p, current)
         {
@@ -51,7 +51,7 @@
         }
     }
 
-    class CDI extends Test.MA._CDDisp
+    class CDI extends Test.MA.CDDisp
     {
         caop(p, current)
         {
@@ -89,7 +89,7 @@
         }
     }
 
-    class IAI extends Test.MA._IADisp
+    class IAI extends Test.MA.IA
     {
         iaop(p, current)
         {
@@ -97,7 +97,7 @@
         }
     }
 
-    class IB1I extends Test.MB._IB1Disp
+    class IB1I extends Test.MB.IB1
     {
         iaop(p, current)
         {
@@ -110,7 +110,7 @@
         }
     }
 
-    class IB2I extends Test.MB._IB2Disp
+    class IB2I extends Test.MB.IB2
     {
         iaop(p, current)
         {
@@ -123,7 +123,7 @@
         }
     }
 
-    class ICI extends Test.MA._ICDisp
+    class ICI extends Test.MA.IC
     {
         iaop(p, current)
         {
@@ -146,7 +146,7 @@
         }
     }
 
-    class InitialI extends Test._InitialDisp
+    class InitialI extends Test.Initial
     {
         constructor(adapter, obj)
         {

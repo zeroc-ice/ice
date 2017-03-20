@@ -22,7 +22,7 @@
         }
     };
 
-    class ThrowerI extends Test._ThrowerDisp
+    class ThrowerI extends Test.Thrower
     {
         shutdown(current)
         {

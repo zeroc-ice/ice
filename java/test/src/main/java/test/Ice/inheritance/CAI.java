@@ -9,10 +9,10 @@
 
 package test.Ice.inheritance;
 
-import test.Ice.inheritance.Test.MA._CADisp;
+import test.Ice.inheritance.Test.MA.CADisp;
 import test.Ice.inheritance.Test.MA.CAPrx;
 
-public final class CAI implements _CADisp
+public final class CAI implements CADisp
 {
     public CAI()
     {

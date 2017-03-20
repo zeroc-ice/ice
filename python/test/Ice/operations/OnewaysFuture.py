@@ -21,7 +21,7 @@ def onewaysFuture(communicator, proxy):
     f.sent()
 
     try:
-        p.ice_isAAsync(Test._MyClassDisp.ice_staticId())
+        p.ice_isAAsync(Test.MyClass.ice_staticId())
         test(False)
     except RuntimeError:
         pass

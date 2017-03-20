@@ -18,7 +18,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestIntfI(Test._TestIntfDisp):
+class TestIntfI(Test.TestIntf):
     def opByte(self, b1, current=None):
         return (b1, b1)
 

@@ -21,7 +21,7 @@
         }
     };
 
-    class AMDThrowerI extends Test._ThrowerDisp
+    class AMDThrowerI extends Test.Thrower
     {
         shutdown(current)
         {

@@ -24,15 +24,15 @@ Ice.loadSlice('Clash.ice')
 
 import _and
 
-class delI(_and._delDisp):
+class delI(_and._del):
     def _elifAsync(self, _else, current=None):
         pass
 
-class execI(_and._execDisp):
+class execI(_and._exec):
     def _finally(self, current=None):
         assert current.operation == "finally"
 
-class ifI(_and._ifDisp):
+class ifI(_and._if):
     def _elifAsync(self, _else, current=None):
         pass
     def _finally(self, current=None):

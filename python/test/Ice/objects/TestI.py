@@ -67,7 +67,7 @@ class JI(Ice.InterfaceByValue):
 class HI(Test.H):
     pass
 
-class InitialI(Test._InitialDisp):
+class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter
         self._b1 = BI()
@@ -174,6 +174,6 @@ class InitialI(Test._InitialDisp):
     def throwInnerSubEx(self, current=None):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
-class UnexpectedObjectExceptionTestI(Test._UnexpectedObjectExceptionTestDisp):
+class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()

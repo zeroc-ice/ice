@@ -9,7 +9,7 @@
 
 import Ice, Test, sys
 
-class HelloI(Test._HelloDisp):
+class HelloI(Test.Hello):
     def sayHello(self, current=None):
         pass
 

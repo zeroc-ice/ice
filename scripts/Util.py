@@ -42,12 +42,6 @@ def val(v, escapeQuotes=False, quoteValue=True):
     else:
         return str(v)
 
-def getServantClass(module, name):
-    cls = inspect.getmembers(sys.modules[module], lambda a: inspect.isclass(a) and a.__name__  == name)
-    if not cls:
-        cls = inspect.getmembers(sys.modules[module], lambda a: inspect.isclass(a) and a.__name__  == "_{0}Disp".format(name))
-    return cls[0][1]
-
 def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
     intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
@@ -1782,7 +1776,7 @@ class RemoteProcessController(ProcessController):
             comm = current.driver.getCommunicator()
             import Test
 
-            class ProcessControllerRegistryI(getServantClass("Test.Common", "ProcessControllerRegistry")):
+            class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
 
                 def __init__(self, remoteProcessController):
                     self.remoteProcessController = remoteProcessController
@@ -2701,6 +2695,9 @@ class CppBasedMapping(Mapping):
             # the Ice C++ library directory to the library path
             env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(process, current)
         return env
+
+    def getNugetPackage(self, compiler, version):
+        return "zeroc.ice.{0}.{1}".format(compiler, version)
 
 class ObjCMapping(CppBasedMapping):
 

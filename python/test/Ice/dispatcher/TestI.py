@@ -13,7 +13,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestIntfI(Test._TestIntfDisp):
+class TestIntfI(Test.TestIntf):
     def op(self, current=None):
         test(Dispatcher.Dispatcher.isDispatcherThread())
 
@@ -27,7 +27,7 @@ class TestIntfI(Test._TestIntfDisp):
         test(Dispatcher.Dispatcher.isDispatcherThread())
         current.adapter.getCommunicator().shutdown()
 
-class TestIntfControllerI(Test._TestIntfControllerDisp):
+class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):
         self._adapter = adapter
 

@@ -12,7 +12,7 @@ import os, sys, traceback, Ice
 Ice.loadSlice('Callback.ice')
 import Test
 
-class CallbackI(Test._CallbackDisp):
+class CallbackI(Test.Callback):
 
     def initiateCallback(self, proxy, current):
         proxy.callback(current.ctx)

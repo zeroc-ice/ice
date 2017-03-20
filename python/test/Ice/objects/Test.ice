@@ -162,7 +162,7 @@ exception Ex
 
 };
 
-class Initial
+interface Initial
 {
     void shutdown();
     B getB1();

@@ -49,11 +49,11 @@ class ThreadHook(Ice.ThreadNotification):
         with self.cond:
             return self.threadStopCount
 
-class TestIntfI(Test._TestIntfDisp):
+class TestIntfI(Test.TestIntf):
     def sleep(self, ms, current = None):
         time.sleep(ms / 1000.0)
 
-class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
+class RemoteCommunicatorI(Test.RemoteCommunicator):
     def __init__(self, communicator, hook):
         self.communicator = communicator
         self.hook = hook
@@ -79,7 +79,7 @@ class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
     def destroy(self, current = None):
         self.communicator.destroy()
 
-class RemoteCommunicatorFactoryI(Test._RemoteCommunicatorFactoryDisp):
+class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
     def createCommunicator(self, props, current = None):
         #

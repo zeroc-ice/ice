@@ -24,7 +24,7 @@ class ConnectionCallbackI():
             while self.count < count:
                 self.m.wait()
 
-class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
+class RemoteCommunicatorI(Test.RemoteCommunicator):
     def createObjectAdapter(self, timeout, close, heartbeat, current=None):
         com = current.adapter.getCommunicator()
         properties = com.getProperties()
@@ -44,7 +44,7 @@ class RemoteCommunicatorI(Test._RemoteCommunicatorDisp):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-class RemoteObjectAdapterI(Test._RemoteObjectAdapterDisp):
+class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
     def __init__(self, adapter):
         self._adapter = adapter
         self._testIntf = Test.TestIntfPrx.uncheckedCast(adapter.add(TestIntfI(),
@@ -66,7 +66,7 @@ class RemoteObjectAdapterI(Test._RemoteObjectAdapterDisp):
         except Ice.ObjectAdapterDeactivatedException:
             pass
 
-class TestIntfI(Test._TestIntfDisp):
+class TestIntfI(Test.TestIntf):
     def __init__(self):
         self.m = threading.Condition()
 

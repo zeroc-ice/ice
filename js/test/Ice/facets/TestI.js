@@ -12,7 +12,7 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    exports.DI = class extends Test._DDisp
+    exports.DI = class extends Test.D
     {
         callA(current)
         {
@@ -35,11 +35,11 @@
         }
     };
 
-    exports.EmptyI = class extends Test._EmptyDisp
+    exports.EmptyI = class extends Test.Empty
     {
     };
 
-    exports.FI = class extends Test._FDisp
+    exports.FI = class extends Test.F
     {
         callE(current)
         {
@@ -52,7 +52,7 @@
         }
     };
 
-    exports.HI = class extends Test._HDisp
+    exports.HI = class extends Test.H
     {
         callG(current)
         {

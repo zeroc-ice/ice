@@ -10,10 +10,10 @@
 package test.Ice.inheritance;
 
 import test.Ice.inheritance.Test.MA.CAPrx;
-import test.Ice.inheritance.Test.MB._CBDisp;
+import test.Ice.inheritance.Test.MB.CBDisp;
 import test.Ice.inheritance.Test.MB.CBPrx;
 
-public final class CBI implements _CBDisp
+public final class CBI implements CBDisp
 {
     public CBI()
     {

@@ -1081,10 +1081,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         writeDocComment(p, getDeprecateReason(p, 0, "type"));
-        _out << nl << localScope << "._" << p->name() << "Disp" << " = class extends ";
+        _out << nl << localScope << "." << (p->isInterface() ? p->name() :  p->name() + "Disp") << " = class extends ";
         if(hasBaseClass)
         {
-            _out << getLocalScope(base->scope())  << "._" << base->name() << "Disp";
+            _out << getLocalScope(base->scope())  << "." << base->name() << "Disp";
         }
         else
         {
@@ -1104,7 +1104,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ClassDefPtr base = *q;
                 if(base->isInterface())
                 {
-                    _out << nl << getLocalScope(base->scope()) << "._" << base->name()<< "Disp" ;
+                    _out << nl << getLocalScope(base->scope()) << "." << 
+                        (base->isInterface() ? base->name() : base->name() + "Disp");
                     if(++q != bases.end())
                     {
                         _out << ", ";
@@ -1172,7 +1173,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         _out << sp << nl << "Slice.defineOperations("
-             << localScope << "._" << p->name() << "Disp, "
+             << localScope << "." << (p->isInterface() ? p->name() : p->name() + "Disp") << ", "
              << proxyType << ", "
              << "iceC_" << getLocalScope(scoped, "_") << "_ids, "
              << scopedPos;

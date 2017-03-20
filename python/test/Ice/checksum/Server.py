@@ -19,7 +19,7 @@ if not slice_dir:
 Ice.loadSlice("'-I" + slice_dir + "' --checksum Test.ice STypes.ice")
 import Test
 
-class ChecksumI(Test._ChecksumDisp):
+class ChecksumI(Test.Checksum):
     def getSliceChecksums(self, current=None):
         return Ice.sliceChecksums
 
