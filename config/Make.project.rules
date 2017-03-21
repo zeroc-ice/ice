@@ -100,6 +100,10 @@ $(addprefix $3/,$(call source-to-object,$4)): $(addprefix $2/,$(call generated-t
 					      $(foreach d,$5,$($d_targets))
 endif
 
+# Add a dedependency on generated headers from dependencies. This will only work if dependency
+# Makefile.mk are loaded before this component Makefile.mk.
+$(addprefix $3/,$(call source-to-object,$4)): $(foreach d,$5,$($($d_component)_generated_headers))
+
 .PRECIOUS: $3/%.d
 
 ifeq ($(filter %clean print,$(MAKECMDGOALS)),)
@@ -330,6 +334,7 @@ get-program-targets = $2/$1$(EXE_EXT)
 #
 define create-component-with-config-targets
 
+$5_component 	:= $2
 $5_platform 	:= $3
 $5_config 	:= $4
 $2_components	:= $5
