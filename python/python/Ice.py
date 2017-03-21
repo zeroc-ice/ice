@@ -122,15 +122,12 @@ class Future(FutureBase):
         with self._condition:
             return self._state in [Future.StateCancelled, Future.StateDone]
 
-    def add_done_callback(self, fn, dispatcher=None):
+    def add_done_callback(self, fn):
         with self._condition:
             if self._state == Future.StateRunning:
                 self._doneCallbacks.append(fn)
                 return
-        if dispatcher:
-            dispatcher(lambda: fn(self))
-        else:
-            fn(self)
+        fn(self)
 
     def result(self, timeout=None):
         with self._condition:
@@ -225,6 +222,16 @@ class InvocationFuture(Future):
             self._asyncResult.cancel()
         return Future.cancel(self)
 
+    def add_done_callback_async(self, fn):
+        with self._condition:
+            if self._state == Future.StateRunning:
+                self._doneCallbacks.append(fn)
+                return
+        if self._asyncResult:
+            self._asyncResult.callLater(lambda: fn(self))
+        else:
+            fn(self)
+
     def is_sent(self):
         with self._condition:
             return self._sent
@@ -233,16 +240,13 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sentSynchronously
 
-    def add_sent_callback(self, fn, dispatcher=None):
+    def add_sent_callback(self, fn):
         with self._condition:
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
         if self._sentSynchronously or not self._asyncResult:
-            if dispatcher:
-                dispatcher(lambda: fn(self, self._sentSynchronously))
-            else:
-                fn(self, self._sentSynchronously)
+            fn(self, self._sentSynchronously)
         else:
             self._asyncResult.callLater(lambda: fn(self, self._sentSynchronously))
 

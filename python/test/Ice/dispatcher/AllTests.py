@@ -51,12 +51,6 @@ class Callback:
         else:
             test(Dispatcher.Dispatcher.isDispatcherThread())
 
-    def checkThread(self):
-        #
-        # A done callback can be invoked recursively from the calling thread if the request was already complete.
-        #
-        test(Dispatcher.Dispatcher.isDispatcherThread() or threading.current_thread() == self._mainThread)
-
 def allTests(communicator, collocated):
     sref = "test:default -p 12010"
     obj = communicator.stringToProxy(sref)
@@ -70,8 +64,6 @@ def allTests(communicator, collocated):
 
     testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
 
-    dispatcher = Dispatcher.Dispatcher.instance()
-
     sys.stdout.write("testing dispatcher... ")
     sys.stdout.flush()
 
@@ -79,21 +71,21 @@ def allTests(communicator, collocated):
 
     cb = Callback()
 
-    p.opAsync().add_done_callback(cb.response, dispatcher.dispatchSync)
+    p.opAsync().add_done_callback_async(cb.response)
     cb.check()
 
     #
     # Expect NoEndpointException.
     #
     i = p.ice_adapterId("dummy")
-    i.opAsync().add_done_callback(cb.exception, dispatcher.dispatchSync)
+    i.opAsync().add_done_callback_async(cb.exception)
     cb.check()
 
     #
     # Expect InvocationTimeoutException.
     #
     to = p.ice_invocationTimeout(250);
-    to.sleepAsync(500).add_done_callback(cb.exceptionEx, dispatcher.dispatchSync)
+    to.sleepAsync(500).add_done_callback_async(cb.exceptionEx)
     cb.check()
 
     testController.holdAdapter()
@@ -108,7 +100,7 @@ def allTests(communicator, collocated):
     f = None
     while True:
         f = p.opWithPayloadAsync(seq)
-        f.add_done_callback(cb.payload, dispatcher.dispatchSync)
+        f.add_done_callback_async(cb.payload)
         if not f.is_sent_synchronously():
             break
     testController.resumeAdapter()
