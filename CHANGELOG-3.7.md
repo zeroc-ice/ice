@@ -165,6 +165,11 @@ These are the changes since Ice 3.6.3.
 - Updated IceSSL hostname verification (enabled with IceSSL.CheckCertName) to
   use the native checks of the platform SSL implementation.
 
+- Remove IceSSL::NativeConnectionInfo, IceSSL::ConnectionInfo certs data member
+  is now mapped to the native certificate type in C++, Java and CSharp in other
+  languages it is still mapped to a string sequence containing the PEM encoded
+  certificates.
+
 ## C++ Changes
 
 - The Ice::Communicator and Ice::ObjectAdapter destroy methods are now
