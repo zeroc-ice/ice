@@ -29,9 +29,6 @@ class Dispatcher:
             if len(self._calls) == 1:
                 self._cond.notify()
 
-    def dispatchSync(self, call):
-        self.dispatch(call, None)
-
     def run(self):
         while True:
             call = None
