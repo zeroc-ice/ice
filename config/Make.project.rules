@@ -102,7 +102,7 @@ endif
 
 # Add a dedependency on generated headers from dependencies. This will only work if dependency
 # Makefile.mk are loaded before this component Makefile.mk.
-$(addprefix $3/,$(call source-to-object,$4)): $(foreach d,$5,$($($d_component)_generated_headers))
+$(addprefix $3/,$(call source-to-object,$4)): | $(foreach d,$5,$($($d_component)_generated_headers))
 
 .PRECIOUS: $3/%.d
 
