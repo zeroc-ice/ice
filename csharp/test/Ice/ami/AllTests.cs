@@ -749,10 +749,7 @@ public class AllTests : TestCommon.AllTests
             }
             catch(AggregateException ae)
             {
-                    ae.Handle((ex) =>
-                {
-                    return ex is Test.TestIntfException;
-                });
+                ae.Handle(ex => ex is Test.TestIntfException);
             }
 
             try
@@ -762,11 +759,160 @@ public class AllTests : TestCommon.AllTests
             }
             catch(AggregateException ae)
             {
-                ae.Handle((ex) =>
-                {
-                    return ex is Test.TestIntfException;
-                });
+                ae.Handle(ex => ex is Test.TestIntfException);
             }
+        }
+        WriteLine("ok");
+
+        Write("testing async/await...");
+        Flush();
+        {
+            Task.Run(async () =>
+                {
+                    Dictionary<string, string> ctx = new Dictionary<string, string>();
+
+                    test(await p.ice_isAAsync("::Test::TestIntf"));
+                    test(await p.ice_isAAsync("::Test::TestIntf", ctx));
+
+                    await p.ice_pingAsync();
+                    await p.ice_pingAsync(ctx);
+
+                    var id = await p.ice_idAsync();
+                    test(id.Equals("::Test::TestIntf"));
+                    id = await p.ice_idAsync(ctx);
+                    test(id.Equals("::Test::TestIntf"));
+
+                    var ids = await p.ice_idsAsync();
+                    test(ids.Length == 2);
+                    ids = await p.ice_idsAsync(ctx);
+                    test(ids.Length == 2);
+
+                    if(!collocated)
+                    {
+                        var conn = await p.ice_getConnectionAsync();
+                        test(conn != null);
+                    }
+
+                    await p.opAsync();
+                    await p.opAsync(ctx);
+
+                    var result = await p.opWithResultAsync();
+                    test(result == 15);
+                    result = await p.opWithResultAsync(ctx);
+                    test(result == 15);
+
+                    try
+                    {
+                        await p.opWithUEAsync();
+                        test(false);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        test(ex is Test.TestIntfException);
+                    }
+
+                    try
+                    {
+                        await p.opWithUEAsync(ctx);
+                        test(false);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        test(ex is Test.TestIntfException);
+                    }
+                }).Wait();
+        }
+        WriteLine("ok");
+
+        Write("testing async continuations...");
+        Flush();
+        {
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
+
+            p.ice_isAAsync("::Test::TestIntf").ContinueWith(previous =>
+                {
+                    test(previous.Result);
+                }).Wait();
+
+            p.ice_isAAsync("::Test::TestIntf", ctx).ContinueWith(previous =>
+                {
+                    test(previous.Result);
+                }).Wait();
+
+            p.ice_pingAsync().ContinueWith(previous =>
+                {
+                    previous.Wait();
+                }).Wait();
+
+            p.ice_pingAsync(ctx).ContinueWith(previous =>
+                {
+                    previous.Wait();
+                }).Wait();
+
+            p.ice_idAsync().ContinueWith(previous =>
+                {
+                    test(previous.Result.Equals("::Test::TestIntf"));
+                }).Wait();
+
+            p.ice_idAsync(ctx).ContinueWith(previous =>
+                {
+                    test(previous.Result.Equals("::Test::TestIntf"));
+                }).Wait();
+
+            p.ice_idsAsync().ContinueWith(previous =>
+                {
+                    test(previous.Result.Length == 2);
+                }).Wait();
+
+            p.ice_idsAsync(ctx).ContinueWith(previous =>
+                {
+                    test(previous.Result.Length == 2);
+                }).Wait();
+
+            if(!collocated)
+            {
+                p.ice_getConnectionAsync().ContinueWith(previous =>
+                    {
+                        test(previous.Result != null);
+                    }).Wait();
+            }
+
+            p.opAsync().ContinueWith(previous => previous.Wait()).Wait();
+            p.opAsync(ctx).ContinueWith(previous => previous.Wait()).Wait();
+
+            p.opWithResultAsync().ContinueWith(previous =>
+                {
+                    test(previous.Result == 15);
+                }).Wait();
+
+            p.opWithResultAsync(ctx).ContinueWith(previous =>
+                {
+                    test(previous.Result == 15);
+                }).Wait();
+
+            p.opWithUEAsync().ContinueWith(previous =>
+                {
+                    try
+                    {
+                        previous.Wait();
+                    }
+                    catch(AggregateException ae)
+                    {
+                        ae.Handle(ex => ex is Test.TestIntfException);
+                    }
+                }).Wait();
+
+            p.opWithUEAsync(ctx).ContinueWith(previous =>
+                {
+                    try
+                    {
+                        previous.Wait();
+                    }
+                    catch(AggregateException ae)
+                    {
+                        ae.Handle(ex => ex is Test.TestIntfException);
+                    }
+                }).Wait();
         }
         WriteLine("ok");
 
