@@ -24,6 +24,12 @@ install:: | $(DESTDIR)$(install_pythondir)
 	$(E) "Installing generated code"
 	$(Q)$(INSTALL) *.py $(DESTDIR)$(install_pythondir)
 
+ifneq ($(usr_dir_install),)
+install:: | $(DESTDIR)$(install_pythondir)
+	$(E) "Installing .pth file"
+	$(Q)$(INSTALL) ../config/zeroc-ice.pth $(DESTDIR)$(install_pythondir)/..
+endif
+
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Ice,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Glacier2,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceBox))
@@ -36,4 +42,3 @@ $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceStorm))
 # IceMX package is updated.
 $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Ice,Metrics))
 $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Glacier2,Metrics))
-

@@ -26,10 +26,11 @@ class easy_install_default(easy_install):
     self.finalized = 0
 
 e = easy_install_default()
-import distutils.errors
+import os, distutils.errors
 try:
   e.finalize_options()
 except distutils.errors.DistutilsError:
   pass
 
-print(e.install_dir)
+# Place the source files and the extension in a subdirectory of the installation directory.
+print(os.path.join(e.install_dir, "zeroc-ice"))
