@@ -36,6 +36,7 @@ function allTests($communicator)
     global $Ice_Encoding_1_0;
 
     $enum = $NS ? constant("Test\\MyEnum::MyEnumMember") : constant("Test_MyEnum::MyEnumMember");
+    $none = $MS ? constant("Ice\\None") : constant("Ice_Unset");
 
     echo "testing stringToProxy... ";
     flush();
@@ -53,7 +54,7 @@ function allTests($communicator)
 
     $oocls = $NS ? "Test\\OneOptional" : "Test_OneOptional";
     $oo1 = new $oocls;
-    test($oo1->a == Ice_Unset);
+    test($oo1->a == $none);
     $oo1->a = 15;
 
     $oo2 = new $oocls(16);
@@ -61,38 +62,38 @@ function allTests($communicator)
 
     $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
     $mo1 = new $mocls;
-    test($mo1->a == Ice_Unset);
-    test($mo1->b == Ice_Unset);
-    test($mo1->c == Ice_Unset);
-    test($mo1->d == Ice_Unset);
-    test($mo1->e == Ice_Unset);
-    test($mo1->f == Ice_Unset);
-    test($mo1->g == Ice_Unset);
-    test($mo1->h == Ice_Unset);
-    test($mo1->i == Ice_Unset);
-    test($mo1->j == Ice_Unset);
-    test($mo1->k == Ice_Unset);
-    test($mo1->bs == Ice_Unset);
-    test($mo1->ss == Ice_Unset);
-    test($mo1->iid == Ice_Unset);
-    test($mo1->sid == Ice_Unset);
-    test($mo1->fs == Ice_Unset);
-    test($mo1->vs == Ice_Unset);
+    test($mo1->a == $none);
+    test($mo1->b == $none);
+    test($mo1->c == $none);
+    test($mo1->d == $none);
+    test($mo1->e == $none);
+    test($mo1->f == $none);
+    test($mo1->g == $none);
+    test($mo1->h == $none);
+    test($mo1->i == $none);
+    test($mo1->j == $none);
+    test($mo1->k == $none);
+    test($mo1->bs == $none);
+    test($mo1->ss == $none);
+    test($mo1->iid == $none);
+    test($mo1->sid == $none);
+    test($mo1->fs == $none);
+    test($mo1->vs == $none);
 
-    test($mo1->shs == Ice_Unset);
-    test($mo1->es == Ice_Unset);
-    test($mo1->fss == Ice_Unset);
-    test($mo1->vss == Ice_Unset);
-    test($mo1->oos == Ice_Unset);
-    test($mo1->oops == Ice_Unset);
+    test($mo1->shs == $none);
+    test($mo1->es == $none);
+    test($mo1->fss == $none);
+    test($mo1->vss == $none);
+    test($mo1->oos == $none);
+    test($mo1->oops == $none);
 
-    test($mo1->ied == Ice_Unset);
-    test($mo1->ifsd == Ice_Unset);
-    test($mo1->ivsd == Ice_Unset);
-    test($mo1->iood == Ice_Unset);
-    test($mo1->ioopd == Ice_Unset);
+    test($mo1->ied == $none);
+    test($mo1->ifsd == $none);
+    test($mo1->ivsd == $none);
+    test($mo1->iood == $none);
+    test($mo1->ioopd == $none);
 
-    test($mo1->bos == Ice_Unset);
+    test($mo1->bos == $none);
 
     $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
     $ss = new $sscls();
@@ -144,12 +145,12 @@ function allTests($communicator)
     
     
     //
-    // Test generated struct and classes compare with Ice_Unset
+    // Test generated struct and classes compare with $none
     //
-    test($ss != Ice_Unset);
-    test($fs != Ice_Unset);
-    test($vs != Ice_Unset);
-    test($mo1 != Ice_Unset);
+    test($ss != $none);
+    test($fs != $none);
+    test($vs != $none);
+    test($mo1 != $none);
 
     echo "ok\n";
 
@@ -157,44 +158,44 @@ function allTests($communicator)
     flush();
 
     $oo4 = $initial->pingPong(new $oocls);
-    test($oo4->a == Ice_Unset);
+    test($oo4->a == $none);
 
     $oo5 = $initial->pingPong($oo1);
     test($oo1->a == $oo5->a);
 
     $mo4 = $initial->pingPong(new $mocls);
-    test($mo4->a == Ice_Unset);
-    test($mo4->b == Ice_Unset);
-    test($mo4->c == Ice_Unset);
-    test($mo4->d == Ice_Unset);
-    test($mo4->e == Ice_Unset);
-    test($mo4->f == Ice_Unset);
-    test($mo4->g == Ice_Unset);
-    test($mo4->h == Ice_Unset);
-    test($mo4->i == Ice_Unset);
-    test($mo4->j == Ice_Unset);
-    test($mo4->k == Ice_Unset);
-    test($mo4->bs == Ice_Unset);
-    test($mo4->ss == Ice_Unset);
-    test($mo4->iid == Ice_Unset);
-    test($mo4->sid == Ice_Unset);
-    test($mo4->fs == Ice_Unset);
-    test($mo4->vs == Ice_Unset);
+    test($mo4->a == $none);
+    test($mo4->b == $none);
+    test($mo4->c == $none);
+    test($mo4->d == $none);
+    test($mo4->e == $none);
+    test($mo4->f == $none);
+    test($mo4->g == $none);
+    test($mo4->h == $none);
+    test($mo4->i == $none);
+    test($mo4->j == $none);
+    test($mo4->k == $none);
+    test($mo4->bs == $none);
+    test($mo4->ss == $none);
+    test($mo4->iid == $none);
+    test($mo4->sid == $none);
+    test($mo4->fs == $none);
+    test($mo4->vs == $none);
 
-    test($mo4->shs == Ice_Unset);
-    test($mo4->es == Ice_Unset);
-    test($mo4->fss == Ice_Unset);
-    test($mo4->vss == Ice_Unset);
-    test($mo4->oos == Ice_Unset);
-    test($mo4->oops == Ice_Unset);
+    test($mo4->shs == $none);
+    test($mo4->es == $none);
+    test($mo4->fss == $none);
+    test($mo4->vss == $none);
+    test($mo4->oos == $none);
+    test($mo4->oops == $none);
 
-    test($mo4->ied == Ice_Unset);
-    test($mo4->ifsd == Ice_Unset);
-    test($mo4->ivsd == Ice_Unset);
-    test($mo4->iood == Ice_Unset);
-    test($mo4->ioopd == Ice_Unset);
+    test($mo4->ied == $none);
+    test($mo4->ifsd == $none);
+    test($mo4->ivsd == $none);
+    test($mo4->iood == $none);
+    test($mo4->ioopd == $none);
 
-    test($mo4->bos == Ice_Unset);
+    test($mo4->bos == $none);
 
     $mo5 = $initial->pingPong($mo1);
     test($mo5->a == $mo1->a);
@@ -247,36 +248,36 @@ function allTests($communicator)
     $mo6->bos = $mo5->bos;
 
     $mo7 = $initial->pingPong($mo6);
-    test($mo7->a == Ice_Unset);
+    test($mo7->a == $none);
     test($mo7->b == $mo1->b);
-    test($mo7->c == Ice_Unset);
+    test($mo7->c == $none);
     test($mo7->d == $mo1->d);
-    test($mo7->e == Ice_Unset);
+    test($mo7->e == $none);
     test($mo7->f == $mo1->f);
-    test($mo7->g == Ice_Unset);
+    test($mo7->g == $none);
     test($mo7->h == $mo1->h);
-    test($mo7->i == Ice_Unset);
+    test($mo7->i == $none);
     test($mo7->j == $mo1->j);
-    test($mo7->k == Ice_Unset);
+    test($mo7->k == $none);
     test($mo7->bs[0] == 5);
-    test($mo7->ss == Ice_Unset);
+    test($mo7->ss == $none);
     test($mo7->iid[4] == 3);
-    test($mo7->sid == Ice_Unset);
+    test($mo7->sid == $none);
     test($mo7->fs == $mo1->fs);
-    test($mo7->vs == Ice_Unset);
+    test($mo7->vs == $none);
 
     test($mo7->shs == $mo1->shs);
-    test($mo7->es == Ice_Unset);
+    test($mo7->es == $none);
     test($mo7->fss[0] == $fs);
-    test($mo7->vss == Ice_Unset);
+    test($mo7->vss == $none);
     test($mo7->oos[0]->a == 15);
-    test($mo7->oops == Ice_Unset);
+    test($mo7->oops == $none);
 
-    test($mo7->ied == Ice_Unset);
+    test($mo7->ied == $none);
     test($mo7->ifsd[4] == $fs);
-    test($mo7->ivsd == Ice_Unset);
+    test($mo7->ivsd == $none);
     test($mo7->iood[5]->a == 15);
-    test($mo7->ioopd == Ice_Unset);
+    test($mo7->ioopd == $none);
 
     test($mo7->bos == array(false, true, false));
 
@@ -302,37 +303,37 @@ function allTests($communicator)
 
     $mo9 = $initial->pingPong($mo8);
     test($mo9->a == $mo1->a);
-    test($mo9->b == Ice_Unset);
+    test($mo9->b == $none);
     test($mo9->c == $mo1->c);
-    test($mo9->d == Ice_Unset);
+    test($mo9->d == $none);
     test($mo9->e == $mo1->e);
-    test($mo9->f == Ice_Unset);
+    test($mo9->f == $none);
     test($mo9->g == $mo1->g);
-    test($mo9->h == Ice_Unset);
+    test($mo9->h == $none);
     test($mo9->i == $mo1->i);
-    test($mo9->j == Ice_Unset);
+    test($mo9->j == $none);
     test($mo9->k == $mo9);
-    test($mo9->bs == Ice_Unset);
+    test($mo9->bs == $none);
     test($mo9->ss == $mo1->ss);
-    test($mo9->iid == Ice_Unset);
+    test($mo9->iid == $none);
     test($mo9->sid["test"] == 10);
-    test($mo9->fs == Ice_Unset);
+    test($mo9->fs == $none);
     test($mo9->vs == $mo1->vs);
 
-    test($mo9->shs == Ice_Unset);
+    test($mo9->shs == $none);
     test($mo9->es[0] == $enum && $mo1->es[1] == $enum);
-    test($mo9->fss == Ice_Unset);
+    test($mo9->fss == $none);
     test($mo9->vss[0] == $vs);
-    test($mo9->oos == Ice_Unset);
+    test($mo9->oos == $none);
     test($mo9->oops[0] == $prx);
 
     test($mo9->ied[4] == $enum);
-    test($mo9->ifsd == Ice_Unset);
+    test($mo9->ifsd == $none);
     test($mo9->ivsd[5] == $vs);
-    test($mo9->iood == Ice_Unset);
+    test($mo9->iood == $none);
     test($mo9->ioopd[5] == $prx);
 
-    test($mo9->bos == Ice_Unset);
+    test($mo9->bos == $none);
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
@@ -342,9 +343,9 @@ function allTests($communicator)
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->sendOptionalClass(true, $oo);
 
     $initial->returnOptionalClass(true, $oo);
-    test($oo != Ice_Unset);
+    test($oo != $none);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
-    test($oo == Ice_Unset);
+    test($oo == $none);
 
 
     $gcls = $NS ? "Test\\G" : "Test_G";
@@ -407,9 +408,9 @@ function allTests($communicator)
     $bcls = $NS ? "Test\\B" : "Test_B";
     $b = new $bcls;
     $b2 = $initial->pingPong($b);
-    test($b2->ma == Ice_Unset);
-    test($b2->mb == Ice_Unset);
-    test($b2->mc == Ice_Unset);
+    test($b2->ma == $none);
+    test($b2->mb == $none);
+    test($b2->mc == $none);
 
     $b->ma = 10;
     $b->mb = 11;
@@ -446,11 +447,11 @@ function allTests($communicator)
     $wd = $initial->pingPong(new $wdcls);
     test($wd->a == 5);
     test($wd->s == "test");
-    $wd->a = Ice_Unset;
-    $wd->s = Ice_Unset;
+    $wd->a = $none;
+    $wd->s = $none;
     $wd = $initial->pingPong($wd);
-    test($wd->a == Ice_Unset);
-    test($wd->s == Ice_Unset);
+    test($wd->a == $none);
+    test($wd->s == $none);
 
     echo "ok\n";
 
@@ -464,10 +465,10 @@ function allTests($communicator)
         $c->ss = "test";
         $c->ms = "testms";
         $c = $initial->pingPong($c);
-        test($c->ma == Ice_Unset);
-        test($c->mb == Ice_Unset);
-        test($c->mc == Ice_Unset);
-        test($c->md == Ice_Unset);
+        test($c->ma == $none);
+        test($c->mb == $none);
+        test($c->mc == $none);
+        test($c->md == $none);
         test($c->ss == "test");
         test($c->ms == "testms");
 
@@ -495,84 +496,84 @@ function allTests($communicator)
     flush();
 
     $p2 = 0;
-    $p3 = $initial->opByte(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opByte($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opByte(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opBool(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opBool($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opBool(true, $p2);
     test($p2 == true && $p3 == true);
 
-    $p3 = $initial->opShort(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opShort($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opShort(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opInt(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opInt($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opInt(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opLong(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opLong($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opLong(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opFloat(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opFloat($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opFloat(1.0, $p2);
     test($p2 == 1.0 && $p3 == 1.0);
 
-    $p3 = $initial->opDouble(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opDouble($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opDouble(1.0, $p2);
     test($p2 == 1.0 && $p3 == 1.0);
 
-    $p3 = $initial->opString(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opString($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opString("test", $p2);
     test($p2 == "test" && $p3 == "test");
 
-    $p3 = $initial->opMyEnum(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opMyEnum($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opMyEnum($enum, $p2);
     test($p2 == $enum && $p3 == $enum);
 
-    $p3 = $initial->opSmallStruct(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opSmallStruct($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = new $sscls(56);
     $p3 = $initial->opSmallStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
     $p3 = $initial->opSmallStruct(null, $p2); // Testing null struct
     test($p2->m == 0 && $p3->m == 0);
 
-    $p3 = $initial->opFixedStruct(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opFixedStruct($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = new $fscls(56);
     $p3 = $initial->opFixedStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opVarStruct(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opVarStruct($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = new $vscls("test");
     $p3 = $initial->opVarStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opOneOptional(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opOneOptional($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = new $oocls(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
 
-    $p3 = $initial->opOneOptionalProxy(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opOneOptionalProxy($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p3 = $initial->opOneOptionalProxy($prx, $p2);
     test($p2 == $prx && $p3 == $prx);
 
-    $p3 = $initial->opByteSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opByteSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -581,8 +582,8 @@ function allTests($communicator)
     $p3 = $initial->opByteSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opBoolSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opBoolSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -591,8 +592,8 @@ function allTests($communicator)
     $p3 = $initial->opBoolSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opShortSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opShortSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -601,8 +602,8 @@ function allTests($communicator)
     $p3 = $initial->opShortSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opIntSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -611,8 +612,8 @@ function allTests($communicator)
     $p3 = $initial->opIntSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opLongSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opLongSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -621,8 +622,8 @@ function allTests($communicator)
     $p3 = $initial->opLongSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opFloatSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opFloatSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -631,8 +632,8 @@ function allTests($communicator)
     $p3 = $initial->opFloatSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opDoubleSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opDoubleSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -641,8 +642,8 @@ function allTests($communicator)
     $p3 = $initial->opDoubleSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opStringSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opStringSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -651,8 +652,8 @@ function allTests($communicator)
     $p3 = $initial->opStringSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opSmallStructSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opSmallStructSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
@@ -661,8 +662,8 @@ function allTests($communicator)
     $p3 = $initial->opSmallStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opFixedStructSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opFixedStructSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
@@ -671,8 +672,8 @@ function allTests($communicator)
     $p3 = $initial->opFixedStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opVarStructSeq(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opVarStructSeq($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
@@ -681,20 +682,20 @@ function allTests($communicator)
     $p3 = $initial->opVarStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntIntDict(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opIntIntDict($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array(1=>2, 2=>3);
     $p3 = $initial->opIntIntDict($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opStringIntDict(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opStringIntDict($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array("1"=>2, "2"=>3);
     $p3 = $initial->opStringIntDict($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntOneOptionalDict(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opIntOneOptionalDict($none, $p2);
+    test($p2 == $none && $p3 == $none);
     $p1 = array(1=>new $oocls(58), 2=>new $oocls(59));
     $p3 = $initial->opIntOneOptionalDict($p1, $p2);
     test($p2[1]->a == 58 && $p3[1]->a == 58);
@@ -706,7 +707,7 @@ function allTests($communicator)
 
     try
     {
-        $initial->opOptionalException(Ice_Unset, Ice_Unset, Ice_Unset);
+        $initial->opOptionalException($none, $none, $none);
     }
     catch(Exception $ex)
     {
@@ -715,9 +716,9 @@ function allTests($communicator)
         {
             throw $ex;
         }
-        test($ex->a == Ice_Unset);
-        test($ex->b == Ice_Unset);
-        test($ex->o == Ice_Unset);
+        test($ex->a == $none);
+        test($ex->b == $none);
+        test($ex->o == $none);
     }
 
     try
@@ -740,22 +741,22 @@ function allTests($communicator)
     }
     catch(Exception $ex)
     {
-        test($ex->a == Ice_Unset);
-        test($ex->b == Ice_Unset);
-        test($ex->o == Ice_Unset);
+        test($ex->a == $none);
+        test($ex->b == $none);
+        test($ex->o == $none);
     }
 
     try
     {
-        $initial->opDerivedException(Ice_Unset, Ice_Unset, Ice_Unset);
+        $initial->opDerivedException($none, $none, $none);
     }
     catch(Exception $ex)
     {
-        test($ex->a == Ice_Unset);
-        test($ex->b == Ice_Unset);
-        test($ex->o == Ice_Unset);
-        test($ex->ss == Ice_Unset);
-        test($ex->o2 == Ice_Unset);
+        test($ex->a == $none);
+        test($ex->b == $none);
+        test($ex->o == $none);
+        test($ex->ss == $none);
+        test($ex->o2 == $none);
     }
 
     try
@@ -773,15 +774,15 @@ function allTests($communicator)
 
     try
     {
-        $initial->opRequiredException(Ice_Unset, Ice_Unset, Ice_Unset);
+        $initial->opRequiredException($none, $none, $none);
     }
     catch(Exception $ex)
     {
-        test($ex->a == Ice_Unset);
-        test($ex->b == Ice_Unset);
-        test($ex->o == Ice_Unset);
-        test($ex->ss != Ice_Unset);
-        test($ex->o2 != Ice_Unset);
+        test($ex->a == $none);
+        test($ex->b == $none);
+        test($ex->o == $none);
+        test($ex->ss != $none);
+        test($ex->o2 != $none);
     }
 
     try
@@ -802,39 +803,39 @@ function allTests($communicator)
     echo "testing optionals with marshaled results... ";
     flush();
 
-    test($initial->opMStruct1() != Ice_Unset);
-    test($initial->opMDict1() != Ice_Unset);
-    test($initial->opMSeq1() != Ice_Unset);
-    test($initial->opMG1() != Ice_Unset);
+    test($initial->opMStruct1() != $none);
+    test($initial->opMDict1() != $none);
+    test($initial->opMSeq1() != $none);
+    test($initial->opMG1() != $none);
 
-    $p3 = $initial->opMStruct2(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opMStruct2($none, $p2);
+    test($p2 == $none && $p3 == $none);
 
     $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
     $p1 = new $sscls(56);
     $p3 = $initial->opMStruct2($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opMSeq2(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opMSeq2($none, $p2);
+    test($p2 == $none && $p3 == $none);
 
     $p1 = array("hello");
     $p3 = $initial->opMSeq2($p1, $p2);
     test($p2[0] == "hello" && $p3[0] == "hello");
 
-    $p3 = $initial->opMDict2(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opMDict2($none, $p2);
+    test($p2 == $none && $p3 == $none);
 
     $p1 = array("test" => 54);
     $p3 = $initial->opMDict2($p1, $p2);
     test($p2["test"] == 54 && $p3["test"] == 54);
 
-    $p3 = $initial->opMG2(Ice_Unset, $p2);
-    test($p2 == Ice_Unset && $p3 == Ice_Unset);
+    $p3 = $initial->opMG2($none, $p2);
+    test($p2 == $none && $p3 == $none);
 
     $p1 = new $gcls;
     $p3 = $initial->opMG2($p1, $p2);
-    test($p2 != Ice_Unset && $p3 != Ice_Unset && $p3 == $p2);
+    test($p2 != $none && $p3 != $none && $p3 == $p2);
 
     echo "ok\n";
 

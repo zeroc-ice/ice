@@ -331,3 +331,9 @@ These are the changes since Ice 3.6.3.
 
 - Renamed optional invocation context parameter to `context` for consistency with other
   language mappings (was `_ctx` in previous versions).
+
+## PHP Changes
+
+- The optional not set value for the PHP namespace mapping is Ice\None preivously Ice_Unset
+  was used but unset is a PHP keyword and Ice\Unset cannot be used.
+
