@@ -67,7 +67,7 @@ ConsoleUtil::toConsoleEncoding(const string& message) const
 
         // Then from UTF-8 to console CP
         string consoleString;
-		_consoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte* > (u8s.data()),
+        _consoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte* > (u8s.data()),
                                     reinterpret_cast<const IceUtil::Byte*>(u8s.data() + u8s.size()),
                                     consoleString);
 

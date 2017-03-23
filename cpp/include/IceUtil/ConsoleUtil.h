@@ -37,7 +37,7 @@ private:
 
     std::string toConsoleEncoding(const std::string&) const;
     IceUtil::StringConverterPtr _converter;
-	IceUtil::StringConverterPtr _consoleConverter;
+    IceUtil::StringConverterPtr _consoleConverter;
     static ConsoleUtilPtr _instance;
 };
 

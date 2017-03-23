@@ -108,7 +108,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     RandomNumberGenerator rng;
 
-	cout << "testing binding with single endpoint... " << flush;
+    cout << "testing binding with single endpoint... " << flush;
     {
         RemoteObjectAdapterPrxPtr adapter = com->createObjectAdapter("Adapter", "default");
 
