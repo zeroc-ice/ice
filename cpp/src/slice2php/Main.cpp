@@ -1502,22 +1502,40 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
             {
                 out << "namespace"; // Global namespace.
                 out << sb;
-            }
-            for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
-            {
-                out << nl << "$Ice_sliceChecksums[\"" << p->first << "\"] = \"";
-                ostringstream str;
-                str.flags(ios_base::hex);
-                str.fill('0');
-                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                out << "new Ice\\SliceChecksumInit(array(";
+                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end();)
                 {
-                    str << static_cast<int>(*q);
+                    out << nl << "\"" << p->first << "\" => \"";
+                    ostringstream str;
+                    str.flags(ios_base::hex);
+                    str.fill('0');
+                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    {
+                        str << static_cast<int>(*q);
+                    }
+                    out << str.str() << "\"";
+                    if(++p != checksums.end())
+                    {
+                        out << ",";
+                    }
                 }
-                out << str.str() << "\";";
-            }
-            if(ns)
-            {
+                out << "));";
                 out << eb;
+            }
+            else
+            {
+                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
+                {
+                    out << nl << "$Ice_sliceChecksums[\"" << p->first << "\"] = \"";
+                    ostringstream str;
+                    str.flags(ios_base::hex);
+                    str.fill('0');
+                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    {
+                        str << static_cast<int>(*q);
+                    }
+                    out << str.str() << "\";";
+                }
             }
         }
     }
