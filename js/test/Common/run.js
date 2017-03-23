@@ -25,19 +25,28 @@ var writeLine = function(msg)
     this.write(msg + "\n");
 };
 
+var exception = function(ex)
+{
+    console.log(ex.toString());
+    if(ex.stack)
+    {
+        console.log(ex.stack);
+    }
+    process.exit(1);
+};
+
 var id = new Ice.InitializationData();
 id.properties = Ice.createProperties(process.argv);
 exe = process.argv[2]
 var test = module.require(exe)
-test = exe === "ClientBidir" ? test._testBidir : test._test;
-
-test({write: write, writeLine: writeLine}, id).catch(
-    ex =>
-    {
-        console.log(ex.toString());
-        if(ex.stack)
-        {
-            console.log(ex.stack);
-        }
-        process.exit(1);
-    });
+if(exe === "Server" || exe === "ServerAMD")
+{
+    var ready = new Ice.Promise();
+    test = exe === "Server" ? test._server : test._serveramd;
+    test({write: write, writeLine: writeLine}, id, ready).catch(exception)
+    ready.then(() => console.log("server ready"));
+}
+else
+{
+    test._test({write: write, writeLine: writeLine}, id).catch(exception)
+}

@@ -27,6 +27,7 @@ import test.Ice.objects.Test.S;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.InitialPrx;
 import test.Ice.objects.Test.J;
+import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 
 public class AllTests
@@ -239,6 +240,42 @@ public class AllTests
         catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
+        out.println("ok");
+
+        out.print("testing recursive type... ");
+        out.flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 20000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(com.zeroc.Ice.UnknownLocalException ex)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(com.zeroc.Ice.UnknownException ex)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        catch(java.lang.StackOverflowError ex)
+        {
+            // Stack overflow while writing instances
+        }
+        initial.setRecursive(new Recursive());
         out.println("ok");
 
         out.print("testing compact ID...");

@@ -346,7 +346,16 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _selector.setup(_sizeIO);
 #endif
 
-    int stackSize = properties->getPropertyAsInt(_prefix + ".StackSize");
+#if defined(__APPLE__)
+    //
+    // We use a default stack size of 1MB on macOS and the new C++11 mapping to allow transmitting
+    // class graphs with a depth of 100 (maximum default), 512KB is not enough otherwise.
+    //
+    int defaultStackSize = 1024 * 1024; // 1MB
+#else
+    int defaultStackSize = 0;
+#endif
+    int stackSize = properties->getPropertyAsIntWithDefault(_prefix + ".StackSize", defaultStackSize);
     if(stackSize < 0)
     {
         Warning out(_instance->initializationData().logger);

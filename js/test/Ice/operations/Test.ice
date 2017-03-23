@@ -43,6 +43,7 @@ sequence<long> LongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
+sequence<["cpp:type:wstring"]string> WStringS;
 sequence<MyEnum> MyEnumS;
 sequence<MyClass*> MyClassS;
 
@@ -248,6 +249,7 @@ interface MyClass
     ByteBoolD opByteBoolD2(ByteBoolD byteBoolD);
 
     StringS opStringLiterals();
+    WStringS opWStringLiterals();
 
     ["marshaled-result"] Structure opMStruct1();
     ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
@@ -282,6 +284,7 @@ interface MyDerivedClass extends MyClass
 
 interface Echo
 {
+    void setConnection();
     void startBatch();
     void flushBatch();
     void shutdown();

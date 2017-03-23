@@ -130,7 +130,7 @@ class ControllerDriver(Driver):
                             self.current.config.parsedOptions.append(a)
                         setattr(self.current.config, a, v)
 
-        class ControllerI(getServantClass("Test.Common", "Controller")):
+        class ControllerI(Test.Common.Controller):
             def __init__(self, driver):
                 self.driver = driver
                 self.testcase = None

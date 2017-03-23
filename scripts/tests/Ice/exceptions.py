@@ -21,14 +21,6 @@ if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
         ClientAMDServerTestCase("client/amd server with 1.0 encoding", props={ "Ice.Default.EncodingVersion" : "1.0"}),
     ]
 
-# If the mapping has bidir clients, also run with the bidir clients.
-if Mapping.getByPath(__name__).getClientMapping().hasSource("Ice/exceptions", "clientBidir"):
-    testcases += [
-        ClientEchoServerTestCase("client/echo server with compact format"),
-        ClientEchoServerTestCase("client/echo server with sliced format", props={"Ice.Default.SlicedFormat" : True}),
-        ClientEchoServerTestCase("client/echo server with 1.0 encoding", props={"Ice.Default.EncodingVersion" : "1.0"}),
-    ]
-
 if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "collocated"):
     testcases += [ CollocatedTestCase() ]
 

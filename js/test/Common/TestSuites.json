@@ -31,7 +31,7 @@
     },
     "Ice/exceptions":
     {
-        "files": ["Test.js", "Client.js", "ThrowerI.js", "AMDThrowerI.js", "ClientBidir.js"],
+        "files": ["Test.js", "Client.js", "ThrowerI.js", "AMDThrowerI.js", "Server.js", "ServerAMD.js"],
         "testcases":
         [
             {
@@ -49,7 +49,7 @@
     },
     "Ice/facets":
     {
-        "files": ["Test.js", "Client.js", "TestI.js", "ClientBidir.js"]
+        "files": ["Test.js", "Client.js", "TestI.js", "Server.js"]
     },
     "Ice/hold":
     {
@@ -61,16 +61,16 @@
     },
     "Ice/inheritance":
     {
-        "files": ["Test.js", "Client.js", "InitialI.js", "ClientBidir.js"]
+        "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"]
     },
     "Ice/operations":
     {
         "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js",
-                  "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "ClientBidir.js"]
+                  "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "Server.js", "ServerAMD.js"]
     },
     "Ice/objects":
     {
-        "files": ["Test.js", "Client.js"],
+        "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"],
         "testcases":
         [
             {
@@ -88,7 +88,7 @@
     },
     "Ice/optional":
     {
-        "files": ["Test.js", "Client.js", "ClientPrivate.js", "InitialI.js", "AMDInitialI.js", "ClientBidir.js"],
+        "files": ["Test.js", "Client.js", "ClientPrivate.js", "InitialI.js", "AMDInitialI.js", "Server.js", "ServerAMD.js"],
         "testcases":
         [
             {

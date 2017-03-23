@@ -192,6 +192,15 @@
     return _f;
 }
 
+-(void) setRecursive:(TestObjectsRecursive*)recursive current:(ICECurrent*)current
+{
+}
+
+-(BOOL) supportsClassGraphDepthMax:(ICECurrent*)current
+{
+    return YES;
+}
+
 -(TestObjectsB*) getMB:(ICECurrent*)current
 {
     return _b1;

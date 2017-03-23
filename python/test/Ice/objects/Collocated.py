@@ -32,7 +32,10 @@ def run(args, communicator):
     return True
 
 try:
-    with Ice.initialize(sys.argv) as communicator:
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+    with Ice.initialize(sys.argv, initData) as communicator:
          status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

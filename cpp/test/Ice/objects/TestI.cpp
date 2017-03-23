@@ -161,6 +161,17 @@ InitialI::getF(const Ice::Current&)
     return _f;
 }
 
+void
+InitialI::setRecursive(ICE_IN(RecursivePtr), const Ice::Current&)
+{
+}
+
+bool
+InitialI::supportsClassGraphDepthMax(const Ice::Current&)
+{
+    return true;
+}
+
 #ifdef ICE_CPP11_MAPPING
 InitialI::GetMBMarshaledResult
 InitialI::getMB(const Ice::Current& current)

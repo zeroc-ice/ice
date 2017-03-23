@@ -17,6 +17,19 @@ These are the changes since Ice 3.6.3.
 
 ## General Changes
 
+- Added support for a new Ice.ClassGraphDepthMax property to prevent stack
+  overflows in case a sender sends a very large graph.
+
+  The unmarshaling or destruction of a graph of Slice class instances is a
+  recursive operation. This property limits the amount of stack size required to
+  perform these operations. This property is supported with all the language
+  mappings except Java and JavaScript where it's not needed (the runtime
+  environment allows graceful handling or stack overflows).
+
+  The default maximum class graph depth is 100. If you increase this value, you
+  must ensure the thread pool stack size is large enough to allow reading graphs
+  without causing a stack overflow.
+
 - Added support for IceStorm subscriber `locatorCacheTimeout` and
   `connectionCached` QoS settings. These settings match the proxy settings and
   allow configuring per-request load balancing on the subscriber proxy.

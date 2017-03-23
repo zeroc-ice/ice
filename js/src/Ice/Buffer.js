@@ -371,12 +371,12 @@ class Buffer
         s = decodeURIComponent(escape(s));
         return s;
     }
-    
+
     get position()
     {
         return this._position;
     }
-    
+
     set position(value)
     {
         if(value >= 0 && value <= this._limit)
@@ -384,12 +384,12 @@ class Buffer
             this._position = value;
         }
     }
-    
+
     get limit()
     {
         return this._limit;
     }
-    
+
     set limit(value)
     {
         if(value <= this.capacity)
@@ -401,17 +401,17 @@ class Buffer
             }
         }
     }
-    
+
     get capacity()
     {
         return this.b === null ? 0 : this.b.byteLength;
     }
-    
+
     get remaining()
     {
         return this._limit - this._position;
     }
-    
+
     //
     // Create a native buffer from an array of bytes.
     //

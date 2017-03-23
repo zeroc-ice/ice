@@ -154,6 +154,7 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
+        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }

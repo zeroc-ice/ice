@@ -376,31 +376,39 @@ exceptionsAllTests(id<ICECommunicator> communicator)
         @catch(ICEConnectionLostException *ex)
         {
         }
+        @catch(ICEUnknownLocalException *ex)
+        {
+        }
         @catch(NSException *ex)
         {
             test(false);
         }
 
-        id<TestExceptionsThrowerPrx> thrower2 =
-            [TestExceptionsThrowerPrx checkedCast:[communicator stringToProxy:@"thrower:default -p 12011"]];
         @try
         {
-            [thrower2 throwMemoryLimitException:[NSMutableData dataWithLength:20 * 1024 * 1024]]; // 2MB (no limits)
+            id<TestExceptionsThrowerPrx> thrower2 =
+                [TestExceptionsThrowerPrx checkedCast:[communicator stringToProxy:@"thrower:default -p 12011"]];
+            @try
+            {
+                [thrower2 throwMemoryLimitException:[NSMutableData dataWithLength:20 * 1024 * 1024]]; // 2MB (no limits)
+            }
+            @catch(ICEMemoryLimitException *ex)
+            {
+            }
+            id<TestExceptionsThrowerPrx> thrower3 =
+                [TestExceptionsThrowerPrx checkedCast:[communicator stringToProxy:@"thrower:default -p 12012"]];
+            @try
+            {
+                [thrower3 throwMemoryLimitException:[NSMutableData dataWithLength:1024]]; // 1KB limit
+                test(NO);
+            }
+            @catch(ICEConnectionLostException *ex)
+            {
+            }
         }
-        @catch(ICEMemoryLimitException *ex)
+        @catch(ICEConnectionRefusedException* ex)
         {
         }
-        id<TestExceptionsThrowerPrx> thrower3 =
-            [TestExceptionsThrowerPrx checkedCast:[communicator stringToProxy:@"thrower:default -p 12012"]];
-        @try
-        {
-            [thrower3 throwMemoryLimitException:[NSMutableData dataWithLength:1024]]; // 1KB limit
-            test(NO);
-        }
-        @catch(ICEConnectionLostException *ex)
-        {
-        }
-
         tprintf("ok\n");
     }
 

@@ -33,6 +33,13 @@ public class Collocated : TestCommon.Application
         return 0;
     }
 
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return initData;
+    }
+
     public static int Main(string[] args)
     {
         Collocated app = new Collocated();

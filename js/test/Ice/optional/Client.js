@@ -319,6 +319,15 @@
             }
         ).then(() =>
             {
+                var recursive1 = [new Test.Recursive()];
+                var recursive2 = [new Test.Recursive()];
+                recursive1[0].value = recursive2;
+                var outer = new Test.Recursive();
+                outer.value = recursive1;
+                initial.pingPong(outer);
+            }
+        ).then(() =>
+            {
                 var g = new Test.G();
                 g.gg1Opt = new Test.G1("gg1Opt");
                 g.gg2 = new Test.G2(new Ice.Long(0, 10));

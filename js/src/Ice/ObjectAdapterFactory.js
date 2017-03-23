@@ -48,7 +48,7 @@ class ObjectAdapterFactory
 
         this._instance = null;
         this._communicator = null;
-        this._shutdownPromise = _Promise.all(this._adapters.map(adapter => adapter.deactivate()));
+        _Promise.all(this._adapters.map(adapter => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
         return this._shutdownPromise;
     }
 

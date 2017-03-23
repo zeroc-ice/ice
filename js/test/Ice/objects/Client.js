@@ -12,6 +12,19 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
+    function loop(fn, repetitions) {
+        var i = 0;
+        var next = function next() {
+            while (i++ < repetitions) {
+                var r = fn.call(null, i);
+                if (r) {
+                    return r.then(next);
+                }
+            }
+        };
+        return next();
+    }
+
     class BI extends Test.B
     {
         ice_preMarshal()
@@ -377,8 +390,55 @@
                 var [retS, outS] = r;
                 test(retS.length === 1 && outS.length === 1);
                 out.writeLine("ok");
-                out.write("testing compact ID... ");
 
+                out.write("testing recursive types... ");
+
+                var top = new Test.Recursive();
+                var p = top;
+                return loop(depth => {
+                    p.v = new Test.Recursive();
+                    p = p.v;
+                    if((depth < 10 && (depth % 10) == 0) ||
+                       (depth < 1000 && (depth % 100) == 0) ||
+                       (depth < 10000 && (depth % 1000) == 0) ||
+                       (depth % 10000) == 0)
+                    {
+                        return initial.setRecursive(top);
+                    }
+                    return null;
+                }, 20001);
+            }
+        ).then(() =>
+            {
+                return initial.supportsClassGraphDepthMax().then(function(v) { test(!v); });
+            },
+            (ex) =>
+            {
+                if(ex instanceof Ice.UnknownLocalException)
+                {
+                    // Expected marshal exception from the server (max class graph depth reached)
+                }
+                else if(ex instanceof Ice.UnknownException)
+                {
+                    // Expected stack overflow from the server (Java only)
+                }
+                else if(ex instanceof RangeError)
+                {
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
+        ).then(()=>
+            {
+                return initial.setRecursive(new Test.Recursive());
+            }
+        ).then(()=>
+            {
+                out.writeLine("ok");
+
+                out.write("testing compact ID... ");
                 return initial.getCompact();
             }
         ).then(compact =>
@@ -413,9 +473,12 @@
             },
             ex =>
             {
-                test(ex instanceof Ice.UnexpectedObjectException);
-                test(ex.type == "::Test::AlsoEmpty");
-                test(ex.expectedType == "::Test::Empty");
+                if(!(ex instanceof Ice.ObjectNotExistException))
+                {
+                    test(ex instanceof Ice.UnexpectedObjectException);
+                    test(ex.type == "::Test::AlsoEmpty");
+                    test(ex.expectedType == "::Test::Empty");
+                }
             }
         ).then(() =>
             {
@@ -466,6 +529,7 @@
         return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports._test = run;
+    exports._clientAllTests = allTests;
     exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

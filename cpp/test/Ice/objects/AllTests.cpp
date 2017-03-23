@@ -323,6 +323,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
+    cout << "testing recursive type... " << flush;
+    RecursivePtr top = ICE_MAKE_SHARED(Recursive);
+    RecursivePtr p = top;
+    int depth = 0;
+    try
+    {
+        for(; depth <= 2000; ++depth)
+        {
+            p->v = ICE_MAKE_SHARED(Recursive);
+            p = p->v;
+            if((depth < 10 && (depth % 10) == 0) ||
+               (depth < 1000 && (depth % 100) == 0) ||
+               (depth < 10000 && (depth % 1000) == 0) ||
+               (depth % 10000) == 0)
+            {
+                initial->setRecursive(top);
+            }
+        }
+        test(!initial->supportsClassGraphDepthMax());
+    }
+    catch(const Ice::UnknownLocalException&)
+    {
+        // Expected marshal exception from the server (max class graph depth reached)
+        test(depth == 100); // The default is 100.
+    }
+    catch(const Ice::UnknownException&)
+    {
+        // Expected stack overflow from the server (Java only)
+    }
+    initial->setRecursive(ICE_MAKE_SHARED(Recursive));
+    cout << "ok" << endl;
+
     cout << "testing compact ID..." << flush;
     try
     {

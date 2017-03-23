@@ -11,7 +11,6 @@
 {
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
-    var Client = require("Client");
     var TestI = require("TestI");
 
     var DI = TestI.DI;
@@ -19,26 +18,29 @@
     var HI = TestI.HI;
     var EmptyI = TestI.EmptyI;
 
-    var allTests = function(out, communicator)
+    var test = function(b)
     {
-        var p = new Ice.Promise();
-        var test = function(b)
+        if(!b)
         {
-            if(!b)
+            try
             {
-                try
-                {
-                    throw new Error("test failed");
-                }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
+                throw new Error("test failed");
             }
-        };
+            catch(err)
+            {
+                p.reject(err);
+                throw err;
+            }
+        }
+    };
 
-        Ice.Promise.try(
+    var run = function(out, id, ready)
+    {
+        var communicator = Ice.initialize(id);
+        var adapter;
+        var echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
+
+        return Ice.Promise.try(
             function()
             {
                 out.write("testing facet registration exceptions... ");
@@ -102,14 +104,13 @@
 
                 return adapter.deactivate();
             }
-        ).then(
-            function(r)
+        ).then(() =>
             {
                 return communicator.createObjectAdapter("");
             }
-        ).then(
-            function(adapter)
+        ).then(adpt =>
             {
+                adapter = adpt;
                 var di = new DI();
                 adapter.add(di, Ice.stringToIdentity("d"));
                 adapter.addFacet(di, Ice.stringToIdentity("d"), "facetABCD");
@@ -117,53 +118,22 @@
                 adapter.addFacet(fi, Ice.stringToIdentity("d"), "facetEF");
                 var hi = new HI();
                 adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
-
-                var prx = Ice.ObjectPrx.uncheckedCast(communicator.stringToProxy("d:default -p 12010"));
-                return prx.ice_getConnection().then(
-                    function(conn)
-                    {
-                        conn.setAdapter(adapter);
-                        return Client._clientAllTests(out, communicator);
-                    });
+                return echo.setConnection();
             }
-        ).then(p.resolve, p.reject);
-
-        return p;
+        ).then(() =>
+            {
+                echo.ice_getCachedConnection().setAdapter(adapter);
+                adapter.activate();
+                ready.resolve();
+                return communicator.waitForShutdown();
+            }
+        ).then(() =>
+            {
+                return echo.shutdown();
+            }
+        ).finally(() => communicator.destroy());
     };
-
-    var run = function(out, id)
-    {
-        var communicator = Ice.initialize(id);
-        return Ice.Promise.try(
-            function()
-            {
-                out.writeLine("testing bidir callbacks with synchronous dispatch...");
-                return allTests(out, communicator);
-            }
-        ).then(
-            function()
-            {
-                return communicator.destroy();
-            }
-        ).then(
-            function()
-            {
-                communicator = Ice.initialize(id);
-                return Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
-            }
-        ).then(
-            function(prx)
-            {
-                return prx.shutdown();
-            }
-        ).finally(
-            function()
-            {
-                return communicator.destroy();
-            }
-        );
-    };
-    exports._testBidir = run;
+    exports._server = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,

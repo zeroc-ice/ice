@@ -25,6 +25,11 @@ public:
     {
     }
 
+    virtual void setConnection(const Ice::Current& current)
+    {
+        _blob->setConnection(current.con);
+    }
+
     virtual void startBatch(const Ice::Current&)
     {
         _blob->startBatch();

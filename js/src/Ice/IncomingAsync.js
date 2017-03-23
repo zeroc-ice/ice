@@ -150,22 +150,7 @@ class IncomingAsync
         this._instance.initializationData().logger.warning(s.join(""));
     }
 
-    servantLocatorFinished()
-    {
-        Debug.assert(this._locator !== null && this._servant !== null);
-        try
-        {
-            this._locator.finished(this._current, this._servant, this._cookie.value);
-            return true;
-        }
-        catch(ex)
-        {
-            this.handleException(ex);
-        }
-        return false;
-    }
-
-    handleException(ex)
+    handleException(ex, amd)
     {
         Debug.assert(this._connection !== null);
 
@@ -366,6 +351,11 @@ class IncomingAsync
             {
                 this._connection.sendNoResponse();
             }
+
+            if(!amd)
+            {
+                throw new Ice.ServantError(ex);
+            }
         }
 
         this._connection = null;
@@ -431,7 +421,7 @@ class IncomingAsync
                     catch(ex)
                     {
                         this.skipReadParams(); // Required for batch requests.
-                        this.handleException(ex);
+                        this.handleException(ex, false);
                         return;
                     }
                 }
@@ -457,7 +447,7 @@ class IncomingAsync
             catch(ex)
             {
                 this.skipReadParams(); // Required for batch requests.
-                this.handleException(ex);
+                this.handleException(ex, false);
                 return;
             }
         }
@@ -468,16 +458,16 @@ class IncomingAsync
             let promise = this._servant._iceDispatch(this, this._current);
             if(promise !== null)
             {
-                promise.then(() => this.response(), (ex) => this.exception(ex));
+                promise.then(() => this.completed(null, true), (ex) => this.completed(ex, true));
                 return;
             }
 
             Debug.assert(!this._response || this._os !== null);
-            this.response();
+            this.completed(null, false);
         }
         catch(ex)
         {
-            this.exception(ex);
+            this.completed(ex, false);
         }
     }
 
@@ -512,18 +502,31 @@ class IncomingAsync
         this._current.encoding = this._is.skipEncapsulation();
     }
 
-    response()
+    completed(exc, amd)
     {
         try
         {
-            if(this._locator !== null && !this.servantLocatorFinished())
+            if(this._locator !== null && !this.servantLocatorFinished(amd))
             {
-                return;
+                Debug.assert(this._locator !== null && this._servant !== null);
+                try
+                {
+                    this._locator.finished(this._current, this._servant, this._cookie.value);
+                }
+                catch(ex)
+                {
+                    this.handleException(ex, amd);
+                    return;
+                }
             }
 
             Debug.assert(this._connection !== null);
 
-            if(this._response)
+            if(exc != null)
+            {
+                this.handleException(exc, amd);
+            }
+            else if(this._response)
             {
                 this._connection.sendResponse(this._os);
             }
@@ -534,26 +537,18 @@ class IncomingAsync
         }
         catch(ex)
         {
-            this._connection.invokeException(ex, 1);
+            if(ex instanceof Ice.LocalException)
+            {
+                this._connection.invokeException(ex, 1);
+            }
+            else
+            {
+                throw ex;
+            }
         }
         this._connection = null;
     }
 
-    exception(exc)
-    {
-        try
-        {
-            if(this._locator !== null && !this.servantLocatorFinished())
-            {
-                return;
-            }
-            this.handleException(exc);
-        }
-        catch(ex)
-        {
-            this._connection.invokeException(ex, 1);
-        }
-    }
 }
 
 Ice.IncomingAsync = IncomingAsync;

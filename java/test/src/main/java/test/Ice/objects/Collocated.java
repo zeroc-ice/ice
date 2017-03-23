@@ -108,6 +108,7 @@ public class Collocated extends test.Util.Application
     {
         com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         return initData;
     }
 

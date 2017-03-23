@@ -94,6 +94,9 @@ public:
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
 
+    virtual void setRecursive(ICE_IN(Test::RecursivePtr), const Ice::Current&);
+    virtual bool supportsClassGraphDepthMax(const Ice::Current&);
+
 #ifdef ICE_CPP11_MAPPING
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
     virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,

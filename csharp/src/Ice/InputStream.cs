@@ -245,7 +245,7 @@ namespace Ice
 
             _instance = instance;
             _traceSlicing = _instance.traceLevels().slicing > 0;
-
+            _classGraphDepthMax = _instance.classGraphDepthMax();
             _valueFactoryManager = _instance.initializationData().valueFactoryManager;
             _logger = _instance.initializationData().logger;
             _classResolver = _instance.resolveClass;
@@ -258,6 +258,7 @@ namespace Ice
             _encapsStack = null;
             _encapsCache = null;
             _traceSlicing = false;
+            _classGraphDepthMax = 0x7fffffff;
             _closure = null;
             _sliceValues = true;
             _startSeq = -1;
@@ -360,6 +361,22 @@ namespace Ice
         }
 
         /// <summary>
+        /// Set the maximum depth allowed for graph of Slice class instances.
+        /// </summary>
+        /// <param name="classGraphDepthMax">The maximum depth.</param>
+        public void setClassGraphDepthMax(int classGraphDepthMax)
+        {
+            if(classGraphDepthMax < 1)
+            {
+                _classGraphDepthMax = 0x7fffffff;
+            }
+            else
+            {
+                _classGraphDepthMax = classGraphDepthMax;
+            }
+        }
+
+        /// <summary>
         /// Retrieves the closure object associated with this stream.
         /// </summary>
         /// <returns>The closure object.</returns>
@@ -412,6 +429,10 @@ namespace Ice
             bool tmpSliceValues = other._sliceValues;
             other._sliceValues = _sliceValues;
             _sliceValues = tmpSliceValues;
+
+            int tmpClassGraphDepthMax = other._classGraphDepthMax;
+            other._classGraphDepthMax = _classGraphDepthMax;
+            _classGraphDepthMax = tmpClassGraphDepthMax;
 
             //
             // Swap is never called for InputStreams that have encapsulations being read. However,
@@ -2733,12 +2754,27 @@ namespace Ice
 
         abstract private class EncapsDecoder
         {
-            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
+            protected struct PatchEntry
+            {
+                public PatchEntry(System.Action<Value> cb, int classGraphDepth)
+                {
+                    this.cb = cb;
+                    this.classGraphDepth = classGraphDepth;
+                }
+
+                public System.Action<Value> cb;
+                public int classGraphDepth;
+            };
+
+            internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
+                                   int classGraphDepthMax, ValueFactoryManager f,
                                    System.Func<string, Type> cr)
             {
                 _stream = stream;
                 _encaps = encaps;
                 _sliceValues = sliceValues;
+                _classGraphDepthMax = classGraphDepthMax;
+                _classGraphDepth = 0;
                 _valueFactoryManager = f;
                 _classResolver = cr;
                 _typeIdIndex = 0;
@@ -2889,7 +2925,7 @@ namespace Ice
 
                 if(_patchMap == null)
                 {
-                    _patchMap = new Dictionary<int, LinkedList<System.Action<Value>>>();
+                    _patchMap = new Dictionary<int, LinkedList<PatchEntry>>();
                 }
 
                 //
@@ -2897,21 +2933,21 @@ namespace Ice
                 // the callback will be called when the instance is
                 // unmarshaled.
                 //
-                LinkedList<System.Action<Value>> l;
+                LinkedList<PatchEntry> l;
                 if(!_patchMap.TryGetValue(index, out l))
                 {
                     //
                     // We have no outstanding instances to be patched for this
                     // index, so make a new entry in the patch map.
                     //
-                    l = new LinkedList<System.Action<Value>>();
+                    l = new LinkedList<PatchEntry>();
                     _patchMap.Add(index, l);
                 }
 
                 //
                 // Append a patch entry for this instance.
                 //
-                l.AddLast(cb);
+                l.AddLast(new PatchEntry(cb, _classGraphDepth));
             }
 
             protected void unmarshal(int index, Value v)
@@ -2932,7 +2968,7 @@ namespace Ice
                     //
                     // Patch all instances now that the instance is unmarshaled.
                     //
-                    LinkedList<System.Action<Value>> l;
+                    LinkedList<PatchEntry> l;
                     if(_patchMap.TryGetValue(index, out l))
                     {
                         Debug.Assert(l.Count > 0);
@@ -2940,9 +2976,9 @@ namespace Ice
                         //
                         // Patch all pointers that refer to the instance.
                         //
-                        foreach(System.Action<Value> cb in l)
+                        foreach(PatchEntry entry in l)
                         {
-                            cb(v);
+                            entry.cb(v);
                         }
 
                         //
@@ -3001,13 +3037,15 @@ namespace Ice
             protected readonly InputStream _stream;
             protected readonly Encaps _encaps;
             protected readonly bool _sliceValues;
+            protected readonly int _classGraphDepthMax;
+            protected int _classGraphDepth;
             protected ValueFactoryManager _valueFactoryManager;
             protected System.Func<string, Type> _classResolver;
 
             //
             // Encapsulation attributes for object unmarshaling.
             //
-            protected Dictionary<int, LinkedList<System.Action<Value>> > _patchMap;
+            protected Dictionary<int, LinkedList<PatchEntry>> _patchMap;
             private Dictionary<int, Value> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
@@ -3017,9 +3055,9 @@ namespace Ice
 
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
-            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
-                                     System.Func<string, Type> cr)
-                : base(stream, encaps, sliceValues, f, cr)
+            internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
+                                     ValueFactoryManager f, System.Func<string, Type> cr)
+                : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
             {
                 _sliceType = SliceType.NoSlice;
             }
@@ -3297,6 +3335,30 @@ namespace Ice
                 }
 
                 //
+                // Compute the biggest class graph depth of this object. To compute this,
+                // we get the class graph depth of each ancestor from the patch map and
+                // keep the biggest one.
+                //
+                _classGraphDepth = 0;
+                LinkedList<PatchEntry> l;
+                if(_patchMap != null && _patchMap.TryGetValue(index, out l))
+                {
+                    Debug.Assert(l.Count > 0);
+                    foreach(PatchEntry entry in l)
+                    {
+                        if(entry.classGraphDepth > _classGraphDepth)
+                        {
+                            _classGraphDepth = entry.classGraphDepth;
+                        }
+                    }
+                }
+
+                if(++_classGraphDepth > _classGraphDepthMax)
+                {
+                    throw new MarshalException("maximum class graph depth reached");
+                }
+
+                //
                 // Unmarshal the instance and add it to the map of unmarshaled instances.
                 //
                 unmarshal(index, v);
@@ -3313,9 +3375,9 @@ namespace Ice
 
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
-            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, ValueFactoryManager f,
-                                     System.Func<string, Type> cr, System.Func<int, string> r)
-                : base(stream, encaps, sliceValues, f, cr)
+            internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
+                                     ValueFactoryManager f, System.Func<string, Type> cr, System.Func<int, string> r)
+                : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
             {
                 _compactIdResolver = r;
                 _current = null;
@@ -3841,10 +3903,17 @@ namespace Ice
                     startSlice(); // Read next Slice header for next iteration.
                 }
 
+                if(++_classGraphDepth > _classGraphDepthMax)
+                {
+                    throw new MarshalException("maximum class graph depth reached");
+                }
+
                 //
                 // Unmarshal the instance.
                 //
                 unmarshal(index, v);
+
+                --_classGraphDepth;
 
                 if(_current == null && _patchMap != null && _patchMap.Count > 0)
                 {
@@ -4008,19 +4077,20 @@ namespace Ice
             {
                 if(_encapsStack.encoding_1_0)
                 {
-                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _valueFactoryManager,
-                                                               _classResolver);
+                    _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
+                                                               _valueFactoryManager, _classResolver);
                 }
                 else
                 {
-                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _valueFactoryManager,
-                                                               _classResolver, _compactIdResolver);
+                    _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
+                                                               _valueFactoryManager, _classResolver, _compactIdResolver);
                 }
             }
         }
 
         private bool _sliceValues;
         private bool _traceSlicing;
+        private int _classGraphDepthMax;
 
         private int _startSeq;
         private int _minSeqSize;

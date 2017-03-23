@@ -44,7 +44,7 @@ public sealed class InitialI : InitialDisp_
         c = _c;
         d = _d;
     }
-    
+
     public override B getB1(Ice.Current current)
     {
         return _b1;
@@ -89,7 +89,16 @@ public sealed class InitialI : InitialDisp_
     {
         return new HI();
     }
-    
+
+    public override void setRecursive(Recursive r, Ice.Current current)
+    {
+    }
+
+    public override bool supportsClassGraphDepthMax(Ice.Current current)
+    {
+        return true;
+    }
+
     public override D1 getD1(D1 d1, Ice.Current current)
     {
         return d1;

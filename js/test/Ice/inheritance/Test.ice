@@ -235,6 +235,7 @@ class D extends C
 
 interface Echo
 {
+    void setConnection();
     void startBatch();
     void flushBatch();
     void shutdown();

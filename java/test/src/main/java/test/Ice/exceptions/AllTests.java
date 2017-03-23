@@ -438,6 +438,10 @@ public class AllTests
             catch(com.zeroc.Ice.ConnectionLostException ex)
             {
             }
+            catch(com.zeroc.Ice.UnknownLocalException ex)
+            {
+                // Expected with JS bidir server
+            }
             catch(com.zeroc.Ice.SocketException ex)
             {
                 // This can be raised if the connection is closed during the client's call to write().
@@ -448,24 +452,31 @@ public class AllTests
                 test(false);
             }
 
-            ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
-                                                                                      app.getTestEndpoint(1)));
             try
             {
-                thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
+                                                                                          app.getTestEndpoint(1)));
+                try
+                {
+                    thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                }
+                catch(com.zeroc.Ice.MemoryLimitException ex)
+                {
+                }
+                ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
+                                                                                          app.getTestEndpoint(2)));
+                try
+                {
+                    thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
+                    test(false);
+                }
+                catch(com.zeroc.Ice.ConnectionLostException ex)
+                {
+                }
             }
-            catch(com.zeroc.Ice.MemoryLimitException ex)
+            catch(com.zeroc.Ice.ConnectionRefusedException ex)
             {
-            }
-            ThrowerPrx thrower3 = ThrowerPrx.uncheckedCast(communicator.stringToProxy("thrower:" +
-                                                                                      app.getTestEndpoint(2)));
-            try
-            {
-                thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
-                test(false);
-            }
-            catch(com.zeroc.Ice.ConnectionLostException ex)
-            {
+                // Expected with JS bidir server
             }
 
             out.println("ok");

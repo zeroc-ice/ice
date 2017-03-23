@@ -278,6 +278,8 @@ def allTests(communicator)
         test(false)
     rescue Ice::ConnectionLostException
         # Expected
+    rescue Ice::UnknownLocalException
+        # Expected
     rescue
         print $!.backtrace.join("\n")
         test(false)

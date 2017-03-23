@@ -258,6 +258,32 @@ def allTests(communicator)
     test(retS.length == 1 && outS.length == 1)
     puts "ok"
 
+    print "testing recursive type... "
+    STDOUT.flush
+    top = Test::Recursive.new
+    p = top;
+    depth = 0;
+    begin
+        while depth <= 1000
+            p.v = Test::Recursive.new
+            p = p.v;
+            if (depth < 10 && (depth % 10) == 0) || \
+               (depth < 1000 && (depth % 100) == 0) || \
+               (depth < 10000 && (depth % 1000) == 0) || \
+               (depth % 10000) == 0
+                initial.setRecursive(top)
+            end
+            depth += 1
+        end
+        test(!initial.supportsClassGraphDepthMax())
+    rescue Ice::UnknownLocalException
+        # Expected marshal exception from the server (max class graph depth reached)
+    rescue Ice::UnknownException
+        # Expected stack overflow from the server (Java only)
+    end
+    initial.setRecursive(Test::Recursive.new)
+    puts "ok"
+
     print "testing compact ID... "
     STDOUT.flush
     begin

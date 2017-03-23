@@ -12,13 +12,13 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
-    var allTests = function(out, communicator, Test, bidir)
+    var allTests = function(out, communicator, Test)
     {
         class EmptyI extends Test.Empty
         {
         }
 
-        class ServantLocatorI 
+        class ServantLocatorI
         {
             locate(curr, cookie)
             {
@@ -355,25 +355,22 @@
         ).then(
             function()
             {
-                if(!bidir)
-                {
-                    out.write("testing memory limit marshal exception...");
-                    return thrower.throwMemoryLimitException(null).then(
-                        failCB,
-                        function(ex)
-                        {
-                            test(ex instanceof Ice.MemoryLimitException);
-                            return thrower.throwMemoryLimitException(Ice.Buffer.createNative(20 * 1024));
-                        }
-                    ).then(
-                        failCB,
-                        function(ex)
-                        {
-                            test(ex instanceof Ice.ConnectionLostException);
-                            out.writeLine("ok");
-                        }
-                    );
-                }
+                out.write("testing memory limit marshal exception...");
+                return thrower.throwMemoryLimitException(null).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex instanceof Ice.MemoryLimitException);
+                        return thrower.throwMemoryLimitException(Ice.Buffer.createNative(20 * 1024));
+                    }
+                ).then(
+                    failCB,
+                    function(ex)
+                    {
+                        test(ex.toString().indexOf("ConnectionLostException") > 0);
+                        out.writeLine("ok");
+                    }
+                );
             }
         ).then(
             function()

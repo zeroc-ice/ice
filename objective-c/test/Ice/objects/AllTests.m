@@ -242,6 +242,38 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     [initial setI:h];
     tprintf("ok\n");
 
+    tprintf("testing recursive type... ");
+    TestObjectsRecursive* top = [TestObjectsRecursive recursive];
+    TestObjectsRecursive* p = top;
+    int depth = 0;
+    @try
+    {
+        for(; depth <= 20000; ++depth)
+        {
+            p.v = [TestObjectsRecursive recursive];
+            p = p.v;
+            if((depth < 10 && (depth % 10) == 0) ||
+               (depth < 1000 && (depth % 100) == 0) ||
+               (depth < 10000 && (depth % 1000) == 0) ||
+               (depth % 10000) == 0)
+            {
+                [initial setRecursive:top];
+            }
+        }
+        test(![initial supportsClassGraphDepthMax]);
+    }
+    @catch(ICEUnknownLocalException*)
+    {
+        // Expected marshal exception from the server (max class graph depth reached)
+        test(depth == 100); // The default is 100.
+    }
+    @catch(ICEUnknownException*)
+    {
+        // Expected stack overflow from the server (Java only)
+    }
+    [initial setRecursive:[TestObjectsRecursive recursive]];
+    tprintf("ok\n");
+
     tprintf("testing sequences... ");
     TestObjectsMutableBaseSeq* inS = [TestObjectsMutableBaseSeq array];
     TestObjectsMutableBaseSeq* outS;

@@ -12,7 +12,7 @@
 
 #include <Ice/Object.h>
 
-class BlobjectI : public Ice::BlobjectAsync
+class BlobjectI : public Ice::BlobjectAsync, private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -20,6 +20,7 @@ public:
 
     void startBatch();
     void flushBatch();
+    void setConnection(const Ice::ConnectionPtr&);
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -35,8 +36,11 @@ public:
 
 private:
 
+    Ice::ConnectionPtr getConnection(const Ice::Current&);
+
     bool _startBatch;
     Ice::ObjectPrxPtr _batchProxy;
+    Ice::ConnectionPtr _connection;
 };
 
 ICE_DEFINE_PTR(BlobjectIPtr, BlobjectI);

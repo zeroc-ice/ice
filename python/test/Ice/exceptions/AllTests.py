@@ -483,6 +483,8 @@ def allTests(communicator):
             test(False)
         except Ice.ConnectionLostException:
             pass
+        except Ice.UnknownLocalException:
+            pass
         except:
             test(False)
 

@@ -163,6 +163,11 @@ exception EDerived extends EBase
     A1 a4;
 };
 
+class Recursive
+{
+    Recursive v;
+};
+
 interface Initial
 {
     void shutdown();
@@ -172,6 +177,9 @@ interface Initial
     D getD();
     E getE();
     F getF();
+
+    void setRecursive(Recursive p);
+    bool supportsClassGraphDepthMax();
 
     ["marshaled-result"] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();

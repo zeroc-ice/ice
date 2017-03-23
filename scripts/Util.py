@@ -763,21 +763,19 @@ class Mapping:
                 # with the mapping
                 return (self.getDefaultSource(f) in files) if m == self else m.hasSource(testId, f)
             except KeyError:
-                # Expected if the mapping doesn't support the process type (such as clientBidir)
+                # Expected if the mapping doesn't support the process type
                 return False
 
-        checkClient = lambda f: checkFile(f, self.getClientMapping())
-        checkServer = lambda f: checkFile(f, self.getServerMapping())
+        checkClient = lambda f: checkFile(f, self.getClientMapping(testId))
+        checkServer = lambda f: checkFile(f, self.getServerMapping(testId))
 
         testcases = []
         if checkClient("client") and checkServer("server"):
             testcases.append(ClientServerTestCase())
-        if checkClient("client") and checkServer("serveramd") and self.getServerMapping() == self:
+        if checkClient("client") and checkServer("serveramd") and self.getServerMapping(testId) == self:
             testcases.append(ClientAMDServerTestCase())
         if checkClient("client") and len(testcases) == 0:
             testcases.append(ClientTestCase())
-        if checkClient("clientBidir") and self.getServerMapping().hasSource("Ice/echo", "server"):
-            testcases.append(ClientEchoServerTestCase())
         if checkClient("collocated"):
             testcases.append(CollocatedTestCase())
         if len(testcases) > 0:
@@ -804,32 +802,32 @@ class Mapping:
     def getDefaultSource(self, processType):
         return processType
 
-    def getDefaultProcess(self, processType, testsuite):
+    def getDefaultProcesses(self, processType, testsuite):
         #
         # If no server or client is explicitly set with a testcase, getDefaultProcess is called
         # to figure out which process class to instantiate. Based on the processType and the testsuite
         # we instantiate the right default process class.
         #
         if processType is None:
-            return None
+            return []
         elif testsuite.getId().startswith("IceUtil") or testsuite.getId().startswith("Slice"):
-            return SimpleClient()
+            return [SimpleClient()]
         elif testsuite.getId().startswith("IceGrid"):
             if processType in ["client", "collocated"]:
-                return IceGridClient()
+                return [IceGridClient()]
             if processType in ["server", "serveramd"]:
-                return IceGridServer()
+                return [IceGridServer()]
         else:
-            return Server() if processType in ["server", "serveramd"] else Client()
+            return [Server()] if processType in ["server", "serveramd"] else [Client()]
 
     def getDefaultExe(self, processType, config):
         return processType
 
-    def getClientMapping(self):
+    def getClientMapping(self, testId=None):
         # The client mapping is always the same as this mapping.
         return self
 
-    def getServerMapping(self):
+    def getServerMapping(self, testId=None):
         # Can be overridden for client-only mapping that relies on another mapping for servers
         return self
 
@@ -1208,6 +1206,18 @@ class SliceTranslator(ProcessFromBinDir, SimpleClient):
 
         return translator
 
+class EchoServer(Server):
+
+    def __init__(self):
+        Server.__init__(self, mapping=Mapping.getByName("cpp"), quiet=True, waitForShutdown=False)
+
+    def getCommandLine(self, current):
+        current.push(self.mapping.findTestSuite("Ice/echo").findTestCase("server"))
+        try:
+            return Server.getCommandLine(self, current)
+        finally:
+            current.pop()
+
 #
 # A test case is composed of servers and clients. When run, all servers are started
 # sequentially. When the servers are ready, the clients are also ran sequentially.
@@ -1263,16 +1273,14 @@ class TestCase(Runnable):
         # returns the type of client to instantiate (client, collocated, etc)
         #
         if not self.clients:
-            client = self.mapping.getDefaultProcess(self.getClientType(), testsuite)
-            self.clients = [client] if client else []
+            self.clients = self.mapping.getDefaultProcesses(self.getClientType(), testsuite)
 
         #
         # If no servers are explicitly specified, we instantiate one if getServerType()
         # returns the type of server to instantiate (server, serveramd, etc)
         #
         if not self.servers:
-            server = self.mapping.getDefaultProcess(self.getServerType(), testsuite)
-            self.servers = [server] if server else []
+            self.servers = self.mapping.getDefaultProcesses(self.getServerType(), testsuite)
 
     def getOptions(self, current):
         return self.options(current) if callable(self.options) else self.options
@@ -1354,11 +1362,11 @@ class TestCase(Runnable):
         return None
 
     def getServerTestCase(self, cross=None):
-        testsuite = (cross or self.mapping.getServerMapping()).findTestSuite(self.testsuite)
+        testsuite = (cross or self.mapping).getServerMapping(self.testsuite.getId()).findTestSuite(self.testsuite)
         return testsuite.findTestCase(self) if testsuite else None
 
     def getClientTestCase(self):
-        testsuite = self.mapping.getClientMapping().findTestSuite(self.testsuite)
+        testsuite = self.mapping.getClientMapping(self.testsuite.getId()).findTestSuite(self.testsuite)
         return testsuite.findTestCase(self) if testsuite else None
 
     def _startServerSide(self, current):
@@ -1458,20 +1466,6 @@ class ClientServerTestCase(ClientTestCase):
 
     def getServerType(self):
         return "server"
-
-class ClientEchoServerTestCase(ClientServerTestCase):
-
-    def __init__(self, name="client/echo server", *args, **kargs):
-        ClientServerTestCase.__init__(self, name, *args, **kargs)
-
-    def getServerTestCase(self, cross=None):
-        ts = Mapping.getByName("cpp").findTestSuite("Ice/echo")
-        if ts:
-            return ts.findTestCase("server")
-        return None
-
-    def getClientType(self):
-        return "clientBidir"
 
 class CollocatedTestCase(ClientTestCase):
 
@@ -2079,6 +2073,7 @@ class BrowserProcessController(RemoteProcessController):
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "ws -h 127.0.0.1 -p 15002:wss -h 127.0.0.1 -p 15003")
         self.httpServer = None
+        self.testcase = None
         try:
             from selenium import webdriver
             if not hasattr(webdriver, current.config.browser):
@@ -2105,7 +2100,7 @@ class BrowserProcessController(RemoteProcessController):
                 self.driver = getattr(webdriver, current.config.browser)()
 
             cmd = "node -e \"require('./bin/HttpServer')()\"";
-            cwd = current.testsuite.getMapping().getPath()
+            cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
         except:
@@ -2116,26 +2111,27 @@ class BrowserProcessController(RemoteProcessController):
         return str(self.driver)
 
     def getControllerIdentity(self, current):
-
         #
-        # Load the controller page each time we're asked for the controller, the controller page
-        # will connect to the process controller registry to register itself with this script.
+        # Load the controller page each time we're asked for the controller and if we're running
+        # another testcase, the controller page will connect to the process controller registry
+        # to register itself with this script.
         #
-        testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
-        if current.config.protocol == "wss":
-            protocol = "https"
-            port = "9090"
-            cport = "15003"
-        else:
-            protocol = "http"
-            port = "8080"
-            cport = "15002"
-
-        self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
-                                                                                                  port,
-                                                                                                  testsuite,
-                                                                                                  cport,
-                                                                                                  current.config.worker))
+        if self.testcase != current.testcase:
+            self.testcase = current.testcase
+            testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
+            if current.config.protocol == "wss":
+                protocol = "https"
+                port = "9090"
+                cport = "15003"
+            else:
+                protocol = "http"
+                port = "8080"
+                cport = "15002"
+            self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
+                                                                                                      port,
+                                                                                                      testsuite,
+                                                                                                      cport,
+                                                                                                      current.config.worker))
         return "Browser/ProcessController"
 
     def destroy(self, driver):
@@ -2395,7 +2391,7 @@ class Driver:
                 processController = LocalProcessController
             else:
                 processController = UWPProcessController
-        elif isinstance(current.testcase.getMapping(), JavaScriptMapping) and current.config.browser:
+        elif process and isinstance(process.getMapping(current), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
         else:
             processController = LocalProcessController
@@ -2764,7 +2760,7 @@ class CppBasedClientMapping(CppBasedMapping):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(self.testsuites.keys(), config)
 
-    def getServerMapping(self):
+    def getServerMapping(self, testId=None):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
 
     def getDefaultExe(self, processType, config):
@@ -2861,8 +2857,16 @@ class JavaScriptMapping(Mapping):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config, filters, rfilters)
 
-    def getServerMapping(self):
-        return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
+    def getServerMapping(self, testId=None):
+        if testId and self.hasSource(testId, "server"):
+            return self
+        else:
+            return Mapping.getByName("cpp") # Run clients against C++ mapping servers if no JS server provided
+
+    def getDefaultProcesses(self, processType, testsuite):
+        if processType in ["server", "serveramd"]:
+            return [EchoServer(), Server()]
+        return Mapping.getDefaultProcesses(self, processType, testsuite)
 
     def getCommandLine(self, current, process, exe):
         if current.config.es5:
@@ -2871,7 +2875,7 @@ class JavaScriptMapping(Mapping):
             return "node {0}/test/Common/run.js {1}".format(self.path, exe)
 
     def getDefaultSource(self, processType):
-        return { "client" : "Client.js", "clientBidir" : "ClientBidir.js" }[processType]
+        return { "client" : "Client.js", "serveramd" : "ServerAMD.js", "server" : "Server.js" }[processType]
 
     def getDefaultExe(self, processType, config=None):
         return self.getDefaultSource(processType).replace(".js", "")
@@ -2952,12 +2956,6 @@ def runTests(mappings=None, drivers=None):
     if not drivers:
         drivers = Driver.getAll()
 
-    #
-    # All mappings contains all the mappings necessary to run the tests from the given mappings. Some
-    # mappings depend on other mappings for running (e.g.: Ruby needs the C++ mapping).
-    #
-    allMappings = list(set([m.getClientMapping() for m in mappings] + [m.getServerMapping() for m in mappings]))
-
     def usage():
         print("Usage: " + sys.argv[0] + " [options] [tests]")
         print("")
@@ -2969,7 +2967,7 @@ def runTests(mappings=None, drivers=None):
             driver.usage()
 
         Mapping.Config.commonUsage()
-        for mapping in allMappings:
+        for mapping in Mapping.getAll():
             mapping.Config.usage()
 
         print("")
@@ -3001,7 +2999,7 @@ def runTests(mappings=None, drivers=None):
         # python mapping because we might use the local IcePy build to initialize a communicator).
         #
         configs = {}
-        for mapping in allMappings + driver.getMappings() + [Mapping.getByName("python")]:
+        for mapping in Mapping.getAll():
             if mapping not in configs:
                 configs[mapping] = mapping.createConfig(opts[:])
 

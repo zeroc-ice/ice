@@ -333,6 +333,11 @@
             return false;
         }
 
+        supportsCppStringView(current)
+        {
+            return false;
+        }
+
         supportsCsharpSerializable(current)
         {
             return false;

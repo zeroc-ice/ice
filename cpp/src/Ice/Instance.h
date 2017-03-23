@@ -108,6 +108,7 @@ public:
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
     size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
+    size_t classGraphDepthMax() const { return _classGraphDepthMax; }
     bool collectObjects() const { return _collectObjects; }
     Ice::ToStringMode toStringMode() const { return _toStringMode; }
     const ACMConfig& clientACM() const;
@@ -176,6 +177,7 @@ private:
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
     const size_t _batchAutoFlushSize; // Immutable, not reset by destroy().
+    const size_t _classGraphDepthMax; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
     const Ice::ToStringMode _toStringMode; // Immutable, not reset by destroy()
     ACMConfig _clientACM;

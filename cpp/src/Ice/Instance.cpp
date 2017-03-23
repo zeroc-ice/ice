@@ -948,6 +948,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _initData(initData),
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
+    _classGraphDepthMax(0),
     _collectObjects(false),
     _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
     _implicitContext(0),
@@ -1186,6 +1187,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             {
                 // Property is in kilobytes, convert in bytes.
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num) * 1024;
+            }
+        }
+
+        {
+            static const int defaultValue = 100;
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
             }
         }
 

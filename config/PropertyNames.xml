@@ -327,6 +327,7 @@ generated from the section label.
         <property name="BatchAutoFlush" deprecated="true"/>
         <property name="BatchAutoFlushSize" />
         <property name="ChangeUser" />
+        <property name="ClassGraphDepthMax" />
         <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />
         <property name="CollectObjects"/>

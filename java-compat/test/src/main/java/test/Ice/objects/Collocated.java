@@ -105,6 +105,7 @@ public class Collocated extends test.Util.Application
     {
         Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         return initData;
     }
 

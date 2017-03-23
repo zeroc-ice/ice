@@ -106,6 +106,17 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public void setRecursive(Recursive r, com.zeroc.Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean supportsClassGraphDepthMax(com.zeroc.Ice.Current current)
+    {
+        return false;
+    }
+
+    @Override
     public com.zeroc.Ice.Value getI(com.zeroc.Ice.Current current)
     {
         return new II();

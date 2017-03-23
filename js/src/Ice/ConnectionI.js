@@ -1729,9 +1729,10 @@ class ConnectionI
             }
             return AsyncStatus.Sent;
         }
+
         message.doAdopt();
 
-        this._writeStream.swap(stream);
+        this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
         this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
 
@@ -1930,9 +1931,18 @@ class ConnectionI
             {
                 this.invokeException(ex, invokeNum);
             }
+            else if(ex instanceof Ice.ServantError)
+            {
+                // Ignore
+            }
             else
             {
-                throw ex;
+                //
+                // An Error was raised outside of servant code (i.e., by Ice code).
+                // Attempt to log the error and clean up.
+                //
+                this._logger.error("unexpected exception:\n" + ex.toString());
+                this.invokeException(requestId, new Ice.UnknownException(ex), invokeNum, false);
             }
         }
     }

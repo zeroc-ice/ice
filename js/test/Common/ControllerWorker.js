@@ -13,7 +13,7 @@
 */
 var process = { argv : [] };
 
-let out =
+let clientOut =
 {
     write: function(msg)
     {
@@ -22,6 +22,18 @@ let out =
     writeLine: function(msg)
     {
         self.postMessage({type:"writeLine", message:msg});
+    }
+};
+
+let serverOut =
+{
+    write: function(msg)
+    {
+        self.postMessage({type:"serverWrite", message:msg});
+    },
+    writeLine: function(msg)
+    {
+        self.postMessage({type:"serverWriteLine", message:msg});
     }
 };
 
@@ -54,16 +66,20 @@ self.onmessage = function(e)
 
         let promise
         let initData = new Ice.InitializationData();
-        initData.logger = new Logger(out);
         initData.properties = Ice.createProperties(e.data.args);
         process.argv = e.data.args;
-        if(e.data.exe === "ClientBidir")
+        if(e.data.exe === "Server" || e.data.exe === "ServerAMD")
         {
-            promise = _testBidir(out, initData);
+            initData.logger = new Logger(serverOut);
+            let ready = new Ice.Promise();
+            let test = e.data.exe === "Server" ? _server : _serveramd;
+            promise = test(serverOut, initData, ready);
+            ready.then(() => self.postMessage({type:"ready"}));
         }
         else
         {
-            promise = _test(out, initData);
+            initData.logger = new Logger(clientOut);
+            promise = _test(clientOut, initData);
         }
         promise.then(function() {
             self.postMessage({ type: "finished" });

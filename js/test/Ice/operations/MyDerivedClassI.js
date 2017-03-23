@@ -25,10 +25,11 @@
         //
         // Override the Object "pseudo" operations to verify the operation mode.
         //
-        constructor()
+        constructor(endpoints)
         {
             super();
             this._opByteSOnewayCount = 0;
+            this._endpoints = endpoints;
         }
 
         ice_isA(id, current)
@@ -152,7 +153,7 @@
             var p3 = Test.MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
             var r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
-            return [r, p2, p3];
+            return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
         }
 
         opMyEnum(p1, current)
@@ -481,6 +482,11 @@
                 Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9, Test.sw10,
                 Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
                 Test.su0, Test.su1, Test.su2];
+        }
+
+        opWStringLiterals(current)
+        {
+            return this.opStringLiterals(current);
         }
 
         opMStruct1(current)

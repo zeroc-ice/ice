@@ -25,17 +25,7 @@ const Protocol = Ice.Protocol;
 const StringUtil = Ice.StringUtil;
 const OperationMode = Ice.OperationMode;
 const Identity = Ice.Identity;
-
 const slicingIds = new Map();
-
-function traceSlicing(kind, typeId, slicingCat, logger)
-{
-    if(!slicingIds.has(typeId))
-    {
-        logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
-        slicingIds.set(typeId, 1);
-    }
-}
 
 function printIdentityFacetOperation(s, stream)
 {
@@ -366,6 +356,15 @@ function getMessageTypeAsString(type)
 
 class TraceUtil
 {
+    static traceSlicing(kind, typeId, slicingCat, logger)
+    {
+        if(!slicingIds.has(typeId))
+        {
+            logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
+            slicingIds.set(typeId, 1);
+        }
+    }
+
     static traceSend(stream, logger, traceLevels)
     {
         if(traceLevels.protocol >= 1)

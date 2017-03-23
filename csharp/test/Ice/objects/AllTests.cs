@@ -276,6 +276,38 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
+        Write("testing recursive type... ");
+        Flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 1000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(Ice.UnknownLocalException)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(Ice.UnknownException)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        initial.setRecursive(new Recursive());
+        WriteLine("ok");
+
         Write("testing compact ID...");
         Flush();
         try

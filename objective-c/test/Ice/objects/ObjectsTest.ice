@@ -178,6 +178,11 @@ dictionary<string, Object*> ObjectPrxDict;  // For Objective-C only
 dictionary<string, Base> BaseDict;          // For Objective-C only
 dictionary<string, Base*> BasePrxDict;      // For Objective-C only
 
+class Recursive
+{
+    Recursive v;
+};
+
 class Initial
 {
     void shutdown();
@@ -187,6 +192,9 @@ class Initial
     D getD();
     E getE();
     F getF();
+
+    void setRecursive(Recursive p);
+    bool supportsClassGraphDepthMax();
 
     ["marshaled-result"] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();

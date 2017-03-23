@@ -125,6 +125,12 @@ class InitialI(Test.Initial):
     def getF(self, current=None):
         return self._f
 
+    def setRecursive(self, r, current):
+        pass
+
+    def supportsClassGraphDepthMax(self, current):
+        return True
+
     def getMB(self, current):
         return self._b1
 

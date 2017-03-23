@@ -426,29 +426,40 @@ public class AllTests : TestCommon.AllTests
             catch(Ice.ConnectionLostException)
             {
             }
+            catch(Ice.UnknownLocalException)
+            {
+                // Expected with JS bidir server
+            }
             catch(Exception)
             {
                 test(false);
             }
 
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
             try
             {
-                thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
+                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
+                try
+                {
+                    thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                }
+                catch(Ice.MemoryLimitException)
+                {
+                }
+                ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
+                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
+                try
+                {
+                    thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
+                    test(false);
+                }
+                catch(Ice.ConnectionLostException)
+                {
+                }
             }
-            catch(Ice.MemoryLimitException)
+            catch(Ice.ConnectionRefusedException)
             {
-            }
-            ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
-            try
-            {
-                thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
-                test(false);
-            }
-            catch(Ice.ConnectionLostException)
-            {
+                // Expected with JS bidir server
             }
 
             WriteLine("ok");

@@ -59,6 +59,7 @@ interface H extends G
 
 interface Echo
 {
+    void setConnection();
     void startBatch();
     void flushBatch();
     void shutdown();

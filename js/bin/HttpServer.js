@@ -26,13 +26,12 @@ function Init()
         json: "application/json",
     };
 
-    var TestData =
-    {
-        languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
-    };
+    var TestData = {};
+
+    var languages = [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
     if(process.platform == "win32")
     {
-        TestData.languages.push({value: "csharp", name: "C#"});
+        languages.push({value: "csharp", name: "C#"});
     }
 
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
@@ -98,9 +97,9 @@ function Init()
                     }
                     else
                     {
-                        var languages = TestData.languages.map(function(o) { return o.value; });
-                        var j = languages.indexOf(language);
-                        language = languages[j == languages.length - 1 ? 0 : j + 1];
+                        var lgs = languages.map(function(o) { return o.value; });
+                        var j = lgs.indexOf(language);
+                        language = lgs[j == lgs.length - 1 ? 0 : j + 1];
                         worker = false;
                         protocol = "http";
                     }
@@ -158,6 +157,11 @@ function Init()
                             [
                                 "/test/Common/TestSuite.js"
                             ];
+                    }
+                    TestData.languages = languages.slice();
+                    if(testSuite.files.indexOf("Server.js") >= 0)
+                    {
+                        TestData.languages.push({value: "js", name: "JavaScript"});
                     }
                     res.writeHead(200, {"Content-Type": "text/html"});
                     res.end(template.render(TestData));
