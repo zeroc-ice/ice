@@ -69,7 +69,7 @@ class IceGridNode(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(current.testcase.getPath(), "node-{0}".format(self.name))
+        self.dbdir = os.path.join(current.testsuite.getPath(), "node-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
@@ -120,7 +120,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(current.testcase.getPath(), "registry-{0}".format(self.name))
+        self.dbdir = os.path.join(current.testsuite.getPath(), "registry-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)

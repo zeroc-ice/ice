@@ -1698,7 +1698,7 @@ class LocalProcessController(ProcessController):
         kargs = {
             "process": process,
             "testcase": current.testcase,
-            "testdir": current.testcase.getPath(),
+            "testdir": current.testsuite.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
             "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
         }

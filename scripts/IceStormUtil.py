@@ -24,7 +24,7 @@ class IceStorm(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(current.testcase.getPath(), "{0}-{1}.db".format(self.instanceName, self.replica))
+        self.dbdir = os.path.join(current.testsuite.getPath(), "{0}-{1}.db".format(self.instanceName, self.replica))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
