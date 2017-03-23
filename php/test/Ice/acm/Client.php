@@ -67,8 +67,10 @@ function testSetACM($communicator, $com)
     test($acm->timeout == 15);
     test($acm->close == $CloseOnIdleForceful);
     test($acm->heartbeat == $HeartbeatOnIdle);
+    
+    $none = $NS ? constant("Ice\\None") : constant("Ice_Unset");
 
-    $proxy->ice_getCachedConnection()->setACM(Ice_Unset, Ice_Unset, Ice_Unset);
+    $proxy->ice_getCachedConnection()->setACM($none, $none, $none);
     $acm = $proxy->ice_getCachedConnection()->getACM();
     test($acm->timeout == 15);
     test($acm->close == $CloseOnIdleForceful);
