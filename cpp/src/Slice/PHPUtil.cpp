@@ -38,7 +38,7 @@ lookupKwd(const string& name)
         "endfor", "endforeach", "endif", "endswitch", "endwhile", "eval", "exit", "extends", "final", "finally",
         "for", "foreach", "function", "global", "goto", "if", "implements", "include", "include_once", "instanceof",
         "insteadof", "interface", "isset", "list", "namespace", "new", "or", "print", "private", "protected", "public",
-        "require", "require_once", "return", "static", "switch", "throw", "trait", "try", "unset", "use", "var",
+        "require", "require_once", "return", "static", "switch", "this", "throw", "trait", "try", "unset", "use", "var",
         "while", "xor", "yield"
     };
     bool found =  binary_search(&keywordList[0],
