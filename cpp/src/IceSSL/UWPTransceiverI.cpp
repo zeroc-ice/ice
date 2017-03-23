@@ -11,6 +11,7 @@
 #include <IceSSL/UWPTransceiverI.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/UWPEngine.h>
+#include <IceSSL/ConnectionInfo.h>
 #include <Ice/Logger.h>
 #include <ppltasks.h>
 

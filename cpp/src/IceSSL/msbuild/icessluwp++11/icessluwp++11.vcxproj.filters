@@ -73,8 +73,67 @@
     <IceBuilder Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice">
       <Filter>Slice Files</Filter>
     </IceBuilder>
+    <IceBuilder Include="..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice">
+      <Filter>Slice Files</Filter>
+    </IceBuilder>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ConnectorI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AcceptorI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\EndpointI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Instance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSLEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TrustManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\UWPTransceiverI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\UWPEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\RFC2253.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\UWPPluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CertificateI.cpp" />
+    <ClCompile Include="..\..\UWPCertificateI.cpp" />
+    <ClCompile Include="Win32\Debug\ConnectionInfoF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Debug\ConnectionInfoF.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ConnectionInfoF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ConnectionInfoF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Release\ConnectionInfoF.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ConnectionInfoF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
     <ClCompile Include="Win32\Debug\ConnectionInfo.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -111,50 +170,35 @@
     <ClCompile Include="x64\Release\EndpointInfo.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConnectorI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\AcceptorI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\EndpointI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Instance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SSLEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TrustManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\UWPTransceiverI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\PluginI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Certificate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\UWPEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\RFC2253.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\UWPCertificate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\UWPPluginI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\UWPEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UWPEngineF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UWPTransceiverI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\Win32\Debug\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\ARM\Debug\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\x64\Debug\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\Win32\Release\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\ARM\Release\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\uwp\x64\Release\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\uwp\Win32\Debug\IceSSL\ConnectionInfo.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -190,15 +234,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\uwp\x64\Release\IceSSL\EndpointInfo.h">
       <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\UWPEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\UWPEngineF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\UWPTransceiverI.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
