@@ -82,7 +82,8 @@ $1[$2-$3]: $$($1_dependencies)
 	           -project "$1/$$(call $1_project,$2,$3)" \
 	           -configuration "$$(call $1_configuration,$2,$3)" \
 		   -scheme "$$(call $1_scheme,$2,$3)" \
-		   $(if $(V),,-quiet) SYMROOT=./build
+		   $(if $(V),,-quiet) SYMROOT=./build \
+		   clean build
 
 $1[$2-$3]_clean:
 	$(E) "Cleaning $1"
