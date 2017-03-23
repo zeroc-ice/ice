@@ -76,8 +76,7 @@ class IceGridNode(ProcessFromBinDir, Server):
 
     def teardown(self, current, success):
         # Remove the database directory tree
-        if success:
-            shutil.rmtree(self.dbdir)
+        shutil.rmtree(self.dbdir)
 
     def getProps(self, current):
         props = {
@@ -128,8 +127,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
 
     def teardown(self, current, success):
         # Remove the database directory tree
-        if success:
-            shutil.rmtree(self.dbdir)
+        shutil.rmtree(self.dbdir)
 
     def getProps(self, current):
         # NOTE: we use the loopback interface for multicast with IPv6 to prevent failures

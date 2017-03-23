@@ -1092,7 +1092,7 @@ class Process(Runnable):
         return current.processes[self].match
 
     def isStarted(self, current):
-        return self in current.processes
+        return self in current.processes and not current.processes[self].isTerminated()
 
     def isFromBinDir(self):
         return False
@@ -1229,18 +1229,18 @@ class EchoServer(Server):
 #
 class TestCase(Runnable):
 
-    def __init__(self, name, client=None, clients=None, server=None, servers=None, args=[], props={}, envs={},
-                 options={}, desc=None):
+    def __init__(self, name, client=None, clients=None, server=None, servers=None, args=None, props=None, envs=None,
+                 options=None, desc=None):
         Runnable.__init__(self, desc)
 
         self.name = name
         self.parent = None
         self.mapping = None
         self.testsuite = None
-        self.options = options
-        self.args = args
-        self.props = props
-        self.envs = envs
+        self.options = options or {}
+        self.args = args or []
+        self.props = props or {}
+        self.envs = envs or {}
 
         #
         # Setup client list, "client" can be a string in which case it's assumed to
@@ -1566,12 +1566,13 @@ class Result:
 
 class TestSuite:
 
-    def __init__(self, path, testcases=None, options={}, libDirs=[], runOnMainThread=False, chdir=False, multihost=True):
+    def __init__(self, path, testcases=None, options=None, libDirs=None, runOnMainThread=False, chdir=False,
+                 multihost=True):
         self.path = os.path.dirname(path) if os.path.basename(path) == "test.py" else path
         self.mapping = Mapping.getByPath(self.path)
         self.id = self.mapping.addTestSuite(self)
-        self.options = options
-        self.libDirs = libDirs
+        self.options = options or {}
+        self.libDirs = libDirs or []
         self.runOnMainThread = runOnMainThread
         self.chdir = chdir
         self.multihost = multihost
