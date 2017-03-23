@@ -1398,7 +1398,7 @@ CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         }
         else if(member->optional())
         {
-            _out << "Ice_Unset";
+            _out << (_ns ? scopedToName("::Ice::None", _ns) : "Ice_Unset");
         }
         else
         {

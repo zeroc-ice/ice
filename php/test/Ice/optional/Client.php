@@ -36,7 +36,7 @@ function allTests($communicator)
     global $Ice_Encoding_1_0;
 
     $enum = $NS ? constant("Test\\MyEnum::MyEnumMember") : constant("Test_MyEnum::MyEnumMember");
-    $none = $MS ? constant("Ice\\None") : constant("Ice_Unset");
+    $none = $NS ? constant("Ice\\None") : constant("Ice_Unset");
 
     echo "testing stringToProxy... ";
     flush();
