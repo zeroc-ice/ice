@@ -422,8 +422,9 @@
                 {
                     // Expected stack overflow from the server (Java only)
                 }
-                else if(ex instanceof RangeError)
+                else if(ex instanceof Error)
                 {
+                    // Expected, JavaScript stack overflow
                 }
                 else
                 {
