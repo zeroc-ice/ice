@@ -14,6 +14,8 @@
 #include <iostream>
 #include <locale.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 static bool useLocale = false;

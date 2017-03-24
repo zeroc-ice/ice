@@ -1102,7 +1102,8 @@
     <ClCompile Include="..\..\TcpEndpointI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WindowsStringConverter.cpp">
+    <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
+    <ClCompile Include="..\..\StringConverterPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,7 +27,7 @@ DEFINE_TEST("client")
 
 using namespace std;
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(ICE_OS_UWP)
 namespace
 {
 
@@ -70,7 +70,7 @@ typedef Ice::Application App;
 }
 #endif
 
-class Client : public App
+class ClientApp : public App
 {
 public:
 
@@ -107,8 +107,8 @@ main(int argc, char* argv[])
     sigaction(SIGPIPE, &action, 0);
 #endif
 
-    Client app;
-#if __APPLE__
+	ClientApp app;
+#if defined(__APPLE__) || defined(ICE_OS_UWP)
     int result = app._main(argc, argv);
 #else
     int result = app.main(argc, argv);
@@ -127,7 +127,7 @@ main(int argc, char* argv[])
 }
 
 int
-Client::run(int, char*[])
+ClientApp::run(int, char*[])
 {
 
 #ifndef _WIN32
@@ -186,7 +186,7 @@ Client::run(int, char*[])
 
 
 int
-Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
+ClientApp::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
@@ -267,7 +267,7 @@ Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
 }
 
 int
-Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
+ClientApp::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());

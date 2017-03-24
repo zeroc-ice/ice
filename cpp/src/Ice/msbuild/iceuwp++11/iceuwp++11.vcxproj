@@ -156,6 +156,7 @@
     <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\StreamSocket.cpp" />
+    <ClCompile Include="..\..\StringConverterPlugin.cpp" />
     <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Time.cpp" />

@@ -221,23 +221,14 @@ class Windows(Platform):
         if config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
-                     "Ice/checksum",
-                     "Ice/custom",
-                     "Ice/defaultServant",
-                     "Ice/defaultValue",
+                     "Ice/echo",
                      "Ice/faultTolerance",
                      "Ice/gc",
-                     "Ice/interceptor",
                      "Ice/library",
                      "Ice/logger",
-                     "Ice/networkProxy",
-                     "Ice/properties",
+                     "Ice/networkProxy",        # SOCKS proxy not supported with UWP
+                     "Ice/properties",          # Property files are not supported with UWP
                      "Ice/plugin",
-                     "Ice/stringConverter",
-                     "Ice/servantLocator",
-                     "Ice/services",
-                     "Ice/slicing/exceptions",
-                     "Ice/slicing/objects",
                      "Ice/threadPoolPriority"])
         return Platform.getFilters(self, config)
 
@@ -258,8 +249,10 @@ class Windows(Platform):
             return "v110"
         elif out.find("Version 18.") != -1:
             return "v120"
-        elif out.find("Version 19.") != -1:
+        elif out.find("Version 19.00.") != -1:
             return "v140"
+        elif out.find("Version 19.10.") != -1:
+            return "v141"
 
     def getBinSubDir(self, mapping, process, current):
         #

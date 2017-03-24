@@ -36,14 +36,10 @@ int main(int argc, char** argv)
 
     Ice::InitializationData id;
     id.properties = Ice::createProperties(argc, argv);
-#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
-    //
-    // In Ice for UWP IceSSL is part of Ice core.
-    //
     id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     id.properties->setProperty("IceSSL.Keychain", "client.keychain");
     id.properties->setProperty("IceSSL.KeychainPassword", "password");
-#endif
+
     Ice::CommunicatorPtr communicator = Ice::initialize(id);
     for(i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
