@@ -17,7 +17,9 @@
 props = lambda process, current: {
     "IceDiscovery.Timeout": 50,
     "IceDiscovery.RetryCount": 5,
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
+    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+    "Ice.Trace.Network": 2,
+    "Ice.Trace.Locator": 2,
 }
 
 # Server properties (client properties + plugin configuration)
