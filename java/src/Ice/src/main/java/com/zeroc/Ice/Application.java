@@ -440,12 +440,12 @@ public abstract class Application
      * Note that the hook must obey the rules for shutdown hooks; specifically,
      * it must not call <code>exit</code>.
      *
-     * @param newHook The thread to run on shutdown.
+     * @param newHook The Runnable to run on shutdown.
      *
      * @see java.lang.Runtime#addShutdownHook
      **/
     public static void
-    setInterruptHook(java.lang.Thread newHook) // Pun intended.
+    setInterruptHook(Runnable newHook)
     {
         if(_signalPolicy == SignalPolicy.HandleSignals)
         {
@@ -658,7 +658,7 @@ public abstract class Application
     // support code.
     static class CustomHook extends AppHook
     {
-        CustomHook(Thread hook)
+        CustomHook(Runnable hook)
         {
             _hook = hook;
         }
@@ -684,7 +684,7 @@ public abstract class Application
             }
         }
 
-        private Thread _hook;
+        private Runnable _hook;
     }
 
     protected static String _appName;
