@@ -108,9 +108,26 @@
 }
 -(void) startDispatch:(ICECurrent*)current
 {
+    [_cond lock];
+    _dispatching = YES;
+    @try
+    {
+        while(_dispatching)
+        {
+            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:30.0]];
+        }
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
 }
 -(void) finishDispatch:(ICECurrent*)current
 {
+    [_cond lock];
+    _dispatching = NO;
+    [_cond signal];
+    [_cond unlock];
 }
 -(BOOL) supportsAMD:(ICECurrent *)current
 {
