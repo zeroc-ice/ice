@@ -17,7 +17,7 @@ class ObjectClientServerTestCase(ClientServerTestCase):
 
     def getProps(self, process, current):
         props = ClientServerTestCase.getProps(self, process, current)
-        if isinstance(process, Server) and not isinstance(process, EchoServer):
+        if process.getMapping(current) in ["java"] and isinstance(process, Server):
             props["Ice.ThreadPool.Server.StackSize"] = 512 * 1024
         return props
 
