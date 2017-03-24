@@ -39,6 +39,22 @@ public class Server extends test.Util.Application
 
         if(!isAndroid())
         {
+            StringBuilder endpoint = new StringBuilder();
+            if(properties.getProperty("Ice.IPv6").equals("1"))
+            {
+                endpoint.append("udp -h \"ff15::1:1\" -p ");
+                endpoint.append(getTestPort(properties, 10));
+                if(System.getProperty("os.name").contains("OS X"))
+                {
+                    endpoint.append(" --interface \"::1\"");
+                }
+            }
+            else
+            {
+                endpoint.append("udp -h 239.255.1.1 -p ");
+                endpoint.append(getTestPort(properties, 10));
+            }
+            properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
             Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
             mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
             mcastAdapter.activate();

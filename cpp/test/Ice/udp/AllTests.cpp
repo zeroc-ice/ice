@@ -134,20 +134,19 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
-    string endpoint;
+    ostringstream endpoint;
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
+        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(communicator->getProperties(), 10);
 #ifdef __APPLE__
-        endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
-#else
-        endpoint = "udp -h \"ff15::1:1\" -p 12020";
+        endpoint << " --interface \"::1\"";
 #endif
     }
     else
     {
-        endpoint = "udp -h 239.255.1.1 -p 12020";
+        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(communicator->getProperties(), 10);
     }
-    base = communicator->stringToProxy("test -d:" + endpoint);
+    base = communicator->stringToProxy("test -d:" + endpoint.str());
     TestIntfPrxPtr objMcast = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 #if (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     cout << "testing udp multicast... " << flush;

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Text;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -43,16 +44,17 @@ public class Server : TestCommon.Application
             adapter2.activate();
         }
 
-        string endpoint;
+        StringBuilder endpoint = new StringBuilder();
         if(properties.getProperty("Ice.IPv6").Equals("1"))
         {
-            endpoint = "udp -h \"ff15::1:1\" -p 12020";
+            endpoint.Append("udp -h \"ff15::1:1\" -p ");
         }
         else
         {
-            endpoint = "udp -h 239.255.1.1 -p 12020";
+            endpoint.Append("udp -h 239.255.1.1 -p ");
         }
-        properties.setProperty("McastTestAdapter.Endpoints", endpoint);
+        endpoint.Append(getTestPort(properties, 10));
+        properties.setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
         Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
         mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         mcastAdapter.activate();

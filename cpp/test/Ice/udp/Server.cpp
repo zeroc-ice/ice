@@ -35,20 +35,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         adapter2->activate();
     }
 
-    string endpoint;
+    ostringstream endpoint;
     if(properties->getProperty("Ice.IPv6") == "1")
     {
-#ifndef __APPLE__
-        endpoint = "udp -h \"ff15::1:1\" -p 12020";
-#else
-        endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(properties, 10);
+#ifdef __APPLE__
+        endpoint << " --interface \"::1\"";
 #endif
     }
     else
     {
-        endpoint = "udp -h 239.255.1.1 -p 12020";
+        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(properties, 10);
     }
-    properties->setProperty("McastTestAdapter.Endpoints", endpoint);
+    properties->setProperty("McastTestAdapter.Endpoints", endpoint.str());
     Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
     mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     mcastAdapter->activate();

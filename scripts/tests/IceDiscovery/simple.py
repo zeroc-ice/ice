@@ -17,12 +17,14 @@
 props = lambda process, current: {
     "IceDiscovery.Timeout": 50,
     "IceDiscovery.RetryCount": 5,
+    "IceDiscovery.Port": current.driver.getTestPort(10),
     "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
 }
 
 # Server properties (client properties + plugin configuration)
 serverProps = lambda process, current: dict(itertools.chain({
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
+    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+    "IceDiscovery.Port": current.driver.getTestPort(10)
 }.items(), props(process, current).items()))
 
 TestSuite(__name__, [

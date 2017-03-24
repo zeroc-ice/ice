@@ -9,6 +9,7 @@
 
 using Test;
 using System;
+using System.Text;
 using System.Threading;
 
 public class AllTests
@@ -155,16 +156,17 @@ public class AllTests
 
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
-        string endpoint;
+        StringBuilder endpoint = new StringBuilder();
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            endpoint = "udp -h \"ff15::1:1\" -p 12020";
+            endpoint.Append("udp -h \"ff15::1:1\" -p ");
         }
         else
         {
-            endpoint = "udp -h 239.255.1.1 -p 12020";
+            endpoint.Append("udp -h 239.255.1.1 -p ");
         }
-        @base = communicator.stringToProxy("test -d:" + endpoint);
+        endpoint.Append(app.getTestPort(10));
+        @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
         TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         nRetry = 5;
