@@ -2807,6 +2807,65 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         fact->destroyServer(server);
         comm->destroy();
     }
+
+    {
+        //
+        // Client and server should negotiate to use RC4 as it is enabled in both.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
+        d["IceSSL.Ciphers"] = "RC4";
+
+        Test::ServerPrxPtr server = fact->createServer(d);
+        try
+        {
+            server->checkCipher("RC4");
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(info->cipher.compare(0, 4, "RC4") == 0);
+        }
+        catch(const LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+
+    {
+        //
+        // Client only enables RC4 weak cypher, server does not allow it when using
+        // IceSSL.SchannelStrongCrypto
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+        initData.properties->setProperty("IceSSL.SchannelStrongCrypto", "1");
+
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
+        d["IceSSL.Ciphers"] = "RC4";
+
+        Test::ServerPrxPtr server = fact->createServer(d);
+        try
+        {
+            server->checkCipher("RC4");
+            test(false);
+        }
+        catch(const LocalException&)
+        {
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
 #  endif
 
     //

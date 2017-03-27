@@ -225,6 +225,11 @@ These are the changes since Ice 3.6.3.
   load the plugin using the `IceSSLOpenSSL:createIceSSLOpenSSL' entry point. This
   is currently only supported with Visual Studio 2015.
 
+- Added IceSSL.SchannelStrongCrypto property, when set to a value greater than 0
+  IceSSL SChannel implementation will set the SCH_USE_STRONG_CRYPTO flag which
+  instructs Schannel to disable known weak cryptographic algorithms. The default
+  values for this property is 0 for better interoperability.
+
 ## C# Changes
 
 - The `batchRequestInterceptor` data member of `Ice.InitializationData` is now

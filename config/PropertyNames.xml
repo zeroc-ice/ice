@@ -591,6 +591,7 @@ generated from the section label.
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
+        <property name="SchannelStrongCrypto" />
         <property name="Trace.Security" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />

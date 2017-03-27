@@ -564,7 +564,8 @@ algorithmId(const string& name)
 SChannel::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _rootStore(0),
-    _chainEngine(0)
+    _chainEngine(0),
+    _strongCrypto(false)
 {
 }
 
@@ -592,6 +593,8 @@ SChannel::SSLEngine::initialize()
     defaultProtocols.push_back("tls1_2");
     const_cast<DWORD&>(_protocols) =
         parseProtocols(properties->getPropertyAsListWithDefault(prefix + "Protocols", defaultProtocols));
+
+    const_cast<bool&>(_strongCrypto) = properties->getPropertyAsIntWithDefault(prefix + "SchannelStrongCrypto", 0) > 0;
 
     //
     // Check for a default directory. We look in this directory for
@@ -1127,6 +1130,11 @@ SChannel::SSLEngine::newCredentialsHandle(bool incoming)
     else
     {
         cred.dwFlags = SCH_CRED_MANUAL_CRED_VALIDATION | SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
+    }
+
+    if(_strongCrypto)
+    {
+        cred.dwFlags |= SCH_USE_STRONG_CRYPTO;
     }
 
     if(!_ciphers.empty())

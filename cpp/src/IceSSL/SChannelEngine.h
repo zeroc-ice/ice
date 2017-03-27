@@ -115,6 +115,8 @@ private:
 
     HCERTCHAINENGINE _chainEngine;
     std::vector<ALG_ID> _ciphers;
+
+    const bool _strongCrypto;
 };
 
 }
