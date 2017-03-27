@@ -142,8 +142,8 @@ function allTests($communicator)
     test($mo1->ioopd[5] == $prx);
 
     test($mo1->bos == array(false, true, false));
-    
-    
+
+
     //
     // Test generated struct and classes compare with $none
     //
@@ -563,6 +563,11 @@ function allTests($communicator)
 
     $p3 = $initial->opOneOptional($none, $p2);
     test($p2 == $none && $p3 == $none);
+    if($initial->supportsNullOptional())
+    {
+        $p3 = $initial->opOneOptional(null, $p2);
+        test($p2 == null && $p3 == null);
+    }
     $p1 = new $oocls(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
@@ -842,7 +847,7 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 
 $initial = allTests($communicator);

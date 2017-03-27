@@ -624,6 +624,22 @@
                 var [p1, p2] = r;
                 test(p1 === undefined);
                 test(p2 === undefined);
+                return initial.supportsNullOptional();
+            }
+        ).then(r =>
+            {
+                if(r)
+                {
+                    return initial.opOneOptional(null).then(r =>
+                    {
+                        var [p1, p2] = r;
+                        test(p1 === null);
+                        test(p2 === null);
+                    });
+                }
+            }
+        ).then(() =>
+            {
                 return initial.opOneOptional(new Test.OneOptional(58));
             }
         ).then(r =>

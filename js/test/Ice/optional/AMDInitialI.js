@@ -337,14 +337,19 @@
             return Promise.resolve(false);
         }
 
+        supportsCsharpSerializable(current)
+        {
+            return Promise.resolve(false);
+        }
+
         supportsCppStringView(current)
         {
             return false;
         }
 
-        supportsCsharpSerializable(current)
+        supportsNullOptional(current)
         {
-            return Promise.resolve(false);
+            return Promise.resolve(true);
         }
     }
 

@@ -1429,6 +1429,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         IceUtil::Optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
         test(!p2 && !p3);
 
+        if(initial->supportsNullOptional())
+        {
+            p2 = initial->opOneOptional(OneOptionalPtr(), p3);
+            test(*p2 == ICE_NULLPTR && *p3 == ICE_NULLPTR);
+        }
+
         p1 = ICE_MAKE_SHARED(OneOptional, 58);
         p2 = initial->opOneOptional(p1, p3);
         test((*p2)->a == 58 && (*p3)->a == 58);

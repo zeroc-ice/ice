@@ -333,14 +333,19 @@
             return false;
         }
 
+        supportsCsharpSerializable(current)
+        {
+            return false;
+        }
+
         supportsCppStringView(current)
         {
             return false;
         }
 
-        supportsCsharpSerializable(current)
+        supportsNullOptional(current)
         {
-            return false;
+            return true;
         }
     }
     exports.InitialI = InitialI;

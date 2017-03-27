@@ -117,7 +117,7 @@ def allTests(communicator)
     test(mo1.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [false, true, false])
-    
+
     #
     # Test generated struct and classes compare with Ice::Unset
     #
@@ -527,6 +527,10 @@ def allTests(communicator)
 
     p2, p3 = initial.opOneOptional(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)
+    if initial.supportsNullOptional() then
+        p2, p3 = initial.opOneOptional(nil)
+        test(p2 == nil && p3 == nil)
+    end
     p1 = Test::OneOptional.new(58)
     p2, p3 = initial.opOneOptional(p1)
     test(p2.a == p1.a && p3.a == p1.a)
