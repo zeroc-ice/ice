@@ -27,6 +27,12 @@ def run(cmd, cwd=None, err=False):
     out = p.stdout.read().decode('UTF-8').strip()
     if(not err and p.wait() != 0) or (err and p.wait() == 0) :
         raise RuntimeError(cmd + " failed:\n" + out)
+    #
+    # Without this we get warnings when runing with python_d on Windows
+    #
+    # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
+    #
+    p.stdout.close()
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):

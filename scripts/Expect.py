@@ -519,6 +519,13 @@ class Expect (object):
         self.buf = self.r.getbuf()
         self.before = self.buf
         self.after = ""
+        #
+        # Without this we get warnings when runing with python_d on Windows
+        #
+        # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
+        #
+        self.r.p.stdout.close()
+        self.r.p.stdin.close()
         self.r = None
 
         return self.exitstatus
