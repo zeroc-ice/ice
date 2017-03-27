@@ -3,5 +3,10 @@
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Debug</Configuration>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <UseDebugLibraries>true</UseDebugLibraries>
+    </PropertyGroup>
+
     <Import Project="$(MSBuildThisFileDirectory)..\..\cpp\config\ice.cpp.props" />
 </Project>

@@ -14,37 +14,15 @@
         <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
-    <Choose>
-        <!--
-            If BuildAllConfigurations is set to yes we build all configurations that are
-            part of the binary distribution, otherwise we just build the specific platform
-            and configuration.
-        -->
-        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
-            <ItemGroup>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=x64</Properties>
-                </DistProjects>
-                <DistProjects Include="..\python\**\msbuild\*.proj">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-            </ItemGroup>
-        </When>
-        <Otherwise>
-            <ItemGroup>
-                <DistProjects Include="ice.sln">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </DistProjects>
+    <ItemGroup>
+        <DistProjects Include="ice.sln">
+            <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </DistProjects>
 
-                <DistProjects Include="..\python\**\msbuild\*.proj">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </DistProjects>
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
+        <DistProjects Include="..\python\**\msbuild\*.proj">
+            <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
+        </DistProjects>
+    </ItemGroup>
 
     <Target Name="Build" DependsOnTargets="NugetRestore">
         <MSBuild Projects="@(DistProjects)"
