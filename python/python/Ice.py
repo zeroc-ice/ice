@@ -1178,7 +1178,8 @@ value is an integer representing the exit status.
         # Install our handler for the signals we are interested in. We assume main()
         # is called from the main thread.
         #
-        Application._ctrlCHandler = CtrlCHandler()
+        if Application._signalPolicy == Application.HandleSignals:
+            Application._ctrlCHandler = CtrlCHandler()
 
         try:
             Application._interrupted = False
@@ -1204,8 +1205,9 @@ value is an integer representing the exit status.
         # Set _ctrlCHandler to 0 only once communicator.destroy() has
         # completed.
         #
-        Application._ctrlCHandler.destroy()
-        Application._ctrlCHandler = None
+        if Application._signalPolicy == Application.HandleSignals:
+            Application._ctrlCHandler.destroy()
+            Application._ctrlCHandler = None
 
         return status
 
