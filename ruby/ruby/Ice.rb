@@ -271,7 +271,7 @@ module Ice
         # Read and dispatch signals.
         def main
             while rs = IO.select([@read])
-                signal = rs.first[0].gets
+                signal = rs.first[0].gets.strip
                 if signal == 'DONE'
                     @read.close()
                     break
