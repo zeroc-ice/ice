@@ -8,11 +8,32 @@
 // **********************************************************************
 
 
+using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Test;
 
 public class AllTests : TestCommon.AllTests
 {
+    public class Progress : IProgress<bool>
+    {
+        public Progress()
+        {
+        }
+
+        public bool getResult()
+        {
+            return _sentSynchronously;
+        }
+
+        public void Report(bool sentSynchronously)
+        {
+            _sentSynchronously = sentSynchronously;
+        }
+
+        bool _sentSynchronously = false;
+    }
+
     private class Callback
     {
         internal Callback()
@@ -132,6 +153,115 @@ public class AllTests : TestCommon.AllTests
             testController.resumeAdapter();
             r.waitForCompleted();
         }
+        WriteLine("ok");
+
+        Write("testing dispatcher with continuations... ");
+        Flush();
+        {
+            p.op();
+
+            Callback cb = new Callback();
+            System.Action<Task> continuation = (Task previous) =>
+            {
+                try
+                {
+                    previous.Wait();
+                    cb.response();
+                }
+                catch(System.AggregateException ex)
+                {
+                    cb.exception((Ice.Exception)ex.InnerException);
+                }
+            };
+            // We use sleepAsync instead of opAsync to ensure the response isn't received before
+            // we setup the continuation
+            var t = p.sleepAsync(100).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously);
+            t.Wait();
+            cb.check();
+
+            TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
+            i.opAsync().ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            cb.check();
+
+            //
+            // Expect InvocationTimeoutException.
+            //
+            {
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                to.sleepAsync(500).ContinueWith(
+                    previous =>
+                    {
+                        try
+                        {
+                            previous.Wait();
+                            test(false);
+                        }
+                        catch(System.AggregateException ex)
+                        {
+                            test(ex.InnerException is Ice.InvocationTimeoutException);
+                            test(Dispatcher.isDispatcherThread());
+                        }
+                    }, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            }
+
+            testController.holdAdapter();
+            System.Action<Task> continuation2 = (Task previous) =>
+            {
+                test(Dispatcher.isDispatcherThread());
+                try
+                {
+                    previous.Wait();
+                }
+                catch(System.AggregateException ex)
+                {
+                    test(ex.InnerException is Ice.CommunicatorDestroyedException);
+                }
+            };
+
+            byte[] seq = new byte[10 * 1024];
+            (new System.Random()).NextBytes(seq);
+            Progress sentSynchronously;
+            do
+            {
+                sentSynchronously = new Progress();
+                t = p.opWithPayloadAsync(seq, progress: sentSynchronously).ContinueWith(continuation2,
+                                                                 TaskContinuationOptions.ExecuteSynchronously);
+            }
+            while(sentSynchronously.getResult());
+            testController.resumeAdapter();
+            t.Wait();
+        }
+        WriteLine("ok");
+
+        Write("testing dispatcher with async/await... ");
+        Flush();
+        p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
+        {
+            await p.opAsync();
+            test(Dispatcher.isDispatcherThread());
+
+            try
+            {
+                TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
+                await i.opAsync();
+                test(false);
+            }
+            catch(Exception)
+            {
+                test(Dispatcher.isDispatcherThread());
+            }
+
+            Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+            try
+            {
+                await to.sleepAsync(500);
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException)
+            {
+                test(Dispatcher.isDispatcherThread());
+            }
+        }, TaskContinuationOptions.ExecuteSynchronously).Wait();
         WriteLine("ok");
 
         p.shutdown();

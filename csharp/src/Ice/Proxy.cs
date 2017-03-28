@@ -2172,10 +2172,9 @@ namespace Ice
                 _proxy = proxy;
             }
 
-            public override bool handleResponse(bool ok, OutgoingAsyncBase og)
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
                 SetResult(((ProxyGetConnection)og).getConnection());
-                return false;
             }
 
             private ObjectPrx _proxy;
@@ -2690,21 +2689,22 @@ namespace Ice
             {
             }
 
-            public override bool handleSent(bool done, bool alreadySent)
+            public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
+                                                  OutgoingAsyncBase og)
             {
                 if(done)
                 {
-                    var result = new Object_Ice_invokeResult();
-                    result.returnValue = true;
-                    SetResult(result);
+                    SetResult(new Object_Ice_invokeResult(true, null));
                 }
-                return base.handleSent(false, alreadySent);
+                if(!alreadySent)
+                {
+                   progress_.Report(sentSynchronously);
+                }
             }
 
-            public override bool handleResponse(bool ok, OutgoingAsyncBase og)
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
                 SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
-                return false;
             }
         }
 

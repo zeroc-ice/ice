@@ -2321,7 +2321,14 @@ public class AllTests : TestCommon.AllTests
                             {
                                 test(false);
                             }));
-                    test(t.IsFaulted);
+                    try
+                    {
+                        t.Wait();
+                        test(false);
+                    }
+                    catch(System.AggregateException)
+                    {
+                    }
                     test(p.opBatchCount() == 0);
                 }
 

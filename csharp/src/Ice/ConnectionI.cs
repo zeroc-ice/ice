@@ -639,10 +639,9 @@ namespace Ice
             {
             }
 
-            public override bool handleResponse(bool ok, OutgoingAsyncBase og)
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
                 SetResult(null);
-                return false;
             }
         }
 
