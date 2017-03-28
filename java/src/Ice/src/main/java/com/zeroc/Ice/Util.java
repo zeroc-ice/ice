@@ -184,7 +184,7 @@ public final class Util
      * @param args A command-line argument vector. Any Ice-related options
      * in this vector are used to initialize the communicator.
      *
-     * @param configFile Path to a config file that sets the new Communicator's default
+     * @param configFile Path to a config file that sets the new communicator's default
      * properties.
      *
      * @return The new communicator.
@@ -241,7 +241,7 @@ public final class Util
      * @param args A command-line argument vector. Any Ice-related options
      * in this vector are used to initialize the communicator.
      *
-     * @param configFile Path to a config file that sets the new Communicator's default
+     * @param configFile Path to a config file that sets the new communicator's default
      * properties.
      *
      * @param remainingArgs If non null, the given list will contain on

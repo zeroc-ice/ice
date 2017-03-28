@@ -165,14 +165,14 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args)
         {
-            return initialize(ref args, null);
+            return initialize(ref args, (InitializationData)null);
         }
 
         /// <summary>
         /// Creates a communicator.
         /// </summary>
         /// <param name="args">A command-line argument vector. Any Ice-related options
-        /// in this vector are used to intialize the communicator.
+        /// in this vector are used to initialize the communicator.
         /// This method modifies the argument vector by removing any Ice-related options.</param>
         /// <param name="initData">Additional intialization data. Property settings in args
         /// override property settings in initData.</param>
@@ -198,6 +198,27 @@ namespace Ice
         /// <summary>
         /// Creates a communicator.
         /// </summary>
+        /// <param name="args">A command-line argument vector. Any Ice-related options
+        /// in this vector are used to initialize the communicator.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <param name="configFile">Path to a config file that sets the new communicator's default
+        /// properties.</param>
+        /// <returns>The initialized communicator.</returns>
+        public static Communicator initialize(ref string[] args, string configFile)
+        {
+            InitializationData initData = null;
+            if(configFile != null)
+            {
+                initData = new InitializationData();
+                initData.properties = Util.createProperties();
+                initData.properties.load(configFile);
+            }
+            return initialize(ref args, initData);
+        }
+
+        /// <summary>
+        /// Creates a communicator.
+        /// </summary>
         /// <param name="initData">Additional intialization data.</param>
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(InitializationData initData)
@@ -218,11 +239,29 @@ namespace Ice
         }
 
         /// <summary>
+        /// Creates a communicator.
+        /// </summary>
+        /// <param name="configFile">Path to a config file that sets the new communicator's default
+        /// properties.</param>
+        /// <returns>The initialized communicator.</returns>
+        public static Communicator initialize(string configFile)
+        {
+            InitializationData initData = null;
+            if(configFile != null)
+            {
+                initData = new InitializationData();
+                initData.properties = Util.createProperties();
+                initData.properties.load(configFile);
+            }
+            return initialize(initData);
+        }
+
+        /// <summary>
         /// Creates a communicator using a default configuration.
         /// </summary>
         public static Communicator initialize()
         {
-            return initialize(null);
+            return initialize((InitializationData)null);
         }
 
         /// <summary>

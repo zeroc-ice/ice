@@ -174,7 +174,7 @@ public final class Util
      * in this vector are used to intialize the communicator.
      * This method modifies the argument vector by removing any Ice-related options.
      *
-     * @param configFile Path to a config file that sets the new Communicator's default
+     * @param configFile Path to a config file that sets the new communicator's default
      * properties.
      *
      * @return The initialized communicator.
@@ -219,7 +219,7 @@ public final class Util
      * @param args A command-line argument vector. Any Ice-related options
      * in this vector are used to intialize the communicator.
      *
-     * @param configFile Path to a config file that sets the new Communicator's default
+     * @param configFile Path to a config file that sets the new communicator's default
      * properties.
      *
      * @return The initialized communicator.
@@ -262,7 +262,7 @@ public final class Util
      /**
      * Creates a communicator.
      *
-     * @param configFile Path to a config file that sets the new Communicator's default
+     * @param configFile Path to a config file that sets the new communicator's default
      * properties.
      *
      * @return The initialized communicator.
