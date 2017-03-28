@@ -23,6 +23,8 @@ import types
 __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
 win32 = (sys.platform == "win32")
+if win32:
+    import ctypes
 
 class EOF:
     """Raised when EOF is read from a child.
@@ -544,7 +546,7 @@ class Expect (object):
             return
 
         try:
-            self.wait(timeout = 5)
+            self.wait(timeout = 0.5)
             return
         except TIMEOUT as e:
             pass
@@ -572,7 +574,26 @@ class Expect (object):
         """Send the signal to the process."""
         self.killed = sig # Save the sent signal.
         if win32:
-            terminateProces(self.p)
+            # Signals under windows are all turned into CTRL_BREAK_EVENT,
+            # except with Java since CTRL_BREAK_EVENT generates a stack
+            # trace.
+            #
+            # We BREAK since CTRL_C doesn't work (the only way to make
+            # that work is with remote code injection).
+            if self.hasInterruptSupport():
+                try:
+                    #
+                    # Using the ctypes module removes the reliance on the
+                    # python win32api
+                    try:
+                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    except NameError:
+                        pass
+                except:
+                    traceback.print_exc(file=sys.stdout)
+            else:
+                killProces(self.p)
         else:
             os.kill(self.p.pid, sig)
 
@@ -650,3 +671,9 @@ class Expect (object):
 
     def getOutput(self):
         return self.buf
+
+    def hasInterruptSupport(self):
+        """Return True if the application gracefully terminated, False otherwise."""
+        if win32 and (self.mapping == "java" or self.mapping == "java-compat"):
+            return False
+        return True
