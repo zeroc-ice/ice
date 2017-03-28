@@ -29,7 +29,7 @@ public class Main extends JFrame
         //
         try
         {
-            if(System.getProperty("os.name").startsWith("Mac OS")) // OS X L&F
+            if(System.getProperty("os.name").startsWith("Mac OS")) // macOS L&F
             {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }

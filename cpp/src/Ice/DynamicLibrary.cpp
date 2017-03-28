@@ -183,7 +183,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef __APPLE__
     //
-    // On OS X fallback to .so and .bundle extensions, if the default
+    // On macOS fallback to .so and .bundle extensions, if the default
     // .dylib fails.
     //
     if(!load(lib + ".dylib"))

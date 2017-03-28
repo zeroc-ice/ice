@@ -2164,7 +2164,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         // }
 #  else
         //
-        // In OS X we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
+        // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
         // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
         // enabled protocol versions. See the test bellow.
         //
@@ -2608,7 +2608,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
 #    ifndef ICE_USE_SECURE_TRANSPORT
             //
-            // OS X 10.10 bug the handshake fails attempting client auth
+            // macOS 10.10 bug the handshake fails attempting client auth
             // with anon cipher.
             //
             cerr << ex << endl;

@@ -127,7 +127,7 @@ namespace IceInternal
 
         public static bool notConnected(SocketException ex)
         {
-            // BUGFIX: SocketError.InvalidArgument because shutdown() under OS X returns EINVAL
+            // BUGFIX: SocketError.InvalidArgument because shutdown() under macOS returns EINVAL
             // if the server side is gone.
             // BUGFIX: shutdown() under Vista might return SocketError.ConnectionReset
             SocketError error = socketErrorCode(ex);

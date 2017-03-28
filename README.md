@@ -28,7 +28,7 @@ Ice runs on a wide range of platforms:
 - Linux
 - Linux on embedded devices
 - Node.js
-- OS X
+- macOS
 - Web Browser
 - Windows
 - Universal Windows
