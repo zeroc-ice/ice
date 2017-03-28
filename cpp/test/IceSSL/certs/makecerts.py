@@ -154,7 +154,7 @@ for (ca, alias, path, args) in savecerts:
         cert.save(path + ".p12", **args)
 
 #
-# Create DH parameters to use with OS X Secure Transport.
+# Create DH parameters to use with macOS Secure Transport.
 #
 if clean or not os.path.exists("dh_params512.der"):
     ca1.run("openssl", "dhparam", 512, outform="DER", out="dh_params512.der")

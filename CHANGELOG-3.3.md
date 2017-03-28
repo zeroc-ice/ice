@@ -265,7 +265,7 @@ noted.
   standard Ice installation.
 
 - Improved the way the build system locates the Python framework on
-  Mac OS X.
+  macOS.
 
 ## Ruby Changes
 
@@ -741,7 +741,7 @@ noted.
 
 - The thread stack size specified with the `IceUtil::Thread::start()`
   method parameter is now adjusted to `PTHREAD_STACK_MIN` if it's
-  inferior to it. On Mac OS X, it's also adjusted to the next closest
+  inferior to it. On macOS, it's also adjusted to the next closest
   multiple of the page size (4KB).
 
 - Added a new overloading of the Ice::createInputStream method:

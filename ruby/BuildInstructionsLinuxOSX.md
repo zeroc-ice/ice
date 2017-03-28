@@ -1,21 +1,21 @@
 # Building Ice for Ruby on Linux
 
 This file describes how to build and install Ice for Ruby from source code on
-Linux and OS X. If you prefer, you can also download [binary distributions][1]
+Linux and macOS. If you prefer, you can also download [binary distributions][1]
 for the supported platforms.
 
 ## Ruby Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice for Ruby is expected to build and run properly on OS X and on any recent
+Ice for Ruby is expected to build and run properly on macOS and on any recent
 Linux distribution for x86 and x86_64, and was extensively tested using the
 operating systems and Ruby versions listed for our [supported platforms][2].
 
 ### Ruby Versions
 
 Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or
-binary installation of Ruby. 
+binary installation of Ruby.
 
 If you use an RPM installation, the following packages are required:
 
@@ -92,7 +92,7 @@ You must also modify `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` to include the
 directory `/opt/Ice/lib`:
 
     $ export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH       (Linux)
-    $ export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (OS X)
+    $ export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (macOS)
 
 To verify that Ruby can load the Ice extension successfully, open a command
 window and start the interpreter using `irb`:

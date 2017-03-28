@@ -54,7 +54,7 @@ This requires that you build the Java test controller from the Java subdirectory
 and test servers from C++, C# or Java. Follow the instructions from the
 corresponding language mapping to build the tests and the server controller.
 
-In OS X the first time you run the script, you will be prompted for your
+In macOS the first time you run the script, you will be prompted for your
 password. This is necessary to configure the trust setting for the HTTP
 server certificate, which will enable you to connect to the HTTP server
 with SSL via your web browser.

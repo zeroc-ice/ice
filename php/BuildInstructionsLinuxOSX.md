@@ -1,7 +1,7 @@
-# Building Ice for PHP on Linux and OS X
+# Building Ice for PHP on Linux and macOS
 
 This page describes how to build and install Ice for PHP from source code on
-Linux and OS X. If you prefer, you can also download [binary distributions][1]
+Linux and macOS. If you prefer, you can also download [binary distributions][1]
 for the supported platforms.
 
 ## PHP Build Requirements
@@ -69,7 +69,7 @@ the following line on Linux:
 
     extension = IcePHP.so
 
-Or on OS X:
+Or on macOS:
 
     extension = IcePHP.dy
 
@@ -82,7 +82,7 @@ Open the configuration file and append the following line on Linux:
 
     extension = IcePHP.so
 
-Or on OS X:
+Or on macOS:
 
     extension = IcePHP.dy
 
@@ -92,7 +92,7 @@ shown below:
     $ php -m
 
 Look for `ice` among the installed modules. Note that your library search path
-(`LD_LIBRARY_PATH` on Linux or `DYLD_LIBRARY_PATH` on OS X) must include the
+(`LD_LIBRARY_PATH` on Linux or `DYLD_LIBRARY_PATH` on macOS) must include the
 directory containing the Ice shared libraries.
 
 Read the PHP Dependencies and PHP Source Files sections below for more

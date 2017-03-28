@@ -122,7 +122,7 @@ public class AllTests
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
                 // will be throw when try to send a packet bigger than that. However, Mono 2.10 bug in setting Socket
-                // options could cause the RcvSize/SndSize to contain an arbitrary value so the test might fail 
+                // options could cause the RcvSize/SndSize to contain an arbitrary value so the test might fail
                 // with smaller message sizes.
                 //
                 test(seq.Length > 16384 || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
@@ -138,8 +138,8 @@ public class AllTests
                 bool b = replyI.waitReply(1, 500);
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                // should not be delivered. However, Mono 2.10 bug in setting Socket options could 
-                // cause the RcvSize/SndSize to contain an arbitrary value so the packet might 
+                // should not be delivered. However, Mono 2.10 bug in setting Socket options could
+                // cause the RcvSize/SndSize to contain an arbitrary value so the packet might
                 // be delivered successfully.
                 //
                 test(!b || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
@@ -148,7 +148,7 @@ public class AllTests
             {
                 //
                 // Mono 2.10 bug in setting Socket options could cause the RcvSize/SndSize to contain
-                // an arbitrary value so the message send might fail if the effetive SndSize is minor 
+                // an arbitrary value so the message send might fail if the effetive SndSize is minor
                 // than expected.
                 //
                 test(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
@@ -229,7 +229,7 @@ public class AllTests
 
         //
         // Sending the replies back on the multicast UDP connection doesn't work for most
-        // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
+        // platform (it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
         //

@@ -1,4 +1,4 @@
-# Building Ice for C++ on OS X
+# Building Ice for C++ on macOS
 
 This file describes the Ice source distribution, including information about
 compiler requirements, third-party dependencies, and instructions for building

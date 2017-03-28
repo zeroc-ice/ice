@@ -88,7 +88,7 @@ allTests(const CommunicatorPtr& communicator)
         }
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
-        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = new PingReplyI;
         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
     }
@@ -176,7 +176,7 @@ allTests(const CommunicatorPtr& communicator)
     }
 #endif
 
-    cout << "testing udp bi-dir connection... " << flush;    
+    cout << "testing udp bi-dir connection... " << flush;
     obj->ice_getConnection()->setAdapter(adapter);
     objMcast->ice_getConnection()->setAdapter(adapter);
     nRetry = 5;
@@ -193,7 +193,7 @@ allTests(const CommunicatorPtr& communicator)
         }
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
-        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = new PingReplyI;
         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
     }
@@ -202,11 +202,11 @@ allTests(const CommunicatorPtr& communicator)
 
     //
     // Sending the replies back on the multicast UDP connection doesn't work for most
-    // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
+    // platform (it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
     // Windows...). For Windows, see UdpTransceiver constructor for the details. So
     // we don't run this test.
-    // 
-//     cout << "testing udp bi-dir connection... " << flush;    
+    //
+//     cout << "testing udp bi-dir connection... " << flush;
 //     nRetry = 5;
 //     while(nRetry-- > 0)
 //     {
@@ -216,7 +216,7 @@ allTests(const CommunicatorPtr& communicator)
 //         if(ret)
 //         {
 //             break; // Success
-//         }        
+//         }
 //         replyI = new PingReplyI;
 //         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
 //     }

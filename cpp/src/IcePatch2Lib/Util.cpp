@@ -36,7 +36,7 @@
 
 #include <iterator>
 
-// Ignore OS X OpenSSL deprecation warnings
+// Ignore macOS OpenSSL deprecation warnings
 #ifdef __APPLE__
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif

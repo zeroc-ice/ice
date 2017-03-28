@@ -44,7 +44,7 @@ print("ok")
 sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string converter... ")
 #
 # In Windows expected output is UTF8, because the console output code page is set to UTF-8
-# in Linux and OS X, the expected output is ISO-8859-15 because that is the narrow string
+# in Linux and macOS, the expected output is ISO-8859-15 because that is the narrow string
 # encoding used by the application.
 #
 if TestUtil.isWin32():

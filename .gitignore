@@ -67,7 +67,7 @@ cpp/test/IceBox/configuration/build.txt
 /cpp/test/*/*/build.txt
 /csharp/test/*/*/build.txt
 
-# OS X Keychain
+# macOS Keychain
 *.keychain
 .fl????????
 

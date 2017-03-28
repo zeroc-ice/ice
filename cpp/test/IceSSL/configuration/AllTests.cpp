@@ -1449,7 +1449,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         // }
 #else
         //
-        // In OS X we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
+        // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
         // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
         // enabled protocol versions. See the test bellow.
         //
@@ -1573,7 +1573,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             Test::ServerPrx server = fact->createServer(d);
             try
             {
-                // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
+                // macOS 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
                 server->ice_ping();
             }
             catch(const LocalException&)
@@ -1850,7 +1850,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
 #  ifndef ICE_USE_SECURE_TRANSPORT
             //
-            // OS X 10.10 bug the handshake fails attempting client auth
+            // macOS 10.10 bug the handshake fails attempting client auth
             // with anon cipher.
             //
             cerr << ex << endl;

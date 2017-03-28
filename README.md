@@ -27,7 +27,7 @@ Ice runs on a wide range of platforms:
 - iOS ([Ice Touch](https://github.com/zeroc-ice/icetouch))
 - Linux
 - Node.js
-- OS X
+- macOS
 - Web Browser
 - Windows
 - WinRT

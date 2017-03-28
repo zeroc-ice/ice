@@ -70,7 +70,7 @@ public class AllTests
             IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
                 communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
             test(registry != null);
-            
+
             try
             {
                 IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
@@ -89,16 +89,16 @@ public class AllTests
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery", 
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
-            if(System.getProperty("os.name").contains("OS X") && 
+            if(System.getProperty("os.name").contains("OS X") &&
                initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
             {
                 initData.properties.setProperty("IceLocatorDiscovery.Interface", "::1");
             }
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
-        
+
             Ice.Communicator com =  Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             com.stringToProxy("test @ TestAdapter").ice_ping();
@@ -116,7 +116,7 @@ public class AllTests
             //
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
-            // 
+            //
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");

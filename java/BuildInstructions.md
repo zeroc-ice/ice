@@ -8,7 +8,7 @@ platforms.
 
 ### Operating Systems
 
-Ice for Java is expected to build and run properly on Windows, OS X, and any
+Ice for Java is expected to build and run properly on Windows, macOS, and any
 recent Linux distribution for x86 and x86_64, and was extensively tested using
 the operating systems and compiler versions listed for our [supported
 platforms][2]. Due to the portability of Java, it is very likely that it will
@@ -111,13 +111,13 @@ The Maven package id for the ProGuard package is as follows:
 
 ### Java Application Bundler
 
-Under OS X Gradle uses the Java Application Bundler to create an application
+Under macOS Gradle uses the Java Application Bundler to create an application
 bundle for the graphical IceGrid administrative tool.
 
 The Maven package id for the application bundler package is as follows:
 
     groupId=com.oracle, version=1.0, artifactId=appbundler
- 
+
 ## Compiling Ice for Java
 
 ### Preparing to Build
@@ -221,7 +221,7 @@ You can start the tool with the following command:
 
     > java -jar icegridgui.jar
 
-In OS X there is also an application bundle named IceGrid Admin. You can start
+In macOS there is also an application bundle named IceGrid Admin. You can start
 the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 
 ## Test Controller

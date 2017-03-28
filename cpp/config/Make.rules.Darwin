@@ -40,7 +40,7 @@ else
 endif
 
 #
-# On OS X, always build with C++11 support enabled unless we
+# On macOS, always build with C++11 support enabled unless we
 # explicitly set it to no (possibly to test binary compatibility).
 #
 ifneq ($(CPP11), no)

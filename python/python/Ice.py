@@ -334,7 +334,7 @@ def getSliceDir():
 
     elif sys.platform == "darwin":
         #
-        # Check the default OS X location.
+        # Check the default macOS location.
         #
         dir = os.path.join("/", "Library", "Developer", "Ice-" + iceVer, "slice")
         if os.path.exists(dir):

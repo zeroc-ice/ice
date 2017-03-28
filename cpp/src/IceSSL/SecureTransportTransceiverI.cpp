@@ -136,7 +136,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
     }
     default:
     // case kSecTrustResultInvalid:
-    // case kSecTrustResultConfirm: // Used in old OS X versions
+    // case kSecTrustResultConfirm: // Used in old macOS versions
     // case kSecTrustResultDeny:
     // case kSecTrustResultRecoverableTrustFailure:
     // case kSecTrustResultFatalTrustFailure:

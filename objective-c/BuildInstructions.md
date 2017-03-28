@@ -1,13 +1,13 @@
-# Building Ice for Objective-C on OS X
+# Building Ice for Objective-C on macOS
 
 This page describes how to build and install Ice for Objective-C from source
-code on OS X. If you prefer, you can install a [Homebrew][1] package instead.
+code on macOS. If you prefer, you can install a [Homebrew][1] package instead.
 
 ## Objective-C Build Requirements
 
 ### Operating Systems and Compilers
 
-Ice for Objective-C is currently only supported on OS X, and was extensively
+Ice for Objective-C is currently only supported on macOS, and was extensively
 tested using the operating system and compiler versions listed for our
 [supported platforms][2].
 

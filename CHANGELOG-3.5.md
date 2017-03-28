@@ -148,7 +148,7 @@ class Compact(1)
 
 - The Slice compilers now define the `ICE_VERSION` preprocessor macro so that you can use the Ice version to conditionally compile your Slice definitions.
 
-- Fixed bug where the UDP client endpoint `--interface` option would be ignored on some platforms (Windows and OS X).
+- Fixed bug where the UDP client endpoint `--interface` option would be ignored on some platforms (Windows and macOS).
 IceGrid now enables active connection management for its object adapters to allow client connections to be closed automatically when inactive.
 
 - Improved `Ice.Trace.Network` tracing for transport acceptors. The tracing now shows when the object adapter starts listening for incoming connections and when it starts accepting them.
@@ -221,7 +221,7 @@ struct MyStruct {
 
 - Fixed a bug that could cause an assertion failure when flushing batch requests.
 
-- Added support for clang compiler on OS X.
+- Added support for clang compiler on macOS.
 
 - Fixed issue where a connection to a remote address would always fail with an assertion on Windows 8.
 

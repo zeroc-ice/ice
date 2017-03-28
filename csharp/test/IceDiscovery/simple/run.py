@@ -30,7 +30,7 @@ args += " --IceDiscovery.Timeout=50"
 args += " --IceDiscovery.RetryCount=5"
 
 if TestUtil.isDarwin() and TestUtil.ipv6:
-   print("test not supported on OS X with IPv6")
+   print("test not supported on macOS with IPv6")
    sys.exit(0)
 
 if not TestUtil.ipv6:

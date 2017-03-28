@@ -26,7 +26,7 @@ using namespace std;
 IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
 
-IceInternal::DynamicLibrary::DynamicLibrary() : 
+IceInternal::DynamicLibrary::DynamicLibrary() :
     _hnd(0)
 {
 }
@@ -177,7 +177,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef __APPLE__
     //
-    // On OS X fallback to .so and .bundle extensions, if the default
+    // On macOS fallback to .so and .bundle extensions, if the default
     // .dylib fails.
     //
     if(!load(lib + ".dylib"))

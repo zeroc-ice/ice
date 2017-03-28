@@ -929,7 +929,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 
     //
     // NOTE: setting the multicast interface before performing the
-    // connect is important for some OS such as OS X.
+    // connect is important for some OS such as macOS.
     //
     if(isMulticast(_addr))
     {

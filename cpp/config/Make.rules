@@ -22,7 +22,7 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 # The "root directory" for runpath embedded in executables. Can be set
 # to change the runpath added to Ice executables. The default is
-# platform dependent (Linux only, on OS X the embedded runpath is
+# platform dependent (Linux only, on macOS the embedded runpath is
 # always @loader_path/../lib).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
@@ -36,7 +36,7 @@ create_runpath_symlink  ?= no
 
 #
 # Define embedded_runpath as no if you don't want any RPATH added to
-# the executables (Linux only, on OS X we always add a runpath).
+# the executables (Linux only, on macOS we always add a runpath).
 #
 embedded_runpath 	?= yes
 
@@ -50,14 +50,14 @@ new_dtags 		?= no
 #
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
 # default is platform-dependent. This property has no effect on
-# OS X. On OS X, use CXXARCHFLAGS bellow to establish the build
+# macOS. On macOS, use CXXARCHFLAGS bellow to establish the build
 # architectures.
 #
 #LP64			?= yes
 
 #
 # The build architectures for gcc/llvm based builds. The format of
-# these build flags are OS dependent. For example, under OS X to
+# these build flags are OS dependent. For example, under macOS to
 # build binaries which support both i386 and x86_64 you would use
 # "-arch i386 -arch x86_64".  The default is OS version dependent. Be
 # aware that this value may conflict with the setting of LP64 above.

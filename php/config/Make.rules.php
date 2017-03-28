@@ -17,14 +17,14 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 # The "root directory" for runpath embedded in executables. Can be set
 # to change the runpath added to Ice executables. The default is
-# platform dependent (Linux only, on OS X the embedded runpath is always
+# platform dependent (Linux only, on macOS the embedded runpath is always
 # based on @loader_path).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 #
 # Define embedded_runpath as no if you don't want any RPATH added to
-# the executables (Linux only, on OS X we always add a runpath).
+# the executables (Linux only, on macOS we always add a runpath).
 #
 embedded_runpath 	?= yes
 

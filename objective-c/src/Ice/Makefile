@@ -86,7 +86,7 @@ include $(top_srcdir)/config/Make.rules
 
 #
 # Set RPATH to the cpp/lib directory or Ice installation lib directory. Note that unlike Linux
-# platforms, we always set the RPATH for source builds on OS X. This is required because we
+# platforms, we always set the RPATH for source builds on macOS. This is required because we
 # can no longer rely on DYLD_LIBRARY_PATH on El Capitan. The RPATH is updated when the library
 # is installed (see cpp/config/Make.rules.Darwin).
 #

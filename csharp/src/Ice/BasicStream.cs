@@ -649,7 +649,7 @@ namespace IceInternal
             try
             {
                 //
-                // COMPILERFIX: for some reasons _buf.get() doesn't work here on OS X with Mono;
+                // COMPILERFIX: for some reasons _buf.get() doesn't work here on macOS with Mono;
                 //
                 //byte b = _buf.b.get();
                 byte b = readByte();

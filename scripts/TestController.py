@@ -34,7 +34,7 @@ def removeTrustSettings():
         print("trust settings already removed")
 
 #
-# On OS X, provide an option to allow removing the trust settings
+# On macOS, provide an option to allow removing the trust settings
 #
 if TestUtil.isDarwin():
     try:
@@ -67,7 +67,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 if TestUtil.isDarwin():
     #
-    # On OS X, we set the trust settings on the certificate to prevent
+    # On macOS, we set the trust settings on the certificate to prevent
     # the Web browsers from prompting the user about the unstrusted
     # certificate. Some browsers such as Chrome don't provide the
     # option to set this trust settings.

@@ -933,7 +933,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 
     // In theory, getaddrinfo should only return EAI_NONAME if
     // AI_NUMERICHOST is specified and the host name is not a IP
-    // address. However on some platforms (e.g. OS X 10.4.x)
+    // address. However on some platforms (e.g. macOS 10.4.x)
     // EAI_NODATA is also returned so we also check for it.
 #  ifdef EAI_NODATA
     if(!blocking && (rs == EAI_NONAME || rs == EAI_NODATA))
@@ -1238,10 +1238,10 @@ IceInternal::closeSocket(SOCKET fd)
     WSASetLastError(error);
 #else
     int error = errno;
-    
+
 #  if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
-    // FreeBSD returns ECONNRESET if the underlying object was 
+    // FreeBSD returns ECONNRESET if the underlying object was
     // a stream socket that was shut down by the peer before all
     // pending data was delivered.
     //
