@@ -417,6 +417,15 @@ private:
     return nil; // Keep the compiler happy.
 }
 
++(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv configFile:(NSString*)configFile
+{
+    ICEInitializationData* initData = [ICEInitializationData initializationData];
+    initData.properties = [ICEUtil createProperties];
+    [initData.properties load:configFile];
+
+    return [self createCommunicator:argc argv:argv initData:initData];
+}
+
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)c data:(NSData*)data
 {
     NSException* nsex = nil;

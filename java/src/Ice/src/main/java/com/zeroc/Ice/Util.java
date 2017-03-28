@@ -128,11 +128,11 @@ public final class Util
      * @param args A command-line argument vector. Any Ice-related options
      * in this vector are used to initialize the communicator.
      *
-     * @return The new communicator and a filtered argument vector.
+     * @return The new communicator.
      **/
     public static Communicator initialize(String[] args)
     {
-        return initialize(args, null, null);
+        return initialize(args, (InitializationData)null, null);
     }
 
     /**
@@ -144,11 +144,11 @@ public final class Util
      * @param remainingArgs If non null, the given list will contain on
      * return the command-line arguments that were not used to set properties.
      *
-     * @return The new communicator and a filtered argument vector.
+     * @return The new communicator.
      **/
     public static Communicator initialize(String[] args, java.util.List<String> remainingArgs)
     {
-        return initialize(args, null, remainingArgs);
+        return initialize(args, (InitializationData)null, remainingArgs);
     }
 
     /**
@@ -156,7 +156,7 @@ public final class Util
      *
      * @param initData Additional initialization data.
      *
-     * @return The new communicator and a filtered argument vector.
+     * @return The new communicator.
      **/
     public static Communicator initialize(InitializationData initData)
     {
@@ -171,11 +171,27 @@ public final class Util
      *
      * @param initData Additional initialization data.
      *
-     * @return The new communicator and a filtered argument vector.
+     * @return The new communicator.
      **/
     public static Communicator initialize(String[] args, InitializationData initData)
     {
         return initialize(args, initData, null);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to initialize the communicator.
+     *
+     * @param configFile Path to a config file that sets the new Communicator's default
+     * properties.
+     *
+     * @return The new communicator.
+     **/
+    public static Communicator initialize(String[] args, String configFile)
+    {
+        return initialize(args, configFile, null);
     }
 
     /**
@@ -190,7 +206,7 @@ public final class Util
      * @param remainingArgs If non null, the given list will contain on
      * return the command-line arguments that were not used to set properties.
      *
-     * @return The new communicator and a filtered argument vector.
+     * @return The new communicator.
      *
      * @see InitializationData
      **/
@@ -217,6 +233,35 @@ public final class Util
         CommunicatorI communicator = new CommunicatorI(initData);
         communicator.finishSetup(args != null ? args : new String[0], remainingArgs);
         return communicator;
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to initialize the communicator.
+     *
+     * @param configFile Path to a config file that sets the new Communicator's default
+     * properties.
+     *
+     * @param remainingArgs If non null, the given list will contain on
+     * return the command-line arguments that were not used to set properties.
+     *
+     * @return The new communicator.
+     **/
+    public static Communicator initialize(String[] args,
+                                          String configFile,
+                                          java.util.List<String> remainingArgs)
+    {
+        InitializationData initData = null;
+        if(configFile != null)
+        {
+            initData = new InitializationData();
+            initData.properties = Util.createProperties();
+            initData.properties.load(configFile);
+        }
+
+        return initialize(args, initData, remainingArgs);
     }
 
     /**

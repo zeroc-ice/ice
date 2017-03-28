@@ -416,17 +416,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
             setProcessLogger(ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert));
         }
 
-        if(argc >= 0)
-        {
-            _communicator = initialize(argc, argv, initData, version);
-        }
-        else
-        {
-            //
-            // argc < 0 means use arg-less version of initialize
-            //
-            _communicator = initialize(initData, version);
-        }
+        _communicator = initialize(argc, argv, initData, version);
         _destroyed = false;
 
         //

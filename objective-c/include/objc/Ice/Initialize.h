@@ -66,9 +66,10 @@ ICE_API @interface ICEUtil : NSObject
 +(id<ICEProperties>) createProperties;
 +(id<ICEProperties>) createProperties:(int*)argc argv:(char*[])argv;
 +(id<ICECommunicator>) createCommunicator;
-+(id<ICECommunicator>) createCommunicator:(ICEInitializationData *)initData;
++(id<ICECommunicator>) createCommunicator:(ICEInitializationData*)initData;
 +(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv;
-+(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv initData:(ICEInitializationData *)initData;
++(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv initData:(ICEInitializationData*)initData;
++(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv configFile:(NSString*)configFile;
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)communicator data:(NSData*)data;
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)c data:(NSData*)data encoding:(ICEEncodingVersion*)e;
 +(id<ICEOutputStream>) createOutputStream:(id<ICECommunicator>)communicator;
