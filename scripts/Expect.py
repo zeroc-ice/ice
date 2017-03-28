@@ -23,14 +23,6 @@ import types
 __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
 win32 = (sys.platform == "win32")
-if win32:
-    # We use this to remove the reliance on win32api. Unfortunately,
-    # python 2.5 under 64 bit versions of windows doesn't have ctypes,
-    # hence we have to be prepared for that module not to be present.
-    try:
-        import ctypes
-    except ImportError:
-        pass
 
 class EOF:
     """Raised when EOF is read from a child.
@@ -86,6 +78,25 @@ def escape(s, escapeNewlines = True):
             else:
                 o.write('\\%03o' % ord(c))
     return o.getvalue()
+
+def taskkill(args):
+    p = subprocess.Popen("taskkill {0}".format(args), 
+        shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out = p.stdout.read().decode('UTF-8').strip()
+    p.wait()
+    p.stdout.close()
+
+def killProces(p):
+    if win32:
+        taskkill("/F /T /PID {0}".format(p.pid))
+    else:
+        os.kill(p.pid, signal.SIGKILL)
+
+def terminateProces(p):
+    if win32:
+        taskkill("/T /PID {0}".format(p.pid))
+    else:
+        os.kill(p.pid, signal.SIGINT)
 
 class reader(threading.Thread):
     def __init__(self, desc, p, logfile):
@@ -339,21 +350,12 @@ def splitCommand(command_line):
 processes = {}
 
 def cleanup():
-    for k in processes:
+    for key in processes:
         try:
-            processes[k].terminate()
+            killProces(processes[key])
         except:
             pass
     processes.clear()
-#atexit.register(cleanup)
-
-def signal_handler(signal, frame):
-    cleanup()
-    sys.exit(0)
-
-#if win32:
-#    signal.signal(signal.SIGINT, signal_handler)
-#signal.signal(signal.SIGTERM, signal_handler)
 
 class Expect (object):
     def __init__(self, command, startReader=True, timeout=30, logfile=None, mapping=None, desc=None, cwd=None, env=None,
@@ -375,38 +377,42 @@ class Expect (object):
             self.logfile.write('spawn: "%s"\n' % command)
             self.logfile.flush()
 
-        if win32:
-            # Don't rely on win32api
-            # import win32process
-            # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
-            #
-            # universal_newlines = True is necessary for Python 3 on Windows
-            #
-            # We can't use shell=True because terminate() wouldn't
-            # work. This means the PATH isn't searched for the
-            # command.
-            #
-            CREATE_NEW_PROCESS_GROUP = 512
-            self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                      creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
-        else:
-            self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
-                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                      preexec_fn=preexec_fn)
-        global processes
-        processes[self.p.pid] = self.p
+        try:
+            if win32:
+                # Don't rely on win32api
+                # import win32process
+                # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
+                #
+                # universal_newlines = True is necessary for Python 3 on Windows
+                #
+                # We can't use shell=True because terminate() wouldn't
+                # work. This means the PATH isn't searched for the
+                # command.
+                #
+                CREATE_NEW_PROCESS_GROUP = 512
+                self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                          creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
+            else:
+                self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
+                                          stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                          preexec_fn=preexec_fn)
+            global processes
+            processes[self.p.pid] = self.p
 
-        self.r = reader(desc, self.p, logfile)
+            self.r = reader(desc, self.p, logfile)
 
-        # The thread is marked as a daemon thread. This is done so that if
-        # an expect script runs off the end of main without kill/wait on each
-        # spawned process the script will not hang trying to join with the
-        # reader thread.
-        self.r.setDaemon(True)
+            # The thread is marked as a daemon thread. This is done so that if
+            # an expect script runs off the end of main without kill/wait on each
+            # spawned process the script will not hang trying to join with the
+            # reader thread.
+            self.r.setDaemon(True)
 
-        if startReader:
-            self.startReader()
+            if startReader:
+                self.startReader()
+        except:
+            cleanup()
+            raise
 
     def startReader(self, watchDog = None):
         if watchDog is not None:
@@ -532,47 +538,32 @@ class Expect (object):
 
     def terminate(self):
         """Terminate the process."""
-        # First try to break the app. Don't bother if this is win32
-        # and we're using java. It won't break (BREAK causes a stack
-        # trace).
+
 
         if self.p is None:
             return
 
-        if self.hasInterruptSupport():
-            try:
-                if win32:
-                    # We BREAK since CTRL_C doesn't work (the only way to make
-                    # that work is with remote code injection).
-                    #
-                    # Using the ctypes module removes the reliance on the
-                    # python win32api
-                    try:
-                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
-                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
-                    except NameError:
-                        pass
-                else:
-                   os.kill(self.p.pid, signal.SIGINT)
-            except:
-                traceback.print_exc(file=sys.stdout)
-
-            # If the break does not terminate the process within 5
-            # seconds, then terminate the process.
-            try:
-                self.wait(timeout = 5)
-                return
-            except TIMEOUT as e:
-                pass
+        try:
+            self.wait(timeout = 5)
+            return
+        except TIMEOUT as e:
+            pass
 
         try:
-            if win32:
-                # Next kill the app.
-                if self.hasInterruptSupport():
-                    print("%s: did not respond to break. terminating: %d" % (self.desc, self.p.pid))
-                self.p.terminate()
-            else:
-               os.kill(self.p.pid, signal.SIGKILL)
+            terminateProces(self.p)
+        except:
+            traceback.print_exc(file=sys.stdout)
+
+        # If the break does not terminate the process within 5
+        # seconds, then kill the process.
+        try:
+            self.wait(timeout = 5)
+            return
+        except TIMEOUT as e:
+            pass
+
+        try:
+            killProces(self.p)
             self.wait()
         except:
             traceback.print_exc(file=sys.stdout)
@@ -581,26 +572,7 @@ class Expect (object):
         """Send the signal to the process."""
         self.killed = sig # Save the sent signal.
         if win32:
-            # Signals under windows are all turned into CTRL_BREAK_EVENT,
-            # except with Java since CTRL_BREAK_EVENT generates a stack
-            # trace.
-            #
-            # We BREAK since CTRL_C doesn't work (the only way to make
-            # that work is with remote code injection).
-            if self.hasInterruptSupport():
-                try:
-                    #
-                    # Using the ctypes module removes the reliance on the
-                    # python win32api
-                    try:
-                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
-                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
-                    except NameError:
-                        pass
-                except:
-                    traceback.print_exc(file=sys.stdout)
-            else:
-                self.p.terminate()
+            terminateProces(self.p)
         else:
             os.kill(self.p.pid, sig)
 
@@ -678,9 +650,3 @@ class Expect (object):
 
     def getOutput(self):
         return self.buf
-
-    def hasInterruptSupport(self):
-        """Return True if the application gracefully terminated, False otherwise."""
-        if win32 and self.mapping in ["java", "java-compat"]:
-            return False
-        return True
