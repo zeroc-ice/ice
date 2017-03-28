@@ -92,45 +92,104 @@ extern "C"
 static int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    PyObject* argList = 0;
-    PyObject* initData = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &argList, &initData))
+    //
+    // The argument options are:
+    //
+    // Ice.initialize()
+    // Ice.initialize(args)
+    // Ice.initialize(initData)
+    // Ice.initialize(configFile)
+    // Ice.initialize(args, initData)
+    // Ice.initialize(args, configFile)
+    //
+
+    PyObject* arg1 = 0;
+    PyObject* arg2 = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &arg1, &arg2))
     {
         return -1;
     }
 
-    if(argList == Py_None)
+    PyObject* argList = 0;
+    PyObject* initData = 0;
+    PyObject* configFile = 0;
+
+    if(arg1 == Py_None)
     {
-        argList = 0;
+        arg1 = 0;
     }
 
-    if(initData == Py_None)
+    if(arg2 == Py_None)
     {
-        initData = 0;
+        arg2 = 0;
     }
 
     PyObject* initDataType = lookupType("Ice.InitializationData");
 
-    if(argList && !initData)
+    if(arg1)
     {
-        if(PyObject_IsInstance(argList, initDataType))
+        if(PyList_Check(arg1))
         {
-            initData = argList;
-            argList = 0;
+            argList = arg1;
         }
-        else if(!PyList_Check(argList))
+        else if(PyObject_IsInstance(arg1, initDataType))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list or Ice.InitializationData"));
+            initData = arg1;
+        }
+        else if(checkString(arg1))
+        {
+            configFile = arg1;
+        }
+        else
+        {
+            PyErr_Format(PyExc_ValueError,
+                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
             return -1;
         }
     }
-    else if(argList && initData)
+
+    if(arg2)
     {
-        if(!PyList_Check(argList) || !PyObject_IsInstance(initData, initDataType))
+        if(PyList_Check(arg2))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list and Ice.InitializationData"));
+            if(argList)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected list argument to initialize"));
+                return -1;
+            }
+            argList = arg2;
+        }
+        else if(PyObject_IsInstance(arg2, initDataType))
+        {
+            if(initData)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected Ice.InitializationData argument to initialize"));
+                return -1;
+            }
+            initData = arg2;
+        }
+        else if(checkString(arg2))
+        {
+            if(configFile)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected string argument to initialize"));
+                return -1;
+            }
+            configFile = arg2;
+        }
+        else
+        {
+            PyErr_Format(PyExc_ValueError,
+                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
             return -1;
         }
+    }
+
+    if(initData && configFile)
+    {
+        PyErr_Format(PyExc_ValueError,
+            STRCAST("initialize accepts either Ice.InitializationData or a configuration filename"));
+        return -1;
     }
 
     Ice::StringSeq seq;
@@ -138,11 +197,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     {
         return -1;
     }
-
-    //
-    // Use the with-args or the without-args version of initialize()?
-    //
-    bool hasArgs = argList != 0;
 
     Ice::InitializationData data;
     DispatcherPtr dispatcherWrapper;
@@ -204,6 +258,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             data.properties = Ice::createProperties();
         }
+
+        if(configFile)
+        {
+            data.properties->load(getString(configFile));
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -230,7 +289,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     try
     {
         AllowThreads allowThreads;
-        if(hasArgs)
+        if(argList)
         {
             communicator = Ice::initialize(argc, argv, data);
         }
