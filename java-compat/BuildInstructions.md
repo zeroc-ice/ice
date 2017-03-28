@@ -8,7 +8,7 @@ platforms.
 
 ### Operating Systems
 
-Ice for Java is expected to build and run properly on Windows, OS X, and any
+Ice for Java is expected to build and run properly on Windows, macOS, and any
 recent Linux distribution for x86 and x86_64, and was extensively tested using
 the operating systems and compiler versions listed for our [supported
 platforms][2]. Due to the portability of Java, it is very likely that it will

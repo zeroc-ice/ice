@@ -18,7 +18,7 @@ prefix			?= /opt/Ice-$(version)
 # to change the runpath added to Ice executables.
 #
 # If not set, a runpath relative to the path of the executable is
-# embedded (using @loader_path on OS X and $ORIGIN on Linux).
+# embedded (using @loader_path on macOS and $ORIGIN on Linux).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(mmversion)
 
@@ -126,7 +126,7 @@ soversion   		= 37b0
 # The compatversion is the lowest patch release with the same API.
 # For example, if 3.7.2 introduces no new API compared to 3.7.1, we
 # would set version to 3.7.2 and compatversion to 3.7.1.
-# Used for OS X libraries.
+# Used for macOS libraries.
 #
 compatversion           = $(version)
 

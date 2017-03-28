@@ -45,7 +45,7 @@ vcproj
 *.swp
 .keychain
 
-# OS X Keychain
+# macOS Keychain
 *.keychain
 .fl????????
 passwords

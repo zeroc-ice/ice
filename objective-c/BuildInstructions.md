@@ -7,7 +7,7 @@ code on macOS. If you prefer, you can install a [Homebrew][1] package instead.
 
 ### Operating Systems and Compilers
 
-Ice for Objective-C is currently only supported on OS X and iOS, and was
+Ice for Objective-C is currently only supported on macOS and iOS, and was
 extensively tested using the operating system and compiler versions listed for
 our [supported platforms][2].
 

@@ -1243,7 +1243,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host does not match the certificate DNS altName
             //
@@ -1267,7 +1267,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host matches the certificate Common Name and the certificate does not
             // include a DNS altName
@@ -1291,7 +1291,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host does not match the certificate Common Name and the certificate does not
             // include a DNS altName
@@ -1316,7 +1316,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host matches the certificate Common Name and the certificate has
             // a DNS altName that does not matches the target host
@@ -1341,11 +1341,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Test using 127.0.0.1 as target host
             //
-            
+
             //
             // Target host matches the certificate IP altName
             //
@@ -1368,7 +1368,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host does not match the certificate IP altName
             //
@@ -1392,13 +1392,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 
             fact->destroyServer(server);
             comm->destroy();
-            
+
             //
             // Target host is an IP addres that matches the CN and the certificate doesn't
             // include an IP altName.
             //
-            // UWP and SecureTransport implementation the target IP will match with the Certificate 
-            // CN and the test will pass. With other implementations IP address is only match with 
+            // UWP and SecureTransport implementation the target IP will match with the Certificate
+            // CN and the test will pass. With other implementations IP address is only match with
             // the Certificate IP altName and the test will fail.
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
@@ -1485,7 +1485,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         }
     }
     cout << "ok" << endl;
-    
+
 #if !defined(ICE_USE_SECURE_TRANSPORT_IOS) && !defined(ICE_OS_UWP)
     cout << "testing certificate info... " << flush;
     {
@@ -1496,7 +1496,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             "/s_rsa_ca1_pub.pem",
             0
         };
-        
+
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
@@ -1504,7 +1504,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
             0
         };
-        
+
         const char* subjects[] =
         {
             "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
@@ -1512,7 +1512,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             "47:84:AE:F9:F2:85:3D:99:30:6A:03:38:41:1A:B9:EB:C3:9C:B5:4D",
             0
         };
-        
+
         for(int i = 0; certificates[i] != 0; ++i)
         {
             IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + certificates[i]);
@@ -1820,11 +1820,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         import.cleanup();
     }
     cout << "ok" << endl;
-    
+
 #if defined(ICE_USE_OPENSSL) || defined(ICE_USE_SCHANNEL)
     cout << "testing certificate extensions... " << flush;
     {
-        const string basicConstraints = 
+        const string basicConstraints =
             "30:03:01:01:FF";
 
         const string subjectKeyIdentifier =
@@ -1839,29 +1839,29 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
             "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
             "82:09:00:CE:F0:96:A8:8D:19:5B:FF";
-        
+
         const string subjectAltName =
             "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
-        
+
         const string issuerAltName =
             "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
-        
+
         const string customExt412 =
             "0C:0B:43:75:73:74:6F:6D:20:64:61:74:61";
-        
+
         const string customExt413 =
             "30:17:01:01:FF:0C:0E:4D:79:20:55:54:46:38:20:53:74:72:69:6E:67:02:02:03:FF";
-            
+
         IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert_custom.pem");
         vector<IceSSL::X509ExtensionPtr> extensions = cert->getX509Extensions();
         test(extensions.size() == 7);
-        
+
         IceSSL::X509ExtensionPtr ext = cert->getX509Extension("2.5.29.19"); // Subject key identifier
         test(ext);
         test(toHexString(ext->getData()) == basicConstraints);
         test(ext->getOID() == "2.5.29.19");
         test(ext->isCritical() == false);
-        
+
         ext = cert->getX509Extension("2.5.29.14"); // Subject key identifier
         test(ext);
         test(toHexString(ext->getData()) == subjectKeyIdentifier);
@@ -1873,25 +1873,25 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         test(toHexString(ext->getData()) == authorityKeyIdentifier);
         test(ext->getOID() == "2.5.29.35");
         test(ext->isCritical() == false);
-        
+
         ext = cert->getX509Extension("2.5.29.17"); // Subject alternative name
         test(ext);
         test(toHexString(ext->getData()) == subjectAltName);
         test(ext->getOID() == "2.5.29.17");
         test(ext->isCritical() == false);
-        
+
         ext = cert->getX509Extension("2.5.29.18"); // Issuer alternative name
         test(ext);
         test(toHexString(ext->getData()) == issuerAltName);
         test(ext->getOID() == "2.5.29.18");
         test(ext->isCritical() == false);
-        
+
         ext = cert->getX509Extension("1.2.3.412"); // Custom extension
         test(ext);
         test(toHexString(ext->getData()) == customExt412);
         test(ext->getOID() == "1.2.3.412");
         test(ext->isCritical() == false);
-        
+
         ext = cert->getX509Extension("1.2.3.413"); // Custom extension
         test(ext);
         test(toHexString(ext->getData()) == customExt413);
@@ -2292,7 +2292,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             }
             catch(const LocalException&)
             {
-                // OS X 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
+                // macOS 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
                 if(!elCapitanUpdate2OrLower)
                 {
                     test(false);

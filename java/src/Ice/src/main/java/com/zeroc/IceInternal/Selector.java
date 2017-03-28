@@ -263,7 +263,7 @@ public final class Selector
             }
             catch(java.nio.channels.CancelledKeyException ex)
             {
-                // This sometime occurs on OS X, ignore.
+                // This sometime occurs on macOS, ignore.
                 continue;
             }
             catch(java.io.IOException ex)

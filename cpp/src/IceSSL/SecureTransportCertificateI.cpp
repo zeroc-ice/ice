@@ -398,7 +398,7 @@ getX509String(SecCertificateRef cert, CFTypeRef key)
 {
     assert(key == kSecOIDX509V1SerialNumber || key == kSecOIDX509V1Version);
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(cert, key));
-    return property ? 
+    return property ?
         fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue))) : "";
 }
 #endif
@@ -429,7 +429,7 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     vector<Ice::Byte> keyid;
 
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDAuthorityKeyIdentifier));
@@ -469,7 +469,7 @@ SecureTransportCertificateI::getSubjectKeyIdentifier() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     vector<Ice::Byte> keyid;
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDSubjectKeyIdentifier));
     if(property)
@@ -519,7 +519,7 @@ SecureTransportCertificateI::verify(const IceSSL::CertificatePtr& cert) const
         initializeAttributes();
         c->initializeAttributes();
         valid = CFEqual(_issuer.get(), c->_subject.get());
-#else // MacOS
+#else // macOS
         UniqueRef<CFErrorRef> error;
         UniqueRef<CFDataRef> issuer(SecCertificateCopyNormalizedIssuerContent(_cert.get(), &error.get()));
         if(error)
@@ -578,7 +578,7 @@ SecureTransportCertificateI::encode() const
     os << IceInternal::Base64::encode(data);
     os << "-----END CERTIFICATE-----\n";
     return os.str();
-#else // MacOS
+#else // macOS
     UniqueRef<CFDataRef> exported;
     OSStatus err = SecItemExport(_cert.get(), kSecFormatPEMSequence, kSecItemPemArmour, 0, &exported.get());
     if(err != noErr)
@@ -598,7 +598,7 @@ SecureTransportCertificateI::getNotAfter() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     return getX509Date(_cert.get(), kSecOIDX509V1ValidityNotAfter);
 #endif
 }
@@ -612,7 +612,7 @@ SecureTransportCertificateI::getNotBefore() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     return getX509Date(_cert.get(), kSecOIDX509V1ValidityNotBefore);
 #endif
 }
@@ -623,7 +623,7 @@ SecureTransportCertificateI::getSerialNumber() const
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     initializeAttributes();
     return _serial;
-#else // MacOS
+#else // macOS
     return getX509String(_cert.get(), kSecOIDX509V1SerialNumber);
 #endif
 }
@@ -634,7 +634,7 @@ SecureTransportCertificateI::getIssuerDN() const
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     initializeAttributes();
     return _issuer ? DistinguishedName(ASN1Parser(_issuer.get()).parse()) : DistinguishedName("");
-#else // MacOS
+#else // macOS
     return getX509Name(_cert.get(), kSecOIDX509V1IssuerName);
 #endif
 }
@@ -644,7 +644,7 @@ SecureTransportCertificateI::getIssuerAlternativeNames() const
 {
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
     throw FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     return getX509AltName(_cert.get(), kSecOIDIssuerAltName);
 #endif
 }
@@ -663,7 +663,7 @@ SecureTransportCertificateI::getSubjectDN() const
         UniqueRef<CFStringRef> subjectSummary(SecCertificateCopySubjectSummary(_cert.get()));
         return DistinguishedName("CN=" + fromCFString(subjectSummary.get()));
     }
-#else // MacOS
+#else // macOS
     return getX509Name(_cert.get(), kSecOIDX509V1SubjectName);
 #endif
 }
@@ -673,7 +673,7 @@ SecureTransportCertificateI::getSubjectAlternativeNames() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw FeatureNotSupportedException(__FILE__, __LINE__);
-#else // MacOS
+#else // macOS
     return getX509AltName(_cert.get(), kSecOIDSubjectAltName);
 #endif
 }
@@ -684,7 +684,7 @@ SecureTransportCertificateI::getVersion() const
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     initializeAttributes();
     return _version;
-#else // MacOS
+#else // macOS
     return atoi(getX509String(_cert.get(), kSecOIDX509V1Version).c_str()) - 1;
 #endif
 }
@@ -736,7 +736,7 @@ SecureTransportCertificateI::initializeAttributes() const
         CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
     CFDictionarySetValue(query.get(), kSecValueRef, _cert.get());
     CFDictionarySetValue(query.get(), kSecReturnAttributes, kCFBooleanTrue);
-    
+
     UniqueRef<CFDictionaryRef> attributes(0);
     OSStatus err;
     if((err = SecItemAdd(query.get(), reinterpret_cast<CFTypeRef*>(&attributes.get()))) == errSecDuplicateItem)
@@ -831,7 +831,7 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
         throw CertificateEncodingException(__FILE__, __LINE__, "certificate is not a valid PEM-encoded certificate");
     }
     return ICE_MAKE_SHARED(SecureTransportCertificateI, cert);
-#else // MacOS
+#else // macOS
     UniqueRef<CFDataRef> data(
         CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                     reinterpret_cast<const UInt8*>(encoding.c_str()),
