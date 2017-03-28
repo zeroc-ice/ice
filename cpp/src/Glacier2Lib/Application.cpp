@@ -10,7 +10,7 @@
 #include <Glacier2/Application.h>
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 
 using namespace std;
 using namespace Ice;
@@ -209,7 +209,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 }
 
                 _category = _router->getCategoryForClient();
-                IceUtilInternal::ArgVector a(args);
+                IceInternal::ArgVector a(args);
                 status = runWithSession(a.argc, a.argv);
             }
         }

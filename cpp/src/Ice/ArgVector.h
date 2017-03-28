@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_ARGVECTOR_H
-#define ICE_UTIL_ARGVECTOR_H
+#ifndef ICE_ARGVECTOR_H
+#define ICE_ARGVECTOR_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 #include <vector>
 #include <string>
 
-namespace IceUtilInternal
+namespace IceInternal
 {
 
 class ICE_API ArgVector

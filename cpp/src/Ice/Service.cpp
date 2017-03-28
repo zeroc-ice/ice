@@ -12,7 +12,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/StringConverter.h>
@@ -545,7 +545,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
         _name = argv[0];
     }
 
-    IceUtilInternal::ArgVector av(argc, argv); // copy args
+    IceInternal::ArgVector av(argc, argv); // copy args
 
     //
     // We parse the properties here to extract Ice.ProgramName and
@@ -741,7 +741,7 @@ Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationDa
 int
     Ice::Service::main(const StringSeq& args, const InitializationData& initData, int version)
 {
-    IceUtilInternal::ArgVector av(args);
+    IceInternal::ArgVector av(args);
     return main(av.argc, av.argv, initData, version);
 }
 
@@ -780,7 +780,7 @@ int
 Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData, int version)
 {
     StringSeq args = Ice::argsToStringSeq(argc, argv);
-    IceUtilInternal::ArgVector av(args);
+    IceInternal::ArgVector av(args);
     return run(av.argc, av.argv, initData, version);
 }
 #endif
@@ -788,7 +788,7 @@ Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationDat
 int
 Ice::Service::run(int argc, const char* const argv[], const InitializationData& initData, int version)
 {
-    IceUtilInternal::ArgVector av(argc, argv); // copy args
+    IceInternal::ArgVector av(argc, argv); // copy args
 
     if(_service)
     {

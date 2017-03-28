@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
@@ -324,7 +324,7 @@ Ice::initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configF
 Ice::CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, int version)
 {
-    IceUtilInternal::ArgVector av(args);
+    IceInternal::ArgVector av(args);
     CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData, version);
     args = argsToStringSeq(av.argc, av.argv);
     return communicator;

@@ -11,7 +11,7 @@
 #include <Ice/LoggerI.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 
 #ifdef _WIN32
 const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
@@ -21,6 +21,7 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 

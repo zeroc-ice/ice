@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
@@ -651,8 +651,8 @@ Activator::activate(const string& name,
     //
     // Convert to standard argc/argv.
     //
-    IceUtilInternal::ArgVector av(args);
-    IceUtilInternal::ArgVector env(envs);
+    IceInternal::ArgVector av(args);
+    IceInternal::ArgVector env(envs);
 
     //
     // Current directory
