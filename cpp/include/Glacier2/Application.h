@@ -194,11 +194,11 @@ public:
 
 protected:
 
-    virtual int doMain(int, char*[], const Ice::InitializationData& initData);
+    virtual int doMain(int, char*[], const Ice::InitializationData& initData, int);
 
 private:
 
-    bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&);
+    bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&, int);
 
     /**
      * Run should not be overridden for Glacier2.Application. Instead

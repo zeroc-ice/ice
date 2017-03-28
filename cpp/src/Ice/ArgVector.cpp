@@ -10,7 +10,7 @@
 #include <IceUtil/ArgVector.h>
 #include <cstring>
 
-IceUtilInternal::ArgVector::ArgVector(int argc, char* const argv[])
+IceUtilInternal::ArgVector::ArgVector(int argc, const char* const argv[])
 {
     assert(argc >= 0);
     _args.resize(argc);

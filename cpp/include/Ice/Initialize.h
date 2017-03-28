@@ -23,15 +23,19 @@
 #include <Ice/Plugin.h>
 #include <Ice/BatchRequestInterceptor.h>
 
+#ifdef ICE_CPP11_MAPPING
+#   define ICE_CONFIG_FILE_STRING const std::string&
+#else
+#   define ICE_CONFIG_FILE_STRING const char*
+#endif
+
 namespace Ice
 {
 
-ICE_API StringSeq argsToStringSeq(int, char*[]);
+ICE_API StringSeq argsToStringSeq(int, const char* const[]);
 
 #ifdef _WIN32
-
-ICE_API StringSeq argsToStringSeq(int, wchar_t*[]);
-
+ICE_API StringSeq argsToStringSeq(int, const wchar_t* const[]);
 #endif
 
 //
@@ -40,22 +44,34 @@ ICE_API StringSeq argsToStringSeq(int, wchar_t*[]);
 // the argument vector elements so that the vector matches the
 // contents of the sequence.
 //
-ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
+ICE_API void stringSeqToArgs(const StringSeq&, int&, const char*[]);
+inline void stringSeqToArgs(const StringSeq& seq, int& argc, char* argv[])
+{
+    return stringSeqToArgs(seq, argc, const_cast<const char**>(argv));
+}
 
 #ifdef _WIN32
-
-ICE_API void stringSeqToArgs(const StringSeq&, int&, wchar_t*[]);
-
+ICE_API void stringSeqToArgs(const StringSeq&, int&, const wchar_t*[]);
+inline void stringSeqToArgs(const StringSeq& seq, int& argc, wchar_t* argv[])
+{
+    return stringSeqToArgs(seq, argc, const_cast<const wchar_t**>(argv));
+}
 #endif
 
 ICE_API PropertiesPtr createProperties();
 ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
-ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(int&, const char*[], const PropertiesPtr& = 0);
+inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesPtr& props = 0)
+{
+    return createProperties(argc, const_cast<const char**>(argv), props);
+}
 
 #ifdef _WIN32
-
-ICE_API PropertiesPtr createProperties(int&, wchar_t*[], const PropertiesPtr& = 0);
-
+ICE_API PropertiesPtr createProperties(int&, const wchar_t*[], const PropertiesPtr& = 0);
+inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& props = 0)
+{
+    return createProperties(argc, const_cast<const wchar_t**>(argv), props);
+}
 #endif
 
 //
@@ -113,19 +129,49 @@ struct InitializationData
     ValueFactoryManagerPtr valueFactoryManager;
 };
 
-ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
-                                   Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData& = InitializationData(),
+                                   int = ICE_INT_VERSION);
+inline CommunicatorPtr initialize(int& argc, char* argv[], const InitializationData& initData = InitializationData(),
+                                   int version = ICE_INT_VERSION)
+{
+    return initialize(argc, const_cast<const char**>(argv), initData, version);
+}
+
+
+ICE_API CommunicatorPtr initialize(int&, const char*[], ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
+inline CommunicatorPtr initialize(int& argc, char* argv[], ICE_CONFIG_FILE_STRING configFile,
+                                  int version = ICE_INT_VERSION)
+{
+    return initialize(argc, const_cast<const char**>(argv), configFile, version);
+}
 
 #ifdef _WIN32
-ICE_API CommunicatorPtr initialize(int&, wchar_t*[], const InitializationData& = InitializationData(),
-                                   Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(int&, const wchar_t*[], const InitializationData& = InitializationData(),
+                                   int = ICE_INT_VERSION);
+inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], const InitializationData& initData = InitializationData(),
+                                   int version = ICE_INT_VERSION)
+{
+    return initialize(argc, const_cast<const wchar_t**>(argv), initData, version);
+}
+
+ICE_API CommunicatorPtr initialize(int&, const wchar_t*[], ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
+inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile,
+                                  int version = ICE_INT_VERSION)
+{
+    return initialize(argc, const_cast<const wchar_t**>(argv), configFile, version);
+}
 #endif
 
-ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),
-                                   Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData& = InitializationData(),
+                                   int = ICE_INT_VERSION);
+
+ICE_API CommunicatorPtr initialize(StringSeq&, ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(),
-                                   Int = ICE_INT_VERSION);
+                                   int = ICE_INT_VERSION);
+
+ICE_API CommunicatorPtr initialize(ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
+
 
 ICE_API LoggerPtr getProcessLogger();
 ICE_API void setProcessLogger(const LoggerPtr&);
@@ -161,24 +207,28 @@ public:
     CommunicatorHolder(CommunicatorHolder&&) = default;
     CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
 
-#else
+#else // C++98 mapping
 
     //
     // Call initialize to create communicator with the provided args
     //
-
-    CommunicatorHolder(int&, char*[], const InitializationData& = InitializationData(),
-                       Int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const char*[], const InitializationData&, int);
+    CommunicatorHolder(int&, char*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const char*[], const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, char*[], const char* configFile, int = ICE_INT_VERSION);
 
 #ifdef _WIN32
-    CommunicatorHolder(int&, wchar_t*[], const InitializationData& = InitializationData(),
-                       Int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const wchar_t*[], const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, wchar_t*[], const char* configFile, int = ICE_INT_VERSION);
 #endif
 
-    CommunicatorHolder(Ice::StringSeq&, const InitializationData& = InitializationData(),
-                       Int = ICE_INT_VERSION);
+    CommunicatorHolder(StringSeq& args, const InitializationData& = InitializationData(),int = ICE_INT_VERSION);
+    CommunicatorHolder(StringSeq& args, const char* configFile, int = ICE_INT_VERSION);
 
-    CommunicatorHolder(const InitializationData& = InitializationData(), Int = ICE_INT_VERSION);
+    CommunicatorHolder(const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
+    CommunicatorHolder(const char* configFile, int = ICE_INT_VERSION);
 
     //
     // Adopt communicator

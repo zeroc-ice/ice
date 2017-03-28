@@ -21,7 +21,7 @@ class ICE_API ArgVector
 {
 public:
 
-    ArgVector(int argc, char* const argv[]);
+    ArgVector(int argc, const char* const argv[]);
     ArgVector(const ::std::vector< ::std::string>&);
     ArgVector(const ArgVector&);
     ArgVector& operator=(const ArgVector&);

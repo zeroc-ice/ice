@@ -249,7 +249,7 @@ Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator, const D
 }
 
 void
-Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
+Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 {
     assert(_communicator);
 

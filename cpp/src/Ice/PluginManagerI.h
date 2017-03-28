@@ -40,7 +40,7 @@ private:
 
     friend class IceInternal::Instance;
 
-    void loadPlugins(int&, char*[]);
+    void loadPlugins(int&, const char*[]);
     void loadPlugin(const std::string&, const std::string&, StringSeq&);
 
     PluginPtr findPlugin(const std::string&) const;

@@ -36,7 +36,7 @@ protected:
 
     virtual bool start(int, char*[], int&);
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
 
 private:
 
@@ -50,11 +50,11 @@ private:
 class FinderI : public Ice::RouterFinder
 {
 public:
-    
+
     FinderI(const Glacier2::RouterPrx& router) : _router(router)
     {
     }
-    
+
     virtual Ice::RouterPrx
     getRouter(const Ice::Current&)
     {
@@ -154,20 +154,20 @@ RouterService::start(int argc, char* argv[], int& status)
     }
 
     string instanceName = communicator()->getProperties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
-    
+
     vector<string> verifierProperties;
     verifierProperties.push_back("Glacier2.PermissionsVerifier");
     verifierProperties.push_back("Glacier2.SSLPermissionsVerifier");
-                           
+
     Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
-                                                   
+
     string verifierProperty = verifierProperties[0];
     PermissionsVerifierPrx verifier;
     ObjectPrx obj;
     try
     {
         //
-        // We use propertyToProxy instead of stringToProxy because the property 
+        // We use propertyToProxy instead of stringToProxy because the property
         // can provide proxy attributes
         //
         obj = communicator()->propertyToProxy(verifierProperty);
@@ -175,7 +175,7 @@ RouterService::start(int argc, char* argv[], int& status)
     catch(const std::exception& ex)
     {
         ServiceError err(this);
-        err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty) 
+        err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n" << ex;
         return false;
     }
@@ -188,7 +188,7 @@ RouterService::start(int argc, char* argv[], int& status)
             if(!verifier)
             {
                 ServiceError err(this);
-                err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty) 
+                err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty)
                     << "' is invalid";
                 return false;
             }
@@ -198,13 +198,13 @@ RouterService::start(int argc, char* argv[], int& status)
             if(!nowarn)
             {
                 ServiceWarning warn(this);
-                warn << "unable to contact permissions verifier `" 
+                warn << "unable to contact permissions verifier `"
                      << communicator()->getProperties()->getProperty(verifierProperty) << "'\n" << ex;
             }
             verifier = PermissionsVerifierPrx::uncheckedCast(obj);
         }
     }
-    
+
     //
     // Get the session manager if specified.
     //
@@ -241,7 +241,7 @@ RouterService::start(int argc, char* argv[], int& status)
             }
             sessionManager = SessionManagerPrx::uncheckedCast(obj);
         }
-        sessionManager = 
+        sessionManager =
             SessionManagerPrx::uncheckedCast(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
                 properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
     }
@@ -251,15 +251,15 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sslVerifierProperty = verifierProperties[1];
     SSLPermissionsVerifierPrx sslVerifier;
-  
+
     try
-    {  
+    {
         obj = communicator()->propertyToProxy(sslVerifierProperty);
     }
     catch(const std::exception& ex)
     {
         ServiceError err(this);
-        err << "ssl permissions verifier `" << communicator()->getProperties()->getProperty(sslVerifierProperty) 
+        err << "ssl permissions verifier `" << communicator()->getProperties()->getProperty(sslVerifierProperty)
             << "' is invalid:\n" << ex;
         return false;
     }
@@ -273,7 +273,7 @@ RouterService::start(int argc, char* argv[], int& status)
             {
                 ServiceError err(this);
                 err << "ssl permissions verifier `"
-                    << communicator()->getProperties()->getProperty(sslVerifierProperty) 
+                    << communicator()->getProperties()->getProperty(sslVerifierProperty)
                     << "' is invalid";
             }
         }
@@ -282,7 +282,7 @@ RouterService::start(int argc, char* argv[], int& status)
             if(!nowarn)
             {
                 ServiceWarning warn(this);
-                warn << "unable to contact ssl permissions verifier `" 
+                warn << "unable to contact ssl permissions verifier `"
                      <<  communicator()->getProperties()->getProperty(sslVerifierProperty) << "'\n"
                      << ex;
             }
@@ -322,12 +322,12 @@ RouterService::start(int argc, char* argv[], int& status)
             if(!nowarn)
             {
                 ServiceWarning warn(this);
-                warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue 
+                warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue
                      << "'\n" << ex;
             }
             sslSessionManager = SSLSessionManagerPrx::uncheckedCast(obj);
         }
-        sslSessionManager = 
+        sslSessionManager =
             SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
                 properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
     }
@@ -428,8 +428,9 @@ RouterService::stop()
 }
 
 CommunicatorPtr
-RouterService::initializeCommunicator(int& argc, char* argv[], 
-                                      const InitializationData& initializationData)
+RouterService::initializeCommunicator(int& argc, char* argv[],
+                                      const InitializationData& initializationData,
+                                      int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -438,21 +439,21 @@ RouterService::initializeCommunicator(int& argc, char* argv[],
     // Make sure that Glacier2 doesn't use a router.
     //
     initData.properties->setProperty("Ice.Default.Router", "");
-    
+
     //
-    // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set, 
+    // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set,
     // load the Glacier2CryptPermissionsVerifier plug-in
     //
     string verifier = "Glacier2.PermissionsVerifier";
     if(initData.properties->getProperty(verifier).empty())
     {
         string cryptPasswords = initData.properties->getProperty("Glacier2.CryptPasswords");
-            
+
         if(!cryptPasswords.empty())
         {
             initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
                                              "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
-            
+
             initData.properties->setProperty("Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier",
                                              cryptPasswords);
         }
@@ -474,8 +475,8 @@ RouterService::initializeCommunicator(int& argc, char* argv[],
     // for incoming connections from clients must be disabled in
     // the clients.
     //
-   
-    return Service::initializeCommunicator(argc, argv, initData);
+
+    return Service::initializeCommunicator(argc, argv, initData, version);
 }
 
 void

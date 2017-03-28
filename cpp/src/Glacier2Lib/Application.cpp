@@ -104,7 +104,7 @@ Glacier2::Application::categoryForClient()
 }
 
 int
-Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationData& initData)
+Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationData& initData, int version)
 {
     // Set the default properties for all Glacier2 applications.
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
@@ -122,14 +122,14 @@ Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationD
         id.properties = id.properties->clone();
         Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
-        restart = doMain(args, id, ret);
+        restart = doMain(args, id, ret, version);
     }
     while(restart);
     return ret;
 }
 
 bool
-Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationData& initData, int& status)
+Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationData& initData, int& status, int version)
 {
     //
     // Reset internal state variables from Ice.Application. The
@@ -144,7 +144,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
 
     try
     {
-        _communicator = Ice::initialize(args, initData);
+        _communicator = Ice::initialize(args, initData, version);
         _router = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator()->getDefaultRouter());
 
         if(!_router)

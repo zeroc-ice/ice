@@ -60,16 +60,13 @@ public:
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
-    int main(int&, char*[], const InitializationData& = InitializationData());
-    int main(int, char* const [], const Ice::InitializationData& = Ice::InitializationData());
+    int main(int, const char* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
 
 #ifdef _WIN32
-
-    int main(int&, wchar_t*[], const InitializationData& = InitializationData());
-
+    int main(int, const wchar_t* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
 #endif
 
-    int main(StringSeq&, const InitializationData& = InitializationData());
+    int main(const StringSeq&, const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
 
     //
     // Returns the communicator created by the service.
@@ -112,12 +109,10 @@ public:
     // EXIT_SUCCESS.
     //
 #ifdef _WIN32
-    
-    int run(int&, wchar_t*[], const InitializationData& = InitializationData());
-    
+    int run(int, const wchar_t* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
 #endif
 
-    int run(int&, char*[], const InitializationData& = InitializationData());
+    int run(int, const char* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
 
 #ifdef _WIN32
 
@@ -171,7 +166,7 @@ protected:
     //
     // Initialize a communicator.
     //
-    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
+    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
 
     //
     // Log a system error, which includes a description of the
@@ -225,12 +220,12 @@ private:
     bool _nohup;
     bool _service;
     std::string _name;
-  
+
     static Service* _instance;
 
 #ifdef _WIN32
 
-    int runService(int, char*[], const InitializationData&);
+    int runService(int, const char* const[], const InitializationData&);
     void terminateService(DWORD);
     bool waitForServiceState(SC_HANDLE, DWORD, SERVICE_STATUS&);
     void showServiceStatus(const std::string&, SERVICE_STATUS&);
@@ -241,12 +236,12 @@ private:
 
 public:
 
-    void serviceMain(int, wchar_t*[]);
+    void serviceMain(int, const wchar_t* const[]);
     void control(int);
 
 #else
 
-    int runDaemon(int, char*[], const InitializationData&);
+    int runDaemon(int, char*[], const InitializationData&, int);
 
     bool _changeDirectory;
     bool _closeFiles;

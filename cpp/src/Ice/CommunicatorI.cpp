@@ -543,7 +543,7 @@ Ice::CommunicatorI::~CommunicatorI()
 }
 
 void
-Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
+Ice::CommunicatorI::finishSetup(int& argc, const char* argv[])
 {
     try
     {

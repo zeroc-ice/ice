@@ -664,7 +664,7 @@ protected:
 
     virtual bool start(int, char*[], int&);
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
 
 private:
 
@@ -784,7 +784,8 @@ BridgeService::stop()
 }
 
 CommunicatorPtr
-BridgeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
+BridgeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData,
+                                      int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -801,7 +802,7 @@ BridgeService::initializeCommunicator(int& argc, char* argv[], const Initializat
         initData.properties->setProperty("Ice.RetryIntervals", "-1");
     }
 
-    return Service::initializeCommunicator(argc, argv, initData);
+    return Service::initializeCommunicator(argc, argv, initData, version);
 }
 
 void

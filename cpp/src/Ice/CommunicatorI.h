@@ -141,9 +141,9 @@ private:
     // Certain initialization tasks need to be completed after the
     // constructor.
     //
-    void finishSetup(int&, char*[]);
+    void finishSetup(int&, const char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
