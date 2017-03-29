@@ -58,6 +58,19 @@ module Ice
 ["clr:implements:_System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal"]
 local interface Communicator
 {
+
+#ifdef __SLICE2JAVA__
+    /**
+     *
+     * Destroy the communicator. This Java-only method overrides close in
+     * java.lang.AutoCloseable and does not throw any exception.
+     *
+     * @see #destroy
+     *
+     **/
+    void close();
+#endif
+
     /**
      *
      * Destroy the communicator. This operation calls {@link #shutdown}
