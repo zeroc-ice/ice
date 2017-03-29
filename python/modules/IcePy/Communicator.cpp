@@ -250,11 +250,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         //
         data.valueFactoryManager = new ValueFactoryManager;
 
-        if(argList)
-        {
-            data.properties = Ice::createProperties(seq, data.properties);
-        }
-        else if(!data.properties)
+        if(!data.properties)
         {
             data.properties = Ice::createProperties();
         }
@@ -262,6 +258,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         if(configFile)
         {
             data.properties->load(getString(configFile));
+        }
+
+        if(argList)
+        {
+            data.properties = Ice::createProperties(seq, data.properties);
         }
     }
     catch(const Ice::Exception& ex)

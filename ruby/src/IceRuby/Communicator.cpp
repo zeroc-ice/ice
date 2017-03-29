@@ -62,9 +62,26 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
+        //
+        // The argument options are:
+        //
+        // Ice::initialize()
+        // Ice::initialize(args)
+        // Ice::initialize(initData)
+        // Ice::initialize(configFile)
+        // Ice::initialize(args, initData)
+        // Ice::initialize(args, configFile)
+        //
+
+        if(argc > 2)
+        {
+            throw RubyException(rb_eArgError, "invalid number of arguments to Ice::initialize");
+        }
+
         volatile VALUE initDataCls = callRuby(rb_path2class, "Ice::InitializationData");
-        volatile VALUE args = Qnil, initData = Qnil;
-        if(argc == 1)
+        volatile VALUE args = Qnil, initData = Qnil, configFile = Qnil;
+
+        if(argc >= 1)
         {
             if(isArray(argv[0]))
             {
@@ -74,23 +91,54 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
             {
                 initData = argv[0];
             }
+            else if(TYPE(argv[0]) == T_STRING)
+            {
+                configFile = argv[0];
+            }
             else
             {
-                throw RubyException(rb_eTypeError, "invalid argument to Ice::initialize");
+                throw RubyException(rb_eTypeError,
+                    "initialize expects an argument list, InitializationData or a configuration filename");
             }
         }
-        else if(argc == 2)
+
+        if(argc >= 2)
         {
-            if(!isArray(argv[0]) || callRuby(rb_obj_is_instance_of, argv[1], initDataCls) == Qfalse)
+            if(isArray(argv[1]))
             {
-                throw RubyException(rb_eTypeError, "invalid argument to Ice::initialize");
+                if(!NIL_P(args))
+                {
+                    throw RubyException(rb_eTypeError, "unexpected array argument to initialize");
+                }
+                args = argv[1];
             }
-            args = argv[0];
-            initData = argv[1];
+            else if(callRuby(rb_obj_is_instance_of, argv[1], initDataCls) == Qtrue)
+            {
+                if(!NIL_P(initData))
+                {
+                    throw RubyException(rb_eTypeError, "unexpected InitializationData argument to initialize");
+                }
+                initData = argv[1];
+            }
+            else if(TYPE(argv[1]) == T_STRING)
+            {
+                if(!NIL_P(configFile))
+                {
+                    throw RubyException(rb_eTypeError, "unexpected string argument to initialize");
+                }
+                configFile = argv[1];
+            }
+            else
+            {
+                throw RubyException(rb_eTypeError,
+                    "initialize expects an argument list, InitializationData or a configuration filename");
+            }
         }
-        else if(argc > 0)
+
+        if(!NIL_P(initData) && !NIL_P(configFile))
         {
-            throw RubyException(rb_eArgError, "invalid number of arguments to Ice::initialize");
+            throw RubyException(rb_eTypeError,
+                "initialize accepts either Ice.InitializationData or a configuration filename");
         }
 
         Ice::StringSeq seq;
@@ -98,11 +146,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         {
             throw RubyException(rb_eTypeError, "invalid array argument to Ice::initialize");
         }
-
-        //
-        // Use the with-args or the without-args version of initialize()?
-        //
-        bool hasArgs = !NIL_P(args);
 
         Ice::InitializationData data;
         if(!NIL_P(initData))
@@ -131,22 +174,20 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         data.compactIdResolver = new IdResolver;
         data.valueFactoryManager = new ValueFactoryManager;
 
-        if(hasArgs)
-        {
-            data.properties = Ice::createProperties(seq, data.properties);
-        }
-        else if(!data.properties)
+        if(!data.properties)
         {
             data.properties = Ice::createProperties();
         }
-        //
-        // Disable collocation optimization, otherwise an invocation on a
-        // collocated servant results in a CollocationOptimizationException
-        // (because Ruby uses the blobject API).
-        //
-        // TODO: Enable if a server mapping is added.
-        //
-        //data.properties->setProperty("Ice.Default.CollocationOptimization", "0");
+
+        if(!NIL_P(configFile))
+        {
+            data.properties->load(getString(configFile));
+        }
+
+        if(!NIL_P(args))
+        {
+            data.properties = Ice::createProperties(seq, data.properties);
+        }
 
         //
         // Remaining command line options are passed to the communicator
@@ -164,7 +205,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         Ice::CommunicatorPtr communicator;
         try
         {
-            if(hasArgs)
+            if(!NIL_P(args))
             {
                 communicator = Ice::initialize(ac, av, data);
             }

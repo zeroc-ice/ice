@@ -23,9 +23,13 @@ using namespace IcePHP;
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(-1))
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(-1))
+    ZEND_ARG_PASS_INFO(1)
+    ZEND_ARG_PASS_INFO(0)
 ZEND_END_ARG_INFO()
 
 #ifdef ICEPHP_USE_NAMESPACES

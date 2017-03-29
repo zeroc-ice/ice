@@ -524,6 +524,14 @@ ZEND_FUNCTION(Ice_createProperties)
         RETURN_NULL();
     }
 
+    if(arglist)
+    {
+        while(Z_TYPE_P(arglist) == IS_REFERENCE)
+        {
+            arglist = Z_REFVAL_P(arglist);
+        }
+    }
+
     Ice::StringSeq seq;
     if(arglist && !extractStringArray(arglist, seq))
     {
@@ -553,7 +561,7 @@ ZEND_FUNCTION(Ice_createProperties)
             RETURN_NULL();
         }
 
-        if(arglist && Z_ISREF_P(arglist))
+        if(arglist)
         {
             zval_dtor(arglist);
             if(!createStringArray(arglist, seq))
