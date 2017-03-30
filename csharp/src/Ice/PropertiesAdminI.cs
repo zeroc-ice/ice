@@ -20,10 +20,10 @@ public interface PropertiesAdminUpdateCallback
 
 public interface NativePropertiesAdmin
 {
-    [Obsolete("This method is deprecated. Use addUpdatecallback(System.Action<Dictionary<string, string>> changes) instead.")]
+    [Obsolete("This method is deprecated. Use addUpdateCallback(System.Action<Dictionary<string, string>> callback) instead.")]
     void addUpdateCallback(PropertiesAdminUpdateCallback callback);
 
-    [Obsolete("This method is deprecated. Use removeUpdatecallback(System.Action<Dictionary<string, string>> changes) instead.")]
+    [Obsolete("This method is deprecated. Use removeUpdateCallback(System.Action<Dictionary<string, string>> callback) instead.")]
     void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
 
     void addUpdateCallback(System.Action<Dictionary<string, string>> callback);
