@@ -14,8 +14,8 @@ include ':icediscovery'
 project(':icediscovery').projectDir = new File('src/IceDiscovery')
 include ':icelocatordiscovery'
 project(':icelocatordiscovery').projectDir = new File('src/IceLocatorDiscovery')
-//include ':icebt'
-//project(':icebt').projectDir = new File('src/IceBT')
+include ':icebt'
+project(':icebt').projectDir = new File('src/IceBT')
 include ':icebox'
 project(':icebox').projectDir = new File('src/IceBox')
 include ':glacier2'
