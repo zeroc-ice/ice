@@ -159,9 +159,13 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
             case Builtin::KindByte:
             case Builtin::KindShort:
             case Builtin::KindInt:
-            case Builtin::KindLong:
             {
                 return "0";
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                return "new Ice.Long(0, 0)";
                 break;
             }
             case Builtin::KindFloat:
