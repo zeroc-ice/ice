@@ -245,7 +245,7 @@ class Windows(Platform):
         return "Win32"
 
     def getDefaultBuildConfig(self):
-        return "Debug"
+        return "Release"
 
     def getCompiler(self):
         out = run("cl")

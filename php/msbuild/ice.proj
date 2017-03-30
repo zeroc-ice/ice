@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
