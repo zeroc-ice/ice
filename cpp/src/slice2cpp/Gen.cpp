@@ -1059,7 +1059,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         emitUpcall(base, "(file_, line_)", true);
         if(p->hasDefaultValues())
         {
-            C << ", ";
+            C << ",";
             writeDataMemberInitializers(C, dataMembers, _useWstring);
         }
         C.dec();
@@ -1784,10 +1784,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
-    H << nl << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << sp << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
     H.dec();
-    H << sp << nl << "protected: ";
+    H << sp << nl << "protected:";
     H.inc();
     H << sp << nl << _dllMemberExport << "virtual ::IceProxy::Ice::Object* _newInstance() const;";
     H << eb << ';';
@@ -2000,8 +2000,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         H << "const ::Ice::AsyncResultPtr&" << epar << ';';
     }
 
-    H << nl;
     H.dec();
+    H << nl;
     H << nl << "private:";
     H.inc();
     H << sp << nl << _dllMemberExport << "::Ice::AsyncResultPtr _iceI_begin_" << name << spar
@@ -2009,8 +2009,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::IceInternal::CallbackBasePtr&"
       << "const ::Ice::LocalObjectPtr& cookie = 0"
       << "bool sync = false" << epar << ';';
-    H << nl;
     H.dec();
+    H << nl;
     H << nl << "public:";
     H.inc();
 
@@ -2877,7 +2877,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        C << sp << nl << "void " << _dllExport;
+        C << sp << nl << "void";
         C << nl << scope.substr(2) << "_icePatchObjectPtr(" << p->name() << "Ptr& handle, const ::Ice::ObjectPtr& v)";
         C << sb;
         C << nl << "handle = " << scope << p->name() << "Ptr::dynamicCast(v);";
@@ -5499,7 +5499,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(q != dataMembers.begin())
             {
-                H << ", ";
+                H << ",";
             }
             if(isMovable((*q)->type()))
             {
@@ -5804,11 +5804,10 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string prx = fixKwd(p->name() + "Prx");
 
-    H << sp;
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << sp << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
     H.dec();
-    H << sp << nl << "protected: ";
+    H << sp << nl << "protected:";
     H.inc();
     H << sp << nl << prx << "() = default;";
     H << nl << "friend ::std::shared_ptr<" << prx << "> IceInternal::createProxy<" << prx << ">();";
@@ -6021,14 +6020,24 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             for(vector<string>::const_iterator q = inParamsS.begin(); q != inParamsS.end(); ++q)
             {
-                H << *q << ", ";
+                if(q != inParamsS.begin())
+                {
+                    H << " ";
+                }
+
+                H << *q << ",";
             }
         }
         else
         {
             for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
             {
-                H << *q << ", ";
+                if(q != inParamsDecl.begin())
+                {
+                    H << " ";
+                }
+
+                H << *q << ",";
             }
         }
         H << nl;
@@ -6058,7 +6067,11 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
             {
-                C << *q << ", ";
+                if(q != inParamsDecl.begin())
+                {
+                    C << " ";
+                }
+                C << *q << ",";
             }
             C << nl;
         }
@@ -6110,7 +6123,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sp;
 
         C << nl << "outAsync->invoke(" << flatName << ", ";
-        C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context, ";
+        C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context,";
         C.inc();
         C << nl;
 
@@ -6181,7 +6194,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "_checkTwowayOnly(" << flatName << ");";
     }
     C << nl << "outAsync->invoke(" << flatName << ", ";
-    C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context, ";
+    C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context,";
     C.inc();
     C << nl;
 

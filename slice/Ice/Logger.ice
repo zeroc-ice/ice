@@ -68,7 +68,7 @@ local interface Logger
      *
      **/
     void error(string message);
-    
+
     /**
      *
      * Returns this logger's prefix.

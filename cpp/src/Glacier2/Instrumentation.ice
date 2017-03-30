@@ -53,7 +53,7 @@ local interface SessionObserver extends Ice::Instrumentation::Observer
     /**
      *
      * Notification of a routing table size change.
-     * 
+     *
      * @param delta The size adjustement.
      *
      **/
@@ -81,7 +81,7 @@ local interface ObserverUpdater
      * each sesssion RouterObserver::getSessionObserver is
      * called. The implementation of getSessionObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateSessionObservers();
 };
@@ -126,6 +126,5 @@ local interface RouterObserver
 };
 
 };
-    
-};
 
+};

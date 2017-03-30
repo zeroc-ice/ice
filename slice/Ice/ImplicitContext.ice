@@ -39,12 +39,12 @@ module Ice
  * <dt><tt>Shared</tt></dt>
  * <dd>The implementation maintains a single context shared by all threads.</dd>
  * </dl><p>
- *  
+ *
  * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire
  * context. These operations correspond to a subset of the <tt>java.util.Map</tt> methods,
  * with <tt>java.lang.Object</tt> replaced by <tt>string</tt> and null replaced by the empty-string.
- * 
+ *
  **/
 
 local interface ImplicitContext
@@ -55,17 +55,17 @@ local interface ImplicitContext
      *
      **/
     ["cpp:const"] Context getContext();
-    
+
     /**
      * Set the underlying context.
      *
      * @param newContext The new context.
-     * 
+     *
      **/
     void setContext(Context newContext);
 
     /**
-     * Check if this key has an associated value in the underlying context. 
+     * Check if this key has an associated value in the underlying context.
      *
      * @param key The key.
      *
@@ -73,11 +73,11 @@ local interface ImplicitContext
      *
      **/
     ["cpp:const"] bool containsKey(string key);
- 
+
     /**
      * Get the value associated with the given key in the underlying context.
      * Returns an empty string if no value is associated with the key.
-     * {@link #containsKey} allows you to distinguish between an empty-string value and 
+     * {@link #containsKey} allows you to distinguish between an empty-string value and
      * no value at all.
      *
      * @param key The key.

@@ -34,7 +34,7 @@ local class ConnectionInfo extends Ice::ConnectionInfo
     string cipher;
 
     /** The certificate chain. */
-    ["cpp:type:std::vector<CertificatePtr>", 
+    ["cpp:type:std::vector<CertificatePtr>",
      "java:type:java.security.cert.Certificate[]",
      "cs:type:System.Security.Cryptography.X509Certificates.X509Certificate2[]"]
     Ice::StringSeq certs;

@@ -76,13 +76,13 @@ local interface ObserverUpdater
 {
     /**
      *
-     * Update topic observers associated with each topics. 
+     * Update topic observers associated with each topics.
      *
      * When called, this method goes through all the topics and for
      * each topic TopicManagerObserver::getTopicObserver is
      * called. The implementation of getTopicObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateTopicObservers();
 
@@ -94,7 +94,7 @@ local interface ObserverUpdater
      * for each subscriber TopicManagerObserver::getSubscriberObserver
      * is called. The implementation of getSubscriberObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateSubscriberObservers();
 };
@@ -180,6 +180,5 @@ local interface TopicManagerObserver
 };
 
 };
-    
-};
 
+};

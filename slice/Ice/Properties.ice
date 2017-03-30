@@ -101,7 +101,7 @@ local interface Properties
      * Get a property as a list of strings. The strings must be
      * separated by whitespace or comma. If the property is not set,
      * an empty list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double 
+     * whitespace and commas if they are enclosed in single or double
      * quotes. If quotes are mismatched, an empty list is returned.
      * Within single quotes or double quotes, you can escape the
      * quote in question with \, e.g. O'Reilly can be written as
@@ -121,7 +121,7 @@ local interface Properties
      * Get a property as a list of strings.  The strings must be
      * separated by whitespace or comma. If the property is not set,
      * the default list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double 
+     * whitespace and commas if they are enclosed in single or double
      * quotes. If quotes are mismatched, the default list is returned.
      * Within single quotes or double quotes, you can escape the
      * quote in question with \, e.g. O'Reilly can be written as

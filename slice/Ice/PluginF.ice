@@ -18,7 +18,7 @@
 ["objc:prefix:ICE"]
 module Ice
 {
-    
+
 local interface Plugin;
 local interface PluginManager;
 

@@ -51,7 +51,7 @@ private:
     // or an empty string if no global metadata was found.
     //
     std::string getHeaderExt(const std::string& file, const UnitPtr& unit);
-    
+
     //
     // Returns the source extension defined in the global metadata for a given file,
     // or an empty string if no global metadata was found.

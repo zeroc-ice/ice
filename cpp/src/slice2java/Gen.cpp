@@ -1971,12 +1971,28 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
         start = pos + 1;
         while((pos = text.find_first_of(ws, start)) != string::npos)
         {
-            out << nl << " * " << IceUtilInternal::trim(text.substr(start, pos - start));
+            string line = IceUtilInternal::trim(text.substr(start, pos - start));
+            if(line.empty())
+            {
+                out << nl << " *";
+            }
+            else
+            {
+                out << nl << " * " << line;
+            }
             start = pos + 1;
         }
         if(start < text.size())
         {
-            out << nl << " * " << IceUtilInternal::trim(text.substr(start));
+            string line = IceUtilInternal::trim(text.substr(start));
+            if(line.empty())
+            {
+                out << nl << " *";
+            }
+            else
+            {
+                out << nl << " * " << line;
+            }
         }
     }
 }
@@ -3601,7 +3617,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
         out << eb;
 
-        out << nl << nl << "private static final " << name << " _nullMarshalValue = new " << name << "();";
+        out << sp << nl << "private static final " << name << " _nullMarshalValue = new " << name << "();";
     }
 
     out << sp << nl << "public static final long serialVersionUID = ";
