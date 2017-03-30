@@ -1706,7 +1706,11 @@ class LocalProcessController(ProcessController):
         for k, v in envs.items():
             envs[k] = val(v, quoteValue=False)
 
-        cmd = (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+        cmd = ""
+        if current.driver.valgrind:
+            cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
+                                                                os.path.join(toplevel, "config", "valgrind.sup"))
+        cmd += (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
         if current.driver.debug:
             if len(envs) > 0:
                 current.writeln("({0} env={1})".format(cmd, envs))
@@ -2240,7 +2244,7 @@ class Driver:
     @classmethod
     def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "controller-app"])
+                         "controller-app", "valgrind"])
 
     @classmethod
     def usage(self):
@@ -2268,6 +2272,7 @@ class Driver:
         self.hostIPv6 = ""
         self.hostBT = ""
         self.controllerApp = False
+        self.valgrind = False
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",
