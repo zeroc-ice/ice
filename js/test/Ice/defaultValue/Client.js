@@ -170,7 +170,7 @@
                 test(v2.b === 0);
                 test(v2.s === 0);
                 test(v2.i === 0);
-                test(v2.l === 0);
+                test(v2.l.equals(new Ice.Long(0, 0)));
                 test(v2.f === 0.0);
                 test(v2.d === 0.0);
                 test(v2.str === "");
