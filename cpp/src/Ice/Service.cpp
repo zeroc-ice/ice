@@ -332,7 +332,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        wstring msg = stringToWstring(message, _stringConverter);
+        const wstring msg = stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -739,7 +739,7 @@ Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationDa
 #endif
 
 int
-    Ice::Service::main(const StringSeq& args, const InitializationData& initData, int version)
+Ice::Service::main(const StringSeq& args, const InitializationData& initData, int version)
 {
     IceInternal::ArgVector av(args);
     return main(av.argc, av.argv, initData, version);
@@ -1084,11 +1084,10 @@ Ice::Service::runService(int argc, const char* const argv[], const Initializatio
     // Don't need to use a wide string converter as the wide string is passed
     // to Windows API.
     //
+    const wstring serviceName = stringToWstring(_name, getProcessStringConverter());
     SERVICE_TABLE_ENTRYW ste[] =
     {
-        { const_cast<wchar_t*>(
-            stringToWstring(_name, getProcessStringConverter()).c_str()),
-            Ice_Service_ServiceMain },
+        { const_cast<wchar_t*>(serviceName.c_str()), Ice_Service_ServiceMain },
         { 0, 0 },
     };
 
@@ -1266,22 +1265,40 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     serviceStatusManager->startUpdate(SERVICE_START_PENDING);
 
     //
-    // Merge the executable's arguments with the service's arguments.
-    //
-    const StringConverterPtr converter(getProcessStringConverter());
-
-    //
     // Don't need to pass a wide string converter in the bellow argv conversions
     // as argv come from Windows API.
     //
-    assert(argc == 1);
+    const IceUtil::StringConverterPtr converter(IceUtil::getProcessStringConverter());
+
+    //
+    // Merge the executable's arguments with the service's arguments.
+    //
     char** args = new char*[_serviceArgs.size() + argc];
+
+    //
+    // First argument is argv[0] the serviceName
+    //
     const string serviceName = wstringToString(argv[0], converter);
     args[0] = const_cast<char*>(serviceName.c_str());
+
     int i = 1;
     for(vector<string>::iterator p = _serviceArgs.begin(); p != _serviceArgs.end(); ++p)
     {
         args[i++] = const_cast<char*>(p->c_str());
+    }
+
+    //
+    // Convert wide string wchar_t** argv to a sequence of narrow strings and merge
+    // the converted sequence into the args array.
+    //
+    vector<string> executableArgs;
+    for(int j = 1; j < argc; ++j)
+    {
+        executableArgs.push_back(IceUtil::wstringToString(argv[j], converter));
+    }
+    for(vector<string>::iterator p = executableArgs.begin(); p != executableArgs.end(); ++p)
+    {
+         args[i++] = const_cast<char*>(p->c_str());
     }
     argc += static_cast<int>(_serviceArgs.size());
 
