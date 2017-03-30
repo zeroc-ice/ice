@@ -1293,16 +1293,14 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     // Don't need to pass a wide string converter in the bellow argv conversions
     // as argv come from Windows API.
     //
+    assert(argc == 1);
     char** args = new char*[_serviceArgs.size() + argc];
-	args[0] = const_cast<char*>(IceUtil::wstringToString(argv[0], converter).c_str());
+    const string serviceName = IceUtil::wstringToString(argv[0], converter);
+    args[0] = const_cast<char*>(serviceName.c_str());
     int i = 1;
     for(vector<string>::iterator p = _serviceArgs.begin(); p != _serviceArgs.end(); ++p)
     {
         args[i++] = const_cast<char*>(p->c_str());
-    }
-    for(int j = 1; j < argc; ++j)
-    {
-		args[i++] = const_cast<char*>(IceUtil::wstringToString(argv[j], converter).c_str());
     }
     argc += static_cast<int>(_serviceArgs.size());
 
