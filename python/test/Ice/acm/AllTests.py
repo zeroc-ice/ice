@@ -83,7 +83,7 @@ class TestCase(threading.Thread):
         initData = Ice.InitializationData()
         initData.properties = self._com.ice_getCommunicator().getProperties().clone()
         initData.logger = self._logger
-        initData.properties.setProperty("Ice.ACM.Timeout", "1")
+        initData.properties.setProperty("Ice.ACM.Timeout", "2")
         if self._clientACMTimeout >= 0:
             initData.properties.setProperty("Ice.ACM.Client.Timeout", str(self._clientACMTimeout))
         if self._clientACMClose >= 0:
@@ -152,7 +152,7 @@ def allTests(communicator):
             TestCase.__init__(self, "invocation heartbeat", com)
 
         def runTestCase(self, adapter, proxy):
-            proxy.sleep(2)
+            proxy.sleep(4)
 
             with self.m:
                 test(self._heartbeat >= 2)
@@ -179,7 +179,7 @@ def allTests(communicator):
     class InvocationNoHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation with no heartbeat", com)
-            self.setServerACM(1, 2, 0) # Disable heartbeat on invocations
+            self.setServerACM(2, 2, 0) # Disable heartbeat on invocations
 
         def runTestCase(self, adapter, proxy):
             try:
@@ -198,12 +198,12 @@ def allTests(communicator):
     class InvocationHeartbeatCloseOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation with no heartbeat and close on idle", com)
-            self.setClientACM(1, 1, 0) # Only close on idle.
-            self.setServerACM(1, 2, 0) # Disable heartbeat on invocations
+            self.setClientACM(2, 1, 0) # Only close on idle.
+            self.setServerACM(2, 2, 0) # Disable heartbeat on invocations
 
         def runTestCase(self, adapter, proxy):
             # No close on invocation, the call should succeed this time.
-            proxy.sleep(2)
+            proxy.sleep(4)
 
             with self.m:
                 test(self._heartbeat == 0)
@@ -212,10 +212,10 @@ def allTests(communicator):
     class CloseOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on idle", com)
-            self.setClientACM(1, 1, 0) # Only close on idle.
+            self.setClientACM(2, 1, 0) # Only close on idle.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
@@ -224,10 +224,10 @@ def allTests(communicator):
     class CloseOnInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on invocation", com)
-            self.setClientACM(1, 2, 0) # Only close on invocation.
+            self.setClientACM(2, 2, 0) # Only close on invocation.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(1.5) # Idle for 1.5 seconds
+            time.sleep(3) # Idle for 3 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
@@ -236,7 +236,7 @@ def allTests(communicator):
     class CloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on idle and invocation", com)
-            self.setClientACM(1, 3, 0) # Only close on idle and invocation.
+            self.setClientACM(2, 3, 0) # Only close on idle and invocation.
 
         def runTestCase(self, adapter, proxy):
             #
@@ -245,14 +245,14 @@ def allTests(communicator):
             # the close is graceful or forceful.
             #
             adapter.hold()
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
                 test(not self._closed) # Not closed yet because of graceful close.
 
             adapter.activate()
-            time.sleep(0.5)
+            time.sleep(1)
 
             with self.m:
                 test(self._closed) # Connection should be closed this time.
@@ -260,11 +260,11 @@ def allTests(communicator):
     class ForcefulCloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "forceful close on idle and invocation", com)
-            self.setClientACM(1, 4, 0) # Only close on idle and invocation.
+            self.setClientACM(2, 4, 0) # Only close on idle and invocation.
 
         def runTestCase(self, adapter, proxy):
             adapter.hold()
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
@@ -273,10 +273,10 @@ def allTests(communicator):
     class HeartbeatOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "heartbeat on idle", com)
-            self.setServerACM(1, -1, 2) # Enable server heartbeats.
+            self.setServerACM(2, -1, 2) # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(2)
+            time.sleep(4)
 
             with self.m:
                 test(self._heartbeat >= 3)
@@ -284,12 +284,12 @@ def allTests(communicator):
     class HeartbeatAlwaysTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "heartbeat always", com)
-            self.setServerACM(1, -1, 3) # Enable server heartbeats.
+            self.setServerACM(2, -1, 3) # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
-            for i in range(0, 20):
+            for i in range(0, 10):
                 proxy.ice_ping()
-                time.sleep(0.1)
+                time.sleep(0.4)
 
             with self.m:
                 test(self._heartbeat >= 3)

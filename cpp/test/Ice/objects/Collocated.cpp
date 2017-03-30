@@ -154,6 +154,9 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData = getTestInitData(argc, argv);
+#ifndef ICE_CPP11_MAPPING
+        initData.properties->setProperty("Ice.CollectObjects", "1");
+#endif
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());

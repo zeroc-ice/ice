@@ -182,7 +182,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         test(connection == [to ice_getConnection]);
         @try
         {
-            [to sleep:250];
+            [to sleep:100];
         }
         @catch(ICEInvocationTimeoutException*)
         {
@@ -206,7 +206,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
         TestTimeoutCallback* cb = [[TestTimeoutCallback alloc] init];
-        [to begin_sleep:250 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
+        [to begin_sleep:100 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
     }
     {

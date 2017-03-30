@@ -170,7 +170,7 @@ public class AllTests
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(250 * mult);
+                to.sleep(100 * mult);
             }
             catch(com.zeroc.Ice.InvocationTimeoutException ex)
             {
@@ -198,7 +198,7 @@ public class AllTests
             //
             TimeoutPrx to = timeout.ice_invocationTimeout(500 * mult);
             Callback cb = new Callback();
-            to.sleepAsync(250 * mult).whenComplete((result, ex) ->
+            to.sleepAsync(100 * mult).whenComplete((result, ex) ->
                 {
                     test(ex == null);
                     cb.called();

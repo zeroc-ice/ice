@@ -246,7 +246,7 @@ public class AllTests
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(250 * mult);
+                to.sleep(100 * mult);
             }
             catch(Ice.InvocationTimeoutException ex)
             {
@@ -270,7 +270,7 @@ public class AllTests
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500 * mult));
             CallbackSuccess cb = new CallbackSuccess();
-            to.begin_sleep(250 * mult, cb);
+            to.begin_sleep(100 * mult, cb);
             cb.check();
         }
         {

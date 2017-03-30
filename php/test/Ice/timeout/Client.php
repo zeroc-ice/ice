@@ -163,7 +163,7 @@ function allTests($communicator)
         test($connection == $to->ice_getConnection());
         try
         {
-            $to->sleep(250);
+            $to->sleep(100);
         }
         catch(Exception $ex)
         {

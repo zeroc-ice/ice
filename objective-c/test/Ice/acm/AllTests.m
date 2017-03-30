@@ -208,7 +208,7 @@
     ICEInitializationData* initData = [ICEInitializationData initializationData];
     initData.properties = [[[_com ice_getCommunicator] getProperties] clone];
     initData.logger = _logger;
-    [initData.properties setProperty:@"Ice.ACM.Timeout" value:@"1"];
+    [initData.properties setProperty:@"Ice.ACM.Timeout" value:@"2"];
     if(_clientACMTimeout >= 0)
     {
         [initData.properties setProperty:@"Ice.ACM.Client.Timeout"
@@ -303,7 +303,7 @@
         NSDate* start = [NSDate date];
         while(!_closed)
         {
-            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:2]];
             if(start.timeIntervalSinceNow > -1)
             {
                 test(NO);
@@ -386,7 +386,7 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
-    [proxy sleep:2];
+    [proxy sleep:4];
 
     [_cond lock];
     @try
@@ -440,7 +440,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setServerACM:1 close:2 heartbeat:0]; // Disable heartbeat on invocations
+    [tc setServerACM:2 close:2 heartbeat:0]; // Disable heartbeat on invocations
     return tc;
 }
 +(NSString*) getName
@@ -486,8 +486,8 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:1 heartbeat:0]; // Only close on idle.
-    [tc setServerACM:1 close:2 heartbeat:0]; // Disable heartbeat on invocations
+    [tc setClientACM:2 close:1 heartbeat:0]; // Only close on idle.
+    [tc setServerACM:2 close:2 heartbeat:0]; // Disable heartbeat on invocations
     return tc;
 }
 +(NSString*) getName
@@ -497,7 +497,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     // No close on invocation, the call should succeed this time.
-    [proxy sleep:2];
+    [proxy sleep:4];
 
     [_cond lock];
     @try
@@ -522,7 +522,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:1 heartbeat:0]; // Only close on idle.
+    [tc setClientACM:2 close:1 heartbeat:0]; // Only close on idle.
     return tc;
 }
 +(NSString*) getName
@@ -532,7 +532,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [self waitForClosed];
@@ -559,7 +559,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:2 heartbeat:0]; // Only close on invocation
+    [tc setClientACM:2 close:2 heartbeat:0]; // Only close on invocation
     return tc;
 }
 +(NSString*) getName
@@ -569,7 +569,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [_cond lock];
@@ -595,7 +595,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:3 heartbeat:0]; // Only close on idle and invocation
+    [tc setClientACM:2 close:3 heartbeat:0]; // Only close on idle and invocation
     return tc;
 }
 +(NSString*) getName
@@ -612,7 +612,7 @@
     [adapter hold];
 
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [_cond lock];
@@ -628,7 +628,7 @@
 
     [adapter activate];
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
     [_cond unlock];
 
     [self waitForClosed];
@@ -645,7 +645,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:4 heartbeat:0]; // Only close on idle and invocation
+    [tc setClientACM:2 close:4 heartbeat:0]; // Only close on idle and invocation
     return tc;
 }
 +(NSString*) getName
@@ -657,7 +657,7 @@
     [adapter hold];
 
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [self waitForClosed];
@@ -684,7 +684,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setServerACM:1 close:-1 heartbeat:2]; // Enable server heartbeats.
+    [tc setServerACM:2 close:-1 heartbeat:2]; // Enable server heartbeats.
     return tc;
 }
 +(NSString*) getName
@@ -694,7 +694,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:2]];
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:4]];
     [_cond unlock];
 
     [_cond lock];
@@ -719,7 +719,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setServerACM:1 close:-1 heartbeat:3]; // Enable server heartbeats.
+    [tc setServerACM:2 close:-1 heartbeat:3]; // Enable server heartbeats.
     return tc;
 }
 +(NSString*) getName
@@ -728,12 +728,12 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
-    for(int i = 0; i < 12; ++i)
+    for(int i = 0; i < 10; ++i)
     {
         [proxy ice_ping];
 
         [_cond lock];
-        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.4]];
         [_cond unlock];
     }
 

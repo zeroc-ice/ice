@@ -127,7 +127,7 @@
         ).then(con =>
             {
                 test(to.ice_getCachedConnection() === obj.ice_getCachedConnection());
-                return to.sleep(250);
+                return to.sleep(100);
             }
         ).then(() =>
             {

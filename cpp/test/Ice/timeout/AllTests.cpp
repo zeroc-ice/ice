@@ -182,7 +182,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(connection == to->ice_getConnection());
         try
         {
-            to->sleep(250);
+            to->sleep(100);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
@@ -223,7 +223,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleepAsync(250);
+        auto f = to->sleepAsync(100);
         try
         {
             f.get();
@@ -234,7 +234,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         CallbackPtr cb = new Callback();
-        to->begin_sleep(250, newCallback_Timeout_sleep(cb, &Callback::response, &Callback::exception));
+        to->begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback::response, &Callback::exception));
         cb->check();
 #endif
     }

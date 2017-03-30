@@ -86,7 +86,7 @@ def allTests(communicator)
     to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
     test(connection == to.ice_getConnection())
     begin
-        to.sleep(250)
+        to.sleep(100)
     rescue Ice::InvocationTimeoutException
         test(false)
     end

@@ -149,7 +149,7 @@ public class AllTests : TestCommon.AllTests
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(250);
+                to.sleep(100);
             }
             catch(Ice.InvocationTimeoutException)
             {
@@ -182,7 +182,7 @@ public class AllTests : TestCommon.AllTests
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
             Callback cb = new Callback();
-            to.begin_sleep(250).whenCompleted(
+            to.begin_sleep(100).whenCompleted(
                 () =>
                 {
                     cb.called();
