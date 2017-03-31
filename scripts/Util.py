@@ -460,11 +460,12 @@ class Mapping:
             self.sprops = []
             parseOptions(self, options, { "config" : "buildConfig",
                                           "platform" : "buildPlatform" })
-            
-            # Options bellow are not parsed by the base class by still 
-            # initialized here for convenience (this avoid having to 
+
+            # Options bellow are not parsed by the base class by still
+            # initialized here for convenience (this avoid having to
             # check the configuration type)
             self.uwp = False
+            self.openssl = False
 
         def __str__(self):
             s = []
@@ -2444,8 +2445,6 @@ class CppMapping(Mapping):
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            self.uwp = False
-            self.openssl = False
 
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
             # tests on the cpp11 value in the testcase options specification
@@ -2685,7 +2684,6 @@ class CppBasedMapping(Mapping):
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            self.openssl = False
             parseOptions(self, options,
                 { self.mappingName + "-config" : "buildConfig",
                   self.mappingName + "-platform" : "buildPlatform" })
