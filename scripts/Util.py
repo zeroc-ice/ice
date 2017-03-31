@@ -224,7 +224,7 @@ class Linux(Platform):
 class Windows(Platform):
 
     def getFilters(self, config):
-        if config.uwp:
+        if isinstance(current.config, CppMapping.Config) and config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
@@ -2477,7 +2477,7 @@ class CppMapping(Mapping):
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
         server = isinstance(process, Server)
-        uwp = current.config.uwp
+        uwp = current.config.uwp if isinstance(current.config, CppMapping.Config) else False
 
         props.update({
             "IceSSL.CAs": "cacert.pem",
@@ -2666,7 +2666,7 @@ class CppBasedMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", [self.mappingName + "-config=", self.mappingName + "-platform="])
+            return ("", [self.mappingName + "-config=", self.mappingName + "-platform=", "openssl"])
 
         @classmethod
         def usage(self):
@@ -2676,9 +2676,11 @@ class CppBasedMapping(Mapping):
                 .format(self.mappingName, self.mappingDesc))
             print("--{0}-platform=<platform> {1} build platform for native executables (overrides --platform)."
                 .format(self.mappingName, self.mappingDesc))
+            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
+            self.openssl = False
             parseOptions(self, options,
                 { self.mappingName + "-config" : "buildConfig",
                   self.mappingName + "-platform" : "buildPlatform" })
