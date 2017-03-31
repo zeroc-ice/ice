@@ -28,6 +28,7 @@ env:
     - PYTHONPATH=${PYTHONUSERBASE}
     - JAVA_HOME=/usr/lib/jvm/java-8-oracle
     - USE_NAMESPACES=no
+    - OPTIMIZE=no
 
   matrix:
     - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-shared"
