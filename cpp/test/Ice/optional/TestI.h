@@ -27,7 +27,11 @@ public:
    InitialI();
 
     virtual void shutdown(const Ice::Current&);
-    virtual Ice::ValuePtr pingPong(ICE_IN(Ice::ValuePtr), const Ice::Current&);
+#ifdef ICE_CPP11_MAPPING
+    virtual PingPongMarshaledResult pingPong(ICE_IN(Ice::ValuePtr), const Ice::Current&);
+#else
+    virtual Ice::ValuePtr pingPong(const Ice::ValuePtr&, const Ice::Current&);
+#endif
 
     virtual void opOptionalException(ICE_IN(IceUtil::Optional< ::Ice::Int>),
                                      ICE_IN(IceUtil::Optional< ::std::string>),

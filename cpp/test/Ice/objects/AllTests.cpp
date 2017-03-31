@@ -24,12 +24,16 @@
 using namespace std;
 using namespace Test;
 
+namespace
+{
+
 class AbstractBaseI : public AbstractBase
 {
 public:
 
     virtual void op(const Ice::Current&)
-    {}
+    {
+    }
 };
 
 void
@@ -59,6 +63,56 @@ testUOE(const Ice::CommunicatorPtr& communicator)
     {
         test(false);
     }
+}
+
+void clear(const CPtr&);
+
+void
+clear(const BPtr& b)
+{
+#ifdef ICE_CPP11_MAPPING
+    // No GC with the C++11 mapping
+    if(dynamic_pointer_cast<B>(b->theA))
+    {
+	auto tmp = b->theA;
+        b->theA = nullptr;
+        clear(dynamic_pointer_cast<B>(tmp));
+    }
+    if(b->theB)
+    {
+        auto tmp = b->theB;
+        b->theB = nullptr;
+        clear(dynamic_pointer_cast<B>(tmp));
+    }
+    b->theC = nullptr;
+#endif
+}
+
+void
+clear(const CPtr& c)
+{
+#ifdef ICE_CPP11_MAPPING
+    // No GC with the C++11 mapping
+    clear(c->theB);
+    c->theB = nullptr;
+#endif
+}
+
+void
+clear(const DPtr& d)
+{
+#ifdef ICE_CPP11_MAPPING
+    // No GC with the C++11 mapping
+    if(dynamic_pointer_cast<B>(d->theA))
+    {
+        clear(dynamic_pointer_cast<B>(d->theA));
+    }
+    d->theA = nullptr;
+    clear(d->theB);
+    d->theB = nullptr;
+#endif
+}
+
 }
 
 InitialPrxPtr
@@ -194,6 +248,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
     test(d->theC == ICE_NULLPTR);
+
+    clear(b1);
+    clear(b2);
+    clear(c);
+    clear(d);
     cout << "ok" << endl;
 
     cout << "getting B1, B2, C, and D all at once... " << flush;
@@ -248,6 +307,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->theB->postUnmarshalInvoked);
     test(d->theB->theC->preMarshalInvoked);
     test(d->theB->theC->postUnmarshalInvoked);
+    clear(b1);
+    clear(b2);
+    clear(c);
+    clear(d);
     cout << "ok" << endl;
 
     cout << "testing protected members... " << flush;
@@ -368,12 +431,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing marshaled results..." << flush;
     b1 = initial->getMB();
     test(b1 && b1->theB == b1);
+    clear(b1);
 #ifdef ICE_CPP11_MAPPING
     b1 = initial->getAMDMBAsync().get();
 #else
     b1 = initial->end_getAMDMB(initial->begin_getAMDMB());
 #endif
     test(b1 && b1->theB == b1);
+    clear(b1);
     cout << "ok" << endl;
 
     cout << "testing UnexpectedObjectException... " << flush;

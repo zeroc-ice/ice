@@ -714,6 +714,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     mo8->ifsd = IceUtil::None;
     mo8->iood = IceUtil::None;
 
+    mo8->k = mo8;
     MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
@@ -725,7 +726,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(!mo9->h);
     test(mo9->i == mo1->i);
     test(!mo9->j);
-    test(mo9->k == mo9->k);
+    test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
@@ -793,6 +794,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
         factory->setEnabled(false);
     }
+
+#ifdef ICE_CPP11_MAPPING
+    mo1->k = shared_ptr<MultiOptional>();
+    mo2->k = shared_ptr<MultiOptional>();
+    mo3->k = shared_ptr<MultiOptional>();
+    mo4->k = shared_ptr<MultiOptional>();
+    mo5->k = shared_ptr<MultiOptional>();
+    mo6->k = shared_ptr<MultiOptional>();
+    mo7->k = shared_ptr<MultiOptional>();
+    mo8->k = shared_ptr<MultiOptional>();
+    mo9->k = shared_ptr<MultiOptional>();
+#endif
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.

@@ -224,7 +224,7 @@ class Linux(Platform):
 class Windows(Platform):
 
     def getFilters(self, config):
-        if isinstance(config, CppMapping.Config) and config.uwp:
+        if config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
@@ -460,6 +460,11 @@ class Mapping:
             self.sprops = []
             parseOptions(self, options, { "config" : "buildConfig",
                                           "platform" : "buildPlatform" })
+            
+            # Options bellow are not parsed by the base class by still 
+            # initialized here for convenience (this avoid having to 
+            # check the configuration type)
+            self.uwp = False
 
         def __str__(self):
             s = []
@@ -2386,7 +2391,7 @@ class Driver:
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
-        elif isinstance(current.config, CppMapping.Config) and current.config.uwp:
+        elif current.config.uwp:
             # No SSL server-side support in UWP.
             if current.config.protocol in ["ssl", "wss"] and not isinstance(process, Client):
                 processController = LocalProcessController
@@ -2477,7 +2482,7 @@ class CppMapping(Mapping):
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
         server = isinstance(process, Server)
-        uwp = current.config.uwp if isinstance(current.config, CppMapping.Config) else False
+        uwp = current.config.uwp
 
         props.update({
             "IceSSL.CAs": "cacert.pem",

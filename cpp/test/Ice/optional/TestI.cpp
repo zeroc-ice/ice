@@ -25,11 +25,25 @@ InitialI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ValuePtr
-InitialI::pingPong(ICE_IN(ValuePtr) obj, const Current&)
+#ifdef ICE_CPP11_MAPPING
+Test::Initial::PingPongMarshaledResult
+InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 {
-    return obj;
+    auto result = PingPongMarshaledResult(obj, current);
+    if(dynamic_pointer_cast<MultiOptional>(obj))
+    {
+        // Break cyclic reference count
+        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
+    }
+    return result;
 }
+#else
+Ice::ValuePtr
+InitialI::pingPong(const Ice::ValuePtr& obj, const Current& current)
+{
+  return obj;
+}
+#endif
 
 void
 InitialI::opOptionalException(ICE_IN(Optional<Int>) a,

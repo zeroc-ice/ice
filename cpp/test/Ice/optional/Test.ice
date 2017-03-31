@@ -205,7 +205,7 @@ interface Initial
 {
     void shutdown();
 
-    Object pingPong(Object o);
+    ["marshaled-result"] Object pingPong(Object o);
 
     void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;

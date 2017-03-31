@@ -247,7 +247,8 @@ class OpenSSLX509ExtensionI : public IceSSL::X509Extension
 
 public:
 
-    OpenSSLX509ExtensionI(struct X509_extension_st*, const string&, const IceSSL::OpenSSL::CertificatePtr&);
+    OpenSSLX509ExtensionI(struct X509_extension_st*, const string&, x509_st*);
+    ~OpenSSLX509ExtensionI();
     virtual bool isCritical() const;
     virtual string getOID() const;
     virtual vector<Ice::Byte> getData() const;
@@ -256,7 +257,7 @@ private:
 
     struct X509_extension_st* _extension;
     string _oid;
-    IceSSL::OpenSSL::CertificatePtr _cert;
+    x509_st* _cert;
 };
 
 class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate,
@@ -301,12 +302,21 @@ private:
 
 } // end anonymous namespace
 
-OpenSSLX509ExtensionI::OpenSSLX509ExtensionI(struct X509_extension_st* extension, const string& oid,
-                                             const IceSSL::OpenSSL::CertificatePtr& cert) :
+OpenSSLX509ExtensionI::OpenSSLX509ExtensionI(struct X509_extension_st* extension, const string& oid, x509_st* cert):
     _extension(extension),
     _oid(oid),
     _cert(cert)
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    CRYPTO_add(&_cert->references, 1, CRYPTO_LOCK_X509);
+#else
+    X509_up_ref(_cert);
+#endif
+}
+
+OpenSSLX509ExtensionI::~OpenSSLX509ExtensionI()
+{
+    X509_free(_cert);
 }
 
 bool
@@ -415,7 +425,10 @@ OpenSSLCertificateI::verify(const IceSSL::CertificatePtr& cert) const
     OpenSSLCertificateI* c = dynamic_cast<OpenSSLCertificateI*>(cert.get());
     if(c)
     {
-        return X509_verify(_cert, X509_get_pubkey(c->_cert)) > 0;
+        EVP_PKEY* key = X509_get_pubkey(c->_cert);
+        bool verified = X509_verify(_cert, key) > 0;
+        EVP_PKEY_free(key);
+        return verified;
     }
     return false;
 }
@@ -525,8 +538,7 @@ OpenSSLCertificateI::loadX509Extensions() const
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
             _extensions.push_back(ICE_DYNAMIC_CAST(IceSSL::X509Extension,
-                ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, 
-                ICE_DYNAMIC_CAST(IceSSL::OpenSSL::Certificate, ICE_SHARED_FROM_CONST_THIS(OpenSSLCertificateI)))));
+                ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, _cert)));
         }
     }
 }

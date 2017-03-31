@@ -853,6 +853,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out.write(arr);
         out.writePendingValues();
         out.finished(data);
+
         Ice::InputStream in(communicator, data);
         MyClassS arr2;
         in.read(arr2);
@@ -892,6 +893,30 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
+
+#ifdef ICE_CPP11_MAPPING
+        auto clearS = [](MyClassS& arr) {
+	    for(MyClassS::iterator p = arr.begin(); p != arr.end(); ++p)
+            {
+	        if(*p)
+                {
+		    (*p)->c = nullptr;
+		    (*p)->o = nullptr;
+                    (*p)->d["hi"] = nullptr;
+                }
+            }
+        };
+        auto clearSS = [clearS](MyClassSS& arr) {
+            for(MyClassSS::iterator p = arr.begin(); p != arr.end(); ++p)
+            {
+	        clearS(*p);
+            }
+        };
+        clearS(arr);
+        clearS(arr2);
+        clearSS(arrS);
+        clearSS(arr2S);
+#endif
     }
 
 #ifndef ICE_CPP11_MAPPING
@@ -1049,7 +1074,16 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
             test(ex1.c->seq7 == c->seq7);
             test(ex1.c->seq8 == c->seq8);
             test(ex1.c->seq9 == c->seq9);
+
+#ifdef ICE_CPP11_MAPPING
+            ex1.c->c = nullptr;
+	    ex1.c->o = nullptr;
+#endif
         }
+#ifdef ICE_CPP11_MAPPING
+        c->c = nullptr;
+	c->o = nullptr;
+#endif
     }
 
     {

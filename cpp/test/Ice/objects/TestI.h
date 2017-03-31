@@ -85,6 +85,7 @@ class InitialI : public Test::Initial
 public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
+    virtual ~InitialI();
 
     virtual void shutdown(const Ice::Current&);
     virtual Test::BPtr getB1(const Ice::Current&);
