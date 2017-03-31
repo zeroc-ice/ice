@@ -224,7 +224,7 @@ class Linux(Platform):
 class Windows(Platform):
 
     def getFilters(self, config):
-        if isinstance(current.config, CppMapping.Config) and config.uwp:
+        if isinstance(config, CppMapping.Config) and config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
