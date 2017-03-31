@@ -28,7 +28,6 @@ public:
     Init()
     {
         consoleMutex = new IceUtil::Mutex;
-        consoleUtil = ICE_MAKE_SHARED(ConsoleUtil);
     }
 
     ~Init()
@@ -45,6 +44,11 @@ Init init;
 const ConsoleUtilPtr&
 IceUtilInternal::getConsoleUtil()
 {
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(consoleMutex);
+    if(consoleUtil == 0)
+    {
+        consoleUtil = ICE_MAKE_SHARED(ConsoleUtil);
+    }
     return consoleUtil;
 }
 

@@ -10,9 +10,9 @@
 
 import glob
 
-def test(process, current, match, enc):
+def test(process, current, match, enc, mapping):
     cmd = process.getCommandLine(current)
-    p = subprocess.Popen([cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=mapping.getEnv(process, current))
     out, err = p.communicate()
     ret = p.poll()
     if ret != 0:
@@ -33,15 +33,23 @@ class IceLoggerTestCase(ClientTestCase):
         client1.run(current)
 
         sys.stdout.write("testing logger ISO-8859-15 output... ")
-        test(client2, current, b'aplicaci\xf3n', "ISO-8859-15")
+        test(client2, current, b'aplicaci\xf3n', "ISO-8859-15", self.getMapping())
         print("ok")
 
         sys.stdout.write("testing logger UTF8 output without string converter... ")
-        test(client3, current, b'aplicaci\xc3\xb3n', "UTF8")
+        test(client3, current, b'aplicaci\xc3\xb3n', "UTF8", self.getMapping())
         print("ok")
 
         sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string converter... ")
-        test(client4, current, b'aplicaci\xf3n', "ISO-8859-15")
+        #
+        # In Windows expected output is UTF8, because the console output code page is set to UTF-8
+        # in Linux and OS X, the expected output is ISO-8859-15 because that is the narrow string
+        # encoding used by the application.
+        #
+        if isinstance(platform, Windows):
+            test(client4, current, b'aplicaci\xc3\xb3n', "UTF8", self.getMapping())
+        else:
+            test(client4, current, b'aplicaci\xf3n', "ISO-8859-15", self.getMapping())
         print("ok")
 
         sys.stdout.write("testing logger file rotation... ")
