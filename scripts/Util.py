@@ -416,7 +416,7 @@ class Mapping:
         @classmethod
         def getSupportedArgs(self):
             return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx",
-                         "cprops=", "sprops=", "uwp", "openssl"])
+                         "cprops=", "sprops="])
 
         @classmethod
         def usage(self):
@@ -435,8 +435,6 @@ class Mapping:
             print("--sprops=<properties> Specifies a list of additional server properties.")
             print("--config=<config>     Build configuration for native executables.")
             print("--platform=<platform> Build platform for native executables.")
-            print("--uwp                 Run UWP (Universal Windows Platform).")
-            print("--openssl             Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             # Build configuration
@@ -460,12 +458,8 @@ class Mapping:
             self.mx = False
             self.cprops = []
             self.sprops = []
-            self.uwp = False
-            self.openssl = False
             parseOptions(self, options, { "config" : "buildConfig",
-                                          "platform" : "buildPlatform",
-                                          "uwp" : "uwp",
-                                          "openssl" : "openssl" })
+                                          "platform" : "buildPlatform" })
 
         def __str__(self):
             s = []
@@ -549,10 +543,12 @@ class Mapping:
             options.update(current.testcase.getOptions(current))
 
             for (k, v) in options.items():
-                if not hasattr(self, k):
-                    continue
-                if not getattr(self, k) in v:
-                    return False
+                if hasattr(self, k):
+                    if not getattr(self, k) in v:
+                        return False
+                elif hasattr(current.driver, k):
+                    if not getattr(current.driver, k) in v:
+                        return False
             else:
                 return True
 
@@ -952,11 +948,11 @@ class Process(Runnable):
             return str(self.__class__)
         return self.exe + (" ({0})".format(self.desc) if self.desc else "")
 
-    def getOutput(self, current):
+    def getOutput(self, current, encoding="utf-8"):
         assert(self in current.processes)
 
         def d(s):
-            return s if isPython2 else s.decode("utf-8") if isinstance(s, bytes) else s
+            return s if isPython2 else s.decode(encoding) if isinstance(s, bytes) else s
 
         output = d(current.processes[self].getOutput())
         try:
@@ -2390,7 +2386,7 @@ class Driver:
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
-        elif current.config.uwp:
+        elif isinstance(current.config, CppMapping.Config) and current.config.uwp:
             # No SSL server-side support in UWP.
             if current.config.protocol in ["ssl", "wss"] and not isinstance(process, Client):
                 processController = LocalProcessController
@@ -2430,7 +2426,7 @@ class CppMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["cpp-config=", "cpp-platform="])
+            return ("", ["cpp-config=", "cpp-platform=", "uwp", "openssl"])
 
         @classmethod
         def usage(self):
@@ -2438,9 +2434,13 @@ class CppMapping(Mapping):
             print("C++ Mapping options:")
             print("--cpp-config=<config>     C++ build configuration for native executables (overrides --config).")
             print("--cpp-platform=<platform> C++ build platform for native executables (overrides --platform).")
+            print("--uwp                     Run UWP (Universal Windows Platform).")
+            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
+            self.uwp = False
+            self.openssl = False
 
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
             # tests on the cpp11 value in the testcase options specification
