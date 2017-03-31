@@ -26,7 +26,7 @@ package com.zeroc.Ice;
 public abstract class Application
 {
     /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
+     * Initializes an instance that calls {@link Communicator#destroy} if
      * a signal is received.
      **/
     public
