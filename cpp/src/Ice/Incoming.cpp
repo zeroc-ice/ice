@@ -291,7 +291,8 @@ IceInternal::IncomingBase::servantLocatorFinished(bool amd)
     }
     catch(...)
     {
-        handleException("unknown c++ exception", amd);
+        static const string msg = "unknown c++ exception";
+        handleException(msg, amd);
     }
     return false;
 }
@@ -699,7 +700,8 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 catch(...)
                 {
                     skipReadParams(); // Required for batch requests.
-                    handleException("unknown c++ exception", false);
+                    static const string msg = "unknown c++ exception";
+                    handleException(msg, false);
                     return;
                 }
             }
@@ -771,6 +773,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
     }
     catch(...)
     {
+        static const string msg = "unknown c++ exception";
         if(_inAsync)
         {
             try
@@ -782,12 +785,12 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
                 if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
-                    warning("unknown c++ exception");
+                    warning(msg);
                 }
                 return;
             }
         }
-        exception("unknown c++ exception", false);
+        exception(msg, false);
     }
 }
 
