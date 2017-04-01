@@ -31,6 +31,15 @@
 //
 const int CALG_ECDH_EPHEM = 0x0000ae06;
 
+//
+// COMPILERFIX SCH_USE_STRONG_CRYPTO not defined with VC90
+//
+#if defined(_MSC_VER) && (_MSC_VER == 1500)
+#  ifndef SCH_USE_STRONG_CRYPTO
+#    define SCH_USE_STRONG_CRYPTO 0x00400000
+#  endif
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
