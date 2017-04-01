@@ -125,7 +125,8 @@ IceInternal::IncomingAsync::ice_exception()
     }
 
     checkResponseSent();
-    IncomingBase::exception("unknown c++ exception", true); // User thread
+    static const string msg = "unknown c++ exception";
+    IncomingBase::exception(msg, true); // User thread
 }
 
 #endif
