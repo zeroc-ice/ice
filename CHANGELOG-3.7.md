@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7 beta 0](#changes-in-ice-beta-0)
+- [Changes in Ice 3.7 beta 0](#changes-in-ice-37-beta-0)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
