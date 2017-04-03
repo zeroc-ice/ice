@@ -8,16 +8,23 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.0](#changes-in-ice-370)
+- [Changes in Ice 3.7 beta 0](#changes-in-ice-beta-0)
   - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes)
 
-# Changes in Ice 3.7.0
+# Changes in Ice 3.7 beta 0
 
-These are the changes since Ice 3.6.3.
+These are the changes since the Ice 3.6 release or snapshot described in [CHANGELOG-3.6.md](./CHANGELOG-3.6.md).
 
 ## General Changes
 
-- Added support for a new Ice.ClassGraphDepthMax property to prevent stack
+- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
   overflows in case a sender sends a very large graph.
 
   The unmarshaling or destruction of a graph of Slice class instances is a
@@ -308,6 +315,11 @@ These are the changes since Ice 3.6.3.
       MFruitOrange
   } MFruit;
   ```
+  
+## PHP Changes
+
+- The optional not set value for the PHP namespace mapping is Ice\None preivously Ice_Unset
+  was used but unset is a PHP keyword and Ice\Unset cannot be used.
 
 ## Python Changes
 
@@ -349,9 +361,4 @@ These are the changes since Ice 3.6.3.
 
 - Renamed optional invocation context parameter to `context` for consistency with other
   language mappings (was `_ctx` in previous versions).
-
-## PHP Changes
-
-- The optional not set value for the PHP namespace mapping is Ice\None preivously Ice_Unset
-  was used but unset is a PHP keyword and Ice\Unset cannot be used.
 
