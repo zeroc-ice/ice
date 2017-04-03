@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.4](#changes-in-ice-364)
+ -[Changes in Ice 3.6.4 (Pre-Release Snapshot)](#changes-in-ice-364-pre-release-snapshot)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
@@ -43,9 +43,9 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.6.4
+# Changes in Ice 3.6.4 (Pre-Release Snapshot)
 
-These are the changes since Ice 3.6.4.
+These are the changes since Ice 3.6.3 included in this pre-release.
 
 ## General Changes
 
