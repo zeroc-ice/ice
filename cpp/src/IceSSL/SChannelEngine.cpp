@@ -24,12 +24,13 @@
 #include <wincrypt.h>
 
 //
-// This algorithm is not defined in the headers but appears in the documentation
-// and we see the value being used in our tests, see:
+// CALG_ECDH_EPHEM algorithm constant is not defined in older version of the SDK headers
 //
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa375549(v=vs.85).aspx
 //
-const int CALG_ECDH_EPHEM = 0x0000ae06;
+
+const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
+
 
 //
 // COMPILERFIX SCH_USE_STRONG_CRYPTO not defined with VC90
@@ -491,7 +492,7 @@ algorithmId(const string& name)
     } 
     else if(name == "ECDH_EPHEM")
     {
-        return CALG_ECDH_EPHEM;
+        return ICESSL_CALG_ECDH_EPHEM;
     } 
     else if(name == "ECDSA")
     {
@@ -1060,7 +1061,7 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
             return "DSS_SIGN";
         case CALG_ECDH: 
             return "ECDH";
-        case CALG_ECDH_EPHEM: 
+        case ICESSL_CALG_ECDH_EPHEM: 
             return "ECDH_EPHEM";
         case CALG_ECDSA: 
             return "ECDSA";
