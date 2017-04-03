@@ -647,7 +647,8 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     // called every (timeout / 2) period.
     //
     if(acm.heartbeat == ICE_ENUM(ACMHeartbeat, HeartbeatAlways) ||
-       (acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOff) && _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
+       (acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOff) &&
+        _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
     {
         if(acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOnInvocation) || _dispatchCount > 0)
         {
@@ -668,7 +669,8 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
 
     if(acm.close != ICE_ENUM(ACMClose, CloseOff) && now >= (_acmLastActivity + acm.timeout))
     {
-        if(acm.close == ICE_ENUM(ACMClose, CloseOnIdleForceful) || (acm.close != ICE_ENUM(ACMClose, CloseOnIdle) && !_asyncRequests.empty()))
+        if(acm.close == ICE_ENUM(ACMClose, CloseOnIdleForceful) ||
+           (acm.close != ICE_ENUM(ACMClose, CloseOnIdle) && !_asyncRequests.empty()))
         {
             //
             // Close the connection if we didn't receive a heartbeat in
@@ -676,8 +678,8 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             //
             setState(StateClosed, ConnectionTimeoutException(__FILE__, __LINE__));
         }
-        else if(acm.close != ICE_ENUM(ACMClose, CloseOnInvocation) && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
-                _asyncRequests.empty())
+        else if(acm.close != ICE_ENUM(ACMClose, CloseOnInvocation) &&
+                _dispatchCount == 0 && _batchRequestQueue->isEmpty() && _asyncRequests.empty())
         {
             //
             // The connection is idle, close it.

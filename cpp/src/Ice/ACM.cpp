@@ -48,7 +48,8 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     this->timeout = IceUtil::Time::seconds(p->getPropertyAsIntWithDefault(timeoutProperty,
                                                                           static_cast<int>(dflt.timeout.toSeconds())));
     int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", static_cast<int>(dflt.heartbeat));
-    if(hb >= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatOff)) && hb <= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatAlways)))
+    if(hb >= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatOff)) &&
+       hb <= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatAlways)))
     {
         this->heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
     }
@@ -59,7 +60,8 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", static_cast<int>(dflt.close));
-    if(cl >= static_cast<int>(ICE_ENUM(ACMClose, CloseOff)) && cl <= static_cast<int>(ICE_ENUM(ACMClose, CloseOnIdleForceful)))
+    if(cl >= static_cast<int>(ICE_ENUM(ACMClose, CloseOff)) &&
+       cl <= static_cast<int>(ICE_ENUM(ACMClose, CloseOnIdleForceful)))
     {
         this->close = static_cast<Ice::ACMClose>(cl);
     }

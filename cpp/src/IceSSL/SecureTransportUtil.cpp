@@ -145,9 +145,11 @@ loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef k
     memset(&params, 0, sizeof(params));
     params.version =  SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
     params.flags |= kSecKeyNoAccessControl;
+    UniqueRef<CFStringRef> passphraseHolder;
     if(!passphrase.empty())
     {
-        params.passphrase = toCFString(passphrase);
+        passphraseHolder.reset(toCFString(passphrase));
+        params.passphrase = passphraseHolder.get();
     }
 
     UniqueRef<CFArrayRef> items;
@@ -161,7 +163,6 @@ loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef k
     // the password from the given prompt or configure the import to
     // prompt the user with an alert dialog.
     //
-    UniqueRef<CFStringRef> passphraseHolder;
     UniqueRef<CFStringRef> alertPromptHolder;
     if(passphrase.empty() &&
        (err == errSecPassphraseRequired || err == errSecInvalidData || err == errSecPkcs12VerifyFailure))
@@ -363,7 +364,7 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
     UniqueRef<SecKeyRef> key;
     for(int i = 0; i < count; ++i)
     {
-        SecKeychainItemRef item = 
+        SecKeychainItemRef item =
             static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
         if(SecKeyGetTypeID() == CFGetTypeID(item))
         {
@@ -526,11 +527,11 @@ loadCerts(const string& file)
 // Imports a certificate (it might contain an identity or certificate depending on the format).
 //
 CFArrayRef
-IceSSL::SecureTransport::loadCertificateChain(const string& file, 
-                                              const string& keyFile, 
+IceSSL::SecureTransport::loadCertificateChain(const string& file,
+                                              const string& keyFile,
                                               const std::string& keychainPath,
                                               const string& keychainPassword,
-                                              const string& password, 
+                                              const string& password,
                                               const PasswordPromptPtr& prompt,
                                               int retryMax)
 {
@@ -593,7 +594,7 @@ IceSSL::SecureTransport::loadCertificateChain(const string& file,
         // might already have been imported.
         //
         UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, password, prompt, retryMax));
-        SecCertificateRef cert = 
+        SecCertificateRef cert =
             static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
         if(SecCertificateGetTypeID() != CFGetTypeID(cert))
         {
@@ -641,7 +642,7 @@ IceSSL::SecureTransport::loadCACertificates(const string& file)
     int count = CFArrayGetCount(items.get());
     for(CFIndex i = 0; i < count; ++i)
     {
-        SecCertificateRef cert = 
+        SecCertificateRef cert =
             static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), i)));
         assert(SecCertificateGetTypeID() == CFGetTypeID(cert));
         if(isCA(cert))
