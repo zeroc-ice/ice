@@ -24,11 +24,17 @@ enum SignalPolicy
 #endif
 { HandleSignals, NoSignalHandling };
 
-class ICE_API Application : private IceUtil::noncopyable
+class ICE_API Application
 {
 public:
 
     Application(SignalPolicy = ICE_ENUM(SignalPolicy, HandleSignals));
+
+#ifdef ICE_CPP11_MAPPING
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+#endif
+
     virtual ~Application();
 
     // This main() must be called by the global main(). main()
@@ -41,10 +47,10 @@ public:
     int main(int, const char* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     int main(int, const char* const[], ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
 
-#   ifdef _WIN32
+#ifdef _WIN32
     int main(int, const wchar_t* const[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     int main(int, const wchar_t* const[], ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
-#   endif
+#endif
 
     int main(const StringSeq&, const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     int main(const StringSeq&, ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
@@ -147,6 +153,15 @@ private:
     static void destroyOnInterruptCallback(int);
     static void shutdownOnInterruptCallback(int);
     static void callbackOnInterruptCallback(int);
+
+#ifndef ICE_CPP11_MAPPING
+    //
+    // Not defined, make Application non-copyable
+    //
+    Application(const Application&);
+    Application& operator=(const Application&);
+#endif
+
 };
 
 }

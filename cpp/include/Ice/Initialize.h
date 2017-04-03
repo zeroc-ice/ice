@@ -205,30 +205,30 @@ public:
     CommunicatorHolder(const CommunicatorHolder&) = delete;
 
     CommunicatorHolder(CommunicatorHolder&&) = default;
-    CommunicatorHolder& operator=(CommunicatorHolder&&) = default;
+    CommunicatorHolder& operator=(CommunicatorHolder&&);
 
 #else // C++98 mapping
 
     //
     // Call initialize to create communicator with the provided args
     //
-    CommunicatorHolder(int&, const char*[], const InitializationData&, int);
+    CommunicatorHolder(int&, const char*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(int&, char*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
-    CommunicatorHolder(int&, const char*[], const char* configFile, int = ICE_INT_VERSION);
-    CommunicatorHolder(int&, char*[], const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const char*[], const char*, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, char*[], const char*, int = ICE_INT_VERSION);
 
 #ifdef _WIN32
     CommunicatorHolder(int&, const wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(int&, wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
-    CommunicatorHolder(int&, const wchar_t*[], const char* configFile, int = ICE_INT_VERSION);
-    CommunicatorHolder(int&, wchar_t*[], const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, const wchar_t*[], const char*, int = ICE_INT_VERSION);
+    CommunicatorHolder(int&, wchar_t*[], const char*, int = ICE_INT_VERSION);
 #endif
 
-    CommunicatorHolder(StringSeq& args, const InitializationData& = InitializationData(),int = ICE_INT_VERSION);
-    CommunicatorHolder(StringSeq& args, const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(StringSeq&, const InitializationData& = InitializationData(),int = ICE_INT_VERSION);
+    CommunicatorHolder(StringSeq&, const char*, int = ICE_INT_VERSION);
 
     CommunicatorHolder(const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
-    CommunicatorHolder(const char* configFile, int = ICE_INT_VERSION);
+    CommunicatorHolder(const char*, int = ICE_INT_VERSION);
 
     //
     // Adopt communicator
@@ -245,8 +245,8 @@ public:
     ~CommunicatorHolder();
 
     const CommunicatorPtr& communicator() const;
-    CommunicatorPtr release();
     const CommunicatorPtr& operator->() const;
+    CommunicatorPtr release();
 
 private:
 
