@@ -81,7 +81,7 @@ protected:
 
     void handleException(const std::exception&, bool);
     void handleException(const std::string&, bool);
-  
+
 #if defined(_MSC_VER) && (_MSC_VER == 1500)
     //
     // COMPILERFIX VC90 get confused with overloads above
@@ -89,7 +89,7 @@ protected:
     //
     void handleException(const char* msg, bool amd)
     {
-        handleException(std::tring(msg), amd);
+        handleException(std::string(msg), amd);
     }
 #endif
 
