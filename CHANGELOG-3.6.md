@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
- -[Changes in Ice 3.6.4 (Pre-Release Snapshot)](#changes-in-ice-364-pre-release-snapshot)
+- [Changes in Ice 3.6.4 (Pre-Release Snapshot)](#changes-in-ice-364-pre-release-snapshot)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
