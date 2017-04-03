@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <ItemGroup Label="ProjectConfigurations">
@@ -90,6 +91,7 @@
   <ImportGroup Label="ExtensionSettings">
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -472,5 +474,7 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0-beta0\build\native\zeroc.ice.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.props'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0-beta0\build\native\zeroc.ice.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0-beta0\build\native\zeroc.ice.v141.targets'))" />
   </Target>
 </Project>
