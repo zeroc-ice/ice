@@ -55,7 +55,7 @@ var configuration = parseArg(process.argv, "--cppConfiguration") || process.env.
 function slice2js(options) {
     var defaults = {};
     var opts = options || {};
-    if(process.platform == "win32" && !opts.exe)
+    if(!useBinDist && process.platform == "win32" && !opts.exe)
     {
         if(!platform || (platform != "Win32" && platform != "x64"))
         {
