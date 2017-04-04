@@ -106,7 +106,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   As a result, the `Ice::DispatchStatus` enumeration has been removed. See the
   Ice manual for details on the new dispatch interceptor API.
 
-- The ice_getConnection() method now correctly returns a connection if
+- The `ice_getConnection` operation now correctly returns a connection if
   connection caching is disabled (it previously returned a null connection).
 
 - The iOS SSL transport is now based on the same implementation as macOS. Most
@@ -151,8 +151,8 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   `findObjectFactory` have been deprecated in favor of similar operations on the
   new interface `ValueFactoryManager`.
 
-- The Slice compiler options --ice and --underscore are now deprecated, and
-  replaced by the global Slice metadata ice-prefix and underscore.
+- The Slice compiler options `--ice` and `--underscore` are now deprecated, and
+  replaced by the global Slice metadata `ice-prefix` and `underscore`.
 
 - Renamed local interface metadata `async` to `async-oneway`.
 
@@ -218,7 +218,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 - Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to 
   `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
 
-- Upgraded IceSSL Certificate API to allow retrieving X509v3 extensions. This feature
+- Augmented IceSSL Certificate API to allow retrieving X509v3 extensions. This feature
   is currently available only with OpenSSL and SChannel.
 
 - Refactored IceSSL Plug-in API to allow loading multiple implementations of the plug-in
