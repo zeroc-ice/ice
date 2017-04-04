@@ -20,7 +20,8 @@ particular aspect of Ice.
 
 # Changes in Ice 3.7 beta 0
 
-These are the changes since the Ice 3.6 release or snapshot described in [CHANGELOG-3.6.md](./CHANGELOG-3.6.md).
+These are the changes since the Ice 3.6 release or snapshot described in
+[CHANGELOG-3.6.md](./CHANGELOG-3.6.md).
 
 ## General Changes
 
@@ -41,10 +42,16 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   invocations have completed. Equivalent to the boolean value false in previous
   releases.
 
-- Added new operation `marshaled-result` metadata (C++, Java, C#). When this
-  metadata is specified, the generated code for the servant dispatch returns
-  a generated struct that contains the marshaled values for the return and out 
-  parameters. See the Ice manual for additional details on this metadata.
+- Added new operation metadata, `marshaled-result`, in C++11, C++98, C#, Java,
+  and Java Compat. When this metadata is specified, the generated code for
+  the servant dispatch returns a generated struct that contains the marshaled
+  values for the return and out parameters. See the Ice Manual for additional
+  details on this metadata.
+
+- Added new overloads to `Ice::initialize` in C++11, C++98, C#, Java, Java Compat,
+  Python and Ruby. They accept a `configFile` string parameter as an alternative
+  to the `InitializationData` parameter of several existing `Ice::initialize`
+  overloads.
 
 - Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
   overflows in case a sender sends a very large graph.
@@ -212,6 +219,11 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 ## C++ Changes
 
+- Added a new C++11 mapping that takes advantage of C++11 language features. This
+  new mapping is very different from the Slice-to-C++ mapping provided in prior
+  releases. The old mapping, now known as the C++98 mapping, is still supported so
+  that existing applications can be migrated to Ice 3.7 without much change.
+
 - The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
   
@@ -296,7 +308,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 - Added a new Java mapping that takes advantage of Java 8 language features. The new
   mapping is significantly different than prior releases in many ways, including the
-  package name (com.zeroc) as well APIs such as AMI, AMD, out parameters and optional
+  package name (com.zeroc) as well as APIs such as AMI, AMD, out parameters and optional
   values. The prior mapping, now known as Java Compat, is still supported so that
   existing applications can be migrated to Ice 3.7 without much change.
 
