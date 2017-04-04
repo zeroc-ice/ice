@@ -227,7 +227,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 - Added ability to build IceSSL with OpenSSL on Windows. The resulting library
   is named `icesslopenssl`. An application can load this plug-in with the 
-  `IceSSLOpenSSL:createIceSSLOpenSSL' entry point.
+  `IceSSLOpenSSL:createIceSSLOpenSSL` entry point.
 
 - Added `IceSSL.SchannelStrongCrypto` property: when set to a value greater than 0,
   the IceSSL SChannel implementation sets the `SCH_USE_STRONG_CRYPTO` flag, which
