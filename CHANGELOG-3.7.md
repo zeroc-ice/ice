@@ -31,7 +31,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   recursive operation. This property limits the amount of stack size required to
   perform these operations. This property is supported with all the language
   mappings except Java and JavaScript where it's not needed (the runtime
-  environment allows graceful handling or stack overflows).
+  environment allows graceful handling of stack overflows).
 
   The default maximum class graph depth is 100. If you increase this value, you
   must ensure the thread pool stack size is large enough to allow reading graphs
