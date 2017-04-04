@@ -26,12 +26,31 @@ using namespace IceSSL;
 namespace
 {
 
+class CertInfoHolder : public IceUtil::Shared
+{
+public:
+
+    CertInfoHolder(CERT_INFO* v) : _certInfo(v)
+    {
+    }
+
+    virtual ~CertInfoHolder()
+    {
+        LocalFree(_certInfo);
+    }
+
+private:
+
+    CERT_INFO* _certInfo;
+};
+typedef IceUtil::Handle<CertInfoHolder> CertInfoHolderPtr;
+
 class SCHannelX509ExtensionI : public X509Extension
 {
 
 public:
 
-    SCHannelX509ExtensionI(CERT_EXTENSION , const string&, const SChannel::CertificatePtr&);
+    SCHannelX509ExtensionI(CERT_EXTENSION , const string&, const CertInfoHolderPtr&);
     virtual bool isCritical() const;
     virtual string getOID() const;
     virtual vector<Ice::Byte> getData() const;
@@ -40,11 +59,7 @@ private:
 
     CERT_EXTENSION _extension;
     string _oid;
-    //
-    // We want to keep the certificate that contains the extension alive
-    // for the lifetime of the extension.
-    //
-    SChannel::CertificatePtr _cert;
+    CertInfoHolderPtr _certInfo; // Keep a reference on the CERT_INFO struct that holds the extension
 };
 
 class SChannelCertificateI : public SChannel::Certificate,
@@ -86,6 +101,7 @@ private:
 
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
+    CertInfoHolderPtr _certInfoHolder;
 };
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
@@ -263,10 +279,10 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
 
 } // End anonymous namespace
 
-SCHannelX509ExtensionI::SCHannelX509ExtensionI(CERT_EXTENSION extension, const string& oid, const SChannel::CertificatePtr& cert) :
+SCHannelX509ExtensionI::SCHannelX509ExtensionI(CERT_EXTENSION extension, const string& oid, const CertInfoHolderPtr& ci) :
     _extension(extension),
     _oid(oid),
-    _cert(cert)
+    _certInfo(ci)
 {
 }
 
@@ -292,8 +308,7 @@ SCHannelX509ExtensionI::getData() const
 }
 
 SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
-    _cert(cert),
-    _certInfo(0)
+    _cert(cert)
 {
     if(!_cert)
     {
@@ -311,6 +326,7 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
+        _certInfoHolder = new CertInfoHolder(_certInfo);
     }
     catch(...)
     {
@@ -325,10 +341,6 @@ SChannelCertificateI::~SChannelCertificateI()
     if(_cert)
     {
         LocalFree(_cert);
-        if(_certInfo)
-        {
-            LocalFree(_certInfo);
-        }
     }
 }
 
@@ -540,8 +552,8 @@ SChannelCertificateI::loadX509Extensions() const
         {
             CERT_EXTENSION ext = _certInfo->rgExtension[i];
             _extensions.push_back(ICE_DYNAMIC_CAST(X509Extension,
-                ICE_MAKE_SHARED(SCHannelX509ExtensionI, ext, ext.pszObjId, 
-                ICE_DYNAMIC_CAST(SChannel::Certificate, ICE_SHARED_FROM_CONST_THIS(SChannelCertificateI)))));
+                ICE_MAKE_SHARED(SCHannelX509ExtensionI, ext, ext.pszObjId,
+                _certInfoHolder)));
         }
     }
 }
