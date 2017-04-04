@@ -82,28 +82,28 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   };
 
   ```
-- The communicator and connection flushBatchRequests method now takes
+- The Communicator and Connection `flushBatchRequests` operations now take
   an additional argument to specify whether or not the batch requests
   to flush should be compressed. See the documentation of the
-  Ice::CompressBatch enumeration for the different options available
-  to specify whether or not the batch should be compressed.
+  `Ice::CompressBatch` enumeration for the different options available
+  to specify when the batch should be compressed.
 
 - The UDP server endpoint now supports specifying `--interface *` to join the
   multicast group on using all the local interfaces. It's also now the default
   behavior if no `--interface` option is specified.
 
-- Ice no longer halt the program if can't accept new incoming connections when
+- Ice no longer halts the program if can't accept new incoming connections when
   the system runs out of file descriptors. Instead, it rejects queued pending
   connections and temporarily stops accepting new connections. An error message
-  is also printed on the Ice logger.
+  is also sent to the Ice logger.
 
 - Added Bluetooth transport plug-in for C++ and Android. The C++ plug-in
   requires BlueZ 5.40 or later.
 
-- Dispatch interceptors and ice_dispatch can now handle user exceptions. User
-  exceptions raised by a servant dispatch are propagated to ice_dispatch and
-  can also be raised from the Ice::DispatchInterceptor::dispatch implementation.
-  As a result, the Ice::DispatchStatus enumeration has been removed. See the
+- Dispatch interceptors and `ice_dispatch` can now catch user exceptions. User
+  exceptions raised by a servant dispatch are propagated to `ice_dispatch` and
+  may be raised by the implementation of `Ice::DispatchInterceptor::dispatch`.
+  As a result, the `Ice::DispatchStatus` enumeration has been removed. See the
   Ice manual for details on the new dispatch interceptor API.
 
 - The ice_getConnection() method now correctly returns a connection if
@@ -129,10 +129,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   the new `underlying` data member.
 
 - IceGrid and IceStorm now use LMDB for their persistent storage instead of
-  Freeze/BerkeleyDB.
-
-- Added command line tools, `icegriddb` and `icestormdb`, to import/export the
-  IceGrid and IceStorm databases.
+  Freeze/Berkeley DB.
 
 - Added support for two additional IceGrid variables: `server.data` and
   `service.data`. These variables point to server and service specific data
@@ -180,22 +177,23 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 - An empty endpoint in an Object Adapter endpoint list is now rejected with an
   `EndpointParseException`; such an endpoint was ignored in previous releases.
 
-- IcePatch2 and IceGrid's distribution mechanism have been deprecated.
+- IcePatch2 and IceGrid's distribution mechanism (based on IcePatch2) are now
+  deprecated.
 
-- Updated IceSSL hostname verification (enabled with IceSSL.CheckCertName) to
+- Updated IceSSL hostname verification (enabled with `IceSSL.CheckCertName`) to
   use the native checks of the platform SSL implementation.
 
-- Remove IceSSL::NativeConnectionInfo, IceSSL::ConnectionInfo certs data member
-  is now mapped to the native certificate type in C++, Java and CSharp in other
-  languages it is still mapped to a string sequence containing the PEM encoded
+- Remove `IceSSL::NativeConnectionInfo`, `IceSSL::ConnectionInfo`'s `certs` data 
+  member is now mapped to the native certificate type in C++, Java and C#. In other
+  languages, it remains mapped to a string sequence containing the PEM encoded
   certificates.
 
 ## C++ Changes
 
-- The Ice::Communicator and Ice::ObjectAdapter destroy methods are now
+- The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
 
-- The --dll-export option of slice2cpp is now deprecated, and replaced by the global
+- The -`-dll-export` option of `slice2cpp` is now deprecated, and replaced by the global
   Slice metadata `cpp:dll-export:SYMBOL`.
 
 - Added `cpp:scoped` metadata for enums in the C++98 mapping. The generated C++
@@ -211,31 +209,30 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
      enum Fruit { FruitApple, FruitOrange, FruitPear };
   ```
 
-- Upgrade UWP IceSSL implementation to support client side certificates and custom
+- Upgrade the UWP IceSSL implementation to support client side certificates and custom
   certificate verification.
 
-- Added getEngineName and getEngineVersion methods to IceSSL::Plugin to retrieve
+- Added `getEngineName` and `getEngineVersion` functions to `IceSSL::Plugin` to retrieve
   the SSL engine name and version used by the Ice runtime.
 
-- Added getAuthorityKeyIdentifier and getSubjectKeyIdentifier methods to IceSSL::Certificate.
-  These methods are not supported on iOS or UWP.
+- Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to 
+  `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
 
-- Upgrade IceSSL Certificate API to allow retrive X509v3 extensions. This feature
-  is currently only supported with OpenSSL and SChannel SSL engines.
+- Upgraded IceSSL Certificate API to allow retrieving X509v3 extensions. This feature
+  is currently available only with OpenSSL and SChannel.
 
 - Refactored IceSSL Plug-in API to allow loading multiple implementations of the plug-in
   in the same proccess. Each communicator can load a single implementation, but separate
   communicators in the same process can load different implementations.
 
-- Added support to build IceSSL plug-in using OpenSSL implementation in Windows.
-  The plug-in is built in a separate library icesslopenssl, an application can
-  load the plugin using the `IceSSLOpenSSL:createIceSSLOpenSSL' entry point. This
-  is currently only supported with Visual Studio 2015.
+- Added ability to build IceSSL with OpenSSL on Windows. The resulting library
+  is named `icesslopenssl`. An application can load this plug-in with the 
+  `IceSSLOpenSSL:createIceSSLOpenSSL' entry point.
 
-- Added IceSSL.SchannelStrongCrypto property, when set to a value greater than 0
-  IceSSL SChannel implementation will set the SCH_USE_STRONG_CRYPTO flag which
-  instructs Schannel to disable known weak cryptographic algorithms. The default
-  values for this property is 0 for better interoperability.
+- Added `IceSSL.SchannelStrongCrypto` property: when set to a value greater than 0,
+  the IceSSL SChannel implementation sets the `SCH_USE_STRONG_CRYPTO` flag, which
+  instructs SChannel to disable weak cryptographic algorithms. The default
+  values for this property is 0 for increased interoperability.
 
 ## C# Changes
 
@@ -250,7 +247,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 - The `threadHook` member of `InitializationData` is now deprecated. We have
   added `threadStart` and `threadStop` members for consistency with the C++11
-  and Java mappings. A program should set these members to a System.Action
+  and Java mappings. A program should set these members to a `System.Action`
   delegate.
 
 - The `Ice.ClassResolver` delegate has been replaced with the
@@ -259,27 +256,27 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   `Ice.Dispatcher` delegate has been replaced with the
   `System.Action<System.Action, Ice.Connection>` delegate.
 
-- Added new interface/class metadata cs:tie. Use this metadata to generate a tie
+- Added new interface/class metadata `cs:tie`. Use this metadata to generate a tie
   class for a given interface or class.
 
 - `cs:` and `clr:` are now interchangeable in metadata directives.
 
-- Add support to preload referenced assemblies. The property Ice.PreloadAssemblies
-  controls this behavior. If set to a value greater than 0 the Ice runtime will try
+- Add support to preload referenced assemblies. The property `Ice.PreloadAssemblies`
+  controls this behavior. If set to a value greater than 0 the Ice run-time will try
   to load all the assemblies referenced by the process during communicator initialization,
   otherwise the referenced assemblies will be initialized when the Ice run-time needs
   to lookup a C# class. The default value is 0.
 
 ## Java Changes
 
-- The Ice communicator now implements `java.lang.AutoCloseable`. This enables
-  the code to initialize the communicator within a `try-with-resources` block.
-  The communicator will implicitly be destroyed when the block exits.
+- The Ice Communicator interface now implements `java.lang.AutoCloseable`. This enables
+  the code to initialize the communicator within a `try-with-resources` statement.
+  The communicator will be destroyed automatically at the end of this statement.
 
-- Fixed a bug where unmarshaling Ice objects was really slow when using
+- Fixed a bug where unmarshaling Ice objects was very slow when using
   compact type IDs.
 
-- (Java Compat) Added new interface/class metadata java:tie. Use this metadata
+- (Java Compat) Added new interface/class metadata `java:tie`. Use this metadata
   to generate a tie class for a given interface or class.
 
 ## JavaScript Changes
@@ -292,7 +289,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.
 
-- The --dll-export option of slice2objc is now deprecated, and replaced by the
+- The `--dll-export` option of `slice2objc` is now deprecated, and replaced by the
   global Slice metadata `objc:dll-export:SYMBOL`.
 
 - Added `objc:scoped` metadata for enums. The generated Objective-C enumerators
@@ -318,8 +315,9 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   
 ## PHP Changes
 
-- The optional not set value for the PHP namespace mapping is Ice\None previously Ice_Unset
-  was used but unset is a PHP keyword and Ice\Unset cannot be used.
+- The optional not set value for the PHP namespace mapping is` Ice\None`.
+  In previous releases, not set was mapped to `Ice_Unset`, but since 
+  `unset` is a PHP keyword, we could not use `Ice\Unset`.
 
 ## Python Changes
 
@@ -338,9 +336,9 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   to a callable. For backward compatibility, a program can also continue to supply
   an instance of the deprecated class `Ice.BatchRequestInterceptor`.
 
-- The Ice communicator now implements the context manager protocol. This enables
-  the code to initialize the communicator within a `with` block. The communicator
-  will implicitly be destroyed when the `with` block exits.
+- The Ice Communicator now implements the context manager protocol. This enables
+  the code to initialize the communicator within a `with` statement. The communicator
+  is destroyed automatically at the end of the `with` statement.
 
 - Added a new AMI mapping that returns `Ice.Future`. The Future class provides an API
   that is compatible with `concurrent.futures.Future`, with some additional Ice-specific
@@ -354,10 +352,10 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   implementation).
 
   With Python 3, a servant method can also be implemented as a coroutine. Ice will start
-  the coroutine, and coroutines can `await` on Ice.Future objects. Note that because Ice
+  the coroutine, and coroutines can `await` on `Ice.Future` objects. Note that because Ice
   is multithreaded, users who also want to use the asyncio package must make sure it's
-  done in a thread-safe manner. To assist with this, the Ice.wrap_future() function accepts
-  an Ice.Future and returns an asyncio.Future.
+  done in a thread-safe manner. To assist with this, the `Ice.wrap_future` function accepts
+  an `Ice.Future` and returns an `asyncio.Future`.
 
 - Renamed optional invocation context parameter to `context` for consistency with other
   language mappings (was `_ctx` in previous versions).
