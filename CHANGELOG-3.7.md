@@ -193,7 +193,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 - The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
 
-- The -`-dll-export` option of `slice2cpp` is now deprecated, and replaced by the global
+- The `--dll-export` option of `slice2cpp` is now deprecated, and replaced by the global
   Slice metadata `cpp:dll-export:SYMBOL`.
 
 - Added `cpp:scoped` metadata for enums in the C++98 mapping. The generated C++
