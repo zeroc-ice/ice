@@ -954,6 +954,20 @@ class Process(Runnable):
             return str(self.__class__)
         return self.exe + (" ({0})".format(self.desc) if self.desc else "")
 
+    def setup(self, current):
+        if current.driver.appverifier:
+            exe = process.getCommandLine(current)
+            run("appverif --enable * -for " + exe)
+            run("appverif -disable LuaPriv PrintDriver PrintApi Networking HighVersionLie -for " + exe)
+
+    def teardown(self, current, success):
+        if current.driver.appverifier:
+            exe = process.getCommandLine(current)
+            log = os.path.join(current.testcase.getPath(), os.path.basename(exe) + "_appverif.xml")
+            run("appverif -export log -for " + exe + " -with To=" + log)
+            run("appverif -delete logs -for " + exe)
+            run("appverif -delete settings -for " + exe)
+
     def getOutput(self, current, encoding="utf-8"):
         assert(self in current.processes)
 
@@ -1712,6 +1726,7 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
+
         cmd += (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
         if current.driver.debug:
             if len(envs) > 0:
@@ -2246,7 +2261,7 @@ class Driver:
     @classmethod
     def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "controller-app", "valgrind"])
+                         "controller-app", "valgrind", "appverifier"])
 
     @classmethod
     def usage(self):
@@ -2265,6 +2280,8 @@ class Driver:
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
         print("--controller-app      Start the process controller application.")
+        print("--valgrind            Start executables with valgrind.")
+        print("--appverifier         Start executables with Application Verifier.")
 
     def __init__(self, options):
         self.debug = False
@@ -2275,6 +2292,7 @@ class Driver:
         self.hostBT = ""
         self.controllerApp = False
         self.valgrind = False
+        self.appverifier = False
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",

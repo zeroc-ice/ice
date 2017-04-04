@@ -24,6 +24,11 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 ## General Changes
 
+- Added new operation `marshaled-result` metadata (C++, Java, C#). When this
+  metadata is specified, the generated code for the servant dispatch returns
+  a generated struct that contains the marshaled values for the return and out 
+  parameters. See the Ice manual for additional details on this metadata.
+
 - Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
   overflows in case a sender sends a very large graph.
 
