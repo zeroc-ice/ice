@@ -318,7 +318,7 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   
 ## PHP Changes
 
-- The optional not set value for the PHP namespace mapping is Ice\None preivously Ice_Unset
+- The optional not set value for the PHP namespace mapping is Ice\None previously Ice_Unset
   was used but unset is a PHP keyword and Ice\Unset cannot be used.
 
 ## Python Changes
