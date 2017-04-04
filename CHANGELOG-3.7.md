@@ -192,6 +192,9 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 - The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
+  
+- Added new class `Ice::CommunicatorHolder`. `CommunicatorHolder` creates a `Communicator`
+  in its constructor and destroys it in its destructor.
 
 - The `--dll-export` option of `slice2cpp` is now deprecated, and replaced by the global
   Slice metadata `cpp:dll-export:SYMBOL`.
