@@ -5,10 +5,10 @@
   </PropertyGroup>
   <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
-    <PythonHome>C:\Python35</PythonHome>
+    <PythonHome>C:\Program Files (x86)\Python36</PythonHome>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PythonHome>C:\Python35-amd64</PythonHome>
+    <PythonHome>C:\Program Files\Python36</PythonHome>
   </PropertyGroup>
   <PropertyGroup>
     <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
