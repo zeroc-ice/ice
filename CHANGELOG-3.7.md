@@ -24,6 +24,23 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
 
 ## General Changes
 
+- Added the IceBridge service, which acts as a bridge between a client and
+  server to relay requests and replies in both directions.
+
+- Changed the Slice definition of the Connection::close operation to take an
+  enumerator instead of a boolean. The new enumeration, ConnectionClose,
+  defines three enumerators for controlling how the connection is closed:
+
+  - Forcefully - Closes the connection immediately. Equivalent to the boolean
+  value true in previous releases.
+
+  - Gracefully - Closes the connection gracefully without waiting for pending
+  invocations to complete.
+
+  - GracefullyWithWait - Closes the connection gracefully after all pending
+  invocations have completed. Equivalent to the boolean value false in previous
+  releases.
+
 - Added new operation `marshaled-result` metadata (C++, Java, C#). When this
   metadata is specified, the generated code for the servant dispatch returns
   a generated struct that contains the marshaled values for the return and out 
@@ -276,6 +293,12 @@ These are the changes since the Ice 3.6 release or snapshot described in [CHANGE
   to lookup a C# class. The default value is 0.
 
 ## Java Changes
+
+- Added a new Java mapping that takes advantage of Java 8 language features. The new
+  mapping is significantly different than prior releases in many ways, including the
+  package name (com.zeroc) as well APIs such as AMI, AMD, out parameters and optional
+  values. The prior mapping, now known as Java Compat, is still supported so that
+  existing applications can be migrated to Ice 3.7 without much change.
 
 - The Ice Communicator interface now implements `java.lang.AutoCloseable`. This enables
   the code to initialize the communicator within a `try-with-resources` statement.
