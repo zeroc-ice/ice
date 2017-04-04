@@ -19,7 +19,7 @@ namespace
 {
 
 IceUtil::Mutex* consoleMutex = 0;
-ConsoleUtilPtr consoleUtil = 0;
+ConsoleUtil* consoleUtil = 0;
 
 class Init
 {
@@ -32,6 +32,12 @@ public:
 
     ~Init()
     {
+        //
+        // We leak consoleUtil object to ensure that is available
+        // during static destruction.
+        //
+        //delete consoleUtil;
+        //consoleUtil = 0;
         delete consoleMutex;
         consoleMutex = 0;
     }
@@ -41,15 +47,15 @@ Init init;
 
 }
 
-const ConsoleUtilPtr&
+const ConsoleUtil&
 IceUtilInternal::getConsoleUtil()
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(consoleMutex);
     if(consoleUtil == 0)
     {
-        consoleUtil = ICE_MAKE_SHARED(ConsoleUtil);
+        consoleUtil = new ConsoleUtil();
     }
-    return consoleUtil;
+    return *consoleUtil;
 }
 
 ConsoleOut IceUtilInternal::consoleOut;

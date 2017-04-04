@@ -41,7 +41,7 @@ private:
     static ConsoleUtilPtr _instance;
 };
 
-const ICE_API ConsoleUtilPtr& getConsoleUtil();
+const ICE_API ConsoleUtil& getConsoleUtil();
 
 class ICE_API ConsoleOut
 {
@@ -63,7 +63,7 @@ operator<<(ConsoleOut& out, const T& val)
 {
     std::ostringstream s;
     s << val;
-    getConsoleUtil()->output(s.str());
+    getConsoleUtil().output(s.str());
     return out;
 }
 
@@ -76,7 +76,7 @@ operator<<(ConsoleErr& err, const T& val)
 {
     std::ostringstream s;
     s << val;
-    getConsoleUtil()->error(s.str());
+    getConsoleUtil().error(s.str());
     return err;
 }
 
