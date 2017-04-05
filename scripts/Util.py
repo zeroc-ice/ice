@@ -268,12 +268,11 @@ class Windows(Platform):
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
-            iceHome = os.environ.get("ICE_HOME")
             v140 = self.getCompiler() == "v140"
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
+            if (cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp):
                 return "bin"
             elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
@@ -315,8 +314,7 @@ class Windows(Platform):
 
         with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
             version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
-        iceHome = os.environ.get("ICE_HOME")
+        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net" 
 
         v140 = self.getCompiler() == "v140"
         cpp = isinstance(mapping, CppMapping)
@@ -326,8 +324,8 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if iceHome and ((cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp)):
-            return iceHome
+        if (cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp):
+            return os.environ.get("ICE_HOME")
 
         #
         # Otherwise, use the appropriate nuget package
