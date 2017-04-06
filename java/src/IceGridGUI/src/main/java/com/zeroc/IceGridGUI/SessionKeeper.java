@@ -2327,8 +2327,14 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        _discoveryPlugin.destroy();
-                        _discoveryPlugin = null;
+                        synchronized(SessionKeeper.this)
+                        {
+                            if(_discoveryPlugin != null)
+                            {
+                                _discoveryPlugin.destroy();
+                                _discoveryPlugin = null;
+                            }
+                        }
 
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
@@ -2502,8 +2508,14 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        _discoveryPlugin.destroy();
-                        _discoveryPlugin = null;
+                        synchronized(SessionKeeper.this)
+                        {
+                            if(_discoveryPlugin != null)
+                            {
+                                _discoveryPlugin.destroy();
+                                _discoveryPlugin = null;
+                            }
+                        }
                         dispose();
                     }
                 };

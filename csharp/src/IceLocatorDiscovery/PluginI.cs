@@ -386,19 +386,13 @@ namespace IceLocatorDiscovery
         {
             lock(this)
             {
-                if(_locator != null && _locator != locator)
+                if(request != null && _locator != null && _locator != locator)
                 {
-                    if(request != null)
-                    {
-                        request.invoke(_locator);
-                    }
+                    request.invoke(_locator);
                 }
-                else if(IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+                else if(request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
                 {
-                    if(request != null)
-                    {
-                        request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
-                    }
+                    request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
                 else
                 {
@@ -504,7 +498,7 @@ namespace IceLocatorDiscovery
         PluginI(string name, Ice.Communicator communicator)
         {
             _name = name;
-           _communicator = communicator;
+            _communicator = communicator;
         }
 
         public void
@@ -569,6 +563,7 @@ namespace IceLocatorDiscovery
             id.name = "Locator";
             id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();
 
+            _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
             _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator)));
 
@@ -584,6 +579,7 @@ namespace IceLocatorDiscovery
         {
             _replyAdapter.destroy();
             _locatorAdapter.destroy();
+            _communicator.setDefaultLocator(_defaultLocator);
         }
 
         List<Ice.LocatorPrx>
@@ -597,5 +593,6 @@ namespace IceLocatorDiscovery
         private Ice.ObjectAdapter _locatorAdapter;
         private Ice.ObjectAdapter _replyAdapter;
         private LocatorI _locator;
+        private Ice.LocatorPrx _defaultLocator;
     }
 }

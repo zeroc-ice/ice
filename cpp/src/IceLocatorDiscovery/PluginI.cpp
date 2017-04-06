@@ -229,6 +229,7 @@ private:
     Ice::ObjectAdapterPtr _locatorAdapter;
     Ice::ObjectAdapterPtr _replyAdapter;
     LocatorIPtr _locator;
+    Ice::LocatorPrxPtr _defaultLocator;
 };
 
 }
@@ -336,6 +337,7 @@ PluginI::initialize()
     id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
     _locator = ICE_MAKE_SHARED(LocatorI, _name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
                                voidLocator);
+    _defaultLocator = _communicator->getDefaultLocator();
     _communicator->setDefaultLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id)));
 
     Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _locator))->ice_datagram();
@@ -356,6 +358,7 @@ PluginI::destroy()
 {
     _replyAdapter->destroy();
     _locatorAdapter->destroy();
+    _communicator->setDefaultLocator(_defaultLocator);
 }
 
 void
@@ -783,19 +786,13 @@ void
 LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 {
     Lock sync(*this);
-    if(_locator && _locator != locator)
+    if(request && _locator && _locator != locator)
     {
-        if(request)
-        {
-            request->invoke(_locator);
-        }
+        request->invoke(_locator);
     }
-    else if(IceUtil::Time::now() < _nextRetry)
+    else if(request && IceUtil::Time::now() < _nextRetry)
     {
-        if(request)
-        {
-            request->invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
-        }
+        request->invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
     }
     else
     {
