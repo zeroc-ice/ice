@@ -82,13 +82,13 @@ def escape(s, escapeNewlines = True):
     return o.getvalue()
 
 def taskkill(args):
-    p = subprocess.Popen("taskkill {0}".format(args), 
+    p = subprocess.Popen("taskkill {0}".format(args),
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.stdout.read().decode('UTF-8').strip()
     p.wait()
     p.stdout.close()
 
-def killProces(p):
+def killProcess(p):
     if win32:
         taskkill("/F /T /PID {0}".format(p.pid))
     else:
@@ -352,9 +352,9 @@ def splitCommand(command_line):
 processes = {}
 
 def cleanup():
-    for key in processes:
+    for key in processes.copy():
         try:
-            killProces(processes[key])
+            killProcess(processes[key])
         except:
             pass
     processes.clear()
@@ -565,7 +565,7 @@ class Expect (object):
             pass
 
         try:
-            killProces(self.p)
+            killProcess(self.p)
             self.wait()
         except:
             traceback.print_exc(file=sys.stdout)
@@ -593,7 +593,7 @@ class Expect (object):
                 except:
                     traceback.print_exc(file=sys.stdout)
             else:
-                killProces(self.p)
+                killProcess(self.p)
         else:
             os.kill(self.p.pid, sig)
 

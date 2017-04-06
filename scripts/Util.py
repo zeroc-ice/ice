@@ -180,20 +180,22 @@ class Linux(Platform):
         return True
 
     def getBinSubDir(self, mapping, process, current):
-        if self.linuxId in ["ubuntu", "debian"] and current.config.buildPlatform in self.foreignPlatforms:
-            return os.path.join("bin", self.multiArch[current.config.buildPlatform])
+        buildPlatform = current.driver.configs[mapping].buildPlatform
+        if self.linuxId in ["ubuntu", "debian"] and buildPlatform in self.foreignPlatforms:
+            return os.path.join("bin", self.multiArch[buildPlatform])
         return "bin"
 
     def getLibSubDir(self, mapping, process, current):
+        buildPlatform = current.driver.configs[mapping].buildPlatform
 
         # PHP module is always installed in the lib directory for the default build platform
-        if isinstance(mapping, PhpMapping) and current.config.buildPlatform == self.getDefaultBuildPlatform():
+        if isinstance(mapping, PhpMapping) and buildPlatform == self.getDefaultBuildPlatform():
             return "lib"
 
         if self.linuxId in ["centos", "rhel", "fedora"]:
-            return "lib64" if current.config.buildPlatform == "x64" else "lib"
+            return "lib64" if buildPlatform == "x64" else "lib"
         elif self.linuxId in ["ubuntu", "debian"]:
-            return os.path.join("lib", self.multiArch[current.config.buildPlatform])
+            return os.path.join("lib", self.multiArch[buildPlatform])
         return "lib"
 
     def getBuildSubDir(self, name, current):
@@ -264,8 +266,8 @@ class Windows(Platform):
         #
         # Platform/Config taget bin directories.
         #
-        platform = current.config.buildPlatform
-        config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
+        platform = current.driver.configs[mapping].buildPlatform
+        config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
             v140 = self.getCompiler() == "v140"
@@ -314,7 +316,7 @@ class Windows(Platform):
 
         with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
             version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net" 
+        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
 
         v140 = self.getCompiler() == "v140"
         cpp = isinstance(mapping, CppMapping)
