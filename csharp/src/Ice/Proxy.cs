@@ -2696,9 +2696,9 @@ namespace Ice
                 {
                     SetResult(new Object_Ice_invokeResult(true, null));
                 }
-                if(!alreadySent)
+                if(progress_ != null && !alreadySent)
                 {
-                   progress_.Report(sentSynchronously);
+                    progress_.Report(sentSynchronously);
                 }
             }
 
