@@ -10,7 +10,7 @@
 package com.zeroc.IceInternal;
 
 import java.security.*;
-import java.util.Base64;
+import com.zeroc.IceUtilInternal.Base64;
 
 final class WSTransceiver implements Transceiver
 {
@@ -79,7 +79,7 @@ final class WSTransceiver implements Transceiver
                     //
                     byte[] key = new byte[16];
                     _rand.nextBytes(key);
-                    _key = Base64.getEncoder().encodeToString(key);
+                    _key = Base64.encode(key);
                     out.append(_key + "\r\n\r\n"); // EOM
 
                     _writeBuffer.resize(out.length(), false);
@@ -661,10 +661,17 @@ final class WSTransceiver implements Transceiver
             throw new WebSocketException("missing value for WebSocket key");
         }
 
-        byte[] decodedKey = Base64.getDecoder().decode(key);
-        if(decodedKey.length != 16)
+        try
         {
-            throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+            byte[] decodedKey = Base64.decode(key);
+            if(decodedKey.length != 16)
+            {
+                throw new WebSocketException("WebSocket key `" + key + "' has invalid length");
+            }
+        }
+        catch(IllegalArgumentException ex)
+        {
+            throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
         }
 
         //
@@ -701,7 +708,7 @@ final class WSTransceiver implements Transceiver
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
             final byte[] hash = sha1.digest();
-            out.append(Base64.getEncoder().encodeToString(hash) + "\r\n" + "\r\n"); // EOM
+            out.append(Base64.encode(hash) + "\r\n" + "\r\n"); // EOM
         }
         catch(NoSuchAlgorithmException ex)
         {
@@ -811,7 +818,7 @@ final class WSTransceiver implements Transceiver
             final String input = _key + _wsUUID;
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
-            if(!val.equals(Base64.getEncoder().encodeToString(sha1.digest())))
+            if(!val.equals(Base64.encode(sha1.digest())))
             {
                 throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
             }

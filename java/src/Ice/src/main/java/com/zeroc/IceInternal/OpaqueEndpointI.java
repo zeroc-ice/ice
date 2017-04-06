@@ -10,7 +10,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointParseException;
-import java.util.Base64;
+import com.zeroc.IceUtilInternal.Base64;
 
 final class OpaqueEndpointI extends EndpointI
 {
@@ -251,7 +251,7 @@ final class OpaqueEndpointI extends EndpointI
         s += " -e " + com.zeroc.Ice.Util.encodingVersionToString(_rawEncoding);
         if(_rawBytes.length > 0)
         {
-            s += " -v " + Base64.getEncoder().encodeToString(_rawBytes);
+            s += " -v " + Base64.encode(_rawBytes);
         }
         return s;
     }
@@ -371,7 +371,7 @@ final class OpaqueEndpointI extends EndpointI
 
             try
             {
-                _rawBytes = Base64.getDecoder().decode(argument);
+                _rawBytes = Base64.decode(argument);
             }
             catch(IllegalArgumentException ex)
             {

@@ -10,7 +10,6 @@
 package com.zeroc.IceSSL;
 
 import java.nio.*;
-import java.util.Base64;
 import javax.net.ssl.*;
 import javax.net.ssl.SSLEngineResult.*;
 import com.zeroc.IceInternal.SocketOperation;
