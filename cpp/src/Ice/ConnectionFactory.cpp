@@ -1821,7 +1821,7 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
 
     //
     // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-    // because of an unexpected error), try to restart the acceptor in 5 seconds.
+    // because of an unexpected error), try to restart the acceptor in 1 second.
     //
     if(!_acceptorStopped && (_state == StateHolding || _state == StateActive))
     {

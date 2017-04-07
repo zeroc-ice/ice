@@ -242,10 +242,10 @@ function allTests($communicator)
         //
         $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
         $initData->properties = $communicator->getProperties()->clone();
-        $initData->properties->setProperty("Ice.Override.Timeout", "250");
+        $initData->properties->setProperty("Ice.Override.Timeout", "150");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_checkedCast("::Test::Timeout");
-        $timeout->holdAdapter(700);
+        $timeout->holdAdapter(800);
         try
         {
             $to->sendData($seq);
@@ -265,7 +265,7 @@ function allTests($communicator)
         //
         $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(1000)->ice_checkedCast("::Test::Timeout");
-        $timeout->holdAdapter(500);
+        $timeout->holdAdapter(800);
         try
         {
             $to->sendData($seq);

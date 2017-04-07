@@ -102,10 +102,18 @@ class ProcessControllerI extends Test.Common.ProcessController
     {
         let promise;
         let ready = null;
+        let out;
         if(exe === "Server" || exe === "ServerAMD")
         {
             ready = new Ice.Promise();
+            out = this._serverOutput;
         }
+        else
+        {
+            out = this._clientOutput;
+        }
+        out.clear();
+
         if(this._useWorker)
         {
             let scripts = this._scripts;
@@ -123,19 +131,11 @@ class ProcessControllerI extends Test.Common.ProcessController
                 worker.onmessage = function(e) {
                     if(e.data.type == "write")
                     {
-                        this._clientOutput.write(e.data.message);
+                        out.write(e.data.message);
                     }
                     else if(e.data.type == "writeLine")
                     {
-                        this._clientOutput.writeLine(e.data.message);
-                    }
-                    if(e.data.type == "serverWrite")
-                    {
-                        this._serverOutput.write(e.data.message);
-                    }
-                    else if(e.data.type == "serverWriteLine")
-                    {
-                        this._serverOutput.writeLine(e.data.message);
+                        out.writeLine(e.data.message);
                     }
                     else if(e.data.type == "ready" && (exe === "Server" || exe === "ServerAMD"))
                     {
@@ -174,7 +174,6 @@ class ProcessControllerI extends Test.Common.ProcessController
                 promise = _test(this._clientOutput, initData);
             }
         }
-        let out = exe === "Server" || exe === "ServerAMD" ? this._serverOutput : this._clientOutput;
         return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, out, ready)));
     }
 
@@ -204,6 +203,10 @@ function runController(clientOutput, serverOutput, scripts)
             get: function()
             {
                 return output.val()
+            },
+            clear : function()
+            {
+                output.val("");
             }
         };
     }
