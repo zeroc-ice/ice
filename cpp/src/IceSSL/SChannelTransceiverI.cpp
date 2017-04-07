@@ -645,7 +645,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     SECURITY_STATUS err = QueryContextAttributes(&_ssl, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &cert);
     if(err && err != SEC_E_NO_CREDENTIALS)
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:" +
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:\n" +
                                 IceUtilInternal::lastErrorToString());
     }
 
@@ -655,7 +655,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         // Clients require server certificate if VerifyPeer > 0 and servers require client
         // certificate if VerifyPeer == 2
         //
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:" +
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:\n" +
                                 IceUtilInternal::lastErrorToString());
     }
     else if(cert) // Verify the remote certificate
@@ -718,13 +718,13 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
                 if(_instance->traceLevel() >= 1)
                 {
                     _instance->logger()->trace(_instance->traceCategory(),
-                                               "IceSSL: ignoring certificate verification failure\n" + reason);
+                                               "IceSSL: ignoring certificate verification failure:\n" + reason);
                 }
             }
             else
             {
                 ostringstream os;
-                os << "IceSSL: certificate verification failure\n" << reason;
+                os << "IceSSL: certificate verification failure:\n" << reason;
                 string msg = os.str();
                 if(_instance->traceLevel() >= 1)
                 {
@@ -742,7 +742,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
     else
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:" +
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" +
                                 IceUtilInternal::lastErrorToString());
     }
 

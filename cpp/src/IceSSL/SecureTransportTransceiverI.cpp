@@ -171,7 +171,7 @@ checkTrustResult(SecTrustRef trust,
             if(instance->traceLevel() >= 1)
             {
                 ostringstream os;
-                os << "IceSSL: ignoring certificate verification failure\n" << trustResultDescription(trustResult);
+                os << "IceSSL: ignoring certificate verification failure:\n" << trustResultDescription(trustResult);
                 instance->logger()->trace(instance->traceCategory(), os.str());
             }
             return false;
@@ -179,7 +179,7 @@ checkTrustResult(SecTrustRef trust,
         else
         {
             ostringstream os;
-            os << "IceSSL: certificate verification failure\n" << trustResultDescription(trustResult);
+            os << "IceSSL: certificate verification failure:\n" << trustResultDescription(trustResult);
             string msg = os.str();
             if(instance->traceLevel() >= 1)
             {
