@@ -41,7 +41,7 @@ class P extends Promise
     {
         return this.then(
             value => new P((resolve, reject) => Timer.setTimeout(() => resolve(value), ms)),
-            reason => new P((resolve, reject) => Timer.setTiemout(() => reject(reason), ms)));
+            reason => new P((resolve, reject) => Timer.setTimeout(() => reject(reason), ms)));
     }
 
     static get [Symbol.species]()
