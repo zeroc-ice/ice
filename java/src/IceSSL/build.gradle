@@ -12,20 +12,20 @@
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.ext.displayName = "Ice"
-project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +
-                          " with minimal effort using familiar object-oriented idioms"
+project.ext.displayName = "IceSSL"
+project.ext.description = "The IceSSL plug-in"
 
 slice {
     java {
-        stream {
-            files = [file("$sliceDir/Ice/BuiltinSequences.ice")]
-        }
+
         nostream {
-            files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice'],
-                excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
+            files = fileTree(dir: "$sliceDir", includes:['IceSSL/*.ice'])
         }
     }
+}
+
+dependencies {
+    compile project(':ice')
 }
 
 apply from: "$rootProject.projectDir/gradle/library.gradle"

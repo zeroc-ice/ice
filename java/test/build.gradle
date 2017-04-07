@@ -20,6 +20,7 @@ sourceSets {
 
 dependencies {
     compile localDependency('ice')
+    compile localDependency('icessl')
     compile localDependency('icediscovery')
     compile localDependency('icelocatordiscovery')
     compile localDependency('icebox')

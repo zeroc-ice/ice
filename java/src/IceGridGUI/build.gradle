@@ -41,6 +41,7 @@ configurations {
 
 dependencies {
       compile project(':ice')
+      compile project(':icessl')
       compile project(':icelocatordiscovery')
       compile project(':icebox')
       compile project(':icestorm')
