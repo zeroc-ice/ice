@@ -22,8 +22,14 @@ using namespace IceUtilInternal;
 using namespace IceBox;
 using namespace std;
 
-typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
-
+#ifdef ICE_CPP11_MAPPING
+typedef IceBox::Service* (*ServiceFactory)(const shared_ptr<Communicator>&);
+#else
+//
+// We copy the CommunicatorPtr to maintain compatibility with earlier releases
+//
+typedef IceBox::Service* (*ServiceFactory)(CommunicatorPtr);
+#endif
 
 namespace
 {
@@ -677,7 +683,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 #   pragma report(disable, "1540-0216")
 #endif
 
-        SERVICE_FACTORY factory = reinterpret_cast<SERVICE_FACTORY>(sym);
+        ServiceFactory factory = reinterpret_cast<ServiceFactory>(sym);
         try
         {
             info.service = ServicePtr(factory(_communicator));
