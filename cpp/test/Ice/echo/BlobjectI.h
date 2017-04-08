@@ -25,7 +25,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
 
     virtual void ice_invokeAsync(std::vector<Ice::Byte>,
-                                 std::function<void(bool, std::vector<Ice::Byte>)>,
+                                 std::function<void(bool, const std::vector<Ice::Byte>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) override;
 

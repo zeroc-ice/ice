@@ -79,7 +79,7 @@ BlobjectI::flushBatch()
 #ifdef ICE_CPP11_MAPPING
 void
 BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
-                           std::function<void(bool, std::vector<Ice::Byte>)> response,
+                           std::function<void(bool, const std::vector<Ice::Byte>&)> response,
                            std::function<void(std::exception_ptr)> ex,
                            const Ice::Current& current)
 {
@@ -112,7 +112,7 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
         else
         {
             obj->ice_oneway()->ice_invokeAsync(current.operation, current.mode, inEncaps,
-                                               [](bool, std::vector<Ice::Byte>) { assert(0); },
+                                               [](bool, const std::vector<Ice::Byte>&) { assert(0); },
                                                ex,
                                                [&](bool) { response(true, vector<Ice::Byte>()); },
                                                current.ctx);

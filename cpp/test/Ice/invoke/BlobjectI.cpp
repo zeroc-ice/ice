@@ -84,14 +84,14 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
 }
 
 bool
-BlobjectI::ice_invoke(const vector<Ice::Byte>& inEncaps, vector<Ice::Byte>& outEncaps, const Ice::Current& current)
+BlobjectI::ice_invoke(ICE_IN(vector<Ice::Byte>) inEncaps, vector<Ice::Byte>& outEncaps, const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 bool
-BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEncaps, vector<Ice::Byte>& outEncaps,
+BlobjectArrayI::ice_invoke(ICE_IN(pair<const Ice::Byte*, const Ice::Byte*>) inEncaps, vector<Ice::Byte>& outEncaps,
                            const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
@@ -101,19 +101,19 @@ BlobjectArrayI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inEnc
 #ifdef ICE_CPP11_MAPPING
 void
 BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
-                                function<void(bool, vector<Ice::Byte>)> response,
+                                function<void(bool, const vector<Ice::Byte>&)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    response(ok, move(outEncaps));
+    response(ok, outEncaps);
 }
 
 void
 BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                                     function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)> response,
+                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
                                      function<void(exception_ptr)>,
                                      const Ice::Current& current)
 {
@@ -130,7 +130,7 @@ BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
         outPair.first = &outEncaps[0];
         outPair.second = &outEncaps[0] + outEncaps.size();
     }
-    response(ok, move(outPair));
+    response(ok, outPair);
 }
 #else
 void

@@ -83,13 +83,10 @@ public:
 
     static const std::string& ice_staticId();
 
-#ifndef ICE_CPP11_MAPPING
-    virtual bool ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
-#else
     virtual bool ice_dispatch(Ice::Request&,
                               std::function<bool()> = nullptr,
                               std::function<bool(std::exception_ptr)> = nullptr);
-#endif
+
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
 
     struct Ice_invokeResult
@@ -161,7 +158,7 @@ public:
     //
     // Returns true if ok, false if user exception.
     //
-    virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
+    virtual bool ice_invoke(ICE_IN(std::vector<Byte>), std::vector<Byte>&, const Current&) = 0;
 
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
 };
@@ -173,7 +170,7 @@ public:
     //
     // Returns true if ok, false if user exception.
     //
-    virtual bool ice_invoke(const std::pair<const Byte*, const Byte*>&, std::vector<Byte>&, const Current&) = 0;
+    virtual bool ice_invoke(ICE_IN(std::pair<const Byte*, const Byte*>), std::vector<Byte>&, const Current&) = 0;
 
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
 };
@@ -184,7 +181,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void ice_invokeAsync(std::vector<Byte>,
-                                 std::function<void(bool, std::vector<Byte>)>,
+                                 std::function<void(bool, const std::vector<Byte>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Current&) = 0;
 #else
@@ -199,7 +196,7 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
     virtual void ice_invokeAsync(std::pair<const Byte*, const Byte*>,
-                                 std::function<void(bool, std::pair<const Byte*, const Byte*>)>,
+                                 std::function<void(bool, const std::pair<const Byte*, const Byte*>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Current&) = 0;
 #else

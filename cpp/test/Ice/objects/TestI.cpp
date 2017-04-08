@@ -340,7 +340,7 @@ InitialI::throwEDerived(const Ice::Current&)
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
+UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
                                            std::vector<Ice::Byte>& outParams,
                                            const Ice::Current& current)
 {

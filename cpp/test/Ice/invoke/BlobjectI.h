@@ -16,14 +16,14 @@ class BlobjectI : public Ice::Blobject
 {
 public:
 
-    virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(ICE_IN(std::vector<Ice::Byte>), std::vector<Ice::Byte>&, const Ice::Current&);
 };
 
 class BlobjectArrayI : public Ice::BlobjectArray
 {
 public:
 
-    virtual bool ice_invoke(const std::pair<const Ice::Byte*, const Ice::Byte*>&, std::vector<Ice::Byte>&,
+    virtual bool ice_invoke(ICE_IN(std::pair<const Ice::Byte*, const Ice::Byte*>), std::vector<Ice::Byte>&,
                             const Ice::Current&);
 };
 
@@ -33,7 +33,7 @@ class BlobjectAsyncI : public Ice::BlobjectAsync
 public:
 
     virtual void ice_invokeAsync(std::vector<Ice::Byte>,
-                                 std::function<void(bool, std::vector<Ice::Byte>)>,
+                                 std::function<void(bool, const std::vector<Ice::Byte>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 };
@@ -43,7 +43,7 @@ class BlobjectArrayAsyncI : public Ice::BlobjectArrayAsync
 public:
 
     virtual void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                                 std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>,
+                                 std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 };
