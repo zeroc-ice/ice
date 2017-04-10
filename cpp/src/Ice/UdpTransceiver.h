@@ -76,6 +76,12 @@ private:
 #ifdef ICE_OS_UWP
     void appendMessage(Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^);
     Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^ readMessage();
+
+    void connectCompleted(Windows::Foundation::IAsyncAction^, Windows::Foundation::AsyncStatus);
+    void getOutputStreamMcastCompleted(
+        Windows::Foundation::IAsyncOperation<Windows::Storage::Streams::IOutputStream^>^,
+        Windows::Foundation::AsyncStatus);
+    void getOutputStreamCompleted(concurrency::task<Windows::Storage::Streams::IOutputStream^>, Buffer&);
 #endif
 
     friend class UdpEndpointI;

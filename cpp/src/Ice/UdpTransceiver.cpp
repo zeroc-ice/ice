@@ -381,19 +381,14 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
                 {
                     operation->Completed = ref new AsyncActionCompletedHandler(
-                        [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
+                        [this] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                         {
-                            if(status != Windows::Foundation::AsyncStatus::Completed)
-                            {
-                                _write.count = SOCKET_ERROR;
-                                _write.error = info->ErrorCode.Value;
-                            }
-                            else
-                            {
-                                _write.count = 0;
-                                _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
-                            }
-                            completed(SocketOperationConnect);
+                            //
+                            // COMPILERFIX with VC141 using operator!= and operator== inside 
+                            // a lambda callback triggers a compiler bug, we move the code to
+                            // a seperate private method to workaround the issue.
+                            //
+                            connectCompleted(info, status);
                         });
                 }
                 else
@@ -408,23 +403,14 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
                 {
                     operation->Completed = ref new AsyncOperationCompletedHandler<IOutputStream^>(
-                        [=] (IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
+                        [=](IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
                         {
-                            if(status != Windows::Foundation::AsyncStatus::Completed)
-                            {
-                                _write.count = SOCKET_ERROR;
-                                _write.error = info->ErrorCode.Value;
-                            }
-                            else
-                            {
-                                _write.count = 0;
-                                _writer = ref new DataWriter(info->GetResults());
-                            }
-                            if(_mcastAddr.host != nullptr)
-                            {
-                                setMcastGroup(_fd, _mcastAddr, "");
-                            }
-                            completed(SocketOperationConnect);
+                            //
+                            // COMPILERFIX with VC141 using operator!= and operator== inside 
+                            // a lambda callback triggers a compiler bug, we move the code to
+                            // a seperate private method to workaround the issue.
+                            //
+                            getOutputStreamMcastCompleted(info, status);
                         });
                 }
                 else
@@ -450,32 +436,14 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
         {
             DatagramSocket^ fd = safe_cast<DatagramSocket^>(_fd);
             concurrency::create_task(fd->GetOutputStreamAsync(_peerAddr.host, _peerAddr.port)).then(
-                [=,&buf](concurrency::task<IOutputStream^> task)
+                [=, &buf](concurrency::task<IOutputStream^> task)
                 {
-                    try
-                    {
-                        DataWriter^ writer = ref new DataWriter(task.get());
-                        writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
-                        DataWriterStoreOperation^ operation = writer->StoreAsync();
-                        if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
-                        {
-                            //
-                            // NOTE: unlike other methods, it's important to modify _write.count
-                            // _before_ calling checkIfErrorOrCompleted since this isn't called
-                            // with the connection mutex but from a Windows thread pool thread.
-                            // So we can't modify the _write structure after calling the
-                            // completed callback.
-                            //
-                            _write.count = operation->GetResults();
-                        }
-                        queueOperation(SocketOperationWrite, operation);
-                    }
-                    catch(Platform::Exception^ pex)
-                    {
-                        _write.count = SOCKET_ERROR;
-                        _write.error = pex->HResult;
-                        completed(SocketOperationWrite);
-                    }
+                    //
+                    // COMPILERFIX with VC141 using operator!= and operator== inside 
+                    // a lambda callback triggers a compiler bug, we move the code to
+                    // a seperate private method to workaround the issue.
+                    //
+                    getOutputStreamCompleted(task, buf);
                 });
         }
         catch(Platform::Exception^ ex)
@@ -548,6 +516,76 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 #endif
     return true;
 }
+
+#ifdef ICE_OS_UWP
+void
+IceInternal::UdpTransceiver::connectCompleted(Windows::Foundation::IAsyncAction^ action,
+                                              Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        _write.count = SOCKET_ERROR;
+        _write.error = action->ErrorCode.Value;
+    }
+    else
+    {
+        _write.count = 0;
+        _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
+    }
+    completed(SocketOperationConnect);
+}
+
+void
+IceInternal::UdpTransceiver::getOutputStreamMcastCompleted(IAsyncOperation<IOutputStream^>^ operation,
+                                                           Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        _write.count = SOCKET_ERROR;
+        _write.error = operation->ErrorCode.Value;
+    }
+    else
+    {
+        _write.count = 0;
+        _writer = ref new DataWriter(operation->GetResults());
+    }
+    if(_mcastAddr.host != nullptr)
+    {
+        setMcastGroup(_fd, _mcastAddr, "");
+    }
+    completed(SocketOperationConnect);
+}
+
+void
+IceInternal::UdpTransceiver::getOutputStreamCompleted(concurrency::task<IOutputStream^> task, Buffer& buf)
+{
+    try
+    {
+        DataWriter^ writer = ref new DataWriter(task.get());
+        writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
+        DataWriterStoreOperation^ operation = writer->StoreAsync();
+        if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
+        {
+            //
+            // NOTE: unlike other methods, it's important to modify _write.count
+            // _before_ calling checkIfErrorOrCompleted since this isn't called
+            // with the connection mutex but from a Windows thread pool thread.
+            // So we can't modify the _write structure after calling the
+            // completed callback.
+            //
+            _write.count = operation->GetResults();
+        }
+        queueOperation(SocketOperationWrite, operation);
+    }
+    catch(Platform::Exception^ pex)
+    {
+        _write.count = SOCKET_ERROR;
+        _write.error = pex->HResult;
+        completed(SocketOperationWrite);
+    }
+}
+
+#endif
 
 void
 IceInternal::UdpTransceiver::finishWrite(Buffer& buf)

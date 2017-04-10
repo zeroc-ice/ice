@@ -2054,6 +2054,7 @@ class UWPProcessController(RemoteProcessController):
         run("MakeAppx.exe unpack /p \"{0}\" /d \"{1}\" /l".format(package, layout))
 
         print("Registering application to run from layout...")
+        run("powershell Remove-AppxPackage {0}".format(self.packageFullName))
         run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\"".format(layout))
 
         run("CheckNetIsolation LoopbackExempt -a -n={0}".format(self.appUserModelId))

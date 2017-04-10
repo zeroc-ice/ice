@@ -854,18 +854,30 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
         action->Completed = ref new AsyncActionCompletedHandler(
             [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
             {
-                if(status != Windows::Foundation::AsyncStatus::Completed)
-                {
-                    asyncInfo->count = SOCKET_ERROR;
-                    asyncInfo->error = info->ErrorCode.Value;
-                }
-                else
-                {
-                    asyncInfo->count = 0;
-                }
-                completed(op);
+                //
+                // COMPILERFIX with VC141 using operator!= and operator== inside 
+                // a lambda callback triggers a compiler bug, we move the code to
+                // a seperate private method to workaround the issue.
+                //
+                this->queueActionCompleted(op, asyncInfo, info, status);
             });
     }
+}
+
+void
+IceInternal::NativeInfo::queueActionCompleted(SocketOperation op, AsyncInfo* asyncInfo, IAsyncAction^ info,
+                                              Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        asyncInfo->count = SOCKET_ERROR;
+        asyncInfo->error = info->ErrorCode.Value;
+    }
+    else
+    {
+        asyncInfo->count = 0;
+    }
+    completed(op);
 }
 
 void
@@ -883,20 +895,33 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
             info->completedHandler = ref new AsyncOperationCompletedHandler<unsigned int>(
                 [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
                 {
-                    if(status != Windows::Foundation::AsyncStatus::Completed)
-                    {
-                        info->count = SOCKET_ERROR;
-                        info->error = operation->ErrorCode.Value;
-                    }
-                    else
-                    {
-                        info->count = static_cast<int>(operation->GetResults());
-                    }
-                    completed(op);
+                    //
+                    // COMPILERFIX with VC141 using operator!= and operator== inside 
+                    // a lambda callback triggers a compiler bug, we move the code to
+                    // a seperate private method to workaround the issue.
+                    //
+                    this->queueOperationCompleted(op, info, operation, status);   
                 });
         }
         operation->Completed = info->completedHandler;
     }
+}
+
+void
+IceInternal::NativeInfo::queueOperationCompleted(SocketOperation op, AsyncInfo* info,
+                                                 IAsyncOperation<unsigned int>^ operation,
+                                                 Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        info->count = SOCKET_ERROR;
+        info->error = operation->ErrorCode.Value;
+    }
+    else
+    {
+        info->count = static_cast<int>(operation->GetResults());
+    }
+    completed(op);
 }
 
 void

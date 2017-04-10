@@ -256,6 +256,16 @@ protected:
 #else
     SOCKET _newFd;
 #endif
+
+private:
+
+#if defined(ICE_OS_UWP)
+    void queueActionCompleted(SocketOperation, AsyncInfo* asyncInfo, Windows::Foundation::IAsyncAction^,
+                              Windows::Foundation::AsyncStatus);
+    void queueOperationCompleted(SocketOperation, AsyncInfo* asyncInfo,
+                                 Windows::Foundation::IAsyncOperation<unsigned int>^,
+                                 Windows::Foundation::AsyncStatus);
+#endif
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
 
