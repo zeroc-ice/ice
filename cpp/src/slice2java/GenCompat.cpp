@@ -1409,7 +1409,7 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
             {
                 out << nl << "inS.writeEmptyParams();";
             }
-            out << nl << "return false;";
+            out << nl << "return true;";
 
             out << eb;
         }
@@ -1501,7 +1501,7 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 out << ", ";
             }
             out << "current);";
-            out << nl << "return true;";
+            out << nl << "return false;";
 
             out << eb;
         }

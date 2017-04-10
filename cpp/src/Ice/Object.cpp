@@ -137,7 +137,7 @@ Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
     OutputStream* ostr = inS.startWriteParams();
     ostr->write(ret);
     inS.endWriteParams();
-    return false;
+    return true;
 }
 
 bool
@@ -146,7 +146,7 @@ Ice::Object::_iceD_ice_ping(Incoming& inS, const Current& current)
     inS.readEmptyParams();
     ice_ping(current);
     inS.writeEmptyParams();
-    return false;
+    return true;
 }
 
 bool
@@ -157,7 +157,7 @@ Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
     OutputStream* ostr = inS.startWriteParams();
     ostr->write(&ret[0], &ret[0] + ret.size(), false);
     inS.endWriteParams();
-    return false;
+    return true;
 }
 
 bool
@@ -168,7 +168,7 @@ Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
     OutputStream* ostr = inS.startWriteParams();
     ostr->write(ret, false);
     inS.endWriteParams();
-    return false;
+    return true;
 }
 
 
@@ -356,7 +356,7 @@ Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
     {
         in.writeParamEncaps(&outEncaps[0], static_cast<Ice::Int>(outEncaps.size()), ok);
     }
-    return false;
+    return true;
 }
 
 bool
@@ -376,7 +376,7 @@ Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
     {
         in.writeParamEncaps(&outEncaps[0], static_cast<Ice::Int>(outEncaps.size()), ok);
     }
-    return false;
+    return true;
 }
 
 bool
@@ -404,7 +404,7 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
 #else
     ice_invoke_async(new ::IceAsync::Ice::AMD_Object_ice_invoke(in), vector<Byte>(inEncaps, inEncaps + sz), current);
 #endif
-    return true;
+    return false;
 }
 
 bool
@@ -426,5 +426,5 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
 #else
     ice_invoke_async(new ::IceAsync::Ice::AMD_Object_ice_invoke(in), inEncaps, current);
 #endif
-    return true;
+    return false;
 }

@@ -89,7 +89,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         OutputStream ostr = inS.startWriteParams();
         ostr.writeBool(ret);
         inS.endWriteParams();
-        return false;
+        return true;
     }
 
     /**
@@ -120,7 +120,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         inS.readEmptyParams();
         obj.ice_ping(current);
         inS.writeEmptyParams();
-        return false;
+        return true;
     }
 
     /**
@@ -156,7 +156,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         OutputStream ostr = inS.startWriteParams();
         ostr.writeStringSeq(ret);
         inS.endWriteParams();
-        return false;
+        return true;
     }
 
     /**
@@ -192,7 +192,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         OutputStream ostr = inS.startWriteParams();
         ostr.writeString(ret);
         inS.endWriteParams();
-        return false;
+        return true;
     }
 
     /**

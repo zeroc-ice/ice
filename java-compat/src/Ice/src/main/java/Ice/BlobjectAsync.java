@@ -42,6 +42,6 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
     {
         byte[] inEncaps = in.readParamEncaps();
         ice_invoke_async(new _AMD_Object_ice_invoke(in), inEncaps, current);
-        return true;
+        return false;
     }
 }

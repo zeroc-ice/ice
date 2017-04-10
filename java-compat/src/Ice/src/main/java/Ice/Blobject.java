@@ -46,6 +46,6 @@ public abstract class Blobject extends Ice.ObjectImpl
         inEncaps = in.readParamEncaps();
         boolean ok = ice_invoke(inEncaps, outEncaps, current);
         in.writeParamEncaps(outEncaps.value, ok);
-        return false;
+        return true;
     }
 }

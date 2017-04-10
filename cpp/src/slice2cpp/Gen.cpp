@@ -3081,12 +3081,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             {
                 C << nl << "inS.writeEmptyParams();";
             }
-            C << nl << "return false;";
+            C << nl << "return true;";
         }
         else
         {
             C << nl << "this->" << name << "_async" << argsAMD << ';';
-            C << nl << "return true;";
+            C << nl << "return false;";
         }
         C << eb;
     }
@@ -7144,7 +7144,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "inS.writeEmptyParams();";
             }
         }
-        C << nl << "return false;";
+        C << nl << "return true;";
     }
     else
     {
@@ -7164,7 +7164,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << eb << ';';
         }
         C << nl << "this->" << opName << spar << args << epar << ';';
-        C << nl << "return true;";
+        C << nl << "return false;";
     }
     C << eb;
 }
