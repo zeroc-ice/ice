@@ -189,6 +189,7 @@ public:
     void waitUntilHolding() const;
     void waitUntilFinished();
 
+    bool isLocal(const EndpointIPtr&) const;
     EndpointIPtr endpoint() const;
     std::list<Ice::ConnectionIPtr> connections() const;
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
@@ -210,7 +211,8 @@ public:
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterIPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const EndpointIPtr&,
+                              const Ice::ObjectAdapterIPtr&);
     void initialize();
     virtual ~IncomingConnectionFactory();
 
@@ -244,6 +246,7 @@ private:
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     EndpointIPtr _endpoint;
+    EndpointIPtr _publishedEndpoint;
 
     bool _acceptorStarted;
     bool _acceptorStopped;

@@ -184,15 +184,31 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expand()
+    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard()
     {
-        java.util.List<com.zeroc.IceInternal.EndpointI> endps =
-            new java.util.ArrayList<com.zeroc.IceInternal.EndpointI>();
-        for(com.zeroc.IceInternal.EndpointI endpt : _endpoint.expand())
+        java.util.List<com.zeroc.IceInternal.EndpointI> endps = new java.util.ArrayList<>();
+        for(com.zeroc.IceInternal.EndpointI endpt : _endpoint.expandIfWildcard())
         {
             endps.add(endpt == _endpoint ? this : new EndpointI(_configuration, endpt));
         }
         return endps;
+    }
+
+    @Override
+    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost()
+    {
+        com.zeroc.IceInternal.EndpointI.ExpandHostResult result = _endpoint.expandHost();
+        java.util.List<com.zeroc.IceInternal.EndpointI> l = new java.util.ArrayList<>();
+        for(com.zeroc.IceInternal.EndpointI e : result.endpoints)
+        {
+            l.add(e == _endpoint ? this : new EndpointI(_configuration, e));
+        }
+        result.endpoints = l;
+        if(result.publish != null)
+        {
+            result.publish = result.publish == _endpoint ? this : new EndpointI(_configuration, result.publish);
+        }
+        return result;
     }
 
     @Override

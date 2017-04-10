@@ -755,7 +755,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                     }
                     for(IncomingConnectionFactory p : _incomingConnectionFactories)
                     {
-                        if(endpoint.equivalent(p.endpoint()))
+                        if(p.isLocal(endpoint))
                         {
                             return true;
                         }
@@ -1079,8 +1079,15 @@ public final class ObjectAdapterI implements ObjectAdapter
                     parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 for(IceInternal.EndpointI endp : endpoints)
                 {
-                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
-                    _incomingConnectionFactories.add(factory);
+                    Ice.Holder<IceInternal.EndpointI> publishedEndpoint = new Ice.Holder<>();
+                    for(IceInternal.EndpointI expanded : endp.expandHost(publishedEndpoint))
+                    {
+                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
+                                                                                          expanded,
+                                                                                          publishedEndpoint.value,
+                                                                                          this);
+                        _incomingConnectionFactories.add(factory);
+                    }
                 }
                 if(endpoints.size() == 0)
                 {
@@ -1339,7 +1346,18 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             for(IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
-                endpoints.addAll(factory.endpoint().expand());
+                for(IceInternal.EndpointI endpt : factory.endpoint().expandIfWildcard())
+                {
+                    //
+                    // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                    // expands to multiple addresses. In this case, multiple incoming connection
+                    // factories can point to the same published endpoint.
+                    //
+                    if(!endpoints.contains(endpt))
+                    {
+                        endpoints.add(endpt);
+                    }
+                }
             }
         }
 

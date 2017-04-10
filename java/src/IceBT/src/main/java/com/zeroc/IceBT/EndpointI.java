@@ -195,12 +195,20 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expand()
+    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard()
     {
-        java.util.List<com.zeroc.IceInternal.EndpointI> endps =
-            new java.util.ArrayList<com.zeroc.IceInternal.EndpointI>();
+        java.util.List<com.zeroc.IceInternal.EndpointI> endps = new java.util.ArrayList<>();
         endps.add(this);
         return endps;
+    }
+
+    @Override
+    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost()
+    {
+        com.zeroc.IceInternal.EndpointI.ExpandHostResult result = new com.zeroc.IceInternal.EndpointI.ExpandHostResult();
+        result.endpoints = new java.util.ArrayList<>();
+        result.endpoints.add(this);
+        return result;
     }
 
     @Override

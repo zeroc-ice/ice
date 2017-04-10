@@ -25,6 +25,16 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
+- The server runtime will now bind to all the addresses associated with a DNS
+  name specified in an endpoint of the object adapter (with the endpoint -h
+  option). You must make sure the DNS name resolves to local addresses only.
+
+  If no PublishedEndpoints property is specified for the object adapter, the
+  published endpoints for an endpoint with a DNS name will either be, if the
+  endpoint doesn't specifies a fixed port, a list of endpoints with each of
+  the addresses associated with the DNS name or, if it specifies a fixed port,
+  the endpoint with the DNS name.
+
 - Added the IceBridge service, which acts as a bridge between a client and
   server to relay requests and replies in both directions.
 

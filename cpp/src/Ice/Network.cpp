@@ -2364,7 +2364,8 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false, false);
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false,
+                                         false);
     if(addrs.empty())
     {
         return Address();

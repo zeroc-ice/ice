@@ -138,7 +138,7 @@ IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, c
 }
 
 vector<EndpointIPtr>
-IceInternal::IPEndpointI::expand() const
+IceInternal::IPEndpointI::expandIfWildcard() const
 {
     vector<EndpointIPtr> endps;
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
@@ -154,6 +154,55 @@ IceInternal::IPEndpointI::expand() const
         }
     }
     return endps;
+}
+
+vector<EndpointIPtr>
+IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
+{
+    //
+    // If this endpoint has an empty host (wildcard address), don't expand, just return
+    // this endpoint.
+    //
+    if(_host.empty())
+    {
+        vector<EndpointIPtr> endpoints;
+        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        return endpoints;
+    }
+
+    //
+    // If using a fixed port, this endpoint can be used as the published endpoint to
+    // access the returned endpoints. Otherwise, we'll publish each individual expanded
+    // endpoint.
+    //
+    if(_port > 0)
+    {
+        publish = ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
+    }
+
+    vector<Address> addrs = getAddresses(_host,
+                                         _port,
+                                         _instance->protocolSupport(),
+                                         Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         _instance->preferIPv6(),
+                                         true);
+
+    vector<EndpointIPtr> endpoints;
+    if(addrs.size() == 1)
+    {
+        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    }
+    else
+    {
+        for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        {
+            string host;
+            int port;
+            addrToAddressAndPort(*p, host, port);
+            endpoints.push_back(createEndpoint(host, port, _connectionId));
+        }
+    }
+    return endpoints;
 }
 
 bool
@@ -634,7 +683,8 @@ IceInternal::EndpointHostResolver::run()
 
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther), ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                             ICE_ENUM(ThreadState, ThreadStateIdle));
             }
 
         }
@@ -642,7 +692,8 @@ IceInternal::EndpointHostResolver::run()
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther), ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                             ICE_ENUM(ThreadState, ThreadStateIdle));
             }
             if(r.observer)
             {
@@ -678,7 +729,10 @@ IceInternal::EndpointHostResolver::updateObserver()
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
     {
-        _observer.attach(obsv->getThreadObserver("Communicator", name(), ICE_ENUM(ThreadState, ThreadStateIdle), _observer.get()));
+        _observer.attach(obsv->getThreadObserver("Communicator",
+                                                 name(),
+                                                 ICE_ENUM(ThreadState, ThreadStateIdle),
+                                                 _observer.get()));
     }
 }
 

@@ -227,8 +227,16 @@ namespace IceInternal
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public override List<EndpointI> expand()
+        public override List<EndpointI> expandIfWildcard()
         {
+            List<EndpointI> endps = new List<EndpointI>();
+            endps.Add(this);
+            return endps;
+        }
+
+        public override List<EndpointI> expandHost(out EndpointI publishedEndpoint)
+        {
+            publishedEndpoint = null;
             List<EndpointI> endps = new List<EndpointI>();
             endps.Add(this);
             return endps;
@@ -384,7 +392,7 @@ namespace IceInternal
                 {
                     throw new Ice.EndpointParseException("Invalid Base64 input in endpoint " + endpoint, ex);
                 }
-                
+
                 return true;
             }
 

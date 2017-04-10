@@ -49,8 +49,8 @@ public:
     virtual TransceiverPtr transceiver() const;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
     virtual AcceptorPtr acceptor(const std::string&) const;
-
-    virtual std::vector<EndpointIPtr> expand() const;
+    virtual std::vector<EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
     virtual ::Ice::Int hash() const;
     virtual std::string options() const;

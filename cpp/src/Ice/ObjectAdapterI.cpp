@@ -787,7 +787,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
             for(vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin();
                 q != _incomingConnectionFactories.end(); ++q)
             {
-                if((*p)->equivalent((*q)->endpoint()))
+                if((*q)->isLocal(*p))
                 {
                     return true;
                 }
@@ -1102,11 +1102,19 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
-                IncomingConnectionFactoryPtr factory = ICE_MAKE_SHARED(IncomingConnectionFactory, _instance, *p, ICE_SHARED_FROM_THIS);
-                 factory->initialize();
-                _incomingConnectionFactories.push_back(factory);
+                EndpointIPtr publishedEndpoint;
+                vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
+                for(vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
+                {
+                    IncomingConnectionFactoryPtr factory = ICE_MAKE_SHARED(IncomingConnectionFactory,
+                                                                           _instance,
+                                                                           *q,
+                                                                           publishedEndpoint,
+                                                                           ICE_SHARED_FROM_THIS);
+                    factory->initialize();
+                    _incomingConnectionFactories.push_back(factory);
+                }
             }
-
             if(endpoints.empty())
             {
                 TraceLevelsPtr tl = _instance->traceLevels();
@@ -1322,8 +1330,19 @@ ObjectAdapterI::parsePublishedEndpoints()
         //
         for(unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
         {
-            vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expand();
-            endpoints.insert(endpoints.end(), endps.begin(), endps.end());
+            vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expandIfWildcard();
+            for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
+            {
+                //
+                // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                // expands to multiple addresses. In this case, multiple incoming connection
+                // factories can point to the same published endpoint.
+                //
+                if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
+                {
+                    endpoints.push_back(*p);
+                }
+            }
         }
     }
 

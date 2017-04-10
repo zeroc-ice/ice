@@ -113,7 +113,7 @@ public abstract class IPEndpointI extends EndpointI
     }
 
     @Override
-    public java.util.List<EndpointI> expand()
+    public java.util.List<EndpointI> expandIfWildcard()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
         java.util.List<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
@@ -129,6 +129,50 @@ public abstract class IPEndpointI extends EndpointI
             }
         }
         return endps;
+    }
+
+    @Override
+    public java.util.List<EndpointI> expandHost(Ice.Holder<EndpointI> publishedEndpoint)
+    {
+        //
+        // If this endpoint has an empty host (wildcard address), don't expand, just return
+        // this endpoint.
+        //
+        if(_host.isEmpty())
+        {
+            java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<>();
+            endpoints.add(this);
+            return endpoints;
+        }
+
+        //
+        // If using a fixed port, this endpoint can be used as the published endpoint to
+        // access the returned endpoints. Otherwise, we'll publish each individual expanded
+        // endpoint.
+        //
+        publishedEndpoint.value = _port > 0 ? this : null;
+
+        java.util.List<java.net.InetSocketAddress> addresses = Network.getAddresses(_host,
+                                                                                    _port,
+                                                                                    _instance.protocolSupport(),
+                                                                                    Ice.EndpointSelectionType.Ordered,
+                                                                                    _instance.preferIPv6(),
+                                                                                    true);
+
+
+        java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<>();
+        if(addresses.size() == 1)
+        {
+            endpoints.add(this);
+        }
+        else
+        {
+            for(java.net.InetSocketAddress addr : addresses)
+            {
+                endpoints.add(createEndpoint(addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
+            }
+        }
+        return endpoints;
     }
 
     @Override

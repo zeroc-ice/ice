@@ -190,7 +190,15 @@ IceInternal::OpaqueEndpointI::acceptor(const string&) const
 }
 
 vector<EndpointIPtr>
-IceInternal::OpaqueEndpointI::expand() const
+IceInternal::OpaqueEndpointI::expandIfWildcard() const
+{
+    vector<EndpointIPtr> endps;
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI));
+    return endps;
+}
+
+vector<EndpointIPtr>
+IceInternal::OpaqueEndpointI::expandHost(EndpointIPtr&) const
 {
     vector<EndpointIPtr> endps;
     endps.push_back(ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI));

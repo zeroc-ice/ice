@@ -698,7 +698,7 @@ namespace Ice
                         }
                         foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                         {
-                            if(endpoints[i].equivalent(factory.endpoint()))
+                            if(factory.isLocal(endpoints[i]))
                             {
                                 return true;
                             }
@@ -1022,8 +1022,15 @@ namespace Ice
                     List<EndpointI> endpoints =  parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                     foreach(EndpointI endp in endpoints)
                     {
-                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
-                        _incomingConnectionFactories.Add(factory);
+                        EndpointI publishedEndpoint;
+                        foreach(IceInternal.EndpointI expanded in endp.expandHost(out publishedEndpoint))
+                        {
+                            IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
+                                                                                              expanded,
+                                                                                              publishedEndpoint,
+                                                                                              this);
+                            _incomingConnectionFactories.Add(factory);
+                        }
                     }
                     if(endpoints.Count == 0)
                     {
@@ -1245,7 +1252,18 @@ namespace Ice
                 //
                 foreach(IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
-                    endpoints.AddRange(factory.endpoint().expand());
+                    foreach(EndpointI endpt in factory.endpoint().expandIfWildcard())
+                    {
+                        //
+                        // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                        // expands to multiple addresses. In this case, multiple incoming connection
+                        // factories can point to the same published endpoint.
+                        //
+                        if(!endpoints.Contains(endpt))
+                        {
+                            endpoints.Add(endpt);
+                        }
+                    }
                 }
             }
 

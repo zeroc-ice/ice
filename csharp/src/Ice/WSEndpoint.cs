@@ -215,13 +215,26 @@ namespace IceInternal
             return new WSEndpoint(_instance, delEndp, _resource);
         }
 
-        public override List<EndpointI> expand()
+        public override List<EndpointI> expandIfWildcard()
         {
-            List<EndpointI> endps = _delegate.expand();
             List<EndpointI> l = new List<EndpointI>();
-            foreach(EndpointI e in endps)
+            foreach(EndpointI e in _delegate.expandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+            }
+            return l;
+        }
+
+        public override List<EndpointI> expandHost(out EndpointI publish)
+        {
+            List<EndpointI> l = new List<EndpointI>();
+            foreach(EndpointI e in _delegate.expandHost(out publish))
+            {
+                l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+            }
+            if(publish != null)
+            {
+                publish = publish == _delegate ? this : new WSEndpoint(_instance, publish, _resource);
             }
             return l;
         }
@@ -274,7 +287,7 @@ namespace IceInternal
 
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is EndpointI))
+            if(!(obj is WSEndpoint))
             {
                 return type() < obj.type() ? -1 : 1;
             }

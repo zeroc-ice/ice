@@ -207,12 +207,45 @@ IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 }
 
 vector<IceInternal::EndpointIPtr>
-IceSSL::EndpointI::expand() const
+IceSSL::EndpointI::expandIfWildcard() const
 {
-    vector<IceInternal::EndpointIPtr> endps = _delegate->expand();
+    vector<IceInternal::EndpointIPtr> endps = _delegate->expandIfWildcard();
     for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        *p = p->get() == _delegate.get() ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        }
+    }
+    return endps;
+}
+
+vector<IceInternal::EndpointIPtr>
+IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+{
+    vector<IceInternal::EndpointIPtr> endps = _delegate->expandHost(publish);
+    if(publish.get() == _delegate.get())
+    {
+        publish = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+    }
+    else if(publish.get())
+    {
+        publish = ICE_MAKE_SHARED(EndpointI, _instance, publish);
+    }
+    for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    {
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        }
     }
     return endps;
 }

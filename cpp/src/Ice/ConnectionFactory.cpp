@@ -1255,10 +1255,25 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     }
 }
 
+bool
+IceInternal::IncomingConnectionFactory::isLocal(const EndpointIPtr& endpoint) const
+{
+    if(_publishedEndpoint && endpoint->equivalent(_publishedEndpoint))
+    {
+        return true;
+    }
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    return endpoint->equivalent(_endpoint);
+}
+
 EndpointIPtr
 IceInternal::IncomingConnectionFactory::endpoint() const
 {
-    // No mutex protection necessary, _endpoint is immutable.
+    if(_publishedEndpoint)
+    {
+        return _publishedEndpoint;
+    }
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _endpoint;
 }
 
@@ -1561,10 +1576,12 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 //
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
                                                                   const EndpointIPtr& endpoint,
+                                                                  const EndpointIPtr& publishedEndpoint,
                                                                   const ObjectAdapterIPtr& adapter) :
     _instance(instance),
     _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
     _endpoint(endpoint),
+    _publishedEndpoint(publishedEndpoint),
     _acceptorStarted(false),
     _acceptorStopped(false),
     _adapter(adapter),

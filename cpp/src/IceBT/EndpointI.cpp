@@ -185,7 +185,18 @@ IceBT::EndpointI::acceptor(const string& adapterName) const
 }
 
 vector<IceInternal::EndpointIPtr>
-IceBT::EndpointI::expand() const
+IceBT::EndpointI::expandIfWildcard() const
+{
+    //
+    // Nothing to do here.
+    //
+    vector<IceInternal::EndpointIPtr> endps;
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    return endps;
+}
+
+vector<IceInternal::EndpointIPtr>
+IceBT::EndpointI::expandHost(IceInternal::EndpointIPtr&) const
 {
     //
     // Nothing to do here.

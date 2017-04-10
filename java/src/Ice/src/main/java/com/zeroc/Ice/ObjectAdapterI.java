@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.zeroc.IceInternal.IncomingConnectionFactory;
+import com.zeroc.IceInternal.EndpointI;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
@@ -754,7 +755,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                     }
                     for(IncomingConnectionFactory p : _incomingConnectionFactories)
                     {
-                        if(endpoint.equivalent(p.endpoint()))
+                        if(p.isLocal(endpoint))
                         {
                             return true;
                         }
@@ -1075,14 +1076,21 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
                 //
-                List<com.zeroc.IceInternal.EndpointI> endpoints =
-                    parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                for(com.zeroc.IceInternal.EndpointI endp : endpoints)
+                List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                for(EndpointI endp : endpoints)
                 {
-                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
-                    _incomingConnectionFactories.add(factory);
+                    EndpointI.ExpandHostResult result = endp.expandHost();
+                    for(EndpointI expanded : result.endpoints)
+                    {
+
+                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
+                                                                                          expanded,
+                                                                                          result.publish,
+                                                                                          this);
+                        _incomingConnectionFactories.add(factory);
+                    }
                 }
-                if(endpoints.size() == 0)
+                if(endpoints.isEmpty())
                 {
                     com.zeroc.IceInternal.TraceLevels tl = _instance.traceLevels();
                     if(tl.network >= 2)
@@ -1338,7 +1346,18 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             for(IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
-                endpoints.addAll(factory.endpoint().expand());
+                for(EndpointI endpt : factory.endpoint().expandIfWildcard())
+                {
+                    //
+                    // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                    // expands to multiple addresses. In this case, multiple incoming connection
+                    // factories can point to the same published endpoint.
+                    //
+                    if(!endpoints.contains(endpt))
+                    {
+                        endpoints.add(endpt);
+                    }
+                }
             }
         }
 

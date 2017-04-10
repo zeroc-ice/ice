@@ -116,7 +116,7 @@ namespace IceInternal
             instance_.resolve(host_, port_, selType, this, callback);
         }
 
-        public override List<EndpointI> expand()
+        public override List<EndpointI> expandIfWildcard()
         {
             List<EndpointI> endps = new List<EndpointI>();
             List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
@@ -132,6 +132,50 @@ namespace IceInternal
                 }
             }
             return endps;
+        }
+
+        public override List<EndpointI> expandHost(out EndpointI publish)
+        {
+            //
+            // If this endpoint has an empty host (wildcard address), don't expand, just return
+            // this endpoint.
+            //
+            var endpoints = new List<EndpointI>();
+            if(host_.Length == 0)
+            {
+                publish = null;
+                endpoints.Add(this);
+                return endpoints;
+            }
+
+            //
+            // If using a fixed port, this endpoint can be used as the published endpoint to
+            // access the returned endpoints. Otherwise, we'll publish each individual expanded
+            // endpoint.
+            //
+            publish = port_ > 0 ? this : null;
+
+            List<EndPoint> addresses = Network.getAddresses(host_,
+                                                            port_,
+                                                            instance_.protocolSupport(),
+                                                            Ice.EndpointSelectionType.Ordered,
+                                                            instance_.preferIPv6(),
+                                                            true);
+
+            if(addresses.Count == 1)
+            {
+                endpoints.Add(this);
+            }
+            else
+            {
+                foreach(EndPoint addr in addresses)
+                {
+                    endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
+                                                 Network.endpointPort(addr),
+                                                 connectionId_));
+                }
+            }
+            return endpoints;
         }
 
         public override bool equivalent(EndpointI endpoint)

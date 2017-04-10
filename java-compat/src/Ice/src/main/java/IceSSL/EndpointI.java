@@ -195,13 +195,27 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<IceInternal.EndpointI> expand()
+    public java.util.List<IceInternal.EndpointI> expandIfWildcard()
     {
-        java.util.List<IceInternal.EndpointI> endps = _delegate.expand();
         java.util.List<IceInternal.EndpointI> l = new java.util.ArrayList<IceInternal.EndpointI>();
-        for(IceInternal.EndpointI e : endps)
+        for(IceInternal.EndpointI e : _delegate.expandIfWildcard())
         {
             l.add(e == _delegate ? this : new EndpointI(_instance, e));
+        }
+        return l;
+    }
+
+    @Override
+    public java.util.List<IceInternal.EndpointI> expandHost(Ice.Holder<IceInternal.EndpointI> publish)
+    {
+        java.util.List<IceInternal.EndpointI> l = new java.util.ArrayList<IceInternal.EndpointI>();
+        for(IceInternal.EndpointI e : _delegate.expandHost(publish))
+        {
+            l.add(e == _delegate ? this : new EndpointI(_instance, e));
+        }
+        if(publish.value != null)
+        {
+            publish.value = publish.value == _delegate ? this : new EndpointI(_instance, publish.value);
         }
         return l;
     }

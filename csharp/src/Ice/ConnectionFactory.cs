@@ -1265,10 +1265,28 @@ namespace IceInternal
             }
         }
 
+        public bool isLocal(EndpointI endpoint)
+        {
+            if(_publishedEndpoint != null && endpoint.equivalent(_publishedEndpoint))
+            {
+                return true;
+            }
+            lock(this)
+            {
+                return endpoint.equivalent(_endpoint);
+            }
+        }
+
         public EndpointI endpoint()
         {
-            // No mutex protection necessary, _endpoint is immutable.
-            return _endpoint;
+            if(_publishedEndpoint != null)
+            {
+                return _publishedEndpoint;
+            }
+            lock(this)
+            {
+                return _endpoint;
+            }
         }
 
         public ICollection<Ice.ConnectionI> connections()
@@ -1528,10 +1546,12 @@ namespace IceInternal
             }
         }
 
-        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapterI adapter)
+        public IncomingConnectionFactory(Instance instance, EndpointI endpoint, EndpointI publish,
+                                         Ice.ObjectAdapterI adapter)
         {
             _instance = instance;
             _endpoint = endpoint;
+            _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.ConnectionI>();
@@ -1788,6 +1808,7 @@ namespace IceInternal
         private Acceptor _acceptor;
         private readonly Transceiver _transceiver;
         private EndpointI _endpoint;
+        private readonly EndpointI _publishedEndpoint;
 
         private Ice.ObjectAdapterI _adapter;
 

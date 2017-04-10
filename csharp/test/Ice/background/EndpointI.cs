@@ -171,12 +171,26 @@ internal class EndpointI : IceInternal.EndpointI
         return new EndpointI(delEndp);
     }
 
-    public override List<IceInternal.EndpointI> expand()
+    public override List<IceInternal.EndpointI> expandIfWildcard()
     {
         List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach(IceInternal.EndpointI endpt in _endpoint.expand())
+        foreach(IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+        }
+        return endps;
+    }
+
+    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+    {
+        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
+        foreach(IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
+        {
+            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+        }
+        if(publish != null)
+        {
+            publish = publish == _endpoint ? this : new EndpointI(publish);
         }
         return endps;
     }

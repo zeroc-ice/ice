@@ -197,15 +197,31 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<com.zeroc.IceInternal.EndpointI> expand()
+    public java.util.List<com.zeroc.IceInternal.EndpointI> expandIfWildcard()
     {
-        java.util.List<com.zeroc.IceInternal.EndpointI> endps = _delegate.expand();
-        java.util.List<com.zeroc.IceInternal.EndpointI> l = new java.util.ArrayList<com.zeroc.IceInternal.EndpointI>();
-        for(com.zeroc.IceInternal.EndpointI e : endps)
+        java.util.List<com.zeroc.IceInternal.EndpointI> l = new java.util.ArrayList<>();
+        for(com.zeroc.IceInternal.EndpointI e : _delegate.expandIfWildcard())
         {
             l.add(e == _delegate ? this : new EndpointI(_instance, e));
         }
         return l;
+    }
+
+    @Override
+    public com.zeroc.IceInternal.EndpointI.ExpandHostResult expandHost()
+    {
+        com.zeroc.IceInternal.EndpointI.ExpandHostResult result = _delegate.expandHost();
+        java.util.List<com.zeroc.IceInternal.EndpointI> l = new java.util.ArrayList<>();
+        for(com.zeroc.IceInternal.EndpointI e : result.endpoints)
+        {
+            l.add(e == _delegate ? this : new EndpointI(_instance, e));
+        }
+        result.endpoints = l;
+        if(result.publish != null)
+        {
+            result.publish = result.publish == _delegate ? this : new EndpointI(_instance, result.publish);
+        }
+        return result;
     }
 
     @Override

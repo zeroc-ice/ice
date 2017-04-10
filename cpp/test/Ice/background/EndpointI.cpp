@@ -212,9 +212,24 @@ EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 }
 
 vector<IceInternal::EndpointIPtr>
-EndpointI::expand() const
+EndpointI::expandIfWildcard() const
 {
-    vector<IceInternal::EndpointIPtr> e = _endpoint->expand();
+    vector<IceInternal::EndpointIPtr> e = _endpoint->expandIfWildcard();
+    for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
+    {
+        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
+    }
+    return e;
+}
+
+vector<IceInternal::EndpointIPtr>
+EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+{
+    vector<IceInternal::EndpointIPtr> e = _endpoint->expandHost(publish);
+    if(publish)
+    {
+        publish = publish == _endpoint ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, publish);
+    }
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
         *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
