@@ -318,7 +318,7 @@
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86.nuspec"
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
-          DestinationFiles="zeroc.ice.uwp.x86\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x86.targets" />
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x86.targets" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset).x86"/>
 
