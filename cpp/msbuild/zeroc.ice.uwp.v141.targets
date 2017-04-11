@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v141'">
+        <Ice_Configuration Condition="'$(UseDebugLibraries)' == 'true'">Debug</Ice_Configuration>
+        <Ice_Configuration Condition="'$(UseDebugLibraries)' != 'true'">Release</Ice_Configuration>
+    </PropertyGroup>
+
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v141'">
         <ClCompile>
             <AdditionalIncludeDirectories>$(IceHome)\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
