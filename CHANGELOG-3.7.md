@@ -347,8 +347,24 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## JavaScript Changes
 
-- Improve Ice.Long class to allow creating Ice.Long instance from
-  JavaScript Numbers.
+- Improve `Ice.Long` class to allow creating `Ice.Long` instance from JavaScript Numbers.
+
+- `Ice.Promise` is now a light extension to the standard JavaScript `Promise` class.
+
+- Ice.Class helper function used to create classes has been removed, Ice runtime and the code
+  generated with slice2js uses the JavaScript `class` keyword to define the classes.
+
+- `Ice.HashMap` usage is now limited to dictionaries with mutable keys, for all other
+  cases the standard JavaScript `Map` type is used.
+
+- `Ice.HashMap` API has been aligned with the API of JavaScript `Map` type.
+
+- Added support to map Slice modules to JavaScript native modules this requires using the 
+  global metadata [["js:es6-module"]].
+
+- AMD dispatch does not longer require to use `["amd"]` metadata, an operation can
+  take advantage of asynchronous method dispatch by returning an standard JavaScript
+  Promise.
 
 ## Objective-C Changes
 
