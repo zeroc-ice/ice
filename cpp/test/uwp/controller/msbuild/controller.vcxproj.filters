@@ -187,7 +187,6 @@
     <Page Include="..\ViewController.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="..\..\..\..\..\certs\cacert.der">
       <Filter>certs</Filter>
     </None>
@@ -1779,6 +1778,7 @@
     <None Include="..\..\..\Ice\udp\msbuild\uwp\server\ARM\Release\Ice_udp_server.dll">
       <Filter>Tests\ARM\Release</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <IceBuilder Include="..\..\..\..\..\scripts\Controller.ice">

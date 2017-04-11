@@ -25,9 +25,6 @@
     <ClCompile Include="x64\Release\Test.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\TestI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -118,9 +115,6 @@
     </ClInclude>
     <ClInclude Include="x64\Release\Test.h">
       <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\TestI.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
