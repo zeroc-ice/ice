@@ -25,11 +25,14 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
+- Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
+  published endpoints programmatically.
+
 - The server runtime will now bind to all the addresses associated with a DNS
   name specified in an endpoint of the object adapter (with the endpoint -h
   option). You must make sure the DNS name resolves to local addresses only.
 
-  If no PublishedEndpoints property is specified for the object adapter, the
+  If no `PublishedEndpoints` property is specified for the object adapter, the
   published endpoints for an endpoint with a DNS name will either be, if the
   endpoint doesn't specifies a fixed port, a list of endpoints with each of
   the addresses associated with the DNS name or, if it specifies a fixed port,
@@ -38,19 +41,26 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added the IceBridge service, which acts as a bridge between a client and
   server to relay requests and replies in both directions.
 
-- Changed the Slice definition of the Connection::close operation to take an
-  enumerator instead of a boolean. The new enumeration, ConnectionClose,
+- Added `Ice::Connection::throwException`. When the connection is closed, this
+  method throws an exception indicating the reason of the connection closure.
+
+- Changed the Slice definition of the `Connection::close` operation to take an
+  enumerator instead of a boolean. The new enumeration, `ConnectionClose`,
   defines three enumerators for controlling how the connection is closed:
 
-  - Forcefully - Closes the connection immediately. Equivalent to the boolean
+  - `Forcefully` - Closes the connection immediately. Equivalent to the boolean
   value true in previous releases.
 
-  - Gracefully - Closes the connection gracefully without waiting for pending
+  - `Gracefully` - Closes the connection gracefully without waiting for pending
   invocations to complete.
 
-  - GracefullyWithWait - Closes the connection gracefully after all pending
+  - `GracefullyWithWait` - Closes the connection gracefully after all pending
   invocations have completed. Equivalent to the boolean value false in previous
   releases.
+
+  The `Ice::ForcedCloseConnectionException` exception has also been replaced
+  with `Ice::ConnectionManuallyClosedException`. This exception is set on the
+  connection when `Connection::close` is called.
 
 - Added new operation metadata, `marshaled-result`, in C++11, C++98, C#, Java,
   and Java Compat. When this metadata is specified, the generated code for
@@ -121,6 +131,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   };
 
   ```
+
 - The Communicator and Connection `flushBatchRequests` operations now take
   an additional argument to specify whether or not the batch requests
   to flush should be compressed. See the documentation of the
@@ -189,6 +200,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   `ValueFactory`. Communicator operations `addObjectFactory`and
   `findObjectFactory` have been deprecated in favor of similar operations on the
   new interface `ValueFactoryManager`.
+
+- Replaced `Ice::NoObjectFactoryException` with `Ice::NoValueFactoryException`.
 
 - The Slice compiler options `--ice` and `--underscore` are now deprecated, and
   replaced by the global Slice metadata `ice-prefix` and `underscore`.

@@ -718,7 +718,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
 
     LocatorInfoPtr locatorInfo;
     vector<EndpointIPtr> oldPublishedEndpoints;
-   {
+    {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         checkForDeactivation();
 
