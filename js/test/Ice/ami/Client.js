@@ -204,7 +204,7 @@
                     {
                         var r1 = p.op();
                         var r2 = null;
-                        var seq = Ice.Buffer.createNative(new Array(100000));
+                        var seq = new Uint8Array(100000);
 
                         while((r2 = p.opWithPayload(seq)).sentSynchronously());
                         test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
@@ -278,7 +278,7 @@
                 ).then(() => testController.holdAdapter()
                 ).then(() =>
                     {
-                        var seq = Ice.Buffer.createNative(new Array(100000));
+                        var seq = new Uint8Array(100000);
                         while((r = p.opWithPayload(seq)).sentSynchronously());
                         test(!r.isSent());
 

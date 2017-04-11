@@ -361,7 +361,7 @@
                     function(ex)
                     {
                         test(ex instanceof Ice.MemoryLimitException);
-                        return thrower.throwMemoryLimitException(Ice.Buffer.createNative(20 * 1024));
+                        return thrower.throwMemoryLimitException(new Uint8Array(20 * 1024));
                     }
                 ).then(
                     failCB,

@@ -139,7 +139,7 @@
 
         throwMemoryLimitException(seq, current)
         {
-            return Ice.Buffer.createNative(1024 * 20); // 20KB is over the configured 10KB message size max.
+            return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
         }
 
         throwAfterResponse(current)

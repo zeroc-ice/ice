@@ -369,6 +369,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - The mapping for `sequence<byte>` is always `Uint8Array` JavaScript type, previously NodeJS
   engine used a NodeJS `Buffer` type and browser engines use a `Uint8Array`.
 
+- The helper method Buffer.createNative has been remvoved the `Uint8Array` constructor should be
+  used instead.
+
 ## Objective-C Changes
 
 - Fixed a bug where optional object dictionary parameters would

@@ -35,7 +35,7 @@
         Ice.Promise.try(() =>
             {
                 var i;
-                bs1 = Ice.Buffer.createNative(new Array(10 * 1024));
+                bs1 = new Uint8Array(10 * 1024);
                 for(i = 0; i < bs1.length; ++i)
                 {
                     bs1[i] = 0;

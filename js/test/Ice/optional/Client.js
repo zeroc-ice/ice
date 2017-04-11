@@ -124,7 +124,7 @@
                 mo1.i = Test.MyEnum.MyEnumMember;
                 mo1.j = communicator.stringToProxy("test");
                 mo1.k = mo1;
-                mo1.bs = Ice.Buffer.createNative([5]);
+                mo1.bs = new Uint8Array([5]);
                 mo1.ss = ["test", "test2"];
                 mo1.iid = new Map();
                 mo1.iid.set(4, 3);
@@ -353,7 +353,7 @@
                 out.write("testing marshaling of large containers with fixed size elements... ");
                 var mc = new Test.MultiOptional();
 
-                mc.bs = Ice.Buffer.createNative(new Array(1000));
+                mc.bs = new Uint8Array(1000);
                 mc.shs = new Array(300);
 
                 var i;
@@ -671,7 +671,7 @@
                 test(p2 === undefined);
                 var data = [];
                 for(var i = 0; i < 100; ++i){ data[i] = 56; }
-                return initial.opByteSeq(Ice.Buffer.createNative(data));
+                return initial.opByteSeq(new Uint8Array(data));
             }
         ).then(r =>
             {

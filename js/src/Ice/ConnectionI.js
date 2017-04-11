@@ -758,7 +758,7 @@ class ConnectionI
                     if(magic0 !== Protocol.magic[0] || magic1 !== Protocol.magic[1] ||
                        magic2 !== Protocol.magic[2] || magic3 !== Protocol.magic[3])
                     {
-                        throw new Ice.BadMagicException("", Ice.Buffer.createNative([magic0, magic1, magic2, magic3]));
+                        throw new Ice.BadMagicException("", new Uint8Array([magic0, magic1, magic2, magic3]));
                     }
 
                     this._readProtocol._read(this._readStream);

@@ -411,21 +411,6 @@ class Buffer
     {
         return this._limit - this._position;
     }
-
-    //
-    // Create a native buffer from an array of bytes.
-    //
-    static createNative(data)
-    {
-        if(data === undefined)
-        {
-            return new Uint8Array(0);
-        }
-        else
-        {
-            return new Uint8Array(data);
-        }
-    }
 }
 
 Ice.Buffer = Buffer;

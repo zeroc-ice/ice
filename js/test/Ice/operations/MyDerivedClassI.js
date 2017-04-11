@@ -97,13 +97,13 @@
 
         opByteS(p1, p2, current)
         {
-            var p3 = Ice.Buffer.createNative(p1.length);
+            var p3 = new Uint8Array(p1.length);
             for(let i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
-            var r = Ice.Buffer.createNative(p1.length + p2.length);
+            var r = new Uint8Array(p1.length + p2.length);
             for(let i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];

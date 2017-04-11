@@ -337,8 +337,8 @@
                 test(p3.e === Test.MyEnum.enum1);
                 test(p3.s.s === "a new string");
 
-                var bsi1 = Ice.Buffer.createNative([ 0x01, 0x11, 0x12, 0x22 ]);
-                var bsi2 = Ice.Buffer.createNative([ 0xf1, 0xf2, 0xf3, 0xf4 ]);
+                var bsi1 = new Uint8Array([ 0x01, 0x11, 0x12, 0x22 ]);
+                var bsi2 = new Uint8Array([ 0xf1, 0xf2, 0xf3, 0xf4 ]);
                 return prx.opByteS(bsi1, bsi2);
             }
         ).then(r =>
@@ -450,13 +450,13 @@
 
                 var bsi1 =
                     [
-                        Ice.Buffer.createNative([ 0x01, 0x11, 0x12 ]),
-                        Ice.Buffer.createNative([ 0xff ])
+                        new Uint8Array([ 0x01, 0x11, 0x12 ]),
+                        new Uint8Array([ 0xff ])
                     ];
                 var bsi2 =
                     [
-                        Ice.Buffer.createNative([ 0x0e ]),
-                        Ice.Buffer.createNative([ 0xf2, 0xf1 ])
+                        new Uint8Array([ 0x0e ]),
+                        new Uint8Array([ 0xf2, 0xf1 ])
                     ];
                 return prx.opByteSS(bsi1, bsi2);
             }
@@ -1117,10 +1117,10 @@
                 test(p3[2].get(s23) === Test.MyEnum.enum2);
 
                 var sdi1 = new Test.ByteByteSD();
-                sdi1.set(0x01, Ice.Buffer.createNative([0x01, 0x11]));
-                sdi1.set(0x22, Ice.Buffer.createNative([0x12]));
+                sdi1.set(0x01, new Uint8Array([0x01, 0x11]));
+                sdi1.set(0x22, new Uint8Array([0x12]));
                 var sdi2 = new Test.ByteByteSD();
-                sdi2.set(0xf1, Ice.Buffer.createNative([0xf2, 0xf3]));
+                sdi2.set(0xf1, new Uint8Array([0xf2, 0xf3]));
 
                 return prx.opByteByteSD(sdi1, sdi2);
             }
