@@ -306,6 +306,7 @@
   <Target Name="UWPNugetPack"
           DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(UWPCompiler)' == 'yes' ">
+
     <RemoveDir Directories="zeroc.ice.uwp.$(DefaultPlatformToolset);
                             zeroc.ice.uwp.$(DefaultPlatformToolset).x86;
                             zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
@@ -340,7 +341,7 @@
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).nuspec"
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).props"
-          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\build\native\zeroc.ice.uwp.props" />
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).props" />
     <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset)"/>
   </Target>

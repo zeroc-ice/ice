@@ -6,7 +6,7 @@
         <IceIntVersion>30760</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
         <IceSoVersion>37b0</IceSoVersion>
-        <IceNugetPackageVersion>3.7.60.0</IceNugetPackageVersion>
+        <IceNugetPackageVersion>3.7.0-beta0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
