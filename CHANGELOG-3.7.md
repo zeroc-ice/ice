@@ -366,6 +366,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
   take advantage of asynchronous method dispatch by returning an standard JavaScript
   Promise.
 
+- The mapping for `sequence<byte>` is always `Uint8Array` JavaScript type, previously NodeJS
+  engine used a NodeJS `Buffer` type and browser engines use a `Uint8Array`.
+
 ## Objective-C Changes
 
 - Fixed a bug where optional object dictionary parameters would
