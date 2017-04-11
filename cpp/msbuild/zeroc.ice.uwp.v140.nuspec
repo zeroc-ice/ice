@@ -13,8 +13,8 @@
     <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
     <tags>ice native</tags>
     <dependencies>
-      <dependency id="zeroc.ice.uwp.x86" version="[3.7.0-beta0]"/>
-      <dependency id="zeroc.ice.uwp.x64" version="[3.7.0-beta0]"/>
+      <dependency id="zeroc.ice.uwp.v140.x86" version="[3.7.0-beta0]"/>
+      <dependency id="zeroc.ice.uwp.v140.x64" version="[3.7.0-beta0]"/>
     </dependencies>
   </metadata>
 </package>
