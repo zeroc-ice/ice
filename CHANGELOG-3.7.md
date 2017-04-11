@@ -41,6 +41,10 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added the IceBridge service, which acts as a bridge between a client and
   server to relay requests and replies in both directions.
 
+- Added new `ice_id` method or member function to all Ice exceptions; `ice_id`
+  returns the Slice type ID of the exception. It replaces the now deprecated
+  `ice_name` method or member function.
+
 - Added `Ice::Connection::throwException`. When the connection is closed, this
   method throws an exception indicating the reason of the connection closure.
 
