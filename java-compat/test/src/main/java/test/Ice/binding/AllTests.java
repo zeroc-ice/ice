@@ -255,20 +255,11 @@ public class AllTests
                 System.getProperty("os.name").startsWith("Windows") ||
                 System.getProperty("java.vendor").toLowerCase().indexOf("android") >= 0;
 
-            int count;
-            if(shortenTest)
-            {
-                count = 20;
-            }
-            else
-            {
-                count = 60;
-            }
-
+            int count = 20;
             int adapterCount = adapters.length;
             while(--count > 0)
             {
-                TestIntfPrx[] proxies;
+                TestIntfPrx[] proxies = new TestIntfPrx[10];
                 if(shortenTest)
                 {
                     if(count == 1)
@@ -276,16 +267,14 @@ public class AllTests
                         com.deactivateObjectAdapter(adapters[4]);
                         --adapterCount;
                     }
-                    proxies = new TestIntfPrx[10];
                 }
                 else
                 {
-                    if(count < 60 && count % 10 == 0)
+                    if(count < 20 && count % 4 == 0)
                     {
-                        com.deactivateObjectAdapter(adapters[count / 10 - 1]);
+                        com.deactivateObjectAdapter(adapters[count / 4 - 1]);
                         --adapterCount;
                     }
-                    proxies = new TestIntfPrx[40];
                 }
 
                 int i;
