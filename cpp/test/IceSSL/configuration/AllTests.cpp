@@ -727,8 +727,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     string sep = ":";
 #endif
 
-    string engineName;
-    Ice::Long engineVersion;
+
+#ifdef ICE_USE_OPENSSL
+    Ice::Long openSSLVersion;
     {
         //
         // Get the IceSSL engine name and version
@@ -736,18 +737,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12);
         CommunicatorPtr comm = initialize(initData);
-        IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
+        IceSSL::OpenSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::OpenSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        engineName = plugin->getEngineName();
-        engineVersion = plugin->getEngineVersion();
+        openSSLVersion = plugin->getOpenSSLVersion();
         comm->destroy();
     }
-
-#ifdef ICE_USE_OPENSSL
-    //
-    // Parse OpenSSL version from engineName "OpenSSLEngine@OpenSSL 1.0.2g  1 Mar 2016"
-    //
-    const string anonCiphers = engineVersion >= 0x10100000L ? "ADH:@SECLEVEL=0" : "ADH";
+    const string anonCiphers = openSSLVersion >= 0x10100000L ? "ADH:@SECLEVEL=0" : "ADH";
 #endif
 
     IceSSL::ConnectionInfoPtr info;
@@ -2086,8 +2081,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             //
             // OpenSSL < 1.0 doesn't support tls 1.1 so it will fail, we ignore the error in this case.
             //
-            if((engineName.find("OpenSSLEngine") != string::npos && engineVersion < 0x10000000L) ||
-                engineName.find("OpenSSLEngine") == string::npos)
+#ifdef ICE_USE_OPENSSL
+            if(openSSLVersion < 0x1000000)
+#endif
             {
                 cerr << ex << endl;
                 test(false);

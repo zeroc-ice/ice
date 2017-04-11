@@ -87,6 +87,10 @@ class ICESSL_OPENSSL_API Plugin : public virtual IceSSL::Plugin
 {
 public:
     //
+    // returns OpenSSL version number.
+    //
+    virtual Ice::Long getOpenSSLVersion() const = 0;
+    //
     // Establish the OpenSSL context. This must be done before the
     // plug-in is initialized, therefore the application must define
     // the property Ice.InitPlugins=0, set the context, and finally
@@ -107,6 +111,7 @@ public:
     virtual SSL_CTX* getContext() = 0;
     
 };
+ICE_DEFINE_PTR(PluginPtr, Plugin);
 
 } // OpenSSL namespace end
 

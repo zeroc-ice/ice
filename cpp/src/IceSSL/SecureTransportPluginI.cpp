@@ -25,8 +25,6 @@ public:
 
     PluginI(const Ice::CommunicatorPtr&);
 
-    virtual string getEngineName() const;
-    virtual Ice::Long getEngineVersion() const;
     virtual IceSSL::CertificatePtr create(SecCertificateRef) const;
     virtual IceSSL::CertificatePtr load(const std::string&) const;
     virtual IceSSL::CertificatePtr decode(const std::string&) const;
@@ -40,18 +38,6 @@ public:
 PluginI::PluginI(const Ice::CommunicatorPtr& com) :
     IceSSL::PluginI(com, new IceSSL::SecureTransport::SSLEngine(com))
 {
-}
-
-string
-PluginI::getEngineName() const
-{
-    return "SecureTransport";
-}
-
-Ice::Long
-PluginI::getEngineVersion() const
-{
-    return 0;
 }
 
 IceSSL::CertificatePtr

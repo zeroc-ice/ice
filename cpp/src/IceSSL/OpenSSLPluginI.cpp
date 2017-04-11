@@ -25,8 +25,7 @@ public:
 
     PluginI(const Ice::CommunicatorPtr&);
 
-    virtual string getEngineName() const;
-    virtual Ice::Long getEngineVersion() const;
+    virtual Ice::Long getOpenSSLVersion() const;
     virtual IceSSL::CertificatePtr create(x509_st*) const;
     virtual IceSSL::CertificatePtr load(const std::string&) const;
     virtual IceSSL::CertificatePtr decode(const std::string&) const;
@@ -44,16 +43,8 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com) :
 {
 }
 
-string
-PluginI::getEngineName() const
-{
-    ostringstream os;
-    os << "OpenSSLEngine@" << SSLeay_version(SSLEAY_VERSION);
-    return os.str();
-}
-
 Ice::Long
-PluginI::getEngineVersion() const
+PluginI::getOpenSSLVersion() const
 {
     return SSLeay();
 }

@@ -272,8 +272,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Upgrade the UWP IceSSL implementation to support client side certificates and custom
   certificate verification.
 
-- Added `getEngineName` and `getEngineVersion` functions to `IceSSL::Plugin` to retrieve
-  the SSL engine name and version used by the Ice runtime.
+- Added `getOpenSSLVersion` function to `IceSSL::OpenSSL::Plugin` to retrieve
+  the OpenSSL version used by the Ice runtime.
 
 - Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to 
   `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
