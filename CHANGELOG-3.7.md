@@ -333,6 +333,17 @@ These are the changes since the Ice 3.6 release or snapshot described in
   assemblies will be initialized when the Ice run-time needs   to lookup a C#
   class. The default value is 0.
 
+- Added a new C# AMI mapping based on TAP (Task-based Asynchronous Pattern) using this 
+  mapping allow applications to take advantage of C# async/away keywords.
+
+- Update the AMD mapping to be Task-based, this greatly improved the interoperability
+  of AMI and AMD making straightforward to chain AMD and AMI calls.
+
+- Added support for thread safe marshalling anotating operations with ["marshaled-result"]
+  metadata will change the servant operation signature to return a marshalled result avoiding
+  thread safety issues derived from returning references to muatable objects. Refer to the 
+  "Parameter Passing in C-Sharp" section of the manual for more details about this feature.
+
 ## Java Changes
 
 - Added a new Java mapping that takes advantage of Java 8 language features. The new
