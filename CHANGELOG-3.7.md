@@ -83,7 +83,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   The unmarshaling or destruction of a graph of Slice class instances is a
   recursive operation. This property limits the amount of stack size required to
   perform these operations. This property is supported with all the language
-  mappings except Java and JavaScript where it's not needed (the runtime
+  mappings except Java and JavaScript where it's not needed (the run time
   environment allows graceful handling of stack overflows).
 
   The default maximum class graph depth is 100. If you increase this value, you
@@ -96,17 +96,17 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Implementations of the `Ice::Router` interface can now indicate whether or not
   they support a routing table through the optional out parameter `hasRoutingTable`
-  of the `getClientProxy` operation. The Ice runtime won't call the `addProxies`
+  of the `getClientProxy` operation. The Ice run time won't call the `addProxies`
   operation if the router implementation indicates that it doesn't manage a routing
   table.
 
 - The `findObjectByType`, `findAllObjectsByType`, `findObjectByTypeOnLeastLoadedNode`
   operations from the `IceGrid::Query` interface and the `allocateObjectByType`
-  operation from the `IceGrid::Session` interfaces now only returns proxies for
+  operation from the `IceGrid::Session` interfaces now only return proxies for
   Ice objects from enabled servers. If a server is disabled, its well-known or
   allocatable Ice objects won't be returned anymore to clients.
 
-- A Slice enumeration (enum) creates now a new namespace scope for its
+- A Slice enumeration (enum) now creates a new namespace scope for its
   enumerators. In previous releases, the enumerators were in the same
   namespace scope as the enumeration. For example:
   ```
@@ -136,17 +136,16 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
   ```
 
-- The Communicator and Connection `flushBatchRequests` operations now take
-  an additional argument to specify whether or not the batch requests
-  to flush should be compressed. See the documentation of the
-  `Ice::CompressBatch` enumeration for the different options available
-  to specify when the batch should be compressed.
+- The Communicator and Connection `flushBatchRequests` operations now require
+  an argument to specify whether or not the batch requests to flush should be
+  compressed. See the documentation of the `Ice::CompressBatch` enumeration
+  for the different options available to specify when the batch should be compressed.
 
 - The UDP server endpoint now supports specifying `--interface *` to join the
-  multicast group on using all the local interfaces. It's also now the default
+  multicast group using all the local interfaces. It's also now the default
   behavior if no `--interface` option is specified.
 
-- Ice no longer halts the program if can't accept new incoming connections when
+- Ice no longer halts a program if it can't accept new incoming connections when
   the system runs out of file descriptors. Instead, it rejects queued pending
   connections and temporarily stops accepting new connections. An error message
   is also sent to the Ice logger.
@@ -237,7 +236,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   deprecated.
 
 - Updated IceSSL hostname verification (enabled with `IceSSL.CheckCertName`) to
-  use the native checks of the platform SSL implementation.
+  use the native checks of the platform's SSL implementation.
 
 - Removed `IceSSL::NativeConnectionInfo`. `IceSSL::ConnectionInfo`'s `certs` data 
   member is now mapped to the native certificate type in C++, Java and C#. In other
@@ -247,13 +246,13 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Freeze has been moved to its own repository https://github.com/zeroc-ice/freeze
   Freeze is no longer include with Ice binary or source distributions.
 
-- Added support to supress Slice warnings using [["suppress-warning"]] global metadata
+- Added support for suppressing Slice warnings using the [["suppress-warning"]] global metadata
   directive. If one or more categories are specified (for example "suppress-warning:invalid-metadata" 
   or "suppress-warning:deprecated, invalid-metadata") only warnings matching these categories
-  will be suppressed, otherwise all warnings are suppressed.
+  are suppressed, otherwise all warnings are suppressed.
 
 - Hexadecimal escape sequences in string literals are now limited to two hexadecimal
-  digis `\00A` a similar sequences with extra leading 0 are not longer a valid hexadecimal
+  digits, such as `\00A`. A sequence with extra leading zeroes is no longer a valid hexadecimal
   escape sequence.
 
 ## C++ Changes
@@ -361,9 +360,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Update the AMD mapping to be Task-based, this greatly improved the interoperability
   of AMI and AMD making straightforward to chain AMD and AMI calls.
 
-- Added support for thread safe marshalling anotating operations with ["marshaled-result"]
+- Added support for thread safe marshalling annotating operations with ["marshaled-result"]
   metadata will change the servant operation signature to return a marshalled result avoiding
-  thread safety issues derived from returning references to muatable objects. Refer to the 
+  thread safety issues derived from returning references to mutable objects. Refer to the 
   "Parameter Passing in C-Sharp" section of the manual for more details about this feature.
 
 - Update C# proxy implementation to implement ISerializable.
@@ -449,9 +448,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Added support for PHP 7.0 and PHP 7.1.
 
-- The optional not set value for the PHP namespace mapping is` Ice\None`.
-  In previous releases, not set was mapped to `Ice_Unset`, but since 
-  `unset` is a PHP keyword, we could not use `Ice\Unset`.
+- The symbol used to indicate an unset optional value for the PHP namespace
+  mapping is `Ice\None`. The symbol for the flattened mapping remains `Ice_Unset`,
+  but since `unset` is a PHP keyword, we could not use `Ice\Unset`.
 
 ## Python Changes
 
@@ -494,11 +493,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Renamed optional invocation context parameter to `context` for consistency with other
   language mappings (was `_ctx` in previous versions).
 
-- Fixed a bug where Ice.Applcation Ctrl-C handler was installed even if Ice.Application.NoSignalHandling
+- Fixed a bug where Ice.Application Ctrl-C handler was installed even if Ice.Application.NoSignalHandling
   was set.
 
 ## Ruby Changes
 
-- Ice for Ruby is not longer supported with Windows.
+- Ice for Ruby is no longer supported on Windows.
 
-- Fix Application CtrlC handling to be compatible with Ruby 2.x signal handler restrictrions. 
+- Fix Application Ctrl-C handling to be compatible with Ruby 2.x signal handler restrictions. 
