@@ -282,20 +282,21 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to 
   `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
 
-- Augmented IceSSL Certificate API to allow retrieving X509v3 extensions. This feature
-  is currently available only with OpenSSL and SChannel.
+- Improved the IceSSL Certificate API to allow retrieving X509v3 extensions.
+  This feature is currently only available with OpenSSL and SChannel.
 
-- Refactored IceSSL Plug-in API to allow loading multiple implementations of the plug-in
-  in the same proccess. Each communicator can load a single implementation, but separate
-  communicators in the same process can load different implementations.
+- Refactored the IceSSL Plug-in API to allow loading multiple implementations of
+  the plug-in in the same process. Each communicator can load a single
+  implementation, but separate communicators in the same process can load
+  different implementations.
 
 - Added ability to build IceSSL with OpenSSL on Windows. The resulting library
   is named `icesslopenssl`. An application can load this plug-in with the 
   `IceSSLOpenSSL:createIceSSLOpenSSL` entry point.
 
-- Added `IceSSL.SchannelStrongCrypto` property: when set to a value greater than 0,
-  the IceSSL SChannel implementation sets the `SCH_USE_STRONG_CRYPTO` flag, which
-  instructs SChannel to disable weak cryptographic algorithms. The default
+- Added `IceSSL.SchannelStrongCrypto` property: when set to a value greater than
+  0, the IceSSL SChannel implementation sets the `SCH_USE_STRONG_CRYPTO` flag,
+  which instructs SChannel to disable weak cryptographic algorithms. The default
   values for this property is 0 for increased interoperability.
 
 ## C# Changes
@@ -325,11 +326,12 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - `cs:` and `clr:` are now interchangeable in metadata directives.
 
-- Add support to preload referenced assemblies. The property `Ice.PreloadAssemblies`
-  controls this behavior. If set to a value greater than 0 the Ice run-time will try
-  to load all the assemblies referenced by the process during communicator initialization,
-  otherwise the referenced assemblies will be initialized when the Ice run-time needs
-  to lookup a C# class. The default value is 0.
+- Add support to preload referenced assemblies. The property
+  `Ice.PreloadAssemblies`   controls this behavior. If set to a value greater than
+  0 the Ice run-time will try   to load all the assemblies referenced by the
+  process during communicator initialization,   otherwise the referenced
+  assemblies will be initialized when the Ice run-time needs   to lookup a C#
+  class. The default value is 0.
 
 ## Java Changes
 
@@ -351,30 +353,33 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## JavaScript Changes
 
-- Improve `Ice.Long` class to allow creating `Ice.Long` instance from JavaScript Numbers.
+- Improved the `Ice.Long` class to allow creating `Ice.Long` instance from
+  JavaScript `Numbers`.
 
-- `Ice.Promise` is now a light extension to the standard JavaScript `Promise` class.
+- The `Ice.Promise` class is now extending the standard JavaScript `Promise`
+  class.
 
-- Ice.Class helper function used to create classes has been removed, Ice runtime and the code
-  generated with slice2js uses the JavaScript `class` keyword to define the classes.
+- The `Ice.Class` helper function used to create classes has been removed, the
+  Ice runtime and the generated code now use the JavaScript `class` keyword to
+  define the classes.
 
-- `Ice.HashMap` usage is now limited to dictionaries with mutable keys, for all other
-  cases the standard JavaScript `Map` type is used.
+- `Ice.HashMap` usage is now limited to dictionaries with mutable keys, for all
+  other   cases the standard JavaScript `Map` type is used.
 
 - `Ice.HashMap` API has been aligned with the API of JavaScript `Map` type.
 
-- Added support to map Slice modules to JavaScript native modules this requires using the 
-  global metadata [["js:es6-module"]].
+- Added support to map Slice modules to JavaScript native modules this requires
+  using the global metadata `[["js:es6-module"]]`.
 
-- AMD dispatch does not longer require to use `["amd"]` metadata, an operation can
-  take advantage of asynchronous method dispatch by returning an standard JavaScript
-  Promise.
+- The `["amd"]` metadata is now ignored in JavaScript. An operation can now be
+  be dispatched asynchronously by just returning a JavaScript Promise object.
 
-- The mapping for `sequence<byte>` is always `Uint8Array` JavaScript type, previously NodeJS
-  engine used a NodeJS `Buffer` type and browser engines use a `Uint8Array`.
+- `sequence<byte>` is now always mapped to the `Uint8Array` JavaScript type. It
+  used to be mapped to the `Buffer` type for NodeJS and to `Uint8Array` for
+  browsers.
 
-- The helper method Buffer.createNative has been remvoved the `Uint8Array` constructor should be
-  used instead.
+- The helper method `Ice.Buffer.createNative` has been removed and replaced by
+  the use of `Uint8Array`.
 
 ## Objective-C Changes
 
