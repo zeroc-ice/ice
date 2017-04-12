@@ -252,6 +252,10 @@ These are the changes since the Ice 3.6 release or snapshot described in
   or "suppress-warning:deprecated, invalid-metadata") only warnings matching these categories
   will be suppressed, otherwise all warnings are suppressed.
 
+- Hexadecimal escape sequences in string literals are now limited to two hexadecimal
+  digis `\00A` a similar sequences with extra leading 0 are not longer a valid hexadecimal
+  escape sequence.
+
 ## C++ Changes
 
 - Added a new C++11 mapping that takes advantage of C++11 language features. This
@@ -311,6 +315,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Fixed IceGrid PlatformInfo to report the correct Windows release and version
   versions greater than Windows 8 were reported as Windows 8.
+
+- IceSSL has been updated to support OpenSSL 1.1.0 version.
+
+- Add IceBridge Ice service that acts as a bridge between one or more clients and
+  a server.
 
 ## C# Changes
 
@@ -485,3 +494,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Renamed optional invocation context parameter to `context` for consistency with other
   language mappings (was `_ctx` in previous versions).
 
+- Fixed a bug where Ice.Applcation Ctrl-C handler was installed even if Ice.Application.NoSignalHandling
+  was set.
+
+## Ruby Changes
+
+- Ice for Ruby is not longer supported with Windows.
+
+- Fix Application CtrlC handling to be compatible with Ruby 2.x signal handler restrictrions. 
