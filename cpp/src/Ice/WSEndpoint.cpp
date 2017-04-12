@@ -228,7 +228,14 @@ IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 WSEndpointPtr
 IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, delEndp, _resource);
+    if(delEndp.get() == _delegate.get())
+    {
+        return ICE_DYNAMIC_CAST(WSEndpoint, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(WSEndpoint, _instance, delEndp, _resource);
+    }
 }
 
 vector<EndpointIPtr>

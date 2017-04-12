@@ -150,8 +150,15 @@ final class TcpEndpointI extends IPEndpointI
 
     public TcpEndpointI endpoint(TcpAcceptor acceptor)
     {
-        return new TcpEndpointI(_instance, _host, acceptor.effectivePort(), _sourceAddr, _timeout,
-                                _connectionId, _compress);
+        int port = acceptor.effectivePort();
+        if(port == _port)
+        {
+            return this;
+        }
+        else
+        {
+            return new TcpEndpointI(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+        }
     }
 
     @Override

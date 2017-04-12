@@ -191,7 +191,14 @@ final class EndpointI extends IceInternal.EndpointI
 
     public EndpointI endpoint(IceInternal.EndpointI delEndpt)
     {
-        return new EndpointI(_instance, delEndpt);
+        if(delEndpt == _delegate)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(_instance, delEndpt);
+        }
     }
 
     @Override

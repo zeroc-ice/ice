@@ -180,7 +180,14 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
 
     public EndpointI endpoint(com.zeroc.IceInternal.EndpointI delEndp)
     {
-        return new EndpointI(_configuration, delEndp);
+        if(delEndp == _endpoint)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(_configuration, delEndp);
+        }
     }
 
     @Override

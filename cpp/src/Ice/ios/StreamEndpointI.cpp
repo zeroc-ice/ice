@@ -233,8 +233,15 @@ IceObjC::StreamEndpointI::acceptor(const string&) const
 IceObjC::StreamEndpointIPtr
 IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
 {
-    return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, a->effectivePort(), _sourceAddr, _timeout, _connectionId,
-                           _compress);
+    int port = a->effectivePort();
+    if(port == _port)
+    {
+        return ICE_DYNAMIC_CAST(StreamEndpointI, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+    }
 }
 
 string

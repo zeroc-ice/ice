@@ -168,7 +168,14 @@ internal class EndpointI : IceInternal.EndpointI
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)
     {
-        return new EndpointI(delEndp);
+        if(delEndp == _endpoint)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(delEndp);
+        }
     }
 
     public override List<IceInternal.EndpointI> expandIfWildcard()

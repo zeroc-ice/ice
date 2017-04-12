@@ -203,7 +203,14 @@ IceSSL::EndpointI::acceptor(const string& adapterName) const
 EndpointIPtr
 IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+    if(delEndp.get() == _delegate.get())
+    {
+        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+    }
 }
 
 vector<IceInternal::EndpointIPtr>

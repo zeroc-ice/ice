@@ -208,7 +208,14 @@ EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
 EndpointIPtr
 EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(EndpointI, delEndp);
+    if(delEndp.get() == _endpoint.get())
+    {
+        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(EndpointI, delEndp);
+    }
 }
 
 vector<IceInternal::EndpointIPtr>

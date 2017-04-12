@@ -212,7 +212,14 @@ namespace IceInternal
 
         public WSEndpoint endpoint(EndpointI delEndp)
         {
-            return new WSEndpoint(_instance, delEndp, _resource);
+            if(delEndp == _delegate)
+            {
+                return this;
+            }
+            else
+            {
+                return new WSEndpoint(_instance, delEndp, _resource);
+            }
         }
 
         public override List<EndpointI> expandIfWildcard()

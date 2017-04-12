@@ -137,8 +137,15 @@ IceInternal::TcpEndpointI::acceptor(const string&) const
 TcpEndpointIPtr
 IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
 {
-    return ICE_MAKE_SHARED(TcpEndpointI, _instance, _host, acceptor->effectivePort(), _sourceAddr, _timeout, _connectionId,
-                            _compress);
+    int port = acceptor->effectivePort();
+    if(_port == port)
+    {
+        return ICE_DYNAMIC_CAST(TcpEndpointI, ICE_SHARED_FROM_CONST_THIS(TcpEndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(TcpEndpointI, _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+    }
 }
 
 string

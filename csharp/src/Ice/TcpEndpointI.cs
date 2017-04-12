@@ -127,8 +127,15 @@ namespace IceInternal
 
         public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
-            return new TcpEndpointI(instance_, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
-                                    _compress);
+            int port = acceptor.effectivePort();
+            if(port == port_)
+            {
+                return this;
+            }
+            else
+            {
+                return new TcpEndpointI(instance_, host_, port, sourceAddr_, _timeout, connectionId_, _compress);
+            }
         }
 
         public override string options()

@@ -166,14 +166,30 @@ final class UdpEndpointI extends IPEndpointI
 
     public UdpEndpointI endpoint(UdpTransceiver transceiver)
     {
-        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface,_mcastTtl,
-                                _connect, _connectionId, _compress);
+        int port = transceiver.effectivePort();
+        if(port == _port)
+        {
+            return this;
+        }
+        else
+        {
+            return new UdpEndpointI(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+                                    _connectionId, _compress);
+        }
     }
 
     public UdpEndpointI endpoint(UdpMulticastServerTransceiver transceiver)
     {
-        return new UdpEndpointI(_instance, _host, transceiver.effectivePort(), _sourceAddr, _mcastInterface, _mcastTtl,
-                                _connect, _connectionId, _compress);
+        int port = transceiver.effectivePort();
+        if(port == _port)
+        {
+            return this;
+        }
+        else
+        {
+            return new UdpEndpointI(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+                                    _connectionId, _compress);
+        }
     }
 
     @Override

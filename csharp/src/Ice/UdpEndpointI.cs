@@ -178,8 +178,16 @@ namespace IceInternal
 
         public UdpEndpointI endpoint(UdpTransceiver transceiver)
         {
-            return new UdpEndpointI(instance_, host_, transceiver.effectivePort(), sourceAddr_, _mcastInterface,
-                                    _mcastTtl, _connect, connectionId_, _compress);
+            int port = transceiver.effectivePort();
+            if(port == port_)
+            {
+                return this;
+            }
+            else
+            {
+                return new UdpEndpointI(instance_, host_, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
+                                        connectionId_, _compress);
+            }
         }
 
         public override string options()

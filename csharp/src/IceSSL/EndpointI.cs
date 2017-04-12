@@ -185,7 +185,14 @@ namespace IceSSL
 
         public EndpointI endpoint(IceInternal.EndpointI del)
         {
-            return new EndpointI(_instance, del);
+            if(del == _delegate)
+            {
+                return this;
+            }
+            else
+            {
+                return new EndpointI(_instance, del);
+            }
         }
 
         public override List<IceInternal.EndpointI> expandIfWildcard()
