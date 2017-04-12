@@ -245,7 +245,12 @@ These are the changes since the Ice 3.6 release or snapshot described in
   certificates.
 
 - Freeze has been moved to its own repository https://github.com/zeroc-ice/freeze
-  Freeze is no longer include with Ice binary or source distributions. 
+  Freeze is no longer include with Ice binary or source distributions.
+
+- Added support to supress Slice warnings using [["suppress-warning"]] global metadata
+  directive. If one or more categories are specified (for example "suppress-warning:invalid-metadata" 
+  or "suppress-warning:deprecated, invalid-metadata") only warnings matching these categories
+  will be suppressed, otherwise all warnings are suppressed.
 
 ## C++ Changes
 
@@ -302,6 +307,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   which instructs SChannel to disable weak cryptographic algorithms. The default
   values for this property is 0 for increased interoperability.
 
+- Improve Linux stack traces by using libbacktrace when available.
+
+- Fixed IceGrid PlatformInfo to report the correct Windows release and version
+  versions greater than Windows 8 were reported as Windows 8.
+
 ## C# Changes
 
 - The `batchRequestInterceptor` data member of `Ice.InitializationData` is now
@@ -346,6 +356,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   metadata will change the servant operation signature to return a marshalled result avoiding
   thread safety issues derived from returning references to muatable objects. Refer to the 
   "Parameter Passing in C-Sharp" section of the manual for more details about this feature.
+
+- Update C# proxy implementation to implement ISerializable.
 
 ## Java Changes
 
@@ -425,6 +437,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   ```
   
 ## PHP Changes
+
+- Added support for PHP 7.0 and PHP 7.1.
 
 - The optional not set value for the PHP namespace mapping is` Ice\None`.
   In previous releases, not set was mapped to `Ice_Unset`, but since 
