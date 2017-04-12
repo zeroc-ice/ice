@@ -38,7 +38,7 @@
 #endif
 
 #if defined(__linux) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
-#   include <grp.h> // for initgroups
+#   include <grp.h> // for setgroups
 #endif
 
 using namespace std;
@@ -631,6 +631,44 @@ Activator::activate(const string& name,
 
     return static_cast<Ice::Int>(process.pid);
 #else
+    struct passwd pwbuf;
+    vector<char> buffer(4096); // 4KB initial buffer size
+    struct passwd *pw;
+    int err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw);
+    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+    {
+        buffer.resize(buffer.size() * 2);
+    }
+    if(err != 0)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+        throw ex;
+    }
+    else if(pw == 0)
+    {
+        ostringstream os;
+        os << uid;
+        throw string("unknown user id `" + os.str() + "'");
+    }
+
+    vector<gid_t> groups;
+    groups.resize(20);
+    int ngroups = static_cast<int>(groups.size());
+#if defined(__APPLE__)
+    if(getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
+#else
+    if(getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
+#endif
+    {
+        groups.resize(ngroups);
+#if defined(__APPLE__)
+        getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups);
+#else
+        getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
+#endif
+    }
+
     int fds[2];
     if(pipe(fds) != 0)
     {
@@ -694,33 +732,15 @@ Activator::activate(const string& name,
                              _traceLevels);
         }
 
-        errno = 0;
-        struct passwd* pw = getpwuid(uid);
-        if(!pw)
-        {
-            if(errno)
-            {
-                reportChildError(getSystemErrno(), errorFds[1], "cannot read the password database", "",
-                                 _traceLevels);
-            }
-            else
-            {
-                ostringstream os;
-                os << uid;
-                reportChildError(getSystemErrno(), errorFds[1], "unknown user uid"  , os.str().c_str(),
-                                 _traceLevels);
-            }
-        }
-
         //
         // Don't initialize supplementary groups if we are not running as root.
         //
-        if(getuid() == 0 && initgroups(pw->pw_name, gid) == -1)
+        if(getuid() == 0 && setgroups(groups.size(), &groups[0]) == -1)
         {
             ostringstream os;
             os << pw->pw_name;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot initialize process supplementary group access list for user",
-                             os.str().c_str(), _traceLevels);
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
+                                                             _traceLevels);
         }
 
         if(setuid(uid) == -1)
