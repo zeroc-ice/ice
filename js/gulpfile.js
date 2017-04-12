@@ -57,13 +57,13 @@ function slice2js(options) {
     var opts = options || {};
     if(!useBinDist && process.platform == "win32" && !opts.exe)
     {
-        if(!platform || (platform != "Win32" && platform != "x64"))
+        if(!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64"))
         {
             console.log("Error: CPP_PLATFORM environment variable must be set to `Win32' or `x64', in order to locate slice2js.exe");
             process.exit(1);
         }
 
-        if(!configuration || (configuration != "Debug" && configuration != "Release"))
+        if(!configuration || (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release"))
         {
             console.log("Error: CPP_CONFIGURATION environment variable must be set to `Debug' or `Release', in order to locate slice2js.exe");
             process.exit(1);
