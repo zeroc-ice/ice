@@ -756,7 +756,8 @@ StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& time
 bool
 StopCommand::isStopped(ServerI::InternalServerState state)
 {
-    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading;
+    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading ||
+        state >= ServerI::Destroying;
 }
 
 bool
