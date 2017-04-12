@@ -1021,21 +1021,25 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
                 if(!newUser.empty())
                 {
-                    errno = 0;
-                    struct passwd* pw = getpwnam(newUser.c_str());
-                    if(!pw)
+                    struct passwd pwbuf;
+                    vector<char> buffer(4096); // 4KB initial buffer
+                    struct passwd *pw;
+                    int err = getpwnam_r(newUser.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
+                    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
                     {
-                        if(errno)
-                        {
-                            SyscallException ex(__FILE__, __LINE__);
-                            ex.error = getSystemErrno();
-                            throw ex;
-                        }
-                        else
-                        {
-                            InitializationException ex(__FILE__, __LINE__, "Unknown user account `" + newUser + "'");
-                            throw ex;
-                        }
+                        buffer.resize(buffer.size() * 2);
+                    }
+                    if(err != 0)
+                    {
+                        Ice::SyscallException ex(__FILE__, __LINE__);
+                        ex.error = err;
+                        throw ex;
+                    }
+                    else if(pw == 0)
+                    {
+                        InitializationException ex(__FILE__, __LINE__);
+                        ex.reason ="unknown user account `" + newUser + "'";
+                        throw ex;
                     }
 
                     if(setgid(pw->pw_gid) == -1)

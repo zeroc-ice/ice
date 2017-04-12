@@ -2632,8 +2632,21 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         //
         // Get the uid/gid associated with the given user.
         //
-        struct passwd* pw = getpwnam(user.c_str());
-        if(!pw)
+        struct passwd pwbuf;
+        vector<char> buffer(4096); // 4KB initial buffer size
+        struct passwd *pw;
+        int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
+        while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+        {
+            buffer.resize(buffer.size() * 2);
+        }
+        if(err != 0)
+        {
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            throw ex;
+        }
+        else if(pw == 0)
         {
             throw "unknown user account `" + user + "'";
         }
