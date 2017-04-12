@@ -244,6 +244,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
   languages, it remains mapped to a string sequence containing the PEM encoded
   certificates.
 
+- Freeze has been moved to its own repository https://github.com/zeroc-ice/freeze
+  Freeze is no longer include with Ice binary or source distributions. 
+
 ## C++ Changes
 
 - Added a new C++11 mapping that takes advantage of C++11 language features. This
