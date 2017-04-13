@@ -118,6 +118,17 @@ start
 ;
 
 // ----------------------------------------------------------------------
+opt_semicolon
+// ----------------------------------------------------------------------
+: ';'
+{
+}
+|
+{
+}
+;
+
+// ----------------------------------------------------------------------
 global_meta_data
 // ----------------------------------------------------------------------
 : ICE_GLOBAL_METADATA_OPEN string_list ICE_GLOBAL_METADATA_CLOSE
@@ -160,16 +171,7 @@ definitions
         contained->setMetaData(metaData->v);
     }
 }
-';' definitions
-| error ';'
-{
-    yyerrok;
-}
 definitions
-| meta_data definition
-{
-    unit->error("`;' missing after definition");
-}
 |
 {
 }
@@ -182,53 +184,98 @@ definition
 {
     assert($1 == 0 || ModulePtr::dynamicCast($1));
 }
+opt_semicolon
 | class_decl
 {
     assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
+}
+';'
+| class_decl
+{
+    unit->error("`;' missing after class forward declaration");
 }
 | class_def
 {
     assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
+opt_semicolon
 | interface_decl
 {
     assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
+}
+';'
+| interface_decl
+{
+    unit->error("`;' missing after interface forward declaration");
 }
 | interface_def
 {
     assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
+opt_semicolon
 | exception_decl
 {
     assert($1 == 0);
+}
+';'
+| exception_decl
+{
+    unit->error("`;' missing after exception forward declaration");
 }
 | exception_def
 {
     assert($1 == 0 || ExceptionPtr::dynamicCast($1));
 }
+opt_semicolon
 | struct_decl
 {
     assert($1 == 0);
+}
+';'
+| struct_decl
+{
+    unit->error("`;' missing after struct forward declaration");
 }
 | struct_def
 {
     assert($1 == 0 || StructPtr::dynamicCast($1));
 }
+opt_semicolon
 | sequence_def
 {
     assert($1 == 0 || SequencePtr::dynamicCast($1));
+}
+';'
+| sequence_def
+{
+    unit->error("`;' missing after sequence definition");
 }
 | dictionary_def
 {
     assert($1 == 0 || DictionaryPtr::dynamicCast($1));
 }
+';'
+| dictionary_def
+{
+    unit->error("`;' missing after dictionary definition");
+}
 | enum_def
 {
     assert($1 == 0 || EnumPtr::dynamicCast($1));
 }
+opt_semicolon
 | const_def
 {
     assert($1 == 0 || ConstPtr::dynamicCast($1));
+}
+';'
+| const_def
+{
+    unit->error("`;' missing after const definition");
+}
+| error ';'
+{
+    yyerrok;
 }
 ;
 

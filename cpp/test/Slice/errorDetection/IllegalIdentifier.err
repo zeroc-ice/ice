@@ -7,4 +7,3 @@ IllegalIdentifier.ice:22: illegal input character: '\222'
 IllegalIdentifier.ice:24: illegal input character: '\305'
 IllegalIdentifier.ice:24: illegal input character: '\223'
 IllegalIdentifier.ice:25: syntax error
-IllegalIdentifier.ice:26: syntax error

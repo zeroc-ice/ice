@@ -25,6 +25,27 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
+- Semicolons are now optional after braces in Slice definitions. For example
+  ```
+  module M
+  {
+      interface Intf
+      { 
+          void op();
+      }
+  }
+  ```
+  is equivalent to
+  ```
+  module M
+  {
+      interface Intf
+      { 
+          void op();  
+      };
+  }; 
+  ```
+
 - Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
   published endpoints programmatically.
 
