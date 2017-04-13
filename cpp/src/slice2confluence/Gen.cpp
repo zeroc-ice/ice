@@ -1017,7 +1017,8 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
         "string",
         "Object",
         "Object*",
-        "LocalObject"
+        "LocalObject",
+        "Value"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
@@ -1234,7 +1235,6 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             static const string atLink = "{@link";
             string::size_type pos = s.find(atLink, i);
 
-            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             if(pos != i)
             {
                 comment += '{';
@@ -1248,6 +1248,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             }
             string literal = s.substr(pos + atLink.size(), endpos - pos - atLink.size());
             size_t sz = 0;
+            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             comment += toString(toSliceID(literal, contained->file()), container, false, forIndex, summary ? &sz : 0);
             comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_END;
             summarySize += sz;

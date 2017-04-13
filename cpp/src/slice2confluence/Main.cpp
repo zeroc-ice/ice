@@ -273,7 +273,7 @@ compile(const vector<string>& argv)
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
-        FILE* cppHandle = icecpp->preprocess(true);
+        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2CONFLUENCE__");
 
         if(cppHandle == 0)
         {

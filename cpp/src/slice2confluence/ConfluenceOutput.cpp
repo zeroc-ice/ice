@@ -805,7 +805,7 @@ Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
         }
         else
         {
-            consoleErr << "getEscaperLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:"
+            consoleErr << "getMarkerLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:"
                        << endl << str.substr(start) << endl;
             break;
         }
