@@ -16,7 +16,7 @@ version 4.3.6 or greater to build Ice.
 
 ### Preparing to Build
 
-The build system requires the slice2php translator from Ice for C++. If you have not
+The build system requires the slice2php compiler from Ice for C++. If you have not
 built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md)
 
 ## Building the PHP Extension

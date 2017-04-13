@@ -15,11 +15,11 @@ platforms][2]. Due to the portability of Java, it is very likely that it will
 also work on other platforms for which a suitable Java implementation is
 available.
 
-### Slice to Java Translator
+### Slice to Java Compiler
 
-You will need the Slice to Java translator. ZeroC provides translator binaries
+You will need the Slice to Java compiler. ZeroC provides compiler binaries
 for our supported platforms. For other platforms, you will have to either port
-Ice for C++ (which contains the Slice to Java translator), or you will have to
+Ice for C++ (which contains the Slice to Java compiler), or you will have to
 translate your Slice files to Java on a supported platform and then copy the
 generated Java files to your target platform.
 
@@ -96,7 +96,7 @@ The Maven package id for the application bundler package is as follows:
 
 ### Preparing to Build
 
-The build system requires the Slice translators from Ice for C++. If you have
+The build system requires the Slice compilers from Ice for C++. If you have
 not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
 environment variable with the path name of your Ice installation. For example,
 on Unix:

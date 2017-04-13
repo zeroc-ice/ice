@@ -31,16 +31,16 @@ suite, edit `gradle.properties` and change the following variables:
     ice_minSdkVersion
     ice_targetSdkVersion
 
-### Slice to Java Translator
+### Slice to Java Compiler
 
-To build this project you'll need the Slice to Java translator, which generates
-Java code from Slice definitions. The translator is written in C++. If you have
+To build this project you'll need the Slice to Java compiler, which generates
+Java code from Slice definitions. The compiler is written in C++. If you have
 a suitable C++ development environment, you can build [Ice for C++](../cpp)
-yourself. Otherwise, you can obtain the translator by installing a
+yourself. Otherwise, you can obtain the compiler by installing a
 [binary distribution][1].
 
 The project's Gradle-based build system will automatically search for the
-translator in this repository and in the default installation directories used
+compiler in this repository and in the default installation directories used
 by the binary distributions for our supported platforms.
 
 ### Bzip2 Compression
