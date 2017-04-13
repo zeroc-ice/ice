@@ -127,9 +127,9 @@ class IceLoggerTestCase(ClientTestCase):
     def clean(self):
         for f in glob.glob("client5-*.log"):
             os.remove(f)
-        if os.path.exists("log/client5-4.log"):
-            os.remove("log/client5-4.log")
+        if os.path.exists("log"):
+            for f in glob.glob("log/client5-*.log"):
+                os.remove(f)
             os.rmdir("log")
-
 
 TestSuite(__name__, [ IceLoggerTestCase() ], chdir=True)
