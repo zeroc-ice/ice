@@ -49,12 +49,17 @@ configurations.
 
         > MSbuild msbuild\ice.proj /p:Configuration=NTS-Release
 
-the extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
+The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
 and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
+
+The extension is by default built with namespaces enabled it is possible to build the PHP
+extension with namespaces disabled by setting the Msbuild `PhpUseNamespaces` property to `no`
+
+        > MSbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
 It is also possible to build the test suite using the binary Ice distribution, use:
 
-    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\3.7b0"
+    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7b0"
 
 ## Installing the PHP Extension
 

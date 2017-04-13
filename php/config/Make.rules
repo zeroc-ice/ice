@@ -12,6 +12,13 @@
 #
 PHP_CONFIG      ?= php-config
 
+#
+# The extension is by default built with namespaces enabled 
+# it is possible to build the PHP extension with namespaces 
+# disabled by setting `USE_NAMESPACES` property to `no`
+#
+USE_NAMESPACES  ?= yes
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
