@@ -17,7 +17,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", ICE_COMPANY_NAME
-            VALUE "FileDescription", "Slice to C# Translator\0"
+            VALUE "FileDescription", "Slice to C# Compiler\0"
             VALUE "FileVersion", ICE_STRING_VERSION
             VALUE "InternalName", ICE_INTERNALNAME
             VALUE "LegalCopyright", ICE_COPYRIGHT
