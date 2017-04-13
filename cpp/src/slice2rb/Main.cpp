@@ -16,8 +16,11 @@ using namespace Slice;
 using namespace Slice::Ruby;
 using namespace IceUtilInternal;
 
-int
-main(int argc, char* argv[])
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
     try
