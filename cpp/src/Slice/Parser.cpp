@@ -1167,18 +1167,24 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 EnumeratorPtr
 Slice::Container::createEnumerator(const string& name)
 {
-    validateEnumerator(name);
-    EnumeratorPtr p = new Enumerator(this, name);
-    _contents.push_back(p);
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name);
+        _contents.push_back(p);
+    }
     return p;
 }
 
 EnumeratorPtr
 Slice::Container::createEnumerator(const string& name, int value)
 {
-    validateEnumerator(name);
-    EnumeratorPtr p = new Enumerator(this, name, value);
-    _contents.push_back(p);
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name, value);
+        _contents.push_back(p);
+    }
     return p;
 }
 
@@ -2986,7 +2992,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
     return true;
 }
 
-void
+EnumeratorPtr
 Slice::Container::validateEnumerator(const string& name)
 {
     checkIdentifier(name);
@@ -2994,6 +3000,15 @@ Slice::Container::validateEnumerator(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
+        EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
         if(matches.front()->name() == name)
         {
             _unit->error(string("redefinition of enumerator `") + name + "'");
@@ -3006,7 +3021,8 @@ Slice::Container::validateEnumerator(const string& name)
         }
     }
 
-    nameIsLegal(name, "enumerator"); // Don't return here -- we create the enumerator anyway.
+    nameIsLegal(name, "enumerator"); // Ignore return value.
+    return 0;
 }
 
 // ----------------------------------------------------------------------

@@ -495,7 +495,7 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
-    void validateEnumerator(const std::string&);
+    EnumeratorPtr validateEnumerator(const std::string&);
 
     ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
