@@ -274,7 +274,7 @@ These are the changes since Ice 3.6.0.
   time. Your application will need to link with the plug-in's dynamic library
   if it uses the register function.
 
-- C++ source builds in Windows now use third-party packages from Nuget
+- C++ source builds in Windows now use third-party packages from NuGet
   (https://www.nuget.org).
 
 - Windows C++ builds now install the required third-party dependencies to the

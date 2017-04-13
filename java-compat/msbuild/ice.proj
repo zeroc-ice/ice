@@ -17,7 +17,7 @@
 
   <Target Name="slice2java">
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
-             Targets="NugetRestore"
+             Targets="NuGetRestore"
              BuildInParallel="true"/>
 
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"

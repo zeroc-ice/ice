@@ -27,10 +27,10 @@ Ice has dependencies on a number of third-party libraries:
  - [mcpp][6] 2.7.2 (with patches)
 
 You do not need to build these packages yourself, as ZeroC supplies
-[Nuget][7] packages for all these third party dependencies.
+[NuGet][7] packages for all these third party dependencies.
 
-The Ice build system for Windows downloads and installs the Nuget command line
-executable and these Nuget packages when you build Ice for C++. The third-party
+The Ice build system for Windows downloads and installs the NuGet command line
+executable and these NuGet packages when you build Ice for C++. The third-party
 packages are installed in the ``ice/cpp/msbuild/packages`` folder.
 
 ## Building Ice for C++
@@ -83,7 +83,7 @@ If you want to authenticode sign the Ice binaries you must set SIGN_CERTIFICATE 
 SIGN_PASSWORD environment variables to the authenticode certificate path and the 
 certificate password respectivelly before build.
 
-It is also possible to build the test suite using the binary Nuget packages, use:
+It is also possible to build the test suite using the binary NuGet packages, use:
 
     MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
@@ -134,22 +134,22 @@ with the following command:
 
     MSbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
 
-It is also possible to build the test suite using the binary Nuget packages, use:
+It is also possible to build the test suite using the binary NuGet packages, use:
 
     MSbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 
-## Nuget packages
+## NuGet packages
 
-To create a Nuget package for the distribution use the following command:
+To create a NuGet package for the distribution use the following command:
 
-    MSbuild msbuild\ice.proj /t:NugetPack /p:BuildAllConfigurations=yes
+    MSbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
 This will create `zeroc.ice.v120\zeroc.ice.v120.nupkg` or `zeroc.ice.v140\zeroc.ice.v140.nupkg`
 depending of the compiler version you are using to build the package.
 
-To create UWP Nuget packages you must use the `UWPNugetPack` target instead:
+To create UWP NuGet packages you must use the `UWPNuGetPack` target instead:
 
-    MSbuild msbuild\ice.proj /t:UWPNugetPack /p:BuildAllConfigurations=yes
+    MSbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 
 This will create `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nupkg`,
 `zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nupkg` packages.

@@ -9,9 +9,9 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
-    <!-- Restore Nuget packages -->
-    <Target Name="NugetRestore" DependsOnTargets="GetNuget">
-        <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+    <!-- Restore NuGet packages -->
+    <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
     <ItemGroup>
@@ -24,7 +24,7 @@
         </DistProjects>
     </ItemGroup>
 
-    <Target Name="Build" DependsOnTargets="NugetRestore">
+    <Target Name="Build" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="@(DistProjects)"
                  BuildInParallel="false"
                  Properties="%(Properties)" />

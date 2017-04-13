@@ -24,9 +24,9 @@
     <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
   </PropertyGroup>
 
-  <Target Name="NugetRestore" DependsOnTargets="GetNuget">
-    <!-- Restore Nuget packages to build Ice for PHP distribution -->
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(UseBinDist)' != 'yes'"/>
+  <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+    <!-- Restore NuGet packages to build Ice for PHP distribution -->
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(UseBinDist)' != 'yes'"/>
   </Target>
 
   <ItemGroup>
@@ -39,14 +39,14 @@
   </ItemGroup>
 
   <Target Name="BuildCppDist">
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
              Targets="$(CppDistTargets)"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(CppConfiguration)" />
   </Target>
 
-  <Target Name="BuildDist" DependsOnTargets="NugetRestore;BuildCppDist" Condition="'$(UseBinDist)' != 'yes'">
+  <Target Name="BuildDist" DependsOnTargets="NuGetRestore;BuildCppDist" Condition="'$(UseBinDist)' != 'yes'">
     <MSBuild Projects="@(DistProjects)"
              BuildInParallel="true"
              Properties="%(Properties)" />
@@ -59,7 +59,7 @@
              Targets="Clean" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="BuildDist;NugetRestore">
+  <Target Name="Build" DependsOnTargets="BuildDist;NuGetRestore">
     <MSBuild Projects="@(TestProjects)"
              BuildInParallel="true"
              Properties="%(Properties)" />

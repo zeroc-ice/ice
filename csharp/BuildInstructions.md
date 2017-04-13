@@ -31,7 +31,7 @@ To build the Ice assemblies, services and tests, run
 
     MSBuild msbuild\ice.proj
 
-It is also possible to build the test suite using the binary Nuget packages, use:
+It is also possible to build the test suite using the binary NuGet packages, use:
 
     MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
@@ -65,11 +65,11 @@ configurations.
 
     MSBuild msbuild\ice.proj /p:Configuration=Release-Managed
 
-## Nuget packages
+## NuGet packages
 
-To create a Nuget package for the distribution use the following command:
+To create a NuGet package for the distribution use the following command:
 
-    MSbuild msbuild\ice.proj /t:NugetPack
+    MSbuild msbuild\ice.proj /t:NuGetPack
 
 This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 

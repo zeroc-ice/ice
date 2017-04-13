@@ -7,8 +7,8 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
-    <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
-      <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
+      <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
     </Target>
 
     <ItemGroup>
@@ -34,7 +34,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="TestNugetRestore;BuildDist">
+    <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
@@ -46,7 +46,7 @@
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
-    <Target Name="NugetPack" DependsOnTargets="BuildDist">
+    <Target Name="NuGetPack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net"/>
@@ -72,7 +72,7 @@
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props" />
 
-        <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="zeroc.ice.net"/>
     </Target>
 </Project>

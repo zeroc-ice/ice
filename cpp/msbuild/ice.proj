@@ -20,19 +20,19 @@
 
 
   <!--
-      Restore Nuget packages.
+      Restore NuGet packages.
   -->
-  <Target Name="NugetRestore" DependsOnTargets="GetNuget">
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
+  <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
   </Target>
 
-  <Target Name="TestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.openssl.test.sln"/>
+  <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.openssl.test.sln"/>
   </Target>
 
-  <Target Name="UWPTestNugetRestore" DependsOnTargets="GetNuget" Condition="'$(ICE_BIN_DIST)' == 'all'">
-    <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.testuwp.sln"/>
+  <Target Name="UWPTestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.testuwp.sln"/>
   </Target>
 
   <!--
@@ -201,7 +201,7 @@
   </Choose>
 
   <!-- Build distribution targets -->
-  <Target Name="BuildDist" DependsOnTargets="NugetRestore"
+  <Target Name="BuildDist" DependsOnTargets="NuGetRestore"
           Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(DistSolution)"
              BuildInParallel="true"
@@ -218,7 +218,7 @@
   </Target>
 
   <!-- Build test solution -->
-  <Target Name="Build" DependsOnTargets="TestNugetRestore;BuildDist">
+  <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist">
     <MSBuild Projects="@(TestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
@@ -241,7 +241,7 @@
   </Target>
 
   <!-- Create nuget packages -->
-  <Target Name="NugetPack"
+  <Target Name="NuGetPack"
           DependsOnTargets="BuildDist"
           Condition="$(BuildAllConfigurations) == 'yes'">
     <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
@@ -261,14 +261,14 @@
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
           DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+    <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
   </Target>
 
   <!-- UWP targets -->
 
   <!-- Build UWP distribution targetes -->
-  <Target Name="UWPBuildDist" DependsOnTargets="NugetRestore"
+  <Target Name="UWPBuildDist" DependsOnTargets="NuGetRestore"
           Condition="'$(ICE_BIN_DIST)' != 'all'">
     <!-- UWP dist soultions require the slice2cpp translator from dist solutions -->
     <MSBuild Projects="@(DistSolution)"
@@ -291,7 +291,7 @@
   </Target>
 
   <!-- Build UWP test solution -->
-  <Target Name="UWPBuild" DependsOnTargets="UWPTestNugetRestore;UWPBuildDist">
+  <Target Name="UWPBuild" DependsOnTargets="UWPTestNuGetRestore;UWPBuildDist">
     <MSBuild Projects="@(UWPTestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />
@@ -302,8 +302,8 @@
     <MSBuild Projects="@(UWPTestSolution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
   </Target>
 
-  <!-- Create UWP Nuget packages -->
-  <Target Name="UWPNugetPack"
+  <!-- Create UWP NuGet packages -->
+  <Target Name="UWPNuGetPack"
           DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(UWPCompiler)' == 'yes' ">
 
@@ -320,7 +320,7 @@
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
           DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x86.targets" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+    <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset).x86"/>
 
     <!-- x64 package -->
@@ -332,7 +332,7 @@
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
           DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x64.targets" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+    <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset).x64"/>
 
     <!-- noarch package -->
@@ -342,7 +342,7 @@
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).props"
           DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).props" />
-    <Exec Command="$(NugetExe) pack -NoPackageAnalysis -NonInteractive"
+    <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset)"/>
   </Target>
 
