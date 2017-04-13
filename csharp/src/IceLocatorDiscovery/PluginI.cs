@@ -565,7 +565,8 @@ namespace IceLocatorDiscovery
 
             _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
-            _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator)));
+            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+            _communicator.setDefaultLocator(_locatorPrx);
 
             Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
             _locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
@@ -579,7 +580,11 @@ namespace IceLocatorDiscovery
         {
             _replyAdapter.destroy();
             _locatorAdapter.destroy();
-            _communicator.setDefaultLocator(_defaultLocator);
+            // Restore original default locator proxy, if the user didn't change it in the meantime
+            if(_communicator.getDefaultLocator().Equals(_locatorPrx))
+            {
+                _communicator.setDefaultLocator(_defaultLocator);
+            }
         }
 
         List<Ice.LocatorPrx>
@@ -593,6 +598,7 @@ namespace IceLocatorDiscovery
         private Ice.ObjectAdapter _locatorAdapter;
         private Ice.ObjectAdapter _replyAdapter;
         private LocatorI _locator;
+        private Ice.LocatorPrx _locatorPrx;
         private Ice.LocatorPrx _defaultLocator;
     }
 }

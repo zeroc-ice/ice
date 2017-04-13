@@ -102,7 +102,8 @@ public class PluginI implements Ice.Plugin
         //
         Ice.ObjectPrx locator = _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
         _defaultLocator = _communicator.getDefaultLocator();
-        _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+        _locator = Ice.LocatorPrxHelper.uncheckedCast(locator);
+        _communicator.setDefaultLocator(_locator);
 
         _multicastAdapter.activate();
         _replyAdapter.activate();
@@ -116,12 +117,17 @@ public class PluginI implements Ice.Plugin
         _multicastAdapter.destroy();
         _replyAdapter.destroy();
         _locatorAdapter.destroy();
-        _communicator.setDefaultLocator(_defaultLocator);
+        // Restore original default locator proxy, if the user didn't change it in the meantime
+        if(_communicator.getDefaultLocator().equals(_locator))
+        {
+            _communicator.setDefaultLocator(_defaultLocator);
+        }
     }
 
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _multicastAdapter;
     private Ice.ObjectAdapter _replyAdapter;
     private Ice.ObjectAdapter _locatorAdapter;
+    private Ice.LocatorPrx _locator;
     private Ice.LocatorPrx _defaultLocator;
 }

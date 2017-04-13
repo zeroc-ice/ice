@@ -32,6 +32,7 @@ private:
     Ice::ObjectAdapterPtr _replyAdapter;
     Ice::ObjectAdapterPtr _locatorAdapter;
     LookupIPtr _lookup;
+    Ice::LocatorPrxPtr _locator;
     Ice::LocatorPrxPtr _defaultLocator;
 };
 

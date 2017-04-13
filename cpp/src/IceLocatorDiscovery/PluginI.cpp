@@ -225,6 +225,7 @@ private:
     Ice::ObjectAdapterPtr _locatorAdapter;
     Ice::ObjectAdapterPtr _replyAdapter;
     LocatorIPtr _locator;
+    Ice::LocatorPrxPtr _locatorPrx;
     Ice::LocatorPrxPtr _defaultLocator;
 };
 
@@ -334,7 +335,8 @@ PluginI::initialize()
     _locator = ICE_MAKE_SHARED(LocatorI, _name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
                                voidLocator);
     _defaultLocator = _communicator->getDefaultLocator();
-    _communicator->setDefaultLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id)));
+    _locatorPrx = ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id));
+    _communicator->setDefaultLocator(_locatorPrx);
 
     Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _locator))->ice_datagram();
     _locator->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
@@ -354,7 +356,11 @@ PluginI::destroy()
 {
     _replyAdapter->destroy();
     _locatorAdapter->destroy();
-    _communicator->setDefaultLocator(_defaultLocator);
+    // Restore original default locator proxy, if the user didn't change it in the meantime
+    if(_communicator->getDefaultLocator() == _locatorPrx)
+    {
+        _communicator->setDefaultLocator(_defaultLocator);
+    }
 }
 
 void

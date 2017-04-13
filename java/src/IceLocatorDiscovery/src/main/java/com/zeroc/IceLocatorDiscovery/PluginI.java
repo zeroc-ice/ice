@@ -559,7 +559,8 @@ class PluginI implements Plugin
         id.category = !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
         _locator = new LocatorI(_name, LookupPrx.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
         _defaultLocator = _communicator.getDefaultLocator();
-        _communicator.setDefaultLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.addWithUUID(_locator)));
+        _locatorPrx = com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+        _communicator.setDefaultLocator(_locatorPrx);
 
         com.zeroc.Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
         _locator.setLookupReply(LookupReplyPrx.uncheckedCast(lookupReply));
@@ -573,7 +574,11 @@ class PluginI implements Plugin
     {
         _replyAdapter.destroy();
         _locatorAdapter.destroy();
-        _communicator.setDefaultLocator(_defaultLocator);
+        // Restore original default locator proxy, if the user didn't change it in the meantime
+        if(_communicator.getDefaultLocator().equals(_locatorPrx))
+        {
+            _communicator.setDefaultLocator(_defaultLocator);
+        }
     }
 
     public List<com.zeroc.Ice.LocatorPrx>
@@ -587,5 +592,6 @@ class PluginI implements Plugin
     private com.zeroc.Ice.ObjectAdapter _locatorAdapter;
     private com.zeroc.Ice.ObjectAdapter _replyAdapter;
     private LocatorI _locator;
+    private com.zeroc.Ice.LocatorPrx _locatorPrx;
     private com.zeroc.Ice.LocatorPrx _defaultLocator;
 }
