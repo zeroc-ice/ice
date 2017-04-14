@@ -22,16 +22,16 @@ built Ice for C++ in this source distribution, refer to the
 
 ## Building the PHP Extension
 
-Open a command prompt. For example, when using Visual Studio 2015, you have
-several alternatives:
+Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
+can open one of:
 
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first configuration produces 32-bit binaries, while the second
-configuration produces 64-bit binaries.
+Using the first Command Prompt produces `Win32` binaries by default, while 
+the second Command Promt produces `x64` binaries by default.
 
-In the command window, change to the `php` subdirectory:
+In the Command Prompt, change to the `php` subdirectory:
 
     cd php
 
@@ -39,19 +39,18 @@ Now you're ready to build Ice for PHP:
 
     msbuild msbuild\ice.proj
 
-This will build the extension in `Release` configuration and using the command
-prompt default platform. For the `x64` platform the extension will be placed in
-`lib\x64\Release\php_ice.dll` and for the `Win32` platform the extension will be
-placed in `lib\Win32\Release\php_ice.dll`.
+This builds the extension with `Release` binaries for the default platform.
+The extension will be placed in `lib\x64\Release\php_ice.dll` for the `x64` platform
+and `lib\Win32\Release\php_ice.dll` for the `Win32` platform.
 
 The default configuration builds the extension against the thread-safe PHP run time.
-You can build with the non-thread-safe run time using the `NTS-Release` and `NTS-Debug` 
-configurations:
+You can build with the non-thread-safe run time using the `NTS-Release` or `NTS-Debug` 
+configuration:
 
     msbuild msbuild\ice.proj /p:Configuration=NTS-Release
 
 The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for
-`x64` builds and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
+the `x64` platform and `lib\Win32\Release\php_ice_nts.dll` for the `Win32` platform.
 
 The extension is built by default with namespaces enabled. You can build the PHP
 extension with namespaces disabled by setting the MSBuild property `PhpUseNamespaces`
@@ -59,7 +58,7 @@ to `no`:
 
     msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
-It is also possible to build the test suite using the binary Ice distribution:
+It is also possible to build the test suite against a binary Ice distribution:
 
     msbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7b0"
 

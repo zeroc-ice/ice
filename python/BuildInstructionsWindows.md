@@ -29,62 +29,56 @@ Python web site. The Python 3.6.x binary distribution is compiled with Visual
 C++ 14, while Python 2.7.x is compiled with Visual C++ 10. You should compile the
 Ice extension with the same Visual C++ version as your Python binary distribution.
 
-Open a command prompt. For example, when using Visual Studio 2015, you have
-several alternatives:
+Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
+can open one of:
 
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first configuration produces 32-bit binaries, while the second
-configuration produces 64-bit binaries.
+Using the first Command Prompt produces `Win32` binaries by default, while 
+the second Command Promt produces `x64` binaries by default.
 
-Change to the Ice for Python source subdirectory:
+In the Command Prompt, change to the `python` subdirectory:
 
     > cd python
 
-You must built Ice for C++ from the `cpp` subdirectory. If you have not done so,
+You must build Ice for C++ from the `cpp` subdirectory. If you have not done so,
 refer to the [C++ build instructions](../cpp/BuildInstructionsWindows.md).
 
 Build the extension:
 
     > msbuild msbuild\ice.proj
 
-This will build the extension in `Release` configuration using the command
-prompt's default platform. For the `x64` platform, the extension will be placed in
-`python\x64\Release\IcePy.pyd`, and for the `Win32` platform the extension will be
-placed in `python\Win32\Release\IcePy.pyd`.
+This builds the extension with `Release` binaries for the default platform.
+The extension will be placed in `python\x64\Release\IcePy.pyd` for the `x64` platform
+and `python\Win32\Release\IcePy.pyd` for the `Win32` platform.
 
 If you want to build a debug version of the extension, you can do so by setting
 the MSBuild `Configuration` property to `Debug`:
 
     > msbuild msbuild\ice.proj /p:Configuration=Debug
 
-The debug version of the extension for the `x64` platform will be placed in
-`python\x64\Debug\IcePy_d.pyd` and for the `Win32` platform it will be placed in
-`python\Win32\Debug\IcePy_d.pyd`.
+The debug version of the extension will be placed in `python\x64\Debug\IcePy_d.pyd`
+for the `x64` platform and `python\Win32\Debug\IcePy_d.pyd` for the `Win32` platform.
 
 > *For Debug builds a debug version of the Python interpreter must be installed.*
 
-The supported values for the `Configuration` property are `Debug` and `Release`.
-
-If you want to build the extension for a different platform than the command prompt's
+If you want to build the extension for a different platform than the Command Prompt's
 default platform, you need to set the MSBuild property `Platform`. The supported
 values for this property are `Win32` and `x64`.
 
-The following command will build the `x64` platform binaries with the
-`Release` configuration:
+The following command builds the `x64` platform binaries with the `Release` configuration:
 
   > msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64
 
-This command will build the `Win32` platform binaries with the
-`Release` configuration:
+This command builds the `Win32` platform binaries with the `Release` configuration:
 
   > msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=Win32
 
 > *When using the MSBuild Platform property, the build platform doesn't depend on
 the command prompt's default platform.*
 
-The build will use a default location for Python defined in
+The build will use the default location for Python defined in
 `python\msbuild\ice.props`. You can override it by setting the `PythonHome`
 MSBuild property. For example, the following command will use Python installation
 from `C:\Python36-AMD64` instead of the default location:
