@@ -137,7 +137,7 @@ After a successful source build, you can run the tests as follows:
 
 For the C++11 mapping you need to use the `Cpp11-Debug` or `Cpp11-Release` configuration:
 
-    $ python allTests.py --config Cpp11-Debug
+    python allTests.py --config Cpp11-Debug
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
