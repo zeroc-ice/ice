@@ -11,24 +11,25 @@ supported platforms.
 Ice for PHP was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][8], you must install
+The build requires the [Ice Builder for Visual Studio][8]. You must install
 version 4.3.6 or greater to build Ice.
 
 ### Preparing to Build
 
 The build system requires the slice2php compiler from Ice for C++. If you have not
-built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md)
+built Ice for C++ in this source distribution, refer to the
+[C++ build instructions](../cpp/BuildInstructionsWindows.md).
 
 ## Building the PHP Extension
 
-Open a command prompt for example, when using Visual Studio 2015, you have
+Open a command prompt. For example, when using Visual Studio 2015, you have
 several alternatives:
 
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first configurations produces 32-bit binaries, while the second
-configurations produce 64-bit binaries.
+Using the first configuration produces 32-bit binaries, while the second
+configuration produces 64-bit binaries.
 
 In the command window, change to the `php` subdirectory:
 
@@ -36,30 +37,31 @@ In the command window, change to the `php` subdirectory:
 
 Now you're ready to build Ice for PHP:
 
-    Msbuild msbuild\ice.proj
+    msbuild msbuild\ice.proj
 
 This will build the extension in `Release` configuration and using the command
-prompt default platform, for `x64` platform the extension will be placed in
-`lib\x64\Release\php_ice.dll` and for `Win32` platform the extension will be
+prompt default platform. For the `x64` platform the extension will be placed in
+`lib\x64\Release\php_ice.dll` and for the `Win32` platform the extension will be
 placed in `lib\Win32\Release\php_ice.dll`.
 
-The default configuration builds the extension agains the Thread Safe PHP runtime,
-you can build with the Non Thread Safe using the `NTS-Release` and `NTS-Debug` 
-configurations.
+The default configuration builds the extension against the thread-safe PHP run time.
+You can build with the non-thread-safe run time using the `NTS-Release` and `NTS-Debug` 
+configurations:
 
-        > MSbuild msbuild\ice.proj /p:Configuration=NTS-Release
+    msbuild msbuild\ice.proj /p:Configuration=NTS-Release
 
-The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for x64 builds 
-and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
+The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for
+`x64` builds and `lib\Win32\Release\php_ice_nts.dll` for `Win32` builds.
 
-The extension is by default built with namespaces enabled it is possible to build the PHP
-extension with namespaces disabled by setting the Msbuild `PhpUseNamespaces` property to `no`
+The extension is built by default with namespaces enabled. You can build the PHP
+extension with namespaces disabled by setting the MSBuild property `PhpUseNamespaces`
+to `no`:
 
-        > MSbuild msbuild\ice.proj /p:PhpUseNamespaces=no
+    msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
-It is also possible to build the test suite using the binary Ice distribution, use:
+It is also possible to build the test suite using the binary Ice distribution:
 
-    MSbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7b0"
+    msbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7b0"
 
 ## Installing the PHP Extension
 
@@ -94,14 +96,14 @@ PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. On Windows, these DLLs are required:
 
     bzip2.dll
-    ice37a3.dll
+    ice37b0.dll
     icediscovery37b0.dll
     icelocatordiscovery37b0.dll
     icessl37b0.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For
-ISS configured to run PHP as FastCGI the simple is to copy the libraries next to
-the php-cgi.exe in C:\Program Files\iis express\PHP\v7.0
+IIS configured to run PHP as FastCGI, the simplest solution is to copy the
+libraries next to the php-cgi.exe in C:\Program Files\iis express\PHP\v7.0.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a
@@ -138,7 +140,7 @@ the following directive:
 The test subdirectory contains PHP implementations of the core Ice test suite.
 Python is required to run the test suite.
 
-The test suites require that the Ice for C++ tests be built in the `cpp`
+The test suites also require that the Ice for C++ tests be built in the `cpp`
 subdirectory of this source distribution. In addition, the scripts require
 that the CLI version of the PHP interpreter be available in your PATH.
 

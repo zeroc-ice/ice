@@ -53,13 +53,14 @@ that do not include them. You can install these packages as shown below:
 
 ## Building Ice
 
+From the top-level source directory, edit `config/Make.rules` to establish your
+build configuration. The comments in the file provide more information. Pay
+particular attention to the variables that define the locations of the third-party
+libraries.
+
 In a command window, change to the `cpp` subdirectory:
 
     $ cd cpp
-
-Edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information. Pay particular attention to the variables
-that define the locations of the third-party libraries.
 
 Now you're ready to build Ice:
 
@@ -81,11 +82,11 @@ To build all the supported configurations and platforms:
 
 ### C++11 mapping
 
-The C++ source tree supports two different language mappings (C++98 and C++11),
-the default build uses the C++98 mapping. The C++11 mapping is a new mapping
-that uses the new language features.
+The C++ source tree supports two different language mappings (C++98 and C++11).
+The default build uses the C++98 mapping. The C++11 mapping is a new mapping
+that uses new language features.
 
-To build the new C++11 mapping, use build configurations which are prefixed with
+To build the C++11 mapping, use build configurations that are prefixed with
 `cpp11`, for example:
 
     make CONFIGS=cpp11-shared
@@ -93,12 +94,12 @@ To build the new C++11 mapping, use build configurations which are prefixed with
 ## Installing a C++ Source Build
 
 Simply run `make install`. This will install Ice in the directory specified by
-the `<prefix>` variable in `config/Make.rules`.
+the `<prefix>` variable in `../config/Make.rules`.
 
 After installation, make sure that the `<prefix>/bin` directory is in your `PATH`.
 
 If you choose to not embed a `runpath` into executables at build time (see your
-build settings in `config/Make.rules`) or did not create a symbolic link from
+build settings in `../config/Make.rules`) or did not create a symbolic link from
 the `runpath` directory to the installation directory, you also need to add the
 library directory to your `LD_LIBRARY_PATH`.
 
@@ -116,8 +117,8 @@ When compiling Ice programs, you must pass the location of the `<prefix>/include
 directory to the compiler with the `-I` option, and the location of the library
 directory with the `-L` option. 
 
-If building a C++11 program, you must define `ICE_CPP11_MAPPING` macro during
-compilation with the `-D` option (`g++ -DICE_CPP11_MAPING`) and add
+If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro during
+compilation with the `-D` option (`g++ -DICE_CPP11_MAPPING`) and add
 the `++11` suffix to the library name when linking (such as `-lIce++11`).
 
 ## Running the Test Suite
@@ -135,7 +136,7 @@ This command is equivalent to:
 
     $ python allTests.py
     
-For C++11 mapping it also include the`--c++11` argument:
+For the C++11 mapping it also includes the `--c++11` argument:
 
     $ python allTests.py --c++11
 

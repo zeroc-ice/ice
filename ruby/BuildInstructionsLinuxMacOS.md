@@ -1,4 +1,4 @@
-# Building Ice for Ruby on Linux
+# Building Ice for Ruby on Linux and macOS
 
 This file describes how to build and install Ice for Ruby from source code on
 Linux and macOS. If you prefer, you can also download [binary distributions][1]
@@ -33,11 +33,11 @@ environment variable to the installation directory. For example:
 
     $ export RUBY_HOME=/opt/ruby
 
-The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+The build of Ice for Python requires that you first build Ice for C++ in the `cpp`
 subdirectory.
 
-Edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information.
+From the top-level source directory, edit `config/Make.rules` to establish your
+build configuration. The comments in the file provide more information.
 
 Change to the Ice for Ruby source subdirectory:
 
@@ -51,7 +51,7 @@ You can perform an automated installation with the following command:
 
     $ make install
 
-This process uses the `prefix` variable in `config/Make.rules` as the
+This process uses the `prefix` variable in `../config/Make.rules` as the
 installation's root directory. The subdirectory `<prefix>/ruby` is created as a
 copy of the local `ruby` directory and contains the Ice for Ruby extension
 library as well as Ruby source code. Using this installation method requires

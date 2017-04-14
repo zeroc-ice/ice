@@ -13,22 +13,22 @@ versions listed for our [supported platforms][2].
 
 ## Building the PHP Extension
 
-The build of Ice for PHP requires to first build Ice for C++ in the `cpp`
+The build of Ice for PHP requires that you first build Ice for C++ in the `cpp`
 subdirectory.
 
-Edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information.
+From the top-level source directory, edit `config/Make.rules` to establish
+your build configuration. The comments in the file provide more information.
 
 Our source code only supports building Ice for PHP as a dynamic PHP extension;
 the product of the build is a shared library that you must configure PHP to
 load.
 
-First, change to the `php` source subdirectory:
+Change to the `php` source subdirectory:
 
     $ cd php
 
 Ensure that `php` and `php-config` for the version of PHP you wish to
-build against are first in your path.
+build against are first in your PATH.
 
 Run `make` to build the extension.
 
@@ -83,8 +83,9 @@ PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. These libraries are named as follows:
 
     libIce
-    libIceUtil
-    libSlice
+    libIceDiscovery
+    libIceLocatorDiscovery
+    libIceSSL
     libbz2
 
 In general, these libraries must reside in a directory of the user's PATH. For

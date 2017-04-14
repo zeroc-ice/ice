@@ -25,7 +25,7 @@ generated Java files to your target platform.
 
 ### Java Version
 
-Ice for Java requires J2SE 1.7.0 or later.
+Ice for Java requires J2SE 1.8.0 or later.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
@@ -34,9 +34,7 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
 version 2.4 in the distribution. You cannot build the Ice for Java source
 distribution without an Internet connection. Gradle will download all required
-packages automatically. These packages are listed below. Gradle will
-automatically download any necessary build artifacts from ZeroC's Maven
-repository located at
+packages automatically from ZeroC's Maven repository located at
 
     http://repo.zeroc.com/nexus/content/repositories/thirdparty
 
@@ -61,7 +59,7 @@ therefore add significant latency to Ice requests.*
 
 ### Preparing to Build
 
-The build system  requires the Slice compilers from Ice for C++. If you have
+The build system requires the Slice to Java compiler from Ice for C++. If you have
 not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
 environment variable with the path name of your Ice installation. For example,
 on Unix:
@@ -74,11 +72,14 @@ On Windows:
     > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.7b0 (MSI installation)
 
 On Windows if you are using Ice for C++ from a source distribution, you must
-set `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
-platform and configuration used in your C++ builds:
+set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
+platform and configuration used in your C++ build:
 
     > set CPP_PLATFORM=x64
     > set CPP_CONFIGURATION=Debug
+
+The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
+values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
 Before building Ice for Java, review the settings in the file
 `gradle.properties` and edit as necessary.
@@ -100,23 +101,24 @@ these commands:
 ## Installing Ice for Java
 
 To install Ice for Java in the directory specified by the `prefix` variable in
-`gradle.properties` run the following command
+`gradle.properties` run the following command:
 
     > gradlew install
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-    glacier2-3.7b0.jar
-    ice-3.7b0.jar
-    icebox-3.7b0.jar
-    icediscovery-3.7b0.jar
-    icegrid-3.7b0jar
+    glacier2-compat-3.7.0-beta0.jar
+    ice-compat-3.7.0-beta0.jar
+    icebox-compat-3.7.0-beta0.jar
+    icebt-compat-3.7.0-beta0.jar
+    icediscovery-compat-3.7.0-beta0.jar
+    icegrid-compat-3.7.0-beta0jar
     icegridgui.jar
-    icelocatordiscovery-3.7b0.jar
-    icepatch2-3.7b0.jar
-    icestorm-3.7b0jar
+    icelocatordiscovery-compat-3.7.0-beta0.jar
+    icepatch2-compat-3.7.0-beta0.jar
+    icestorm-compat-3.7.0-beta0jar
 
-POM files are also installed for ease of deployment to a maven-based
+POM files are also installed for ease of deployment to a Maven-based
 distribution system.
 
 ## Running the Java Tests

@@ -23,8 +23,8 @@ compatible with the one used to build Ice for C++.
 The build of Ice for Python requires to first build Ice for C++ in the `cpp`
 subdirectory.
 
-Edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information.
+From the top-level source directory, edit `config/Make.rules` to establish your
+build configuration. The comments in the file provide more information.
 
 Change to the Ice for Python source subdirectory:
 

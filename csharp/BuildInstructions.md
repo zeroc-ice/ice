@@ -11,7 +11,7 @@ for the supported platforms.
 Ice for .NET was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][3], you must install
+The build requires the [Ice Builder for Visual Studio][3]. You must install
 version 4.3.6 or greater to build Ice.
 
 ## Compiling Ice for .NET with Visual Studio
@@ -19,7 +19,8 @@ version 4.3.6 or greater to build Ice.
 ### Preparing to Build
 
 The build system requires the `slice2cs` compiler from Ice for C++. If you have
-not built Ice for C++ in this source distribution, refer to [C++ build instructions](../cpp/BuildInstructionsWindows.md).
+not built Ice for C++ in this source distribution, refer to the
+[C++ build instructions](../cpp/BuildInstructionsWindows.md).
 
 ### Building Ice for .NET
 
@@ -29,13 +30,16 @@ Open a Visual Studio command prompt and change to the `csharp` subdirectory:
 
 To build the Ice assemblies, services and tests, run
 
-    MSBuild msbuild\ice.proj
-
-It is also possible to build the test suite using the binary NuGet packages, use:
-
-    MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+    msbuild msbuild\ice.proj
 
 Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
+
+If you want to run the test suite without building the entire source base, use this
+command:
+
+    msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+
+The build will automatically install ZeroC's official Ice binary NuGet packages if necessary.
 
 ## Running the .NET Tests
 
@@ -59,17 +63,17 @@ Ice invokes unmanaged code to implement the following features:
 - Protocol compression
 - Signal processing in the Ice.Application class
 
-if you do not require these features and prefer that the Ice run time use only 
-managed code, you can build using the `Debug-Managed` or `Release-Manage` 
-configurations.
+if you do not require these features and prefer that the Ice run time use only
+managed code, you can build using the `Debug-Managed` or `Release-Managed`
+configurations:
 
-    MSBuild msbuild\ice.proj /p:Configuration=Release-Managed
+    msbuild msbuild\ice.proj /p:Configuration=Release-Managed
 
 ## NuGet packages
 
-To create a NuGet package for the distribution use the following command:
+To create a NuGet package for the distribution, use the following command:
 
-    MSbuild msbuild\ice.proj /t:NuGetPack
+    msbuild msbuild\ice.proj /t:NuGetPack
 
 This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
