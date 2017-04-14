@@ -1900,7 +1900,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
-    runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-2"
+    runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-3"
     appPath = "ios/controller/build"
 
     def __init__(self, current):
