@@ -12,10 +12,10 @@ unnecessary.
 ### Operating Systems and Compilers
 
 Ice was extensively tested using the operating systems and compiler versions
-listed for our [supported platforms][2].
+listed on [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][8], you must install
-version 4.3.6 or greater to build Ice.
+The build requires the [Ice Builder for Visual Studio][8]; you need version 
+4.3.6 or greater to build Ice.
 
 ### Third-Party Libraries
 
@@ -23,7 +23,7 @@ Ice has dependencies on a number of third-party libraries:
 
  - [bzip][3] 1.0
  - [expat][4] 2.1
- - [LMDB][5] 0.9.16
+ - [LMDB][5] 0.9
  - [mcpp][6] 2.7.2 (with patches)
 
 You do not need to build these packages yourself, as ZeroC supplies
@@ -35,16 +35,16 @@ packages are installed in the ``ice/cpp/msbuild/packages`` folder.
 
 ## Building Ice for C++
 
-Open a command prompt for example, when using Visual Studio 2015, you have
-several alternatives:
+Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
+can open one of:
 
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first configurations produces 32-bit binaries, while the second
-configurations produce 64-bit binaries.
+Using the first Command Prompt produces `Win32` binaries by default, while 
+the second Command Promt produces `x64` binaries by default.
 
-In the command window, change to the `cpp` subdirectory:
+In the Command Prompt, change to the `cpp` subdirectory:
 
     cd cpp
 
@@ -52,107 +52,78 @@ Now you're ready to build Ice:
 
     Msbuild msbuild\ice.proj
 
-This will build the Ice for C++ developer kit and the Ice for C++ test suite.
+This builds the Ice for C++ SDK and the Ice for C++ test suite, with 
+Release binaries for the default platform.
 
-The build will create debug libraries and binaries for the default platform. If you
-want to build release libraries and binaries you can do so by setting the Msbuild
-`Configuration` property to `Release`:
+Set the Msbuild `Configuration` property to `Debug` to build debug binaries
+instead:
 
-     MSbuild msbuild\ice.proj /p:Configuration=Release
+     MSbuild msbuild\ice.proj /p:Configuration=Debug
 
-The supported values for the Configuration property are `Debug` and `Release`
+The `Configuration` property may be set to `Debug` or `Release`.
 
-If you wan to build libraries and binaries for a different platform you need to
-set the MSbuild `Platform` property, Ice for C++ supports `Win32` and `x64` platforms.
+Set the Msbuild `Platform` property to `Win32` or `x64` to build binaries
+for a specific platform, for example:
 
-For example to build release binaries and libraries for Windows `x64` platform use:
+    MSbuild msbuild\ice.proj /p:Configuration=Debug /p:Platform=x64
 
-    MSbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64
+You can also skip the build of the test suite with the `BuildDist` target:
 
-If you want to skip building the test suite you can use the `BuildDist` MSbuild
-target:
+    MSbuild msbuild\ice.proj /t:BuildDist /p:Platform=x64
 
-    MSbuild msbuild\ice.proj /t:BuildDist /p:Configuration=Release /p:Platform=x64
-
-It is also possible to build all supported platforms and configurations at once,
-with the following command:
+If you want to build all supported platforms and configurations at once, use:
 
     MSbuild msbuild\ice.proj /p:BuildAllConfigurations=yes
 
-If you want to authenticode sign the Ice binaries you must set SIGN_CERTIFICATE and
-SIGN_PASSWORD environment variables to the authenticode certificate path and the 
-certificate password respectivelly before build.
-
-It is also possible to build the test suite using the binary NuGet packages, use:
+You can also sign the Ice binaries with Authenticode, by setting the following
+environment variables:
+ - SIGN_CERTIFICATE to your Authenticode certificate
+ - SIGN_PASSWORD to the certificate password
+ 
+You can also build the test suite using the binary NuGet packages with:
 
     MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
 ## Building Ice for UWP
 
-Open a command prompt for example, when using Visual Studio 2015, you have
-several alternatives:
+The steps are the same as for Building Ice for C++ above, except you must also use a 
+`UWP` target.
 
-- VS2015 x86 Native Tools Command Prompt
-- VS2015 x64 Native Tools Command Prompt
-
-Using the first configurations produces 32-bit binaries, while the second
-configurations produce 64-bit binaries.
-
-In the command window, change to the `cpp` subdirectory:
-
-    cd cpp
-
-Now you're ready to build Ice:
-
+To build Ice for UWP:
+```
     Msbuild msbuild\ice.proj /t:UWPBuild
+```
 
-This will build the Ice for UWP developer kit and the Ice for UWP test suite.
+To skip the building of the test suite:
+```
+    MSbuild msbuild\ice.proj /t:UWPBuildDist
+```
 
-The build will create debug libraries and binaries for the default platform. If you
-want to build release libraries and binaries you can do so by setting the Msbuild
-`Configuration` property to `Release`:
-
-     MSbuild msbuild\ice.proj /t:UWPBuild /p:Configuration=Release
-
-The supported values for the Configuration property are `Debug` and `Release`
-
-If you wan to build libraries and binaries for a different platform you need to
-set the MSbuild `Platform` property, Ice for UWP supports `ARM`, `Win32` and `x64`
-platforms.
-
-For example to build release binaries and libraries for Windows `x64` platform use:
-
-    MSbuild msbuild\ice.proj /t:UWPBuild /p:Configuration=Release /p:Platform=x64
-
-If you want to skip building the test suite you can use the `UWPBuildDist` MSbuild
-target:
-
-    MSbuild msbuild\ice.proj /t:UWPBuildDist /p:Configuration=Release /p:Platform=x64
-
-It is also possible to build all supported platforms and configurations at once,
-with the following command:
-
+To build all configurations:
+```
     MSbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
+```
 
-It is also possible to build the test suite using the binary NuGet packages, use:
-
+To build the set test suite using the NuGet packages:
+```
     MSbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
+```
 
 ## NuGet packages
 
-To create a NuGet package for the distribution use the following command:
+You can create a NuGet package with the following command:
 
     MSbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
-This will create `zeroc.ice.v120\zeroc.ice.v120.nupkg` or `zeroc.ice.v140\zeroc.ice.v140.nupkg`
-depending of the compiler version you are using to build the package.
+This creates `zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`
+or `zeroc.ice.v141\zeroc.ice.v141.nupkg` depending of the compiler you are using.
 
-To create UWP NuGet packages you must use the `UWPNuGetPack` target instead:
+To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
 
     MSbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 
-This will create `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.arm\zeroc.ice.uwp.arm.nupkg`,
-`zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x96.nupkg` packages.
+This creates `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` 
+and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x86.nupkg`.
 
 ## Running the Test Suite
 
