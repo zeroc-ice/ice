@@ -72,9 +72,9 @@ def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 if (!prefix) {
     // If the prefix isn't set use these default locations.
     if (isWindows) {
-        prefix = "C:\\Ice-${project.version}"
+        prefix = "C:\\Ice-${prefixVersion}"
     } else {
-        prefix = "/opt/Ice-${project.version}"
+        prefix = "/opt/Ice-${prefixVersion}"
     }
 }
 
