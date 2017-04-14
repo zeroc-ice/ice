@@ -45,35 +45,41 @@ Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Promt produces `x64` binaries by default.
 
 In the Command Prompt, change to the `cpp` subdirectory:
-
+```
     cd cpp
+```
 
 Now you're ready to build Ice:
-
+```
     Msbuild msbuild\ice.proj
+```
 
 This builds the Ice for C++ SDK and the Ice for C++ test suite, with 
 Release binaries for the default platform.
 
 Set the Msbuild `Configuration` property to `Debug` to build debug binaries
 instead:
-
+```
      MSbuild msbuild\ice.proj /p:Configuration=Debug
+```
 
 The `Configuration` property may be set to `Debug` or `Release`.
 
 Set the Msbuild `Platform` property to `Win32` or `x64` to build binaries
 for a specific platform, for example:
-
+```
     MSbuild msbuild\ice.proj /p:Configuration=Debug /p:Platform=x64
+```
 
 You can also skip the build of the test suite with the `BuildDist` target:
-
+```
     MSbuild msbuild\ice.proj /t:BuildDist /p:Platform=x64
+```
 
 If you want to build all supported platforms and configurations at once, use:
-
+```
     MSbuild msbuild\ice.proj /p:BuildAllConfigurations=yes
+```
 
 You can also sign the Ice binaries with Authenticode, by setting the following
 environment variables:
@@ -81,8 +87,9 @@ environment variables:
  - SIGN_PASSWORD to the certificate password
  
 You can also build the test suite against the NuGet packages with:
-
+```
     MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+```
 
 ## Building Ice for UWP
 
@@ -112,15 +119,17 @@ To build the test suite against the NuGet packages:
 ## NuGet packages
 
 You can create a NuGet package with the following command:
-
+```
     MSbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
+```
 
 This creates `zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`
 or `zeroc.ice.v141\zeroc.ice.v141.nupkg` depending of the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
-
+```
     MSbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
+```
 
 This creates `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` 
 and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x86.nupkg`.
@@ -129,16 +138,19 @@ and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x86.nupkg`.
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
-
+```
     pip install passlib
+```
 
 After a successful source build, you can run the tests as follows:
-
+```
     python allTests.py
+```
 
 For C++11 mapping you need to use the `Cpp11-Debug` or `Cpp11-Release` configuration:
-
-    $ python allTests.py --config Cpp11-Debug
+```
+    python allTests.py --config Cpp11-Debug
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
@@ -146,8 +158,9 @@ failure, the tests abort with `failed`.
 ## Running the Universal Windows Platform Test Suite
 
 In Visual Studio 2015, open the solution file:
-
+```
     cpp\msbuild\ice.testuwp.sln
+```
 
 Now select the configuration that matches the settings that you used to build
 Ice for UWP.
@@ -168,8 +181,9 @@ tests for the desired language mapping.
 The test controller server is implemented in Java. Refer to the build
 instructions in java subdirectory for information on building the test
 controller. Use the following command to start the test controller:
-
-    > python scripts/TestController.py
+```
+    python scripts/TestController.py
+```
 
 In the "Ice Test Suite" Windows Store application, select the Server language
 mapping and Protocol you want to use.
