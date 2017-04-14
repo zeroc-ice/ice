@@ -16,3 +16,4 @@ $(project)_scheme  		= $(if $(filter cpp11-xcodesdk,$2),C++11 Test Controller,C+
 $(project)_configuration 	= $(if $(filter $(OPTIMIZE),yes),Release,Debug)
 
 projects += $(project)
+tests:: $(project)
