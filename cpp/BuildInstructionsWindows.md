@@ -80,7 +80,7 @@ environment variables:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
  
-You can also build the test suite using the binary NuGet packages with:
+You can also build the test suite against the NuGet packages with:
 
     MSbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
@@ -104,7 +104,7 @@ To build all configurations:
     MSbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
 ```
 
-To build the set test suite using the NuGet packages:
+To build the test suite against the NuGet packages:
 ```
     MSbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 ```
