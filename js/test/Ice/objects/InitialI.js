@@ -31,7 +31,7 @@
         {
             this.postUnmarshalInvoked = true;
         }
-    };
+    }
 
     class CI extends Test.C
     {
@@ -44,7 +44,7 @@
         {
             this.postUnmarshalInvoked = true;
         }
-    };
+    }
 
     class DI extends Test.D
     {
@@ -57,7 +57,7 @@
         {
             this.postUnmarshalInvoked = true;
         }
-    };
+    }
 
     class EI extends Test.E
     {
@@ -70,7 +70,7 @@
         {
             return this.i == 1 && this.s == "hello";
         }
-    };
+    }
 
     class FI extends Test.F
     {
@@ -83,11 +83,11 @@
         {
             return this.e1 !== null && this.e1 === this.e2;
         }
-    };
+    }
 
     class HI extends Test.H
     {
-    };
+    }
 
     class II extends Ice.InterfaceByValue
     {
@@ -95,7 +95,7 @@
         {
             super(Test.I.ice_staticId());
         }
-    };
+    }
 
     class JI extends Ice.InterfaceByValue
     {
@@ -103,7 +103,7 @@
         {
             super(Test.J.ice_staticId());
         }
-    };
+    }
 
     function MyValueFactory(type)
     {
@@ -182,7 +182,7 @@
             this._b2.preMarshalInvoked = false;
             this._c.preMarshalInvoked = false;
             this._d.preMarshalInvoked = false;
-            return [this._b1, this._b2, this._c, this._d]
+            return [this._b1, this._b2, this._c, this._d];
         }
 
         getB1(current)

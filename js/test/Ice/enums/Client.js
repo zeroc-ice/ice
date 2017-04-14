@@ -29,7 +29,7 @@
                     throw err;
                 }
             }
-        };
+        }
 
         let base, proxy;
         Ice.Promise.try(() =>
@@ -199,13 +199,13 @@
         ).then(p.resolve, p.reject);
         
         return p;
-    };
+    }
 
     function run(out, id)
     {
         var c = Ice.initialize(id);
         return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
-    };
+    }
     exports._test = run;
     exports._runServer = true;
 }

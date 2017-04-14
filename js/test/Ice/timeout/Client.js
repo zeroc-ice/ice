@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+/* global
+    isSafari : false,
+    isWorker : false
+*/
+
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;

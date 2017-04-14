@@ -381,7 +381,7 @@
                     );
                 }
             }
-        )
+        );
     };
 
     var run = function(out, id)

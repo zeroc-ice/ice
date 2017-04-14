@@ -28,7 +28,6 @@
             }
             catch(err)
             {
-                p.reject(err);
                 throw err;
             }
         }

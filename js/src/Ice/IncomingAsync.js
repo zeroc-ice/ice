@@ -522,7 +522,7 @@ class IncomingAsync
 
             Debug.assert(this._connection !== null);
 
-            if(exc != null)
+            if(exc !== null)
             {
                 this.handleException(exc, amd);
             }

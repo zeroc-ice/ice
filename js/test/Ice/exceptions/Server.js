@@ -36,7 +36,7 @@
                 var connection = echo.ice_getCachedConnection();
                 connection.setCloseCallback((con) => {
                     // Re-establish connection if it fails (necessary for MemoryLimitException test)
-                    echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter))
+                    echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter));
                 });
                 connection.setAdapter(adapter);
                 adapter.activate();

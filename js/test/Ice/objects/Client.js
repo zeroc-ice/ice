@@ -398,10 +398,10 @@
                 return loop(depth => {
                     p.v = new Test.Recursive();
                     p = p.v;
-                    if((depth < 10 && (depth % 10) == 0) ||
-                       (depth < 1000 && (depth % 100) == 0) ||
-                       (depth < 10000 && (depth % 1000) == 0) ||
-                       (depth % 10000) == 0)
+                    if((depth < 10 && (depth % 10) === 0) ||
+                       (depth < 1000 && (depth % 100) === 0) ||
+                       (depth < 10000 && (depth % 1000) === 0) ||
+                       (depth % 10000) === 0)
                     {
                         return initial.setRecursive(top);
                     }

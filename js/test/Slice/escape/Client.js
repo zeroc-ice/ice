@@ -83,7 +83,7 @@
                         test(p.goto === _await._var.base);
                         test(p._if instanceof Ice.Value);
                         test(p.internal instanceof Map);
-                        test(p._debugger == "");
+                        test(p._debugger === "");
                         test(p._null instanceof _await.explicitPrx);
                     });
             }

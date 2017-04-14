@@ -9,7 +9,10 @@
 
 /* global
     self : false,
-    runTest : false
+    runTest : false,
+    _server : false,
+    _serveramd : false,
+    _test : false
 */
 var process = { argv : [] };
 
@@ -38,8 +41,8 @@ self.onmessage = function(e)
         {
             constructor(out)
             {
-                super()
-                this._out = out
+                super();
+                this._out = out;
             }
 
             write(message, indent)
@@ -52,7 +55,7 @@ self.onmessage = function(e)
             }
         }
 
-        let promise
+        let promise;
         let initData = new Ice.InitializationData();
         initData.properties = Ice.createProperties(e.data.args);
         initData.logger = new Logger(out);

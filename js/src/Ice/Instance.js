@@ -359,11 +359,11 @@ class Instance
             const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
             if(toStringModeStr === "ASCII")
             {
-                _toStringMode = Ice.ToStringMode.ASCII;
+                this._toStringMode = Ice.ToStringMode.ASCII;
             }
             else if(toStringModeStr === "Compat")
             {
-                _toStringMode = Ice.ToStringMode.Compat;
+                this._toStringMode = Ice.ToStringMode.Compat;
             }
             else if(toStringModeStr !== "Unicode")
             {

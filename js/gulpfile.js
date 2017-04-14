@@ -31,7 +31,7 @@ var babel       = require("gulp-babel"),
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
 var iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
-var useBinDist = iceBinDist.find(function(variable) {return variable == "js" || variable == "all" }) !== undefined;
+var useBinDist = iceBinDist.find(function(v) { return v == "js" || v == "all"; }) !== undefined;
 
 function parseArg(argv, key)
 {
@@ -42,7 +42,7 @@ function parseArg(argv, key)
         {
             return argv[i + 1];
         }
-        else if(e.indexOf(key + "=") == 0)
+        else if(e.indexOf(key + "=") === 0)
         {
             return e.substr(key.length + 1);
         }
@@ -561,7 +561,7 @@ gulp.task("ice-module:clean", [],
     {
         return gulp.src(['node_modules/ice']).pipe(paths(del));
     });
-    cleanDepends.push("ice-module:clean")
+    cleanDepends.push("ice-module:clean");
 }
 
 gulp.task("lint", ["lint:js", "lint:html"]);

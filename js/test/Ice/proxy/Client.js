@@ -32,7 +32,7 @@
             }
         };
 
-        var ref, base, prx, cl, derived, cl10, cl20, cl13, port;
+        var ref, base, prx, cl, derived, cl10, cl20, cl13, port, b1, b2, str, str2;
 
         var defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
@@ -43,7 +43,7 @@
                 base = communicator.stringToProxy(ref);
                 test(base !== null);
 
-                var b1 = communicator.stringToProxy("test");
+                b1 = communicator.stringToProxy("test");
                 test(b1.ice_getIdentity().name === "test" && b1.ice_getIdentity().category.length === 0 &&
                     b1.ice_getAdapterId().length === 0 && b1.ice_getFacet().length === 0);
                 b1 = communicator.stringToProxy("test ");
@@ -407,7 +407,7 @@
                 test(id.equals(id2));
 
                 idStr = Ice.identityToString(id, Ice.ToStringMode.Compat);
-                test(idStr === "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$")
+                test(idStr === "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
                 id2 = Ice.stringToIdentity(idStr);
                 test(id.equals(id2));
 

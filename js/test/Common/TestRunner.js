@@ -11,7 +11,9 @@
  /* global
     _test : false,
     _runServer : false,
+    _server: false,
     Test : false,
+    WorkerGlobalScope: false
 */
 
 var process = { argv : [] };
@@ -131,7 +133,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 testcases = [ { name: "client/server" } ];
             }
 
-            run = function(testcase, client)
+            var run = function(testcase, client)
             {
                 if(testcase.langs && testcase.langs.indexOf(language) == -1)
                 {
@@ -146,7 +148,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 }
                 else
                 {
-                    runTestCase = function() { return controller.runTestCase("js", testsuite, testcase.name, language) };
+                    runTestCase = function() { return controller.runTestCase("js", testsuite, testcase.name, language); };
                 }
                 out.write("starting server side... ");
                 var serverTestCase;
@@ -154,7 +156,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 return runTestCase().then(
                     function(proxy)
                     {
-                        proxy = controller.ice_getCachedConnection().createProxy(proxy.ice_getIdentity())
+                        proxy = controller.ice_getCachedConnection().createProxy(proxy.ice_getIdentity());
                         serverTestCase = Test.Common.TestCasePrx.uncheckedCast(proxy);
                         var config = new Test.Common.Config();
                         config.protocol = protocol;
@@ -163,7 +165,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                 ).then(
                     function()
                     {
-                        out.writeLine("ok")
+                        out.writeLine("ok");
                         process.argv = testcase.args;
                         if(language === "js")
                         {
@@ -172,8 +174,8 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                             {
                                 initData.properties = Ice.createProperties(testcase.args, id.properties);
                             }
-                            ready = new Ice.Promise();
-                            server = _server(out, initData.clone(), ready)
+                            var ready = new Ice.Promise();
+                            server = _server(out, initData.clone(), ready);
                             return ready;
                         }
                     }
@@ -204,7 +206,7 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                     function(ex)
                     {
                         out.writeLine("failed! (" + ex + ")");
-                        throw ex
+                        throw ex;
                     }
                 ).finally(
                     function()
@@ -214,11 +216,11 @@ function runTest(testsuite, language, host, protocol, testcases, out)
                             return serverTestCase.destroy();
                         }
                     });
-            }
+            };
 
             var p = Ice.Promise.resolve();
             testcases.forEach(function(testcase) {
-                p = p.then(function() { return run(testcase, _test); })
+                p = p.then(function() { return run(testcase, _test); });
             });
             return p;
         }

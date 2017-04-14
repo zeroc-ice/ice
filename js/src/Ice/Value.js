@@ -172,8 +172,7 @@ function readPreserved(is)
     is.startValue();
     readImpl(this, is, this._iceMostDerivedType());
     this._iceSlicedData = is.endValue(true);
-};
-
+}
 
 const Slice = Ice.Slice;
 
@@ -188,17 +187,17 @@ Slice.defineValue = function(valueType, id, preserved, compactId = 0)
     valueType.prototype.ice_id = function()
     {
         return id;
-    }
+    };
 
     valueType.prototype._iceMostDerivedType = function()
     {
         return valueType;
-    }
+    };
 
     valueType.ice_staticId = function()
     {
         return id;
-    }
+    };
 
     if(preserved)
     {
@@ -210,7 +209,7 @@ Slice.defineValue = function(valueType, id, preserved, compactId = 0)
     {
         Ice.CompactIdRegistry.set(compactId, id);
     }
-}
+};
 Slice.defineValue(Ice.Value, "::Ice::Object");
 
 module.exports.Ice = Ice;

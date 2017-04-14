@@ -44,7 +44,7 @@ self.onmessage = function(e)
         self.importScripts("/test/Common/TestRunner.js");
         for(var i = 0; i < test.files.length; ++i)
         {
-            var f = test.files[i]
+            var f = test.files[i];
             if(f.indexOf("/") === -1)
             {
                 f = "/test/" + test.name + "/" + f;

@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+/* global
+    isSafari : false,
+    isWorker : false
+*/
+
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
@@ -186,7 +191,7 @@
             },
             function(ex)
             {
-                test(isConnectionFailed(ex))
+                test(isConnectionFailed(ex));
                 out.writeLine("ok");
                 return initialize();
             }
@@ -865,7 +870,7 @@
                     ).then(
                         function()
                         {
-                            var test3 = Test.TestIntfPrx.uncheckedCast(test1);
+                            let test3 = Test.TestIntfPrx.uncheckedCast(test1);
                             return Ice.Promise.all([test3.ice_getConnection(),
                                                     test1.ice_getConnection()]);
                         }
@@ -876,7 +881,7 @@
                         },
                         function(ex)
                         {
-                            test(isConnectionFailed(ex))
+                            test(isConnectionFailed(ex));
                         });
                 };
                 return f1();
@@ -1043,7 +1048,7 @@
                     },
                     function(ex)
                     {
-                        test(isConnectionFailed(ex))
+                        test(isConnectionFailed(ex));
                         return prx.ice_getEndpoints();
                     }
                 ).then(

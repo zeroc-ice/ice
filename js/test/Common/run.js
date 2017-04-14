@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-var es5 = process.argv[2] === "--es5"
+var es5 = process.argv[2] === "--es5";
 if(es5)
 {
-    process.argv.splice(2, 1)
+    process.argv.splice(2, 1);
 }
 
 var Ice = require(es5 ? "ice/src/es5" : "ice").Ice;
@@ -37,16 +37,16 @@ var exception = function(ex)
 
 var id = new Ice.InitializationData();
 id.properties = Ice.createProperties(process.argv);
-exe = process.argv[2]
-var test = module.require(exe)
+var exe = process.argv[2];
+var test = module.require(exe);
 if(exe === "Server" || exe === "ServerAMD")
 {
     var ready = new Ice.Promise();
     test = exe === "Server" ? test._server : test._serveramd;
-    test({write: write, writeLine: writeLine}, id, ready).catch(exception)
+    test({write: write, writeLine: writeLine}, id, ready).catch(exception);
     ready.then(() => console.log("server ready"));
 }
 else
 {
-    test._test({write: write, writeLine: writeLine}, id).catch(exception)
+    test._test({write: write, writeLine: writeLine}, id).catch(exception);
 }

@@ -7,6 +7,16 @@
 //
 // **********************************************************************
 
+ /* global
+    _test : false,
+    _runServer : false,
+    Test : false,
+    WorkerGlobalScope : false,
+    _server: false,
+    _serveramd: false,
+    URI: false
+*/
+
 var process = { argv : [] };
 
 function isSafari()
@@ -37,8 +47,8 @@ class Logger extends Ice.Logger
 {
     constructor(out)
     {
-        super()
-        this._out = out
+        super();
+        this._out = out;
     }
 
     write(message, indent)
@@ -85,7 +95,7 @@ class ProcessI extends Test.Common.Process
         current.adapter.remove(current.id);
         return this._output.get();
     }
-};
+}
 
 class ProcessControllerI extends Test.Common.ProcessController
 {
@@ -154,14 +164,14 @@ class ProcessControllerI extends Test.Common.ProcessController
                         worker.terminate();
                     }
                 };
-                worker.postMessage({ scripts:scripts, exe:exe, args:args })
+                worker.postMessage({ scripts:scripts, exe:exe, args:args });
             });
         }
         else
         {
             let initData = new Ice.InitializationData();
             initData.properties = Ice.createProperties(args);
-            process.argv = args
+            process.argv = args;
             if(exe === "Server" || exe === "ServerAMD")
             {
                 initData.logger = new Logger(this._serverOutput);
@@ -179,9 +189,9 @@ class ProcessControllerI extends Test.Common.ProcessController
 
     getHost(protocol, ipv6, current)
     {
-        return "127.0.0.1"
+        return "127.0.0.1";
     }
-};
+}
 
 function runController(clientOutput, serverOutput, scripts)
 {
@@ -202,7 +212,7 @@ function runController(clientOutput, serverOutput, scripts)
             },
             get: function()
             {
-                return output.val()
+                return output.val();
             },
             clear : function()
             {
@@ -224,19 +234,19 @@ function runController(clientOutput, serverOutput, scripts)
         return false;
     };
 
-    let uri = new URI(document.location.href)
+    let uri = new URI(document.location.href);
     let initData = new Ice.InitializationData();
     let protocol = uri.protocol() === "http" ? "ws" : "wss";
-    query = uri.search(true)
-    let port = "port" in query ? query["port"] : 15002;
-    let worker = "worker" in query ? query["worker"] === "True" : false;
+    let query = uri.search(true);
+    let port = query.port || 15002;
+    let worker = query.worker === "True" ? true : false;
     initData.logger = new Logger(out);
 
     let registerProcessController = function(adapter, registry, processController) {
         registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController)).then(
         () => {
             let connection = registry.ice_getCachedConnection();
-            connection.setAdapter(adapter)
+            connection.setAdapter(adapter);
             connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
             connection.setCloseCallback(connection => {
                 out.writeLine("connection with process controller registry closed");
@@ -249,7 +259,7 @@ function runController(clientOutput, serverOutput, scripts)
             }
             else
             {
-                out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString())
+                out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString());
             }
         });
     };

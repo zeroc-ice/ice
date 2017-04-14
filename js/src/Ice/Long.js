@@ -23,7 +23,7 @@ class Long
     // If two arguments are provided we asume these are the high and low words
     // respectively.
     // 
-    constructor(high = 0, low)
+    constructor(high = 0, low = undefined)
     {
         if(!Number.isSafeInteger(high))
         {
@@ -90,7 +90,7 @@ class Long
             {
                 return Number.NEGATIVE_INFINITY;
             }
-            return -((h * Long.HIGH_MASK) + l + 1)
+            return -((h * Long.HIGH_MASK) + l + 1);
         }
         else
         {

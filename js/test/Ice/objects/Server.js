@@ -19,7 +19,7 @@
         {
             return new Test.AlsoEmpty();
         }
-    };
+    }
 
     var run = function(out, id, ready)
     {

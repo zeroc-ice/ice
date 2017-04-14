@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+/* global
+    isSafari : false,
+    isWorker : false
+*/
+
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
@@ -21,6 +26,7 @@
             {
                 try
                 {
+                    console.log(new Error().stack);
                     throw new Error("test failed");
                 }
                 catch(err)
@@ -204,7 +210,7 @@
                     {
                         var r1 = p.op();
                         var r2 = null;
-                        var seq = new Uint8Array(100000);
+                        var seq = new Uint8Array();
 
                         while((r2 = p.opWithPayload(seq)).sentSynchronously());
                         test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
@@ -278,7 +284,7 @@
                 ).then(() => testController.holdAdapter()
                 ).then(() =>
                     {
-                        var seq = new Uint8Array(100000);
+                        var seq = new Uint8Array(new Array(100000));
                         while((r = p.opWithPayload(seq)).sentSynchronously());
                         test(!r.isSent());
 
