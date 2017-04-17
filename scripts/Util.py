@@ -327,7 +327,7 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if (cpp and v140 and platform == "x64" and current.config == "Release") or (not csharp and not cpp):
+        if (cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or (not csharp and not cpp):
             return os.environ.get("ICE_HOME")
 
         #
