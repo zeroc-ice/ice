@@ -989,7 +989,7 @@ class Process(Runnable):
             print("unexpected exception while filtering process output:\n" + str(ex))
             raise
 
-    def run(self, current, args=[], props={}, exitstatus=0, timeout=120):
+    def run(self, current, args=[], props={}, exitstatus=0, timeout=240):
         class WatchDog:
 
             def __init__(self, timeout):
