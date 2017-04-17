@@ -267,14 +267,15 @@ class Windows(Platform):
         # Platform/Config taget bin directories.
         #
         platform = current.driver.configs[mapping].buildPlatform
-        config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
+        buildConfig = current.driver.configs[mapping].buildConfig
+        config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
             v140 = self.getCompiler() == "v140"
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if (cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp):
+            if (cpp and v140 and platform == "x64" and buildConfig == "Release") or (not csharp and not cpp):
                 return "bin"
             elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
@@ -326,7 +327,7 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if (cpp and v140 and platform == "x64" and config == "Release") or (not csharp and not cpp):
+        if (cpp and v140 and platform == "x64" and current.config == "Release") or (not csharp and not cpp):
             return os.environ.get("ICE_HOME")
 
         #
