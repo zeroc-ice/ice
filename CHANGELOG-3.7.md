@@ -29,6 +29,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   ```
   module M
   {
+      enum { A, B, C , D }
+      
       interface Intf
       { 
           void op();
@@ -39,6 +41,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   ```
   module M
   {
+      enum { A, B, C , D };
+  
       interface Intf
       { 
           void op();  
@@ -264,17 +268,14 @@ These are the changes since the Ice 3.6 release or snapshot described in
   languages, it remains mapped to a string sequence containing the PEM encoded
   certificates.
 
-- Freeze has been moved to its own repository https://github.com/zeroc-ice/freeze
-  Freeze is no longer include with Ice binary or source distributions.
+- Freeze has been moved to its own source repository, https://github.com/zeroc-ice/freeze.
+  Freeze is no longer included with Ice binary distributions.
 
-- Added support for suppressing Slice warnings using the [["suppress-warning"]] global metadata
-  directive. If one or more categories are specified (for example "suppress-warning:invalid-metadata" 
-  or "suppress-warning:deprecated, invalid-metadata") only warnings matching these categories
-  are suppressed, otherwise all warnings are suppressed.
-
-- Hexadecimal escape sequences in string literals are now limited to two hexadecimal
-  digits, such as `\00A`. A sequence with extra leading zeroes is no longer a valid hexadecimal
-  escape sequence.
+- Added support for suppressing Slice warnings using the` [["suppress-warning"]]` 
+  global metadata directive. If one or more categories are specified (for 
+  example `"suppress-warning:invalid-metadata"` or 
+  `"suppress-warning:deprecated, invalid-metadata"`) only warnings matching these 
+  categories are suppressed, otherwise all warnings are suppressed.
 
 ## C++ Changes
 
