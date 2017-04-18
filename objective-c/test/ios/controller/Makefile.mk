@@ -13,7 +13,8 @@ $(project)_configs		= xcodesdk arc-xcodesdk
 $(project)_dependencies		= $(if $(ICE_BIN_DIST),,IceObjC IceSSLObjC IceGridObjC Glacier2ObjC IceStormObjC)
 $(project)_project 		= Objective-C Test Controller.xcodeproj
 $(project)_scheme  		= $(if $(filter arc-xcodesdk,$2),Objective-C ARC Test Controller,Objective-C Test Controller)
-$(project)_configuration 	= $(if $(filter $(OPTIMIZE),yes),Release,Debug)
+# Always build debug configuration to prevent symbols from being stripped
+$(project)_configuration 	= Debug
 
 projects += $(project)
 tests:: $(project)
