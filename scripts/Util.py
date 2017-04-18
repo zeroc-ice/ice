@@ -990,7 +990,7 @@ class Process(Runnable):
             print("unexpected exception while filtering process output:\n" + str(ex))
             raise
 
-    def run(self, current, args=[], props={}, exitstatus=0, timeout=240):
+    def run(self, current, args=[], props={}, exitstatus=0, timeout=480):
         class WatchDog:
 
             def __init__(self, timeout):
@@ -1747,8 +1747,11 @@ class RemoteProcessController(ProcessController):
             self.proxy.waitReady(startTimeout)
 
         def waitSuccess(self, exitstatus=0, timeout=60):
+            import Ice
             try:
                 result = self.proxy.waitSuccess(timeout)
+            except Ice.LocaException:
+                raise
             except:
                 raise Expect.TIMEOUT("waitSuccess timeout")
             if exitstatus != result:
