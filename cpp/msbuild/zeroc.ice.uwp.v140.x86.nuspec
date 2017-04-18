@@ -4,12 +4,12 @@
     <id>zeroc.ice.uwp.v140.x86</id>
     <title>ZeroC Ice for UWP and Visual Studio 2015</title>
     <version>3.7.0-beta0</version>
-    <authors>ZeroC, Inc</authors>
-    <licenseUrl>https://zeroc.com/licensing</licenseUrl>
-    <projectUrl>http://www.zeroc.com</projectUrl>
+    <authors>ZeroC, Inc.</authors>
+    <licenseUrl>https://github.com/zeroc-ice/ice/blob/master/ICE_LICENSE</licenseUrl>
+    <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
     <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>This package contains x86 C++ static libraries required to develop Ice for C++ applications targeting Univeral Windows platform with Visual Studio 2015 (v140), this package must not be installed directly, instead use the meta package zeroc.ice.uwp. Ice is a comprehensive RPC framework that helps you network your software with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic.</description>
+    <description>x86 subset of the Ice C++/CX SDK. Installed by zeroc.ice.uwp.v140.</description>
     <releaseNotes>https://doc.zeroc.com/display/Ice37/Ice+Release+Notes</releaseNotes>
     <tags>ice native</tags>
   </metadata>
