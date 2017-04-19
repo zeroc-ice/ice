@@ -2067,8 +2067,8 @@ class UWPProcessController(RemoteProcessController):
         print("Registering application to run from layout...")
         dependenciesDir = os.path.join(os.path.dirname(package), "Dependencies", arch)
         for f in filter(lambda f: f.endswith(".appx"), os.listdir(dependenciesDir)):
-            run("powershell Add-AppxPackage -Path \"{0}\"".format(os.path.join(dependenciesDir, f)))
-        run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\"".format(layout))
+            run("powershell Add-AppxPackage -Path \"{0}\" -ForceApplicationShutdown".format(os.path.join(dependenciesDir, f)))
+        run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\" -ForceApplicationShutdown".format(layout))
 
         run("CheckNetIsolation LoopbackExempt -a -n={0}".format(self.appUserModelId))
 
