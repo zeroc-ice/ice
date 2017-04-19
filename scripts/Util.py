@@ -1750,7 +1750,7 @@ class RemoteProcessController(ProcessController):
             import Ice
             try:
                 result = self.proxy.waitSuccess(timeout)
-            except Ice.LocaException:
+            except Ice.LocalException:
                 raise
             except:
                 raise Expect.TIMEOUT("waitSuccess timeout")
@@ -1904,7 +1904,14 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
-    runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-3"
+    # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
+    runtimeID = None
+    for r in run("xcrun simctl list runtimes").split('\n'):
+        m = re.search("iOS .* \(.*\) \((.*)\)", r)
+        if m:
+            runtimeID = m.group(1)
+    if not runtimeID:
+        runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-3" # Default value
     appPath = "ios/controller/build"
 
     def __init__(self, current):
