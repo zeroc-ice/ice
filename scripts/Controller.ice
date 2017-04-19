@@ -80,7 +80,8 @@ interface Process
     void waitReady(int timeout)
         throws ProcessFailedException;
 
-    int waitSuccess(int timeout);
+    int waitSuccess(int timeout)
+        throws ProcessFailedException;
 
     string terminate();
 };
