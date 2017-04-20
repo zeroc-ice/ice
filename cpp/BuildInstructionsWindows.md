@@ -114,15 +114,17 @@ You can create a NuGet package with the following command:
 
     msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
-This creates `zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`
-or `zeroc.ice.v141\zeroc.ice.v141.nupkg` depending on the compiler you are using.
+This creates zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or 
+`zeroc.ice.v141\zeroc.ice.v141.nupkg` depending on the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
 
     msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 
-This creates `zeroc.ice.uwp\zeroc.ice.uwp.nupkg`, `zeroc.ice.uwp.x64\zeroc.ice.uwp.x64.nupkg` 
-and `zeroc.ice.uwp.x86\zeroc.ice.uwp.x86.nupkg`.
+This creates `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` 
+and `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015 builds or 
+`zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
+`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017 builds.
 
 ## Running the Test Suite
 
