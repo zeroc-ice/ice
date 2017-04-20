@@ -8,6 +8,11 @@
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
+  <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
+
   <!--
       Import version settings required for library targets
   -->
@@ -114,7 +119,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120' OR '$(DefaultPlatformToolset)'=='v100'">
     <Link>
       <GenerateDebugInformation>Yes</GenerateDebugInformation>
     </Link>

@@ -8,6 +8,8 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.7.0](#changes-in-ice-370)
+  - [C++ Changes](#c-changes)
 - [Changes in Ice 3.7 beta 0](#changes-in-ice-37-beta-0)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -17,6 +19,15 @@ particular aspect of Ice.
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
+
+# Changes in Ice 3.7 beta 0
+
+These are the changes since the Ice 3.7 beta 0.
+
+## C++ Changes
+
+- Added Visual Studio 2010 support, the C++98 mapping is now supported with
+  Visual Studio 2010.
 
 # Changes in Ice 3.7 beta 0
 

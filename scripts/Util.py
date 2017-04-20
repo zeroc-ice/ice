@@ -238,6 +238,8 @@ class Windows(Platform):
                      "Ice/properties",          # Property files are not supported with UWP
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
+        elif self.getCompiler() in ["v100"]:
+            return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
         return Platform.getFilters(self, config)
 
     def parseBuildVariables(self, variables):

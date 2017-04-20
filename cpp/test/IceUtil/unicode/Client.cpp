@@ -308,9 +308,12 @@ main(int argc, char* argv[])
 
         // Note: for an unknown reason, the conversion works without
         // the extra letter (x below) when using codecvt_utf8_utf16.
-
         wstring badWstring[] = {
+#   ifdef ICE_HAS_CODECVT_UTF8
             wstring(1, wchar_t(0xD800)) + L"x",
+#   else
+            wstring(1, wchar_t(0xD800)),
+#   endif
             wstring(2, wchar_t(0xDB7F)),
             L""
         };

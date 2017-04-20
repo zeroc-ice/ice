@@ -904,9 +904,9 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
     _os.write(static_cast<Byte>(_mode));
 
-#if defined(_MSC_VER) && (_MSC_VER == 1500)
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
     //
-    // COMPILERFIX VC90 get confused with namespaces and we need to
+    // COMPILERFIX VC90 and VC100 get confused with namespaces and we need to
     // defined both Ice::noExplicitContext and IceProxy::Ice::noExplicitContext
     // see comments in Ice/Proxy.h.
     //

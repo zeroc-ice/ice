@@ -35,7 +35,7 @@ const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 //
 // COMPILERFIX SCH_USE_STRONG_CRYPTO not defined with VC90
 //
-#if defined(_MSC_VER) && (_MSC_VER == 1500)
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
 #  ifndef SCH_USE_STRONG_CRYPTO
 #    define SCH_USE_STRONG_CRYPTO 0x00400000
 #  endif

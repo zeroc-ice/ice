@@ -105,7 +105,7 @@
 //
 #if (__cplusplus >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1600))
+    (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_CPP11_COMPILER
 #endif
 
