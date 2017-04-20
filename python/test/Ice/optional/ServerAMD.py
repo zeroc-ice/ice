@@ -11,7 +11,7 @@
 import os, sys, traceback
 
 import Ice
-Ice.loadSlice('TestAMD.ice')
+Ice.loadSlice('Test.ice')
 import Test
 
 class InitialI(Test.Initial):

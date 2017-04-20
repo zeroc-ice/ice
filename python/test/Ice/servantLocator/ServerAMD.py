@@ -11,7 +11,7 @@
 import os, sys, traceback, time
 
 import Ice
-Ice.loadSlice('TestAMD.ice')
+Ice.loadSlice('Test.ice')
 import Test, TestAMDI, TestActivationAMDI
 
 class TestServer(Ice.Application):

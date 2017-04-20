@@ -11,7 +11,7 @@
 import os, sys, traceback
 
 import Ice
-Ice.loadSlice('-I. --all ServerPrivateAMD.ice')
+Ice.loadSlice('-I. --all ServerPrivate.ice')
 import Test
 
 def test(b):
