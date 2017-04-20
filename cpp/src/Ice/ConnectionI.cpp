@@ -784,12 +784,6 @@ Ice::ConnectionI::getBatchRequestQueue() const
 }
 
 #ifdef ICE_CPP11_MAPPING
-void
-Ice::ConnectionI::flushBatchRequests(CompressBatch compress)
-{
-    Connection::flushBatchRequestsAsync(compress).get();
-}
-
 std::function<void()>
 Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
                                           ::std::function<void(::std::exception_ptr)> ex,

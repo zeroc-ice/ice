@@ -280,7 +280,7 @@ public:
 
     virtual bool handleSent(bool, bool) override
     {
-        this->_promise.set_value(_sentSynchronously);
+        this->_promise.set_value();
         return false;
     }
 };
@@ -619,7 +619,7 @@ public:
 
     ::std::shared_ptr<::Ice::Connection> ice_getCachedConnection() const;
 
-    bool ice_flushBatchRequests()
+    void ice_flushBatchRequests()
     {
         return ice_flushBatchRequestsAsync().get();
     }
@@ -635,9 +635,9 @@ public:
     }
 
     template<template<typename> class P = std::promise> auto
-    ice_flushBatchRequestsAsync() -> decltype(std::declval<P<bool>>().get_future())
+    ice_flushBatchRequestsAsync() -> decltype(std::declval<P<void>>().get_future())
     {
-        using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<bool>>;
+        using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<void>>;
         auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
         _iceI_flushBatchRequests(outAsync);
         return outAsync->getFuture();

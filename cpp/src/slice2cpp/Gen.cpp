@@ -3346,7 +3346,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         DataMemberList dataMembers = p->dataMembers();
 
         int typeContext = p->isLocal() ? (_useWstring | TypeContextLocal) : _useWstring;
-        
+
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
 
@@ -6333,7 +6333,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     if(cl->isLocal())
     {
-        typeContext |= TypeContextLocal; 
+        typeContext |= TypeContextLocal;
     }
 
     H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), typeContext) << ' ' << name;
@@ -6647,8 +6647,6 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
 
-    H << sp;
-    H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << noExcept << " = 0;";
 
     if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
     {
@@ -6671,6 +6669,13 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         }
 
         H << sp;
+        H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << spar << paramsDeclAMI << epar
+                << isConst << noExcept;
+        H << sb;
+        H << nl << name << "Async" << spar << paramsArgAMI << epar << ".get();";
+        H << eb;
+
+        H << sp;
         H << nl << "virtual ::std::function<void()>";
         H << nl << name << "Async(";
         H.useCurrentPosAsIndent();
@@ -6690,10 +6695,10 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         H << nl << "template<template<typename> class P = ::std::promise>";
         H << nl << deprecateSymbol << "auto " << name << "Async" << spar << paramsDeclAMI << epar;
         H.inc();
-        H << nl << "-> decltype(::std::declval<P<bool>>().get_future())";
+        H << nl << "-> decltype(::std::declval<P<void>>().get_future())";
         H.dec();
         H << sb;
-        H << nl << "using Promise = P<bool>;";
+        H << nl << "using Promise = P<void>;";
         H << nl << "auto promise = ::std::make_shared<Promise>();";
 
         H << nl << name << "Async(";
@@ -6710,14 +6715,19 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
         H << sb;
         H << nl << "promise->set_exception(::std::move(ex));";
         H << eb << ",";
-        H << nl << "[promise](bool b)";
+        H << nl << "[promise](bool)";
         H << sb;
-        H << nl << "promise->set_value(b);";
+        H << nl << "promise->set_value();";
         H << eb << ");";
         H.restoreIndent();
 
         H << nl << "return promise->get_future();";
         H << eb;
+    }
+    else
+    {
+        H << sp;
+        H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << isConst << noExcept << " = 0;";
     }
 }
 
@@ -7468,7 +7478,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     {
         vector<string> allParamDecls;
         DataMemberList dataMembers = p->dataMembers();
-        
+
         int typeContext = _useWstring | TypeContextCpp11;
         if(p->isLocal())
         {
