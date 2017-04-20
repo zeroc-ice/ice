@@ -420,7 +420,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   define the classes.
 
 - `Ice.HashMap` usage is now limited to dictionaries with mutable keys, for all
-  other   cases the standard JavaScript `Map` type is used.
+  other cases the standard JavaScript `Map` type is used.
 
 - `Ice.HashMap` API has been aligned with the API of JavaScript `Map` type.
 
