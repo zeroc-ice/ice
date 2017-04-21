@@ -76,21 +76,23 @@ class GLACIER2_API Application : public Ice::Application
      **/
 public:
 
-    Application()
-    {
-    }
+#ifdef ICE_CPP11_MAPPING
+    using Ice::Application::Application;
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+#else
+    Application(Ice::SignalPolicy = Ice::HandleSignals);
+#endif
 
     /**
-     * Initializes an instance that handles signals according to the signal
-     * policy.
-     *
-     * @param signalPolicy Determines how to respond to signals.
-     *
-     * @see SignalPolicy
+     * Creates a new Glacier2 session. A call to
+     * <code>createSession</code> always precedes a call to
+     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
+     * is thrown from this method, the application is terminated.
+
+     * @return The Glacier2 session.
      **/
-    Application(Ice::SignalPolicy signalPolicy) : Ice::Application(signalPolicy)
-    {
-    }
+    virtual Glacier2::SessionPrxPtr createSession() = 0;
 
     /**
      * Called once the communicator has been initialized and the Glacier2 session
@@ -112,14 +114,13 @@ public:
     virtual int runWithSession(int argc, char* argv[]) = 0;
 
     /**
-     * Creates a new Glacier2 session. A call to
-     * <code>createSession</code> always precedes a call to
-     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
-     * is thrown from this method, the application is terminated.
-
-     * @return The Glacier2 session.
+     * Called when the session refresh thread detects that the session has been
+     * destroyed. A subclass can override this method to take action after the
+     * loss of connectivity with the Glacier2 router. This method is called
+     * according to the Ice invocation dipsatch rules (in other words, it
+     * uses the same rules as an servant upcall or AMI callback).
      **/
-    virtual Glacier2::SessionPrxPtr createSession() = 0;
+    virtual void sessionDestroyed();
 
     /**
      * Called to restart the application's Glacier2 session. This
@@ -128,40 +129,19 @@ public:
      *
      * @throws RestartSessionException This exception is always thrown.
      **/
-    void restart()
-    {
-        RestartSessionException ex;
-        throw ex;
-    }
-
-    /**
-     * Called when the session refresh thread detects that the session has been
-     * destroyed. A subclass can override this method to take action after the
-     * loss of connectivity with the Glacier2 router. This method is called
-     * according to the Ice invocation dipsatch rules (in other words, it
-     * uses the same rules as an servant upcall or AMI callback).
-     **/
-    virtual void sessionDestroyed()
-    {
-    }
+    static void restart();
 
     /**
      * Returns the Glacier2 router proxy
      * @return The router proxy.
      **/
-    static Glacier2::RouterPrxPtr router()
-    {
-        return _router;
-    }
+    static Glacier2::RouterPrxPtr router();
 
     /**
      * Returns the Glacier2 session proxy
      * @return The session proxy.
      **/
-    static Glacier2::SessionPrxPtr session()
-    {
-        return _session;
-    }
+    static Glacier2::SessionPrxPtr session();
 
     /**
      * Returns the category to be used in the identities of all of the client's
@@ -170,27 +150,27 @@ public:
      * @return The category.
      * @throws SessionNotExistException No session exists.
      **/
-    std::string categoryForClient();
+    static std::string categoryForClient();
 
     /**
      * Create a new Ice identity for callback objects with the given
      * identity name field.
      * @return The identity.
      **/
-    Ice::Identity createCallbackIdentity(const std::string&);
+    static Ice::Identity createCallbackIdentity(const std::string&);
 
     /**
      * Adds a servant to the callback object adapter's Active Servant Map with a UUID.
      * @param servant The servant to add.
      * @return The proxy for the servant.
      **/
-    Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant);
+    static Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant);
 
     /**
      * Creates an object adapter for callback objects.
      * @return The object adapter.
      */
-    Ice::ObjectAdapterPtr objectAdapter();
+    static Ice::ObjectAdapterPtr objectAdapter();
 
 protected:
 
@@ -214,7 +194,6 @@ private:
     static Ice::ObjectAdapterPtr _adapter;
     static Glacier2::RouterPrxPtr _router;
     static Glacier2::SessionPrxPtr _session;
-    static bool _createdSession;
     static std::string _category;
 };
 

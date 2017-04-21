@@ -18,7 +18,6 @@ using namespace Ice;
 Ice::ObjectAdapterPtr Glacier2::Application::_adapter;
 Glacier2::RouterPrxPtr Glacier2::Application::_router;
 Glacier2::SessionPrxPtr Glacier2::Application::_session;
-bool Glacier2::Application::_createdSession = false;
 string Glacier2::Application::_category;
 
 namespace
@@ -57,6 +56,11 @@ Glacier2::RestartSessionException::ice_clone() const
 {
     return new RestartSessionException(*this);
 }
+
+Glacier2::Application::Application(SignalPolicy signalPolicy) :
+    Ice::Application(signalPolicy)
+{
+}
 #endif
 
 Ice::ObjectAdapterPtr
@@ -64,8 +68,7 @@ Glacier2::Application::objectAdapter()
 {
     if(!_router)
     {
-        SessionNotExistException ex;
-        throw ex;
+        throw SessionNotExistException();
     }
 
     IceUtil::Mutex::Lock lock(_mutex);
@@ -92,13 +95,36 @@ Glacier2::Application::createCallbackIdentity(const string& name)
     return id;
 }
 
+void
+Glacier2::Application::sessionDestroyed()
+{
+}
+
+void
+Glacier2::Application::restart()
+{
+    throw RestartSessionException();
+}
+
+
+Glacier2::RouterPrxPtr
+Glacier2::Application::router()
+{
+    return _router;
+}
+
+Glacier2::SessionPrxPtr
+Glacier2::Application::session()
+{
+    return _session;
+}
+
 std::string
 Glacier2::Application::categoryForClient()
 {
     if(!_router)
     {
-        SessionNotExistException ex;
-        throw ex;
+        throw SessionNotExistException();
     }
     return _category;
 }
@@ -140,6 +166,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     _interrupted = false;
 
     bool restart = false;
+    bool sessionCreated = false;
     status = 0;
 
     try
@@ -167,7 +194,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             try
             {
                 _session = createSession();
-                _createdSession = true;
+                sessionCreated = true;
             }
             catch(const Ice::LocalException& ex)
             {
@@ -176,7 +203,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 status = 1;
             }
 
-            if(_createdSession)
+            if(sessionCreated)
             {
                 Ice::Int acmTimeout = 0;
                 try
@@ -197,11 +224,10 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                     assert(connection);
                     connection->setACM(acmTimeout, IceUtil::None, ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 #ifdef ICE_CPP11_MAPPING
-                    auto app = this;
                     connection->setCloseCallback(
-                        [app](Ice::ConnectionPtr)
+                        [this](Ice::ConnectionPtr)
                         {
-                            app->sessionDestroyed();
+                            sessionDestroyed();
                         });
 #else
                     connection->setCloseCallback(ICE_MAKE_SHARED(CloseCallbackI, this));
@@ -315,7 +341,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         _application = 0;
     }
 
-    if(_createdSession && _router)
+    if(sessionCreated && _router)
     {
         try
         {
@@ -352,7 +378,6 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     _adapter = 0;
     _router = 0;
     _session = 0;
-    _createdSession = false;
     _category.clear();
 
     return restart;

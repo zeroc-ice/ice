@@ -50,23 +50,23 @@ Application.NoSignalHandling.
         Application._adapter = None
         Application._router = None
         Application._session = None
-        Application._createdSession = False
         Application._category = None
 
     def run(self, args):
         raise RuntimeError('run should not be called on Glacier2.Application - call runWithSession instead')
 
-    def runWithSession(self, args):
-        raise RuntimeError('runWithSession() not implemented')
-
     def createSession(self, args):
         raise RuntimeError('createSession() not implemented')
 
-    def restart(self):
-        raise RestartSessionException()
+    def runWithSession(self, args):
+        raise RuntimeError('runWithSession() not implemented')
 
     def sessionDestroyed(self):
         pass
+
+    def restart(self):
+        raise RestartSessionException()
+    restart = classmethod(restart)
 
     def router(self):
         return Application._router
@@ -80,12 +80,15 @@ Application.NoSignalHandling.
         if Application._router == None:
             raise SessionNotExistException()
         return Application._category
+    categoryForClient = classmethod(categoryForClient)
 
     def createCallbackIdentity(self, name):
         return Ice.Identity(name, self.categoryForClient())
+    createCallbackIdentity = classmethod(createCallbackIdentity)
 
     def addWithUUID(self, servant):
         return self.objectAdapter().add(servant, self.createCallbackIdentity(Ice.generateUUID()))
+    addWithUUID = classmethod(addWithUUID)
 
     def objectAdapter(self):
         if Application._router == None:
@@ -94,6 +97,7 @@ Application.NoSignalHandling.
             Application._adapter = self.communicator().createObjectAdapterWithRouter("", Application._router)
             Application._adapter.activate()
         return Application._adapter
+    objectAdapter = classmethod(objectAdapter)
 
     def doMainInternal(self, args, initData):
         # Reset internal state variables from Ice.Application. The
@@ -104,7 +108,7 @@ Application.NoSignalHandling.
 
         restart = False
         status = 0
-
+        sessionCreated = False
         try:
             Ice.Application._communicator = Ice.initialize(args, initData)
 
@@ -122,12 +126,12 @@ Application.NoSignalHandling.
                 # If createSession throws, we're done.
                 try:
                     Application._session = self.createSession()
-                    Application._createdSession = True
+                    sessionCreated = True
                 except Ice.LocalException:
                     Ice.getProcessLogger().error(traceback.format_exc())
                     status = 1
 
-                if Application._createdSession:
+                if sessionCreated:
                     acmTimeout = 0
                     try:
                         acmTimeout = Application._router.getACMTimeout()
@@ -179,7 +183,7 @@ Application.NoSignalHandling.
             #
         Ice.Application._condVar.release()
 
-        if Application._createdSession and Application._router:
+        if sessionCreated and Application._router:
             try:
                 Application._router.destroySession()
             except (Ice.ConnectionLostException, SessionNotExistException):
@@ -204,7 +208,7 @@ Application.NoSignalHandling.
         Application._adapter = None
         Application._router = None
         Application._session = None
-        Application._createdSession = False
+        sessionCreated = False
         Application._category = None
 
         return (restart, status)

@@ -90,14 +90,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ConsoleUtil.cpp" />
-    <ClCompile Include="..\..\ConvertUTF.cpp" />
+    <ClCompile Include="..\..\ConvertUTF.cpp">
+      <ExcludedFromBuild Condition="'$(PlatformToolset)'!='v100'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\RecMutex.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\ThreadException.cpp" />
     <ClCompile Include="..\..\Time.cpp" />
-    <ClCompile Include="..\..\Unicode.cpp" />
+    <ClCompile Include="..\..\Unicode.cpp">
+      <ExcludedFromBuild Condition="'$(PlatformToolset)'!='v100'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
     <ClCompile Include="..\..\InputUtil.cpp" />

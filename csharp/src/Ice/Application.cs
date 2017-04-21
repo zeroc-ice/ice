@@ -79,11 +79,11 @@ namespace Ice
 
         /// <summary>
         /// Initializes an instance that handles signals according to the signal policy.
-        /// If not signal policy is provided the default SinalPolicy.NoSignalHandling 
+        /// If not signal policy is provided the default SinalPolicy.HandleSignals 
         /// will be used, which calls Communicator.shutdown if a signal is received.
         /// </summary>
         /// <param name="signalPolicy">Determines how to respond to signals.</param>
-        public Application(SignalPolicy signalPolicy = SignalPolicy.NoSignalHandling)
+        public Application(SignalPolicy signalPolicy = SignalPolicy.HandleSignals)
         {
         }
 
