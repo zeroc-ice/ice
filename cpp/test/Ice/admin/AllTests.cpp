@@ -195,9 +195,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 #ifdef ICE_CPP11_MAPPING
         // Test move assignment on CommunicatorHolder
-        std::shared_ptr<Ice::Communicator> nullCommunicator;
-        Ice::CommunicatorHolder ich2(nullCommunicator);
+        Ice::CommunicatorHolder ich2;
+        test(!ich2.communicator());
         ich2 = std::move(ich);
+        test(ich2.communicator());
+        test(!ich.communicator());
+
+        // Equivalent with = and release
+        Ice::CommunicatorHolder ich3;
+        test(!ich3.communicator());
+        ich3 = ich2.release();
+        test(ich3.communicator());
+        test(!ich2.communicator());
+#else
+        Ice::CommunicatorHolder ich2;
+        test(!ich2.communicator());
+        ich2 = ich.release();
         test(ich2.communicator());
         test(!ich.communicator());
 #endif

@@ -405,6 +405,17 @@ Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicato
 }
 
 Ice::CommunicatorHolder&
+Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
+{
+    if(_communicator)
+    {
+        _communicator->destroy();
+    }
+    _communicator = std::move(communicator);
+    return *this;
+}
+
+Ice::CommunicatorHolder&
 Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other)
 {
     if(_communicator)
@@ -416,6 +427,10 @@ Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other)
 }
 
 #else // C++98 mapping
+
+Ice::CommunicatorHolder::CommunicatorHolder()
+{
+}
 
 Ice::CommunicatorHolder::CommunicatorHolder(int& argc, const char* argv[], const InitializationData& initData,
                                             int version) :
@@ -486,6 +501,18 @@ Ice::CommunicatorHolder::CommunicatorHolder(const CommunicatorPtr& communicator)
     _communicator(communicator)
 {
 }
+
+Ice::CommunicatorHolder&
+Ice::CommunicatorHolder::operator=(const CommunicatorPtr& communicator)
+{
+    if(_communicator)
+    {
+        _communicator->destroy();
+    }
+    _communicator = communicator;
+    return *this;
+}
+
 #endif
 
 Ice::CommunicatorHolder::~CommunicatorHolder()

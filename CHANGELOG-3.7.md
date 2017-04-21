@@ -9,8 +9,6 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  - [C++ Changes](#c-changes)
-- [Changes in Ice 3.7 beta 0](#changes-in-ice-37-beta-0)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
@@ -20,16 +18,7 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
 
-# Changes in Ice 3.7 beta 0
-
-These are the changes since the Ice 3.7 beta 0.
-
-## C++ Changes
-
-- Added Visual Studio 2010 support, the C++98 mapping is now supported with
-  Visual Studio 2010.
-
-# Changes in Ice 3.7 beta 0
+# Changes in Ice 3.7.0
 
 These are the changes since the Ice 3.6 release or snapshot described in
 [CHANGELOG-3.6.md](./CHANGELOG-3.6.md).
@@ -41,9 +30,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
   module M
   {
       enum { A, B, C , D }
-      
+
       interface Intf
-      { 
+      {
           void op();
       }
   }
@@ -53,12 +42,12 @@ These are the changes since the Ice 3.6 release or snapshot described in
   module M
   {
       enum { A, B, C , D };
-  
+
       interface Intf
-      { 
-          void op();  
+      {
+          void op();
       };
-  }; 
+  };
   ```
 
 - Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
@@ -274,7 +263,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Updated IceSSL hostname verification (enabled with `IceSSL.CheckCertName`) to
   use the native checks of the platform's SSL implementation.
 
-- Removed `IceSSL::NativeConnectionInfo`. `IceSSL::ConnectionInfo`'s `certs` data 
+- Removed `IceSSL::NativeConnectionInfo`. `IceSSL::ConnectionInfo`'s `certs` data
   member is now mapped to the native certificate type in C++, Java and C#. In other
   languages, it remains mapped to a string sequence containing the PEM encoded
   certificates.
@@ -282,10 +271,10 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Freeze has been moved to its own source repository, https://github.com/zeroc-ice/freeze.
   Freeze is no longer included with Ice binary distributions.
 
-- Added support for suppressing Slice warnings using the` [["suppress-warning"]]` 
-  global metadata directive. If one or more categories are specified (for 
-  example `"suppress-warning:invalid-metadata"` or 
-  `"suppress-warning:deprecated, invalid-metadata"`) only warnings matching these 
+- Added support for suppressing Slice warnings using the` [["suppress-warning"]]`
+  global metadata directive. If one or more categories are specified (for
+  example `"suppress-warning:invalid-metadata"` or
+  `"suppress-warning:deprecated, invalid-metadata"`) only warnings matching these
   categories are suppressed, otherwise all warnings are suppressed.
 
 ## C++ Changes
@@ -295,9 +284,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   releases. The old mapping, now known as the C++98 mapping, is still supported so
   that existing applications can be migrated to Ice 3.7 without much change.
 
+- Added support for Visual Studio 2010 (C++98 only)
+
 - The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
-  
+
 - Added new class `Ice::CommunicatorHolder`. `CommunicatorHolder` creates a `Communicator`
   in its constructor and destroys it in its destructor.
 
@@ -323,7 +314,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added `getOpenSSLVersion` function to `IceSSL::OpenSSL::Plugin` to retrieve
   the OpenSSL version used by the Ice runtime.
 
-- Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to 
+- Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to
   `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
 
 - Improved the IceSSL Certificate API to allow retrieving X509v3 extensions.
@@ -335,7 +326,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   different implementations.
 
 - Added ability to build IceSSL with OpenSSL on Windows. The resulting library
-  is named `icesslopenssl`. An application can load this plug-in with the 
+  is named `icesslopenssl`. An application can load this plug-in with the
   `IceSSLOpenSSL:createIceSSLOpenSSL` entry point.
 
 - Added `IceSSL.SchannelStrongCrypto` property: when set to a value greater than
@@ -356,8 +347,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 ## C# Changes
 
 - The `batchRequestInterceptor` data member of `Ice.InitializationData` is now
-  defined as a `System.Action<Ice.BatchRequest, int, int>` delegate. You will 
-  need to update your code accordingly if you were using the now removed 
+  defined as a `System.Action<Ice.BatchRequest, int, int>` delegate. You will
+  need to update your code accordingly if you were using the now removed
   `Ice.BatchRequestInterceptor` interface.
 
 - The `Ice.PropertiesUpdateCallback` interface is deprecated, use the
@@ -387,7 +378,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   assemblies will be initialized when the Ice run-time needs   to lookup a C#
   class. The default value is 0.
 
-- Added a new C# AMI mapping based on TAP (Task-based Asynchronous Pattern) using this 
+- Added a new C# AMI mapping based on TAP (Task-based Asynchronous Pattern) using this
   mapping allow applications to take advantage of C# async/away keywords.
 
 - Update the AMD mapping to be Task-based, this greatly improved the interoperability
@@ -395,7 +386,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Added support for thread safe marshalling annotating operations with ["marshaled-result"]
   metadata will change the servant operation signature to return a marshalled result avoiding
-  thread safety issues derived from returning references to mutable objects. Refer to the 
+  thread safety issues derived from returning references to mutable objects. Refer to the
   "Parameter Passing in C-Sharp" section of the manual for more details about this feature.
 
 - Update C# proxy implementation to implement ISerializable.
@@ -476,7 +467,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
       MFruitOrange
   } MFruit;
   ```
-  
+
 ## PHP Changes
 
 - Added support for PHP 7.0 and PHP 7.1.
@@ -533,4 +524,4 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Ice for Ruby is no longer supported on Windows.
 
-- Fix Application Ctrl-C handling to be compatible with Ruby 2.x signal handler restrictions. 
+- Fix Application Ctrl-C handling to be compatible with Ruby 2.x signal handler restrictions.

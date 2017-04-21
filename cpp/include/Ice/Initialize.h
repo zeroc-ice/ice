@@ -187,12 +187,18 @@ class ICE_API CommunicatorHolder
 public:
 
 #ifdef ICE_CPP11_MAPPING
+    //
+    // Empty holder
+    //
+    CommunicatorHolder() = default;
 
     //
     // Call initialize to create communicator with the provided args
+    // (all except default ctor above)
+    //
     //
     template<class... T>
-    CommunicatorHolder(T&&... args) :
+    explicit CommunicatorHolder(T&&... args) :
         _communicator(std::move(initialize(std::forward<T>(args)...)))
     {
     }
@@ -200,7 +206,8 @@ public:
     //
     // Adopt communicator
     //
-    CommunicatorHolder(std::shared_ptr<Communicator>);
+    explicit CommunicatorHolder(std::shared_ptr<Communicator>);
+    CommunicatorHolder& operator=(std::shared_ptr<Communicator>);
 
     CommunicatorHolder(const CommunicatorHolder&) = delete;
 
@@ -208,6 +215,8 @@ public:
     CommunicatorHolder& operator=(CommunicatorHolder&&);
 
 #else // C++98 mapping
+
+    CommunicatorHolder();
 
     //
     // Call initialize to create communicator with the provided args
@@ -224,16 +233,17 @@ public:
     CommunicatorHolder(int&, wchar_t*[], const char*, int = ICE_INT_VERSION);
 #endif
 
-    CommunicatorHolder(StringSeq&, const InitializationData& = InitializationData(),int = ICE_INT_VERSION);
+    explicit CommunicatorHolder(StringSeq&, const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(StringSeq&, const char*, int = ICE_INT_VERSION);
 
-    CommunicatorHolder(const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
-    CommunicatorHolder(const char*, int = ICE_INT_VERSION);
+    explicit CommunicatorHolder(const InitializationData&, int = ICE_INT_VERSION);
+    explicit CommunicatorHolder(const char*, int = ICE_INT_VERSION);
 
     //
     // Adopt communicator
     //
-    CommunicatorHolder(const CommunicatorPtr&);
+    explicit CommunicatorHolder(const CommunicatorPtr&);
+    CommunicatorHolder& operator=(const CommunicatorPtr&);
 
     //
     // Required for successful copy-initialization, but not
