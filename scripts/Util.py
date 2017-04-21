@@ -252,17 +252,24 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
-        out = run("cl")
-        if out.find("Version 16.") != -1:
-            return "v100"
-        elif out.find("Version 17.") != -1:
-            return "v110"
-        elif out.find("Version 18.") != -1:
-            return "v120"
-        elif out.find("Version 19.00.") != -1:
-            return "v140"
-        elif out.find("Version 19.10.") != -1:
-            return "v141"
+        if os.environ.get("CPP_COMPILER", "") != "":
+            return os.environ["CPP_COMPILER"]
+        else:
+            try:
+                out = run("cl")
+                if out.find("Version 16.") != -1:
+                    return "v100"
+                elif out.find("Version 17.") != -1:
+                    return "v110"
+                elif out.find("Version 18.") != -1:
+                    return "v120"
+                elif out.find("Version 19.00.") != -1:
+                    return "v140"
+                elif out.find("Version 19.10.") != -1:
+                    return "v141"
+            except:
+                pass
+        return ""
 
     def getBinSubDir(self, mapping, process, current):
         #
@@ -273,11 +280,14 @@ class Windows(Platform):
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
-            v140 = self.getCompiler() == "v140"
+            compiler = self.getCompiler()
+            v140 = compiler == "v140"
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if (cpp and v140 and platform == "x64" and buildConfig == "Release") or (not csharp and not cpp):
+            if ((cpp and v140 and platform == "x64" and buildConfig == "Release") or 
+                (not csharp and not cpp) or
+                (not compiler)):
                 return "bin"
             elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
@@ -321,7 +331,8 @@ class Windows(Platform):
             version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
         comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
 
-        v140 = self.getCompiler() == "v140"
+        compiler = self.getCompiler()
+        v140 = compiler == "v140"
         cpp = isinstance(mapping, CppMapping)
         csharp = isinstance(mapping, CSharpMapping)
 
@@ -329,7 +340,9 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if (cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or (not csharp and not cpp):
+        if ((cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or 
+            (not csharp and not cpp) or 
+            (not compiler)):
             return os.environ.get("ICE_HOME")
 
         #
