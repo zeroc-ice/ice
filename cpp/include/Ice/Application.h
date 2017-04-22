@@ -13,9 +13,12 @@
 #include <Ice/Initialize.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Cond.h>
+#include <IceUtil/CtrlCHandler.h>
 
 namespace Ice
 {
+
+using IceUtil::CtrlCHandler;
 
 #ifdef ICE_CPP11_MAPPING
 enum class SignalPolicy : unsigned char

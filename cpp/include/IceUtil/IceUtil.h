@@ -13,14 +13,14 @@
 #include <IceUtil/PushDisableWarnings.h>
 
 //
-// This file must include *all* other headers of IceUtil, except
+// This file must include *all* headers of IceUtil, except
 // for DisableWarnings.h and headers with only IceUtilInternal symbols
 //
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Cond.h>
 #include <IceUtil/ConsoleUtil.h>
-#if !defined(__APPLE__) && !defined(ICE_OS_UWP)
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 #   include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>

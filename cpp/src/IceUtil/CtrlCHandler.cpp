@@ -25,7 +25,8 @@ using namespace IceUtil;
 namespace
 {
 
-CtrlCHandlerCallback _callback = 0;
+CtrlCHandlerCallback _callback = ICE_NULLPTR;
+
 const CtrlCHandler* _handler = 0;
 
 IceUtil::Mutex* globalMutex = 0;
@@ -173,7 +174,7 @@ sigwaitThread(void*)
             callback = _callback;
         }
 
-        if(callback != 0)
+        if(callback)
         {
             callback(signal);
         }
@@ -235,8 +236,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 CtrlCHandler::~CtrlCHandler()
 {
     //
-    // Clear the handler, the sigwaitThread will exit if _handler is
-    // nil.
+    // Clear the handler, the sigwaitThread will exit if _handler is null
     //
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
