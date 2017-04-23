@@ -70,11 +70,13 @@ CtrlCHandlerException::ice_clone() const
 }
 #endif
 
-void
+CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    CtrlCHandlerCallback oldCallback = _callback;
     _callback = callback;
+    return oldCallback;
 }
 
 CtrlCHandlerCallback
@@ -97,7 +99,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
         }
         callback = _callback;
     }
-    if(callback != 0)
+    if(callback)
     {
         callback(dwCtrlType);
     }

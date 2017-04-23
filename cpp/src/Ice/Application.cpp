@@ -341,9 +341,8 @@ Ice::Application::holdInterrupt()
             Mutex::Lock lock(_mutex); // we serialize all the interrupt-setting
             if(_released)
             {
-                _previousCallback = _ctrlCHandler->getCallback();
                 _released = false;
-                _ctrlCHandler->setCallback(holdInterruptCallback);
+                _previousCallback = _ctrlCHandler->setCallback(holdInterruptCallback);
             }
             // else, we were already holding signals
         }

@@ -19,6 +19,7 @@ namespace Ice
 {
 
 using IceUtil::CtrlCHandler;
+using IceUtil::CtrlCHandlerCallback;
 
 #ifdef ICE_CPP11_MAPPING
 enum class SignalPolicy : unsigned char

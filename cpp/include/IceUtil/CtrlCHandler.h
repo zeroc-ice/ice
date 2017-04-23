@@ -52,10 +52,10 @@ class ICE_API CtrlCHandler
 {
 public:
 
-    CtrlCHandler(CtrlCHandlerCallback = ICE_NULLPTR);
+    explicit CtrlCHandler(CtrlCHandlerCallback = ICE_NULLPTR);
     ~CtrlCHandler();
 
-    void setCallback(CtrlCHandlerCallback);
+    CtrlCHandlerCallback setCallback(CtrlCHandlerCallback);
     CtrlCHandlerCallback getCallback() const;
 };
 
