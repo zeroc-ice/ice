@@ -56,12 +56,12 @@ Glacier2::RestartSessionException::ice_clone() const
 {
     return new RestartSessionException(*this);
 }
+#endif
 
 Glacier2::Application::Application(SignalPolicy signalPolicy) :
     Ice::Application(signalPolicy)
 {
 }
-#endif
 
 Ice::ObjectAdapterPtr
 Glacier2::Application::objectAdapter()

@@ -76,12 +76,10 @@ class GLACIER2_API Application : public Ice::Application
      **/
 public:
 
+    Application(Ice::SignalPolicy = Ice::ICE_ENUM(SignalPolicy,HandleSignals));
 #ifdef ICE_CPP11_MAPPING
-    using Ice::Application::Application;
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
-#else
-    Application(Ice::SignalPolicy = Ice::HandleSignals);
 #endif
 
     /**
