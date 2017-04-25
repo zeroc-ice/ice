@@ -186,11 +186,12 @@ class ICE_API CommunicatorHolder
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     //
     // Empty holder
     //
-    CommunicatorHolder() = default;
+    CommunicatorHolder();
+
+#ifdef ICE_CPP11_MAPPING
 
     //
     // Call initialize to create communicator with the provided args
@@ -215,8 +216,6 @@ public:
     CommunicatorHolder& operator=(CommunicatorHolder&&);
 
 #else // C++98 mapping
-
-    CommunicatorHolder();
 
     //
     // Call initialize to create communicator with the provided args

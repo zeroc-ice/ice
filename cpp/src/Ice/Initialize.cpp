@@ -398,6 +398,10 @@ Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool 
 // CommunicatorHolder
 //
 
+Ice::CommunicatorHolder::CommunicatorHolder()
+{
+}
+
 #ifdef ICE_CPP11_MAPPING
 Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator) :
     _communicator(std::move(communicator))
@@ -427,10 +431,6 @@ Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other)
 }
 
 #else // C++98 mapping
-
-Ice::CommunicatorHolder::CommunicatorHolder()
-{
-}
 
 Ice::CommunicatorHolder::CommunicatorHolder(int& argc, const char* argv[], const InitializationData& initData,
                                             int version) :
