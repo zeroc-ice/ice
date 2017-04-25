@@ -225,6 +225,10 @@ class Linux(Platform):
 
 class Windows(Platform):
 
+    def __init__(self):
+        Platform.__init__(self)
+        self.compiler = ""
+
     def getFilters(self, config):
         if config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
@@ -252,24 +256,26 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
+        if self.compiler:
+            return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
-            return os.environ["CPP_COMPILER"]
+            self.compiler = os.environ["CPP_COMPILER"]
         else:
             try:
                 out = run("cl")
                 if out.find("Version 16.") != -1:
-                    return "v100"
+                    self.compiler = "v100"
                 elif out.find("Version 17.") != -1:
-                    return "v110"
+                    self.compiler = "v110"
                 elif out.find("Version 18.") != -1:
-                    return "v120"
+                    self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
-                    return "v140"
+                    self.compiler = "v140"
                 elif out.find("Version 19.10.") != -1:
-                    return "v141"
+                    self.compiler = "v141"
             except:
                 pass
-        return ""
+        return self.compiler
 
     def getBinSubDir(self, mapping, process, current):
         #
