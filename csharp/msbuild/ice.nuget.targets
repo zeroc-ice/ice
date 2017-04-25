@@ -3,10 +3,10 @@
         <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
     </PropertyGroup>
 
-    <!-- For CSharp we use Slice compiler from Win32 Release builds -->
+    <!-- For CSharp we use Slice compiler from x64 Release builds -->
     <ItemGroup>
-        <Tools Include="$(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2cs.exe;
-                        $(Ice_SrcRootDir)..\cpp\bin\Win32\Release\slice2html.exe;
+        <Tools Include="$(Ice_SrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
+                        $(Ice_SrcRootDir)..\cpp\bin\x64\Release\slice2html.exe;
                         $(Ice_SrcRootDir)bin\iceboxnet.exe" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml" />

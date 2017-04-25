@@ -66,7 +66,7 @@
                                    Replacements="$(PublicKeyToken);..\lib"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.6\build\native\bin\x64\Release\bzip2.dll"
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.7\build\native\bin\x64\MT-Release\bzip2.dll"
               DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\bzip2.dll" />
 
         <Copy SourceFiles="zeroc.ice.net.props"
