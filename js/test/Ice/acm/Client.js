@@ -156,10 +156,7 @@
             {
                 var now = Date.now();
                 var promise = Ice.Promise.delay(100);
-                var p = promise;
-                for(var i = 0; i < 20; ++i)
-                {
-                    p = p.then(() => {
+                var p = promise.then(() => {
                         if(this._closed)
                         {
                             return;
@@ -173,7 +170,6 @@
                             return Ice.Promise.delay(100);
                         }
                     });
-                }
                 return p;
             }
             return Ice.Promise.resolve();

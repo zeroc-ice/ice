@@ -835,6 +835,20 @@ class ConnectCallback
 
     nextEndpoint()
     {
+
+        const start = (connection) =>
+            {
+                connection.start().then(
+                    () =>
+                    {
+                        this.connectionStartCompleted(connection);
+                    },
+                    ex =>
+                    {
+                        this.connectionStartFailed(connection, ex);
+                    });
+            };
+
         while(true)
         {
             const traceLevels = this._factory._instance.traceLevels();
@@ -853,16 +867,7 @@ class ConnectCallback
                     this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
                 }
 
-                const connection = this._factory.createConnection(this._current.connect(), this._current);
-                connection.start().then(
-                    () =>
-                    {
-                        this.connectionStartCompleted(connection);
-                    },
-                    ex =>
-                    {
-                        this.connectionStartFailed(connection, ex);
-                    });
+                start(this._factory.createConnection(this._current.connect(), this._current));
             }
             catch(ex)
             {
