@@ -1166,6 +1166,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "escape", "escape", "{72BF4C3D-8E1B-4875-A9AA-2FD63C2442AB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Slice\escape\msbuild\client.vcxproj", "{C0E4DA83-0A01-4C49-AEF8-2D0B3DDABCBC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "application", "application", "{AF5CB568-B5E7-44F6-BEE7-0724AA8B6A36}"
 EndProject
