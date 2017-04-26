@@ -25,7 +25,7 @@ The build system requires the Slice translator from Ice for C++. If you have not
 built Ice for C++ in this source distribution, you must set the `ICE_HOME`
 environment variable with the path name of your Ice installation:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.3
+    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.4
 
 ### Building Ice for .NET
 
@@ -49,7 +49,7 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.3
+    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.4
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
@@ -134,5 +134,5 @@ before:
     > nmake /f Makefile.mak
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.3
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.4
 [3]: https://msdn.microsoft.com/en-us/library/ms241613.aspx
