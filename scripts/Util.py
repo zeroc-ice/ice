@@ -231,7 +231,7 @@ class Windows(Platform):
 
     def getFilters(self, config):
         if config.uwp:
-            return (["Ice/.*", "IceSSL/configuration"],
+            return (["cpp/Ice/.*", "cpp/IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
                      "Ice/faultTolerance",
@@ -243,7 +243,9 @@ class Windows(Platform):
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
         elif self.getCompiler() in ["v100"]:
-            return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
+            return (["cpp/Ice/.*", "cpp/IceSSL/.*", "cpp/IceBox/.*", "cpp/IceDiscovery/.*", "cpp/IceUtil/.*", "cpp/Slice/.*"], [])
+        elif self.getCompiler() not in ["v140"]:
+            return ([], ["python", "php"])
         return Platform.getFilters(self, config)
 
     def parseBuildVariables(self, variables):
