@@ -78,7 +78,17 @@ class Exception extends Error
 
     ice_name()
     {
-        return "Ice::Exception";
+        return ice_id().substr(2);
+    }
+
+    ice_id()
+    {
+        return this.constructor._id;
+    }
+
+    static get _id()
+    {
+        return "::Ice::Exception";
     }
 
     toString()
@@ -94,7 +104,7 @@ class Exception extends Error
         }
 
         this._inToStringAlready = true;
-        let s = this.ice_name();
+        let s = this.ice_id();
         for(let key in this)
         {
             if(key != "_inToStringAlready")
@@ -143,9 +153,9 @@ class LocalException extends Exception
         Exception.captureStackTrace(this);
     }
 
-    ice_name()
+    static get _id()
     {
-        return "Ice::LocalException";
+        return "::Ice::LocalException";
     }
 }
 
@@ -162,9 +172,9 @@ class UserException extends Exception
         Exception.captureStackTrace(this);
     }
 
-    ice_name()
+    static get _id()
     {
-        return "Ice::UserException";
+        return "::Ice::UserException";
     }
 
     _write(os)

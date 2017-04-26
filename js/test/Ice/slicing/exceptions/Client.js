@@ -61,7 +61,7 @@
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "Base.b");
-                test(ex.ice_name() == "Test::Base");
+                test(ex.ice_id() == "::Test::Base");
 
                 out.writeLine("ok");
                 out.write("slicing of unknown derived... ");
@@ -73,7 +73,7 @@
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownDerived.b");
-                test(ex.ice_name() == "Test::Base");
+                test(ex.ice_id() == "::Test::Base");
 
                 out.writeLine("ok");
                 out.write("non-slicing of known derived as base... ");
@@ -86,7 +86,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
                 test(ex.b == "KnownDerived.b");
                 test(ex.kd == "KnownDerived.kd");
-                test(ex.ice_name() == "Test::KnownDerived");
+                test(ex.ice_id() == "::Test::KnownDerived");
                 out.writeLine("ok");
                 out.write("non-slicing of known derived as derived... ");
 
@@ -99,7 +99,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
                 test(ex.b == "KnownDerived.b");
                 test(ex.kd == "KnownDerived.kd");
-                test(ex.ice_name() == "Test::KnownDerived");
+                test(ex.ice_id() == "::Test::KnownDerived");
 
                 out.writeLine("ok");
                 out.write("slicing of unknown intermediate as base... ");
@@ -111,7 +111,7 @@
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownIntermediate.b");
-                test(ex.ice_name() == "Test::Base");
+                test(ex.ice_id() == "::Test::Base");
 
                 out.writeLine("ok");
                 out.write("slicing of known intermediate as base... ");
@@ -124,7 +124,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "KnownIntermediate.b");
                 test(ex.ki == "KnownIntermediate.ki");
-                test(ex.ice_name() == "Test::KnownIntermediate");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
 
                 out.writeLine("ok");
                 out.write("slicing of known most derived as base... ");
@@ -138,7 +138,7 @@
                 test(ex.b == "KnownMostDerived.b");
                 test(ex.ki == "KnownMostDerived.ki");
                 test(ex.kmd == "KnownMostDerived.kmd");
-                test(ex.ice_name() == "Test::KnownMostDerived");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
 
                 out.writeLine("ok");
                 out.write("non-slicing of known intermediate as intermediate... ");
@@ -152,7 +152,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "KnownIntermediate.b");
                 test(ex.ki == "KnownIntermediate.ki");
-                test(ex.ice_name() == "Test::KnownIntermediate");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
                 out.writeLine("ok");
                 out.write("non-slicing of known most derived as intermediate... ");
                 return prx.knownMostDerivedAsKnownIntermediate();
@@ -165,7 +165,7 @@
                 test(ex.b == "KnownMostDerived.b");
                 test(ex.ki == "KnownMostDerived.ki");
                 test(ex.kmd == "KnownMostDerived.kmd");
-                test(ex.ice_name() == "Test::KnownMostDerived");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
                 out.writeLine("ok");
                 out.write("non-slicing of known most derived as most derived... ");
 
@@ -179,7 +179,7 @@
                 test(ex.b == "KnownMostDerived.b");
                 test(ex.ki == "KnownMostDerived.ki");
                 test(ex.kmd == "KnownMostDerived.kmd");
-                test(ex.ice_name() == "Test::KnownMostDerived");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
 
                 out.writeLine("ok");
                 out.write("slicing of unknown most derived, known intermediate as base... ");
@@ -192,7 +192,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "UnknownMostDerived1.b");
                 test(ex.ki == "UnknownMostDerived1.ki");
-                test(ex.ice_name() == "Test::KnownIntermediate");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
                 out.writeLine("ok");
                 out.write("slicing of unknown most derived, known intermediate as intermediate... ");
                 return prx.unknownMostDerived1AsKnownIntermediate();
@@ -204,7 +204,7 @@
                 test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
                 test(ex.b == "UnknownMostDerived1.b");
                 test(ex.ki == "UnknownMostDerived1.ki");
-                test(ex.ice_name() == "Test::KnownIntermediate");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
 
                 out.writeLine("ok");
                 out.write("slicing of unknown most derived, unknown intermediate thrown as base... ");
@@ -217,7 +217,7 @@
             {
                 test(Object.getPrototypeOf(ex) === Test.Base.prototype);
                 test(ex.b == "UnknownMostDerived2.b");
-                test(ex.ice_name() == "Test::Base");
+                test(ex.ice_id() == "::Test::Base");
 
                 out.writeLine("ok");
                 out.write("unknown most derived in compact format... ");

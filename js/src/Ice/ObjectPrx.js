@@ -743,7 +743,7 @@ class ObjectPrx
                         }
                     }
                 }
-                r.reject(new Ice.UnknownUserException(ex.ice_name()));
+                r.reject(new Ice.UnknownUserException(ex.ice_id()));
                 return false;
             }
             else

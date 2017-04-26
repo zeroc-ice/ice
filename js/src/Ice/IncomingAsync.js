@@ -298,7 +298,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownLocalException);
                 //this._os.writeString(ex.toString());
-                let s = [ ex.ice_name() ];
+                let s = [ ex.ice_id() ];
                 if(ex.stack)
                 {
                     s.push("\n");

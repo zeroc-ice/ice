@@ -1512,12 +1512,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
 
-    _out << sp;
-    _out << nl << "ice_name()";
-    _out << sb;
-    _out << nl << "return \"" << p->scoped().substr(2) << "\";";
-    _out << eb;
-
     // TODO: equals?
 
     if(!p->isLocal())

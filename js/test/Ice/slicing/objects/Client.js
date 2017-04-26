@@ -569,7 +569,7 @@
             ex =>
             {
                 test(ex instanceof Test.BaseException);
-                test(ex.ice_name() == "Test::BaseException");
+                test(ex.ice_id() == "::Test::BaseException");
                 test(ex.sbe == "sbe");
                 test(ex.pb !== null);
                 test(ex.pb.sb == "sb");
@@ -583,7 +583,7 @@
             ex =>
             {
                 test(ex instanceof Test.DerivedException);
-                test(ex.ice_name() == "Test::DerivedException");
+                test(ex.ice_id() == "::Test::DerivedException");
                 test(ex.sbe == "sbe");
                 test(ex.pb !== null);
                 test(ex.pb.sb == "sb1");
@@ -604,7 +604,7 @@
             ex =>
             {
                 test(ex instanceof Test.DerivedException);
-                test(ex.ice_name() == "Test::DerivedException");
+                test(ex.ice_id() == "::Test::DerivedException");
                 test(ex.sbe == "sbe");
                 test(ex.pb !== null);
                 test(ex.pb.sb == "sb1");
@@ -625,7 +625,7 @@
             ex =>
             {
                 test(ex instanceof Test.BaseException);
-                test(ex.ice_name() == "Test::BaseException");
+                test(ex.ice_id() == "::Test::BaseException");
                 test(ex.sbe == "sbe");
                 test(ex.pb !== null);
                 test(ex.pb.sb == "sb d2");
