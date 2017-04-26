@@ -89,13 +89,6 @@ CPP_COMPILER=auto
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-#
-# With VC100, we want unique dll names by default
-#
-!if "$(CPP_COMPILER)" == "VC100" && "$(UNIQUE_DLL_NAMES)" == ""
-UNIQUE_DLL_NAMES        = yes
-!endif
-
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 headerdir		= $(top_srcdir)\include
@@ -172,7 +165,7 @@ SSL_OS_LIBS             = advapi32.lib secur32.lib crypt32.lib ws2_32.lib
 
 PKG_DIR			= $(top_srcdir)\third-party-packages
 
-BZIP2_VERSION		= 1.0.6.2
+BZIP2_VERSION		= 1.0.6.7
 BZIP2_HOME		= $(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)
 BZIP2_CPPFLAGS		= /I"$(BZIP2_HOME)\build\native\include"
 BZIP2_LDFLAGS		= /LIBPATH:"$(BZIP2_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURATION)"

@@ -26,7 +26,12 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  IceDiscovery \
-		  IceLocatorDiscovery
+		  IceLocatorDiscovery \
+  		  IcePatch2Lib \
+		  Glacier2Lib \
+		  IceStormLib \
+		  IceGridLib \
+		  IceBox
 !else
 SUBDIRS		= IceUtil \
 		  Slice \

@@ -81,8 +81,8 @@ tests = [
     ("Ice/networkProxy", ["core", "noipv6", "nosocks"]),
     ("Ice/services", ["once", "nomingw"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
-    ("IceBox/configuration", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
-    ("IceBox/admin", ["core", "noipv6", "novc100", "nomingw", "nomx"]),
+    ("IceBox/configuration", ["core", "noipv6", "nomingw", "nomx"]),
+    ("IceBox/admin", ["core", "noipv6", "nomingw", "nomx"]),
     ("Freeze/dbmap", ["once", "novc100", "nomingw"]),
     ("Freeze/complex", ["once", "novc100", "nomingw"]),
     ("Freeze/evictor", ["once", "novc100", "nomingw"]),

@@ -20,6 +20,7 @@ SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
 		  IceSSL \
+		  IceBox \
 		  IceDiscovery
 !else
 SUBDIRS		= IceUtil \
