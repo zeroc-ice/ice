@@ -91,6 +91,8 @@ ICE_API @interface ICEUtil : NSObject
 @end
 
 extern void ICEregisterIceSSL(BOOL);
+extern void ICEregisterIceUDP(BOOL);
+extern void ICEregisterIceWS(BOOL);
 extern void ICEregisterIceDiscovery(BOOL);
 extern void ICEregisterIceLocatorDiscovery(BOOL);
 #if defined(__APPLE__) && TARGET_OS_IPHONE > 0

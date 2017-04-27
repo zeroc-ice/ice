@@ -73,6 +73,10 @@ main(int argc, char* argv[])
     Ice::registerIceSSL();
 #endif
 
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceWS(true);
+#endif
+
     int status;
     Ice::CommunicatorPtr communicator;
 

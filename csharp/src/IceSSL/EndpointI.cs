@@ -267,48 +267,31 @@ namespace IceSSL
         private IceInternal.EndpointI _delegate;
     }
 
-    internal sealed class EndpointFactoryI : IceInternal.EndpointFactory
+    internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
     {
-        internal EndpointFactoryI(Instance instance, IceInternal.EndpointFactory del)
+        public EndpointFactoryI(Instance instance, short type) : base(instance, type)
         {
             _instance = instance;
-            _delegate = del;
         }
 
-        public short type()
+        override public IceInternal.EndpointFactory
+        cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying)
         {
-            return _delegate.type();
+            return new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
         }
 
-        public string protocol()
+        override protected IceInternal.EndpointI
+        createWithUnderlying(IceInternal.EndpointI underlying, List<string> args, bool oaEndpoint)
         {
-            return _delegate.protocol();
+            return new EndpointI(_instance, underlying);
         }
 
-        public IceInternal.EndpointI create(List<string> args, bool oaEndpoint)
+        override protected IceInternal.EndpointI
+        readWithUnderlying(IceInternal.EndpointI underlying, Ice.InputStream s)
         {
-            return new EndpointI(_instance, _delegate.create(args, oaEndpoint));
-        }
-
-        public IceInternal.EndpointI read(Ice.InputStream s)
-        {
-            return new EndpointI(_instance, _delegate.read(s));
-        }
-
-        public void destroy()
-        {
-            _delegate.destroy();
-            _instance = null;
-        }
-
-        public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst,
-                                                 IceInternal.EndpointFactory del)
-        {
-            Instance instance = new Instance(_instance.engine(), inst.type(), inst.protocol());
-            return new EndpointFactoryI(instance, del != null ? del : _delegate.clone(instance, null));
+            return new EndpointI(_instance, underlying);
         }
 
         private Instance _instance;
-        private IceInternal.EndpointFactory _delegate;
     }
 }

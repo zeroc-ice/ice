@@ -79,25 +79,18 @@ private:
     const std::string _resource;
 };
 
-class ICE_API WSEndpointFactory : public EndpointFactory
+class ICE_API WSEndpointFactory : public EndpointFactoryWithUnderlying
 {
 public:
 
-    WSEndpointFactory(const ProtocolInstancePtr&, const EndpointFactoryPtr&);
-    virtual ~WSEndpointFactory();
+    WSEndpointFactory(const ProtocolInstancePtr&, Ice::Short);
 
-    virtual Ice::Short type() const;
-    virtual std::string protocol() const;
-    virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr read(Ice::InputStream*) const;
-    virtual void destroy();
+    virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const;
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
+protected:
 
-private:
-
-    ProtocolInstancePtr _instance;
-    const EndpointFactoryPtr _delegate;
+    virtual EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const;
+    virtual EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const;
 };
 
 }

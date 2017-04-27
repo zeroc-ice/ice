@@ -937,6 +937,13 @@ namespace IceInternal
 
                 ProtocolInstance udpInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
                 _endpointFactoryManager.add(new UdpEndpointFactory(udpInstance));
+
+                ProtocolInstance wsInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+                _endpointFactoryManager.add(new WSEndpointFactory(wsInstance, Ice.TCPEndpointType.value));
+
+                ProtocolInstance wssInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+                _endpointFactoryManager.add(new WSEndpointFactory(wssInstance, Ice.SSLEndpointType.value));
+
                 _pluginManager = new Ice.PluginManagerI(communicator);
 
                 if(_initData.valueFactoryManager == null)
@@ -983,20 +990,10 @@ namespace IceInternal
             pluginManagerImpl.loadPlugins(ref args);
 
             //
-            // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+            // Initialize the endpoint factories once all the plugins are loaded. This gives
+            // the opportunity for the endpoint factories to find underyling factories.
             //
-            EndpointFactory tcpFactory = _endpointFactoryManager.get(Ice.TCPEndpointType.value);
-            if(tcpFactory != null)
-            {
-                ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-                _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
-            }
-            EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
-            if(sslFactory != null)
-            {
-                ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
-                _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
-            }
+            _endpointFactoryManager.initialize();
 
             //
             // Create Admin facets, if enabled.

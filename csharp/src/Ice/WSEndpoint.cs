@@ -342,46 +342,25 @@ namespace IceInternal
         private string _resource;
     }
 
-    public class WSEndpointFactory : EndpointFactory
+    public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public WSEndpointFactory(ProtocolInstance instance, EndpointFactory del)
+        public WSEndpointFactory(ProtocolInstance instance, short type) : base(instance, type)
         {
-            _instance = instance;
-            _delegate = del;
         }
 
-        public short type()
+        override public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
         {
-            return _instance.type();
+            return new WSEndpointFactory(instance, underlying);
         }
 
-        public string protocol()
+        override protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
         {
-            return _instance.protocol();
+            return new WSEndpoint(instance_, underlying, args);
         }
 
-        public EndpointI create(List<string> args, bool oaEndpoint)
+        override protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
         {
-            return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
+            return new WSEndpoint(instance_, underlying, s);
         }
-
-        public EndpointI read(Ice.InputStream s)
-        {
-            return new WSEndpoint(_instance, _delegate.read(s), s);
-        }
-
-        public void destroy()
-        {
-            _delegate.destroy();
-            _instance = null;
-        }
-
-        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
-        {
-            return new WSEndpointFactory(instance, del);
-        }
-
-        private ProtocolInstance _instance;
-        private EndpointFactory _delegate;
     }
 }

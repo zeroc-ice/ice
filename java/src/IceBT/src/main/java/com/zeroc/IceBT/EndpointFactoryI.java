@@ -53,9 +53,9 @@ final class EndpointFactoryI implements EndpointFactory
     }
 
     @Override
-    public EndpointFactory clone(ProtocolInstance inst, EndpointFactory del)
+    public EndpointFactory clone(ProtocolInstance instance)
     {
-        return new EndpointFactoryI(new Instance(_instance.communicator(), inst.type(), inst.protocol()));
+        return new EndpointFactoryI(new Instance(_instance.communicator(), instance.type(), instance.protocol()));
     }
 
     private Instance _instance;

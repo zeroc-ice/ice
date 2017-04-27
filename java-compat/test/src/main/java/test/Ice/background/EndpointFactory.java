@@ -17,6 +17,12 @@ final class EndpointFactory implements IceInternal.EndpointFactory
     }
 
     @Override
+    public void
+    initialize()
+    {
+    }
+
+    @Override
     public short
     type()
     {
@@ -58,7 +64,7 @@ final class EndpointFactory implements IceInternal.EndpointFactory
 
     @Override
     public IceInternal.EndpointFactory
-    clone(IceInternal.ProtocolInstance instance, IceInternal.EndpointFactory del)
+    clone(IceInternal.ProtocolInstance instance)
     {
         return this;
     }

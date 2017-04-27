@@ -9,51 +9,28 @@
 
 package IceInternal;
 
-final public class WSEndpointFactory implements EndpointFactory
+final public class WSEndpointFactory extends EndpointFactoryWithUnderlying
 {
-    public WSEndpointFactory(ProtocolInstance instance, EndpointFactory delegate)
+    public WSEndpointFactory(ProtocolInstance instance, short type)
     {
-        _instance = instance;
-        _delegate = delegate;
+        super(instance, type);
     }
 
     @Override
-    public short type()
+    public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
     {
-        return _instance.type();
+        return new WSEndpointFactory(instance, underlying);
     }
 
     @Override
-    public String protocol()
+    public EndpointI createWithUnderlying(EndpointI underlying, java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        return _instance.protocol();
+        return new WSEndpoint(_instance, underlying, args);
     }
 
     @Override
-    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
+    public EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
     {
-        return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
+        return new WSEndpoint(_instance, underlying, s);
     }
-
-    @Override
-    public EndpointI read(Ice.InputStream s)
-    {
-        return new WSEndpoint(_instance, _delegate.read(s), s);
-    }
-
-    @Override
-    public void destroy()
-    {
-        _delegate.destroy();
-        _instance = null;
-    }
-
-    @Override
-    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
-    {
-        return new WSEndpointFactory(instance, delegate);
-    }
-
-    private ProtocolInstance _instance;
-    private EndpointFactory _delegate;
 }

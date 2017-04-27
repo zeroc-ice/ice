@@ -36,6 +36,8 @@ namespace Ice
 
 #ifndef ICE_API_EXPORTS
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceStringConverter(bool = true);
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceUDP(bool = true);
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceWS(bool = true);
 #endif
 
 #ifndef ICESSL_API_EXPORTS

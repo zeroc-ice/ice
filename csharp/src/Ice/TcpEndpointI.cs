@@ -299,6 +299,10 @@ namespace IceInternal
             _instance = instance;
         }
 
+        public void initialize()
+        {
+        }
+
         public short type()
         {
             return _instance.type();
@@ -326,7 +330,7 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
+        public EndpointFactory clone(ProtocolInstance instance)
         {
             return new TcpEndpointFactory(instance);
         }

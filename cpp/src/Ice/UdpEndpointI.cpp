@@ -38,6 +38,26 @@ createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
 
 }
 
+namespace Ice
+{
+
+ICE_API void
+registerIceUDP(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceUDP", createIceUDP, loadOnInitialize);
+}
+
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_API void
+ICEregisterIceUDP(bool loadOnInitialize)
+{
+    Ice::registerIceUDP(loadOnInitialize);
+}
+
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
                                         const string& conId, bool co) :
@@ -492,7 +512,7 @@ IceInternal::UdpEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
+IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new UdpEndpointFactory(instance);
 }

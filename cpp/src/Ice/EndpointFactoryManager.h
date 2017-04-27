@@ -31,6 +31,7 @@ class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
+    void initialize() const;
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
     EndpointIPtr create(const std::string&, bool) const;

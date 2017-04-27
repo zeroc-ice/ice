@@ -24,6 +24,7 @@ DEFINE_TEST("client")
 int main(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
+    Ice::registerIceUDP(true);
     Ice::registerIceSSL(false);
 #endif
     cout << "testing proxy hash algorithm collisions... " << flush;

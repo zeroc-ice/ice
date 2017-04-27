@@ -1101,13 +1101,17 @@ public final class Instance implements java.util.function.Function<String, Class
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpProtocolInstance =
-                new ProtocolInstance(this, com.zeroc.Ice.TCPEndpointType.value, "tcp", false);
-            _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocolInstance));
+            ProtocolInstance tcpProtocol = new ProtocolInstance(this, com.zeroc.Ice.TCPEndpointType.value, "tcp", false);
+            _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocol));
 
-            ProtocolInstance udpProtocolInstance =
-                new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
-            _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocolInstance));
+            ProtocolInstance udpProtocol = new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
+            _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
+
+            ProtocolInstance wsProtocol = new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
+            _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, com.zeroc.Ice.TCPEndpointType.value));
+
+            ProtocolInstance wssProtocol = new ProtocolInstance(this, com.zeroc.Ice.WSSEndpointType.value, "wss", true);
+            _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, com.zeroc.Ice.SSLEndpointType.value));
 
             _pluginManager = new com.zeroc.Ice.PluginManagerI(communicator, this);
 
@@ -1191,22 +1195,10 @@ public final class Instance implements java.util.function.Function<String, Class
         args = pluginManagerImpl.loadPlugins(args);
 
         //
-        // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+        // Initialize the endpoint factories once all the plugins are loaded. This gives
+        // the opportunity for the endpoint factories to find underyling factories.
         //
-        final EndpointFactory tcpFactory = _endpointFactoryManager.get(com.zeroc.Ice.TCPEndpointType.value);
-        if(tcpFactory != null)
-        {
-            final ProtocolInstance instance =
-                new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
-        }
-        final EndpointFactory sslFactory = _endpointFactoryManager.get(com.zeroc.Ice.SSLEndpointType.value);
-        if(sslFactory != null)
-        {
-            final ProtocolInstance instance =
-                new ProtocolInstance(this, com.zeroc.Ice.WSSEndpointType.value, "wss", true);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
-        }
+        _endpointFactoryManager.initialize();
 
         //
         // Create Admin facets, if enabled.

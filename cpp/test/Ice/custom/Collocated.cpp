@@ -37,6 +37,7 @@ main(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
     int status;
     Ice::CommunicatorPtr communicator;

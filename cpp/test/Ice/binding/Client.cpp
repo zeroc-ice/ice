@@ -28,6 +28,8 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceUDP(true);
 #   if defined(__linux)
     Ice::registerIceBT(false);
 #   endif

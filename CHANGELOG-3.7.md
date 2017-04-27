@@ -279,6 +279,14 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## C++ Changes
 
+- The UDP and WS transports are no longer enabled by default with static builds
+  of the Ice library. You will need to explicitly register them with the
+  Ice::registerIceUDP() or Ice::registerIceWS() function if you want to use
+  these transports with your statically linked application.
+
+  NOTE: this affects UWP and iOS applications which are linked statically with
+  Ice libraries.
+
 - Added a new C++11 mapping that takes advantage of C++11 language features. This
   new mapping is very different from the Slice-to-C++ mapping provided in prior
   releases. The old mapping, now known as the C++98 mapping, is still supported so
@@ -440,6 +448,14 @@ These are the changes since the Ice 3.6 release or snapshot described in
   the use of `Uint8Array`.
 
 ## Objective-C Changes
+
+- The UDP and WS transports are no longer enabled by default with static builds
+  of the IceObjC library. You will need to explicitly register them with the
+  ICEregisterIceUDP() or ICEregisterIceWS() function if you want to use these
+  transports with your statically linked application.
+
+  NOTE: this affects iOS applications which are linked statically with Ice
+  libraries.
 
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.

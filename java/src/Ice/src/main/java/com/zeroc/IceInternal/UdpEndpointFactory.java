@@ -49,7 +49,7 @@ final class UdpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
+    public EndpointFactory clone(ProtocolInstance instance)
     {
         return new UdpEndpointFactory(instance);
     }

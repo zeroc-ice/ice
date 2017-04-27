@@ -20,13 +20,20 @@ namespace IceInternal
             _factories = new List<EndpointFactory>();
         }
 
+        public void initialize()
+        {
+            foreach(EndpointFactory f in _factories)
+            {
+                f.initialize();
+            }
+        }
+
         public void add(EndpointFactory factory)
         {
             lock(this)
             {
-                for(int i = 0; i < _factories.Count; i++)
+                foreach(EndpointFactory f in _factories)
                 {
-                    EndpointFactory f = _factories[i];
                     if(f.type() == factory.type())
                     {
                         Debug.Assert(false);
@@ -40,9 +47,8 @@ namespace IceInternal
         {
             lock(this)
             {
-                for(int i = 0; i < _factories.Count; i++)
+                foreach(EndpointFactory f in _factories)
                 {
-                    EndpointFactory f = _factories[i];
                     if(f.type() == type)
                     {
                         return f;
@@ -173,7 +179,13 @@ namespace IceInternal
                 {
                     e = factory.read(s);
                 }
-                else
+                //
+                // If the factory failed to read the endpoint, return an opaque endpoint. This can
+                // occur if for example the factory delegates to another factory and this factory
+                // isn't available. In this case, the factory needs to make sure the stream position
+                // is preserved for reading the opaque endpoint.
+                //
+                if(e == null)
                 {
                     e = new OpaqueEndpointI(type, s);
                 }
@@ -186,9 +198,8 @@ namespace IceInternal
 
         internal void destroy()
         {
-            for(int i = 0; i < _factories.Count; i++)
+            foreach(EndpointFactory f in _factories)
             {
-                EndpointFactory f = (EndpointFactory)_factories[i];
                 f.destroy();
             }
             _factories.Clear();

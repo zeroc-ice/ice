@@ -53,8 +53,7 @@ final class EndpointFactory implements com.zeroc.IceInternal.EndpointFactory
     }
 
     @Override
-    public com.zeroc.IceInternal.EndpointFactory clone(com.zeroc.IceInternal.ProtocolInstance instance,
-                                                       com.zeroc.IceInternal.EndpointFactory del)
+    public com.zeroc.IceInternal.EndpointFactory clone(com.zeroc.IceInternal.ProtocolInstance instance)
     {
         return this;
     }

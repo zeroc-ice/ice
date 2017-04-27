@@ -15,6 +15,7 @@
 #include <Ice/EndpointFactory.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/EndpointInfo.h>
+#include <IceSSL/SSLEngineF.h>
 #include <Ice/Network.h>
 
 namespace IceSSL
@@ -76,28 +77,27 @@ private:
     const IceInternal::EndpointIPtr _delegate;
 };
 
-class EndpointFactoryI : public IceInternal::EndpointFactory
+class EndpointFactoryI : public IceInternal::EndpointFactoryWithUnderlying
 {
 public:
 
-    virtual ~EndpointFactoryI();
+    EndpointFactoryI(const InstancePtr&, Ice::Short);
 
-    virtual Ice::Short type() const;
-    virtual std::string protocol() const;
-    virtual IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
-                                                  const IceInternal::EndpointFactoryPtr&) const;
+    virtual IceInternal::EndpointFactoryPtr
+    cloneWithUnderlying(const IceInternal::ProtocolInstancePtr&, Ice::Short) const;
+
+protected:
+
+    virtual IceInternal::EndpointIPtr
+    createWithUnderlying(const IceInternal::EndpointIPtr&, std::vector<std::string>&, bool) const;
+    virtual IceInternal::EndpointIPtr
+    readWithUnderlying(const IceInternal::EndpointIPtr&, Ice::InputStream*) const;
 
 private:
 
-    EndpointFactoryI(const InstancePtr&, const IceInternal::EndpointFactoryPtr&);
-    friend class PluginI;
-
     InstancePtr _instance;
-    const IceInternal::EndpointFactoryPtr _delegate;
 };
 
 }

@@ -17,6 +17,12 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     }
 
     @Override
+    public void initialize()
+    {
+        // Nothing to do.
+    }
+
+    @Override
     public short type()
     {
         return _instance.type();
@@ -50,7 +56,7 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     }
 
     @Override
-    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst, IceInternal.EndpointFactory del)
+    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst)
     {
         return new EndpointFactoryI(new Instance(_instance.communicator(), inst.type(), inst.protocol()));
     }

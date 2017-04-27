@@ -52,6 +52,11 @@ namespace IceInternal
             return logger_;
         }
 
+        public EndpointFactory getEndpointFactory(short type)
+        {
+            return instance_.endpointFactoryManager().get(type);
+        }
+
         public string protocol()
         {
             return protocol_;

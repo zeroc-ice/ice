@@ -9,12 +9,13 @@
 
 package com.zeroc.IceSSL;
 
+import com.zeroc.IceInternal.ProtocolPluginFacade;
+
 class PluginI implements Plugin
 {
     public PluginI(com.zeroc.Ice.Communicator communicator)
     {
-        final com.zeroc.IceInternal.ProtocolPluginFacade facade =
-            com.zeroc.IceInternal.Util.getProtocolPluginFacade(communicator);
+        final ProtocolPluginFacade facade = com.zeroc.IceInternal.Util.getProtocolPluginFacade(communicator);
         _engine = new SSLEngine(facade);
 
         //
@@ -22,22 +23,8 @@ class PluginI implements Plugin
         // in initialize, because the communicator may need to interpret
         // proxies before the plug-in is fully initialized.
         //
-
-        // SSL based on TCP
-        com.zeroc.IceInternal.EndpointFactory tcp = facade.getEndpointFactory(com.zeroc.Ice.TCPEndpointType.value);
-        if(tcp != null)
-        {
-            Instance instance = new Instance(_engine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
-            facade.addEndpointFactory(new EndpointFactoryI(instance, tcp.clone(instance, null)));
-        }
-
-        // SSL based on Bluetooth
-        com.zeroc.IceInternal.EndpointFactory bluetooth = facade.getEndpointFactory(com.zeroc.Ice.BTEndpointType.value);
-        if(bluetooth != null)
-        {
-            Instance instance = new Instance(_engine, com.zeroc.Ice.BTSEndpointType.value, "bts");
-            facade.addEndpointFactory(new EndpointFactoryI(instance, bluetooth.clone(instance, null)));
-        }
+        Instance instance = new Instance(_engine, com.zeroc.Ice.SSLEndpointType.value, "ssl");
+        facade.addEndpointFactory(new EndpointFactoryI(instance, com.zeroc.Ice.TCPEndpointType.value));
     }
 
     @Override

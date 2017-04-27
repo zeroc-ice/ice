@@ -855,7 +855,7 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
             [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
             {
                 //
-                // COMPILERFIX with VC141 using operator!= and operator== inside 
+                // COMPILERFIX with VC141 using operator!= and operator== inside
                 // a lambda callback triggers a compiler bug, we move the code to
                 // a seperate private method to workaround the issue.
                 //
@@ -896,11 +896,11 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
                 [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
                 {
                     //
-                    // COMPILERFIX with VC141 using operator!= and operator== inside 
+                    // COMPILERFIX with VC141 using operator!= and operator== inside
                     // a lambda callback triggers a compiler bug, we move the code to
                     // a seperate private method to workaround the issue.
                     //
-                    this->queueOperationCompleted(op, info, operation, status);   
+                    this->queueOperationCompleted(op, info, operation, status);
                 });
         }
         operation->Completed = info->completedHandler;

@@ -49,31 +49,8 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    IceInternal::ProtocolPluginFacadePtr pluginFacade = IceInternal::getProtocolPluginFacade(com);
-
-    // SSL based on TCP
-    IceInternal::EndpointFactoryPtr tcp = pluginFacade->getEndpointFactory(TCPEndpointType);
-    if(tcp)
-    {
-        InstancePtr instance = new Instance(_engine, SSLEndpointType, "ssl");
-        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, tcp->clone(instance, 0)));
-    }
-
-    // SSL based on Bluetooth
-    IceInternal::EndpointFactoryPtr bluetooth = pluginFacade->getEndpointFactory(BTEndpointType);
-    if(bluetooth)
-    {
-        InstancePtr instance = new Instance(_engine, BTSEndpointType, "bts");
-        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, bluetooth->clone(instance, 0)));
-    }
-
-    // SSL based on iAP
-    IceInternal::EndpointFactoryPtr iap = pluginFacade->getEndpointFactory(iAPEndpointType);
-    if(iap)
-    {
-        InstancePtr instance = new Instance(_engine, iAPSEndpointType, "iaps");
-        pluginFacade->addEndpointFactory(new EndpointFactoryI(instance, iap->clone(instance, 0)));
-    }
+    InstancePtr instance = new Instance(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
+    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(new EndpointFactoryI(instance, TCPEndpointType));
 }
 
 void

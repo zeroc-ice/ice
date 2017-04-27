@@ -17,6 +17,10 @@ internal class EndpointFactory : IceInternal.EndpointFactory
         _factory = factory;
     }
 
+    public void initialize()
+    {
+    }
+
     public short type()
     {
         return (short)(EndpointI.TYPE_BASE + _factory.type());
@@ -47,7 +51,7 @@ internal class EndpointFactory : IceInternal.EndpointFactory
     {
     }
 
-    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance, IceInternal.EndpointFactory del)
+    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
     {
         return this;
     }

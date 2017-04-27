@@ -178,6 +178,7 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
+    ICEregisterIceWS(YES);
 #endif
 
     int status;

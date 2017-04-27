@@ -382,7 +382,7 @@ IceInternal::TcpEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
+IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new TcpEndpointFactory(instance);
 }

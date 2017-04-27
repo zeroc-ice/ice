@@ -684,8 +684,7 @@ IceBT::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance,
-                               const IceInternal::EndpointFactoryPtr&) const
+IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
     return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));
 }

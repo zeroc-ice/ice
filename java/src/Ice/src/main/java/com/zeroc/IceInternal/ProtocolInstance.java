@@ -38,6 +38,11 @@ public class ProtocolInstance
         return _logger;
     }
 
+    public EndpointFactory getEndpointFactory(short type)
+    {
+        return _instance.endpointFactoryManager().get(type);
+    }
+
     public String protocol()
     {
         return _protocol;

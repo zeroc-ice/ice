@@ -60,7 +60,7 @@ EndpointFactory::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-EndpointFactory::clone(const IceInternal::ProtocolInstancePtr&, const IceInternal::EndpointFactoryPtr&) const
+EndpointFactory::clone(const IceInternal::ProtocolInstancePtr&) const
 {
     return const_cast<EndpointFactory*>(this);
 }

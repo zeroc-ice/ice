@@ -43,12 +43,8 @@ namespace IceSSL
             //
             // SSL based on TCP
             //
-            IceInternal.EndpointFactory tcp = facade.getEndpointFactory(Ice.TCPEndpointType.value);
-            if(tcp != null)
-            {
-                Instance instance = new Instance(_engine, Ice.SSLEndpointType.value, "ssl");
-                facade.addEndpointFactory(new EndpointFactoryI(instance, tcp.clone(instance, null)));
-            }
+            Instance instance = new Instance(_engine, Ice.SSLEndpointType.value, "ssl");
+            facade.addEndpointFactory(new EndpointFactoryI(instance, Ice.TCPEndpointType.value));
         }
 
         public override void initialize()

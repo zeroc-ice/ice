@@ -13,6 +13,7 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/EndpointFactoryManager.h>
 
 using namespace std;
 using namespace Ice;
@@ -53,6 +54,12 @@ const LoggerPtr&
 IceInternal::ProtocolInstance::logger() const
 {
     return _instance->initializationData().logger;
+}
+
+EndpointFactoryPtr
+IceInternal::ProtocolInstance::getEndpointFactory(Ice::Short type) const
+{
+    return _instance->endpointFactoryManager()->get(type);
 }
 
 BufSizeWarnInfo

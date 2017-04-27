@@ -480,7 +480,7 @@ IceObjC::StreamEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
+IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new StreamEndpointFactory(_instance->clone(instance));
 }

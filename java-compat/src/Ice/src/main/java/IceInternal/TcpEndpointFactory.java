@@ -17,6 +17,12 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     @Override
+    public void initialize()
+    {
+        // Nothing to do.
+    }
+
+    @Override
     public short type()
     {
         return _instance.type();
@@ -49,7 +55,7 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
+    public EndpointFactory clone(ProtocolInstance instance)
     {
         return new TcpEndpointFactory(instance);
     }

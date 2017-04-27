@@ -15,6 +15,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/EndpointFactory.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/NetworkF.h>
@@ -63,6 +64,7 @@ public:
         return _secure;
     }
 
+    IceInternal::EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
     BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
     void setSndBufSizeWarn(Ice::Short type, int size);
     void setRcvBufSizeWarn(Ice::Short type, int size);
