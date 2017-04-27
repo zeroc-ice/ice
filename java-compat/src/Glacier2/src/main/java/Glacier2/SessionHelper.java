@@ -14,16 +14,8 @@ package Glacier2;
  */
 public class SessionHelper
 {
-    /**
-     * Creates a Glacier2 session.
-     *
-     * @param callback The callback for notifications about session establishment.
-     * @param initData The {@link Ice.InitializationData} for initializing the communicator.
-     * @param finderStr The stringified Ice.RouterFinder proxy.
-     * @param useCallbacks True if the session should create an object adapter for receiving callbacks.
-     */
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr,
-                         boolean useCallbacks)
+    SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr,
+                  boolean useCallbacks)
     {
         _callback = callback;
         _initData = initData;
@@ -147,7 +139,7 @@ public class SessionHelper
      * @return The session proxy, or throws SessionNotExistException if no session exists.
      * @throws SessionNotExistException No session exists.
      */
-    synchronized public Glacier2.SessionPrx
+    synchronized public SessionPrx
     session()
         throws SessionNotExistException
     {
@@ -202,19 +194,11 @@ public class SessionHelper
 
     private interface ConnectStrategy
     {
-        Glacier2.SessionPrx
-        connect(Glacier2.RouterPrx router)
+        SessionPrx
+        connect(RouterPrx router)
             throws CannotCreateSessionException, PermissionDeniedException;
     }
 
-    /**
-     * Connects to the Glacier2 router using the associated SSL credentials.
-     *
-     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure, {@link SessionCallback#connectFailed} is called with the exception.
-     *
-     * @param context The request context to use when creating the session.
-     */
     synchronized protected void
     connect(final java.util.Map<String, String> context)
     {
@@ -229,16 +213,6 @@ public class SessionHelper
                             });
     }
 
-    /**
-     * Connects a Glacier2 session using user name and password credentials.
-     *
-     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure {@link SessionCallback#connectFailed} is called with the exception.
-     *
-     * @param username The user name.
-     * @param password The password.
-     * @param context The request context to use when creating the session.
-     */
     synchronized protected void
     connect(final String username, final String password, final java.util.Map<String, String> context)
     {
@@ -385,7 +359,7 @@ public class SessionHelper
     destroyInternal()
     {
         assert _destroy;
-        Glacier2.RouterPrx router = null;
+        RouterPrx router = null;
         Ice.Communicator communicator = null;
         synchronized(this)
         {
@@ -533,9 +507,9 @@ public class SessionHelper
                         }
                     });
 
-                    Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
+                    RouterPrx routerPrx = RouterPrxHelper.uncheckedCast(
                         _communicator.getDefaultRouter());
-                    Glacier2.SessionPrx session = factory.connect(routerPrx);
+                    SessionPrx session = factory.connect(routerPrx);
                     connected(routerPrx, session);
                 }
                 catch(final Exception ex)
@@ -596,8 +570,8 @@ public class SessionHelper
     private final Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _adapter;
-    private Glacier2.RouterPrx _router;
-    private Glacier2.SessionPrx _session;
+    private RouterPrx _router;
+    private SessionPrx _session;
     private String _category;
     private String _finderStr;
     private boolean _useCallbacks;

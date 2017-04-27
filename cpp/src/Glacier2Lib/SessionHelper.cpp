@@ -41,7 +41,7 @@ public:
 
 private:
 
-    const Glacier2::SessionFactoryHelperPtr _factory;
+    const SessionFactoryHelperPtr _factory;
 };
 ICE_DEFINE_PTR(SessionThreadCallbackPtr, SessionThreadCallback);
 
@@ -313,6 +313,8 @@ Glacier2::SessionHelper::~SessionHelper()
     // Out of line to avoid weak vtable
 }
 
+
+#ifndef ICE_CPP11_MAPPING
 bool
 Glacier2::SessionHelper::operator==(const Glacier2::SessionHelper& other) const
 {
@@ -324,6 +326,7 @@ Glacier2::SessionHelper::operator!=(const Glacier2::SessionHelper& other) const
 {
     return this != &other;
 }
+#endif
 
 Ice::ObjectAdapterPtr
 SessionHelperI::internalObjectAdapter()
@@ -1093,7 +1096,7 @@ Glacier2::SessionFactoryHelper::getInitializationData() const
 }
 
 void
-Glacier2::SessionFactoryHelper::setConnectContext(map<string, string> context)
+Glacier2::SessionFactoryHelper::setConnectContext(const map<string, string>& context)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     _context = context;

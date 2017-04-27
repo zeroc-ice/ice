@@ -45,12 +45,15 @@ public:
     virtual Ice::CommunicatorPtr communicator() const = 0;
     virtual std::string categoryForClient() const = 0;
     virtual Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr&) = 0;
-    virtual Glacier2::SessionPrxPtr session() const = 0;
+    virtual SessionPrxPtr session() const = 0;
     virtual bool isConnected() const = 0;
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
 
-    bool operator==(const Glacier2::SessionHelper&) const;
-    bool operator!=(const Glacier2::SessionHelper&) const;
+#ifndef ICE_CPP11_MAPPING
+    bool operator==(const SessionHelper&) const;
+    bool operator!=(const SessionHelper&) const;
+#endif
+
 };
 ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
@@ -112,7 +115,7 @@ public:
 
     Ice::InitializationData getInitializationData() const;
 
-    void setConnectContext(std::map<std::string, std::string> context);
+    void setConnectContext(const std::map<std::string, std::string>& context);
 
     void setUseCallbacks(bool);
     bool getUseCallbacks() const;
@@ -138,7 +141,7 @@ private:
     int _timeout;
     Ice::InitializationData _initData;
     SessionCallbackPtr _callback;
-    std::map< std::string, std::string> _context;
+    std::map<std::string, std::string> _context;
     bool _useCallbacks;
     std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
 };
