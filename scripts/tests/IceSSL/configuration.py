@@ -31,7 +31,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
                 out =  run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand()))
-                shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out))
+                shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out.splitlines()[0]))
 
     def teardownServerSide(self, current, success):
         # Nothing to do if we're not running this test with the C++ mapping
@@ -45,7 +45,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
                 out =  run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand()))
-                os.remove("{dir}/{out}.0".format(out=out, dir=certsPath))
+                os.remove("{dir}/{out}.0".format(out=out.splitlines()[0], dir=certsPath))
 
     def getOpenSSLCommand(self):
         if isinstance(platform, Windows):
