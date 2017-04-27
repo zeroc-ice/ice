@@ -1796,6 +1796,8 @@ def getCppBinDir(lang = None):
             lang = getDefaultMapping()
         if isVC110() and lang != "python":
             binDir = os.path.join(binDir, "vc110")
+        elif isVC100():
+            binDir = os.path.join(binDir, "vc100")
         elif isVC140():
             binDir = os.path.join(binDir, "vc140")
         if x64:
