@@ -8,6 +8,10 @@
         <IcePlatformSuffix>$(Platform)\</IcePlatformSuffix>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v100'">
+        <IceToolsetSuffix>vc100\</IceToolsetSuffix>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(PlatformToolset)' == 'v110'">
         <IceToolsetSuffix>vc110\</IceToolsetSuffix>
     </PropertyGroup>
