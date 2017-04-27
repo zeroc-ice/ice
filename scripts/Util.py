@@ -245,8 +245,9 @@ class Windows(Platform):
         elif self.getCompiler() in ["v100"]:
             return (["cpp/Ice/.*", "cpp/IceSSL/.*", "cpp/IceBox/.*", "cpp/IceDiscovery/.*", "cpp/IceUtil/.*", "cpp/Slice/.*"], [])
         elif self.getCompiler() not in ["v140"]:
-            return ([], ["python", "php"])
-        return Platform.getFilters(self, config)
+            return ([], ["python", "php", "ruby"])
+        else:
+            return ([], ["ruby"])
 
     def parseBuildVariables(self, variables):
         pass # Nothing to do, we don't support the make build system on Windows
