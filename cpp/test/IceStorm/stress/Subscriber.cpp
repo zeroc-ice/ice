@@ -233,7 +233,16 @@ public:
         {
             try
             {
-                subscription.publisher->ice_ping();
+                //
+                // check might be invoked before IceStorm got a chance to process the close connection
+                // message from this subscriber, retry if the ice_ping still succeeds.
+                //
+                int nRetry = 5;
+                while(--nRetry > 0)
+                {
+                    subscription.publisher->ice_ping();
+                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+                }
                 test(false);
             }
             catch(const Ice::ObjectNotExistException&)
