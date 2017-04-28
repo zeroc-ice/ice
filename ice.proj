@@ -7,21 +7,25 @@
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
   
   <ItemGroup>
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
       <Configuration>$(Configuration)</Configuration>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj">
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
       <Configuration>$(Configuration)</Configuration>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj">
+    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
       <Configuration>$(Configuration)</Configuration>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj">
+    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
       <Configuration>$(Configuration)</Configuration>
     </Projects>
 
