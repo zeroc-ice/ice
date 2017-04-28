@@ -1,8 +1,6 @@
-[![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=master)](https://travis-ci.org/zeroc-ice/ice)
+[![Build Status](https://travis-ci.org/zeroc-ice/ice.svg?branch=master)](https://travis-ci.org/zeroc-ice/ice) [![Join the chat at https://gitter.im/zerocice/Lobby](https://badges.gitter.im/zerocice/Lobby.svg)](https://gitter.im/zerocice/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Ice - Comprehensive RPC Framework
-
-[![Join the chat at https://gitter.im/zerocice/Lobby](https://badges.gitter.im/zerocice/Lobby.svg)](https://gitter.im/zerocice/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Ice is a comprehensive RPC framework that helps you network your software with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
