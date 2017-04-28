@@ -318,7 +318,8 @@ public class AllTests
 
         // Input string with various pitfalls
         id = Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
-        test(id.name.equals("€0\t0\\") && id.category.isEmpty());
+        // Use the Unicode value instead of a literal €
+        test(id.name.equals("\u20ac0\t0\\") && id.category.isEmpty());
 
         try
         {
@@ -341,10 +342,11 @@ public class AllTests
         }
 
         // Testing bytes 127 (\x7F, \177) and €
-        id = new Ice.Identity("test", "\177€");
+        // Use the Unicode value instead of a literal €
+        id = new Ice.Identity("test", "\177\u20ac");
 
         idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Unicode);
-        test(idStr.equals("\\u007f€/test"));
+        test(idStr.equals("\\u007f\u20ac/test"));
         id2 = Ice.Util.stringToIdentity(idStr);
         test(id.equals(id2));
         test(Ice.Util.identityToString(id).equals(idStr));

@@ -98,6 +98,7 @@ public class Client extends test.Util.Application
     {
         Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
         return initData;
     }
 

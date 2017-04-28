@@ -17,12 +17,13 @@ include pre-compiled JAR files.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 2.3
-- Android SDK Build-tools 25
+- Android Studio 2.4 preview
+- Android SDK 25
+- Android Build Tools 26.0.0 rc1
 
-Ice requires at minimum API level 21:
+Using Ice's Java mapping with Java 8 requires at minimum API level 24:
 
-- Android 5 (API21)
+- Android 7 (API24)
 
 If you want to target a later version of the Android API level for the test
 suite, edit `gradle.properties` and change the following variables:

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 project.ext.displayName = "IceBT Compat"
 project.ext.description = "Bluetooth support for Ice"

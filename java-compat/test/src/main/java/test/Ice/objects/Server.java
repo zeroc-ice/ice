@@ -59,6 +59,7 @@ public class Server extends test.Util.Application
         Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
         initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         return initData;
     }

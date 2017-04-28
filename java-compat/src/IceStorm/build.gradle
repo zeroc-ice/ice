@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 project.ext.displayName = "IceStorm Compat"
 project.ext.description = "Publish-subscribe event distribution service"

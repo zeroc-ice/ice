@@ -340,7 +340,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public void checkSendSize(Buffer buf)
+    public synchronized void checkSendSize(Buffer buf)
     {
         //
         // The maximum packetSize is either the maximum allowable UDP packet size, or
@@ -349,12 +349,13 @@ final class UdpTransceiver implements Transceiver
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if(packetSize < buf.size())
         {
-            throw new Ice.DatagramLimitException();
+            throw new Ice.DatagramLimitException("message size of " + buf.size() +
+                                                 " exceeds the maximum packet size of " + packetSize);
         }
     }
 
     @Override
-    public void setBufferSize(int rcvSize, int sndSize)
+    public synchronized void setBufferSize(int rcvSize, int sndSize)
     {
         setBufSize(rcvSize, sndSize);
     }
@@ -431,7 +432,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
-    private synchronized void setBufSize(int rcvSize, int sndSize)
+    private void setBufSize(int rcvSize, int sndSize)
     {
         assert(_fd != null);
 

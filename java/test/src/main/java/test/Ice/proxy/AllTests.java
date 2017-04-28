@@ -320,7 +320,8 @@ public class AllTests
 
         // Input string with various pitfalls
         id = com.zeroc.Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
-        test(id.name.equals("€0\t0\\") && id.category.isEmpty());
+        // Use the Unicode value instead of a literal Euro symbol
+        test(id.name.equals("\u20ac0\t0\\") && id.category.isEmpty());
 
         try
         {
@@ -343,10 +344,11 @@ public class AllTests
         }
 
         // Testing bytes 127 (\x7F, \177) and €
-        id = new com.zeroc.Ice.Identity("test", "\177€");
+        // Use the Unicode value instead of a literal Euro symbol
+        id = new com.zeroc.Ice.Identity("test", "\177\u20ac");
 
         idStr = com.zeroc.Ice.Util.identityToString(id, com.zeroc.Ice.ToStringMode.Unicode);
-        test(idStr.equals("\\u007f€/test"));
+        test(idStr.equals("\\u007f\u20ac/test"));
         id2 = com.zeroc.Ice.Util.stringToIdentity(idStr);
         test(id.equals(id2));
         test(com.zeroc.Ice.Util.identityToString(id).equals(idStr));

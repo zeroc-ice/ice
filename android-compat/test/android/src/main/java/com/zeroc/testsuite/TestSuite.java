@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.*;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -26,12 +28,18 @@ public class TestSuite extends ListActivity
     public static final String FAILED_TAG = "failed";
 
     private List<String> _tests = new ArrayList<String>();
+    private WifiManager _wifiManager;
+    private WifiManager.MulticastLock _lock;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        _wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        _lock = _wifiManager.createMulticastLock("com.zeroc.testsuite");
+        _lock.acquire();
 
         final TestApp app = (TestApp)getApplication();
         _tests.addAll(app.getTestNames());

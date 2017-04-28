@@ -9,11 +9,9 @@
 
 apply plugin: 'java'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
-slice.compat = true
-ext.testDir = "$rootProject.projectDir/../java-compat/test/src/main/java/test"
-apply from: "$rootProject.projectDir/../java-compat/test/slice.gradle"
+ext.testDir = "$rootProject.projectDir/../java/test/src/main/java/test"
+apply from: "slice.gradle"
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
-apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
@@ -21,9 +19,8 @@ targetCompatibility = iceTargetCompatibility
 sourceSets {
     main {
         java {
-            srcDir "$rootProject.projectDir/../java-compat/test/src/main/java"
+            srcDir "$rootProject.projectDir/../java/test/src/main/java"
             include 'test/Util/**'
-            exclude 'test/Ice/**/lambda'
         }
     }
 }
@@ -34,7 +31,11 @@ idea.module {
 }
 
 dependencies {
-    compile localDependency('ice-compat')
+    compile localDependency('ice')
+}
+
+jar {
+    archiveName = "test.jar"
 }
 
 tests.each {
@@ -44,7 +45,6 @@ tests.each {
     project(":test_Ice_${name}") {
         apply plugin: 'java'
         apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
-        slice.compat = true
 
         sourceCompatibility = iceSourceCompatibility
         targetCompatibility = iceTargetCompatibility
@@ -52,38 +52,18 @@ tests.each {
         sourceSets {
             main {
                 java {
-                    srcDir "$rootProject.projectDir/../java-compat/test/src/main/java"
+                    srcDir "$rootProject.projectDir/../java/test/src/main/java"
                     include "test/Ice/${dirName}/**"
-                    exclude 'test/Ice/**/lambda'
                     srcDir "$rootProject.projectDir/test/build/generated-src/"
                     include "test/Ice/${dirName}/**"                
                 }
             }
         }
 
-        def dexName = "IceTest_${name}.dex"
-        task dexClasses {
-            inputs.dir "${buildDir}/classes/main"
-            outputs.file "${buildDir}/classes/main/${dexName}"
-            doLast {
-                exec {
-                    commandLine "${dxCmd}", '--dex',
-                            "--output=${buildDir}/classes/main/${dexName}",
-                            "${buildDir}/classes/main"
-                }
-            }
-        }
-
-        dexClasses.dependsOn('classes')
-
-        configure(jar) {
-            include "${dexName}"
-        }
-        jar.dependsOn(dexClasses)
-
         dependencies {
             compile project(':test')
-            compile localDependency('ice-compat')
+            compile localDependency('ice')
+            compile localDependency('icessl')
         }
     }
 }

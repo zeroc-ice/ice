@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 project.ext.displayName = "IceGrid Compat"
 project.ext.description = "Locate, deploy, and manage Ice servers"

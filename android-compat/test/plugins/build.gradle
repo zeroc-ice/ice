@@ -12,8 +12,8 @@ apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 slice.compat = true
 apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 sourceSets {
     main {

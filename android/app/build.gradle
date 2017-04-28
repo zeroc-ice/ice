@@ -9,7 +9,6 @@
 
 apply plugin: 'com.android.application'
 apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
-slice.compat = true
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 android {
@@ -20,61 +19,33 @@ android {
         applicationId "com.zeroc.test"
         minSdkVersion ice_minSdkVersion.toInteger()
         targetSdkVersion ice_targetSdkVersion.toInteger()
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_6
-            targetCompatibility JavaVersion.VERSION_1_6
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
         }
     }
 
     buildTypes {
         debug {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
 
         release {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
-}
-
-// Copy the IceTestPlugins.dex file into the android test assets
-// directory.
-//
-// I don't like this approach very much. It would be preferable for
-// the test app to extract the dex file from the jar file but I can't
-// figure out how to do that.
-task copyTask(type: Copy) {
-    from "${rootProject.projectDir}/test/plugins/build/classes/main/IceTestPlugins.dex"
-    into "src/main/assets"
-}
-preBuild.dependsOn(copyTask)
-copyTask.dependsOn(':testPlugins:dexClasses')
-
-clean {
-    delete("src/main/assets/IceTestPlugins.dex")
 }
 
 idea.module {
     excludeDirs -= file(buildDir)
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-}
-
-tests.each {
-    def name = it
-    def taskName = "copyTask-${name}"
-    def testName = ":test_Ice_${name}"
-    def dexName = "IceTest_${name}.dex"
-    task "${taskName}"(type: Copy, dependsOn: "${testName}:dexClasses") {
-        from "${rootProject.projectDir}/test/src/test_Ice_${name}/build/classes/main/${dexName}"
-        into "src/main/assets"
-    }
-    preBuild.dependsOn(tasks[taskName])
-
-    clean {
-        delete("src/main/assets/${dexName}")
-    }
 }
 
 task copyBksTask(type: Copy) {
@@ -90,7 +61,10 @@ clean {
 }
 
 dependencies {
-    compile localDependency('ice-compat')
+    compile localDependency('ice')
+    compile localDependency('icessl')
     compile project(':test')
-    compile project(':testPlugins')
+    tests.each {
+        compile project(":test_Ice_${it}")
+    }
 }

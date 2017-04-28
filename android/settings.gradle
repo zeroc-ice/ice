@@ -9,27 +9,15 @@
 
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
-tests.each {
-	include ":test_Ice_${it}"
-	project(":test_Ice_${it}").projectDir = new File("test/src/test_Ice_${it}")
-}
-
 // Main source
-include ':ice-compat'
-project(':ice-compat').projectDir = new File('src/Ice')
-include	':icebox-compat'
-project(':icebox-compat').projectDir = new File('src/IceBox')
-include	':glacier2-compat'
-project(':glacier2-compat').projectDir = new File('src/Glacier2')
-include	':icepatch2-compat'
-project(':icepatch2-compat').projectDir = new File('src/IcePatch2')
-include	':icestorm-compat'
-project(':icestorm-compat').projectDir = new File('src/IceStorm')
-include	':icegrid-compat'
-project(':icegrid-compat').projectDir = new File('src/IceGrid')
-
-include ':test', ':testPlugins', ':testApp'
-
+include ':ice'
+project(':ice').projectDir = new File('src/Ice')
+include ':icessl'
+project(':icessl').projectDir = new File('src/IceSSL')
+include ':test', ':testApp'
 project(':test').projectDir = new File('test')
-project(':testPlugins').projectDir = new File('test/plugins')
-project(':testApp').projectDir = new File('test/android')
+project(':testApp').projectDir = new File('app')
+tests.each {
+    include ":test_Ice_${it}"
+    project(":test_Ice_${it}").projectDir = new File("test/src/test_Ice_${it}")
+}

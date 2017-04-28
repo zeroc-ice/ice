@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Test Suite</string>
+    <string name="next">Next</string>
+    <string name="mode">Mode</string>
+    <string name="ipv6">IPv6</string>
+</resources>

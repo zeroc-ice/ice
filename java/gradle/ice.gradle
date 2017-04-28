@@ -103,8 +103,8 @@ if (isWindows) {
 ext.versionSuffix = "-${project.version}"
 ext.libDir = "$rootProject.projectDir/lib"
 
-ext.iceSourceCompatibility = 1.7
-ext.iceTargetCompatibility = 1.7
+ext.iceSourceCompatibility = 1.8
+ext.iceTargetCompatibility = 1.8
 
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     def dirs = []

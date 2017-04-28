@@ -38,29 +38,26 @@ public class Server extends test.Util.Application
             adapter2.activate();
         }
 
-        if(!isAndroid())
+        StringBuilder endpoint = new StringBuilder();
+        if(properties.getProperty("Ice.IPv6").equals("1"))
         {
-            StringBuilder endpoint = new StringBuilder();
-            if(properties.getProperty("Ice.IPv6").equals("1"))
+            endpoint.append("udp -h \"ff15::1:1\" -p ");
+            endpoint.append(getTestPort(properties, 10));
+            if(System.getProperty("os.name").contains("OS X"))
             {
-                endpoint.append("udp -h \"ff15::1:1\" -p ");
-                endpoint.append(getTestPort(properties, 10));
-                if(System.getProperty("os.name").contains("OS X"))
-                {
-                    endpoint.append(" --interface \"::1\"");
-                }
+                endpoint.append(" --interface \"::1\"");
             }
-            else
-            {
-                endpoint.append("udp -h 239.255.1.1 -p ");
-                endpoint.append(getTestPort(properties, 10));
-            }
-            properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
-
-            com.zeroc.Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
-            mcastAdapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
-            mcastAdapter.activate();
         }
+        else
+        {
+            endpoint.append("udp -h 239.255.1.1 -p ");
+            endpoint.append(getTestPort(properties, 10));
+        }
+        properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
+
+        com.zeroc.Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
+        mcastAdapter.add(new TestIntfI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+        mcastAdapter.activate();
 
         return WAIT;
     }
@@ -73,6 +70,25 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
         initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+
+        String endpoint;
+        if(initData.properties.getProperty("Ice.IPv6").equals("1"))
+        {
+            if(System.getProperty("os.name").contains("OS X"))
+            {
+                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+            }
+            else
+            {
+                endpoint = "udp -h \"ff15::1:1\" -p 12020";
+            }
+        }
+        else
+        {
+            endpoint = "udp -h 239.255.1.1 -p 12020";
+        }
+        initData.properties.setProperty("McastTestAdapter.Endpoints", endpoint);
+
         return initData;
     }
 
