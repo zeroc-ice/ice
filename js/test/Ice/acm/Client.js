@@ -262,15 +262,15 @@
         constructor(com, out)
         {
             super("invocation with no heartbeat and close on idle", com, out);
-            this.setClientACM(2, 1, 0); // Only close on idle.
-            this.setServerACM(2, 2, 0); // Disable heartbeat on invocations
+            this.setClientACM(1, 1, 0); // Only close on idle.
+            this.setServerACM(1, 2, 0); // Disable heartbeat on invocations
         }
 
         runTestCase(adapter, proxy)
         {
             // No close on invocation, the call should succeed this
             // time.
-            return proxy.sleep(4).then(() =>
+            return proxy.sleep(3).then(() =>
                                        {
                                            test(this._heartbeat === 0);
                                            test(!this._closed);
@@ -283,12 +283,12 @@
         constructor(com, out)
         {
             super("close on idle", com, out);
-            this.setClientACM(2, 1, 0); // Only close on idle
+            this.setClientACM(1, 1, 0); // Only close on idle
         }
 
         runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(4000).then(() => this.waitForClosed()).then(() =>
+            return Ice.Promise.delay(3000).then(() => this.waitForClosed()).then(() =>
                                                 {
                                                     test(this._heartbeat === 0);
                                                     test(this._closed);
@@ -301,7 +301,7 @@
         constructor(com, out)
         {
             super("close on invocation", com, out);
-            this.setClientACM(2, 2, 0); // Only close on invocation
+            this.setClientACM(1, 2, 0); // Only close on invocation
         }
 
         runTestCase(adapter, proxy)
@@ -319,7 +319,7 @@
         constructor(com, out)
         {
             super("close on idle and invocation", com, out);
-            this.setClientACM(2, 3, 0); // Only close on idle and invocation
+            this.setClientACM(1, 3, 0); // Only close on idle and invocation
         }
 
         runTestCase(adapter, proxy)
@@ -344,7 +344,7 @@
         constructor(com, out)
         {
             super("forcefull close on idle and invocation", com, out);
-            this.setClientACM(2, 4, 0); // Only close on idle and invocation
+            this.setClientACM(1, 4, 0); // Only close on idle and invocation
         }
 
         runTestCase(adapter, proxy)
@@ -363,12 +363,12 @@
         constructor(com, out)
         {
             super("heartbeat on idle", com, out);
-            this.setServerACM(2, -1, 2); // Enable server heartbeats.
+            this.setServerACM(1, -1, 2); // Enable server heartbeats.
         }
 
         runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(4000).then(() => test(this._heartbeat >= 3));
+            return Ice.Promise.delay(3000).then(() => test(this._heartbeat >= 3));
         }
     }
 
@@ -377,7 +377,7 @@
         constructor(com, out)
         {
             super("heartbeat always", com, out);
-            this.setServerACM(2, -1, 3); // Enable server heartbeats.
+            this.setServerACM(1, -1, 3); // Enable server heartbeats.
         }
 
         runTestCase(adapter, proxy)
@@ -393,7 +393,7 @@
 
             for(var i = 0; i < 10; ++i)
             {
-                p = p.then(icePing(proxy)).delay(400);
+                p = p.then(icePing(proxy)).delay(300);
             }
             return p.then(() => test(this._heartbeat >= 3));
         }

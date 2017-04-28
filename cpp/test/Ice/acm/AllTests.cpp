@@ -386,14 +386,14 @@ public:
     InvocationHeartbeatCloseOnIdleTest(const RemoteCommunicatorPrxPtr& com) :
         TestCase("invocation with no heartbeat and close on idle", com)
     {
-        setClientACM(2, 1, 0); // Only close on idle.
-        setServerACM(2, 2, 0); // Disable heartbeat on invocations
+        setClientACM(1, 1, 0); // Only close on idle.
+        setServerACM(1, 2, 0); // Disable heartbeat on invocations
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
         // No close on invocation, the call should succeed this time.
-        proxy->sleep(4);
+        proxy->sleep(3);
 
         Lock sync(*this);
         test(_heartbeat == 0);
@@ -407,7 +407,7 @@ public:
 
     CloseOnIdleTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle", com)
     {
-        setClientACM(2, 1, 0); // Only close on idle
+        setClientACM(1, 1, 0); // Only close on idle
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -427,7 +427,7 @@ public:
 
     CloseOnInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on invocation", com)
     {
-        setClientACM(2, 2, 0); // Only close on invocation
+        setClientACM(1, 2, 0); // Only close on invocation
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -446,7 +446,7 @@ public:
 
     CloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle and invocation", com)
     {
-        setClientACM(2, 3, 0); // Only close on idle and invocation
+        setClientACM(1, 3, 0); // Only close on idle and invocation
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -479,7 +479,7 @@ public:
     ForcefulCloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) :
         TestCase("forceful close on idle and invocation", com)
     {
-        setClientACM(2, 4, 0); // Only close on idle and invocation
+        setClientACM(1, 4, 0); // Only close on idle and invocation
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -500,12 +500,12 @@ public:
 
     HeartbeatOnIdleTest(const RemoteCommunicatorPrxPtr& com) : TestCase("heartbeat on idle", com)
     {
-        setServerACM(2, -1, 2); // Enable server heartbeats.
+        setServerACM(1, -1, 2); // Enable server heartbeats.
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(4000));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000));
 
         Lock sync(*this);
         test(_heartbeat >= 3);
@@ -518,7 +518,7 @@ public:
 
     HeartbeatAlwaysTest(const RemoteCommunicatorPrxPtr& com) : TestCase("heartbeat always", com)
     {
-        setServerACM(2, -1, 3); // Enable server heartbeats.
+        setServerACM(1, -1, 3); // Enable server heartbeats.
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -526,7 +526,7 @@ public:
         for(int i = 0; i < 10; ++i)
         {
             proxy->ice_ping();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(400));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         }
 
         Lock sync(*this);
