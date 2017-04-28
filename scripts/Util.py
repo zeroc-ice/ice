@@ -294,7 +294,7 @@ class Windows(Platform):
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if ((cpp and v140 and platform == "x64" and buildConfig == "Release") or 
+            if ((cpp and v140 and platform == "x64" and buildConfig == "Release") or
                 (not csharp and not cpp) or
                 (not compiler)):
                 return "bin"
@@ -349,8 +349,8 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if ((cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or 
-            (not csharp and not cpp) or 
+        if ((cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or
+            (not csharp and not cpp) or
             (not compiler)):
             return os.environ.get("ICE_HOME")
 
@@ -893,7 +893,7 @@ class Mapping:
         sslProps = {
             "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL", process, current),
             "IceSSL.Password": "password",
-            "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
+            "IceSSL.DefaultDir": "" if current.config.buildPlatform == "iphoneos" else os.path.join(toplevel, "certs"),
         }
 
         #

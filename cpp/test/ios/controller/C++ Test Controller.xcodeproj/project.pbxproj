@@ -10,12 +10,12 @@
 		1419EB451E028A0700352FD7 /* Controller.ice in Resources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
 		1419EB461E028A3300352FD7 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
 		1419EB471E028A3A00352FD7 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
+		143A09B11EB38CAD00C8F91F /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09B01EB38CAD00C8F91F /* cacert.pem */; };
 		1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
 		1440D8841E0188A600CF7ED3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1440D8821E0188A600CF7ED3 /* Info.plist */; };
 		1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
 		1440D88B1E018A2600CF7ED3 /* Cpp11ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
-		148ABA191DFB12C800594F70 /* cacert.der in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA161DFB12C800594F70 /* cacert.der */; };
 		148ABA1A1DFB12C800594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA1B1DFB12C800594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
 		148ABA1D1DFB12DB00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
@@ -28,13 +28,13 @@
 		148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
 		148ABA4E1DFEEAEE00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
-		148ABA4F1DFEEAEE00594F70 /* cacert.der in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA161DFB12C800594F70 /* cacert.der */; };
 		14905C561DF98FD8002AE61B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
 		14905C5C1DF98FD8002AE61B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C5B1DF98FD8002AE61B /* ViewController.m */; };
 		14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
 		14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
+		14C8F6211EB3972D009B4CEC /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09B01EB38CAD00C8F91F /* cacert.pem */; };
 		14E398261E01B14B00A89291 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
 		14E398291E01B14B00A89291 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
 		14E3982B1E01B14B00A89291 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
@@ -112,11 +112,11 @@
 
 /* Begin PBXFileReference section */
 		1419EB441E028A0700352FD7 /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
+		143A09B01EB38CAD00C8F91F /* cacert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cacert.pem; path = ../../../../certs/cacert.pem; sourceTree = "<group>"; };
 		1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp11ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		1440D8811E0188A600CF7ED3 /* ControllerI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ControllerI.mm; path = Bundle/ControllerI.mm; sourceTree = SOURCE_ROOT; };
 		1440D8821E0188A600CF7ED3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Bundle/Info.plist; sourceTree = SOURCE_ROOT; };
 		1440D8891E0189F300CF7ED3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		148ABA161DFB12C800594F70 /* cacert.der */ = {isa = PBXFileReference; lastKnownFileType = file; name = cacert.der; path = ../../../../certs/cacert.der; sourceTree = "<group>"; };
 		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
 		148ABA181DFB12C800594F70 /* server.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = server.p12; path = ../../../../certs/server.p12; sourceTree = "<group>"; };
 		148ABA1C1DFB12DB00594F70 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../IceSSL/certs; sourceTree = "<group>"; };
@@ -178,8 +178,8 @@
 		148ABA151DFB12A500594F70 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				143A09B01EB38CAD00C8F91F /* cacert.pem */,
 				148ABA1C1DFB12DB00594F70 /* certs */,
-				148ABA161DFB12C800594F70 /* cacert.der */,
 				148ABA171DFB12C800594F70 /* client.p12 */,
 				148ABA181DFB12C800594F70 /* server.p12 */,
 			);
@@ -393,12 +393,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				148ABA481DFEEAEE00594F70 /* client.p12 in Resources */,
+				14C8F6211EB3972D009B4CEC /* cacert.pem in Resources */,
 				148ABA491DFEEAEE00594F70 /* LaunchScreen.storyboard in Resources */,
 				148ABA4B1DFEEAEE00594F70 /* server.p12 in Resources */,
 				148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */,
 				148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */,
 				148ABA4E1DFEEAEE00594F70 /* certs in Resources */,
-				148ABA4F1DFEEAEE00594F70 /* cacert.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,11 +409,11 @@
 				148ABA1A1DFB12C800594F70 /* client.p12 in Resources */,
 				14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */,
 				1419EB451E028A0700352FD7 /* Controller.ice in Resources */,
+				143A09B11EB38CAD00C8F91F /* cacert.pem in Resources */,
 				148ABA1B1DFB12C800594F70 /* server.p12 in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
 				148ABA1D1DFB12DB00594F70 /* certs in Resources */,
-				148ABA191DFB12C800594F70 /* cacert.der in Resources */,
 				1440D8841E0188A600CF7ED3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

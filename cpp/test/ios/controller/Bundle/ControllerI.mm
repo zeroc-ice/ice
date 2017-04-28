@@ -354,7 +354,6 @@ ControllerHelper::ControllerHelper(id<ViewController> controller, NSString* ipv4
     initData.properties = Ice::createProperties();
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
-    initData.properties->setProperty("Ice.Default.Host", [ipv4 UTF8String]);
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");
     //initData.properties->setProperty("Ice.Trace.Network", "2");
     //initData.properties->setProperty("Ice.Trace.Protocol", "2");

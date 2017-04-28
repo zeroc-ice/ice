@@ -240,16 +240,7 @@ IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if(_error)
         {
-            UniqueRef<CFErrorRef> err;
-            if(CFWriteStreamGetStatus(_writeStream.get()) == kCFStreamStatusError)
-            {
-                err.reset(CFWriteStreamCopyError(_writeStream.get()));
-            }
-            else if(CFReadStreamGetStatus(_readStream.get()) == kCFStreamStatusError)
-            {
-                err.reset(CFReadStreamCopyError(_readStream.get()));
-            }
-            checkError(err.get(), __FILE__, __LINE__);
+            checkErrorStatus(_writeStream.get(), _readStream.get(), __FILE__, __LINE__);
         }
 
         _state = StateConnected;
@@ -327,13 +318,10 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert(CFWriteStreamGetStatus(_writeStream.get()) == kCFStreamStatusError);
-        UniqueRef<CFErrorRef> err(CFWriteStreamCopyError(_writeStream.get()));
-        checkError(err.get(), __FILE__, __LINE__);
+        checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         if(!CFWriteStreamCanAcceptBytes(_writeStream.get()))
@@ -346,16 +334,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         if(ret == SOCKET_ERROR)
         {
-            if(CFWriteStreamGetStatus(_writeStream.get()) == kCFStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert(CFWriteStreamGetStatus(_writeStream.get()) == kCFStreamStatusError);
-            UniqueRef<CFErrorRef> err(CFWriteStreamCopyError(_writeStream.get()));
-            checkError(err.get(), __FILE__, __LINE__);
+            checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -367,7 +346,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
     return SocketOperationNone;
@@ -379,13 +358,10 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert(CFReadStreamGetStatus(_readStream.get()) == kCFStreamStatusError);
-        UniqueRef<CFErrorRef> err(CFReadStreamCopyError(_readStream.get()));
-        checkError(err.get(), __FILE__, __LINE__);
+        checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         if(!CFReadStreamHasBytesAvailable(_readStream.get()))
@@ -405,16 +381,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if(ret == SOCKET_ERROR)
         {
-            if(CFReadStreamGetStatus(_readStream.get()) == kCFStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert(CFReadStreamGetStatus(_readStream.get()) == kCFStreamStatusError);
-            UniqueRef<CFErrorRef> err(CFReadStreamCopyError(_readStream.get()));
-            checkError(err.get(), __FILE__, __LINE__);
+            checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -426,7 +393,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -524,19 +491,35 @@ IceObjC::StreamTransceiver::~StreamTransceiver()
 }
 
 void
-IceObjC::StreamTransceiver::checkError(CFErrorRef err, const char* file, int line)
+IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFReadStreamRef readStream,
+                                             const char* file, int line)
 {
-    assert(err);
-    CFStringRef domain = CFErrorGetDomain(err);
+    if((writeStream && (CFWriteStreamGetStatus(writeStream) == kCFStreamStatusAtEnd)) ||
+       (readStream && (CFReadStreamGetStatus(readStream) == kCFStreamStatusAtEnd)))
+    {
+        throw ConnectionLostException(file, line);
+    }
+
+    UniqueRef<CFErrorRef> err;
+    if(writeStream && CFWriteStreamGetStatus(writeStream) == kCFStreamStatusError)
+    {
+        err.reset(CFWriteStreamCopyError(writeStream));
+    }
+    else if(readStream && CFReadStreamGetStatus(readStream) == kCFStreamStatusError)
+    {
+        err.reset(CFReadStreamCopyError(readStream));
+    }
+
+    assert(err.get());
+    CFStringRef domain = CFErrorGetDomain(err.get());
     if(CFStringCompare(domain, kCFErrorDomainPOSIX, 0) == kCFCompareEqualTo)
     {
-        errno = CFErrorGetCode(err);
+        errno = CFErrorGetCode(err.get());
         if(interrupted() || noBuffers())
         {
             return;
         }
-
-        if(connectionLost())
+        else if(connectionLost())
         {
             ConnectionLostException ex(file, line);
             ex.error = getSocketErrno();
@@ -562,13 +545,13 @@ IceObjC::StreamTransceiver::checkError(CFErrorRef err, const char* file, int lin
         }
     }
 
-    int error = CFErrorGetCode(err);
+    int error = CFErrorGetCode(err.get());
     if(error == kCFHostErrorHostNotFound || error == kCFHostErrorUnknown)
     {
         int rs = 0;
         if(error == kCFHostErrorUnknown)
         {
-            UniqueRef<CFDictionaryRef> dict(CFErrorCopyUserInfo(err));
+            UniqueRef<CFDictionaryRef> dict(CFErrorCopyUserInfo(err.get()));
             CFNumberRef d = static_cast<CFNumberRef>(CFDictionaryGetValue(dict.get(), kCFGetAddrInfoFailureKey));
             if(d != 0)
             {
@@ -583,6 +566,6 @@ IceObjC::StreamTransceiver::checkError(CFErrorRef err, const char* file, int lin
 
     CFNetworkException ex(file, line);
     ex.domain = fromCFString(domain);
-    ex.error = CFErrorGetCode(err);
+    ex.error = CFErrorGetCode(err.get());
     throw ex;
 }

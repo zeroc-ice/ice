@@ -69,7 +69,7 @@ public:
 
 private:
 
-    void checkError(CFErrorRef, const char*, int);
+    void checkErrorStatus(CFWriteStreamRef, CFReadStreamRef, const char*, int);
 
     const InstancePtr _instance;
     const std::string _host;

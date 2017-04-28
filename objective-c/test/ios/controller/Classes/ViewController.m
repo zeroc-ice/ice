@@ -320,8 +320,6 @@
     [initData.properties setProperty:@"Ice.ThreadPool.Server.SizeMax" value:@"10"];
     [initData.properties setProperty:@"Ice.Plugin.IceDiscovery" value:@"1"];
     [initData.properties setProperty:@"IceDiscovery.DomainId" value:@"TestController"];
-    [initData.properties setProperty:@"IceDiscovery.Interface" value:ipv4];
-    [initData.properties setProperty:@"Ice.Default.Host" value:ipv4];
     [initData.properties setProperty:@"ControllerAdapter.Endpoints" value:@"tcp"];
     //[initData.properties setProperty:@"Ice.Trace.Network", @"2");
     //[initData.properties setProperty:@"Ice.Trace.Protocol", @"2");

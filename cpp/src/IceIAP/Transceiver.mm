@@ -236,16 +236,8 @@ IceObjC::iAPTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if(_error)
         {
-            NSError* err = nil;
-            if([_writeStream streamStatus] == NSStreamStatusError)
-            {
-                err = [_writeStream streamError];
-            }
-            if([_readStream streamStatus] == NSStreamStatusError)
-            {
-                err = [_readStream streamError];
-            }
-            checkError(err, __FILE__, __LINE__);
+            checkErrorStatus(_writeStream, __FILE__, __LINE__);
+            checkErrorStatus(_readStream, __FILE__, __LINE__);
         }
         _state = StateConnected;
     }
@@ -272,12 +264,10 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert([_writeStream streamStatus] == NSStreamStatusError);
-        checkError([_writeStream streamError], __FILE__, __LINE__);
+        checkErrorStatus(_writeStream, __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         if(![_writeStream hasSpaceAvailable])
@@ -289,15 +279,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
         NSInteger ret = [_writeStream write:reinterpret_cast<const UInt8*>(&*buf.i) maxLength:packetSize];
         if(ret == SOCKET_ERROR)
         {
-            if([_writeStream streamStatus] == NSStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert([_writeStream streamStatus] == NSStreamStatusError);
-            checkError([_writeStream streamError], __FILE__, __LINE__);
+            checkErrorStatus(_writeStream, __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -309,7 +291,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -322,12 +304,10 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert([_readStream streamStatus] == NSStreamStatusError);
-        checkError([_readStream streamError], __FILE__, __LINE__);
+        checkErrorStatus(_readStream, __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         if(![_readStream hasBytesAvailable] && [_readStream streamStatus] != NSStreamStatusError)
@@ -339,22 +319,12 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
         NSInteger ret = [_readStream read:reinterpret_cast<UInt8*>(&*buf.i) maxLength:packetSize];
         if(ret == 0)
         {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw ConnectionLostException(__FILE__, __LINE__);
         }
 
         if(ret == SOCKET_ERROR)
         {
-            if([_readStream streamStatus] == NSStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert([_readStream streamStatus] == NSStreamStatusError);
-            checkError([_readStream streamError], __FILE__, __LINE__);
+            checkErrorStatus(_readStream, __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -366,7 +336,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -437,14 +407,27 @@ IceObjC::iAPTransceiver::~iAPTransceiver()
 }
 
 void
-IceObjC::iAPTransceiver::checkError(NSError* err, const char* file, int line)
+IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, int line)
 {
+    NSStreamStatus status = [stream streamStatus];
+    if(status == NSStreamStatusAtEnd)
+    {
+        throw ConnectionLostException(file, line);
+    }
+
+    assert(status == NSStreamStatusError);
+
+    NSError* err = [stream streamError];
     NSString* domain = [err domain];
     if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {
         errno = [err code];
         [err release];
-        if(connectionRefused())
+        if(interrupted() || noBuffers())
+        {
+            return;
+        }
+        else if(connectionRefused())
         {
             ConnectionRefusedException ex(file, line);
             ex.error = getSocketErrno();

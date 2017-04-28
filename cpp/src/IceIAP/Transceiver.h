@@ -60,7 +60,7 @@ public:
 
 private:
 
-    void checkError(NSError*, const char*, int);
+    void checkErrorStatus(NSStream*, const char*, int);
 
     IceInternal::ProtocolInstancePtr _instance;
     EASession* _session;
