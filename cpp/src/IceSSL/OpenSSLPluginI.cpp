@@ -93,6 +93,17 @@ createIceSSLOpenSSL(const Ice::CommunicatorPtr& communicator, const string& /*na
     return new PluginI(communicator);
 }
 
+namespace Ice
+{
+
+ICESSL_OPENSSL_API void
+registerIceSSLOpenSSL(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceSSL", createIceSSLOpenSSL, loadOnInitialize);
+}
+
+}
+
 #else
 
 extern "C" ICESSL_API Ice::Plugin*

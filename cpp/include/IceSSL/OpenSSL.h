@@ -38,6 +38,16 @@
 #   endif
 #endif
 
+#if defined(_WIN32) && !defined(ICESSL_OPENSSL_API_EXPORTS)
+
+namespace Ice
+{
+
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool = true);
+
+}
+#endif
+
 namespace IceSSL
 {
 
