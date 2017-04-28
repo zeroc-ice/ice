@@ -215,6 +215,8 @@ public:
     CommunicatorHolder(CommunicatorHolder&&) = default;
     CommunicatorHolder& operator=(CommunicatorHolder&&);
 
+    explicit operator bool() const;
+
 #else // C++98 mapping
 
     //
@@ -225,12 +227,12 @@ public:
     CommunicatorHolder(int&, const char*[], const char*, int = ICE_INT_VERSION);
     CommunicatorHolder(int&, char*[], const char*, int = ICE_INT_VERSION);
 
-#ifdef _WIN32
+#   ifdef _WIN32
     CommunicatorHolder(int&, const wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(int&, wchar_t*[], const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(int&, const wchar_t*[], const char*, int = ICE_INT_VERSION);
     CommunicatorHolder(int&, wchar_t*[], const char*, int = ICE_INT_VERSION);
-#endif
+#   endif
 
     explicit CommunicatorHolder(StringSeq&, const InitializationData& = InitializationData(), int = ICE_INT_VERSION);
     CommunicatorHolder(StringSeq&, const char*, int = ICE_INT_VERSION);
@@ -243,6 +245,8 @@ public:
     //
     explicit CommunicatorHolder(const CommunicatorPtr&);
     CommunicatorHolder& operator=(const CommunicatorPtr&);
+
+    operator bool() const;
 
     //
     // Required for successful copy-initialization, but not

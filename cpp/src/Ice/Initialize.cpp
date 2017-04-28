@@ -453,7 +453,7 @@ Ice::CommunicatorHolder::CommunicatorHolder(int& argc, char* argv[], const char*
 {
 }
 
-#ifdef _WIN32
+#   ifdef _WIN32
 Ice::CommunicatorHolder::CommunicatorHolder(int& argc, const wchar_t* argv[], const InitializationData& initData,
                                             int version) :
     _communicator(initialize(argc, argv, initData, version))
@@ -475,7 +475,7 @@ Ice::CommunicatorHolder::CommunicatorHolder(int& argc, wchar_t* argv[], const ch
     _communicator(initialize(argc, argv, configFile, version))
 {
 }
-#endif
+#   endif
 
 Ice::CommunicatorHolder::CommunicatorHolder(StringSeq& args, const InitializationData& initData, int version) :
     _communicator(initialize(args, initData, version))
@@ -521,6 +521,11 @@ Ice::CommunicatorHolder::~CommunicatorHolder()
     {
         _communicator->destroy();
     }
+}
+
+Ice::CommunicatorHolder::operator bool() const
+{
+    return _communicator != ICE_NULLPTR;
 }
 
 const Ice::CommunicatorPtr&
