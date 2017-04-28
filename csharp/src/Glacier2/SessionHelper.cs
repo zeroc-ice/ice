@@ -29,7 +29,7 @@ public class SessionHelper
     /// the communicator.</param>
     /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
     /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr, bool useCallbacks)
+    internal SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr, bool useCallbacks)
     {
         _callback = callback;
         _initData = initData;
@@ -201,7 +201,7 @@ public class SessionHelper
     /// the exception.
     /// </summary>
     /// <param name="context">The request context to use when creating the session.</param>
-    public void
+    internal void
     connect(Dictionary<string, string> context)
     {
         lock(this)
@@ -222,7 +222,7 @@ public class SessionHelper
     /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
     /// <param name="context">The request context to use when creating the session.</param>
-    public void
+    internal void
     connect(string username, string password, Dictionary<string, string> context)
     {
         lock(this)
