@@ -152,15 +152,15 @@ def allTests(communicator):
 
     sys.stdout.write("testing close timeout... ")
     sys.stdout.flush()
-    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(100))
+    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(250))
     connection = to.ice_getConnection()
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(600)
     connection.close(Ice.ConnectionClose.GracefullyWithWait)
     try:
         connection.getInfo(); # getInfo() doesn't throw in the closing state.
     except Ice.LocalException:
         test(False)
-    time.sleep(0.5)
+    time.sleep(0.65)
     try:
         connection.getInfo()
         test(False)

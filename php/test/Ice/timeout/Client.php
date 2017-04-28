@@ -206,9 +206,9 @@ function allTests($communicator)
     echo("testing close timeout... ");
     flush();
     {
-        $to = $timeout->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
+        $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         $connection = $to->ice_getConnection();
-        $timeout->holdAdapter(500);
+        $timeout->holdAdapter(600);
         $connection->close($CloseGracefullyAndWait);
         try
         {
@@ -218,7 +218,7 @@ function allTests($communicator)
         {
             test(false);
         }
-        usleep(500 * 1000);
+        usleep(650 * 1000);
         try
         {
             $connection->getInfo();

@@ -335,15 +335,15 @@ public class AllTests : TestCommon.AllTests
         public InvocationHeartbeatCloseOnIdleTest(RemoteCommunicatorPrx com) :
             base("invocation with no heartbeat and close on idle", com)
         {
-            setClientACM(2, 1, 0); // Only close on idle.
-            setServerACM(2, 2, 0); // Disable heartbeat on invocations
+            setClientACM(1, 1, 0); // Only close on idle.
+            setServerACM(1, 2, 0); // Disable heartbeat on invocations
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             // No close on invocation, the call should succeed this
             // time.
-            proxy.sleep(4);
+            proxy.sleep(3);
 
             lock(this)
             {
@@ -357,7 +357,7 @@ public class AllTests : TestCommon.AllTests
     {
         public CloseOnIdleTest(RemoteCommunicatorPrx com) : base("close on idle", com)
         {
-            setClientACM(2, 1, 0); // Only close on idle
+            setClientACM(1, 1, 0); // Only close on idle
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -376,7 +376,7 @@ public class AllTests : TestCommon.AllTests
     {
         public CloseOnInvocationTest(RemoteCommunicatorPrx com) : base("close on invocation", com)
         {
-            setClientACM(2, 2, 0); // Only close on invocation
+            setClientACM(1, 2, 0); // Only close on invocation
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -395,7 +395,7 @@ public class AllTests : TestCommon.AllTests
     {
         public CloseOnIdleAndInvocationTest(RemoteCommunicatorPrx com) : base("close on idle and invocation", com)
         {
-            setClientACM(2, 3, 0); // Only close on idle and invocation
+            setClientACM(1, 3, 0); // Only close on idle and invocation
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -426,7 +426,7 @@ public class AllTests : TestCommon.AllTests
         public ForcefulCloseOnIdleAndInvocationTest(RemoteCommunicatorPrx com) :
             base("forceful close on idle and invocation", com)
         {
-            setClientACM(2, 4, 0); // Only close on idle and invocation
+            setClientACM(1, 4, 0); // Only close on idle and invocation
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -446,12 +446,12 @@ public class AllTests : TestCommon.AllTests
     {
         public HeartbeatOnIdleTest(RemoteCommunicatorPrx com) : base("heartbeat on idle", com)
         {
-            setServerACM(2, -1, 2); // Enable server heartbeats.
+            setServerACM(1, -1, 2); // Enable server heartbeats.
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(4000);
+            Thread.Sleep(3000);
 
             lock(this)
             {
@@ -464,7 +464,7 @@ public class AllTests : TestCommon.AllTests
     {
         public HeartbeatAlwaysTest(RemoteCommunicatorPrx com) : base("heartbeat always", com)
         {
-            setServerACM(2, -1, 3); // Enable server heartbeats.
+            setServerACM(1, -1, 3); // Enable server heartbeats.
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -472,7 +472,7 @@ public class AllTests : TestCommon.AllTests
             for(int i = 0; i < 10; i++)
             {
                 proxy.ice_ping();
-                Thread.Sleep(400);
+                Thread.Sleep(300);
             }
 
             lock(this)
