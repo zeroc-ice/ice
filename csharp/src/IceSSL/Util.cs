@@ -17,13 +17,7 @@ namespace IceSSL
     {
         public static X509Certificate2 createCertificate(string certPEM)
         {
-            char[] chars = certPEM.ToCharArray();
-            byte[] bytes = new byte[chars.Length];
-            for(int i = 0; i < chars.Length; ++i)
-            {
-                bytes[i] = (byte)chars[i];
-            }
-            return new X509Certificate2(bytes);
+            return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
         }
     }
 }
