@@ -1129,7 +1129,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             else
             {
                 _initData.logger = getProcessLogger();
-                if(ICE_DYNAMIC_CAST(Logger, _initData.logger))
+                if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
                 {
                     _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
