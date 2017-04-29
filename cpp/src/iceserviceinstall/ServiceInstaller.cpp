@@ -126,11 +126,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             throw "Can't get full path to service installer!";
         }
 
-        imagePath = serviceInstallerPath + '\\' + serviceTypeToLowerString(_serviceType);
-#ifdef _DEBUG
-        imagePath += 'd';
-#endif
-        imagePath += ".exe";
+        imagePath = serviceInstallerPath + '\\' + serviceTypeToLowerString(_serviceType) + ".exe";
     }
     else
     {
