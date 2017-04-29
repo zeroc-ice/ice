@@ -1249,7 +1249,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     // Register the control handler function.
     //
     _statusHandle = RegisterServiceCtrlHandlerW(argv[0], Ice_Service_CtrlHandler);
-    if(_statusHandle == (SERVICE_STATUS_HANDLE)0)
+    if(_statusHandle == 0)
     {
         syserror("unable to register service control handler");
         return;
@@ -1265,10 +1265,10 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     serviceStatusManager->startUpdate(SERVICE_START_PENDING);
 
     //
-    // Don't need to pass a wide string converter in the bellow argv conversions
+    // Don't need to pass a wide string converter in the argv conversions
     // as argv come from Windows API.
     //
-    const IceUtil::StringConverterPtr converter(IceUtil::getProcessStringConverter());
+    const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
 
     //
     // Merge the executable's arguments with the service's arguments.
