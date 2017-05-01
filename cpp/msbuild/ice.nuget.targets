@@ -25,8 +25,7 @@
     <!-- x64 Release binaries -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'x64|Release'">
         <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe;
-                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe"/>
+                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
         <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2*.exe" />
     </ItemGroup>
 
