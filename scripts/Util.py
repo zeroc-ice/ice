@@ -2684,7 +2684,7 @@ class CSharpMapping(Mapping):
             assembliesDir = os.path.join(platform.getIceInstallDir(self, current), "lib")
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
-                                 "bzip2.{0}.1.0.6.6".format(platform.getCompiler()),
+                                 "bzip2.{0}.1.0.6.7".format(platform.getCompiler()),
                                  "build", "native", "bin", "x64", "Release")
             assembliesDir = os.path.join(current.driver.getIceDir(self, current), "Assemblies")
         return { "DEVPATH" : assembliesDir, "PATH" : bzip2 };
