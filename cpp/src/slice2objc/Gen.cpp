@@ -220,7 +220,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     assert(scopedIter != ids.end());
     StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
-    _M << sp << nl << "static NSString * iceS_" << name << "_ids[] = ";
+    _M << sp << nl << "static NSString * iceS_" << name << "_ids[] =";
     _M << sb;
     {
         StringList::const_iterator q = ids.begin();
@@ -2899,7 +2899,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _M << sp << nl << "-(id<ICEAsyncResult>) begin_" << (*r)->name() << marshalParams;
         _M << (marshalParams.empty() ? "" : " context") << ":(ICEContext*)context";
-        _M << " response:(" << responseCBSig << ")response exception:(void(^)(ICEException*))exception ";
+        _M << " response:(" << responseCBSig << ")response exception:(void(^)(ICEException*))exception";
         _M << sb;
         _M << nl << "return [self begin_" << (*r)->name() << marshalArgs;
         _M << (marshalArgs.empty() ? "" : " context") << ":context response:response exception:exception sent:nil];";
@@ -2907,7 +2907,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _M << sp << nl << "-(id<ICEAsyncResult>) begin_" << (*r)->name() << marshalParams;
         _M << (marshalParams.empty() ? "" : " context") << ":(ICEContext*)context";
-        _M << " response:(" << responseCBSig << ")response exception:(void(^)(ICEException*))exception ";
+        _M << " response:(" << responseCBSig << ")response exception:(void(^)(ICEException*))exception";
         _M << " sent:(void(^)(BOOL))sent";
         _M << sb;
         if(!inParams.empty())
