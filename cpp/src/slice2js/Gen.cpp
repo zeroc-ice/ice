@@ -305,7 +305,14 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
             _out << nl << " * " << extraParam;
             doneExtraParam = true;
         }
-        _out << nl << " * " << *i;
+        if((*i).empty())
+        {
+            _out << nl << " *";
+        }
+        else
+        {
+            _out << nl << " * " << *i;
+        }
     }
 
     if(!doneExtraParam && !extraParam.empty())
@@ -801,7 +808,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
             else
             {
-                _out << nl << "const " << i->first << " = _ModuleRegistry.require(module, ";
+                _out << nl << "const " << i->first << " = _ModuleRegistry.require(module,";
                 _out << nl << "[";
                 _out.inc();
                 for(list<string>::const_iterator j = i->second.begin(); j != i->second.end();)
@@ -819,7 +826,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 }
                 _out.dec();
                 _out << nl << "])." << i->first << ";";
-                _out << nl;
+                _out << sp;
             }
             seenModules.push_back(i->first);
         }
@@ -1112,7 +1119,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         (base->isInterface() ? base->name() : base->name() + "Disp");
                     if(++q != bases.end())
                     {
-                        _out << ", ";
+                        _out << ",";
                     }
                 }
                 else
@@ -1160,7 +1167,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                         _out << nl << getLocalScope(base->scope()) << "." << base->name() << "Prx";
                         if(++q != bases.end())
                         {
-                            _out << ", ";
+                            _out << ",";
                         }
                     }
                     else
@@ -1341,7 +1348,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                     _out << ']';
                 }
-                _out << ", ";
+                _out << ",";
 
                 //
                 // User exceptions.
@@ -1354,7 +1361,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 #else
                 throws.sort(Slice::DerivedToBaseCompare());
 #endif
-                if(!throws.empty())
+                if(throws.empty())
+                {
+                    _out << " ";
+                }
+                else
                 {
                     _out << nl << '[';
                     _out.inc();
