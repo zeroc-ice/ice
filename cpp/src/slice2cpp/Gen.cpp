@@ -5208,7 +5208,7 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 
     H << nl << "class " << fixKwd(p->name()) << ';';
-    if(p->isInterface() || (def && !def->allOperations().empty()))
+    if(!p->isLocal() && (p->isInterface() || (def && !def->allOperations().empty())))
     {
         H << nl << "class " << p->name() << "Prx;";
     }
@@ -6434,12 +6434,13 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         bool virtualInheritance = p->isInterface();
         while(q != bases.end())
         {
+             H << "public ";
             if(virtualInheritance || (*q)->isInterface())
             {
                 H << "virtual ";
             }
 
-            H << "public " << fixKwd((*q)->scoped());
+            H << fixKwd((*q)->scoped());
             if(++q != bases.end())
             {
                 H << ',' << nl;
