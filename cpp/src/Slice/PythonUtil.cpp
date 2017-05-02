@@ -2301,6 +2301,15 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
                 start = text.size();
             }
 
+            //
+            // Remove trailing whitespace
+            //
+            pos = line.find_last_not_of(" \t");
+            if(pos != string::npos)
+            {
+                line.erase(pos + 1, line.size() - pos - 1);
+            }
+
             lines.push_back(line);
 
             start = text.find_first_not_of("\r\n", start);
